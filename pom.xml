@@ -45,6 +45,13 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-epsg-hsql</artifactId>
+			<version>17.2</version>
+		</dependency>
 	</dependencies>
 
 	<properties>
@@ -76,6 +83,13 @@
 		<repository>
 			<id>spring-releases</id>
 			<url>https://repo.spring.io/libs-release</url>
+		</repository>
+		<repository>
+			<id>geotools</id>
+			<url>http://download.osgeo.org/webdav/geotools/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
 		</repository>
 	</repositories>
 	<pluginRepositories>

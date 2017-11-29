@@ -3,9 +3,16 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -116,17 +123,39 @@ public class InputValidator {
 	public Geometry createBPoint(String[] bpoint) {
 		GeometryFactory geomFact = new GeometryFactory();
 		Geometry buffer;
+		Geometry geom = null;
+		CoordinateReferenceSystem sourceCRS;
+		CoordinateReferenceSystem targetCRS;
+		MathTransform transform = null;
+
 		try {
+			// Set source and target CRS + transformation
+			sourceCRS = CRS.decode("EPSG:4326", true);
+			targetCRS = CRS.decode(findEPSG(Double.parseDouble(bpoint[0]), Double.parseDouble(bpoint[1])), true);
+			transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
+
 			// creates a point from the coordinates and a buffer
 			Point p = geomFact
 					.createPoint(new Coordinate(Double.parseDouble(bpoint[0]), Double.parseDouble(bpoint[1])));
-			buffer = p.buffer(Double.parseDouble(bpoint[2]));
-		} catch (NumberFormatException e) {
+			buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoint[2]));
+			// transform back again
+			transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
+			geom = JTS.transform(buffer, transform);
+		} catch (FactoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MismatchedDimensionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransformException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			throw new BadRequestException(
-					"The bBoxes array must contain double-parseable String values in the order of lon/lat coordinate pairs.");
+					"The bpoint array must contain two double-parseable String values in the order of "
+							+ "lon/lat coordinate pairs at [0] and [1] as well as a buffer length in meters.");
 		}
 
-		return buffer;
+		return geom;
 	}
 
 	/**
@@ -382,6 +411,45 @@ public class InputValidator {
 				throw new BadRequestException("The 'users' array must contain whole number(s) as ID for OSM user(s).");
 			}
 		}
+	}
+
+	/**
+	 * Finds and returns the EPSG code of the given point. Adapted code from
+	 * UTMCodeFromLonLat.java class in the osmatrix project.
+	 * 
+	 * @param lon
+	 *            Longitude coordinate of the point.
+	 * @param lat
+	 *            Latitude coordinate of the point.
+	 * @return String representing the corresponding EPSG code.
+	 */
+	private String findEPSG(double lon, double lat) {
+
+		if (lat >= 84)
+			return "EPSG:32661"; // UPS North
+		if (lat < -80)
+			return "EPSG:32761"; // UPS South
+
+		int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
+
+		if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0)
+			zoneNumber = 32;
+
+		// Special zones for Svalbard
+		if (lat >= 72.0 && lat < 84.0) {
+			if (lon >= 0.0 && lon < 9.0)
+				zoneNumber = 31;
+			else if (lon >= 9.0 && lon < 21.0)
+				zoneNumber = 33;
+			else if (lon >= 21.0 && lon < 33.0)
+				zoneNumber = 35;
+			else if (lon >= 33.0 && lon < 42.0)
+				zoneNumber = 37;
+		}
+
+		String isNorth = (lat > 0) ? "6" : "7";
+		String zone = (zoneNumber < 10) ? "0" + zoneNumber : "" + zoneNumber;
+		return "EPSG:32" + isNorth + zone;
 	}
 
 	/**
