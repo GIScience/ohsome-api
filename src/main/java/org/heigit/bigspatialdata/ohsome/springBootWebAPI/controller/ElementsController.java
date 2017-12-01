@@ -152,8 +152,10 @@ public class ElementsController {
 		}
 		long duration = System.currentTimeMillis() - startTime;
 		// response
-		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "amount"), resultSet);
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "amount"), resultSet);
 		return response;
 	}
 
@@ -221,23 +223,35 @@ public class ElementsController {
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Number> result;
 		MapReducer<OSMEntitySnapshot> mapRed;
+		String unit = "square-meters";
+		boolean isRelation = false;
 		// input parameter processing
 		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.areaOf(snapshot.getGeometry());
 		});
+		// check for relation type
+		for (String type : types) {
+			if (type.equals("relation")) {
+				unit = "square-kilometers";
+				isRelation = true;
+			}
+		}
 		// output
 		Result[] resultSet = new Result[result.size()];
 		int count = 0;
 		for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-			resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().floatValue()));
+			if (isRelation)
+				resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().floatValue()/1000000));
+			else
+				resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().floatValue()));
 			count++;
 		}
 		long duration = System.currentTimeMillis() - startTime;
 		// response
 		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "square-meter"), resultSet);
+				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit), resultSet);
 		return response;
 	}
 
@@ -488,7 +502,7 @@ public class ElementsController {
 			Set<Integer> userSet = new HashSet<>();
 			for (String user : users)
 				userSet.add(Integer.valueOf(user));
-			
+
 			mapRed = mapRed.where(entity -> {
 				return userSet.contains(entity.getUserId());
 			});

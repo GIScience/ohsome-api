@@ -25,6 +25,6 @@ public class ContextRefreshedListener implements ApplicationListener<ContextRefr
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         System.out.println("Context Event Received");
         eventHolderBean.dbConn("C:/Users/kowatsch/Desktop/HeiGIT/oshdb/data/baden-wuerttemberg.oshdb",
-				"C:/Users/kowatsch/Desktop/HeiGIT/oshdb/data/keytables", false);
+				"C:/Users/kowatsch/Desktop/HeiGIT/oshdb/data/keytables", true);
     }
 }
