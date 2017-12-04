@@ -10,7 +10,6 @@ import java.util.SortedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.input.AggregationContent;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.input.BBox;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result;
@@ -18,14 +17,13 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolder
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidatorPost;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.lambdas.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
+import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamps;
-import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.Geo;
@@ -155,7 +153,9 @@ public class ElementsController {
 		ElementsResponseContent response = new ElementsResponseContent(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount"), resultSet);
+				new MetaData(duration, "amount",
+						"Total number of items (elements, tags, changesets or contributors) related to the elements selected by the parameters."),
+				resultSet);
 		return response;
 	}
 
@@ -191,13 +191,15 @@ public class ElementsController {
 		Result[] resultSet = new Result[result.size()];
 		int count = 0;
 		for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-			resultSet[count] = new Result(entry.getKey().formatIsoDateTime(), String.valueOf(entry.getValue().floatValue()));
+			resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+					String.valueOf(entry.getValue().floatValue()));
 			count++;
 		}
 		long duration = System.currentTimeMillis() - startTime;
 		// response
 		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "meter"), resultSet);
+				"-Hier könnte Ihr Copyright stehen.-",
+				new MetaData(duration, "meter", "Total length of lines and polygon boundaries."), resultSet);
 		return response;
 	}
 
@@ -253,7 +255,8 @@ public class ElementsController {
 		long duration = System.currentTimeMillis() - startTime;
 		// response
 		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit), resultSet);
+				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit, "Total area of polygons."),
+				resultSet);
 		return response;
 	}
 
@@ -303,7 +306,6 @@ public class ElementsController {
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Integer> countResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
-		String unit = "number of items per area";
 		// input parameter processing
 		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		// count result
@@ -334,22 +336,24 @@ public class ElementsController {
 		// output
 		Result[] resultSet = new Result[countResult.size()];
 		for (int i = 0; i < resultSet.length; i++) {
-			// gets the timestamp and the results from count and area and divides them
+			// gets the timestamp and the results from count and divides it through the area
 			String date = countResultSet[i].getTimestamp();
-			String value = String.valueOf(Float.parseFloat(countResultSet[i].getValue())
-					/ (Geo.areaOf(geom)/1000000));
+			String value = String
+					.valueOf(Float.parseFloat(countResultSet[i].getValue()) / (Geo.areaOf(geom) / 1000000));
 			resultSet[i] = new Result(date, value);
 		}
 		long duration = System.currentTimeMillis() - startTime;
 		// response
-		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit), resultSet);
+		ElementsResponseContent response = new ElementsResponseContent(
+				"-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration,
+						"items per square-kilometer", "Density of selected items (number of items per area)."),
+				resultSet);
 		return response;
 	}
 
 	/**
 	 * Gets the ratio of selected items satisfying types2, keys2 and values2 within
-	 * items selected by types, keys and values. This method is not implemented yet.
+	 * items selected by types, keys and values.
 	 * 
 	 * <p>
 	 * For description of the parameters, <code>return</code> object and exceptions,
@@ -365,18 +369,58 @@ public class ElementsController {
 			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
 			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String time,
+			@RequestParam(value = "time", defaultValue = defTime) String[] time,
 			@RequestParam(value = "types2", defaultValue = defType) String[] types2,
 			@RequestParam(value = "keys2", defaultValue = defType) String[] keys2,
 			@RequestParam(value = "values2", defaultValue = defType) String[] values2)
 			throws UnsupportedOperationException, Exception {
-		throw new NotImplementedException("This method is not implemented yet.");
 
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestamp, Integer> result1;
+		SortedMap<OSHDBTimestamp, Integer> result2;
+		MapReducer<OSMEntitySnapshot> mapRed1;
+		MapReducer<OSMEntitySnapshot> mapRed2;
+		// input parameter processing 1 and result 1
+		mapRed1 = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		result1 = mapRed1.aggregateByTimestamp().count();
+		// input parameter processing 2 and result 2
+		mapRed2 = processParameters(true, null, bbox, bpoint, bpoly, types2, keys2, values2, users, time);
+		result2 = mapRed2.aggregateByTimestamp().count();
+		// resultSet 1
+		Result[] resultSet1 = new Result[result1.size()];
+		int count = 0;
+		for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
+			resultSet1[count] = new Result(entry.getKey().formatIsoDateTime(),
+					String.valueOf(entry.getValue().intValue()));
+			count++;
+		}
+		// output
+		Result[] resultSet = new Result[result1.size()];
+		count = 0;
+		for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
+			// gets the timestamp and the results from both counts and divides 2 through 1
+			String date = resultSet1[count].getTimestamp();
+			String value = String
+					.valueOf(entry.getValue().floatValue() / Float.parseFloat(resultSet1[count].getValue()));
+			resultSet[count] = new Result(date, value);
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "ratio",
+						"Ratio of items satisfying types2, keys2, values2 within items selected by types, keys, values."),
+				resultSet);
+		return response;
 	}
 
+	
 	/*
 	 * POST Requests start here
 	 */
+	
 
 	/**
 	 * POST request returning the count of elements for the given parameters. This
@@ -404,27 +448,26 @@ public class ElementsController {
 	public ElementsResponseContent postCount(@RequestBody AggregationContent content)
 			throws UnsupportedOperationException, Exception {
 
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestamp, Integer> result;
-		MapReducer<OSMEntitySnapshot> mapRed;
-		// input parameter processing
-		mapRed = processParameters(false, content.getBboxes(), null, null, null, content.getTypes(), content.getKeys(),
-				content.getValues(), content.getUsers(), content.getTime());
-		// db result
-		result = mapRed.aggregateByTimestamp().count();
+		throw new NotImplementedException("This method is not implemented yet.");
 
-		// output
-		Result[] resultSet = new Result[result.size()];
-		int count = 0;
-		for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-			resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().intValue()));
-			count++;
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "amount"), resultSet);
-		return response;
+		/*
+		 * 
+		 * long startTime = System.currentTimeMillis(); SortedMap<OSHDBTimestamp,
+		 * Integer> result; MapReducer<OSMEntitySnapshot> mapRed = null; // input
+		 * parameter processing //mapRed = processParameters(false, content.getBboxes(),
+		 * null, null, null, content.getTypes(), content.getKeys(), content.getValues(),
+		 * content.getUsers(), content.getTime()); // db result result =
+		 * mapRed.aggregateByTimestamp().count();
+		 * 
+		 * // output Result[] resultSet = new Result[result.size()]; int count = 0; for
+		 * (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) { resultSet[count]
+		 * = new Result(entry.getKey().formatDate(),
+		 * String.valueOf(entry.getValue().intValue())); count++; } long duration =
+		 * System.currentTimeMillis() - startTime; // response ElementsResponseContent
+		 * response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
+		 * "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "amount"),
+		 * resultSet); return response;
+		 */
 	}
 
 	/**
@@ -446,22 +489,54 @@ public class ElementsController {
 	 * Method to process the input parameters of a POST or GET request.
 	 * 
 	 * @param isGet
-	 * @param bboxes
+	 *            <code>boolean</code> value stating <code>true</code> if this
+	 *            method is called from a GET request and <code>false</code> if it
+	 *            is called from a POST request.
+	 * @param boundaryParam
+	 *            <code>String</code> array containing the boundary parameter from a
+	 *            POST request. Null in case of a GET request.
 	 * @param bbox
+	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
+	 *            values, which have to be <code>double</code> parse-able. If bbox
+	 *            is given, bpoint and bpoly must be <code>null</code> or
+	 *            <code>empty</code>. If neither of these parameters is given, a
+	 *            global request is computed. Null in case of POST requests.
 	 * @param bpoint
+	 *            <code>String</code> array containing lon, lat, radius values,
+	 *            which have to be <code>double</code> parse-able. If bpoint is
+	 *            given, bbox and bpoly must be <code>null</code> or
+	 *            <code>empty</code>. Null in case of POST requests.
 	 * @param bpoly
+	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
+	 *            values, which have to be <code>double</code> parse-able. If bpoly
+	 *            is given, bbox and bpoint must be <code>null</code> or
+	 *            <code>empty</code>. Null in case of POST requests.
 	 * @param types
+	 *            <code>String</code> array containing one or more strings defining
+	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
+	 *            <code>null</code> or <code>empty</code>, all types are used.
 	 * @param keys
+	 *            <code>String</code> array containing one or more keys.
 	 * @param values
+	 *            <code>String</code> array containing one or more values. Must be
+	 *            less or equal than <code>keys.length()</code> anf values[n] must
+	 *            pair with keys[n].
 	 * @param users
+	 *            <code>String</code> array containing one or more user-IDs.
 	 * @param time
-	 * @return
+	 *            <code>String</code> array that holds a list of timestamps or a
+	 *            datetimestring, which fits to one of the formats used by the
+	 *            method
+	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
+	 *            extractTime(String time)}.
+	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
+	 *         settings derived from the given parameters.
 	 */
-	private MapReducer<OSMEntitySnapshot> processParameters(boolean isGet, BBox[] bboxes, String[] bbox,
+	private MapReducer<OSMEntitySnapshot> processParameters(boolean isGet, String[] boundaryParam, String[] bbox,
 			String[] bpoint, String[] bpoly, String[] types, String[] keys, String[] values, String[] users,
 			String[] time) {
 		InputValidator iV = new InputValidator();
-		InputValidatorPost iVP = new InputValidatorPost();
+		// InputValidatorPost iVP = new InputValidatorPost();
 		MapReducer<OSMEntitySnapshot> mapRed;
 
 		// database
@@ -492,8 +567,8 @@ public class ElementsController {
 		} else {
 			// TODO implement a checkBoundaryPost method
 			// bounding box
-			this.bbox = iVP.checkBBoxes(bboxes);
-			mapRed = mapRed.areaOfInterest(this.bbox);
+			// this.bbox = iVP.checkBBoxes(bboxes);
+			// mapRed = mapRed.areaOfInterest(this.bbox);
 		}
 
 		// osm-type (node, way, relation)

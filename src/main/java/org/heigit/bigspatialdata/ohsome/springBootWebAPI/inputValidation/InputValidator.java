@@ -37,7 +37,7 @@ public class InputValidator {
 	private final double defMaxLat = 49.9079;
 	// represents the latest/earliest timestamp in the OSM history data
 	private final String defEndTime = "2017-11-01";
-	private final String defStartTime = "2006-11-01";
+	private final String defStartTime = "2007-11-01";
 	private EnumSet<OSMType> osmTypes;
 
 	/**

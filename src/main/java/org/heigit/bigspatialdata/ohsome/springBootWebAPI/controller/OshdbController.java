@@ -138,7 +138,7 @@ public class OshdbController {
 			resultSet.add(new OshdbResult(entry.getKey().formatDate(), timestampSet));
 		}
 		finishTime = System.currentTimeMillis();
-		return new DataExtractionResponseContent("abc", new MetaData((finishTime - startTime), "a"), resultSet);
+		return new DataExtractionResponseContent("abc", new MetaData((finishTime - startTime), "a", "b"), resultSet);
 	}
 	
 	/**
@@ -215,7 +215,7 @@ public class OshdbController {
 			resultSet.add(new OshdbResult(entry.getKey().formatDate(), timestampSet));
 		}
 		finishTime = System.currentTimeMillis();
-		return new DataExtractionResponseContent("abc", new MetaData((finishTime - startTime), "a"), resultSet);
+		return new DataExtractionResponseContent("abc", new MetaData((finishTime - startTime), "a", "b"), resultSet);
 	}
 
 	/**
