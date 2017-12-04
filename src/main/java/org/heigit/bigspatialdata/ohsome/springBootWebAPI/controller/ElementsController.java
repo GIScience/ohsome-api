@@ -191,7 +191,7 @@ public class ElementsController {
 		Result[] resultSet = new Result[result.size()];
 		int count = 0;
 		for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-			resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().floatValue()));
+			resultSet[count] = new Result(entry.getKey().formatIsoDateTime(), String.valueOf(entry.getValue().floatValue()));
 			count++;
 		}
 		long duration = System.currentTimeMillis() - startTime;
@@ -243,9 +243,11 @@ public class ElementsController {
 		int count = 0;
 		for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
 			if (isRelation)
-				resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().floatValue()/1000000));
+				resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+						String.valueOf(entry.getValue().floatValue() / 1000000));
 			else
-				resultSet[count] = new Result(entry.getKey().formatDate(), String.valueOf(entry.getValue().floatValue()));
+				resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+						String.valueOf(entry.getValue().floatValue()));
 			count++;
 		}
 		long duration = System.currentTimeMillis() - startTime;
@@ -280,8 +282,7 @@ public class ElementsController {
 	}
 
 	/**
-	 * Gets the density of selected items (number of items per area). This method is
-	 * not implemented yet.
+	 * Gets the density of selected items (number of items per area).
 	 * <p>
 	 * For description of the parameters, <code>return</code> object and exceptions,
 	 * look at the
@@ -299,8 +300,51 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = defTime) String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		throw new NotImplementedException("This method is not implemented yet.");
-
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestamp, Integer> countResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		String unit = "number of items per area";
+		// input parameter processing
+		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		// count result
+		countResult = mapRed.aggregateByTimestamp().count();
+		int count = 0;
+		Result[] countResultSet = new Result[countResult.size()];
+		for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
+			countResultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+					String.valueOf(entry.getValue().intValue()));
+			count++;
+		}
+		// geometry
+		Geometry geom = null;
+		switch (boundary) {
+		case 0:
+			geom = this.bbox.getGeometry();
+			break;
+		case 1:
+			geom = this.bbox.getGeometry();
+			break;
+		case 2:
+			geom = this.bpoint;
+			break;
+		case 3:
+			geom = this.bpoly;
+			break;
+		}
+		// output
+		Result[] resultSet = new Result[countResult.size()];
+		for (int i = 0; i < resultSet.length; i++) {
+			// gets the timestamp and the results from count and area and divides them
+			String date = countResultSet[i].getTimestamp();
+			String value = String.valueOf(Float.parseFloat(countResultSet[i].getValue())
+					/ (Geo.areaOf(geom)/1000000));
+			resultSet[i] = new Result(date, value);
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
+				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit), resultSet);
+		return response;
 	}
 
 	/**
