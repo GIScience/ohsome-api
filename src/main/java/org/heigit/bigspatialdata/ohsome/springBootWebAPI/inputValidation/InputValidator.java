@@ -2,10 +2,20 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
+import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -19,6 +29,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Polygonal;
 
 /**
  * Holds general validation methods and validates specific parameters given by a
@@ -35,10 +46,20 @@ public class InputValidator {
 	private final double defMaxLon = 10.6139;
 	private final double defMinLat = 47.3937;
 	private final double defMaxLat = 49.9079;
+	private byte boundary;
+	private BoundingBox bbox;
+	private Geometry bpoint;
+	private Polygon bpoly;
+	private final String defVal = "val";
 	// represents the latest/earliest timestamp in the OSM history data
 	private final String defEndTime = "2017-11-01";
 	private final String defStartTime = "2007-11-01";
+	private String[] timeData;
 	private EnumSet<OSMType> osmTypes;
+	/**
+	 * [0]:oshdb [1]:keytables
+	 */
+	private OSHDB_H2[] dbConnObjects;
 
 	/**
 	 * default constructor
@@ -61,15 +82,19 @@ public class InputValidator {
 	 */
 	public byte checkBoundaryGet(String[] bbox, String[] bpoint, String[] bpoly) {
 		// checks the given parameters
-		if (bbox[0].equals("abc") && bpoint[0].equals("abc") && bpoly[0].equals("abc"))
-			return 0;
-		else if (bbox.length == 4 && bpoint.length == 1 && bpoly.length == 1)
-			return 1;
-		else if (bbox.length == 1 && bpoint.length == 3 && bpoly.length == 1)
-			return 2;
-		else if (bbox.length == 1 && bpoint.length == 1 && bpoly.length >= 6)
-			return 3;
-		else
+		if (bbox[0].equals("abc") && bpoint[0].equals("abc") && bpoly[0].equals("abc")) {
+			this.boundary = 0;
+			return this.boundary;
+		} else if (bbox.length == 4 && bpoint.length == 1 && bpoly.length == 1) {
+			this.boundary = 1;
+			return this.boundary;
+		} else if (bbox.length == 1 && bpoint.length == 3 && bpoly.length == 1) {
+			this.boundary = 2;
+			return this.boundary;
+		} else if (bbox.length == 1 && bpoint.length == 1 && bpoly.length >= 6) {
+			this.boundary = 3;
+			return this.boundary;
+		} else
 			throw new BadRequestException(
 					"Your provided boundary parameter (bbox, bpoint, or bpoly) does not fit its format, "
 							+ "or you defined more than one boundary parameter.");
@@ -88,18 +113,21 @@ public class InputValidator {
 	 */
 	public BoundingBox createBBoxes(String[] bbox) throws BadRequestException {
 		// no bBox given -> global request
-		if (bbox.length == 1 && bbox[0].equals("abc"))
-			return new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
+		if (bbox.length == 1 && bbox[0].equals("abc")) {
+			this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
+			return this.bbox;
 		// the number of elements in the bBoxes array should be 4
-		else if (bbox.length == 4) {
+		}else if (bbox.length == 4) {
 			try {
 				// parsing of the first bBox
 				double minLon = Double.parseDouble(bbox[0]);
 				double minLat = Double.parseDouble(bbox[1]);
 				double maxLon = Double.parseDouble(bbox[2]);
 				double maxLat = Double.parseDouble(bbox[3]);
+				
+				this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
 
-				return new BoundingBox(minLon, maxLon, minLat, maxLat);
+				return this.bbox;
 
 			} catch (NumberFormatException e) {
 				throw new BadRequestException(
@@ -123,7 +151,6 @@ public class InputValidator {
 	public Geometry createBPoint(String[] bpoint) {
 		GeometryFactory geomFact = new GeometryFactory();
 		Geometry buffer;
-		Geometry geom = null;
 		CoordinateReferenceSystem sourceCRS;
 		CoordinateReferenceSystem targetCRS;
 		MathTransform transform = null;
@@ -140,22 +167,19 @@ public class InputValidator {
 			buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoint[2]));
 			// transform back again
 			transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
-			geom = JTS.transform(buffer, transform);
+			this.bpoint = JTS.transform(buffer, transform);
 		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MismatchedDimensionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new BadRequestException(
 					"The bpoint array must contain two double-parseable String values in the order of "
 							+ "lon/lat coordinate pairs at [0] and [1] as well as a buffer length in meters.");
 		}
 
-		return geom;
+		return this.bpoint;
 	}
 
 	/**
@@ -181,9 +205,9 @@ public class InputValidator {
 					"The bBoxes array must contain double-parseable String values in the order of lon/lat coordinate pairs.");
 		}
 		// creates a polygon from the coordinates
-		Polygon poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+		this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
 
-		return poly;
+		return this.bpoly;
 	}
 
 	/**
@@ -414,6 +438,147 @@ public class InputValidator {
 	}
 
 	/**
+	 * Method to process the input parameters of a POST or GET request.
+	 * 
+	 * @param isGet
+	 *            <code>boolean</code> value stating <code>true</code> if this
+	 *            method is called from a GET request and <code>false</code> if it
+	 *            is called from a POST request.
+	 * @param boundaryParam
+	 *            <code>String</code> array containing the boundary parameter from a
+	 *            POST request. Null in case of a GET request.
+	 * @param bbox
+	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
+	 *            values, which have to be <code>double</code> parse-able. If bbox
+	 *            is given, bpoint and bpoly must be <code>null</code> or
+	 *            <code>empty</code>. If neither of these parameters is given, a
+	 *            global request is computed. Null in case of POST requests.
+	 * @param bpoint
+	 *            <code>String</code> array containing lon, lat, radius values,
+	 *            which have to be <code>double</code> parse-able. If bpoint is
+	 *            given, bbox and bpoly must be <code>null</code> or
+	 *            <code>empty</code>. Null in case of POST requests.
+	 * @param bpoly
+	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
+	 *            values, which have to be <code>double</code> parse-able. If bpoly
+	 *            is given, bbox and bpoint must be <code>null</code> or
+	 *            <code>empty</code>. Null in case of POST requests.
+	 * @param types
+	 *            <code>String</code> array containing one or more strings defining
+	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
+	 *            <code>null</code> or <code>empty</code>, all types are used.
+	 * @param keys
+	 *            <code>String</code> array containing one or more keys.
+	 * @param values
+	 *            <code>String</code> array containing one or more values. Must be
+	 *            less or equal than <code>keys.length()</code> anf values[n] must
+	 *            pair with keys[n].
+	 * @param users
+	 *            <code>String</code> array containing one or more user-IDs.
+	 * @param time
+	 *            <code>String</code> array that holds a list of timestamps or a
+	 *            datetimestring, which fits to one of the formats used by the
+	 *            method
+	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
+	 *            extractTime(String time)}.
+	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
+	 *         settings derived from the given parameters.
+	 */
+	public MapReducer<OSMEntitySnapshot> processParameters(boolean isGet, String[] boundaryParam, String[] bbox,
+			String[] bpoint, String[] bpoly, String[] types, String[] keys, String[] values, String[] users,
+			String[] time) {
+
+		// InputValidatorPost iVP = new InputValidatorPost();
+		MapReducer<OSMEntitySnapshot> mapRed;
+
+		// database
+		EventHolderBean bean = Application.getEventHolderBean();
+		dbConnObjects = bean.getDbConnObjects();
+		mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
+
+		// checks if this method is called for a GET or a POST request
+		if (isGet) {
+			// boundary (no parameter = 0, bbox = 1, bpoint = 2, or bpoly = 3)
+			boundary = checkBoundaryGet(bbox, bpoint, bpoly);
+			if (boundary == 0) {
+				mapRed = mapRed.areaOfInterest(createBBoxes(bbox));
+			} else if (boundary == 1) {
+				mapRed = mapRed.areaOfInterest(createBBoxes(bbox));
+			} else if (boundary == 2) {
+				mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBPoint(bpoint));
+			} else if (boundary == 3) {
+				mapRed = mapRed.areaOfInterest(createBPoly(bpoly));
+			} else
+				throw new BadRequestException(
+						"Your provided boundary parameter (bbox, bpoint, or bpoly) does not fit its format. "
+								+ "or you defined more than one boundary parameter.");
+		} else {
+			// TODO implement a checkBoundaryPost method
+			// bounding box
+			// this.bbox = iVP.checkBBoxes(bboxes);
+			// mapRed = mapRed.areaOfInterest(this.bbox);
+		}
+
+		// osm-type (node, way, relation)
+		osmTypes = checkTypes(types);
+		mapRed = mapRed.osmTypes(osmTypes);
+
+		// time parameter
+		if (time.length == 1) {
+			timeData = extractTime(time[0]);
+			if (timeData[2] != null) {
+				mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
+			} else
+				mapRed = mapRed.timestamps(timeData[0], timeData[1]);
+		} else {
+			// gets the first element and removes it from the list
+			String firstElem = time[0];
+			time = ArrayUtils.remove(time, 0);
+			// calls the method to give a list of timestamps
+			mapRed = mapRed.timestamps(firstElem, time);
+		}
+
+		// key/value parameters
+		checkKeysValues(keys, values);
+		if (keys.length != values.length) {
+			String[] tempVal = new String[keys.length];
+			// extracts the value entries from the old values array
+			for (int a = 0; a < values.length; a++) {
+				tempVal[a] = values[a];
+			}
+			// adds the defVal to the empty spots in the tempVal array
+			for (int i = values.length; i < keys.length; i++) {
+				tempVal[i] = defVal;
+			}
+			values = tempVal;
+		}
+		// prerequisites: both arrays (keys and values) must be of the same length
+		// and key-value pairs need to be at the same index in both arrays
+		for (int i = 0; i < keys.length; i++) {
+			if (values[i].equals(defVal))
+				mapRed = mapRed.where(keys[i]);
+			else
+				mapRed = mapRed.where(keys[i], values[i]);
+		}
+
+		// checks if the users parameter is not empty (POST) and does not have the
+		// default value (GET)
+		if (users != null && !users[0].equals("664409")) {
+			checkUsers(users);
+			// more efficient way to include all userIDs
+			Set<Integer> userSet = new HashSet<>();
+			for (String user : users)
+				userSet.add(Integer.valueOf(user));
+
+			mapRed = mapRed.where(entity -> {
+				return userSet.contains(entity.getUserId());
+			});
+		}
+
+		return mapRed;
+	}
+
+	/**
 	 * Finds and returns the EPSG code of the given point. Adapted code from
 	 * UTMCodeFromLonLat.java class in the osmatrix project.
 	 * 
@@ -518,5 +683,21 @@ public class InputValidator {
 		}
 
 		return timeType;
+	}
+
+	public byte getBoundary() {
+		return boundary;
+	}
+
+	public BoundingBox getBbox() {
+		return bbox;
+	}
+
+	public Geometry getBpoint() {
+		return bpoint;
+	}
+
+	public Polygon getBpoly() {
+		return bpoly;
 	}
 }

@@ -1,31 +1,19 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller;
 
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.input.AggregationContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.lambdas.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamps;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.Geo;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.Polygonal;
 
 /**
  * REST controller containing the methods to handle GET and POST requests, which
@@ -54,18 +40,8 @@ public class ElementsController {
 	private final String defVal = "val";
 	// represents the latest timestamp, where the latest data is available
 	private final String defTime = "2017-11-01";
-	private String[] timeData;
-	private BoundingBox bbox;
-	private Geometry bpoint;
-	private Polygon bpoly;
-	private EnumSet<OSMType> osmTypes;
-	private byte boundary;
 
 	// HD: 8.6528, 49.3683, 8.7294, 49.4376
-	/**
-	 * [0]:oshdb [1]:keytables
-	 */
-	private OSHDB_H2[] dbConnObjects;
 
 	/*
 	 * GET Requests start here
@@ -136,8 +112,9 @@ public class ElementsController {
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Integer> result;
 		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().count();
 		// output
@@ -181,8 +158,9 @@ public class ElementsController {
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Number> result;
 		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.lengthOf(snapshot.getGeometry());
@@ -227,8 +205,9 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		String unit = "square-meters";
 		boolean isRelation = false;
+		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.areaOf(snapshot.getGeometry());
@@ -306,8 +285,9 @@ public class ElementsController {
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Integer> countResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		// count result
 		countResult = mapRed.aggregateByTimestamp().count();
 		int count = 0;
@@ -319,18 +299,18 @@ public class ElementsController {
 		}
 		// geometry
 		Geometry geom = null;
-		switch (boundary) {
+		switch (iV.getBoundary()) {
 		case 0:
-			geom = this.bbox.getGeometry();
+			geom = iV.getBbox().getGeometry();
 			break;
 		case 1:
-			geom = this.bbox.getGeometry();
+			geom = iV.getBbox().getGeometry();
 			break;
 		case 2:
-			geom = this.bpoint;
+			geom = iV.getBpoint();
 			break;
 		case 3:
-			geom = this.bpoly;
+			geom = iV.getBpoly();
 			break;
 		}
 		// output
@@ -380,11 +360,12 @@ public class ElementsController {
 		SortedMap<OSHDBTimestamp, Integer> result2;
 		MapReducer<OSMEntitySnapshot> mapRed1;
 		MapReducer<OSMEntitySnapshot> mapRed2;
+		InputValidator iV = new InputValidator();
 		// input parameter processing 1 and result 1
-		mapRed1 = processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed1 = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
 		result1 = mapRed1.aggregateByTimestamp().count();
 		// input parameter processing 2 and result 2
-		mapRed2 = processParameters(true, null, bbox, bpoint, bpoly, types2, keys2, values2, users, time);
+		mapRed2 = iV.processParameters(true, null, bbox, bpoint, bpoly, types2, keys2, values2, users, time);
 		result2 = mapRed2.aggregateByTimestamp().count();
 		// resultSet 1
 		Result[] resultSet1 = new Result[result1.size()];
@@ -485,148 +466,5 @@ public class ElementsController {
 		throw new NotImplementedException("This method is not implemented yet.");
 	}
 
-	/**
-	 * Method to process the input parameters of a POST or GET request.
-	 * 
-	 * @param isGet
-	 *            <code>boolean</code> value stating <code>true</code> if this
-	 *            method is called from a GET request and <code>false</code> if it
-	 *            is called from a POST request.
-	 * @param boundaryParam
-	 *            <code>String</code> array containing the boundary parameter from a
-	 *            POST request. Null in case of a GET request.
-	 * @param bbox
-	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
-	 *            values, which have to be <code>double</code> parse-able. If bbox
-	 *            is given, bpoint and bpoly must be <code>null</code> or
-	 *            <code>empty</code>. If neither of these parameters is given, a
-	 *            global request is computed. Null in case of POST requests.
-	 * @param bpoint
-	 *            <code>String</code> array containing lon, lat, radius values,
-	 *            which have to be <code>double</code> parse-able. If bpoint is
-	 *            given, bbox and bpoly must be <code>null</code> or
-	 *            <code>empty</code>. Null in case of POST requests.
-	 * @param bpoly
-	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
-	 *            values, which have to be <code>double</code> parse-able. If bpoly
-	 *            is given, bbox and bpoint must be <code>null</code> or
-	 *            <code>empty</code>. Null in case of POST requests.
-	 * @param types
-	 *            <code>String</code> array containing one or more strings defining
-	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
-	 *            <code>null</code> or <code>empty</code>, all types are used.
-	 * @param keys
-	 *            <code>String</code> array containing one or more keys.
-	 * @param values
-	 *            <code>String</code> array containing one or more values. Must be
-	 *            less or equal than <code>keys.length()</code> anf values[n] must
-	 *            pair with keys[n].
-	 * @param users
-	 *            <code>String</code> array containing one or more user-IDs.
-	 * @param time
-	 *            <code>String</code> array that holds a list of timestamps or a
-	 *            datetimestring, which fits to one of the formats used by the
-	 *            method
-	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
-	 *            extractTime(String time)}.
-	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
-	 *         settings derived from the given parameters.
-	 */
-	private MapReducer<OSMEntitySnapshot> processParameters(boolean isGet, String[] boundaryParam, String[] bbox,
-			String[] bpoint, String[] bpoly, String[] types, String[] keys, String[] values, String[] users,
-			String[] time) {
-		InputValidator iV = new InputValidator();
-		// InputValidatorPost iVP = new InputValidatorPost();
-		MapReducer<OSMEntitySnapshot> mapRed;
-
-		// database
-		EventHolderBean bean = Application.getEventHolderBean();
-		dbConnObjects = bean.getDbConnObjects();
-		mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
-
-		// checks if this method is called for a GET or a POST request
-		if (isGet) {
-			// boundary (no parameter = 0, bbox = 1, bpoint = 2, or bpoly = 3)
-			boundary = iV.checkBoundaryGet(bbox, bpoint, bpoly);
-			if (boundary == 0) {
-				this.bbox = iV.createBBoxes(bbox);
-				mapRed = mapRed.areaOfInterest(this.bbox);
-			} else if (boundary == 1) {
-				this.bbox = iV.createBBoxes(bbox);
-				mapRed = mapRed.areaOfInterest(this.bbox);
-			} else if (boundary == 2) {
-				this.bpoint = iV.createBPoint(bpoint);
-				mapRed = mapRed.areaOfInterest((Geometry & Polygonal) this.bpoint);
-			} else if (boundary == 3) {
-				this.bpoly = iV.createBPoly(bpoly);
-				mapRed = mapRed.areaOfInterest(this.bpoly);
-			} else
-				throw new BadRequestException(
-						"Your provided boundary parameter (bbox, bpoint, or bpoly) does not fit its format. "
-								+ "or you defined more than one boundary parameter.");
-		} else {
-			// TODO implement a checkBoundaryPost method
-			// bounding box
-			// this.bbox = iVP.checkBBoxes(bboxes);
-			// mapRed = mapRed.areaOfInterest(this.bbox);
-		}
-
-		// osm-type (node, way, relation)
-		osmTypes = iV.checkTypes(types);
-		mapRed = mapRed.osmTypes(osmTypes);
-
-		// time parameter
-		if (time.length == 1) {
-			timeData = iV.extractTime(time[0]);
-			if (timeData[2] != null) {
-				mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-			} else
-				mapRed = mapRed.timestamps(timeData[0], timeData[1]);
-		} else {
-			// gets the first element and removes it from the list
-			String firstElem = time[0];
-			time = ArrayUtils.remove(time, 0);
-			// calls the method to give a list of timestamps
-			mapRed = mapRed.timestamps(firstElem, time);
-		}
-
-		// key/value parameters
-		iV.checkKeysValues(keys, values);
-		if (keys.length != values.length) {
-			String[] tempVal = new String[keys.length];
-			// extracts the value entries from the old values array
-			for (int a = 0; a < values.length; a++) {
-				tempVal[a] = values[a];
-			}
-			// adds the defVal to the empty spots in the tempVal array
-			for (int i = values.length; i < keys.length; i++) {
-				tempVal[i] = defVal;
-			}
-			values = tempVal;
-		}
-		// prerequisites: both arrays (keys and values) must be of the same length
-		// and key-value pairs need to be at the same index in both arrays
-		for (int i = 0; i < keys.length; i++) {
-			if (values[i].equals(defVal))
-				mapRed = mapRed.where(keys[i]);
-			else
-				mapRed = mapRed.where(keys[i], values[i]);
-		}
-
-		// checks if the users parameter is not empty (POST) and does not have the
-		// default value (GET)
-		if (users != null && !users[0].equals("664409")) {
-			iV.checkUsers(users);
-			// more efficient way to include all userIDs
-			Set<Integer> userSet = new HashSet<>();
-			for (String user : users)
-				userSet.add(Integer.valueOf(user));
-
-			mapRed = mapRed.where(entity -> {
-				return userSet.contains(entity.getUserId());
-			});
-		}
-
-		return mapRed;
-	}
+	
 }
