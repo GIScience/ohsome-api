@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Exception class corresponding to the HTTP status code 405.
- * @author kowatsch
  *
  */
 @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)

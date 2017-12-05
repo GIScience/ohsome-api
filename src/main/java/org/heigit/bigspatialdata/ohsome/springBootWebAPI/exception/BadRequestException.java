@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Exception class corresponding to the HTTP status code 400.
- * @author kowatsch
  *
  */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)

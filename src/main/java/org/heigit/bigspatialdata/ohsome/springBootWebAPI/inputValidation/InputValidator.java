@@ -193,6 +193,10 @@ public class InputValidator {
 	public Polygon createBPoly(String[] bpoly) {
 		GeometryFactory geomFact = new GeometryFactory();
 		ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
+		// checks if the first and last coordinate pairs are not the same
+		if (!bpoly[0].equals(bpoly[bpoly.length-2]) || !bpoly[1].equals(bpoly[bpoly.length-1]))
+			throw new BadRequestException(
+					"The last coordinate pair of the polygon must have the same values as the first coordinate pair.");
 		try {
 			// walks through the string array and parses the coordinates
 			for (int i = 0; i < bpoly.length; i += 2) {
@@ -202,7 +206,7 @@ public class InputValidator {
 			coords.add(new Coordinate(Double.parseDouble(bpoly[0]), Double.parseDouble(bpoly[1])));
 		} catch (NumberFormatException e) {
 			throw new BadRequestException(
-					"The bBoxes array must contain double-parseable String values in the order of lon/lat coordinate pairs.");
+					"The bpoly array must contain double-parseable String values in the order of lon/lat coordinate pairs.");
 		}
 		// creates a polygon from the coordinates
 		this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));

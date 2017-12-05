@@ -7,13 +7,17 @@ import java.util.SortedMap;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.input.AggregationContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.lambdas.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapBiAggregatorByTimestamps;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.Geo;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,7 +52,7 @@ public class ElementsController {
 	 */
 
 	/**
-	 * Gets the amount of OSM objects, which fit to the given parameters.
+	 * Gets the count of OSM objects, which fit to the given parameters.
 	 * <p>
 	 * 
 	 * @param bbox
@@ -131,7 +135,7 @@ public class ElementsController {
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
 				new MetaData(duration, "amount",
-						"Total number of items (elements, tags, changesets or contributors) related to the elements selected by the parameters."),
+						"Total number of items (elements, tags, changesets or contributors) related to the elements selected by the parameters."), null,
 				resultSet);
 		return response;
 	}
@@ -177,7 +181,7 @@ public class ElementsController {
 		// response
 		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
 				"-Hier könnte Ihr Copyright stehen.-",
-				new MetaData(duration, "meter", "Total length of lines and polygon boundaries."), resultSet);
+				new MetaData(duration, "meter", "Total length of lines and polygon boundaries."), null, resultSet);
 		return response;
 	}
 
@@ -234,7 +238,7 @@ public class ElementsController {
 		long duration = System.currentTimeMillis() - startTime;
 		// response
 		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit, "Total area of polygons."),
+				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit, "Total area of polygons."), null,
 				resultSet);
 		return response;
 	}
@@ -326,7 +330,7 @@ public class ElementsController {
 		// response
 		ElementsResponseContent response = new ElementsResponseContent(
 				"-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration,
-						"items per square-kilometer", "Density of selected items (number of items per area)."),
+						"items per square-kilometer", "Density of selected items (number of items per area)."), null,
 				resultSet);
 		return response;
 	}
@@ -392,16 +396,82 @@ public class ElementsController {
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
 				new MetaData(duration, "ratio",
-						"Ratio of items satisfying types2, keys2, values2 within items selected by types, keys, values."),
+						"Ratio of items satisfying types2, keys2, values2 within items selected by types, keys, values."), null,
 				resultSet);
 		return response;
 	}
 
-	
+	/*
+	 * groupBy Requests start here
+	 */
+
+	/**
+	 * Gets the count of OSM objects, which fit to the given parameters and are
+	 * grouped by the types.
+	 * <p>
+	 * For description of the parameters, <code>return</code> object and exceptions,
+	 * look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 */
+	@RequestMapping("/count/groupBy/type")
+	public ElementsResponseContent getCountGroupedByType(
+			@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defType) String[] types,
+			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+			@RequestParam(value = "values", defaultValue = defVal) String[] values,
+			@RequestParam(value = "users", defaultValue = defUser) String[] users,
+			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
+		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// input parameter processing
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		// db result
+		result = mapRed.aggregateByTimestamp()
+				.aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+					return f.getEntity().getType();
+				}).count();
+
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+		
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by type
+		for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(), String.valueOf(innerEntry.getValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+					
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "amount",
+						"Total number of items (elements, tags, changesets or contributors) related to the elements selected by the parameters."),
+				resultSet, null);
+		return response;
+	}
+
 	/*
 	 * POST Requests start here
 	 */
-	
 
 	/**
 	 * POST request returning the count of elements for the given parameters. This
@@ -466,5 +536,4 @@ public class ElementsController {
 		throw new NotImplementedException("This method is not implemented yet.");
 	}
 
-	
 }
