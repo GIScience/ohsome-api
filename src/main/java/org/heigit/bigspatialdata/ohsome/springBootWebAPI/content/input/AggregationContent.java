@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * <li>values:<code>String</code> array containing one or more values. Must be
  * less or equal than <code>keys.length()</code> and values[n] must pair with
  * keys[n].
- * <li>users: <code>String</code> array containing one or more user-IDs.
+ * <li>userids: <code>String</code> array containing one or more user-IDs.
  * <li>time: <code>String</code> array that holds a list of ISO 8601 conform timestamps or a
  * datetimestring, which fits to one of the formats used by the method
  * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
@@ -43,18 +43,18 @@ public class AggregationContent {
 	private String[] types;
 	private String[] keys;
 	private String[] values;
-	private String[] users;
+	private String[] userids;
 	private String[] time;
 
 	public AggregationContent(BBox[] bboxes, BPoint[] bpoints, BPoly[] bpolys, String[] types, String[] keys,
-			String[] values, String[] users, String[] time) {
+			String[] values, String[] userids, String[] time) {
 		this.bboxes = bboxes;
 		this.bpoints = bpoints;
 		this.bpolys = bpolys;
 		this.types = types;
 		this.keys = keys;
 		this.values = values;
-		this.users = users;
+		this.userids = userids;
 		this.time = time;
 	}
 
@@ -88,8 +88,8 @@ public class AggregationContent {
 		return values;
 	}
 
-	public String[] getUsers() {
-		return users;
+	public String[] getUserids() {
+		return userids;
 	}
 
 	public String[] getTime() {

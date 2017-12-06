@@ -1,6 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,9 +52,9 @@ public class InputValidator {
 	private BoundingBox bbox;
 	private Geometry bpoint;
 	private Polygon bpoly;
-	private final String defVal = "val";
-	// represents the latest/earliest timestamp in the OSM history data
-	private final String defEndTime = "2017-11-01";
+	private final String defVal = "";
+	// represents the latest and earliest timestamps
+	private final String defEndTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
 	private final String defStartTime = "2007-11-01";
 	private String[] timeData;
 	private EnumSet<OSMType> osmTypes;
@@ -82,16 +84,16 @@ public class InputValidator {
 	 */
 	public byte checkBoundaryGet(String[] bbox, String[] bpoint, String[] bpoly) {
 		// checks the given parameters
-		if (bbox[0].equals("abc") && bpoint[0].equals("abc") && bpoly[0].equals("abc")) {
+		if (bbox.length==0 && bpoint.length == 0 && bpoly.length == 0) {
 			this.boundary = 0;
 			return this.boundary;
-		} else if (bbox.length == 4 && bpoint.length == 1 && bpoly.length == 1) {
+		} else if (bbox.length == 4 && bpoint.length == 0 && bpoly.length == 0) {
 			this.boundary = 1;
 			return this.boundary;
-		} else if (bbox.length == 1 && bpoint.length == 3 && bpoly.length == 1) {
+		} else if (bbox.length == 0 && bpoint.length == 3 && bpoly.length == 0) {
 			this.boundary = 2;
 			return this.boundary;
-		} else if (bbox.length == 1 && bpoint.length == 1 && bpoly.length >= 6) {
+		} else if (bbox.length == 0 && bpoint.length == 0 && bpoly.length >= 6) {
 			this.boundary = 3;
 			return this.boundary;
 		} else
@@ -113,18 +115,18 @@ public class InputValidator {
 	 */
 	public BoundingBox createBBoxes(String[] bbox) throws BadRequestException {
 		// no bBox given -> global request
-		if (bbox.length == 1 && bbox[0].equals("abc")) {
+		if (bbox.length==0) {
 			this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
 			return this.bbox;
-		// the number of elements in the bBoxes array should be 4
-		}else if (bbox.length == 4) {
+			// the number of elements in the bBoxes array should be 4
+		} else if (bbox.length == 4) {
 			try {
 				// parsing of the first bBox
 				double minLon = Double.parseDouble(bbox[0]);
 				double minLat = Double.parseDouble(bbox[1]);
 				double maxLon = Double.parseDouble(bbox[2]);
 				double maxLat = Double.parseDouble(bbox[3]);
-				
+
 				this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
 
 				return this.bbox;
@@ -194,7 +196,7 @@ public class InputValidator {
 		GeometryFactory geomFact = new GeometryFactory();
 		ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 		// checks if the first and last coordinate pairs are not the same
-		if (!bpoly[0].equals(bpoly[bpoly.length-2]) || !bpoly[1].equals(bpoly[bpoly.length-1]))
+		if (!bpoly[0].equals(bpoly[bpoly.length - 2]) || !bpoly[1].equals(bpoly[bpoly.length - 1]))
 			throw new BadRequestException(
 					"The last coordinate pair of the polygon must have the same values as the first coordinate pair.");
 		try {
@@ -323,11 +325,11 @@ public class InputValidator {
 	public EnumSet<OSMType> checkTypes(String[] types) {
 		// checks if the types array is too big
 		if (types.length > 3) {
-			throw new BadRequestException("Array containing the OSM Types cannot have more than 3 entries.");
+			throw new BadRequestException("Parameter containing the OSM Types cannot have more than 3 entries.");
 		}
 
-		// check if the types array only contains the default value
-		if (types[0].equalsIgnoreCase("type")) {
+		// check if the types array only contains the default value (length == 0)
+		if (types.length==0) {
 			return EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
 		}
 
@@ -391,7 +393,7 @@ public class InputValidator {
 	}
 
 	/**
-	 * Method to check the content of the keys and values arrays.
+	 * Method to compare the size of the keys and values arrays.
 	 * 
 	 * @param keys
 	 *            String array, which contains the provided key parameters.
@@ -405,38 +407,30 @@ public class InputValidator {
 	 */
 	public boolean checkKeysValues(String[] keys, String[] values) {
 
-		if (keys[0].equals("key")) {
-			// refers to the default key value "key"
-			if (!values[0].equals("val")) {
-				// happens when no key, but one (or more) value parameter is given
-				throw new BadRequestException(
-						"No value parameter can be provided, if there is no corresponding key parameter given.");
-			}
-		}
 		if (keys.length < values.length) {
-			// happens when more values than keys are given
 			throw new BadRequestException(
-					"There cannot be more values than keys. For each value, the respective key has to be provided on the same spot in the array.");
+					"There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
 		}
 
 		return true;
 	}
 
 	/**
-	 * Checks content of the users String array.
+	 * Checks content of the userids String array.
 	 * 
-	 * @param users
-	 *            String array containing the IDs of the requested users (must be
+	 * @param userids
+	 *            String array containing the IDs of the requested userids (must be
 	 *            valid whole-number IDs).
 	 */
-	public void checkUsers(String[] users) {
-		for (String user : users) {
+	public void checkuserids(String[] userids) {
+		for (String user : userids) {
 			try {
 				// tries to parse the String to a long
 				Long.valueOf(user);
 
 			} catch (NumberFormatException e) {
-				throw new BadRequestException("The 'users' array must contain whole number(s) as ID for OSM user(s).");
+				throw new BadRequestException(
+						"The userids parameter can only contain valid OSM userids, which are always a positive whole number");
 			}
 		}
 	}
@@ -477,7 +471,7 @@ public class InputValidator {
 	 *            <code>String</code> array containing one or more values. Must be
 	 *            less or equal than <code>keys.length()</code> anf values[n] must
 	 *            pair with keys[n].
-	 * @param users
+	 * @param userids
 	 *            <code>String</code> array containing one or more user-IDs.
 	 * @param time
 	 *            <code>String</code> array that holds a list of timestamps or a
@@ -489,7 +483,7 @@ public class InputValidator {
 	 *         settings derived from the given parameters.
 	 */
 	public MapReducer<OSMEntitySnapshot> processParameters(boolean isGet, String[] boundaryParam, String[] bbox,
-			String[] bpoint, String[] bpoly, String[] types, String[] keys, String[] values, String[] users,
+			String[] bpoint, String[] bpoly, String[] types, String[] keys, String[] values, String[] userids,
 			String[] time) {
 
 		// InputValidatorPost iVP = new InputValidatorPost();
@@ -565,17 +559,17 @@ public class InputValidator {
 				mapRed = mapRed.where(keys[i], values[i]);
 		}
 
-		// checks if the users parameter is not empty (POST) and does not have the
+		// checks if the userids parameter is not empty (POST) and does not have the
 		// default value (GET)
-		if (users != null && !users[0].equals("664409")) {
-			checkUsers(users);
+		if (userids != null && userids.length != 0) {
+			checkuserids(userids);
 			// more efficient way to include all userIDs
-			Set<Integer> userSet = new HashSet<>();
-			for (String user : users)
-				userSet.add(Integer.valueOf(user));
+			Set<Integer> useridSet = new HashSet<>();
+			for (String user : userids)
+				useridSet.add(Integer.valueOf(user));
 
 			mapRed = mapRed.where(entity -> {
-				return userSet.contains(entity.getUserId());
+				return useridSet.contains(entity.getUserId());
 			});
 		}
 

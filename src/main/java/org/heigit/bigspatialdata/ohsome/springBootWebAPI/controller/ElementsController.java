@@ -9,6 +9,7 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
@@ -36,14 +37,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @RequestMapping("/elements")
 public class ElementsController {
 
-	// (default) values
-	private final String defBox = "abc";
-	private final String defUser = "664409"; // username = cmh_germany (random user in Heidelberg)
-	private final String defType = "type";
-	private final String defKey = "key";
-	private final String defVal = "val";
-	// represents the latest timestamp, where the latest data is available
-	private final String defTime = "2017-11-01";
+	// default value
+	private final String defVal = "";
 
 	// HD: 8.6528, 49.3683, 8.7294, 49.4376
 
@@ -81,7 +76,7 @@ public class ElementsController {
 	 *            <code>String</code> array containing one or more values. Must be
 	 *            less or equal than <code>keys.length()</code> anf values[n] must
 	 *            pair with keys[n].
-	 * @param users
+	 * @param userids
 	 *            <code>String</code> array containing one or more user-IDs.
 	 * @param time
 	 *            <code>String</code> array that holds a list of timestamps or a
@@ -103,22 +98,22 @@ public class ElementsController {
 	 *             count()}
 	 */
 	@RequestMapping("/count")
-	public ElementsResponseContent getCount(@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+	public ElementsResponseContent getCount(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
-
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Integer> result;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
+		
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().count();
 		// output
@@ -135,7 +130,7 @@ public class ElementsController {
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
 				new MetaData(duration, "amount",
-						"Total number of items (elements, tags, changesets or contributors) related to the elements selected by the parameters."), null,
+						"Total number of elements selected by the parameters."), null,
 				resultSet);
 		return response;
 	}
@@ -149,14 +144,14 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/length")
-	public ElementsResponseContent getLength(@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+	public ElementsResponseContent getLength(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -164,7 +159,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.lengthOf(snapshot.getGeometry());
@@ -194,14 +189,14 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/area")
-	public ElementsResponseContent getArea(@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+	public ElementsResponseContent getArea(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -211,7 +206,7 @@ public class ElementsController {
 		boolean isRelation = false;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.areaOf(snapshot.getGeometry());
@@ -254,14 +249,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/mean-minimal-distance")
 	public ElementsResponseContent getMeanMinimalDistance(
-			@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+			@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		throw new NotImplementedException("This method is not implemented yet.");
@@ -276,14 +271,14 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/density")
-	public ElementsResponseContent getDensity(@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+	public ElementsResponseContent getDensity(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -291,7 +286,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
 		// count result
 		countResult = mapRed.aggregateByTimestamp().count();
 		int count = 0;
@@ -346,17 +341,17 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/ratio")
-	public ElementsResponseContent getRatio(@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+	public ElementsResponseContent getRatio(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time,
-			@RequestParam(value = "types2", defaultValue = defType) String[] types2,
-			@RequestParam(value = "keys2", defaultValue = defType) String[] keys2,
-			@RequestParam(value = "values2", defaultValue = defType) String[] values2)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time,
+			@RequestParam(value = "types2", defaultValue = defVal) String[] types2,
+			@RequestParam(value = "keys2", defaultValue = defVal) String[] keys2,
+			@RequestParam(value = "values2", defaultValue = defVal) String[] values2)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -366,10 +361,10 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed2;
 		InputValidator iV = new InputValidator();
 		// input parameter processing 1 and result 1
-		mapRed1 = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed1 = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
 		result1 = mapRed1.aggregateByTimestamp().count();
 		// input parameter processing 2 and result 2
-		mapRed2 = iV.processParameters(true, null, bbox, bpoint, bpoly, types2, keys2, values2, users, time);
+		mapRed2 = iV.processParameters(true, null, bbox, bpoint, bpoly, types2, keys2, values2, userids, time);
 		result2 = mapRed2.aggregateByTimestamp().count();
 		// resultSet 1
 		Result[] resultSet1 = new Result[result1.size()];
@@ -416,14 +411,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/count/groupBy/type")
 	public ElementsResponseContent getCountGroupedByType(
-			@RequestParam(value = "bbox", defaultValue = defBox) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defBox) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defBox) String[] bpoly,
-			@RequestParam(value = "types", defaultValue = defType) String[] types,
-			@RequestParam(value = "keys", defaultValue = defKey) String[] keys,
+			@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "users", defaultValue = defUser) String[] users,
-			@RequestParam(value = "time", defaultValue = defTime) String[] time)
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -432,7 +427,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, users, time);
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp()
 				.aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -464,11 +459,79 @@ public class ElementsController {
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
 				new MetaData(duration, "amount",
-						"Total number of items (elements, tags, changesets or contributors) related to the elements selected by the parameters."),
+						"Total number of items aggregated on the types."),
 				resultSet, null);
 		return response;
 	}
 
+	/**
+	 * Gets the count of OSM objects, which fit to the given parameters and are
+	 * grouped by the userID.
+	 * <p>
+	 * For description of the parameters, <code>return</code> object and exceptions,
+	 * look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 */
+	@RequestMapping("/count/groupBy/user")
+	public ElementsResponseContent getCountGroupedByUser(
+			@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
+			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
+			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
+			@RequestParam(value = "values", defaultValue = defVal) String[] values,
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			throws UnsupportedOperationException, Exception, BadRequestException {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
+		SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// check for the userids parameter
+		if (userids[0].equals(defVal))
+			throw new BadRequestException(
+					"You need to give at least one userid as parameter if you want to use /groupBy/user.");
+		// input parameter processing
+		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+
+		// db result
+		result = mapRed.aggregateByTimestamp()
+				.aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
+					return f.getEntity().getUserId();
+				}).count();
+
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by type
+		for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(), String.valueOf(innerEntry.getValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "amount",
+						"Total number of items aggregated on the userids."),
+				resultSet, null);
+		return response;
+	}
+	
 	/*
 	 * POST Requests start here
 	 */
@@ -507,7 +570,7 @@ public class ElementsController {
 		 * Integer> result; MapReducer<OSMEntitySnapshot> mapRed = null; // input
 		 * parameter processing //mapRed = processParameters(false, content.getBboxes(),
 		 * null, null, null, content.getTypes(), content.getKeys(), content.getValues(),
-		 * content.getUsers(), content.getTime()); // db result result =
+		 * content.getuserids(), content.getTime()); // db result result =
 		 * mapRed.aggregateByTimestamp().count();
 		 * 
 		 * // output Result[] resultSet = new Result[result.size()]; int count = 0; for
