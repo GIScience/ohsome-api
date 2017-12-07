@@ -50,21 +50,21 @@ public class ElementsController {
 	 * Gets the count of OSM objects, which fit to the given parameters.
 	 * <p>
 	 * 
-	 * @param bbox
+	 * @param bboxes
 	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
-	 *            values, which have to be <code>double</code> parse-able. If bbox
-	 *            is given, bpoint and bpoly must be <code>null</code> or
+	 *            values, which have to be <code>double</code> parse-able. If bboxes
+	 *            is given, bpoints and bpolys must be <code>null</code> or
 	 *            <code>empty</code>. If neither of these parameters is given, a
 	 *            global request is computed.
-	 * @param bpoint
+	 * @param bpoints
 	 *            <code>String</code> array containing lon, lat, radius values,
-	 *            which have to be <code>double</code> parse-able. If bpoint is
-	 *            given, bbox and bpoly must be <code>null</code> or
+	 *            which have to be <code>double</code> parse-able. If bpoints is
+	 *            given, bboxes and bpolys must be <code>null</code> or
 	 *            <code>empty</code>.
-	 * @param bpoly
+	 * @param bpolys
 	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
-	 *            values, which have to be <code>double</code> parse-able. If bpoly
-	 *            is given, bbox and bpoint must be <code>null</code> or
+	 *            values, which have to be <code>double</code> parse-able. If bpolys
+	 *            is given, bboxes and bpoints must be <code>null</code> or
 	 *            <code>empty</code>.
 	 * @param types
 	 *            <code>String</code> array containing one or more strings defining
@@ -98,9 +98,9 @@ public class ElementsController {
 	 *             count()}
 	 */
 	@RequestMapping("/count")
-	public ElementsResponseContent getCount(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+	public ElementsResponseContent getCount(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -113,7 +113,7 @@ public class ElementsController {
 		InputValidator iV = new InputValidator();
 		
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().count();
 		// output
@@ -144,9 +144,9 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/length")
-	public ElementsResponseContent getLength(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+	public ElementsResponseContent getLength(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -159,7 +159,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.lengthOf(snapshot.getGeometry());
@@ -189,9 +189,9 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/area")
-	public ElementsResponseContent getArea(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+	public ElementsResponseContent getArea(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -206,7 +206,7 @@ public class ElementsController {
 		boolean isRelation = false;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			return Geo.areaOf(snapshot.getGeometry());
@@ -249,9 +249,9 @@ public class ElementsController {
 	 */
 	@RequestMapping("/mean-minimal-distance")
 	public ElementsResponseContent getMeanMinimalDistance(
-			@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -271,9 +271,9 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/density")
-	public ElementsResponseContent getDensity(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+	public ElementsResponseContent getDensity(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -286,7 +286,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// count result
 		countResult = mapRed.aggregateByTimestamp().count();
 		int count = 0;
@@ -341,9 +341,9 @@ public class ElementsController {
 	 * getCount} method.
 	 */
 	@RequestMapping("/ratio")
-	public ElementsResponseContent getRatio(@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+	public ElementsResponseContent getRatio(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -361,10 +361,10 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed2;
 		InputValidator iV = new InputValidator();
 		// input parameter processing 1 and result 1
-		mapRed1 = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed1 = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		result1 = mapRed1.aggregateByTimestamp().count();
 		// input parameter processing 2 and result 2
-		mapRed2 = iV.processParameters(true, null, bbox, bpoint, bpoly, types2, keys2, values2, userids, time);
+		mapRed2 = iV.processParameters(null, bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
 		result2 = mapRed2.aggregateByTimestamp().count();
 		// resultSet 1
 		Result[] resultSet1 = new Result[result1.size()];
@@ -411,9 +411,9 @@ public class ElementsController {
 	 */
 	@RequestMapping("/count/groupBy/type")
 	public ElementsResponseContent getCountGroupedByType(
-			@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -427,7 +427,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp()
 				.aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -475,9 +475,9 @@ public class ElementsController {
 	 */
 	@RequestMapping("/count/groupBy/user")
 	public ElementsResponseContent getCountGroupedByUser(
-			@RequestParam(value = "bbox", defaultValue = defVal) String[] bbox,
-			@RequestParam(value = "bpoint", defaultValue = defVal) String[] bpoint,
-			@RequestParam(value = "bpoly", defaultValue = defVal) String[] bpoly,
+			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
 			@RequestParam(value = "types", defaultValue = defVal) String[] types,
 			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
 			@RequestParam(value = "values", defaultValue = defVal) String[] values,
@@ -495,7 +495,7 @@ public class ElementsController {
 			throw new BadRequestException(
 					"You need to give at least one userid as parameter if you want to use /groupBy/user.");
 		// input parameter processing
-		mapRed = iV.processParameters(true, null, bbox, bpoint, bpoly, types, keys, values, userids, time);
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
 		result = mapRed.aggregateByTimestamp()
@@ -531,6 +531,7 @@ public class ElementsController {
 				resultSet, null);
 		return response;
 	}
+
 	
 	/*
 	 * POST Requests start here
@@ -568,7 +569,7 @@ public class ElementsController {
 		 * 
 		 * long startTime = System.currentTimeMillis(); SortedMap<OSHDBTimestamp,
 		 * Integer> result; MapReducer<OSMEntitySnapshot> mapRed = null; // input
-		 * parameter processing //mapRed = processParameters(false, content.getBboxes(),
+		 * parameter processing //mapRed = processParameters(false, content.getbboxes(),
 		 * null, null, null, content.getTypes(), content.getKeys(), content.getValues(),
 		 * content.getuserids(), content.getTime()); // db result result =
 		 * mapRed.aggregateByTimestamp().count();

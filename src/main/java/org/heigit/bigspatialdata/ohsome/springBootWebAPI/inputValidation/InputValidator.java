@@ -13,6 +13,7 @@ import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -43,7 +44,7 @@ import com.vividsolutions.jts.geom.Polygonal;
 public class InputValidator {
 
 	// world: -179.9999, 180, -85.0511, 85.0511
-	// default bBox defining the whole area (here: BW)
+	// default bboxes defining the whole area (here: BW)
 	private final double defMinLon = 7.3949;
 	private final double defMaxLon = 10.6139;
 	private final double defMinLat = 47.3937;
@@ -73,32 +74,41 @@ public class InputValidator {
 	/**
 	 * Checks which boundary parameter is given.
 	 * 
-	 * @param bbox
-	 * @param bpoint
-	 * @param bpoly
-	 * @return Byte defining which parameter is given: 0 (none is given), 1 (bbox is
-	 *         given), 2 (bpoint is given), or 3 (bpoly is given).
+	 * @param bboxes
+	 * @param bpoints
+	 * @param bpolys
+	 * @return Byte defining which parameter is given: 0 (none is given), 1 (bboxes
+	 *         is given), 2 (bpoints is given), or 3 (bpolys is given).
 	 * @throws BadRequestException
 	 *             The provided boundary parameter does not fit to its format, or
 	 *             more than one boundary parameter is given.
 	 */
-	public byte checkBoundaryGet(String[] bbox, String[] bpoint, String[] bpoly) {
+	public byte checkBoundary(String[] bboxes, String[] bpoints, String[] bpolys) {
 		// checks the given parameters
-		if (bbox.length==0 && bpoint.length == 0 && bpoly.length == 0) {
+		if (bboxes.length == 0 && bpoints.length == 0 && bpolys.length == 0) {
 			this.boundary = 0;
 			return this.boundary;
-		} else if (bbox.length == 4 && bpoint.length == 0 && bpoly.length == 0) {
+		} else if (bboxes.length >= 4 && bpoints.length == 0 && bpolys.length == 0) {
+			if (bboxes.length % 4 != 0)
+				throw new BadRequestException(
+						"Each of your provided bboxeses must consist of 2 lon/lat points (bottom left and top right).");
 			this.boundary = 1;
 			return this.boundary;
-		} else if (bbox.length == 0 && bpoint.length == 3 && bpoly.length == 0) {
+		} else if (bboxes.length == 0 && bpoints.length >= 3 && bpolys.length == 0) {
+			if (bpoints.length % 3 != 0)
+				throw new BadRequestException(
+						"Each of your provided bpoints must consist of 1 lon/lat point plus a radius.");
 			this.boundary = 2;
 			return this.boundary;
-		} else if (bbox.length == 0 && bpoint.length == 0 && bpoly.length >= 6) {
+		} else if (bboxes.length == 0 && bpoints.length == 0 && bpolys.length >= 6) {
+			if (bpolys.length % 2 != 0)
+				throw new BadRequestException(
+						"Each of your provided bpolyss must consist of n lon/lat coordinate pairs.");
 			this.boundary = 3;
 			return this.boundary;
 		} else
 			throw new BadRequestException(
-					"Your provided boundary parameter (bbox, bpoint, or bpoly) does not fit its format, "
+					"Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format, "
 							+ "or you defined more than one boundary parameter.");
 	}
 
@@ -107,37 +117,42 @@ public class InputValidator {
 	 * <code>String</code> array. This method is used for GET requests only as it
 	 * cannot handle more than one bounding box.
 	 * 
-	 * @param bbox
+	 * @param bboxes
 	 *            <code>String</code> array containing the lon/lat coordinates of
 	 *            the bounding box.
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
-	public BoundingBox createBBoxes(String[] bbox) throws BadRequestException {
-		// no bBox given -> global request
-		if (bbox.length==0) {
+	public BoundingBox createBboxes(String[] bboxes) throws BadRequestException {
+		// no bboxes given -> global request
+		if (bboxes.length == 0) {
 			this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
 			return this.bbox;
-			// the number of elements in the bBoxes array should be 4
-		} else if (bbox.length == 4) {
-			try {
-				// parsing of the first bBox
-				double minLon = Double.parseDouble(bbox[0]);
-				double minLat = Double.parseDouble(bbox[1]);
-				double maxLon = Double.parseDouble(bbox[2]);
-				double maxLat = Double.parseDouble(bbox[3]);
+			// the number of elements in the bboxeses array should be 4
+		}
+		try {
+			// parsing of the first bboxes values
+			double minLon = Double.parseDouble(bboxes[0]);
+			double minLat = Double.parseDouble(bboxes[1]);
+			double maxLon = Double.parseDouble(bboxes[2]);
+			double maxLat = Double.parseDouble(bboxes[3]);
+			// creation of the first bboxes
+			this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
 
-				this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
-
-				return this.bbox;
-
-			} catch (NumberFormatException e) {
-				throw new BadRequestException(
-						"The bBoxes array must contain 4 double-parseable String values in the following order: minLon, minLat, maxLon, maxLat.");
+			for (int i = 4; i < bboxes.length; i += 4) {
+				// parsing of the other bboxes values
+				minLon = Double.parseDouble(bboxes[i]);
+				minLat = Double.parseDouble(bboxes[i + 1]);
+				maxLon = Double.parseDouble(bboxes[i + 2]);
+				maxLat = Double.parseDouble(bboxes[i + 3]);
+				// union of the bboxeses
+				this.bbox = BoundingBox.union(this.bbox, new BoundingBox(minLon, maxLon, minLat, maxLat));
 			}
-		} else
+			return this.bbox;
+		} catch (NumberFormatException e) {
 			throw new BadRequestException(
-					"The bBoxes array must contain 4 double-parseable String values in the following order: minLon, minLat, maxLon, maxLat.");
+					"The bboxeses array must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
+		}
 	}
 
 	/**
@@ -145,12 +160,12 @@ public class InputValidator {
 	 * content of the given <code>String</code> array. This method is used for GET
 	 * requests only as it cannot handle more than one bounding point.
 	 * 
-	 * @param bpoint
+	 * @param bpoints
 	 *            <code>String</code> array containing the lon/lat coordinates of
 	 *            the point at [0] and [1] + the size of the buffer at [2].
 	 * @return
 	 */
-	public Geometry createBPoint(String[] bpoint) {
+	public Geometry createbpoints(String[] bpoints) {
 		GeometryFactory geomFact = new GeometryFactory();
 		Geometry buffer;
 		CoordinateReferenceSystem sourceCRS;
@@ -160,13 +175,13 @@ public class InputValidator {
 		try {
 			// Set source and target CRS + transformation
 			sourceCRS = CRS.decode("EPSG:4326", true);
-			targetCRS = CRS.decode(findEPSG(Double.parseDouble(bpoint[0]), Double.parseDouble(bpoint[1])), true);
+			targetCRS = CRS.decode(findEPSG(Double.parseDouble(bpoints[0]), Double.parseDouble(bpoints[1])), true);
 			transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
 
 			// creates a point from the coordinates and a buffer
 			Point p = geomFact
-					.createPoint(new Coordinate(Double.parseDouble(bpoint[0]), Double.parseDouble(bpoint[1])));
-			buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoint[2]));
+					.createPoint(new Coordinate(Double.parseDouble(bpoints[0]), Double.parseDouble(bpoints[1])));
+			buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[2]));
 			// transform back again
 			transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
 			this.bpoint = JTS.transform(buffer, transform);
@@ -177,7 +192,7 @@ public class InputValidator {
 		} catch (TransformException e) {
 			e.printStackTrace();
 			throw new BadRequestException(
-					"The bpoint array must contain two double-parseable String values in the order of "
+					"The bpoints array must contain two double-parseable String values in the order of "
 							+ "lon/lat coordinate pairs at [0] and [1] as well as a buffer length in meters.");
 		}
 
@@ -185,35 +200,94 @@ public class InputValidator {
 	}
 
 	/**
-	 * Creates a polygon out of the coordinates in the given array.
+	 * Creates a polygon out of the coordinates in the given array. If more polygons
+	 * are given, a union of the polygons is created.
 	 * 
-	 * @param bpoly
+	 * @param bpolys
 	 *            <code>String</code> array containing the lon/lat coordinates of
-	 *            the bounding polygon.
+	 *            the bounding polygon(s).
 	 * @return
 	 */
-	public Polygon createBPoly(String[] bpoly) {
+	public Polygon createbpolys(String[] bpolys) throws BadRequestException {
 		GeometryFactory geomFact = new GeometryFactory();
 		ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
-		// checks if the first and last coordinate pairs are not the same
-		if (!bpoly[0].equals(bpoly[bpoly.length - 2]) || !bpoly[1].equals(bpoly[bpoly.length - 1]))
-			throw new BadRequestException(
-					"The last coordinate pair of the polygon must have the same values as the first coordinate pair.");
-		try {
-			// walks through the string array and parses the coordinates
-			for (int i = 0; i < bpoly.length; i += 2) {
-				coords.add(new Coordinate(Double.parseDouble(bpoly[i]), Double.parseDouble(bpoly[i + 1])));
-			}
-			// adds the first coordinate pair again so the polygon will be closed
-			coords.add(new Coordinate(Double.parseDouble(bpoly[0]), Double.parseDouble(bpoly[1])));
-		} catch (NumberFormatException e) {
-			throw new BadRequestException(
-					"The bpoly array must contain double-parseable String values in the order of lon/lat coordinate pairs.");
-		}
-		// creates a polygon from the coordinates
-		this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
 
-		return this.bpoly;
+		// checks if the first and last coordinate pairs are the same (= only 1 polygon)
+		if (bpolys[0].equals(bpolys[bpolys.length - 2]) || bpolys[1].equals(bpolys[bpolys.length - 1])) {
+			try {
+				// walks through the string array and parses the coordinates
+				for (int i = 0; i < bpolys.length; i += 2) {
+					coords.add(new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+				}
+				// adds the first coordinate pair again so the polygon will be closed
+				coords.add(new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1])));
+			} catch (NumberFormatException e) {
+				throw new BadRequestException(
+						"The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
+			}
+			// creates a polygon from the coordinates
+			this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+
+			return this.bpoly;
+		} else {
+			throw new NotImplementedException("Being able to process more than one polygon is not implemented yet.");
+			//TODO still gives an error at union
+			// needs to be worked out in a more complex way
+			// see: https://gis.stackexchange.com/questions/71605/combine-several-polygon-objects-in-one-polygon-object-with-geotools-is-it-possi
+			
+			/*
+			Collection<Geometry> geometryCollection = new HashSet<Geometry>();
+			Coordinate firstPoint;
+			
+			try {
+				// sets the first point and adds it to the arraylist
+				firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
+				coords.add(firstPoint);
+
+				// walks through all remaining coordinates, creates polygons and adds them to
+				// the collection
+				for (int i = 2; i < bpolys.length; i += 2) {
+					// compares the current point to the first point
+					if (firstPoint.x == Double.parseDouble(bpolys[i])
+							&& firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
+						Polygon poly;
+						coords.add(new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+						// creates a polygon from the coordinates
+						poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+						geometryCollection.add(poly);
+						
+						// clear the coords array
+						coords.removeAll(coords);
+						if (i+2 >= bpolys.length)
+							break;
+						// set the new first point
+						firstPoint.x = Double.parseDouble(bpolys[i+2]);
+						firstPoint.y = Double.parseDouble(bpolys[i+3]);
+						// add it to the array
+						coords.add(firstPoint);
+						i+=2;
+					} else
+						coords.add(new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+				}
+				// creates a union out of the polygons in the collection
+				for (Geometry g : geometryCollection) {
+					if (this.bpoly == null)
+						this.bpoly = (Polygon) g;
+					else {
+						this.bpoly = (Polygon) this.bpoly.union((Polygon) g);
+					}
+						
+				}
+
+			} catch (NumberFormatException e) {
+				throw new BadRequestException(
+						"The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
+			}
+
+			return this.bpoly;
+			*/
+		}
+
 	}
 
 	/**
@@ -329,7 +403,7 @@ public class InputValidator {
 		}
 
 		// check if the types array only contains the default value (length == 0)
-		if (types.length==0) {
+		if (types.length == 0) {
 			return EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
 		}
 
@@ -445,21 +519,21 @@ public class InputValidator {
 	 * @param boundaryParam
 	 *            <code>String</code> array containing the boundary parameter from a
 	 *            POST request. Null in case of a GET request.
-	 * @param bbox
+	 * @param bboxes
 	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
-	 *            values, which have to be <code>double</code> parse-able. If bbox
-	 *            is given, bpoint and bpoly must be <code>null</code> or
+	 *            values, which have to be <code>double</code> parse-able. If bboxes
+	 *            is given, bpoints and bpolys must be <code>null</code> or
 	 *            <code>empty</code>. If neither of these parameters is given, a
 	 *            global request is computed. Null in case of POST requests.
-	 * @param bpoint
+	 * @param bpoints
 	 *            <code>String</code> array containing lon, lat, radius values,
-	 *            which have to be <code>double</code> parse-able. If bpoint is
-	 *            given, bbox and bpoly must be <code>null</code> or
+	 *            which have to be <code>double</code> parse-able. If bpoints is
+	 *            given, bboxes and bpolys must be <code>null</code> or
 	 *            <code>empty</code>. Null in case of POST requests.
-	 * @param bpoly
+	 * @param bpolys
 	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
-	 *            values, which have to be <code>double</code> parse-able. If bpoly
-	 *            is given, bbox and bpoint must be <code>null</code> or
+	 *            values, which have to be <code>double</code> parse-able. If bpolys
+	 *            is given, bboxes and bpoints must be <code>null</code> or
 	 *            <code>empty</code>. Null in case of POST requests.
 	 * @param types
 	 *            <code>String</code> array containing one or more strings defining
@@ -482,9 +556,8 @@ public class InputValidator {
 	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
 	 *         settings derived from the given parameters.
 	 */
-	public MapReducer<OSMEntitySnapshot> processParameters(boolean isGet, String[] boundaryParam, String[] bbox,
-			String[] bpoint, String[] bpoly, String[] types, String[] keys, String[] values, String[] userids,
-			String[] time) {
+	public MapReducer<OSMEntitySnapshot> processParameters(String[] boundaryParam, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time) {
 
 		// InputValidatorPost iVP = new InputValidatorPost();
 		MapReducer<OSMEntitySnapshot> mapRed;
@@ -494,28 +567,20 @@ public class InputValidator {
 		dbConnObjects = bean.getDbConnObjects();
 		mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
 
-		// checks if this method is called for a GET or a POST request
-		if (isGet) {
-			// boundary (no parameter = 0, bbox = 1, bpoint = 2, or bpoly = 3)
-			boundary = checkBoundaryGet(bbox, bpoint, bpoly);
-			if (boundary == 0) {
-				mapRed = mapRed.areaOfInterest(createBBoxes(bbox));
-			} else if (boundary == 1) {
-				mapRed = mapRed.areaOfInterest(createBBoxes(bbox));
-			} else if (boundary == 2) {
-				mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBPoint(bpoint));
-			} else if (boundary == 3) {
-				mapRed = mapRed.areaOfInterest(createBPoly(bpoly));
-			} else
-				throw new BadRequestException(
-						"Your provided boundary parameter (bbox, bpoint, or bpoly) does not fit its format. "
-								+ "or you defined more than one boundary parameter.");
-		} else {
-			// TODO implement a checkBoundaryPost method
-			// bounding box
-			// this.bbox = iVP.checkBBoxes(bboxes);
-			// mapRed = mapRed.areaOfInterest(this.bbox);
-		}
+		// boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
+		boundary = checkBoundary(bboxes, bpoints, bpolys);
+		if (boundary == 0) {
+			mapRed = mapRed.areaOfInterest(createBboxes(bboxes));
+		} else if (boundary == 1) {
+			mapRed = mapRed.areaOfInterest(createBboxes(bboxes));
+		} else if (boundary == 2) {
+			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createbpoints(bpoints));
+		} else if (boundary == 3) {
+			mapRed = mapRed.areaOfInterest(createbpolys(bpolys));
+		} else
+			throw new BadRequestException(
+					"Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
+							+ "or you defined more than one boundary parameter.");
 
 		// osm-type (node, way, relation)
 		osmTypes = checkTypes(types);
