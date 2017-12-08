@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
- * First level response content for the data aggregation requests. It contains
+ * Represents the whole JSON response object for the data aggregation requests. It contains
  * the requested data as well as information about the license, the copyright
  * and additional meta data.
  *

@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * REST controller containing the methods to handle GET and POST requests, which
- * enter through "/elements".
+ * REST controller containing the GET and POST request handling methods, which
+ * are mapped to "/elements".
  *
  */
 @RestController
@@ -42,12 +42,9 @@ public class ElementsController {
 
 	// HD: 8.6528, 49.3683, 8.7294, 49.4376
 
-	/*
-	 * GET Requests start here
-	 */
-
 	/**
-	 * Gets the count of OSM objects, which fit to the given parameters.
+	 * Gets the count of the OSM objects, which are selected by the given
+	 * parameters.
 	 * <p>
 	 * 
 	 * @param bboxes
@@ -63,18 +60,19 @@ public class ElementsController {
 	 *            <code>empty</code>.
 	 * @param bpolys
 	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
-	 *            values, which have to be <code>double</code> parse-able. If bpolys
-	 *            is given, bboxes and bpoints must be <code>null</code> or
-	 *            <code>empty</code>.
+	 *            values, which have to be <code>double</code> parse-able. The first
+	 *            and the last coordinate pair of each polygon have to be the same.
+	 *            If bpolys is given, bboxes and bpoints must be <code>null</code>
+	 *            or <code>empty</code>.
 	 * @param types
 	 *            <code>String</code> array containing one or more strings defining
 	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
-	 *            <code>null</code> or <code>empty</code>, all types are used.
+	 *            types is <code>null</code> or <code>empty</code>, all 3 are used.
 	 * @param keys
 	 *            <code>String</code> array containing one or more keys.
 	 * @param values
 	 *            <code>String</code> array containing one or more values. Must be
-	 *            less or equal than <code>keys.length()</code> anf values[n] must
+	 *            less or equal than <code>keys.length()</code> and values[n] must
 	 *            pair with keys[n].
 	 * @param userids
 	 *            <code>String</code> array containing one or more user-IDs.
@@ -86,8 +84,9 @@ public class ElementsController {
 	 *            extractTime(String time)}.
 	 * 
 	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-	 *         ElementsResponseContent} object containing the count of results for
-	 *         the given request as JSON response as well as additional info.
+	 *         ElementsResponseContent} object containing the count of the requested
+	 *         OSM objects as JSON response aggregated by the time, as well as
+	 *         additional info about the requested data.
 	 * @throws UnsupportedOperationException
 	 *             thrown by
 	 *             {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
@@ -111,7 +110,7 @@ public class ElementsController {
 		SortedMap<OSHDBTimestamp, Integer> result;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
-		
+
 		// input parameter processing
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
@@ -129,19 +128,23 @@ public class ElementsController {
 		ElementsResponseContent response = new ElementsResponseContent(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount",
-						"Total number of elements selected by the parameters."), null,
+				new MetaData(duration, "amount", "Total number of elements are selected by the parameters."), null,
 				resultSet);
 		return response;
 	}
 
 	/**
-	 * Gets the length of the OSM objects, which fit to the given parameters.
+	 * Gets the length of the OSM objects, which are selected by the given
+	 * parameters.
 	 * <p>
-	 * For description of the parameters, <code>return</code> object and exceptions,
-	 * look at the
+	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
 	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the length of the
+	 *         requested OSM objects as JSON response aggregated by the time, as
+	 *         well as additional info about the data.
 	 */
 	@RequestMapping("/length")
 	public ElementsResponseContent getLength(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
@@ -181,12 +184,17 @@ public class ElementsController {
 	}
 
 	/**
-	 * Gets the area of the OSM objects, which fit to the given parameters.
+	 * Gets the area of the OSM objects, which are are selected by the given
+	 * parameters.
 	 * <p>
-	 * For description of the parameters, <code>return</code> object and exceptions,
-	 * look at the
+	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
 	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the area of the requested
+	 *         OSM objects as JSON response aggregated by the time, as well as
+	 *         additional info about the data.
 	 */
 	@RequestMapping("/area")
 	public ElementsResponseContent getArea(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
@@ -265,10 +273,14 @@ public class ElementsController {
 	/**
 	 * Gets the density of selected items (number of items per area).
 	 * <p>
-	 * For description of the parameters, <code>return</code> object and exceptions,
-	 * look at the
+	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
 	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the density of OSM objects
+	 *         in the requested area as JSON response aggregated by the time, as
+	 *         well as additional info about the data.
 	 */
 	@RequestMapping("/density")
 	public ElementsResponseContent getDensity(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
@@ -325,20 +337,33 @@ public class ElementsController {
 		// response
 		ElementsResponseContent response = new ElementsResponseContent(
 				"-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration,
-						"items per square-kilometer", "Density of selected items (number of items per area)."), null,
-				resultSet);
+						"items per square-kilometer", "Density of selected items (number of items per area)."),
+				null, resultSet);
 		return response;
 	}
 
 	/**
 	 * Gets the ratio of selected items satisfying types2, keys2 and values2 within
 	 * items selected by types, keys and values.
-	 * 
 	 * <p>
-	 * For description of the parameters, <code>return</code> object and exceptions,
-	 * look at the
+	 * For description of the other parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
 	 * getCount} method.
+	 * 
+	 * @param types2
+	 *            <code>String</code> array containing the OSM types, which are used
+	 *            to satisfy the selected items to compute the ratio.
+	 * @param keys2
+	 *            <code>String</code> array containing the OSM types, which are used
+	 *            to satisfy the selected items to compute the ratio.
+	 * @param values2
+	 *            <code>String</code> array containing the OSM types, which are used
+	 *            to satisfy the selected items to compute the ratio.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the ratio of the requested
+	 *         OSM objects as JSON response aggregated by the time, as well as
+	 *         additional info about the data.
 	 */
 	@RequestMapping("/ratio")
 	public ElementsResponseContent getRatio(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
@@ -391,8 +416,8 @@ public class ElementsController {
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
 				new MetaData(duration, "ratio",
-						"Ratio of items satisfying types2, keys2, values2 within items selected by types, keys, values."), null,
-				resultSet);
+						"Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values."),
+				null, resultSet);
 		return response;
 	}
 
@@ -401,13 +426,17 @@ public class ElementsController {
 	 */
 
 	/**
-	 * Gets the count of OSM objects, which fit to the given parameters and are
-	 * grouped by the types.
+	 * Gets the count of OSM objects, which are selected by the given parameters and
+	 * are grouped by the types.
 	 * <p>
-	 * For description of the parameters, <code>return</code> object and exceptions,
-	 * look at the
+	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
 	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the OSM type as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
 	 */
 	@RequestMapping("/count/groupBy/type")
 	public ElementsResponseContent getCountGroupedByType(
@@ -429,13 +458,12 @@ public class ElementsController {
 		// input parameter processing
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
-		result = mapRed.aggregateByTimestamp()
-				.aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-					return f.getEntity().getType();
-				}).count();
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+			return f.getEntity().getType();
+		}).count();
 
 		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-		
+
 		// output
 		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
 		int count = 0;
@@ -446,11 +474,12 @@ public class ElementsController {
 			innerCount = 0;
 			// iterate over the inner entry objects containing timestamp-value pairs
 			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(), String.valueOf(innerEntry.getValue()));
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue()));
 				innerCount++;
 			}
 			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-					
+
 			count++;
 		}
 		long duration = System.currentTimeMillis() - startTime;
@@ -458,20 +487,22 @@ public class ElementsController {
 		ElementsResponseContent response = new ElementsResponseContent(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount",
-						"Total number of items aggregated on the types."),
-				resultSet, null);
+				new MetaData(duration, "amount", "Total number of items aggregated on the types."), resultSet, null);
 		return response;
 	}
 
 	/**
-	 * Gets the count of OSM objects, which fit to the given parameters and are
-	 * grouped by the userID.
+	 * Gets the count of OSM objects, which are selected by the given parameters and
+	 * are grouped by the userID.
 	 * <p>
-	 * For description of the parameters, <code>return</code> object and exceptions,
-	 * look at the
+	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
 	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the user as JSON response aggregated
+	 *         by the time, as well as additional info about the data.
 	 */
 	@RequestMapping("/count/groupBy/user")
 	public ElementsResponseContent getCountGroupedByUser(
@@ -498,10 +529,9 @@ public class ElementsController {
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
-		result = mapRed.aggregateByTimestamp()
-				.aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-					return f.getEntity().getUserId();
-				}).count();
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
+			return f.getEntity().getUserId();
+		}).count();
 
 		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
 
@@ -515,7 +545,8 @@ public class ElementsController {
 			innerCount = 0;
 			// iterate over the inner entry objects containing timestamp-value pairs
 			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(), String.valueOf(innerEntry.getValue()));
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue()));
 				innerCount++;
 			}
 			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -526,22 +557,18 @@ public class ElementsController {
 		ElementsResponseContent response = new ElementsResponseContent(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount",
-						"Total number of items aggregated on the userids."),
-				resultSet, null);
+				new MetaData(duration, "amount", "Total number of items aggregated on the userids."), resultSet, null);
 		return response;
 	}
 
-	
 	/*
 	 * POST Requests start here
 	 */
 
 	/**
 	 * POST request returning the count of elements for the given parameters. This
-	 * method should only be used if more boundary parameters of one category
-	 * (bboxes, bpoints, or bpolys) need to be given, or if the request URL would be
-	 * too long for a GET request.
+	 * method is not implemented yet. POST requests should only be used if the
+	 * request URL would be too long for a GET request.
 	 * 
 	 * @param content
 	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.input.AggregationContent
@@ -587,7 +614,8 @@ public class ElementsController {
 
 	/**
 	 * POST request returning the size of the area for the given parameters. This
-	 * method is not implemented yet.
+	 * method is not implemented yet. POST requests should only be used if the
+	 * request URL would be too long for a GET request.
 	 * 
 	 * @param content
 	 * @return

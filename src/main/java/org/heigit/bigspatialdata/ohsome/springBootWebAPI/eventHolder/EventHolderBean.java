@@ -5,10 +5,9 @@ import java.sql.SQLException;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.springframework.stereotype.Component;
 
-
 /**
- * Bean class, which is used to establish a database connection on startup of the server.
- * @author kowatsch
+ * Bean class, which is used to establish a database connection on startup of
+ * the server.
  *
  */
 @Component
@@ -17,7 +16,7 @@ public class EventHolderBean {
 	 * 0: oshdb 1: keytables
 	 */
 	private OSHDB_H2[] dbConnObjects;
-    
+
 	/**
 	 * Database connection method.
 	 * 
@@ -26,7 +25,8 @@ public class EventHolderBean {
 	 * @param keytablesPath
 	 *            Path to the keytables database.
 	 * @param multiThread
-	 *            Parameter to apply multithreaded processing (true) or not (false).
+	 *            <code>Boolean</code> parameter to say if multi-threaded processing
+	 *            should be applied, or not.
 	 */
 	public void dbConn(String dbPath, String keytablesPath, boolean multiThread) {
 		OSHDB_H2 oshdb;
@@ -47,7 +47,7 @@ public class EventHolderBean {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public OSHDB_H2[] getDbConnObjects() {
 		return dbConnObjects;
 	}

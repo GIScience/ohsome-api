@@ -35,10 +35,9 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.Polygonal;
 
 /**
- * Holds general validation methods and validates specific parameters given by a
- * GET request. Throws exceptions depending on their validity.
- * 
- * @author kowatsch
+ * Holds general input validation and computation methods and validates specific
+ * parameters given by the request. Throws exceptions depending on their
+ * validity.
  *
  */
 public class InputValidator {
@@ -75,10 +74,16 @@ public class InputValidator {
 	 * Checks which boundary parameter is given.
 	 * 
 	 * @param bboxes
+	 *            <code>String</code> array containing the lon/lat coordinate pairs
+	 *            of the bounding boxes.
 	 * @param bpoints
+	 *            <code>String</code> array containing the lon/lat coordinate pairs
+	 *            and the radius of the bounding points.
 	 * @param bpolys
+	 *            <code>String</code> array containing the lon/lat coordinate pairs
+	 *            of the bounding polygons.
 	 * @return Byte defining which parameter is given: 0 (none is given), 1 (bboxes
-	 *         is given), 2 (bpoints is given), or 3 (bpolys is given).
+	 *         are given), 2 (bpoints are given), or 3 (bpolys are given).
 	 * @throws BadRequestException
 	 *             The provided boundary parameter does not fit to its format, or
 	 *             more than one boundary parameter is given.
@@ -113,13 +118,15 @@ public class InputValidator {
 	}
 
 	/**
-	 * Creates a <code>BoundingBox</code> object out of the content of the given
-	 * <code>String</code> array. This method is used for GET requests only as it
-	 * cannot handle more than one bounding box.
+	 * Creates <code>BoundingBox</code> objects out of the content of the given
+	 * <code>String</code> array.
 	 * 
 	 * @param bboxes
 	 *            <code>String</code> array containing the lon/lat coordinates of
-	 *            the bounding box.
+	 *            the bounding boxes. Each bounding box must consist of 2 lon/lat
+	 *            coordinate pairs (bottom-left and top-right).
+	 * 
+	 * @return <code>BoundingBox</code> object.
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
@@ -136,7 +143,7 @@ public class InputValidator {
 			double minLat = Double.parseDouble(bboxes[1]);
 			double maxLon = Double.parseDouble(bboxes[2]);
 			double maxLat = Double.parseDouble(bboxes[3]);
-			// creation of the first bboxes
+			// creation of the first bbox
 			this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
 
 			for (int i = 4; i < bboxes.length; i += 4) {
@@ -145,7 +152,7 @@ public class InputValidator {
 				minLat = Double.parseDouble(bboxes[i + 1]);
 				maxLon = Double.parseDouble(bboxes[i + 2]);
 				maxLat = Double.parseDouble(bboxes[i + 3]);
-				// union of the bboxeses
+				// union of the bboxes
 				this.bbox = BoundingBox.union(this.bbox, new BoundingBox(minLon, maxLon, minLat, maxLat));
 			}
 			return this.bbox;
@@ -156,16 +163,21 @@ public class InputValidator {
 	}
 
 	/**
-	 * Creates a <code>Geometry</code> object representing a circle out of the
-	 * content of the given <code>String</code> array. This method is used for GET
-	 * requests only as it cannot handle more than one bounding point.
+	 * Creates a <code>Geometry</code> object around the coordinates of the given
+	 * <code>String</code> array. This method is used for GET requests only as it
+	 * cannot handle more than one bounding point.
 	 * 
 	 * @param bpoints
 	 *            <code>String</code> array containing the lon/lat coordinates of
-	 *            the point at [0] and [1] + the size of the buffer at [2].
-	 * @return
+	 *            the point at [0] and [1] and the size of the buffer at [2].
+	 * 
+	 * @return <code>Geometry</code> object representing a circular polygon around
+	 *         the bounding point.
+	 * 
+	 * @throws BadRequestException
+	 *             Invalid coordinates or radius.
 	 */
-	public Geometry createbpoints(String[] bpoints) {
+	public Geometry createCircularPolygon(String[] bpoints) {
 		GeometryFactory geomFact = new GeometryFactory();
 		Geometry buffer;
 		CoordinateReferenceSystem sourceCRS;
@@ -206,7 +218,13 @@ public class InputValidator {
 	 * @param bpolys
 	 *            <code>String</code> array containing the lon/lat coordinates of
 	 *            the bounding polygon(s).
-	 * @return
+	 * @return <code>Geometry</code> object representing a circular polygon around
+	 *         the bounding point.
+	 * 
+	 * @throws BadRequestException
+	 *             Invalid coordinates.
+	 * @throws NotImplementedException
+	 *             The processing of more than one polygon is not implemented yet.
 	 */
 	public Polygon createbpolys(String[] bpolys) throws BadRequestException {
 		GeometryFactory geomFact = new GeometryFactory();
@@ -231,61 +249,47 @@ public class InputValidator {
 			return this.bpoly;
 		} else {
 			throw new NotImplementedException("Being able to process more than one polygon is not implemented yet.");
-			//TODO still gives an error at union
+			// TODO still gives an error at union
 			// needs to be worked out in a more complex way
-			// see: https://gis.stackexchange.com/questions/71605/combine-several-polygon-objects-in-one-polygon-object-with-geotools-is-it-possi
-			
+			// see:
+			// https://gis.stackexchange.com/questions/71605/combine-several-polygon-objects-in-one-polygon-object-with-geotools-is-it-possi
+
 			/*
-			Collection<Geometry> geometryCollection = new HashSet<Geometry>();
-			Coordinate firstPoint;
-			
-			try {
-				// sets the first point and adds it to the arraylist
-				firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
-				coords.add(firstPoint);
-
-				// walks through all remaining coordinates, creates polygons and adds them to
-				// the collection
-				for (int i = 2; i < bpolys.length; i += 2) {
-					// compares the current point to the first point
-					if (firstPoint.x == Double.parseDouble(bpolys[i])
-							&& firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
-						Polygon poly;
-						coords.add(new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
-						// creates a polygon from the coordinates
-						poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
-						geometryCollection.add(poly);
-						
-						// clear the coords array
-						coords.removeAll(coords);
-						if (i+2 >= bpolys.length)
-							break;
-						// set the new first point
-						firstPoint.x = Double.parseDouble(bpolys[i+2]);
-						firstPoint.y = Double.parseDouble(bpolys[i+3]);
-						// add it to the array
-						coords.add(firstPoint);
-						i+=2;
-					} else
-						coords.add(new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
-				}
-				// creates a union out of the polygons in the collection
-				for (Geometry g : geometryCollection) {
-					if (this.bpoly == null)
-						this.bpoly = (Polygon) g;
-					else {
-						this.bpoly = (Polygon) this.bpoly.union((Polygon) g);
-					}
-						
-				}
-
-			} catch (NumberFormatException e) {
-				throw new BadRequestException(
-						"The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
-			}
-
-			return this.bpoly;
-			*/
+			 * Collection<Geometry> geometryCollection = new HashSet<Geometry>(); Coordinate
+			 * firstPoint;
+			 * 
+			 * try { // sets the first point and adds it to the arraylist firstPoint = new
+			 * Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
+			 * coords.add(firstPoint);
+			 * 
+			 * // walks through all remaining coordinates, creates polygons and adds them to
+			 * // the collection for (int i = 2; i < bpolys.length; i += 2) { // compares
+			 * the current point to the first point if (firstPoint.x ==
+			 * Double.parseDouble(bpolys[i]) && firstPoint.y == Double.parseDouble(bpolys[i
+			 * + 1])) { Polygon poly; coords.add(new
+			 * Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i +
+			 * 1]))); // creates a polygon from the coordinates poly =
+			 * geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+			 * geometryCollection.add(poly);
+			 * 
+			 * // clear the coords array coords.removeAll(coords); if (i+2 >= bpolys.length)
+			 * break; // set the new first point firstPoint.x =
+			 * Double.parseDouble(bpolys[i+2]); firstPoint.y =
+			 * Double.parseDouble(bpolys[i+3]); // add it to the array
+			 * coords.add(firstPoint); i+=2; } else coords.add(new
+			 * Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i +
+			 * 1]))); } // creates a union out of the polygons in the collection for
+			 * (Geometry g : geometryCollection) { if (this.bpoly == null) this.bpoly =
+			 * (Polygon) g; else { this.bpoly = (Polygon) this.bpoly.union((Polygon) g); }
+			 * 
+			 * }
+			 * 
+			 * } catch (NumberFormatException e) { throw new BadRequestException(
+			 * "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs."
+			 * ); }
+			 * 
+			 * return this.bpoly;
+			 */
 		}
 
 	}
@@ -297,8 +301,8 @@ public class InputValidator {
 	 * <li>timestamp: YYYY-MM-DD</li>
 	 * <li>start/end: YYYY-MM-DD/YYYY-MM-DD</li>
 	 * <li>start/end/period: YYYY-MM-DD/YYYY-MM-DD/PnYnMnD where [n] refers to the
-	 * size of the period and 0 <= n <= 99. Example: P1Y10M15D refers to an interval
-	 * of one year, 10 months and 15 days.</li>
+	 * size of the period and 0 <= n <= 99. At the moment only one period format (Y,
+	 * M, or D) can be used.</li>
 	 * <li>#/end: /YYYY-MM-DD</li>
 	 * <li>#/end/period: /YYYY-MM-DD/PnYnMnD</li>
 	 * <li>start/#: YYYY-MM-DD/</li>
@@ -390,11 +394,17 @@ public class InputValidator {
 	}
 
 	/**
-	 * Checks and extracts the content of the OSM types array.
+	 * Checks and extracts the content of the types parameter.
 	 * 
 	 * @param types
-	 *            String array containing 1, 2, or all 3 types. If default value is
-	 *            given, all 3 types will be used
+	 *            <code>String</code> array containing 1, 2, or all 3 OSM types
+	 *            (node, way, relation). If the array is empty, all 3 types will be
+	 *            used
+	 * 
+	 * @return <code>EnumSet</code> containing the requested OSM type(s).
+	 * @throws BadRequestException
+	 *             If the content of the parameter does not represent one, two, or
+	 *             all three OSM types.
 	 */
 	public EnumSet<OSMType> checkTypes(String[] types) {
 		// checks if the types array is too big
@@ -470,10 +480,12 @@ public class InputValidator {
 	 * Method to compare the size of the keys and values arrays.
 	 * 
 	 * @param keys
-	 *            String array, which contains the provided key parameters.
+	 *            <code>String</code> array, which contains the provided key
+	 *            parameters.
 	 * @param values
-	 *            String array, which contains the provided value parameters. Has to
-	 *            be smaller than or equal to the length of the keys array.
+	 *            <code>String</code> array, which contains the provided value
+	 *            parameters. Has to be smaller than or equal to the length of the
+	 *            keys array.
 	 * 
 	 * @throws BadRequestException
 	 *             The number of provided values compared to the keys parameter(s)
@@ -495,8 +507,11 @@ public class InputValidator {
 	 * @param userids
 	 *            String array containing the IDs of the requested userids (must be
 	 *            valid whole-number IDs).
+	 * 
+	 * @throws BadRequestException
+	 *             If one of the userids is invalid.
 	 */
-	public void checkuserids(String[] userids) {
+	public void checkUserids(String[] userids) {
 		for (String user : userids) {
 			try {
 				// tries to parse the String to a long
@@ -512,10 +527,6 @@ public class InputValidator {
 	/**
 	 * Method to process the input parameters of a POST or GET request.
 	 * 
-	 * @param isGet
-	 *            <code>boolean</code> value stating <code>true</code> if this
-	 *            method is called from a GET request and <code>false</code> if it
-	 *            is called from a POST request.
 	 * @param boundaryParam
 	 *            <code>String</code> array containing the boundary parameter from a
 	 *            POST request. Null in case of a GET request.
@@ -538,12 +549,12 @@ public class InputValidator {
 	 * @param types
 	 *            <code>String</code> array containing one or more strings defining
 	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
-	 *            <code>null</code> or <code>empty</code>, all types are used.
+	 *            <code>null</code> or <code>empty</code>, all 3 types are used.
 	 * @param keys
 	 *            <code>String</code> array containing one or more keys.
 	 * @param values
 	 *            <code>String</code> array containing one or more values. Must be
-	 *            less or equal than <code>keys.length()</code> anf values[n] must
+	 *            less or equal than <code>keys.length()</code> and values[n] must
 	 *            pair with keys[n].
 	 * @param userids
 	 *            <code>String</code> array containing one or more user-IDs.
@@ -574,7 +585,7 @@ public class InputValidator {
 		} else if (boundary == 1) {
 			mapRed = mapRed.areaOfInterest(createBboxes(bboxes));
 		} else if (boundary == 2) {
-			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createbpoints(bpoints));
+			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygon(bpoints));
 		} else if (boundary == 3) {
 			mapRed = mapRed.areaOfInterest(createbpolys(bpolys));
 		} else
@@ -627,7 +638,7 @@ public class InputValidator {
 		// checks if the userids parameter is not empty (POST) and does not have the
 		// default value (GET)
 		if (userids != null && userids.length != 0) {
-			checkuserids(userids);
+			checkUserids(userids);
 			// more efficient way to include all userIDs
 			Set<Integer> useridSet = new HashSet<>();
 			for (String user : userids)
@@ -643,7 +654,7 @@ public class InputValidator {
 
 	/**
 	 * Finds and returns the EPSG code of the given point. Adapted code from
-	 * UTMCodeFromLonLat.java class in the osmatrix project.
+	 * UTMCodeFromLonLat.java class in the osmatrix project (by Michael Auer)
 	 * 
 	 * @param lon
 	 *            Longitude coordinate of the point.

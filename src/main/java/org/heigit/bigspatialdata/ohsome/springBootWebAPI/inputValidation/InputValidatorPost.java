@@ -8,9 +8,7 @@ import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
 
 /**
  * Validates the parameters given by a POST request. Throws exceptions depending
- * on their validity.
- * 
- * @author kowatsch
+ * on their validity. This class is not up-to-date and not used in the current implementation.
  *
  */
 public class InputValidatorPost {

@@ -7,8 +7,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 /**
- * This class is activated on server startup and calls an eventholder bean to establish a database connection.
- * @author kowatsch
+ * This listener is activated on server startup and calls an eventholder bean to establish a database connection.
  *
  */
 @Component

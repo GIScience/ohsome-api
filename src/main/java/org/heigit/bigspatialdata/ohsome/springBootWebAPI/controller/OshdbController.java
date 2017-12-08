@@ -29,8 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Spring boot controller, which works with the data extraction requests.
- * This was implemented before the concept of the REST API was defined in Confluence.
- * So it is not up-to-date.
+ * This was implemented before the concept of the REST API was defined in Confluence, so it is not up-to-date.
  *
  */
 @RestController

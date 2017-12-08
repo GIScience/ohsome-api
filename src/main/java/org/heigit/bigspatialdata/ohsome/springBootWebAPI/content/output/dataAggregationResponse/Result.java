@@ -1,8 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse;
 
 /**
- * Second (or third in case of groupBy requests) level response content for the data aggregation requests. It holds the
- * timestamp together with the corresponding value.
+ * Represents the result JSON object containing the timestamp together with the
+ * corresponding value.
  *
  */
 public class Result {

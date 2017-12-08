@@ -1,8 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output;
 
 /**
- * Represents the meta data, which will be sent back in each JSON response.
- * @author kowatsch
+ * Represents the meta data, which will be sent back in the JSON response.
  *
  */
 public class MetaData {
