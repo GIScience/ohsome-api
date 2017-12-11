@@ -128,7 +128,7 @@ public class ElementsController {
 		ElementsResponseContent response = new ElementsResponseContent(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount", "Total number of elements are selected by the parameters."), null,
+				new MetaData(duration, "amount", "Total number of elements, which are selected by the parameters."), null,
 				resultSet);
 		return response;
 	}

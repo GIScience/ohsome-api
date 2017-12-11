@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataExt
 /**
  * Content of the node object in the POST JSON response.
  * This was implemented before the detailed concept of the REST API was defined in Confluence.
- * @author kowatsch
  *
  */
 public class Node {

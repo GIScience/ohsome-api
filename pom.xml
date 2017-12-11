@@ -52,6 +52,18 @@
 			<artifactId>gt-epsg-hsql</artifactId>
 			<version>17.2</version>
 		</dependency>
+		<!-- Springfox implementation of the Swagger specification -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+		<!-- Springfox Swagger UI -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.7.0</version>
+		</dependency>
 	</dependencies>
 
 	<properties>
@@ -69,9 +81,6 @@
 	</build>
 
 	<repositories>
-		<!-- <repository> <snapshots> <enabled>false</enabled> </snapshots> <id>oshdb-releases</id> 
-			<name>Heigit/GIScience maven repository (releases)</name> <url>http://129.206.7.121:8081/artifactory/libs-release-local</url> 
-			</repository> -->
 		<repository>
 			<snapshots>
 				<enabled>true</enabled>

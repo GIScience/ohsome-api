@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Third level object in the POST JSON response.
  * This was implemented before the detailed concept of the REST API was defined in Confluence.
- * @author kowatsch
  *
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result

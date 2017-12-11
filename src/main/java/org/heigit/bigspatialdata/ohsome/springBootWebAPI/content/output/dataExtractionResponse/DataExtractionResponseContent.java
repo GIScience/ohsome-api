@@ -8,7 +8,6 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData
  * First level object in the POST JSON response.
  * This was implemented before the detailed concept of the REST API was defined in Confluence.
  * It follows this structure: https://confluence.gistools.geog.uni-heidelberg.de/pages/viewpage.action?pageId=11894804
- * @author kowatsch
  *
  */
 public class DataExtractionResponseContent {

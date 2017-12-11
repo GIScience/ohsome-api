@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Second level object in the POST JSON response.
  * This was implemented before the detailed concept of the REST API was defined in Confluence.
- * @author kowatsch
+ * @author kowatsc
  *
  */
 public class OshdbResult {
