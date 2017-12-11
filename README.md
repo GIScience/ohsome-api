@@ -209,7 +209,7 @@ Gives the ratio within the given bounding polygon for all residential highways w
 
 ## Tested With
 
-* [Postman](https://www.getpostman.com/) - Software to test REST APIs (e.g. build and send HTTP requests)
+* [Postman](https://www.getpostman.com/) - Software to test REST APIs (e.g. build and send HTTP requests and view the responses)
 
 ## Authors
 
