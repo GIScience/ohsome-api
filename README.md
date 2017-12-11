@@ -8,11 +8,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
+* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
+* [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
+* atm for local testing as well: IDE (e.g. [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a))
 
 ### Installing
 
@@ -38,6 +36,9 @@ End with an example of getting some data out of the system or using it for a lit
 * [Spring Boot](https://projects.spring.io/spring-boot/) - Web framework
 * [Maven](https://maven.apache.org/) - Dependency management and project building
 
+## Tested With
+
+* [Postman](https://www.getpostman.com/) - Software to test REST APIs (e.g. build and send HTTP requests)
 
 ## Authors
 
