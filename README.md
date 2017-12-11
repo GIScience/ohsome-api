@@ -1,6 +1,6 @@
-# Project Title
+# OSHDB Web REST API
 
-One Paragraph of project description goes here
+This REST API aims to leverage the tools of the [oshdb](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/core) through allowing to access some of its functionalities via HTTP requests.
 
 ## Getting Started
 
