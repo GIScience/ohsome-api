@@ -1,6 +1,7 @@
 # OSHDB Web REST API
 
 This REST API aims to leverage the tools of the [oshdb](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/core) through allowing to access some of its functionalities via HTTP requests.
+Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) for reading information about the whole planning, parameter formats, etc. for this REST API.
 
 ## Getting Started
 
@@ -11,24 +12,11 @@ These instructions will get you a copy of the project up and running on your loc
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
 * atm for local testing as well: IDE (e.g. [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a))
+* data: keytables.mv.db and baden-wuerttemberg.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data*)
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Built With
 
