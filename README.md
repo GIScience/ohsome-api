@@ -88,7 +88,8 @@ Gives the count within the given bounding box for all relations, which have the 
 ```
 <p>
 * http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2012-01-01/2015-01-01/P1Y&keys=building
-<p> Gives you the count grouped by the type within the given bbox for all ways and relations, which have the key "building" for the time from 2012-01-01 till 2015-07-01 in a yearly interval.
+<p> 
+Gives the count grouped by the type within the given bbox for all ways and relations, which have the key "building" for the time from 2012-01-01 till 2015-07-01 in a yearly interval.
 
 ```json
 {
@@ -146,7 +147,60 @@ Gives the count within the given bounding box for all relations, which have the 
 }
 ```
 <p>
-* 
+* http://localhost:8080/elements/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-11-01/2017-11-01/P1Y&keys=highway&values=residential&types2=way&keys2=highway,maxspeed&values2=residential
+<p>
+Gives the ratio within the given bounding polygon for all residential highways with a maxspeed compared to the total number of residential highways for the time from 2009-05-01 till 2017-05-01 in a yearly interval.
+
+```json
+{
+    "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+    "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "metaData": {
+        "executionTime": 8867,
+        "unit": "ratio",
+        "description": "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values."
+    },
+    "result": [
+        {
+            "timestamp": "2009-05-01T00:00:00Z",
+            "value": "0.3161232"
+        },
+        {
+            "timestamp": "2010-05-01T00:00:00Z",
+            "value": "0.3473054"
+        },
+        {
+            "timestamp": "2011-05-01T00:00:00Z",
+            "value": "0.4011076"
+        },
+        {
+            "timestamp": "2012-05-01T00:00:00Z",
+            "value": "0.41004497"
+        },
+        {
+            "timestamp": "2013-05-01T00:00:00Z",
+            "value": "0.4556597"
+        },
+        {
+            "timestamp": "2014-05-01T00:00:00Z",
+            "value": "0.51816314"
+        },
+        {
+            "timestamp": "2015-05-01T00:00:00Z",
+            "value": "0.5421687"
+        },
+        {
+            "timestamp": "2016-05-01T00:00:00Z",
+            "value": "0.60271317"
+        },
+        {
+            "timestamp": "2017-05-01T00:00:00Z",
+            "value": "0.67108583"
+        }
+    ]
+}
+```
+
 ## Built With
 
 * [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a) - IDE
