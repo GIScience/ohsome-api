@@ -31,12 +31,122 @@ These instructions will get you a copy of the project up and running on your loc
 4. enter the command *mvn package* to build the project
 5. enter the command *java -jar target/springBootWebAPI-0.0.1-SNAPSHOT.jar* to run the jar file
 
-Now you have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
+Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
 ## Examples
 
 This section will give you some example request URLs and show you the results returned by the REST API.
 
+* http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=relation&time=2014-01-01/2017-07-01/P6M&keys=building&values=yes
+<p> 
+Gives the count within the given bounding box for all relations, which have the key “building” and the value “yes” for the time from 2014-01-01 till 2017-07-01 in a six-months interval.
+
+```json
+{
+    "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+    "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "metaData": {
+        "executionTime": 5727,
+        "unit": "amount",
+        "description": "Total number of elements, which are selected by the parameters."
+    },
+    "result": [
+        {
+            "timestamp": "2014-01-01T00:00:00Z",
+            "value": "34"
+        },
+        {
+            "timestamp": "2014-07-01T00:00:00Z",
+            "value": "36"
+        },
+        {
+            "timestamp": "2015-01-01T00:00:00Z",
+            "value": "42"
+        },
+        {
+            "timestamp": "2015-07-01T00:00:00Z",
+            "value": "49"
+        },
+        {
+            "timestamp": "2016-01-01T00:00:00Z",
+            "value": "53"
+        },
+        {
+            "timestamp": "2016-07-01T00:00:00Z",
+            "value": "51"
+        },
+        {
+            "timestamp": "2017-01-01T00:00:00Z",
+            "value": "45"
+        },
+        {
+            "timestamp": "2017-07-01T00:00:00Z",
+            "value": "54"
+        }
+    ]
+}
+```
+<p>
+* http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2012-01-01/2015-01-01/P1Y&keys=building
+<p> Gives you the count grouped by the type within the given bbox for all ways and relations, which have the key "building" for the time from 2012-01-01 till 2015-07-01 in a yearly interval.
+
+```json
+{
+    "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+    "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "metaData": {
+        "executionTime": 5504,
+        "unit": "amount",
+        "description": "Total number of items aggregated on the types."
+    },
+    "groupByResult": [
+        {
+            "groupByObj": "WAY",
+            "result": [
+                {
+                    "timestamp": "2012-01-01T00:00:00Z",
+                    "value": "9570"
+                },
+                {
+                    "timestamp": "2013-01-01T00:00:00Z",
+                    "value": "17461"
+                },
+                {
+                    "timestamp": "2014-01-01T00:00:00Z",
+                    "value": "28406"
+                },
+                {
+                    "timestamp": "2015-01-01T00:00:00Z",
+                    "value": "34508"
+                }
+            ]
+        },
+        {
+            "groupByObj": "RELATION",
+            "result": [
+                {
+                    "timestamp": "2012-01-01T00:00:00Z",
+                    "value": "43"
+                },
+                {
+                    "timestamp": "2013-01-01T00:00:00Z",
+                    "value": "49"
+                },
+                {
+                    "timestamp": "2014-01-01T00:00:00Z",
+                    "value": "37"
+                },
+                {
+                    "timestamp": "2015-01-01T00:00:00Z",
+                    "value": "49"
+                }
+            ]
+        }
+    ]
+}
+```
+<p>
+* 
 ## Built With
 
 * [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a) - IDE
