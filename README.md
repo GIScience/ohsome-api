@@ -16,7 +16,22 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
+1. import the checked out repository as a Maven project in your IDE
+2. go to the class ContextRefreshedListener.java in the package listener and change the following paths to your local directories of the db files and make sure to exclude the file endings '.mv.db' from the path
 
+```java
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        System.out.println("Context Event Received");
+        eventHolderBean.dbConn("C:/yourPath/baden-wuerttemberg.oshdb",
+				"C:/yourPath/keytables", true);
+```
+
+3. move to your Maven project directory in a shell (e.g. Windows PowerShell)
+4. enter the command *mvn package* to build the project
+5. enter the command *java -jar target/springBootWebAPI-0.0.1-SNAPSHOT.jar* to run the jar file
+
+Now you have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
 ## Built With
 
