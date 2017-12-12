@@ -156,15 +156,17 @@ public class InputValidator {
 	}
 
 	/**
-	 * Creates a unified <code>Geometry</code> object out of the content of the given
-	 * <code>String</code> array. Only used if more than one bbox is given in the input array.
+	 * Creates a unified <code>Geometry</code> object out of the content of the
+	 * given <code>String</code> array. Only used if more than one bbox is given in
+	 * the input array.
 	 * 
 	 * @param bboxes
 	 *            <code>String</code> array containing the lon/lat coordinates of
 	 *            the bounding boxes. Each bounding box must consist of 2 lon/lat
 	 *            coordinate pairs (bottom-left and top-right).
 	 * 
-	 * @return <code>Geometry</code> object representing the unified bboxes as a polygon.
+	 * @return <code>Geometry</code> object representing the unified bboxes as a
+	 *         polygon.
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
@@ -754,7 +756,10 @@ public class InputValidator {
 		byte timeType = 0;
 
 		// regex expressions to differentiate between the 9 possible time formats
-		if (time.matches("\\d{4}-\\d{2}-\\d{2}")) {
+		if (time.matches("\\d{4}-\\d{2}-\\d{2}") 
+				|| time.matches("\\d{4}-\\d{2}-\\d{2}[T]\\d{2}")
+				|| time.matches("\\d{4}-\\d{2}-\\d{2}[T]\\d{2}:\\d{2}")
+				|| time.matches("\\d{4}-\\d{2}-\\d{2}[T]\\d{2}:\\d{2}:\\d{2}")) {
 			timeType = 1;
 		} else if (time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}")) {
 			timeType = 2;
