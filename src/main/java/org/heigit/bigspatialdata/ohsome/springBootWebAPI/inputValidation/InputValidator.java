@@ -43,7 +43,7 @@ import com.vividsolutions.jts.geom.Polygonal;
 public class InputValidator {
 
 	// world: -179.9999, 180, -85.0511, 85.0511
-	// default bboxes defining the whole area (here: BW)
+	// default bbox defining the whole area (here: BW)
 	private final double defMinLon = 7.3949;
 	private final double defMaxLon = 10.6139;
 	private final double defMinLat = 47.3937;
@@ -90,13 +90,13 @@ public class InputValidator {
 	 */
 	public byte checkBoundary(String[] bboxes, String[] bpoints, String[] bpolys) {
 		// checks the given parameters
-		if (bboxes.length == 0 && bpoints.length == 0 && bpolys.length == 0) {
+		if ((bboxes.length == 0 || bboxes.length == 4) && bpoints.length == 0 && bpolys.length == 0) {
 			this.boundary = 0;
 			return this.boundary;
-		} else if (bboxes.length >= 4 && bpoints.length == 0 && bpolys.length == 0) {
+		} else if (bboxes.length > 4 && bpoints.length == 0 && bpolys.length == 0) {
 			if (bboxes.length % 4 != 0)
 				throw new BadRequestException(
-						"Each of your provided bboxeses must consist of 2 lon/lat points (bottom left and top right).");
+						"Each of your provided bboxes must consist of 2 lon/lat points (bottom left and top right).");
 			this.boundary = 1;
 			return this.boundary;
 		} else if (bboxes.length == 0 && bpoints.length >= 3 && bpolys.length == 0) {
@@ -108,7 +108,7 @@ public class InputValidator {
 		} else if (bboxes.length == 0 && bpoints.length == 0 && bpolys.length >= 6) {
 			if (bpolys.length % 2 != 0)
 				throw new BadRequestException(
-						"Each of your provided bpolyss must consist of n lon/lat coordinate pairs.");
+						"Each of your provided bpolys must consist of n lon/lat coordinate pairs.");
 			this.boundary = 3;
 			return this.boundary;
 		} else
@@ -118,26 +118,60 @@ public class InputValidator {
 	}
 
 	/**
-	 * Creates <code>BoundingBox</code> objects out of the content of the given
-	 * <code>String</code> array.
+	 * Creates a <code>BoundingBox</code> object out of the content of the given
+	 * <code>String</code> array. Only used if one or no bbox is given.
+	 * 
+	 * @param bbox
+	 *            <code>String</code> array containing the lon/lat coordinates of
+	 *            the bounding box. It must consist of 2 lon/lat coordinate pairs
+	 *            (bottom-left and top-right).
+	 * 
+	 * @return <code>BoundingBox</code> object.
+	 * @throws BadRequestException
+	 *             Invalid coordinates.
+	 */
+	public BoundingBox createBbox(String[] bbox) throws BadRequestException {
+		if (bbox.length == 0) {
+			// no bboxes given -> global request
+			this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
+			return this.bbox;
+		} else if (bbox.length == 4) {
+			try {
+				// parsing of the bbox values
+				double minLon = Double.parseDouble(bbox[0]);
+				double minLat = Double.parseDouble(bbox[1]);
+				double maxLon = Double.parseDouble(bbox[2]);
+				double maxLat = Double.parseDouble(bbox[3]);
+				// creation of the bbox
+				this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+				return this.bbox;
+			} catch (NumberFormatException e) {
+				throw new BadRequestException(
+						"The bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
+			}
+		} else {
+			throw new BadRequestException(
+					"The bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
+		}
+	}
+
+	/**
+	 * Creates a unified <code>Geometry</code> object out of the content of the given
+	 * <code>String</code> array. Only used if more than one bbox is given in the input array.
 	 * 
 	 * @param bboxes
 	 *            <code>String</code> array containing the lon/lat coordinates of
 	 *            the bounding boxes. Each bounding box must consist of 2 lon/lat
 	 *            coordinate pairs (bottom-left and top-right).
 	 * 
-	 * @return <code>BoundingBox</code> object.
+	 * @return <code>Geometry</code> object representing the unified bboxes as a polygon.
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
-	public BoundingBox createBboxes(String[] bboxes) throws BadRequestException {
-		// no bboxes given -> global request
-		if (bboxes.length == 0) {
-			this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
-			return this.bbox;
-			// the number of elements in the bboxeses array should be 4
-		}
+	public Geometry createBboxes(String[] bboxes) throws BadRequestException {
 		try {
+			Geometry unifiedBbox;
+			GeometryFactory gf = new GeometryFactory();
 			// parsing of the first bboxes values
 			double minLon = Double.parseDouble(bboxes[0]);
 			double minLat = Double.parseDouble(bboxes[1]);
@@ -145,6 +179,7 @@ public class InputValidator {
 			double maxLat = Double.parseDouble(bboxes[3]);
 			// creation of the first bbox
 			this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+			unifiedBbox = gf.createGeometry(this.bbox.getGeometry());
 
 			for (int i = 4; i < bboxes.length; i += 4) {
 				// parsing of the other bboxes values
@@ -152,10 +187,11 @@ public class InputValidator {
 				minLat = Double.parseDouble(bboxes[i + 1]);
 				maxLon = Double.parseDouble(bboxes[i + 2]);
 				maxLat = Double.parseDouble(bboxes[i + 3]);
+				this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
 				// union of the bboxes
-				this.bbox = BoundingBox.union(this.bbox, new BoundingBox(minLon, maxLon, minLat, maxLat));
+				unifiedBbox = unifiedBbox.union(this.bbox.getGeometry());
 			}
-			return this.bbox;
+			return unifiedBbox;
 		} catch (NumberFormatException e) {
 			throw new BadRequestException(
 					"The bboxeses array must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
@@ -231,7 +267,7 @@ public class InputValidator {
 		ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 
 		// checks if the first and last coordinate pairs are the same (= only 1 polygon)
-		if (bpolys[0].equals(bpolys[bpolys.length - 2]) || bpolys[1].equals(bpolys[bpolys.length - 1])) {
+		if (bpolys[0].equals(bpolys[bpolys.length - 2]) && bpolys[1].equals(bpolys[bpolys.length - 1])) {
 			try {
 				// walks through the string array and parses the coordinates
 				for (int i = 0; i < bpolys.length; i += 2) {
@@ -581,9 +617,9 @@ public class InputValidator {
 		// boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
 		boundary = checkBoundary(bboxes, bpoints, bpolys);
 		if (boundary == 0) {
-			mapRed = mapRed.areaOfInterest(createBboxes(bboxes));
+			mapRed = mapRed.areaOfInterest(createBbox(bboxes));
 		} else if (boundary == 1) {
-			mapRed = mapRed.areaOfInterest(createBboxes(bboxes));
+			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(bboxes));
 		} else if (boundary == 2) {
 			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygon(bpoints));
 		} else if (boundary == 3) {

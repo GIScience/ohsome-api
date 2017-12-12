@@ -118,7 +118,7 @@ public class InputValidatorPost {
 					// intermediate bBox
 					BoundingBox intermBBox = new BoundingBox(minLon, maxLon, minLat, maxLat);
 					// creates a union of the old bBox together with the newest bBox
-					resultingBBox = BoundingBox.union(resultingBBox, intermBBox);
+					// resultingBBox = BoundingBox.union(resultingBBox, intermBBox);
 					counter = counter + 1;
 				}
 				return resultingBBox;
