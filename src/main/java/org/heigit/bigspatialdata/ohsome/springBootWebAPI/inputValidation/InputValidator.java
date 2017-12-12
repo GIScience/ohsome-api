@@ -642,7 +642,11 @@ public class InputValidator {
 				mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
 			} else
 				mapRed = mapRed.timestamps(timeData[0], timeData[1]);
-		} else {
+		} else if (time.length == 0) {
+			// if no time parameter given --> return the default end time
+			mapRed = mapRed.timestamps(defEndTime);
+		}
+		else {
 			// gets the first element and removes it from the list
 			String firstElem = time[0];
 			time = ArrayUtils.remove(time, 0);
