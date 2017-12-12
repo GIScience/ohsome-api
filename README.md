@@ -34,7 +34,7 @@ Now you should have a running local REST API, which is ready for receiving reque
 
 ## Examples
 
-This section will give you some example request URLs and show you the results returned by the REST API.
+This section will give you some example request URLs and show the results returned by the REST API.
 
 * http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=relation&time=2014-01-01/2017-07-01/P6M&keys=building&values=yes
 <p> 
