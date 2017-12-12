@@ -16,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-1. check out the repository and import it as a Maven project in your IDE
+1. checkout/download the repository and import it as a Maven project in your IDE
 2. go to the class ContextRefreshedListener.java in the package listener and change the following paths to your local directories of the db files and make sure to exclude the file endings '.mv.db' from the path
 
     ```java
