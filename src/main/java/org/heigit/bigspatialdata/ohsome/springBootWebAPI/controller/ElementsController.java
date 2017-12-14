@@ -1,24 +1,17 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.input.AggregationContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.lambdas.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapBiAggregatorByTimestamps;
@@ -27,7 +20,6 @@ import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.Geo;
-import org.heigit.bigspatialdata.oshdb.util.TagTranslator;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -516,10 +508,6 @@ public class ElementsController {
 		SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
-		// check for the userids parameter
-		if (userids[0].equals(defVal))
-			throw new BadRequestException(
-					"You need to give at least one userid as parameter if you want to use /groupBy/user.");
 		// input parameter processing
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
@@ -686,10 +674,6 @@ public class ElementsController {
 		SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
-		// check for the userids parameter
-		if (userids[0].equals(defVal))
-			throw new BadRequestException(
-					"You need to give at least one userid as parameter if you want to use /groupBy/user.");
 		// input parameter processing
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
@@ -758,10 +742,6 @@ public class ElementsController {
 		SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
-		// check for the userids parameter
-		if (userids[0].equals(defVal))
-			throw new BadRequestException(
-					"You need to give at least one userid as parameter if you want to use /groupBy/user.");
 		// input parameter processing
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 

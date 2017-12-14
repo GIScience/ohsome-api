@@ -689,6 +689,8 @@ public class InputValidator {
 			mapRed = mapRed.where(entity -> {
 				return useridSet.contains(entity.getUserId());
 			});
+		} else {
+			// do nothing --> all users will be used
 		}
 
 		return mapRed;
