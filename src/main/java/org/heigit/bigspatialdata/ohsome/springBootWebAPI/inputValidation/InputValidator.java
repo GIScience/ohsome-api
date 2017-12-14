@@ -1,6 +1,10 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
@@ -64,10 +68,137 @@ public class InputValidator {
 	private OSHDB_H2[] dbConnObjects;
 
 	/**
-	 * default constructor
+	 * Method to process the input parameters of a POST or GET request.
+	 * 
+	 * @param boundaryParam
+	 *            <code>String</code> array containing the boundary parameter from a
+	 *            POST request. Null in case of a GET request.
+	 * @param bboxes
+	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
+	 *            values, which have to be <code>double</code> parse-able. If bboxes
+	 *            is given, bpoints and bpolys must be <code>null</code> or
+	 *            <code>empty</code>. If neither of these parameters is given, a
+	 *            global request is computed. Null in case of POST requests.
+	 * @param bpoints
+	 *            <code>String</code> array containing lon, lat, radius values,
+	 *            which have to be <code>double</code> parse-able. If bpoints is
+	 *            given, bboxes and bpolys must be <code>null</code> or
+	 *            <code>empty</code>. Null in case of POST requests.
+	 * @param bpolys
+	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
+	 *            values, which have to be <code>double</code> parse-able. If bpolys
+	 *            is given, bboxes and bpoints must be <code>null</code> or
+	 *            <code>empty</code>. Null in case of POST requests.
+	 * @param types
+	 *            <code>String</code> array containing one or more strings defining
+	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
+	 *            <code>null</code> or <code>empty</code>, all 3 types are used.
+	 * @param keys
+	 *            <code>String</code> array containing one or more keys.
+	 * @param values
+	 *            <code>String</code> array containing one or more values. Must be
+	 *            less or equal than <code>keys.length()</code> and values[n] must
+	 *            pair with keys[n].
+	 * @param userids
+	 *            <code>String</code> array containing one or more user-IDs.
+	 * @param time
+	 *            <code>String</code> array that holds a list of timestamps or a
+	 *            datetimestring, which fits to one of the formats used by the
+	 *            method
+	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
+	 *            extractTime(String time)}.
+	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
+	 *         settings derived from the given parameters.
 	 */
-	public InputValidator() {
+	public MapReducer<OSMEntitySnapshot> processParameters(String[] boundaryParam, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time) {
 
+		// InputValidatorPost iVP = new InputValidatorPost();
+		MapReducer<OSMEntitySnapshot> mapRed;
+
+		// database
+		EventHolderBean bean = Application.getEventHolderBean();
+		dbConnObjects = bean.getDbConnObjects();
+		mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
+
+		// boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
+		boundary = checkBoundary(bboxes, bpoints, bpolys);
+		if (boundary == 0) {
+			mapRed = mapRed.areaOfInterest(createBbox(bboxes));
+		} else if (boundary == 1) {
+			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(bboxes));
+		} else if (boundary == 2) {
+			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygon(bpoints));
+		} else if (boundary == 3) {
+			mapRed = mapRed.areaOfInterest(createbpolys(bpolys));
+		} else
+			throw new BadRequestException(
+					"Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
+							+ "or you defined more than one boundary parameter.");
+
+		// osm-type (node, way, relation)
+		osmTypes = checkTypes(types);
+		mapRed = mapRed.osmTypes(osmTypes);
+
+		// time parameter
+		if (time.length == 1) {
+			timeData = extractIsoTime(time[0]);
+			if (timeData[2] != null) {
+				// a interval is given
+				mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
+			} else
+				// no interval given
+				mapRed = mapRed.timestamps(timeData[0], timeData[1]);
+		} else if (time.length == 0) {
+			// if no time parameter given --> return the default end time
+			mapRed = mapRed.timestamps(defEndTime);
+		} else {
+			// list of timestamps
+			String firstElem = time[0];
+			time = ArrayUtils.remove(time, 0);
+			mapRed = mapRed.timestamps(firstElem, time);
+		}
+
+		// key/value parameters
+		checkKeysValues(keys, values);
+		if (keys.length != values.length) {
+			String[] tempVal = new String[keys.length];
+			// extracts the value entries from the old values array
+			for (int a = 0; a < values.length; a++) {
+				tempVal[a] = values[a];
+			}
+			// adds the defVal to the empty spots in the tempVal array
+			for (int i = values.length; i < keys.length; i++) {
+				tempVal[i] = defVal;
+			}
+			values = tempVal;
+		}
+		// prerequisites: both arrays (keys and values) must be of the same length
+		// and key-value pairs need to be at the same index in both arrays
+		for (int i = 0; i < keys.length; i++) {
+			if (values[i].equals(defVal))
+				mapRed = mapRed.where(keys[i]);
+			else
+				mapRed = mapRed.where(keys[i], values[i]);
+		}
+
+		// checks if the userids parameter is not empty (POST) and does not have the
+		// default value (GET)
+		if (userids != null && userids.length != 0) {
+			checkUserids(userids);
+			// more efficient way to include all userIDs
+			Set<Integer> useridSet = new HashSet<>();
+			for (String user : userids)
+				useridSet.add(Integer.valueOf(user));
+
+			mapRed = mapRed.where(entity -> {
+				return useridSet.contains(entity.getUserId());
+			});
+		} else {
+			// do nothing --> all users will be used
+		}
+
+		return mapRed;
 	}
 
 	/**
@@ -88,7 +219,7 @@ public class InputValidator {
 	 *             The provided boundary parameter does not fit to its format, or
 	 *             more than one boundary parameter is given.
 	 */
-	public byte checkBoundary(String[] bboxes, String[] bpoints, String[] bpolys) {
+	private byte checkBoundary(String[] bboxes, String[] bpoints, String[] bpolys) {
 		// checks the given parameters
 		if ((bboxes.length == 0 || bboxes.length == 4) && bpoints.length == 0 && bpolys.length == 0) {
 			this.boundary = 0;
@@ -130,7 +261,7 @@ public class InputValidator {
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
-	public BoundingBox createBbox(String[] bbox) throws BadRequestException {
+	private BoundingBox createBbox(String[] bbox) throws BadRequestException {
 		if (bbox.length == 0) {
 			// no bboxes given -> global request
 			this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
@@ -170,7 +301,7 @@ public class InputValidator {
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
-	public Geometry createBboxes(String[] bboxes) throws BadRequestException {
+	private Geometry createBboxes(String[] bboxes) throws BadRequestException {
 		try {
 			Geometry unifiedBbox;
 			GeometryFactory gf = new GeometryFactory();
@@ -215,7 +346,7 @@ public class InputValidator {
 	 * @throws BadRequestException
 	 *             Invalid coordinates or radius.
 	 */
-	public Geometry createCircularPolygon(String[] bpoints) {
+	private Geometry createCircularPolygon(String[] bpoints) {
 		GeometryFactory geomFact = new GeometryFactory();
 		Geometry buffer;
 		CoordinateReferenceSystem sourceCRS;
@@ -264,7 +395,7 @@ public class InputValidator {
 	 * @throws NotImplementedException
 	 *             The processing of more than one polygon is not implemented yet.
 	 */
-	public Polygon createbpolys(String[] bpolys) throws BadRequestException {
+	private Polygon createbpolys(String[] bpolys) throws BadRequestException {
 		GeometryFactory geomFact = new GeometryFactory();
 		ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 
@@ -333,105 +464,6 @@ public class InputValidator {
 	}
 
 	/**
-	 * Extracts the possible time-parameters from the given datetimestring. One of
-	 * the following formats is allowed:
-	 * <ul>
-	 * <li>timestamp: YYYY-MM-DD</li>
-	 * <li>start/end: YYYY-MM-DD/YYYY-MM-DD</li>
-	 * <li>start/end/period: YYYY-MM-DD/YYYY-MM-DD/PnYnMnD where [n] refers to the
-	 * size of the period and 0 <= n <= 99. At the moment only one period format (Y,
-	 * M, or D) can be used.</li>
-	 * <li>#/end: /YYYY-MM-DD</li>
-	 * <li>#/end/period: /YYYY-MM-DD/PnYnMnD</li>
-	 * <li>start/#: YYYY-MM-DD/</li>
-	 * <li>start/#/period: YYYY-MM-DD/PnYnMnD/</li>
-	 * <li>#/#: /</li>
-	 * <li>#/#/period: /PnYnMnD</li>
-	 * </ul>
-	 * <p>
-	 * Note: "period" does also refer to "interval" and # means defaultStart or
-	 * defaultEnd referring to the earliest/latest timestamps.
-	 * 
-	 * @param time
-	 *            String, which refers to one of the nine time-formats.
-	 * @return String array containing at [0] the startTime at [1] the endTime and
-	 *         at [2] the period.
-	 * @throws BadRequestException
-	 *             The provided time parameter does not fit to any specified format.
-	 */
-	public String[] extractTime(String time) {
-		// needed variables
-		byte timeType = 0;
-		String[] timeVals = new String[3];
-		String[] timeSplit;
-
-		// to check which time format is applied
-		timeType = checkTime(time);
-
-		if (timeType == 1) {
-			// timestamp
-			timeVals[0] = time;
-			timeVals[1] = time;
-			timeVals[2] = "P1Y";
-		} else if (timeType == 2) {
-			// start/end
-			timeSplit = time.split("/");
-			timeVals[0] = timeSplit[0];
-			timeVals[1] = timeSplit[1];
-
-		} else if (timeType == 3) {
-			// start/end/period
-			timeSplit = time.split("/");
-			timeVals[0] = timeSplit[0];
-			timeVals[1] = timeSplit[1];
-			timeVals[2] = timeSplit[2];
-
-		} else if (timeType == 4) {
-			// defStart/end
-			timeSplit = time.split("/");
-			timeVals[0] = defStartTime;
-			timeVals[1] = timeSplit[1];
-
-		} else if (timeType == 5) {
-			// defStart/end/period
-			timeSplit = time.split("/");
-			timeVals[0] = defStartTime;
-			timeVals[1] = timeSplit[1];
-			timeVals[2] = timeSplit[2];
-
-		} else if (timeType == 6) {
-			// start/defEnd
-			timeSplit = time.split("/");
-			timeVals[0] = timeSplit[0];
-			timeVals[1] = defEndTime;
-
-		} else if (timeType == 7) {
-			// start/defEnd/period
-			timeSplit = time.split("/");
-			timeVals[0] = timeSplit[0];
-			timeVals[1] = defEndTime;
-			timeVals[2] = timeSplit[2];
-
-		} else if (timeType == 8) {
-			// defStart/defEnd
-			timeVals[0] = defStartTime;
-			timeVals[1] = defEndTime;
-
-		} else if (timeType == 9) {
-			// defStart/defEnd/period
-			timeSplit = time.split("/");
-			timeVals[0] = defStartTime;
-			timeVals[1] = defEndTime;
-			timeVals[2] = timeSplit[2];
-
-		} else {
-			throw new BadRequestException("The provided time parameter does not fit to any specified time format.");
-		}
-
-		return timeVals;
-	}
-
-	/**
 	 * Checks and extracts the content of the types parameter.
 	 * 
 	 * @param types
@@ -444,7 +476,7 @@ public class InputValidator {
 	 *             If the content of the parameter does not represent one, two, or
 	 *             all three OSM types.
 	 */
-	public EnumSet<OSMType> checkTypes(String[] types) {
+	private EnumSet<OSMType> checkTypes(String[] types) {
 		// checks if the types array is too big
 		if (types.length > 3) {
 			throw new BadRequestException("Parameter containing the OSM Types cannot have more than 3 entries.");
@@ -529,7 +561,7 @@ public class InputValidator {
 	 *             The number of provided values compared to the keys parameter(s)
 	 *             is incorrect.
 	 */
-	public boolean checkKeysValues(String[] keys, String[] values) {
+	private boolean checkKeysValues(String[] keys, String[] values) {
 
 		if (keys.length < values.length) {
 			throw new BadRequestException(
@@ -549,7 +581,7 @@ public class InputValidator {
 	 * @throws BadRequestException
 	 *             If one of the userids is invalid.
 	 */
-	public void checkUserids(String[] userids) {
+	private void checkUserids(String[] userids) {
 		for (String user : userids) {
 			try {
 				// tries to parse the String to a long
@@ -560,140 +592,6 @@ public class InputValidator {
 						"The userids parameter can only contain valid OSM userids, which are always a positive whole number");
 			}
 		}
-	}
-
-	/**
-	 * Method to process the input parameters of a POST or GET request.
-	 * 
-	 * @param boundaryParam
-	 *            <code>String</code> array containing the boundary parameter from a
-	 *            POST request. Null in case of a GET request.
-	 * @param bboxes
-	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
-	 *            values, which have to be <code>double</code> parse-able. If bboxes
-	 *            is given, bpoints and bpolys must be <code>null</code> or
-	 *            <code>empty</code>. If neither of these parameters is given, a
-	 *            global request is computed. Null in case of POST requests.
-	 * @param bpoints
-	 *            <code>String</code> array containing lon, lat, radius values,
-	 *            which have to be <code>double</code> parse-able. If bpoints is
-	 *            given, bboxes and bpolys must be <code>null</code> or
-	 *            <code>empty</code>. Null in case of POST requests.
-	 * @param bpolys
-	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
-	 *            values, which have to be <code>double</code> parse-able. If bpolys
-	 *            is given, bboxes and bpoints must be <code>null</code> or
-	 *            <code>empty</code>. Null in case of POST requests.
-	 * @param types
-	 *            <code>String</code> array containing one or more strings defining
-	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
-	 *            <code>null</code> or <code>empty</code>, all 3 types are used.
-	 * @param keys
-	 *            <code>String</code> array containing one or more keys.
-	 * @param values
-	 *            <code>String</code> array containing one or more values. Must be
-	 *            less or equal than <code>keys.length()</code> and values[n] must
-	 *            pair with keys[n].
-	 * @param userids
-	 *            <code>String</code> array containing one or more user-IDs.
-	 * @param time
-	 *            <code>String</code> array that holds a list of timestamps or a
-	 *            datetimestring, which fits to one of the formats used by the
-	 *            method
-	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
-	 *            extractTime(String time)}.
-	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
-	 *         settings derived from the given parameters.
-	 */
-	public MapReducer<OSMEntitySnapshot> processParameters(String[] boundaryParam, String[] bboxes, String[] bpoints,
-			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time) {
-
-		// InputValidatorPost iVP = new InputValidatorPost();
-		MapReducer<OSMEntitySnapshot> mapRed;
-
-		// database
-		EventHolderBean bean = Application.getEventHolderBean();
-		dbConnObjects = bean.getDbConnObjects();
-		mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
-
-		// boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
-		boundary = checkBoundary(bboxes, bpoints, bpolys);
-		if (boundary == 0) {
-			mapRed = mapRed.areaOfInterest(createBbox(bboxes));
-		} else if (boundary == 1) {
-			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(bboxes));
-		} else if (boundary == 2) {
-			mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygon(bpoints));
-		} else if (boundary == 3) {
-			mapRed = mapRed.areaOfInterest(createbpolys(bpolys));
-		} else
-			throw new BadRequestException(
-					"Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
-							+ "or you defined more than one boundary parameter.");
-
-		// osm-type (node, way, relation)
-		osmTypes = checkTypes(types);
-		mapRed = mapRed.osmTypes(osmTypes);
-
-		// time parameter
-		if (time.length == 1) {
-			timeData = extractTime(time[0]);
-			if (timeData[2] != null) {
-				mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-			} else
-				mapRed = mapRed.timestamps(timeData[0], timeData[1]);
-		} else if (time.length == 0) {
-			// if no time parameter given --> return the default end time
-			mapRed = mapRed.timestamps(defEndTime);
-		}
-		else {
-			// gets the first element and removes it from the list
-			String firstElem = time[0];
-			time = ArrayUtils.remove(time, 0);
-			// calls the method to give a list of timestamps
-			mapRed = mapRed.timestamps(firstElem, time);
-		}
-
-		// key/value parameters
-		checkKeysValues(keys, values);
-		if (keys.length != values.length) {
-			String[] tempVal = new String[keys.length];
-			// extracts the value entries from the old values array
-			for (int a = 0; a < values.length; a++) {
-				tempVal[a] = values[a];
-			}
-			// adds the defVal to the empty spots in the tempVal array
-			for (int i = values.length; i < keys.length; i++) {
-				tempVal[i] = defVal;
-			}
-			values = tempVal;
-		}
-		// prerequisites: both arrays (keys and values) must be of the same length
-		// and key-value pairs need to be at the same index in both arrays
-		for (int i = 0; i < keys.length; i++) {
-			if (values[i].equals(defVal))
-				mapRed = mapRed.where(keys[i]);
-			else
-				mapRed = mapRed.where(keys[i], values[i]);
-		}
-
-		// checks if the userids parameter is not empty (POST) and does not have the
-		// default value (GET)
-		if (userids != null && userids.length != 0) {
-			checkUserids(userids);
-			// more efficient way to include all userIDs
-			Set<Integer> useridSet = new HashSet<>();
-			for (String user : userids)
-				useridSet.add(Integer.valueOf(user));
-
-			mapRed = mapRed.where(entity -> {
-				return useridSet.contains(entity.getUserId());
-			});
-		} else {
-			// do nothing --> all users will be used
-		}
-
-		return mapRed;
 	}
 
 	/**
@@ -736,9 +634,10 @@ public class InputValidator {
 	}
 
 	/**
-	 * Checks the time parameter on its type and returns a respective byte value. #
-	 * means here the earliest/latest date available. It works with regular
-	 * expressions (RegEx) to extract the time depending on the different formats.
+	 * Extracts the time information out of the time parameter and checks the
+	 * content on its type and ISO-8601 conformity. It makes the check via trying to
+	 * create a corresponding ISO-8601 java.time object. # means here the
+	 * earliest/latest date available. This method is only used if time.length == 1.
 	 * <ul>
 	 * <li>timestamp: 1</li>
 	 * <li>start/end: 2</li>
@@ -754,56 +653,90 @@ public class InputValidator {
 	 * 
 	 * @param time
 	 *            String holding the unparsed time information.
-	 * @return Byte number corresponding to the used time format.
+	 * @return String array containing at [0] the startTime at [1] the endTime and
+	 *         at [2] the period.
 	 * @throws BadRequestException
 	 *             The provided time parameter does not fit to any specified format.
 	 */
-	private byte checkTime(String time) {
-		byte timeType = 0;
+	private String[] extractIsoTime(String time) {
+		String[] timeVals = new String[3];
+		if (time.contains("/")) {
+			if (time.length() == 1) {
+				// only "/" is given
+				timeVals[0] = defStartTime;
+				timeVals[1] = defEndTime;
+				return timeVals;
+			}
+			String[] timeSplit = time.split("/");
+			if (timeSplit[0].length() > 0) {
+				// start timestamp
+				try {
+					if (timeSplit[0].length() == 10) {
+						LocalDate.parse(timeSplit[0]);
+					} else {
+						LocalDateTime.parse(timeSplit[0]);
+					}
+					timeVals[0] = timeSplit[0];
+					if (time.endsWith("/")) {
+						// latest timestamp
+						timeVals[1] = defEndTime;
+						return timeVals;
+					}
+				} catch (DateTimeParseException e) {
+					throw new BadRequestException(
+							"The start time of the provided time parameter is not ISO-8601 conform.");
+				}
+			} else {
+				// earliest timestamp
+				timeVals[0] = defStartTime;
+			}
 
-		// regex expressions to differentiate between the 9 possible time formats
-		if (time.matches("\\d{4}-\\d{2}-\\d{2}") 
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}[T]\\d{2}")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}[T]\\d{2}:\\d{2}")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}[T]\\d{2}:\\d{2}:\\d{2}")) {
-			timeType = 1;
-		} else if (time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}")) {
-			timeType = 2;
-		} else if (time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}/[P]\\d{1}[Y]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}/[P]\\d{2}[Y]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}/[P]\\d{1}[M]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}/[P]\\d{2}[M]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}/[P]\\d{1}[D]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}/[P]\\d{2}[D]")) {
-			timeType = 3;
-		} else if (time.matches("/\\d{4}-\\d{2}-\\d{2}")) {
-			timeType = 4;
-		} else if (time.matches("/\\d{4}-\\d{2}-\\d{2}/[P]\\d{1}[Y]")
-				|| time.matches("/\\d{4}-\\d{2}-\\d{2}/[P]\\d{2}[Y]")
-				|| time.matches("/\\d{4}-\\d{2}-\\d{2}/[P]\\d{1}[M]")
-				|| time.matches("/\\d{4}-\\d{2}-\\d{2}/[P]\\d{2}[M]")
-				|| time.matches("/\\d{4}-\\d{2}-\\d{2}/[P]\\d{1}[D]")
-				|| time.matches("/\\d{4}-\\d{2}-\\d{2}/[P]\\d{2}[D]")) {
-			timeType = 5;
-		} else if (time.matches("\\d{4}-\\d{2}-\\d{2}/")) {
-			timeType = 6;
-		} else if (time.matches("\\d{4}-\\d{2}-\\d{2}//[P]\\d{1}[Y]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}//[P]\\d{2}[Y]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}//[P]\\d{1}[M]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}//[P]\\d{2}[M]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}//[P]\\d{1}[D]")
-				|| time.matches("\\d{4}-\\d{2}-\\d{2}//[P]\\d{2}[D]")) {
-			timeType = 7;
-		} else if (time.matches("/")) {
-			timeType = 8;
-		} else if (time.matches("//[P]\\d{1}[Y]") || time.matches("//[P]\\d{2}[Y]") || time.matches("//[P]\\d{1}[M]")
-				|| time.matches("//[P]\\d{2}[M]") || time.matches("//[P]\\d{1}[D]") || time.matches("//[P]\\d{2}[D]")) {
-			timeType = 9;
+			if (timeSplit[1].length() > 0) {
+				// end timestamp
+				try {
+					if (timeSplit[1].length() == 10) {
+						LocalDate.parse(timeSplit[1]);
+					} else {
+						LocalDateTime.parse(timeSplit[1]);
+					}
+					timeVals[1] = timeSplit[1];
+				} catch (DateTimeParseException e) {
+					throw new BadRequestException(
+							"The end time of the provided time parameter is not ISO-8601 conform.");
+				}
+			} else {
+				// latest timestamp
+				timeVals[1] = defEndTime;
+			}
+
+			if (timeSplit.length == 3 && timeSplit[2].length() > 0) {
+				// interval
+				try {
+					Period.parse(timeSplit[2]);
+					timeVals[2] = timeSplit[2];
+				} catch (DateTimeParseException e) {
+					throw new BadRequestException(
+							"The interval (period) of the provided time parameter is not ISO-8601 conform.");
+				}
+			}
+
 		} else {
-			throw new BadRequestException("The provided time parameter does not fit to any specified time format.");
+			// just one timestamp
+			try {
+				if (time.length() == 10) {
+					LocalDate.parse(time);
+				} else {
+					LocalDateTime.parse(time);
+				}
+				timeVals[0] = time;
+				timeVals[1] = time;
+				timeVals[2] = "P1Y";
+			} catch (DateTimeParseException e) {
+				throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
+			}
 		}
 
-		return timeType;
+		return timeVals;
 	}
 
 	public byte getBoundary() {
