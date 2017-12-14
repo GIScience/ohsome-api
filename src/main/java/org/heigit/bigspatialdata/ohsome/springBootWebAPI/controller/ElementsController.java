@@ -645,6 +645,74 @@ public class ElementsController {
 	}
 
 	/**
+	 * Gets the length of OSM objects, which are selected by the given parameters and
+	 * are grouped by the type.
+	 * <p>
+	 * For description of the parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the length of OSM objects
+	 *         in the requested area grouped by the OSM type as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
+	 */
+	@RequestMapping("/length/groupBy/type")
+	public ElementsResponseContent getLengthGroupedByType(
+			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
+			@RequestParam(value = "values", defaultValue = defVal) String[] values,
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
+		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// input parameter processing
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// db result
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+			return f.getEntity().getType();
+		}).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+			return Geo.lengthOf(snapshot.getGeometry());
+		});
+
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by type
+		for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue().floatValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "meter", "Total length of items aggregated on the type."), resultSet, null);
+		return response;
+	}
+	
+	/**
 	 * Gets the length of OSM objects, which are selected by the given parameters
 	 * and are grouped by the userId.
 	 * <p>
@@ -712,6 +780,74 @@ public class ElementsController {
 		return response;
 	}
 
+	/**
+	 * Gets the area of OSM objects, which are selected by the given parameters and
+	 * are grouped by the type.
+	 * <p>
+	 * For description of the parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the area of OSM objects
+	 *         in the requested area grouped by the OSM type as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
+	 */
+	@RequestMapping("/area/groupBy/type")
+	public ElementsResponseContent getAreaGroupedByType(
+			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
+			@RequestParam(value = "types", defaultValue = defVal) String[] types,
+			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
+			@RequestParam(value = "values", defaultValue = defVal) String[] values,
+			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
+			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
+		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// input parameter processing
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// db result
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+			return f.getEntity().getType();
+		}).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+			return Geo.areaOf(snapshot.getGeometry());
+		});
+
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by type
+		for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue().floatValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "square-meters", "Total area of items aggregated on the type."), resultSet, null);
+		return response;
+	}
+	
 	/**
 	 * Gets the area of OSM objects, which are selected by the given parameters and
 	 * are grouped by the userId.
