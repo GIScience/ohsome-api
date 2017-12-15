@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Polygonal;
  */
 public class InputValidator {
 
+	// HD: 8.6528, 49.3683, 8.7294, 49.4376
 	// world: -179.9999, 180, -85.0511, 85.0511
 	// default bbox defining the whole area (here: BW)
 	private final double defMinLon = 7.3949;
@@ -56,7 +57,6 @@ public class InputValidator {
 	private BoundingBox bbox;
 	private Geometry bpoint;
 	private Polygon bpoly;
-	private final String defVal = "";
 	// represents the latest and earliest timestamps
 	private final String defEndTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
 	private final String defStartTime = "2007-11-01";
@@ -70,25 +70,22 @@ public class InputValidator {
 	/**
 	 * Method to process the input parameters of a POST or GET request.
 	 * 
-	 * @param boundaryParam
-	 *            <code>String</code> array containing the boundary parameter from a
-	 *            POST request. Null in case of a GET request.
 	 * @param bboxes
 	 *            <code>String</code> array containing lon1, lat1, lon2, lat2
 	 *            values, which have to be <code>double</code> parse-able. If bboxes
 	 *            is given, bpoints and bpolys must be <code>null</code> or
 	 *            <code>empty</code>. If neither of these parameters is given, a
-	 *            global request is computed. Null in case of POST requests.
+	 *            global (=whole dataset) request is computed.
 	 * @param bpoints
 	 *            <code>String</code> array containing lon, lat, radius values,
 	 *            which have to be <code>double</code> parse-able. If bpoints is
 	 *            given, bboxes and bpolys must be <code>null</code> or
-	 *            <code>empty</code>. Null in case of POST requests.
+	 *            <code>empty</code>.
 	 * @param bpolys
 	 *            <code>String</code> array containing lon1, lat1, ..., lonN, latN
 	 *            values, which have to be <code>double</code> parse-able. If bpolys
 	 *            is given, bboxes and bpoints must be <code>null</code> or
-	 *            <code>empty</code>. Null in case of POST requests.
+	 *            <code>empty</code>.
 	 * @param types
 	 *            <code>String</code> array containing one or more strings defining
 	 *            the OSMType. It can be "node" and/or "way" and/or "relation". If
@@ -105,13 +102,13 @@ public class InputValidator {
 	 *            <code>String</code> array that holds a list of timestamps or a
 	 *            datetimestring, which fits to one of the formats used by the
 	 *            method
-	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
-	 *            extractTime(String time)}.
+	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractIsoTime(String)
+	 *            extractIsoTime(String time)}.
 	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
 	 *         settings derived from the given parameters.
 	 */
-	public MapReducer<OSMEntitySnapshot> processParameters(String[] boundaryParam, String[] bboxes, String[] bpoints,
-			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time) {
+	public MapReducer<OSMEntitySnapshot> processParameters(String[] bboxes, String[] bpoints, String[] bpolys,
+			String[] types, String[] keys, String[] values, String[] userids, String[] time) {
 
 		// InputValidatorPost iVP = new InputValidatorPost();
 		MapReducer<OSMEntitySnapshot> mapRed;
@@ -167,16 +164,16 @@ public class InputValidator {
 			for (int a = 0; a < values.length; a++) {
 				tempVal[a] = values[a];
 			}
-			// adds the defVal to the empty spots in the tempVal array
+			// adds empty entries in the tempVal array
 			for (int i = values.length; i < keys.length; i++) {
-				tempVal[i] = defVal;
+				tempVal[i] = "";
 			}
 			values = tempVal;
 		}
 		// prerequisites: both arrays (keys and values) must be of the same length
 		// and key-value pairs need to be at the same index in both arrays
 		for (int i = 0; i < keys.length; i++) {
-			if (values[i].equals(defVal))
+			if (values[i].equals(""))
 				mapRed = mapRed.where(keys[i]);
 			else
 				mapRed = mapRed.where(keys[i], values[i]);
@@ -203,7 +200,9 @@ public class InputValidator {
 
 	/**
 	 * Checking if an input parameter of a POST request is null.
-	 * @param toCheck <code>String</code> array which is checked.
+	 * 
+	 * @param toCheck
+	 *            <code>String</code> array, which is checked.
 	 * @return <code>String</code> array, which is empty but not null.
 	 */
 	public String[] checkParameterOnNull(String[] toCheck) {
@@ -211,7 +210,7 @@ public class InputValidator {
 			toCheck = new String[0];
 		return toCheck;
 	}
-	
+
 	/**
 	 * Checks which boundary parameter is given.
 	 * 
@@ -261,7 +260,7 @@ public class InputValidator {
 
 	/**
 	 * Creates a <code>BoundingBox</code> object out of the content of the given
-	 * <code>String</code> array. Only used if one or no bbox is given.
+	 * <code>String</code> array. Only used if one or no bounding box is given.
 	 * 
 	 * @param bbox
 	 *            <code>String</code> array containing the lon/lat coordinates of
@@ -299,16 +298,16 @@ public class InputValidator {
 
 	/**
 	 * Creates a unified <code>Geometry</code> object out of the content of the
-	 * given <code>String</code> array. Only used if more than one bbox is given in
-	 * the input array.
+	 * given <code>String</code> array. Only used if more than one bounding box is
+	 * given in the input array.
 	 * 
 	 * @param bboxes
 	 *            <code>String</code> array containing the lon/lat coordinates of
 	 *            the bounding boxes. Each bounding box must consist of 2 lon/lat
 	 *            coordinate pairs (bottom-left and top-right).
 	 * 
-	 * @return <code>Geometry</code> object representing the unified bboxes as a
-	 *         polygon.
+	 * @return <code>Geometry</code> object representing the unified bounding boxes
+	 *         as a polygon.
 	 * @throws BadRequestException
 	 *             Invalid coordinates.
 	 */
@@ -492,12 +491,10 @@ public class InputValidator {
 		if (types.length > 3) {
 			throw new BadRequestException("Parameter containing the OSM Types cannot have more than 3 entries.");
 		}
-
 		// check if the types array only contains the default value (length == 0)
 		if (types.length == 0) {
 			return EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
 		}
-
 		// complex if-else structure, which adds the corresponding OSMType(s) depending
 		// on the String(s) and throws exceptions if they aren't one or more of "node",
 		// "way", "relation"
@@ -578,7 +575,6 @@ public class InputValidator {
 			throw new BadRequestException(
 					"There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
 		}
-
 		return true;
 	}
 
@@ -606,14 +602,16 @@ public class InputValidator {
 	}
 
 	/**
-	 * Finds and returns the EPSG code of the given point. Adapted code from
-	 * UTMCodeFromLonLat.java class in the osmatrix project (by Michael Auer)
+	 * Finds and returns the EPSG code of the given point, which is needed for
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#createCircularPolygon
+	 * createCircularPolygon}. Adapted code from UTMCodeFromLonLat.java class in the
+	 * osmatrix project (by Michael Auer)
 	 * 
 	 * @param lon
 	 *            Longitude coordinate of the point.
 	 * @param lat
 	 *            Latitude coordinate of the point.
-	 * @return String representing the corresponding EPSG code.
+	 * @return <code>String</code> representing the corresponding EPSG code.
 	 */
 	private String findEPSG(double lon, double lat) {
 
@@ -646,21 +644,33 @@ public class InputValidator {
 
 	/**
 	 * Extracts the time information out of the time parameter and checks the
-	 * content on its type and ISO-8601 conformity. It makes the check via trying to
-	 * create a corresponding ISO-8601 java.time object. # means here the
-	 * earliest/latest date available. This method is only used if time.length == 1.
+	 * content on its format and
+	 * <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> conformity.
+	 * This method is only used if time.length == 1. Following time formats are
+	 * allowed:
 	 * <ul>
-	 * <li>timestamp: 1</li>
-	 * <li>start/end: 2</li>
-	 * <li>start/end/period: 3</li>
-	 * <li>#/end: 4</li>
-	 * <li>#/end/period: 5</li>
-	 * <li>start/#: 6</li>
-	 * <li>start/#/period: 7</li>
-	 * <li>#/#: 8</li>
-	 * <li>#/#/period: 9</li>
-	 * <li>invalid: throws BadRequestException</li>
+	 * <li><strong>YYYY-MM-DD</strong> or <strong>YYYY-MM-DDThh:mm:ss</strong>: When
+	 * a timestamp includes 'T', hh:mm must also be given. This applies for all time
+	 * formats, which use timestamps.</li>
+	 * <li><strong>YYYY-MM-DD/YYYY-MM-DD</strong>: start/end timestamps</li>
+	 * <li><strong>YYYY-MM-DD/YYYY-MM-DD/PnYnMnD</strong>: start/end/period where n
+	 * refers to the size of the respective period</li>
+	 * <li><strong>/YYYY-MM-DD</strong>: #/end where # equals the earliest
+	 * timestamp</li>
+	 * <li><strong>/YYYY-MM-DD/PnYnMnD</strong>: #/end/period</li>
+	 * <li><strong>YYYY-MM-DD/</strong>: start/# where # equals the latest
+	 * timestamp</li>
+	 * <li><strong>YYYY-MM-DD//PnYnMnD</strong>: start/#/period</li>
+	 * <li><strong>/</strong>: #/# where # equals the earliest and latest
+	 * timestamp</li>
+	 * <li><strong>//PnYnMnD</strong>: #/#/period</li>
+	 * <li><strong>invalid</strong>: throws BadRequestException</li>
 	 * </ul>
+	 * <p>
+	 * For clarification: the format YYYY-MM-DDThh:mm:ss can be applied to any
+	 * format, where a timestamp is used and # is a replacement holder for "no
+	 * value". Note that the positioning and using of the forward slash '/' is very
+	 * important.
 	 * 
 	 * @param time
 	 *            String holding the unparsed time information.
