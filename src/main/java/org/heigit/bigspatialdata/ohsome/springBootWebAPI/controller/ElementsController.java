@@ -20,6 +20,7 @@ import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.Geo;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -106,31 +107,8 @@ public class ElementsController {
 			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
 			@RequestParam(value = "time", defaultValue = defVal) String[] time)
 			throws UnsupportedOperationException, Exception {
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestamp, Integer> result;
-		MapReducer<OSMEntitySnapshot> mapRed;
-		InputValidator iV = new InputValidator();
 
-		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-		// db result
-		result = mapRed.aggregateByTimestamp().count();
-		// output
-		Result[] resultSet = new Result[result.size()];
-		int count = 0;
-		for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-			resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-					String.valueOf(entry.getValue().intValue()));
-			count++;
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount", "Total number of elements, which are selected by the parameters."),
-				null, resultSet);
-		return response;
+		return executeCountRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -438,13 +416,13 @@ public class ElementsController {
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
-		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
 		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-		// db result
+		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
+		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
 			return f.getEntity().getType();
 		}).count();
@@ -469,6 +447,7 @@ public class ElementsController {
 
 			count++;
 		}
+
 		long duration = System.currentTimeMillis() - startTime;
 		// response
 		ElementsResponseContent response = new ElementsResponseContent(
@@ -645,8 +624,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * Gets the length of OSM objects, which are selected by the given parameters and
-	 * are grouped by the type.
+	 * Gets the length of OSM objects, which are selected by the given parameters
+	 * and are grouped by the type.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -711,7 +690,7 @@ public class ElementsController {
 				new MetaData(duration, "meter", "Total length of items aggregated on the type."), resultSet, null);
 		return response;
 	}
-	
+
 	/**
 	 * Gets the length of OSM objects, which are selected by the given parameters
 	 * and are grouped by the userId.
@@ -789,8 +768,8 @@ public class ElementsController {
 	 * getCount} method.
 	 * 
 	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-	 *         ElementsResponseContent} object containing the area of OSM objects
-	 *         in the requested area grouped by the OSM type as JSON response
+	 *         ElementsResponseContent} object containing the area of OSM objects in
+	 *         the requested area grouped by the OSM type as JSON response
 	 *         aggregated by the time, as well as additional info about the data.
 	 */
 	@RequestMapping("/area/groupBy/type")
@@ -844,10 +823,11 @@ public class ElementsController {
 		ElementsResponseContent response = new ElementsResponseContent(
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "square-meters", "Total area of items aggregated on the type."), resultSet, null);
+				new MetaData(duration, "square-meters", "Total area of items aggregated on the type."), resultSet,
+				null);
 		return response;
 	}
-	
+
 	/**
 	 * Gets the area of OSM objects, which are selected by the given parameters and
 	 * are grouped by the userId.
@@ -942,30 +922,12 @@ public class ElementsController {
 	 *             {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count()
 	 *             count()}
 	 */
-	@RequestMapping(value = "/count", method = RequestMethod.POST)
-	public ElementsResponseContent postCount(@RequestBody AggregationContent content)
+	@RequestMapping(value = "/count", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postCount(String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
+			String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		throw new NotImplementedException("This method is not implemented yet.");
-
-		/*
-		 * 
-		 * long startTime = System.currentTimeMillis(); SortedMap<OSHDBTimestamp,
-		 * Integer> result; MapReducer<OSMEntitySnapshot> mapRed = null; // input
-		 * parameter processing //mapRed = processParameters(false, content.getbboxes(),
-		 * null, null, null, content.getTypes(), content.getKeys(), content.getValues(),
-		 * content.getuserids(), content.getTime()); // db result result =
-		 * mapRed.aggregateByTimestamp().count();
-		 * 
-		 * // output Result[] resultSet = new Result[result.size()]; int count = 0; for
-		 * (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) { resultSet[count]
-		 * = new Result(entry.getKey().formatDate(),
-		 * String.valueOf(entry.getValue().intValue())); count++; } long duration =
-		 * System.currentTimeMillis() - startTime; // response ElementsResponseContent
-		 * response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-		 * "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "amount"),
-		 * resultSet); return response;
-		 */
+		return executeCountRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -982,6 +944,60 @@ public class ElementsController {
 	public Number postArea(@RequestBody AggregationContent content) throws UnsupportedOperationException, Exception {
 
 		throw new NotImplementedException("This method is not implemented yet.");
+	}
+
+	/**
+	 * Gets the input parameters of the request and performs a count calculation.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the key as JSON response aggregated
+	 *         by the time, as well as additional info about the data.
+	 * @throws Exception 
+	 * @throws UnsupportedOperationException 
+	 */
+	private ElementsResponseContent executeCountRequest(boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
+			String[] keys, String[] values, String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestamp, Integer> result;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		
+		// check if this method is called from a POST request
+		if (isPost) {
+			// sets the string array to empty if it is null
+			bboxes = iV.checkParameterOnNull(bboxes);
+			bpoints = iV.checkParameterOnNull(bpoints);
+			bpolys = iV.checkParameterOnNull(bpolys);
+			types = iV.checkParameterOnNull(types);
+			keys = iV.checkParameterOnNull(keys);
+			values = iV.checkParameterOnNull(values);
+			userids = iV.checkParameterOnNull(userids);
+			time = iV.checkParameterOnNull(time);
+		}
+
+		// input parameter processing
+		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// db result
+		result = mapRed.aggregateByTimestamp().count();
+		// output
+		Result[] resultSet = new Result[result.size()];
+		int count = 0;
+		for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
+			resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+					String.valueOf(entry.getValue().intValue()));
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "amount", "Total number of elements, which are selected by the parameters."),
+				null, resultSet);
+		
+		return response;
 	}
 
 }
