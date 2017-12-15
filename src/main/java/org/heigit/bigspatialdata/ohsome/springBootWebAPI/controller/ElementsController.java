@@ -36,11 +36,6 @@ import com.vividsolutions.jts.geom.Geometry;
 @RequestMapping("/elements")
 public class ElementsController {
 
-	// default value
-	private final String defVal = "";
-
-	// HD: 8.6528, 49.3683, 8.7294, 49.4376
-
 	/*
 	 * GET requests start here
 	 */
@@ -83,8 +78,8 @@ public class ElementsController {
 	 *            <code>String</code> array that holds a list of timestamps or a
 	 *            datetimestring, which fits to one of the formats used by the
 	 *            method
-	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractTime(String)
-	 *            extractTime(String time)}.
+	 *            {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractIsoTime(String)
+	 *            extractIsoTime(String time)}.
 	 * 
 	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
 	 *         ElementsResponseContent} object containing the count of the requested
@@ -100,14 +95,14 @@ public class ElementsController {
 	 *             count()}
 	 */
 	@RequestMapping("/count")
-	public ElementsResponseContent getCount(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+	public ElementsResponseContent getCount(@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		return executeCountRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -127,14 +122,14 @@ public class ElementsController {
 	 *         well as additional info about the data.
 	 */
 	@RequestMapping("/length")
-	public ElementsResponseContent getLength(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+	public ElementsResponseContent getLength(@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		return executeLengthAreaRequest(true, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -154,14 +149,14 @@ public class ElementsController {
 	 *         additional info about the data.
 	 */
 	@RequestMapping("/area")
-	public ElementsResponseContent getArea(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+	public ElementsResponseContent getArea(@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		return executeLengthAreaRequest(false, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -178,14 +173,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/mean-minimal-distance")
 	public ElementsResponseContent getMeanMinimalDistance(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		throw new NotImplementedException("This method is not implemented yet.");
@@ -204,14 +199,14 @@ public class ElementsController {
 	 *         well as additional info about the data.
 	 */
 	@RequestMapping("/density")
-	public ElementsResponseContent getDensity(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+	public ElementsResponseContent getDensity(@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -219,7 +214,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// count result
 		countResult = mapRed.aggregateByTimestamp().count();
 		int count = 0;
@@ -287,17 +282,17 @@ public class ElementsController {
 	 *         additional info about the data.
 	 */
 	@RequestMapping("/ratio")
-	public ElementsResponseContent getRatio(@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time,
-			@RequestParam(value = "types2", defaultValue = defVal) String[] types2,
-			@RequestParam(value = "keys2", defaultValue = defVal) String[] keys2,
-			@RequestParam(value = "values2", defaultValue = defVal) String[] values2)
+	public ElementsResponseContent getRatio(@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time,
+			@RequestParam(value = "types2", defaultValue = "") String[] types2,
+			@RequestParam(value = "keys2", defaultValue = "") String[] keys2,
+			@RequestParam(value = "values2", defaultValue = "") String[] values2)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -307,10 +302,10 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed2;
 		InputValidator iV = new InputValidator();
 		// input parameter processing 1 and result 1
-		mapRed1 = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed1 = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		result1 = mapRed1.aggregateByTimestamp().count();
 		// input parameter processing 2 and result 2
-		mapRed2 = iV.processParameters(null, bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
+		mapRed2 = iV.processParameters(bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
 		result2 = mapRed2.aggregateByTimestamp().count();
 		// resultSet 1
 		Result[] resultSet1 = new Result[result1.size()];
@@ -361,21 +356,21 @@ public class ElementsController {
 	 */
 	@RequestMapping("/count/groupBy/type")
 	public ElementsResponseContent getCountGroupedByType(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
 		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
 
@@ -428,14 +423,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/count/groupBy/user")
 	public ElementsResponseContent getCountGroupedByUser(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
 		long startTime = System.currentTimeMillis();
@@ -444,7 +439,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -494,14 +489,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/count/groupBy/key")
 	public ElementsResponseContent getCountGroupedByKey(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
 		throw new NotImplementedException("/count/groupBy/key is not implemented yet.");
@@ -517,7 +512,7 @@ public class ElementsController {
 		// TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
 		// Integer[] keysInt = new Integer[keys.length];
 		// // check for the keys parameter
-		// if (keys[0].equals(defVal))
+		// if (keys[0].equals(""))
 		// throw new BadRequestException(
 		// "You need to give at least one key as parameter if you want to use
 		// /groupBy/key.");
@@ -594,14 +589,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/length/groupBy/type")
 	public ElementsResponseContent getLengthGroupedByType(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -610,7 +605,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
 			return f.getEntity().getType();
@@ -662,14 +657,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/length/groupBy/user")
 	public ElementsResponseContent getLengthGroupedByUser(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
 		long startTime = System.currentTimeMillis();
@@ -678,7 +673,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -730,14 +725,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/area/groupBy/type")
 	public ElementsResponseContent getAreaGroupedByType(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -746,7 +741,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
 			return f.getEntity().getType();
@@ -799,14 +794,14 @@ public class ElementsController {
 	 */
 	@RequestMapping("/area/groupBy/user")
 	public ElementsResponseContent getAreaGroupedByUser(
-			@RequestParam(value = "bboxes", defaultValue = defVal) String[] bboxes,
-			@RequestParam(value = "bpoints", defaultValue = defVal) String[] bpoints,
-			@RequestParam(value = "bpolys", defaultValue = defVal) String[] bpolys,
-			@RequestParam(value = "types", defaultValue = defVal) String[] types,
-			@RequestParam(value = "keys", defaultValue = defVal) String[] keys,
-			@RequestParam(value = "values", defaultValue = defVal) String[] values,
-			@RequestParam(value = "userids", defaultValue = defVal) String[] userids,
-			@RequestParam(value = "time", defaultValue = defVal) String[] time)
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
 		long startTime = System.currentTimeMillis();
@@ -815,7 +810,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -972,7 +967,7 @@ public class ElementsController {
 		}
 
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().count();
 		// output
@@ -1030,7 +1025,7 @@ public class ElementsController {
 		}
 		
 		// input parameter processing
-		mapRed = iV.processParameters(null, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			if (isLength) {
