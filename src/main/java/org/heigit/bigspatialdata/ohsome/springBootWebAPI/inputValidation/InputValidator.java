@@ -202,6 +202,17 @@ public class InputValidator {
 	}
 
 	/**
+	 * Checking if an input parameter of a POST request is null.
+	 * @param toCheck <code>String</code> array which is checked.
+	 * @return <code>String</code> array, which is empty but not null.
+	 */
+	public String[] checkParameterOnNull(String[] toCheck) {
+		if (toCheck == null)
+			toCheck = new String[0];
+		return toCheck;
+	}
+	
+	/**
 	 * Checks which boundary parameter is given.
 	 * 
 	 * @param bboxes
