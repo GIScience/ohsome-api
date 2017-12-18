@@ -254,7 +254,7 @@ public class ElementsController {
 	}
 
 	/*
-	 * groupBy Requests start here
+	 * GET groupBy Requests start here
 	 */
 
 	/**
@@ -282,46 +282,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		long startTime = System.currentTimeMillis();
-		MapReducer<OSMEntitySnapshot> mapRed;
-		InputValidator iV = new InputValidator();
-		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
-		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
-		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-
-		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-			return f.getEntity().getType();
-		}).count();
-
-		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-		// output
-		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-		int count = 0;
-		int innerCount = 0;
-		// iterate over the entry objects aggregated by type
-		for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-			Result[] results = new Result[entry.getValue().entrySet().size()];
-			innerCount = 0;
-			// iterate over the inner entry objects containing timestamp-value pairs
-			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-						String.valueOf(innerEntry.getValue()));
-				innerCount++;
-			}
-			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-
-			count++;
-		}
-
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount", "Total number of items aggregated on the type."), resultSet, null);
-		return response;
+		return executeCountGroupByTypeRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -349,45 +310,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
-		SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-		MapReducer<OSMEntitySnapshot> mapRed;
-		InputValidator iV = new InputValidator();
-		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
-
-		// db result
-		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-			return f.getEntity().getUserId();
-		}).count();
-
-		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-		// output
-		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-		int count = 0;
-		int innerCount = 0;
-		// iterate over the entry objects aggregated by type
-		for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-			Result[] results = new Result[entry.getValue().entrySet().size()];
-			innerCount = 0;
-			// iterate over the inner entry objects containing timestamp-value pairs
-			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-						String.valueOf(innerEntry.getValue()));
-				innerCount++;
-			}
-			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-			count++;
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "amount", "Total number of items aggregated on the userids."), resultSet, null);
-		return response;
+		return executeCountGroupByUserRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -521,7 +444,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
 			return f.getEntity().getType();
@@ -589,7 +512,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -657,7 +580,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
 			return f.getEntity().getType();
@@ -726,7 +649,7 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 
 		// db result
 		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -898,10 +821,73 @@ public class ElementsController {
 	 */
 	@RequestMapping(value = "/ratio", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ElementsResponseContent postRatio(String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-			String[] keys, String[] values, String[] userids, String[] time, String[] types2, String[] keys2, String[] values2)
+			String[] keys, String[] values, String[] userids, String[] time, String[] types2, String[] keys2,
+			String[] values2) throws UnsupportedOperationException, Exception {
+
+		return executeRatioRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2,
+				values2);
+	}
+
+	/*
+	 * POST groupBy requests start here
+	 */
+
+	/**
+	 * POST request giving the count of OSM objects, which are selected by the given
+	 * parameters and are grouped by the type. POST requests should only be used if
+	 * the request URL would be too long for a GET request.
+	 * <p>
+	 * For description of the parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the OSM type as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
+	 */
+	@RequestMapping(value = "/count/groupBy/type", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postCountGroupedByType(
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeRatioRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2, values2);
+		return executeCountGroupByTypeRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+	}
+
+	/**
+	 * POST request giving the count of OSM objects, which are selected by the given
+	 * parameters and are grouped by the userID. POST requests should only be used
+	 * if the request URL would be too long for a GET request.
+	 * <p>
+	 * For description of the parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the user as JSON response aggregated
+	 *         by the time, as well as additional info about the data.
+	 */
+	@RequestMapping(value = "/count/groupBy/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postCountGroupedByUser(
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
+			throws UnsupportedOperationException, Exception, BadRequestException {
+
+		return executeCountGroupByUserRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/*
@@ -927,21 +913,8 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
 
-		// check if this method is called from a POST request
-		if (isPost) {
-			// sets the string array to empty if it is null
-			bboxes = iV.checkParameterOnNull(bboxes);
-			bpoints = iV.checkParameterOnNull(bpoints);
-			bpolys = iV.checkParameterOnNull(bpolys);
-			types = iV.checkParameterOnNull(types);
-			keys = iV.checkParameterOnNull(keys);
-			values = iV.checkParameterOnNull(values);
-			userids = iV.checkParameterOnNull(userids);
-			time = iV.checkParameterOnNull(time);
-		}
-
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().count();
 		// output
@@ -984,20 +957,9 @@ public class ElementsController {
 		InputValidator iV = new InputValidator();
 		String unit;
 		String description;
-		// check if this method is called from a POST request
-		if (isPost) {
-			// sets the string array to empty if it is null
-			bboxes = iV.checkParameterOnNull(bboxes);
-			bpoints = iV.checkParameterOnNull(bpoints);
-			bpolys = iV.checkParameterOnNull(bpolys);
-			types = iV.checkParameterOnNull(types);
-			keys = iV.checkParameterOnNull(keys);
-			values = iV.checkParameterOnNull(values);
-			userids = iV.checkParameterOnNull(userids);
-			time = iV.checkParameterOnNull(time);
-		}
+
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
 		result = mapRed.aggregateByTimestamp().sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
 			if (isLength) {
@@ -1046,20 +1008,8 @@ public class ElementsController {
 		SortedMap<OSHDBTimestamp, Integer> countResult;
 		MapReducer<OSMEntitySnapshot> mapRed;
 		InputValidator iV = new InputValidator();
-		// check if this method is called from a POST request
-		if (isPost) {
-			// sets the string array to empty if it is null
-			bboxes = iV.checkParameterOnNull(bboxes);
-			bpoints = iV.checkParameterOnNull(bpoints);
-			bpolys = iV.checkParameterOnNull(bpolys);
-			types = iV.checkParameterOnNull(types);
-			keys = iV.checkParameterOnNull(keys);
-			values = iV.checkParameterOnNull(values);
-			userids = iV.checkParameterOnNull(userids);
-			time = iV.checkParameterOnNull(time);
-		}
 		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// count result
 		countResult = mapRed.aggregateByTimestamp().count();
 		int count = 0;
@@ -1091,7 +1041,7 @@ public class ElementsController {
 			// gets the timestamp and the results from count and divides it through the area
 			String date = countResultSet[i].getTimestamp();
 			String value = String
-					.valueOf(Float.parseFloat(countResultSet[i].getValue()) / (Geo.areaOf(geom) / 1000000));
+					.valueOf((Float.parseFloat(countResultSet[i].getValue()) / (Geo.areaOf(geom) / 1000000)));
 			resultSet[i] = new Result(date, value);
 		}
 		long duration = System.currentTimeMillis() - startTime;
@@ -1123,25 +1073,11 @@ public class ElementsController {
 		MapReducer<OSMEntitySnapshot> mapRed1;
 		MapReducer<OSMEntitySnapshot> mapRed2;
 		InputValidator iV = new InputValidator();
-		
-		// check if this method is called from a POST request
-		if (isPost) {
-			// sets the string array to empty if it is null
-			bboxes = iV.checkParameterOnNull(bboxes);
-			bpoints = iV.checkParameterOnNull(bpoints);
-			bpolys = iV.checkParameterOnNull(bpolys);
-			types = iV.checkParameterOnNull(types);
-			keys = iV.checkParameterOnNull(keys);
-			values = iV.checkParameterOnNull(values);
-			userids = iV.checkParameterOnNull(userids);
-			time = iV.checkParameterOnNull(time);
-		}
-		
 		// input parameter processing 1 and result 1
-		mapRed1 = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		mapRed1 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		result1 = mapRed1.aggregateByTimestamp().count();
 		// input parameter processing 2 and result 2
-		mapRed2 = iV.processParameters(bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
+		mapRed2 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
 		result2 = mapRed2.aggregateByTimestamp().count();
 		// resultSet 1
 		Result[] resultSet1 = new Result[result1.size()];
@@ -1172,4 +1108,115 @@ public class ElementsController {
 				null, resultSet);
 		return response;
 	}
+
+	/**
+	 * Gets the input parameters of the request and performs a count grouped by
+	 * types/users.
+	 * 
+	 * @param groupBy
+	 *            <code>String</code> containing information about the group by
+	 *            object (types, users).
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by types/users as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
+	 * @throws Exception
+	 * @throws UnsupportedOperationException
+	 */
+	private ElementsResponseContent executeCountGroupByTypeRequest(boolean isPost, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
+		SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// input parameter processing
+		mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// db result
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+			return f.getEntity().getType();
+		}).count();
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by user
+		for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "amount", "Total number of items aggregated on the userids."), resultSet, null);
+		return response;
+	}
+
+	/**
+	 * Gets the input parameters of the request and performs a count grouped by the
+	 * users.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the users as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
+	 * @throws Exception
+	 * @throws UnsupportedOperationException
+	 */
+	private ElementsResponseContent executeCountGroupByUserRequest(boolean isPost, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
+		SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// input parameter processing
+		mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// db result
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
+			return f.getEntity().getUserId();
+		}).count();
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by user
+		for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "amount", "Total number of items aggregated on the userids."), resultSet, null);
+		return response;
+	}
+
 }

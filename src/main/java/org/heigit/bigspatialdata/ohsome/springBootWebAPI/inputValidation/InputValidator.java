@@ -107,10 +107,21 @@ public class InputValidator {
 	 * @return <code>MapReducer<OSMEntitySnapshot></code> object including the
 	 *         settings derived from the given parameters.
 	 */
-	public MapReducer<OSMEntitySnapshot> processParameters(String[] bboxes, String[] bpoints, String[] bpolys,
-			String[] types, String[] keys, String[] values, String[] userids, String[] time) {
+	public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time) {
 
-		// InputValidatorPost iVP = new InputValidatorPost();
+		// check if this method is called from a POST request
+		if (isPost) {
+			// sets the string array to empty if it is null
+			bboxes = checkParameterOnNull(bboxes);
+			bpoints = checkParameterOnNull(bpoints);
+			bpolys = checkParameterOnNull(bpolys);
+			types = checkParameterOnNull(types);
+			keys = checkParameterOnNull(keys);
+			values = checkParameterOnNull(values);
+			userids = checkParameterOnNull(userids);
+			time = checkParameterOnNull(time);
+		}
 		MapReducer<OSMEntitySnapshot> mapRed;
 
 		// database
@@ -141,7 +152,7 @@ public class InputValidator {
 		if (time.length == 1) {
 			timeData = extractIsoTime(time[0]);
 			if (timeData[2] != null) {
-				// a interval is given
+				// interval is given
 				mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
 			} else
 				// no interval given
@@ -179,9 +190,8 @@ public class InputValidator {
 				mapRed = mapRed.where(keys[i], values[i]);
 		}
 
-		// checks if the userids parameter is not empty (POST) and does not have the
-		// default value (GET)
-		if (userids != null && userids.length != 0) {
+		// checks if the userids parameter is not empty
+		if (userids.length != 0) {
 			checkUserids(userids);
 			// more efficient way to include all userIDs
 			Set<Integer> useridSet = new HashSet<>();
@@ -196,19 +206,6 @@ public class InputValidator {
 		}
 
 		return mapRed;
-	}
-
-	/**
-	 * Checking if an input parameter of a POST request is null.
-	 * 
-	 * @param toCheck
-	 *            <code>String</code> array, which is checked.
-	 * @return <code>String</code> array, which is empty but not null.
-	 */
-	public String[] checkParameterOnNull(String[] toCheck) {
-		if (toCheck == null)
-			toCheck = new String[0];
-		return toCheck;
 	}
 
 	/**
@@ -758,6 +755,19 @@ public class InputValidator {
 		}
 
 		return timeVals;
+	}
+
+	/**
+	 * Checking if an input parameter of a POST request is null.
+	 * 
+	 * @param toCheck
+	 *            <code>String</code> array, which is checked.
+	 * @return <code>String</code> array, which is empty, but not null.
+	 */
+	private String[] checkParameterOnNull(String[] toCheck) {
+		if (toCheck == null)
+			toCheck = new String[0];
+		return toCheck;
 	}
 
 	public byte getBoundary() {
