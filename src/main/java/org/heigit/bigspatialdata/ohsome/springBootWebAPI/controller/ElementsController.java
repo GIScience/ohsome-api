@@ -12,10 +12,10 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestExc
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.lambdas.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapBiAggregatorByTimestamps;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.Geo;
@@ -41,8 +41,8 @@ public class ElementsController {
 	 */
 
 	/**
-	 * GET request giving the count of the OSM objects, which are selected by the given
-	 * parameters.
+	 * GET request giving the count of the OSM objects, which are selected by the
+	 * given parameters.
 	 * <p>
 	 * 
 	 * @param bboxes
@@ -109,8 +109,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the length of the OSM objects, which are selected by the given
-	 * parameters.
+	 * GET request giving the length of the OSM objects, which are selected by the
+	 * given parameters.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -136,8 +136,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the area of the OSM objects, which are are selected by the given
-	 * parameters.
+	 * GET request giving the area of the OSM objects, which are are selected by the
+	 * given parameters.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -163,8 +163,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the mean minimum distance of items to a given bounding point. This
-	 * method is not implemented yet.
+	 * GET request giving the mean minimum distance of items to a given bounding
+	 * point. This method is not implemented yet.
 	 * <p>
 	 * For description of the parameters, <code>return</code> object and exceptions,
 	 * look at the
@@ -209,58 +209,12 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestamp, Integer> countResult;
-		MapReducer<OSMEntitySnapshot> mapRed;
-		InputValidator iV = new InputValidator();
-		// input parameter processing
-		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
-		// count result
-		countResult = mapRed.aggregateByTimestamp().count();
-		int count = 0;
-		Result[] countResultSet = new Result[countResult.size()];
-		for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
-			countResultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-					String.valueOf(entry.getValue().intValue()));
-			count++;
-		}
-		// geometry
-		Geometry geom = null;
-		switch (iV.getBoundary()) {
-		case 0:
-			geom = iV.getBbox().getGeometry();
-			break;
-		case 1:
-			geom = iV.getBbox().getGeometry();
-			break;
-		case 2:
-			geom = iV.getBpoint();
-			break;
-		case 3:
-			geom = iV.getBpoly();
-			break;
-		}
-		// output
-		Result[] resultSet = new Result[countResult.size()];
-		for (int i = 0; i < resultSet.length; i++) {
-			// gets the timestamp and the results from count and divides it through the area
-			String date = countResultSet[i].getTimestamp();
-			String value = String
-					.valueOf(Float.parseFloat(countResultSet[i].getValue()) / (Geo.areaOf(geom) / 1000000));
-			resultSet[i] = new Result(date, value);
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration,
-						"items per square-kilometer", "Density of selected items (number of items per area)."),
-				null, resultSet);
-		return response;
+		return executeDensityRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
-	 * GET request giving the ratio of selected items satisfying types2, keys2 and values2 within
-	 * items selected by types, keys and values.
+	 * GET request giving the ratio of selected items satisfying types2, keys2 and
+	 * values2 within items selected by types, keys and values.
 	 * <p>
 	 * For description of the other parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -295,46 +249,8 @@ public class ElementsController {
 			@RequestParam(value = "values2", defaultValue = "") String[] values2)
 			throws UnsupportedOperationException, Exception {
 
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestamp, Integer> result1;
-		SortedMap<OSHDBTimestamp, Integer> result2;
-		MapReducer<OSMEntitySnapshot> mapRed1;
-		MapReducer<OSMEntitySnapshot> mapRed2;
-		InputValidator iV = new InputValidator();
-		// input parameter processing 1 and result 1
-		mapRed1 = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
-		result1 = mapRed1.aggregateByTimestamp().count();
-		// input parameter processing 2 and result 2
-		mapRed2 = iV.processParameters(bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
-		result2 = mapRed2.aggregateByTimestamp().count();
-		// resultSet 1
-		Result[] resultSet1 = new Result[result1.size()];
-		int count = 0;
-		for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
-			resultSet1[count] = new Result(entry.getKey().formatIsoDateTime(),
-					String.valueOf(entry.getValue().intValue()));
-			count++;
-		}
-		// output
-		Result[] resultSet = new Result[result1.size()];
-		count = 0;
-		for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
-			// gets the timestamp and the results from both counts and divides 2 through 1
-			String date = resultSet1[count].getTimestamp();
-			String value = String
-					.valueOf(entry.getValue().floatValue() / Float.parseFloat(resultSet1[count].getValue()));
-			resultSet[count] = new Result(date, value);
-			count++;
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "ratio",
-						"Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values."),
-				null, resultSet);
-		return response;
+		return executeRatioRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2,
+				values2);
 	}
 
 	/*
@@ -342,8 +258,8 @@ public class ElementsController {
 	 */
 
 	/**
-	 * GET request giving the count of OSM objects, which are selected by the given parameters and
-	 * are grouped by the type.
+	 * GET request giving the count of OSM objects, which are selected by the given
+	 * parameters and are grouped by the type.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -409,8 +325,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the count of OSM objects, which are selected by the given parameters and
-	 * are grouped by the userID.
+	 * GET request giving the count of OSM objects, which are selected by the given
+	 * parameters and are grouped by the userID.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -475,8 +391,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the count of OSM objects, which are selected by the given parameters and
-	 * are grouped by the key.
+	 * GET request giving the count of OSM objects, which are selected by the given
+	 * parameters and are grouped by the key.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -575,8 +491,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the length of OSM objects, which are selected by the given parameters
-	 * and are grouped by the type.
+	 * GET request giving the length of OSM objects, which are selected by the given
+	 * parameters and are grouped by the type.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -643,8 +559,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the length of OSM objects, which are selected by the given parameters
-	 * and are grouped by the userId.
+	 * GET request giving the length of OSM objects, which are selected by the given
+	 * parameters and are grouped by the userId.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -711,8 +627,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the area of OSM objects, which are selected by the given parameters and
-	 * are grouped by the type.
+	 * GET request giving the area of OSM objects, which are selected by the given
+	 * parameters and are grouped by the type.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -780,8 +696,8 @@ public class ElementsController {
 	}
 
 	/**
-	 * GET request giving the area of OSM objects, which are selected by the given parameters and
-	 * are grouped by the userId.
+	 * GET request giving the area of OSM objects, which are selected by the given
+	 * parameters and are grouped by the userId.
 	 * <p>
 	 * For description of the parameters and exceptions, look at the
 	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -910,9 +826,9 @@ public class ElementsController {
 	 * request.
 	 * 
 	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-	 *         ElementsResponseContent} object containing the area of OSM objects
-	 *         in the requested area as JSON response aggregated by the time, as
-	 *         well as additional info about the data.
+	 *         ElementsResponseContent} object containing the area of OSM objects in
+	 *         the requested area as JSON response aggregated by the time, as well
+	 *         as additional info about the data.
 	 * @throws UnsupportedOperationException
 	 *             thrown by
 	 *             {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
@@ -928,6 +844,64 @@ public class ElementsController {
 			throws UnsupportedOperationException, Exception {
 
 		return executeLengthAreaRequest(false, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+	}
+
+	/**
+	 * POST request returning the density of elements for the given parameters. POST
+	 * requests should only be used if the request URL would be too long for a GET
+	 * request.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the density of OSM objects
+	 *         in the requested area as JSON response aggregated by the time, as
+	 *         well as additional info about the data.
+	 * @throws UnsupportedOperationException
+	 *             thrown by
+	 *             {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+	 *             aggregateByTimestamp()}
+	 * @throws Exception
+	 *             thrown by
+	 *             {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count()
+	 *             count()}
+	 */
+	@RequestMapping(value = "/density", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postDensity(String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
+			String[] keys, String[] values, String[] userids, String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		return executeDensityRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+	}
+
+	/**
+	 * POST request giving the ratio of selected items satisfying types2, keys2 and
+	 * values2 within items selected by types, keys and values. POST requests should
+	 * only be used if the request URL would be too long for a GET request.
+	 * <p>
+	 * For description of the other parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @param types2
+	 *            <code>String</code> array containing the OSM types, which are used
+	 *            to satisfy the selected items to compute the ratio.
+	 * @param keys2
+	 *            <code>String</code> array containing the OSM types, which are used
+	 *            to satisfy the selected items to compute the ratio.
+	 * @param values2
+	 *            <code>String</code> array containing the OSM types, which are used
+	 *            to satisfy the selected items to compute the ratio.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the ratio of the requested
+	 *         OSM objects as JSON response aggregated by the time, as well as
+	 *         additional info about the data.
+	 */
+	@RequestMapping(value = "/ratio", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postRatio(String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
+			String[] keys, String[] values, String[] userids, String[] time, String[] types2, String[] keys2, String[] values2)
+			throws UnsupportedOperationException, Exception {
+
+		return executeRatioRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2, values2);
 	}
 
 	/*
@@ -1010,7 +984,6 @@ public class ElementsController {
 		InputValidator iV = new InputValidator();
 		String unit;
 		String description;
-		
 		// check if this method is called from a POST request
 		if (isPost) {
 			// sets the string array to empty if it is null
@@ -1023,7 +996,6 @@ public class ElementsController {
 			userids = iV.checkParameterOnNull(userids);
 			time = iV.checkParameterOnNull(time);
 		}
-		
 		// input parameter processing
 		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
 		// db result
@@ -1049,13 +1021,155 @@ public class ElementsController {
 			unit = "square-meter";
 			description = "Total area of polygons.";
 		}
-
 		long duration = System.currentTimeMillis() - startTime;
 		// response
 		ElementsResponseContent response = new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
 				"-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, unit, description), null, resultSet);
-
 		return response;
 	}
 
+	/**
+	 * Gets the input parameters of the request and performs a density calculation.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the density of OSM objects
+	 *         in the requested area as JSON response aggregated by the time, as
+	 *         well as additional info about the data.
+	 * @throws Exception
+	 * @throws UnsupportedOperationException
+	 */
+	private ElementsResponseContent executeDensityRequest(boolean isPost, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
+			throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestamp, Integer> countResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		// check if this method is called from a POST request
+		if (isPost) {
+			// sets the string array to empty if it is null
+			bboxes = iV.checkParameterOnNull(bboxes);
+			bpoints = iV.checkParameterOnNull(bpoints);
+			bpolys = iV.checkParameterOnNull(bpolys);
+			types = iV.checkParameterOnNull(types);
+			keys = iV.checkParameterOnNull(keys);
+			values = iV.checkParameterOnNull(values);
+			userids = iV.checkParameterOnNull(userids);
+			time = iV.checkParameterOnNull(time);
+		}
+		// input parameter processing
+		mapRed = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// count result
+		countResult = mapRed.aggregateByTimestamp().count();
+		int count = 0;
+		Result[] countResultSet = new Result[countResult.size()];
+		for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
+			countResultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+					String.valueOf(entry.getValue().intValue()));
+			count++;
+		}
+		// geometry
+		Geometry geom = null;
+		switch (iV.getBoundary()) {
+		case 0:
+			geom = iV.getBbox().getGeometry();
+			break;
+		case 1:
+			geom = iV.getBbox().getGeometry();
+			break;
+		case 2:
+			geom = iV.getBpoint();
+			break;
+		case 3:
+			geom = iV.getBpoly();
+			break;
+		}
+		// output
+		Result[] resultSet = new Result[countResult.size()];
+		for (int i = 0; i < resultSet.length; i++) {
+			// gets the timestamp and the results from count and divides it through the area
+			String date = countResultSet[i].getTimestamp();
+			String value = String
+					.valueOf(Float.parseFloat(countResultSet[i].getValue()) / (Geo.areaOf(geom) / 1000000));
+			resultSet[i] = new Result(date, value);
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration,
+						"items per square-kilometer", "Density of selected items (number of items per area)."),
+				null, resultSet);
+		return response;
+	}
+
+	/**
+	 * Gets the input parameters of the request and performs a ratio calculation.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the ratio of OSM objects
+	 *         in the requested area as JSON response aggregated by the time, as
+	 *         well as additional info about the data.
+	 * @throws Exception
+	 * @throws UnsupportedOperationException
+	 */
+	private ElementsResponseContent executeRatioRequest(boolean isPost, String[] bboxes, String[] bpoints,
+			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time,
+			String[] types2, String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
+
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestamp, Integer> result1;
+		SortedMap<OSHDBTimestamp, Integer> result2;
+		MapReducer<OSMEntitySnapshot> mapRed1;
+		MapReducer<OSMEntitySnapshot> mapRed2;
+		InputValidator iV = new InputValidator();
+		
+		// check if this method is called from a POST request
+		if (isPost) {
+			// sets the string array to empty if it is null
+			bboxes = iV.checkParameterOnNull(bboxes);
+			bpoints = iV.checkParameterOnNull(bpoints);
+			bpolys = iV.checkParameterOnNull(bpolys);
+			types = iV.checkParameterOnNull(types);
+			keys = iV.checkParameterOnNull(keys);
+			values = iV.checkParameterOnNull(values);
+			userids = iV.checkParameterOnNull(userids);
+			time = iV.checkParameterOnNull(time);
+		}
+		
+		// input parameter processing 1 and result 1
+		mapRed1 = iV.processParameters(bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		result1 = mapRed1.aggregateByTimestamp().count();
+		// input parameter processing 2 and result 2
+		mapRed2 = iV.processParameters(bboxes, bpoints, bpolys, types2, keys2, values2, userids, time);
+		result2 = mapRed2.aggregateByTimestamp().count();
+		// resultSet 1
+		Result[] resultSet1 = new Result[result1.size()];
+		int count = 0;
+		for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
+			resultSet1[count] = new Result(entry.getKey().formatIsoDateTime(),
+					String.valueOf(entry.getValue().intValue()));
+			count++;
+		}
+		// output
+		Result[] resultSet = new Result[result1.size()];
+		count = 0;
+		for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
+			// gets the timestamp and the results from both counts and divides 2 through 1
+			String date = resultSet1[count].getTimestamp();
+			String value = String
+					.valueOf(entry.getValue().floatValue() / Float.parseFloat(resultSet1[count].getValue()));
+			resultSet[count] = new Result(date, value);
+			count++;
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, "ratio",
+						"Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values."),
+				null, resultSet);
+		return response;
+	}
 }

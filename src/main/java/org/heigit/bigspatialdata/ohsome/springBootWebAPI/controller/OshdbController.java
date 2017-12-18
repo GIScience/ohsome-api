@@ -15,10 +15,10 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataExtr
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataExtractionResponse.Way;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamps.Interval;
-import org.heigit.bigspatialdata.oshdb.api.objects.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
 import org.springframework.web.bind.annotation.RequestBody;
