@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  *
  */
 @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-public class UnauthorizedException extends Exception{
+public class UnauthorizedException extends Exception {
 
-	private static final long serialVersionUID = -3021015133062599721L;
+  private static final long serialVersionUID = -3021015133062599721L;
 
-	public UnauthorizedException(String message) {
-		super(message);
-	}
+  public UnauthorizedException(String message) {
+    super(message);
+  }
 
 }

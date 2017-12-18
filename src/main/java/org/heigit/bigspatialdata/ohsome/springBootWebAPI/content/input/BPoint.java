@@ -9,31 +9,31 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result
 public class BPoint {
-	
-	private String id;
-	private String[] bpoint;
-	
-	public BPoint(String id, String[] bpoint) {
-		this.id = id;
-		this.bpoint = bpoint;
-	}
-	
-	/**
-	 * Empty dummy constructor (needed for Jackson).
-	 */
-	public BPoint() {
-		
-	}
 
-	public String getId() {
-		return id;
-	}
+  private String id;
+  private String[] bpoint;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+  public BPoint(String id, String[] bpoint) {
+    this.id = id;
+    this.bpoint = bpoint;
+  }
 
-	public String[] getBpoint() {
-		return bpoint;
-	}
+  /**
+   * Empty dummy constructor (needed for Jackson).
+   */
+  public BPoint() {
+
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String[] getBpoint() {
+    return bpoint;
+  }
 }

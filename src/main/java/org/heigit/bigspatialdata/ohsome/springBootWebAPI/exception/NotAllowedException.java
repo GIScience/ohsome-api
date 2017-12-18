@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
 public class NotAllowedException extends RuntimeException {
 
-	private static final long serialVersionUID = -4222709148776556662L;
+  private static final long serialVersionUID = -4222709148776556662L;
 
-	public NotAllowedException(String message) {
-		super(message);
-	}
+  public NotAllowedException(String message) {
+    super(message);
+  }
 }

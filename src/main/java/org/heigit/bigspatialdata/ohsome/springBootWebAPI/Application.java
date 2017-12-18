@@ -11,15 +11,15 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 @SpringBootApplication
 public class Application {
-	private static EventHolderBean bean;
+  private static EventHolderBean bean;
 
-    public static void main(String[] args) {
-        ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
-        bean = ctx.getBean(EventHolderBean.class);
-    }
-    
-    // 'straight-forward', maybe not so beautiful way to establish a db-conn on startup
-    public static EventHolderBean getEventHolderBean() {
-    	return bean;
-    }
+  public static void main(String[] args) {
+    ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
+    bean = ctx.getBean(EventHolderBean.class);
+  }
+
+  // 'straight-forward', maybe not so beautiful way to establish a db-conn on startup
+  public static EventHolderBean getEventHolderBean() {
+    return bean;
+  }
 }

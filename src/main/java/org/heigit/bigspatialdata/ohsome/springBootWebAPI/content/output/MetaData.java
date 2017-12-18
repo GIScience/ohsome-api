@@ -5,27 +5,27 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output;
  *
  */
 public class MetaData {
-	
-	private long executionTime;
-	private String unit;
-	private String description;
-	
-	public MetaData(long executionTime, String unit, String description) {
-		this.executionTime = executionTime;
-		this.unit = unit;
-		this.description = description;
-	}
 
-	public long getExecutionTime() {
-		return executionTime;
-	}
+  private long executionTime;
+  private String unit;
+  private String description;
 
-	public String getUnit() {
-		return unit;
-	}
-	
-	public String getDescription() {
-		return description;
-	}
+  public MetaData(long executionTime, String unit, String description) {
+    this.executionTime = executionTime;
+    this.unit = unit;
+    this.description = description;
+  }
+
+  public long getExecutionTime() {
+    return executionTime;
+  }
+
+  public String getUnit() {
+    return unit;
+  }
+
+  public String getDescription() {
+    return description;
+  }
 
 }
