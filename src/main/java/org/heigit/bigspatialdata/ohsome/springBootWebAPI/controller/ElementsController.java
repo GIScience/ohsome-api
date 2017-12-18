@@ -105,7 +105,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeCountRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeCount(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeLengthAreaRequest(true, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeLengthArea(true, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeLengthAreaRequest(false, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeLengthArea(false, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeDensityRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeDensity(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -249,8 +249,7 @@ public class ElementsController {
 			@RequestParam(value = "values2", defaultValue = "") String[] values2)
 			throws UnsupportedOperationException, Exception {
 
-		return executeRatioRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2,
-				values2);
+		return executeRatio(false, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2, values2);
 	}
 
 	/*
@@ -282,7 +281,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeCountGroupByTypeRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeCountGroupByType(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -310,7 +309,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
-		return executeCountGroupByUserRequest(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeCountGroupByUser(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -506,47 +505,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
-		SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-		MapReducer<OSMEntitySnapshot> mapRed;
-		InputValidator iV = new InputValidator();
-		// input parameter processing
-		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-
-		// db result
-		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-			return f.getEntity().getUserId();
-		}).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-			return Geo.lengthOf(snapshot.getGeometry());
-		});
-
-		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-		// output
-		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-		int count = 0;
-		int innerCount = 0;
-		// iterate over the entry objects aggregated by type
-		for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
-			Result[] results = new Result[entry.getValue().entrySet().size()];
-			innerCount = 0;
-			// iterate over the inner entry objects containing timestamp-value pairs
-			for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-						String.valueOf(innerEntry.getValue().floatValue()));
-				innerCount++;
-			}
-			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-			count++;
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "meter", "Total length of items aggregated on the userids."), resultSet, null);
-		return response;
+		return executeLengthAreaGroupedByUser(true, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -642,49 +601,8 @@ public class ElementsController {
 			@RequestParam(value = "userids", defaultValue = "") String[] userids,
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
-
-		long startTime = System.currentTimeMillis();
-		SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
-		SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-		MapReducer<OSMEntitySnapshot> mapRed;
-		InputValidator iV = new InputValidator();
-		// input parameter processing
-		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-
-		// db result
-		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-			return f.getEntity().getUserId();
-		}).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-			return Geo.areaOf(snapshot.getGeometry());
-		});
-
-		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-		// output
-		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-		int count = 0;
-		int innerCount = 0;
-		// iterate over the entry objects aggregated by type
-		for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
-			Result[] results = new Result[entry.getValue().entrySet().size()];
-			innerCount = 0;
-			// iterate over the inner entry objects containing timestamp-value pairs
-			for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-						String.valueOf(innerEntry.getValue().floatValue()));
-				innerCount++;
-			}
-			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-			count++;
-		}
-		long duration = System.currentTimeMillis() - startTime;
-		// response
-		ElementsResponseContent response = new ElementsResponseContent(
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-				new MetaData(duration, "square-meter", "Total area of items aggregated on the userids."), resultSet,
-				null);
-		return response;
+		
+		return executeLengthAreaGroupedByUser(false, false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/*
@@ -714,7 +632,7 @@ public class ElementsController {
 			String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeCountRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeCount(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -740,7 +658,7 @@ public class ElementsController {
 			String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeLengthAreaRequest(true, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeLengthArea(true, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -766,7 +684,7 @@ public class ElementsController {
 			String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeLengthAreaRequest(false, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeLengthArea(false, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -792,7 +710,7 @@ public class ElementsController {
 			String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeDensityRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -824,8 +742,7 @@ public class ElementsController {
 			String[] keys, String[] values, String[] userids, String[] time, String[] types2, String[] keys2,
 			String[] values2) throws UnsupportedOperationException, Exception {
 
-		return executeRatioRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2,
-				values2);
+		return executeRatio(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, types2, keys2, values2);
 	}
 
 	/*
@@ -858,7 +775,7 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception {
 
-		return executeCountGroupByTypeRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeCountGroupByType(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
 	/**
@@ -887,9 +804,67 @@ public class ElementsController {
 			@RequestParam(value = "time", defaultValue = "") String[] time)
 			throws UnsupportedOperationException, Exception, BadRequestException {
 
-		return executeCountGroupByUserRequest(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		return executeCountGroupByUser(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
 	}
 
+	/**
+	 * POST request giving the length of OSM objects, which are selected by the given
+	 * parameters and are grouped by the userID. POST requests should only be used
+	 * if the request URL would be too long for a GET request.
+	 * <p>
+	 * For description of the parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the length of OSM objects
+	 *         in the requested area grouped by the user as JSON response aggregated
+	 *         by the time, as well as additional info about the data.
+	 */
+	@RequestMapping(value = "/length/groupBy/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postLengthGroupedByUser(
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
+			throws UnsupportedOperationException, Exception, BadRequestException {
+
+		return executeLengthAreaGroupedByUser(true, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+	}
+	
+	/**
+	 * POST request giving the area of OSM objects, which are selected by the given
+	 * parameters and are grouped by the userID. POST requests should only be used
+	 * if the request URL would be too long for a GET request.
+	 * <p>
+	 * For description of the parameters and exceptions, look at the
+	 * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+	 * getCount} method.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the area of OSM objects
+	 *         in the requested area grouped by the user as JSON response aggregated
+	 *         by the time, as well as additional info about the data.
+	 */
+	@RequestMapping(value = "/area/groupBy/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ElementsResponseContent postAreaGroupedByUser(
+			@RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+			@RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+			@RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+			@RequestParam(value = "types", defaultValue = "") String[] types,
+			@RequestParam(value = "keys", defaultValue = "") String[] keys,
+			@RequestParam(value = "values", defaultValue = "") String[] values,
+			@RequestParam(value = "userids", defaultValue = "") String[] userids,
+			@RequestParam(value = "time", defaultValue = "") String[] time)
+			throws UnsupportedOperationException, Exception, BadRequestException {
+
+		return executeLengthAreaGroupedByUser(false, true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+	}
+	
 	/*
 	 * EXECUTING methods of all requests start here
 	 */
@@ -904,8 +879,8 @@ public class ElementsController {
 	 * @throws Exception
 	 * @throws UnsupportedOperationException
 	 */
-	private ElementsResponseContent executeCountRequest(boolean isPost, String[] bboxes, String[] bpoints,
-			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
+	private ElementsResponseContent executeCount(boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys,
+			String[] types, String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -947,7 +922,7 @@ public class ElementsController {
 	 * @throws Exception
 	 * @throws UnsupportedOperationException
 	 */
-	private ElementsResponseContent executeLengthAreaRequest(boolean isLength, boolean isPost, String[] bboxes,
+	private ElementsResponseContent executeLengthArea(boolean isLength, boolean isPost, String[] bboxes,
 			String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
 			String[] time) throws UnsupportedOperationException, Exception {
 
@@ -1000,8 +975,8 @@ public class ElementsController {
 	 * @throws Exception
 	 * @throws UnsupportedOperationException
 	 */
-	private ElementsResponseContent executeDensityRequest(boolean isPost, String[] bboxes, String[] bpoints,
-			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
+	private ElementsResponseContent executeDensity(boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys,
+			String[] types, String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -1063,9 +1038,9 @@ public class ElementsController {
 	 * @throws Exception
 	 * @throws UnsupportedOperationException
 	 */
-	private ElementsResponseContent executeRatioRequest(boolean isPost, String[] bboxes, String[] bpoints,
-			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time,
-			String[] types2, String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
+	private ElementsResponseContent executeRatio(boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys,
+			String[] types, String[] keys, String[] values, String[] userids, String[] time, String[] types2,
+			String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
 
 		long startTime = System.currentTimeMillis();
 		SortedMap<OSHDBTimestamp, Integer> result1;
@@ -1124,7 +1099,7 @@ public class ElementsController {
 	 * @throws Exception
 	 * @throws UnsupportedOperationException
 	 */
-	private ElementsResponseContent executeCountGroupByTypeRequest(boolean isPost, String[] bboxes, String[] bpoints,
+	private ElementsResponseContent executeCountGroupByType(boolean isPost, String[] bboxes, String[] bpoints,
 			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
@@ -1177,7 +1152,7 @@ public class ElementsController {
 	 * @throws Exception
 	 * @throws UnsupportedOperationException
 	 */
-	private ElementsResponseContent executeCountGroupByUserRequest(boolean isPost, String[] bboxes, String[] bpoints,
+	private ElementsResponseContent executeCountGroupByUser(boolean isPost, String[] bboxes, String[] bpoints,
 			String[] bpolys, String[] types, String[] keys, String[] values, String[] userids, String[] time)
 			throws UnsupportedOperationException, Exception {
 
@@ -1216,6 +1191,75 @@ public class ElementsController {
 				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
 				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
 				new MetaData(duration, "amount", "Total number of items aggregated on the userids."), resultSet, null);
+		return response;
+	}
+
+	/**
+	 * Gets the input parameters of the request and computes length or area results
+	 * grouped by the users.
+	 * 
+	 * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+	 *         ElementsResponseContent} object containing the count of OSM objects
+	 *         in the requested area grouped by the users as JSON response
+	 *         aggregated by the time, as well as additional info about the data.
+	 * @throws Exception
+	 * @throws UnsupportedOperationException
+	 */
+	private ElementsResponseContent executeLengthAreaGroupedByUser(boolean isLength, boolean isPost, String[] bboxes,
+			String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+			String[] time) throws UnsupportedOperationException, Exception {
+		
+		long startTime = System.currentTimeMillis();
+		SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
+		SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+		MapReducer<OSMEntitySnapshot> mapRed;
+		InputValidator iV = new InputValidator();
+		String unit;
+		String description;
+		// input parameter processing
+		mapRed = iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+		// db result
+		result = mapRed.aggregateByTimestamp().aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
+			return f.getEntity().getUserId();
+		}).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+			if (isLength)
+				return Geo.lengthOf(snapshot.getGeometry());
+			else
+				return Geo.areaOf(snapshot.getGeometry());
+		});
+		groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+		// output
+		GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+		int count = 0;
+		int innerCount = 0;
+		// iterate over the entry objects aggregated by type
+		for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+			Result[] results = new Result[entry.getValue().entrySet().size()];
+			innerCount = 0;
+			// iterate over the inner entry objects containing timestamp-value pairs
+			for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+				results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+						String.valueOf(innerEntry.getValue().floatValue()));
+				innerCount++;
+			}
+			resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+			count++;
+		}
+		// setting of the unit and description output parameters
+		if (isLength) {
+			unit = "meter";
+			description = "Total length of items aggregated on the userids.";
+		} else {
+			unit = "square-meter";
+			description = "Total area of items aggregated on the userids.";
+		}
+		long duration = System.currentTimeMillis() - startTime;
+		// response
+		ElementsResponseContent response = new ElementsResponseContent(
+				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+				"sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+				new MetaData(duration, unit, description), resultSet,
+				null);
 		return response;
 	}
 
