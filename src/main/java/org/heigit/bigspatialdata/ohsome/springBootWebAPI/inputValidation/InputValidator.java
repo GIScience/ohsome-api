@@ -195,6 +195,57 @@ public class InputValidator {
   }
 
   /**
+   * Gets the array of points (bounding box, polygon and point [+ radius]) and adds an id before
+   * each element.
+   * 
+   * @param boundary <code>String</code> array containing either bounding boxes, polygons, or points
+   *        (+ radius).
+   * @param boundaryType <code>String</code> defining which boundary parameter is given (bbox,
+   *        bpoint, bpoly).
+   * @return <code>String</code> array containing the given coordinates of each element + an added
+   *         ID.
+   */
+  private String[] addId(String[] boundary, String boundaryType) {
+
+    int length;
+    String[] boundaryId = null;
+    int count = 0;
+    switch (boundaryType) {
+      case "bbox":
+        length = boundary.length + (boundary.length / 4);
+        boundaryId = new String[length];
+        for (int i = 0; i < boundary.length; i += 4) {
+          // sets the id
+          boundaryId[i + count] = String.valueOf(count);
+          // sets the coordinate values
+          boundaryId[i + 1 + count] = boundary[i];
+          boundaryId[i + 2 + count] = boundary[i + 1];
+          boundaryId[i + 3 + count] = boundary[i + 2];
+          boundaryId[i + 4 + count] = boundary[i + 3];
+          count++;
+        }
+        break;
+      case "bpoint":
+        length = boundary.length + (boundary.length / 3);
+        boundaryId = new String[length];
+        for (int i = 0; i < boundary.length; i += 3) {
+          // sets the id
+          boundaryId[i + count] = String.valueOf(count);
+          // sets the coordinate values + the radius
+          boundaryId[i + 1 + count] = boundary[i];
+          boundaryId[i + 2 + count] = boundary[i + 1];
+          boundaryId[i + 3 + count] = boundary[i + 2];
+          count++;
+        }
+        break;
+      case "bpoly":
+        break;
+    }
+
+    return boundaryId;
+  }
+
+  /**
    * Checks which boundary parameter is given.
    * 
    * @param bboxes <code>String</code> array containing the lon/lat coordinate pairs of the bounding
