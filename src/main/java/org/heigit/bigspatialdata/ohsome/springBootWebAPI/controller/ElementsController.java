@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -250,7 +251,7 @@ public class ElementsController {
    *         additional info about the data.
    */
   @RequestMapping("/count/groupBy/type")
-  public ElementsResponseContent getCountGroupedByType(
+  public ElementsResponseContent getCountGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -279,7 +280,7 @@ public class ElementsController {
    *         info about the data.
    */
   @RequestMapping("/count/groupBy/user")
-  public ElementsResponseContent getCountGroupedByUser(
+  public ElementsResponseContent getCountGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -291,6 +292,37 @@ public class ElementsController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return executeCountGroupByUser(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
+  }
+
+  /**
+   * GET request giving the count of OSM objects, which are selected by the given parameters and are
+   * grouped by the boundary parameter (bounding box/point/polygon).
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the count of OSM objects in the requested
+   *         area grouped by the boundary element as JSON response aggregated by the time, as well
+   *         as additional info about the data.
+   */
+  @RequestMapping("/count/groupBy/boundary")
+  public ElementsResponseContent getCountGroupByBoundary(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    System.out.println("hi from get");
+
+    return executeCountGroupByBoundary(false, bboxes, bpoints, bpolys, types, keys, values, userids,
         time);
   }
 
@@ -308,7 +340,7 @@ public class ElementsController {
    *         info about the data.
    */
   @RequestMapping("/count/groupBy/key")
-  public ElementsResponseContent getCountGroupedByKey(
+  public ElementsResponseContent getCountGroupByKey(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -408,7 +440,7 @@ public class ElementsController {
    *         additional info about the data.
    */
   @RequestMapping("/length/groupBy/type")
-  public ElementsResponseContent getLengthGroupedByType(
+  public ElementsResponseContent getLengthGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -419,7 +451,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception {
 
-    return executeLengthAreaGroupedByType(true, false, bboxes, bpoints, bpolys, types, keys, values,
+    return executeLengthAreaGroupByType(true, false, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -437,7 +469,7 @@ public class ElementsController {
    *         info about the data.
    */
   @RequestMapping("/length/groupBy/user")
-  public ElementsResponseContent getLengthGroupedByUser(
+  public ElementsResponseContent getLengthGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -448,7 +480,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupedByUser(true, false, bboxes, bpoints, bpolys, types, keys, values,
+    return executeLengthAreaGroupByUser(true, false, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -466,7 +498,7 @@ public class ElementsController {
    *         additional info about the data.
    */
   @RequestMapping("/area/groupBy/type")
-  public ElementsResponseContent getAreaGroupedByType(
+  public ElementsResponseContent getAreaGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -477,8 +509,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception {
 
-    return executeLengthAreaGroupedByType(false, false, bboxes, bpoints, bpolys, types, keys,
-        values, userids, time);
+    return executeLengthAreaGroupByType(false, false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -495,7 +527,7 @@ public class ElementsController {
    *         info about the data.
    */
   @RequestMapping("/area/groupBy/user")
-  public ElementsResponseContent getAreaGroupedByUser(
+  public ElementsResponseContent getAreaGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -506,8 +538,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupedByUser(false, false, bboxes, bpoints, bpolys, types, keys,
-        values, userids, time);
+    return executeLengthAreaGroupByUser(false, false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /*
@@ -659,7 +691,7 @@ public class ElementsController {
    */
   @RequestMapping(value = "/count/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupedByType(
+  public ElementsResponseContent postCountGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -690,7 +722,7 @@ public class ElementsController {
    */
   @RequestMapping(value = "/count/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupedByUser(
+  public ElementsResponseContent postCountGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -702,6 +734,37 @@ public class ElementsController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return executeCountGroupByUser(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
+  }
+
+  /**
+   * POST request giving the count of OSM objects, which are selected by the given parameters and
+   * are grouped by the boundary parameter (bounding box/point/polygon). POST requests should only
+   * be used if the request URL would be too long for a GET request.
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the count of OSM objects in the requested
+   *         area grouped by the boundary element as JSON response aggregated by the time, as well
+   *         as additional info about the data.
+   */
+  @RequestMapping(value = "/count/groupBy/boundary", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postCountGroupByBoundary(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeCountGroupByBoundary(true, bboxes, bpoints, bpolys, types, keys, values, userids,
         time);
   }
 
@@ -721,7 +784,7 @@ public class ElementsController {
    */
   @RequestMapping(value = "/length/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postLengthGroupedByUser(
+  public ElementsResponseContent postLengthGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -732,7 +795,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupedByUser(true, true, bboxes, bpoints, bpolys, types, keys, values,
+    return executeLengthAreaGroupByUser(true, true, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -752,7 +815,7 @@ public class ElementsController {
    */
   @RequestMapping(value = "/length/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postLengthGroupedByType(
+  public ElementsResponseContent postLengthGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -763,7 +826,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupedByType(true, true, bboxes, bpoints, bpolys, types, keys, values,
+    return executeLengthAreaGroupByType(true, true, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -783,7 +846,7 @@ public class ElementsController {
    */
   @RequestMapping(value = "/area/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postAreaGroupedByUser(
+  public ElementsResponseContent postAreaGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -794,7 +857,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupedByUser(false, true, bboxes, bpoints, bpolys, types, keys, values,
+    return executeLengthAreaGroupByUser(false, true, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -814,7 +877,7 @@ public class ElementsController {
    */
   @RequestMapping(value = "/area/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postAreaGroupedByType(
+  public ElementsResponseContent postAreaGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -825,7 +888,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupedByType(false, true, bboxes, bpoints, bpolys, types, keys, values,
+    return executeLengthAreaGroupByType(false, true, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -1117,6 +1180,85 @@ public class ElementsController {
   }
 
   /**
+   * Gets the input parameters of the request and performs a count grouped by types/users.
+   * 
+   * @param groupBy <code>String</code> containing information about the group by object (types,
+   *        users).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the count of OSM objects in the requested
+   *         area grouped by types/users as JSON response aggregated by the time, as well as
+   *         additional info about the data.
+   * @throws Exception
+   * @throws UnsupportedOperationException
+   */
+  private ElementsResponseContent executeCountGroupByBoundary(boolean isPost, String[] bboxes,
+      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    ArrayList<SortedMap<OSHDBTimestamp, Integer>> reqResults =
+        new ArrayList<SortedMap<OSHDBTimestamp, Integer>>();
+    if (bboxes != null) {
+      for (int i = 0; i < bboxes.length; i += 4) {
+        InputValidator iV = new InputValidator();
+        SortedMap<OSHDBTimestamp, Integer> result;
+        MapReducer<OSMEntitySnapshot> mapRed;
+        // extraction of the bbox
+        String[] bbox = new String[4];
+        bbox[0] = bboxes[i];
+        bbox[1] = bboxes[i + 1];
+        bbox[2] = bboxes[i + 2];
+        bbox[3] = bboxes[i + 3];
+        // input parameter processing
+        mapRed =
+            iV.processParameters(isPost, bbox, bpoints, bpolys, types, keys, values, userids, time);
+        // db result
+        result = mapRed.aggregateByTimestamp().count();
+        // add it to the array and increase counter
+        reqResults.add(result);
+      }
+
+    } else if (bpoints != null) {
+      // bpoints given
+
+    } else if (bpolys != null) {
+      // bpolys given
+
+    } else {
+      // no boundary --> default bbox == whole data
+
+    }
+    // output
+    GroupByResult[] resultSet = new GroupByResult[reqResults.size()];
+    int count = 1;
+    int innerCount = 0;
+    // iterate over each result
+    for (SortedMap<OSHDBTimestamp, Integer> map : reqResults) {
+      Result[] results = new Result[map.size()];
+      innerCount = 0;
+      // iterate over each entry in the map containing timestamp-value pairs
+      for (Entry<OSHDBTimestamp, Integer> entry : map.entrySet()) {
+        results[innerCount] =
+            new Result(entry.getKey().formatIsoDateTime(), String.valueOf(entry.getValue()));
+        innerCount++;
+      }
+      resultSet[count - 1] =
+          new GroupByResult("boundary element nr. " + String.valueOf(count), results);
+      count++;
+    }
+    long duration = System.currentTimeMillis() - startTime;
+    // response
+    ElementsResponseContent response = new ElementsResponseContent(
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+        new MetaData(duration, "amount",
+            "Total number of items aggregated on the bounding objects."),
+        resultSet, null);
+    return response;
+  }
+
+  /**
    * Gets the input parameters of the request and performs a count grouped by the users.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
@@ -1182,7 +1324,7 @@ public class ElementsController {
    * @throws Exception
    * @throws UnsupportedOperationException
    */
-  private ElementsResponseContent executeLengthAreaGroupedByUser(boolean isLength, boolean isPost,
+  private ElementsResponseContent executeLengthAreaGroupByUser(boolean isLength, boolean isPost,
       String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time)
       throws UnsupportedOperationException, Exception {
@@ -1253,7 +1395,7 @@ public class ElementsController {
    * @throws Exception
    * @throws UnsupportedOperationException
    */
-  private ElementsResponseContent executeLengthAreaGroupedByType(boolean isLength, boolean isPost,
+  private ElementsResponseContent executeLengthAreaGroupByType(boolean isLength, boolean isPost,
       String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time)
       throws UnsupportedOperationException, Exception {
