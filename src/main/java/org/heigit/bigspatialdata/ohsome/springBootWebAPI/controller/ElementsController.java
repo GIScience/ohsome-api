@@ -419,50 +419,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception {
 
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
-    SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
-    // input parameter processing
-    mapRed =
-        iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-    // db result
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-          return f.getEntity().getType();
-        }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.lengthOf(snapshot.getGeometry());
-        });
-
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-    // output
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by type
-    for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // iterate over the inner entry objects containing timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue().floatValue()));
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-
-      count++;
-    }
-    long duration = System.currentTimeMillis() - startTime;
-    // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "meter", "Total length of items aggregated on the type."), resultSet,
-        null);
-    return response;
+    return executeLengthAreaGroupedByType(true, false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -519,50 +477,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception {
 
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
-    SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
-    // input parameter processing
-    mapRed =
-        iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-    // db result
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-          return f.getEntity().getType();
-        }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.areaOf(snapshot.getGeometry());
-        });
-
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-    // output
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by type
-    for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // iterate over the inner entry objects containing timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue().floatValue()));
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-
-      count++;
-    }
-    long duration = System.currentTimeMillis() - startTime;
-    // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "square-meters", "Total area of items aggregated on the type."),
-        resultSet, null);
-    return response;
+    return executeLengthAreaGroupedByType(false, false, bboxes, bpoints, bpolys, types, keys,
+        values, userids, time);
   }
 
   /**
@@ -821,6 +737,37 @@ public class ElementsController {
   }
 
   /**
+   * POST request giving the length of OSM objects, which are selected by the given parameters and
+   * are grouped by the OSM type. POST requests should only be used if the request URL would be too
+   * long for a GET request.
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the length of OSM objects in the requested
+   *         area grouped by the OSM type as JSON response aggregated by the time, as well as
+   *         additional info about the data.
+   */
+  @RequestMapping(value = "/length/groupBy/type", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postLengthGroupedByType(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthAreaGroupedByType(true, true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
+  }
+
+  /**
    * POST request giving the area of OSM objects, which are selected by the given parameters and are
    * grouped by the userID. POST requests should only be used if the request URL would be too long
    * for a GET request.
@@ -848,6 +795,37 @@ public class ElementsController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return executeLengthAreaGroupedByUser(false, true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
+  }
+
+  /**
+   * POST request giving the area of OSM objects, which are selected by the given parameters and are
+   * grouped by the OSM type. POST requests should only be used if the request URL would be too long
+   * for a GET request.
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the area of OSM objects in the requested
+   *         area grouped by the OSM type as JSON response aggregated by the time, as well as
+   *         additional info about the data.
+   */
+  @RequestMapping(value = "/area/groupBy/type", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postAreaGroupedByType(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthAreaGroupedByType(false, true, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -1195,11 +1173,11 @@ public class ElementsController {
 
   /**
    * Gets the input parameters of the request and computes length or area results grouped by the
-   * users.
+   * user.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent} object containing the count of OSM objects in the requested
-   *         area grouped by the users as JSON response aggregated by the time, as well as
+   *         ElementsResponseContent} object containing the length or area of OSM objects in the
+   *         requested area grouped by the user as JSON response aggregated by the time, as well as
    *         additional info about the data.
    * @throws Exception
    * @throws UnsupportedOperationException
@@ -1218,7 +1196,7 @@ public class ElementsController {
     String description;
     // input parameter processing
     mapRed =
-        iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -1250,10 +1228,81 @@ public class ElementsController {
     // setting of the unit and description output parameters
     if (isLength) {
       unit = "meter";
-      description = "Total length of items aggregated on the userids.";
+      description = "Total length of items aggregated on the userid.";
     } else {
       unit = "square-meter";
-      description = "Total area of items aggregated on the userids.";
+      description = "Total area of items aggregated on the userid.";
+    }
+    long duration = System.currentTimeMillis() - startTime;
+    // response
+    ElementsResponseContent response = new ElementsResponseContent(
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+        new MetaData(duration, unit, description), resultSet, null);
+    return response;
+  }
+
+  /**
+   * Gets the input parameters of the request and computes length or area results grouped by the OSM
+   * type.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the length or area of OSM objects in the
+   *         requested area grouped by the OSM type as JSON response aggregated by the time, as well
+   *         as additional info about the data.
+   * @throws Exception
+   * @throws UnsupportedOperationException
+   */
+  private ElementsResponseContent executeLengthAreaGroupedByType(boolean isLength, boolean isPost,
+      String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
+    SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputValidator iV = new InputValidator();
+    String unit;
+    String description;
+    // input parameter processing
+    mapRed =
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    // db result
+    result = mapRed.aggregateByTimestamp()
+        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+          return f.getEntity().getType();
+        }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (isLength)
+            return Geo.lengthOf(snapshot.getGeometry());
+          else
+            return Geo.areaOf(snapshot.getGeometry());
+        });
+    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    // output
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects aggregated by type
+    for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+      Result[] results = new Result[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      // iterate over the inner entry objects containing timestamp-value pairs
+      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+            String.valueOf(innerEntry.getValue().floatValue()));
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+      count++;
+    }
+    // setting of the unit and description output parameters
+    if (isLength) {
+      unit = "meter";
+      description = "Total length of items aggregated on the OSM type.";
+    } else {
+      unit = "square-meter";
+      description = "Total area of items aggregated on the OSM type.";
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
