@@ -428,35 +428,6 @@ public class ElementsController {
 
   /**
    * GET request giving the length of OSM objects, which are selected by the given parameters and
-   * are grouped by the type.
-   * <p>
-   * For description of the parameters and exceptions, look at the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent} object containing the length of OSM objects in the requested
-   *         area grouped by the OSM type as JSON response aggregated by the time, as well as
-   *         additional info about the data.
-   */
-  @RequestMapping("/length/groupBy/type")
-  public ElementsResponseContent getLengthGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception {
-
-    return executeLengthAreaGroupByType(true, false, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
-  }
-
-  /**
-   * GET request giving the length of OSM objects, which are selected by the given parameters and
    * are grouped by the userId.
    * <p>
    * For description of the parameters and exceptions, look at the
@@ -509,7 +480,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception {
 
-    return executeLengthAreaGroupByType(false, false, bboxes, bpoints, bpolys, types, keys, values,
+    return executeAreaGroupByType(false, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -800,37 +771,6 @@ public class ElementsController {
   }
 
   /**
-   * POST request giving the length of OSM objects, which are selected by the given parameters and
-   * are grouped by the OSM type. POST requests should only be used if the request URL would be too
-   * long for a GET request.
-   * <p>
-   * For description of the parameters and exceptions, look at the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent} object containing the length of OSM objects in the requested
-   *         area grouped by the OSM type as JSON response aggregated by the time, as well as
-   *         additional info about the data.
-   */
-  @RequestMapping(value = "/length/groupBy/type", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postLengthGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return executeLengthAreaGroupByType(true, true, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
-  }
-
-  /**
    * POST request giving the area of OSM objects, which are selected by the given parameters and are
    * grouped by the userID. POST requests should only be used if the request URL would be too long
    * for a GET request.
@@ -888,7 +828,7 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupByType(false, true, bboxes, bpoints, bpolys, types, keys, values,
+    return executeAreaGroupByType(true, bboxes, bpoints, bpolys, types, keys, values,
         userids, time);
   }
 
@@ -1385,20 +1325,18 @@ public class ElementsController {
   }
 
   /**
-   * Gets the input parameters of the request and computes length or area results grouped by the OSM
-   * type.
+   * Gets the input parameters of the request and computes the area grouped by the OSM type.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent} object containing the length or area of OSM objects in the
-   *         requested area grouped by the OSM type as JSON response aggregated by the time, as well
-   *         as additional info about the data.
+   *         ElementsResponseContent} object containing the area of OSM objects in the requested
+   *         area grouped by the OSM type as JSON response aggregated by the time, as well as
+   *         additional info about the data.
    * @throws Exception
    * @throws UnsupportedOperationException
    */
-  private ElementsResponseContent executeLengthAreaGroupByType(boolean isLength, boolean isPost,
-      String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time)
-      throws UnsupportedOperationException, Exception {
+  private ElementsResponseContent executeAreaGroupByType(boolean isPost, String[] bboxes,
+      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
@@ -1415,10 +1353,7 @@ public class ElementsController {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
         }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (isLength)
-            return Geo.lengthOf(snapshot.getGeometry());
-          else
-            return Geo.areaOf(snapshot.getGeometry());
+          return Geo.areaOf(snapshot.getGeometry());
         });
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
     // output
@@ -1439,13 +1374,8 @@ public class ElementsController {
       count++;
     }
     // setting of the unit and description output parameters
-    if (isLength) {
-      unit = "meter";
-      description = "Total length of items aggregated on the OSM type.";
-    } else {
-      unit = "square-meter";
-      description = "Total area of items aggregated on the OSM type.";
-    }
+    unit = "square-meter";
+    description = "Total area of items aggregated on the OSM type.";
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
