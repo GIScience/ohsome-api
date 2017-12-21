@@ -136,7 +136,7 @@ public class OshdbController {
     }
     finishTime = System.currentTimeMillis();
     return new DataExtractionResponseContent("abc",
-        new MetaData((finishTime - startTime), "a", "b"), resultSet);
+        new MetaData((finishTime - startTime), "a", "b", null), resultSet);
   }
 
   /**
@@ -214,7 +214,7 @@ public class OshdbController {
     }
     finishTime = System.currentTimeMillis();
     return new DataExtractionResponseContent("abc",
-        new MetaData((finishTime - startTime), "a", "b"), resultSet);
+        new MetaData((finishTime - startTime), "a", "b", null), resultSet);
   }
 
   /**

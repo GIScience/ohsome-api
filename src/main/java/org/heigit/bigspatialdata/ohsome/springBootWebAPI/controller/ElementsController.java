@@ -11,6 +11,7 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggr
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.interceptor.ElementsRequestInterceptor;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapBiAggregatorByTimestamps;
@@ -1025,7 +1026,10 @@ public class ElementsController {
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
-
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1045,7 +1049,7 @@ public class ElementsController {
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
-            "Total number of elements, which are selected by the parameters."),
+            "Total number of elements, which are selected by the parameters.", requestURL),
         null, resultSet);
 
     return response;
@@ -1072,6 +1076,10 @@ public class ElementsController {
     InputValidator iV = new InputValidator();
     String unit;
     String description;
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
 
     // input parameter processing
     mapRed =
@@ -1104,7 +1112,7 @@ public class ElementsController {
     // response
     ElementsResponseContent response = new ElementsResponseContent(
         "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
-        new MetaData(duration, unit, description), null, resultSet);
+        new MetaData(duration, unit, description, requestURL), null, resultSet);
     return response;
   }
 
@@ -1126,6 +1134,10 @@ public class ElementsController {
     SortedMap<OSHDBTimestamp, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
 
     // input parameter processing
     mapRed =
@@ -1149,10 +1161,11 @@ public class ElementsController {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
-        new MetaData(duration, "meters", "Total length of the perimeter (polygon boundaries)"),
-        null, resultSet);
+    ElementsResponseContent response =
+        new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
+            "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "meters",
+                "Total length of the perimeter (polygon boundaries)", requestURL),
+            null, resultSet);
     return response;
   }
 
@@ -1174,6 +1187,10 @@ public class ElementsController {
     SortedMap<OSHDBTimestamp, Integer> countResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1213,11 +1230,12 @@ public class ElementsController {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
-        new MetaData(duration, "items per square-kilometer",
-            "Density of selected items (number of items per area)."),
-        null, resultSet);
+    ElementsResponseContent response =
+        new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
+            "-Hier könnte Ihr Copyright stehen.-",
+            new MetaData(duration, "items per square-kilometer",
+                "Density of selected items (number of items per area).", requestURL),
+            null, resultSet);
     return response;
   }
 
@@ -1242,6 +1260,10 @@ public class ElementsController {
     MapReducer<OSMEntitySnapshot> mapRed1;
     MapReducer<OSMEntitySnapshot> mapRed2;
     InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing 1 and result 1
     mapRed1 =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1275,7 +1297,8 @@ public class ElementsController {
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "ratio",
-            "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values."),
+            "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values.",
+            requestURL),
         null, resultSet);
     return response;
   }
@@ -1302,6 +1325,10 @@ public class ElementsController {
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1333,7 +1360,8 @@ public class ElementsController {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the userids."),
+        new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
+            requestURL),
         resultSet, null);
     return response;
   }
@@ -1358,6 +1386,10 @@ public class ElementsController {
     long startTime = System.currentTimeMillis();
     ArrayList<SortedMap<OSHDBTimestamp, Integer>> reqResults =
         new ArrayList<SortedMap<OSHDBTimestamp, Integer>>();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     if (bboxes != null) {
       for (int i = 0; i < bboxes.length; i += 4) {
         InputValidator iV = new InputValidator();
@@ -1412,7 +1444,7 @@ public class ElementsController {
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
-            "Total number of items aggregated on the bounding objects."),
+            "Total number of items aggregated on the bounding objects.", requestURL),
         resultSet, null);
     return response;
   }
@@ -1436,6 +1468,10 @@ public class ElementsController {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1467,7 +1503,8 @@ public class ElementsController {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the userids."),
+        new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
+            requestURL),
         resultSet, null);
     return response;
   }
@@ -1497,6 +1534,10 @@ public class ElementsController {
     InputValidator iV = new InputValidator();
     String unit = "";
     String description = "";
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1557,7 +1598,7 @@ public class ElementsController {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description), resultSet, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null);
     return response;
   }
 
@@ -1584,6 +1625,10 @@ public class ElementsController {
     InputValidator iV = new InputValidator();
     String unit;
     String description;
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1632,7 +1677,7 @@ public class ElementsController {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description), resultSet, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null);
     return response;
   }
 
