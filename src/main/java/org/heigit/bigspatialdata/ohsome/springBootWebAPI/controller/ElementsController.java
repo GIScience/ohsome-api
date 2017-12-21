@@ -479,8 +479,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupByUser(true, false, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
+    return executeLengthPerimeterAreaGroupByUser((byte) 1, false, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /**
@@ -511,7 +511,36 @@ public class ElementsController {
     return executeAreaPerimeterGroupByType(false, false, bboxes, bpoints, bpolys, types, keys,
         values, userids, time);
   }
-  
+
+  /**
+   * GET request giving the area of OSM objects, which are selected by the given parameters and are
+   * grouped by the userId.
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the area of OSM objects in the requested
+   *         area grouped by the user as JSON response aggregated by the time, as well as additional
+   *         info about the data.
+   */
+  @RequestMapping("/area/groupBy/user")
+  public ElementsResponseContent getAreaGroupByUser(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthPerimeterAreaGroupByUser((byte) 3, false, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
+  }
+
   /**
    * GET request giving the area of OSM objects, which are selected by the given parameters and are
    * grouped by the type.
@@ -542,20 +571,20 @@ public class ElementsController {
   }
 
   /**
-   * GET request giving the area of OSM objects, which are selected by the given parameters and are
-   * grouped by the userId.
+   * GET request giving the perimeter of polygonal OSM objects, which are selected by the given
+   * parameters and are grouped by the userId.
    * <p>
    * For description of the parameters and exceptions, look at the
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent} object containing the area of OSM objects in the requested
-   *         area grouped by the user as JSON response aggregated by the time, as well as additional
-   *         info about the data.
+   *         ElementsResponseContent} object containing the perimeter of polygonal OSM objects in
+   *         the requested area grouped by the user as JSON response aggregated by the time, as well
+   *         as additional info about the data.
    */
-  @RequestMapping("/area/groupBy/user")
-  public ElementsResponseContent getAreaGroupByUser(
+  @RequestMapping("/perimeter/groupBy/user")
+  public ElementsResponseContent getPerimeterGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -566,8 +595,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupByUser(false, false, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
+    return executeLengthPerimeterAreaGroupByUser((byte) 2, false, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /*
@@ -846,8 +875,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupByUser(true, true, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
+    return executeLengthPerimeterAreaGroupByUser((byte) 1, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /**
@@ -908,8 +937,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeLengthAreaGroupByUser(false, true, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
+    return executeLengthPerimeterAreaGroupByUser((byte) 3, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /**
@@ -941,6 +970,37 @@ public class ElementsController {
 
     return executeAreaPerimeterGroupByType(false, true, bboxes, bpoints, bpolys, types, keys,
         values, userids, time);
+  }
+
+  /**
+   * POST request giving the perimeter of polygonal OSM objects, which are selected by the given
+   * parameters and are grouped by the userID. POST requests should only be used if the request URL
+   * would be too long for a GET request.
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the perimeter of polygonal OSM objects in
+   *         the requested area grouped by the user as JSON response aggregated by the time, as well
+   *         as additional info about the data.
+   */
+  @RequestMapping(value = "/perimeter/groupBy/user", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postPerimeterGroupByUser(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthPerimeterAreaGroupByUser((byte) 2, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /*
@@ -1413,19 +1473,21 @@ public class ElementsController {
   }
 
   /**
-   * Gets the input parameters of the request and computes length or area results grouped by the
-   * user.
+   * Gets the input parameters of the request and computes the length, perimeter, or area results
+   * grouped by the user.
+   * 
+   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent} object containing the length or area of OSM objects in the
-   *         requested area grouped by the user as JSON response aggregated by the time, as well as
-   *         additional info about the data.
+   *         ElementsResponseContent} object containing the length, perimeter or area of OSM objects
+   *         in the requested area grouped by the user as JSON response aggregated by the time, as
+   *         well as additional info about the data.
    * @throws Exception
    * @throws UnsupportedOperationException
    */
-  private ElementsResponseContent executeLengthAreaGroupByUser(boolean isLength, boolean isPost,
-      String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time)
+  private ElementsResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
+      boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1433,8 +1495,8 @@ public class ElementsController {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
-    String unit;
-    String description;
+    String unit = "";
+    String description = "";
     // input parameter processing
     mapRed =
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
@@ -1443,10 +1505,19 @@ public class ElementsController {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
         }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (isLength)
-            return Geo.lengthOf(snapshot.getGeometry());
-          else
-            return Geo.areaOf(snapshot.getGeometry());
+          switch (requestType) {
+            case 1:
+              return Geo.lengthOf(snapshot.getGeometry());
+            case 2:
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            case 3:
+              return Geo.areaOf(snapshot.getGeometry());
+            default:
+              return 0.0;
+          }
         });
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
     // output
@@ -1467,12 +1538,19 @@ public class ElementsController {
       count++;
     }
     // setting of the unit and description output parameters
-    if (isLength) {
-      unit = "meter";
-      description = "Total length of items aggregated on the userid.";
-    } else {
-      unit = "square-meter";
-      description = "Total area of items aggregated on the userid.";
+    switch (requestType) {
+      case 1:
+        unit = "meter";
+        description = "Total length of items aggregated on the userid.";
+        break;
+      case 2:
+        unit = "meter";
+        description = "Total perimeter of polygonal items aggregated on the userid.";
+        break;
+      case 3:
+        unit = "square-meter";
+        description = "Total area of items aggregated on the userid.";
+        break;
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
