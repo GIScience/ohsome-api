@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
@@ -116,6 +117,33 @@ public class ElementsController {
 
     return executeLengthArea(true, false, bboxes, bpoints, bpolys, types, keys, values, userids,
         time);
+  }
+
+  /**
+   * GET request giving the perimeter of the polygonal OSM objects, which are selected by the given
+   * parameters.
+   * <p>
+   * For description of the parameters and exceptions, look at the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the perimeter of the requested OSM objects
+   *         as JSON response aggregated by the time, as well as additional info about the data.
+   */
+  @RequestMapping("/perimeter")
+  public ElementsResponseContent getPerimeter(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception {
+
+    return executePerimeter(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
   }
 
   /**
@@ -480,8 +508,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception {
 
-    return executeAreaGroupByType(false, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
+    return executeAreaGroupByType(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
   }
 
   /**
@@ -562,6 +590,29 @@ public class ElementsController {
 
     return executeLengthArea(true, true, bboxes, bpoints, bpolys, types, keys, values, userids,
         time);
+  }
+
+  /**
+   * POST request returning the perimeter of polygonal elements for the given parameters. POST
+   * requests should only be used if the request URL would be too long for a GET request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the perimeter of OSM objects in the
+   *         requested area as JSON response aggregated by the time, as well as additional info
+   *         about the data.
+   * @throws UnsupportedOperationException thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *         aggregateByTimestamp()}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
+   */
+  @RequestMapping(value = "/perimeter", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postPerimeter(String[] bboxes, String[] bpoints, String[] bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time)
+      throws UnsupportedOperationException, Exception {
+
+    return executePerimeter(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
   }
 
   /**
@@ -828,8 +879,8 @@ public class ElementsController {
       @RequestParam(value = "time", defaultValue = "") String[] time)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return executeAreaGroupByType(true, bboxes, bpoints, bpolys, types, keys, values,
-        userids, time);
+    return executeAreaGroupByType(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
   }
 
   /*
@@ -934,6 +985,54 @@ public class ElementsController {
     ElementsResponseContent response = new ElementsResponseContent(
         "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
         new MetaData(duration, unit, description), null, resultSet);
+    return response;
+  }
+
+  /**
+   * Gets the input parameters of the request and performs a perimeter calculation.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent} object containing the perimeter of OSM objects in the
+   *         requested area as JSON response aggregated by the time, as well as additional info
+   *         about the data.
+   * @throws Exception
+   * @throws UnsupportedOperationException
+   */
+  private ElementsResponseContent executePerimeter(boolean isPost, String[] bboxes,
+      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestamp, Number> result;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputValidator iV = new InputValidator();
+
+    // input parameter processing
+    mapRed =
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    // db result
+    result = mapRed.aggregateByTimestamp()
+        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          // checks if the geometry is polygonal (needed for OSM relations, which are not polygonal)
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else 
+            return 0.0;
+        });
+    // output
+    Result[] resultSet = new Result[result.size()];
+    int count = 0;
+    for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
+      resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+          String.valueOf(entry.getValue().floatValue()));
+      count++;
+    }
+    long duration = System.currentTimeMillis() - startTime;
+    // response
+    ElementsResponseContent response = new ElementsResponseContent(
+        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
+        new MetaData(duration, "meters", "Total length of the perimeter (polygon boundaries)"),
+        null, resultSet);
     return response;
   }
 
