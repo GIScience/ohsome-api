@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * Main class, which is used to run this Springboot application.
+ * Main class, which is used to run this Spring boot application.
  *
  */
 @SpringBootApplication

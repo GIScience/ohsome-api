@@ -1,7 +1,7 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataExtractionResponse;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataExtractionResponse;
 
 import java.util.ArrayList;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
 
 /**
  * First level object in the POST JSON response. This was implemented before the detailed concept of

@@ -1,12 +1,17 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse;
 
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
- * Represents the whole JSON response object for the data aggregation requests. It contains the
- * requested data as well as information about the license, the copyright and additional meta data.
+ * Represents the outer JSON response object for the data aggregation requests. It contains the
+ * requested
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result
+ * Result} (in a groupBy response also the
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.GroupByResult
+ * GroupByResult}), as well as additional
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData MetaData}.
  *
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result

@@ -1,10 +1,13 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
- * Represents the meta data, which will be sent back in the JSON response.
+ * Represents the meta data JSON object containing the execution time, the unit and a description of
+ * the values in the
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result
+ * Result} objects, as well as the request URL.
  *
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result

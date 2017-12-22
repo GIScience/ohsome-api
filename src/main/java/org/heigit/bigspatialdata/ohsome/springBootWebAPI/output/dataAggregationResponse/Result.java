@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse;
 
 /**
  * Represents the result JSON object containing the timestamp together with the corresponding value.

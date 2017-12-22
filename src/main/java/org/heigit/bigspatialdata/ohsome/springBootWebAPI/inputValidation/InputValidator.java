@@ -54,7 +54,6 @@ public class InputValidator {
   private BoundingBox bbox;
   private Geometry bpoint;
   private Polygon bpoly;
-  // represents the latest and earliest timestamps
   private final String defEndTime =
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
   private final String defStartTime = "2007-11-01";
@@ -67,38 +66,24 @@ public class InputValidator {
 
   /**
    * Method to process the input parameters of a POST or GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
    * 
-   * @param bboxes <code>String</code> array containing lon1, lat1, lon2, lat2 values, which have to
-   *        be <code>double</code> parse-able. If bboxes is given, bpoints and bpolys must be
-   *        <code>null</code> or <code>empty</code>. If neither of these parameters is given, a
-   *        global (=whole dataset) request is computed.
-   * @param bpoints <code>String</code> array containing lon, lat, radius values, which have to be
-   *        <code>double</code> parse-able. If bpoints is given, bboxes and bpolys must be
-   *        <code>null</code> or <code>empty</code>.
-   * @param bpolys <code>String</code> array containing lon1, lat1, ..., lonN, latN values, which
-   *        have to be <code>double</code> parse-able. If bpolys is given, bboxes and bpoints must
-   *        be <code>null</code> or <code>empty</code>.
-   * @param types <code>String</code> array containing one or more strings defining the OSMType. It
-   *        can be "node" and/or "way" and/or "relation". If <code>null</code> or
-   *        <code>empty</code>, all 3 types are used.
-   * @param keys <code>String</code> array containing one or more keys.
-   * @param values <code>String</code> array containing one or more values. Must be less or equal
-   *        than <code>keys.length()</code> and values[n] must pair with keys[n].
-   * @param userids <code>String</code> array containing one or more user-IDs.
-   * @param time <code>String</code> array that holds a list of timestamps or a datetimestring,
-   *        which fits to one of the formats used by the method
-   *        {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractIsoTime(String)
-   *        extractIsoTime(String time)}.
-   * @return <code>MapReducer<OSMEntitySnapshot></code> object including the settings derived from
-   *         the given parameters.
+   * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
+   *        request.
+   * 
+   * @return <code>MapReducer</code> object including the settings derived from the given
+   *         parameters.
    */
   public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) {
+      String[] userids, String[] time) throws BadRequestException {
 
     // check if this method is called from a POST request
     if (isPost) {
-      // sets the string array to empty if it is null
+      // sets the string arrays to empty if they are null
       bboxes = checkParameterOnNull(bboxes);
       bpoints = checkParameterOnNull(bpoints);
       bpolys = checkParameterOnNull(bpolys);
@@ -154,7 +139,10 @@ public class InputValidator {
     }
 
     // key/value parameters
-    checkKeysValues(keys, values);
+    if (keys.length < values.length) {
+      throw new BadRequestException(
+          "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
+    }
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
       // extracts the value entries from the old values array
@@ -196,7 +184,7 @@ public class InputValidator {
 
   /**
    * Gets the array of points (bounding box, polygon and point [+ radius]) and adds an id before
-   * each element.
+   * each element. Works at the moment for bounding boxes and points.
    * 
    * @param boundary <code>String</code> array containing either bounding boxes, polygons, or points
    *        (+ radius).
@@ -205,6 +193,7 @@ public class InputValidator {
    * @return <code>String</code> array containing the given coordinates of each element + an added
    *         ID.
    */
+  @SuppressWarnings("unused")
   private String[] addId(String[] boundary, String boundaryType) {
 
     int length;
@@ -254,8 +243,8 @@ public class InputValidator {
    *        of the bounding points.
    * @param bpolys <code>String</code> array containing the lon/lat coordinate pairs of the bounding
    *        polygons.
-   * @return Byte defining which parameter is given: 0 (none is given), 1 (bboxes are given), 2
-   *         (bpoints are given), or 3 (bpolys are given).
+   * @return <code>Byte</code> defining if no parameter (0), bboxes (1), bpoints (2), or bpolys (3)
+   *         are given.
    * @throws BadRequestException The provided boundary parameter does not fit to its format, or more
    *         than one boundary parameter is given.
    */
@@ -331,7 +320,7 @@ public class InputValidator {
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
    * 
-   * @return <code>Geometry</code> object representing the unified bounding boxes as a polygon.
+   * @return <code>Geometry</code> object representing the unified bounding boxes.
    * @throws BadRequestException Invalid coordinates.
    */
   private Geometry createBboxes(String[] bboxes) throws BadRequestException {
@@ -366,8 +355,7 @@ public class InputValidator {
 
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
-   * array. This method is used for GET requests only as it cannot handle more than one bounding
-   * point.
+   * array. It can only handle one bounding point.
    * 
    * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
    *        and [1] and the size of the buffer at [2].
@@ -376,20 +364,18 @@ public class InputValidator {
    * 
    * @throws BadRequestException Invalid coordinates or radius.
    */
-  private Geometry createCircularPolygon(String[] bpoints) {
+  private Geometry createCircularPolygon(String[] bpoints) throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     CoordinateReferenceSystem sourceCRS;
     CoordinateReferenceSystem targetCRS;
     MathTransform transform = null;
-
     try {
       // Set source and target CRS + transformation
       sourceCRS = CRS.decode("EPSG:4326", true);
       targetCRS = CRS
           .decode(findEPSG(Double.parseDouble(bpoints[0]), Double.parseDouble(bpoints[1])), true);
       transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
-
       // creates a point from the coordinates and a buffer
       Point p = geomFact.createPoint(
           new Coordinate(Double.parseDouble(bpoints[0]), Double.parseDouble(bpoints[1])));
@@ -397,17 +383,11 @@ public class InputValidator {
       // transform back again
       transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
       this.bpoint = JTS.transform(buffer, transform);
-    } catch (FactoryException e) {
-      e.printStackTrace();
-    } catch (MismatchedDimensionException e) {
-      e.printStackTrace();
-    } catch (TransformException e) {
-      e.printStackTrace();
+    } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
           "The bpoints array must contain two double-parseable String values in the order of "
               + "lon/lat coordinate pairs at [0] and [1] as well as a buffer length in meters.");
     }
-
     return this.bpoint;
   }
 
@@ -422,7 +402,8 @@ public class InputValidator {
    * @throws BadRequestException Invalid coordinates.
    * @throws NotImplementedException The processing of more than one polygon is not implemented yet.
    */
-  private Polygon createbpolys(String[] bpolys) throws BadRequestException {
+  private Polygon createbpolys(String[] bpolys)
+      throws BadRequestException, NotImplementedException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 
@@ -492,13 +473,13 @@ public class InputValidator {
    * Checks and extracts the content of the types parameter.
    * 
    * @param types <code>String</code> array containing 1, 2, or all 3 OSM types (node, way,
-   *        relation). If the array is empty, all 3 types will be used
+   *        relation). If the array is empty, all 3 types are used.
    * 
    * @return <code>EnumSet</code> containing the requested OSM type(s).
    * @throws BadRequestException If the content of the parameter does not represent one, two, or all
    *         three OSM types.
    */
-  private EnumSet<OSMType> checkTypes(String[] types) {
+  private EnumSet<OSMType> checkTypes(String[] types) throws BadRequestException {
     // checks if the types array is too big
     if (types.length > 3) {
       throw new BadRequestException(
@@ -568,29 +549,9 @@ public class InputValidator {
   }
 
   /**
-   * Method to compare the size of the keys and values arrays.
+   * Checks the content of the userids <code>String</code> array.
    * 
-   * @param keys <code>String</code> array, which contains the provided key parameters.
-   * @param values <code>String</code> array, which contains the provided value parameters. Has to
-   *        be smaller than or equal to the length of the keys array.
-   * 
-   * @throws BadRequestException The number of provided values compared to the keys parameter(s) is
-   *         incorrect.
-   */
-  private boolean checkKeysValues(String[] keys, String[] values) {
-
-    if (keys.length < values.length) {
-      throw new BadRequestException(
-          "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
-    }
-    return true;
-  }
-
-  /**
-   * Checks content of the userids String array.
-   * 
-   * @param userids String array containing the IDs of the requested userids (must be valid
-   *        whole-number IDs).
+   * @param userids String array containing the OSM user IDs.
    * 
    * @throws BadRequestException If one of the userids is invalid.
    */
@@ -599,7 +560,6 @@ public class InputValidator {
       try {
         // tries to parse the String to a long
         Long.valueOf(user);
-
       } catch (NumberFormatException e) {
         throw new BadRequestException(
             "The userids parameter can only contain valid OSM userids, which are always a positive whole number");
@@ -611,7 +571,7 @@ public class InputValidator {
    * Finds and returns the EPSG code of the given point, which is needed for
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#createCircularPolygon
    * createCircularPolygon}. Adapted code from UTMCodeFromLonLat.java class in the osmatrix project
-   * (by Michael Auer)
+   * (© by Michael Auer)
    * 
    * @param lon Longitude coordinate of the point.
    * @param lat Latitude coordinate of the point.
@@ -625,10 +585,8 @@ public class InputValidator {
       return "EPSG:32761"; // UPS South
 
     int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
-
     if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0)
       zoneNumber = 32;
-
     // Special zones for Svalbard
     if (lat >= 72.0 && lat < 84.0) {
       if (lon >= 0.0 && lon < 9.0)
@@ -640,16 +598,15 @@ public class InputValidator {
       else if (lon >= 33.0 && lon < 42.0)
         zoneNumber = 37;
     }
-
     String isNorth = (lat > 0) ? "6" : "7";
     String zone = (zoneNumber < 10) ? "0" + zoneNumber : "" + zoneNumber;
     return "EPSG:32" + isNorth + zone;
   }
 
   /**
-   * Extracts the time information out of the time parameter and checks the content on its format
-   * and <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> conformity. This method is
-   * only used if time.length == 1. Following time formats are allowed:
+   * Extracts the time information out of the time parameter and checks the content on its format,
+   * as well as <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> conformity. This
+   * method is used if one datetimestring is given. Following time formats are allowed:
    * <ul>
    * <li><strong>YYYY-MM-DD</strong> or <strong>YYYY-MM-DDThh:mm:ss</strong>: When a timestamp
    * includes 'T', hh:mm must also be given. This applies for all time formats, which use
@@ -670,11 +627,12 @@ public class InputValidator {
    * timestamp is used and # is a replacement holder for "no value". Note that the positioning and
    * using of the forward slash '/' is very important.
    * 
-   * @param time String holding the unparsed time information.
-   * @return String array containing at [0] the startTime at [1] the endTime and at [2] the period.
+   * @param time <code>String</code> holding the unparsed time information.
+   * @return <code>String</code> array containing the startTime at at [0], the endTime at [1] and
+   *         the period at [2].
    * @throws BadRequestException The provided time parameter does not fit to any specified format.
    */
-  private String[] extractIsoTime(String time) {
+  private String[] extractIsoTime(String time) throws BadRequestException {
     String[] timeVals = new String[3];
     if (time.contains("/")) {
       if (time.length() == 1) {
@@ -687,6 +645,7 @@ public class InputValidator {
       if (timeSplit[0].length() > 0) {
         // start timestamp
         try {
+          // to differ between timestamps with or without 'Thh:mm:ss'
           if (timeSplit[0].length() == 10) {
             LocalDate.parse(timeSplit[0]);
           } else {
@@ -706,7 +665,6 @@ public class InputValidator {
         // earliest timestamp
         timeVals[0] = defStartTime;
       }
-
       if (timeSplit[1].length() > 0) {
         // end timestamp
         try {
@@ -724,7 +682,6 @@ public class InputValidator {
         // latest timestamp
         timeVals[1] = defEndTime;
       }
-
       if (timeSplit.length == 3 && timeSplit[2].length() > 0) {
         // interval
         try {
@@ -735,7 +692,6 @@ public class InputValidator {
               "The interval (period) of the provided time parameter is not ISO-8601 conform.");
         }
       }
-
     } else {
       // just one timestamp
       try {
@@ -766,6 +722,10 @@ public class InputValidator {
       toCheck = new String[0];
     return toCheck;
   }
+
+  /*
+   * Getters start here
+   */
 
   public byte getBoundary() {
     return boundary;

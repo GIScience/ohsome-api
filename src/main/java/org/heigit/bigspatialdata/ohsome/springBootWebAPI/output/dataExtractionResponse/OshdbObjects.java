@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataExtractionResponse;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataExtractionResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

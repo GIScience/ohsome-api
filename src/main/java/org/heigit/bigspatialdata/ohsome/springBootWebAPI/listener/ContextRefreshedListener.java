@@ -7,8 +7,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 /**
- * This listener is activated on server startup and calls an eventholder bean to establish a
- * database connection.
+ * This listener is activated on server startup and calls an
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean
+ * EventHolderBean} to establish a database connection.
  *
  */
 @Component

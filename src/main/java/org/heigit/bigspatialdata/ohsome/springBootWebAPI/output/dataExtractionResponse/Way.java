@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataExtractionResponse;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataExtractionResponse;
 
 /**
  * Content of the way object in the POST JSON response. This was implemented before the detailed

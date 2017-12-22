@@ -5,7 +5,7 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.springframework.stereotype.Component;
 
 /**
- * Bean class, which is used to establish a database connection on startup of the server.
+ * Bean class, which establishes a database connection.
  *
  */
 @Component
