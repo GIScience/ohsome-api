@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Represents the outer JSON response object for the data aggregation requests. It contains the
  * requested
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result
  * Result} (in a groupBy response also the
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.GroupByResult
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.GroupByResult
  * GroupByResult}), as well as additional
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.MetaData MetaData}.
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData MetaData}.
  *
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result

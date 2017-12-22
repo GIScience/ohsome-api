@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Represents the meta data JSON object containing the execution time, the unit and a description of
  * the values in the
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.Result
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result
  * Result} objects, as well as the request URL.
  *
  */

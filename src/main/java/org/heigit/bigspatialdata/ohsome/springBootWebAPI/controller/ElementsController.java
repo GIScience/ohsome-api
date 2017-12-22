@@ -69,7 +69,7 @@ public class ElementsController {
    *        {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractIsoTime(String)
    *        extractIsoTime(String time)}.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    * @throws UnsupportedOperationException thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
@@ -99,7 +99,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/length")
@@ -125,7 +125,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/perimeter")
@@ -150,7 +150,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/area")
@@ -199,7 +199,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/density")
@@ -229,7 +229,7 @@ public class ElementsController {
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/ratio")
@@ -262,7 +262,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/count/groupBy/type")
@@ -288,7 +288,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/count/groupBy/user")
@@ -315,7 +315,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/count/groupBy/boundary")
@@ -341,7 +341,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/count/groupBy/key")
@@ -438,7 +438,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/length/groupBy/user")
@@ -464,7 +464,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/perimeter/groupBy/type")
@@ -490,7 +490,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/area/groupBy/user")
@@ -516,7 +516,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/area/groupBy/type")
@@ -542,7 +542,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping("/perimeter/groupBy/user")
@@ -573,7 +573,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/count", method = RequestMethod.POST,
@@ -593,7 +593,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/length", method = RequestMethod.POST,
@@ -614,7 +614,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/perimeter", method = RequestMethod.POST,
@@ -634,7 +634,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/area", method = RequestMethod.POST,
@@ -655,7 +655,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/density", method = RequestMethod.POST,
@@ -680,7 +680,7 @@ public class ElementsController {
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/ratio", method = RequestMethod.POST,
@@ -706,7 +706,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/count/groupBy/type", method = RequestMethod.POST,
@@ -734,7 +734,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/count/groupBy/user", method = RequestMethod.POST,
@@ -763,7 +763,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/count/groupBy/boundary", method = RequestMethod.POST,
@@ -791,7 +791,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/length/groupBy/user", method = RequestMethod.POST,
@@ -819,7 +819,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/area/groupBy/type", method = RequestMethod.POST,
@@ -847,7 +847,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/area/groupBy/user", method = RequestMethod.POST,
@@ -875,7 +875,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/perimeter/groupBy/type", method = RequestMethod.POST,
@@ -903,7 +903,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.content.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/perimeter/groupBy/user", method = RequestMethod.POST,
