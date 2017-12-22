@@ -32,9 +32,28 @@ These instructions will get you a copy of the project up and running on your loc
 
 Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
+## Implemented URIs
+
+This section gives you an overview about which resources can already be accessed (state 2017-12-22).
+
+* /elements/count
+* /elements/count/groupBy/bbox (atm still quite slow for more bboxes)
+* /elements/count/groupBy/type
+* /elements/count/groupBy/user
+* /elements/length
+* /elements/length/groupBy/user
+* /elements/perimeter
+* /elements/perimeter/groupBy/type
+* /elements/perimeter/groupBy/user
+* /elements/area
+* /elements/area/groupBy/type
+* /elements/area/groupBy/user
+* /elements/density
+* /elements/ratio
+
 ## Examples
 
-This section will give you some example request URLs and show the results returned by the REST API.
+This section gives you some example request URLs and show the results returned by the REST API.
 
 * http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=relation&time=2014-01-01/2017-07-01/P6M&keys=building&values=yes
 <p> 
