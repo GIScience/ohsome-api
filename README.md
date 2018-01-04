@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* atm for local testing as well: IDE (e.g. [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a))
+* atm for local testing as well: IDE like [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a), or an editor that can open .java files like [Notepad++](https://notepad-plus-plus.org/download/v7.5.4.html)
 * data: keytables.mv.db and baden-wuerttemberg.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data*)
 
 ### Installing
@@ -53,7 +53,7 @@ This section gives you an overview about which resources can already be accessed
 
 ## Examples
 
-This section gives you some example request URLs and show the results returned by the REST API.
+This section gives you some example request URLs and shows the results returned by the REST API.
 
 * http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=relation&time=2014-01-01/2017-07-01/P6M&keys=building&values=yes
 <p> 
