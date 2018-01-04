@@ -109,7 +109,7 @@ public class InputValidator {
     } else if (boundary == 1) {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(bboxes));
     } else if (boundary == 2) {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygon(bpoints));
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygons(bpoints));
     } else if (boundary == 3) {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBpolys(bpolys));
     } else
@@ -357,7 +357,7 @@ public class InputValidator {
 
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
-   * array. It can only handle one bounding point.
+   * array.
    * 
    * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
    *        and [1] and the size of the buffer at [2].
@@ -366,40 +366,51 @@ public class InputValidator {
    * 
    * @throws BadRequestException Invalid coordinates or radius.
    */
-  private Geometry createCircularPolygon(String[] bpoints) throws BadRequestException {
+  private Geometry createCircularPolygons(String[] bpoints) throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
+    Geometry geom;
     CoordinateReferenceSystem sourceCRS;
     CoordinateReferenceSystem targetCRS;
     MathTransform transform = null;
+    Collection<Geometry> geometryCollection = new HashSet<Geometry>();
     try {
-      // Set source and target CRS + transformation
-      sourceCRS = CRS.decode("EPSG:4326", true);
-      targetCRS = CRS
-          .decode(findEPSG(Double.parseDouble(bpoints[0]), Double.parseDouble(bpoints[1])), true);
-      transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
-      // creates a point from the coordinates and a buffer
-      Point p = geomFact.createPoint(
-          new Coordinate(Double.parseDouble(bpoints[0]), Double.parseDouble(bpoints[1])));
-      buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[2]));
-      // transform back again
-      transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
-      this.bpoint = JTS.transform(buffer, transform);
+      // walks through all bounding points, creates polygons and adds them to the collection
+      for (int i = 0; i < bpoints.length; i += 3) {
+        // Set source and target CRS + transformation
+        sourceCRS = CRS.decode("EPSG:4326", true);
+        targetCRS = CRS.decode(
+            findEPSG(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])), true);
+        transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
+        // creates a point and a buffer from the coordinates
+        Point p = geomFact.createPoint(
+            new Coordinate(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])));
+        buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[i + 2]));
+        // transform back again
+        transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
+        geom = JTS.transform(buffer, transform);
+        // returns this geometry if there was only one bpoint given
+        if (bpoints.length == 3)
+          return geom;
+        geometryCollection.add(geom);
+      }
+      MultiPolygon combined = createMultiPolygon(geometryCollection);
+
+      return combined;
     } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
-          "The bpoints array must contain two double-parseable String values in the order of "
-              + "lon/lat coordinate pairs at [0] and [1] as well as a buffer length in meters.");
+          "Each bpoint must consist of a lon/lat coordinate pair plus a buffer in meters.");
     }
-    return this.bpoint;
   }
 
   /**
-   * Creates a polygon out of the coordinates in the given array. If more polygons are given, a
-   * union of the polygons is created.
+   * Creates a <code>Polygon</code> out of the coordinates in the given array. If more polygons are
+   * given, a union of the polygons is applied and a <code>MultiPolygon</code> is created.
    * 
    * @param bpolys <code>String</code> array containing the lon/lat coordinates of the bounding
    *        polygon(s).
-   * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
+   * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
+   *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
    * 
    * @throws BadRequestException Invalid coordinates.
    */
@@ -431,9 +442,9 @@ public class InputValidator {
 
       Collection<Geometry> geometryCollection = new HashSet<Geometry>();
       Coordinate firstPoint;
-      MultiPolygon combined = null;
 
-      try { // sets the first point and adds it to the arraylist
+      try {
+        // sets the first point and adds it to the arraylist
         firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
         coords.add(firstPoint);
 
@@ -445,17 +456,16 @@ public class InputValidator {
             Polygon poly;
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
-            // creates a polygon from the coordinates
+            // create a polygon from the coordinates and add it to the collection
             poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
             geometryCollection.add(poly);
             // clear the coords array
             coords.removeAll(coords);
             if (i + 2 >= bpolys.length)
               break;
-            // set the new first point
+            // set the new first point and add it to the array
             firstPoint = new Coordinate(Double.parseDouble(bpolys[i + 2]),
                 Double.parseDouble(bpolys[i + 3]));
-            // add it to the array
             coords.add(firstPoint);
             i += 2;
           } else
@@ -463,23 +473,12 @@ public class InputValidator {
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
         // creates a union out of the polygons in the collection
-        Polygon p = null;
-        for (Geometry g : geometryCollection) {
-          if (p == null)
-            p = (Polygon) g;
-          else {
-            if (combined == null)
-              combined = (MultiPolygon) p.union((Polygon) g);
-            else
-              combined = (MultiPolygon) combined.union((Polygon) g);
-          }
-
-        }
+        MultiPolygon combined = createMultiPolygon(geometryCollection);
+        return combined;
       } catch (NumberFormatException e) {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
       }
-      return combined;
     }
   }
 
@@ -735,6 +734,29 @@ public class InputValidator {
     if (toCheck == null)
       toCheck = new String[0];
     return toCheck;
+  }
+
+  /**
+   * Creates a <code>MultiPolygon</code> out of the polygons in the given <code>Collection</code>.
+   * 
+   * @param collection <code>Collection<Geometry></code> that holds the polygons.
+   * @return <code>MultiPolygon</code> object consisting of the given polygons.
+   */
+  private MultiPolygon createMultiPolygon(Collection<Geometry> collection) {
+    Polygon p = null;
+    MultiPolygon combined = null;
+    // creates a union out of the polygons in the collection
+    for (Geometry g : collection) {
+      if (p == null)
+        p = (Polygon) g;
+      else {
+        if (combined == null)
+          combined = (MultiPolygon) p.union((Polygon) g);
+        else
+          combined = (MultiPolygon) combined.union((Polygon) g);
+      }
+    }
+    return combined;
   }
 
   /*
