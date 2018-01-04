@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
@@ -394,6 +395,9 @@ public class InputValidator {
           return geom;
         geometryCollection.add(geom);
       }
+      // unifies polygons that intersect with each other
+      geometryCollection = unifyIntersectedPolys(geometryCollection);
+      // creates a MultiPolygon out of the polygons in the collection
       MultiPolygon combined = createMultiPolygon(geometryCollection);
 
       return combined;
@@ -472,7 +476,9 @@ public class InputValidator {
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
-        // creates a union out of the polygons in the collection
+        // unifies polygons that intersect with each other
+        geometryCollection = unifyIntersectedPolys(geometryCollection);
+        // creates a MultiPolygon out of the polygons in the collection
         MultiPolygon combined = createMultiPolygon(geometryCollection);
         return combined;
       } catch (NumberFormatException e) {
@@ -734,6 +740,35 @@ public class InputValidator {
     if (toCheck == null)
       toCheck = new String[0];
     return toCheck;
+  }
+
+  /**
+   * Unifies polygons, which intersect with each other and adds the unified polygons to the collection.
+   * 
+   * @param collection <code>Collection<Geometry></code> that includes all polygons.
+   * @return Collection<Geometry> that includes unified polygons created from intersected polygons
+   *         and other polygons, which do not intersect with any other polygon.
+   */
+  private Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
+    // converts the collection to an array
+    Geometry[] polys = collection.toArray(new Geometry[collection.size()]);
+    // walks through all polys and checks if one or more intersect with each other
+    for (int i = 0; i < polys.length - 1; i++) {
+      for (int j = i + 1; j < polys.length; j++) {
+        if (polys[i].intersects(polys[j])) {
+          // union the polys that intersect
+          Geometry unionedPoly = polys[i].union(polys[j]);
+          // remove them from the array
+          polys = ArrayUtils.remove(polys, i);
+          polys = ArrayUtils.remove(polys, j - 1);
+          // add the unioned poly to the array via creating a new one
+          polys = ArrayUtils.add(polys, unionedPoly);
+        }
+      }
+    }
+    // convert the array back to a collection
+    collection = new HashSet<Geometry>(Arrays.asList(polys));
+    return collection;
   }
 
   /**
