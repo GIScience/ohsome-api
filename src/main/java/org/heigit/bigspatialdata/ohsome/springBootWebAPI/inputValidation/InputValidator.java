@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.Polygonal;
@@ -109,7 +111,7 @@ public class InputValidator {
     } else if (boundary == 2) {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygon(bpoints));
     } else if (boundary == 3) {
-      mapRed = mapRed.areaOfInterest(createbpolys(bpolys));
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBpolys(bpolys));
     } else
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
@@ -400,9 +402,8 @@ public class InputValidator {
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
    * 
    * @throws BadRequestException Invalid coordinates.
-   * @throws NotImplementedException The processing of more than one polygon is not implemented yet.
    */
-  private Polygon createbpolys(String[] bpolys)
+  private Geometry createBpolys(String[] bpolys)
       throws BadRequestException, NotImplementedException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
@@ -427,46 +428,59 @@ public class InputValidator {
 
       return this.bpoly;
     } else {
-      throw new NotImplementedException(
-          "Being able to process more than one polygon is not implemented yet.");
-      // TODO still gives an error at union
-      // needs to be worked out in a more complex way
-      // see:
-      // https://gis.stackexchange.com/questions/71605/combine-several-polygon-objects-in-one-polygon-object-with-geotools-is-it-possi
 
-      /*
-       * Collection<Geometry> geometryCollection = new HashSet<Geometry>(); Coordinate firstPoint;
-       * 
-       * try { // sets the first point and adds it to the arraylist firstPoint = new
-       * Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
-       * coords.add(firstPoint);
-       * 
-       * // walks through all remaining coordinates, creates polygons and adds them to // the
-       * collection for (int i = 2; i < bpolys.length; i += 2) { // compares the current point to
-       * the first point if (firstPoint.x == Double.parseDouble(bpolys[i]) && firstPoint.y ==
-       * Double.parseDouble(bpolys[i + 1])) { Polygon poly; coords.add(new
-       * Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1]))); // creates a
-       * polygon from the coordinates poly = geomFact.createPolygon((Coordinate[])
-       * coords.toArray(new Coordinate[] {})); geometryCollection.add(poly);
-       * 
-       * // clear the coords array coords.removeAll(coords); if (i+2 >= bpolys.length) break; // set
-       * the new first point firstPoint.x = Double.parseDouble(bpolys[i+2]); firstPoint.y =
-       * Double.parseDouble(bpolys[i+3]); // add it to the array coords.add(firstPoint); i+=2; }
-       * else coords.add(new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i +
-       * 1]))); } // creates a union out of the polygons in the collection for (Geometry g :
-       * geometryCollection) { if (this.bpoly == null) this.bpoly = (Polygon) g; else { this.bpoly =
-       * (Polygon) this.bpoly.union((Polygon) g); }
-       * 
-       * }
-       * 
-       * } catch (NumberFormatException e) { throw new BadRequestException(
-       * "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs."
-       * ); }
-       * 
-       * return this.bpoly;
-       */
+      Collection<Geometry> geometryCollection = new HashSet<Geometry>();
+      Coordinate firstPoint;
+      MultiPolygon combined = null;
+
+      try { // sets the first point and adds it to the arraylist
+        firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
+        coords.add(firstPoint);
+
+        // walks through all remaining coordinates, creates polygons and adds them to the collection
+        for (int i = 2; i < bpolys.length; i += 2) {
+          // compares the current point to the first point
+          if (firstPoint.x == Double.parseDouble(bpolys[i])
+              && firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
+            Polygon poly;
+            coords.add(
+                new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+            // creates a polygon from the coordinates
+            poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+            geometryCollection.add(poly);
+            // clear the coords array
+            coords.removeAll(coords);
+            if (i + 2 >= bpolys.length)
+              break;
+            // set the new first point
+            firstPoint = new Coordinate(Double.parseDouble(bpolys[i + 2]),
+                Double.parseDouble(bpolys[i + 3]));
+            // add it to the array
+            coords.add(firstPoint);
+            i += 2;
+          } else
+            coords.add(
+                new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+        }
+        // creates a union out of the polygons in the collection
+        Polygon p = null;
+        for (Geometry g : geometryCollection) {
+          if (p == null)
+            p = (Polygon) g;
+          else {
+            if (combined == null)
+              combined = (MultiPolygon) p.union((Polygon) g);
+            else
+              combined = (MultiPolygon) combined.union((Polygon) g);
+          }
+
+        }
+      } catch (NumberFormatException e) {
+        throw new BadRequestException(
+            "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
+      }
+      return combined;
     }
-
   }
 
   /**

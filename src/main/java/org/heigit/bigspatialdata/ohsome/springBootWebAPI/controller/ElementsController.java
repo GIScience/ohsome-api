@@ -1252,10 +1252,12 @@ public class ElementsController {
     ArrayList<SortedMap<OSHDBTimestamp, Integer>> reqResults =
         new ArrayList<SortedMap<OSHDBTimestamp, Integer>>();
     String requestURL = null;
+    String boundaryDescr;
     // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     if (bboxes != null) {
+      boundaryDescr = "bounding box nr. ";
       for (int i = 0; i < bboxes.length; i += 4) {
         InputValidator iV = new InputValidator();
         SortedMap<OSHDBTimestamp, Integer> result;
@@ -1274,16 +1276,15 @@ public class ElementsController {
         // add it to the array and increase counter
         reqResults.add(result);
       }
-
     } else if (bpoints != null) {
+      boundaryDescr = "bounding point nr. ";
       // bpoints given
-
     } else if (bpolys != null) {
+      boundaryDescr = "bounding polygon nr. ";
       // bpolys given
-
     } else {
+      boundaryDescr = "whole dataset ";
       // no boundary --> default bbox == whole data
-
     }
     // output
     GroupByResult[] resultSet = new GroupByResult[reqResults.size()];
@@ -1300,7 +1301,7 @@ public class ElementsController {
         innerCount++;
       }
       resultSet[count - 1] =
-          new GroupByResult("boundary element nr. " + String.valueOf(count), results);
+          new GroupByResult(boundaryDescr + String.valueOf(count), results);
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
