@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* atm for local testing as well: IDE like [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a), or an editor that can open .java files like [Notepad++](https://notepad-plus-plus.org/download/v7.5.4.html)
+* atm for local testing as well: IDE like [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a), or an editor that can be used to modify .java files like [Notepad++](https://notepad-plus-plus.org/download/v7.5.4.html)
 * data: keytables.mv.db and baden-wuerttemberg.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data*)
 
 ### Installing
@@ -32,9 +32,53 @@ These instructions will get you a copy of the project up and running on your loc
 
 Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
-## Implemented URIs
+## Testing
 
-This section gives you an overview about which resources can already be accessed (state 2017-12-22).
+To be able to test the REST-API with your own requests, you will also need a description of the parameters and available resources. Both are given here below.
+
+### Parameters
+
+
+* bbox
+    * has to consist of four double-parse able Strings in the format (lon1, lat1, lon2, lat2)
+    * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
+    * if bbox is given, bpoint and bpoly must be null or empty
+* bpoint
+    * has to consist of two double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
+    * if bpoint is given, bbox and bpoly must be null or empty
+* bpoly
+    * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
+    * if bpoly is given, bbox and bpoint must be null or empty
+* types
+    * can be one, two or all three of "node", "way", "relation" in any order
+    * if no type is given, all three are used
+* keys
+    * 0...n keys can be used
+* values
+    * 0...n values can be used, where n <= keys.length and values(n) must refer to keys(n)
+* userids
+    * 0...n userids can be given
+    * if userids is empty in .../groupBy/user then all affected users are used
+* time
+    * if no time parameter is given, the most recent timestamp is used
+    * ten different versions of the time parameter can be provided:
+        1. timestamp: YYYY-MM-DD
+        2. start/end: YYYY-MM-DD/YYYY-MM-DD
+        3. start/end/period: YYYY-MM-DD/YYYY-MM-DD/PnYnMnD where n refers to the size of the respective period
+        4. /end: /YYYY-MM-DD where ‘null’/ equals the earliest timestamp
+        5. /end/period: /YYYY-MM-DD/PnYnMnD
+        6. start/: YYYY-MM-DD/ where /’null’ equals the latest timestamp
+        7. start//period: YYYY-MM-DD//PnYnMnD
+        8. /: / where ‘null’/’null’ equals the earliest and latest timestamp
+        9. //period: //PnYnMnD
+        10. list of 2-n timestamps separated via a “,” e.g.: 2015-01-01,2015-05-15,2016-03-18
+    * the forward slashes (/) are a very important part of the parameter and used to recognize which time parameter should be used
+    * an absence of the start and/or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
+    * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
+
+### Implemented URIs
+
+This gives you an overview of resources that are already implemented and can therefore be accessed (state 2017-12-22).
 
 * /elements/count
 * /elements/count/groupBy/bbox (atm still quite slow for more bboxes)
