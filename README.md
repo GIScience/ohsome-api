@@ -54,8 +54,10 @@ To be able to test the REST-API with your own requests, you will also need a des
     * if no type is given, all three are used
 * keys
     * 0...n keys can be used
+    * if keys is null or empty, no key will be used (and values must also be null or empty)
 * values
     * 0...n values can be used, where n <= keys.length and values(n) must refer to keys(n)
+    * if values is null or empty, no value will be used
 * userids
     * 0...n userids can be given
     * if userids is empty in .../groupBy/user then all affected users are used
@@ -73,13 +75,13 @@ To be able to test the REST-API with your own requests, you will also need a des
         9. //period: //PnYnMnD
         10. list of 2-n timestamps separated via a “,” e.g.: 2015-01-01,2015-05-15,2016-03-18
     * the forward slashes (/) are a very important part of the parameter and used to recognize which time parameter should be used
-    * an absence of the start and/or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
+    * an absence of the start and|or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
     * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
 
 ### Implemented URIs
 
 This gives you an overview of resources that are already implemented and can therefore be accessed (state 2017-12-22).
-All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed the limit given by the browser (e.g. when using a lot of bboxes or complex polygons).
+All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed its limit (e.g. when using a lot of bboxes or complex polygons).
 
 * /elements/count
 * /elements/count/groupBy/bbox (atm still quite slow for more bboxes)
