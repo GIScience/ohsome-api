@@ -40,11 +40,11 @@ To be able to test the REST-API with your own requests, you will also need a des
 
 
 * bbox
-    * has to consist of four double-parse able Strings in the format (lon1, lat1, lon2, lat2)
+    * has to consist of double-parse able Strings in the format (lon1, lat1, lon2, lat2, meaning bottom left and top right point of each bbox)
     * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
     * if bbox is given, bpoint and bpoly must be null or empty
 * bpoint
-    * has to consist of two double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
+    * has to consist of double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
     * if bpoint is given, bbox and bpoly must be null or empty
 * bpoly
     * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
@@ -79,6 +79,7 @@ To be able to test the REST-API with your own requests, you will also need a des
 ### Implemented URIs
 
 This gives you an overview of resources that are already implemented and can therefore be accessed (state 2017-12-22).
+All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed the limit given by the browser (e.g. when using a lot of bboxes or complex polygons).
 
 * /elements/count
 * /elements/count/groupBy/bbox (atm still quite slow for more bboxes)
@@ -99,77 +100,63 @@ This gives you an overview of resources that are already implemented and can the
 
 This section gives you some example request URLs and shows the results returned by the REST API.
 
-* http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=relation&time=2014-01-01/2017-07-01/P6M&keys=building&values=yes
+* http://localhost:8080/elements/count?bboxes=8.6528,49.3683,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes
 <p> 
-Gives the count within the given bounding box for all relations, which have the key “building” and the value “yes” for the time from 2014-01-01 till 2017-07-01 in a six-months interval.
+Gives the count within the given bounding box for all ways, which have the key “building” and the value “yes” for the time from 2008-01-01 till 2016-01-01 in a two year interval.
 
 ```json
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "metaData": {
-        "executionTime": 5727,
+        "executionTime": 4499,
         "unit": "amount",
-        "description": "Total number of elements, which are selected by the parameters."
+        "description": "Total number of elements, which are selected by the parameters.",
+        "requestURL": "http://localhost:8080/elements/count?bboxes=8.6528,49.3683,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes"
     },
     "result": [
         {
+            "timestamp": "2008-01-01T00:00:00Z",
+            "value": "1"
+        },
+        {
+            "timestamp": "2010-01-01T00:00:00Z",
+            "value": "451"
+        },
+        {
+            "timestamp": "2012-01-01T00:00:00Z",
+            "value": "6590"
+        },
+        {
             "timestamp": "2014-01-01T00:00:00Z",
-            "value": "34"
-        },
-        {
-            "timestamp": "2014-07-01T00:00:00Z",
-            "value": "36"
-        },
-        {
-            "timestamp": "2015-01-01T00:00:00Z",
-            "value": "42"
-        },
-        {
-            "timestamp": "2015-07-01T00:00:00Z",
-            "value": "49"
+            "value": "10961"
         },
         {
             "timestamp": "2016-01-01T00:00:00Z",
-            "value": "53"
-        },
-        {
-            "timestamp": "2016-07-01T00:00:00Z",
-            "value": "51"
-        },
-        {
-            "timestamp": "2017-01-01T00:00:00Z",
-            "value": "45"
-        },
-        {
-            "timestamp": "2017-07-01T00:00:00Z",
-            "value": "54"
+            "value": "13299"
         }
     ]
 }
 ```
 <p>
-* http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2012-01-01/2015-01-01/P1Y&keys=building
+* http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2013-01-01/2014-01-01/P1Y&keys=building
 <p> 
-Gives the count grouped by the type within the given bbox for all ways and relations, which have the key "building" for the time from 2012-01-01 till 2015-07-01 in a yearly interval.
+Gives the count grouped by the type within the given bbox for all ways and relations, which have the key "building" for the time from 2013-01-01 till 2014-01-01 in a yearly interval.
 
 ```json
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "metaData": {
-        "executionTime": 5504,
+        "executionTime": 5171,
         "unit": "amount",
-        "description": "Total number of items aggregated on the types."
+        "description": "Total number of items aggregated on the userids.",
+        "requestURL": "http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2013-01-01/2014-01-01/P1Y&keys=building"
     },
     "groupByResult": [
         {
             "groupByObj": "WAY",
             "result": [
-                {
-                    "timestamp": "2012-01-01T00:00:00Z",
-                    "value": "9570"
-                },
                 {
                     "timestamp": "2013-01-01T00:00:00Z",
                     "value": "17461"
@@ -177,10 +164,6 @@ Gives the count grouped by the type within the given bbox for all ways and relat
                 {
                     "timestamp": "2014-01-01T00:00:00Z",
                     "value": "28406"
-                },
-                {
-                    "timestamp": "2015-01-01T00:00:00Z",
-                    "value": "34508"
                 }
             ]
         },
@@ -188,20 +171,12 @@ Gives the count grouped by the type within the given bbox for all ways and relat
             "groupByObj": "RELATION",
             "result": [
                 {
-                    "timestamp": "2012-01-01T00:00:00Z",
-                    "value": "43"
-                },
-                {
                     "timestamp": "2013-01-01T00:00:00Z",
                     "value": "49"
                 },
                 {
                     "timestamp": "2014-01-01T00:00:00Z",
                     "value": "37"
-                },
-                {
-                    "timestamp": "2015-01-01T00:00:00Z",
-                    "value": "49"
                 }
             ]
         }
@@ -209,55 +184,40 @@ Gives the count grouped by the type within the given bbox for all ways and relat
 }
 ```
 <p>
-* http://localhost:8080/elements/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-11-01/2017-11-01/P1Y&keys=highway&values=residential&types2=way&keys2=highway,maxspeed&values2=residential
+* http://localhost:8080/elements/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-11-01/2017-11-01/P2Y&keys=highway&values=residential&types2=way&keys2=highway,maxspeed&values2=residential
 <p>
-Gives the ratio within the given bounding polygon for all residential highways with a maxspeed compared to the total number of residential highways for the time from 2009-05-01 till 2017-05-01 in a yearly interval.
+Gives the ratio within the given bounding polygon for all residential highways with a maxspeed compared to the total number of residential highways for the time from 2009-05-01 till 2017-05-01 in a two year interval.
 
 ```json
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "metaData": {
-        "executionTime": 8867,
+        "executionTime": 9058,
         "unit": "ratio",
-        "description": "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values."
+        "description": "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values.",
+        "requestURL": "http://localhost:8080/elements/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-11-01/2017-11-01/P2Y&keys=highway&values=residential&types2=way&keys2=highway,maxspeed&values2=residential"
     },
     "result": [
         {
-            "timestamp": "2009-05-01T00:00:00Z",
-            "value": "0.3161232"
+            "timestamp": "2009-11-01T00:00:00Z",
+            "value": "0.32243815"
         },
         {
-            "timestamp": "2010-05-01T00:00:00Z",
-            "value": "0.3473054"
+            "timestamp": "2011-11-01T00:00:00Z",
+            "value": "0.4064665"
         },
         {
-            "timestamp": "2011-05-01T00:00:00Z",
-            "value": "0.4011076"
+            "timestamp": "2013-11-01T00:00:00Z",
+            "value": "0.48918355"
         },
         {
-            "timestamp": "2012-05-01T00:00:00Z",
-            "value": "0.41004497"
+            "timestamp": "2015-11-01T00:00:00Z",
+            "value": "0.5744681"
         },
         {
-            "timestamp": "2013-05-01T00:00:00Z",
-            "value": "0.4556597"
-        },
-        {
-            "timestamp": "2014-05-01T00:00:00Z",
-            "value": "0.51816314"
-        },
-        {
-            "timestamp": "2015-05-01T00:00:00Z",
-            "value": "0.5421687"
-        },
-        {
-            "timestamp": "2016-05-01T00:00:00Z",
-            "value": "0.60271317"
-        },
-        {
-            "timestamp": "2017-05-01T00:00:00Z",
-            "value": "0.67108583"
+            "timestamp": "2017-11-01T00:00:00Z",
+            "value": "0.6723485"
         }
     ]
 }
