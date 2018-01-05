@@ -246,7 +246,7 @@ public class InputValidator {
    *        of the bounding points.
    * @param bpolys <code>String</code> array containing the lon/lat coordinate pairs of the bounding
    *        polygons.
-   * @return <code>Byte</code> defining if no parameter (0), bboxes (1), bpoints (2), or bpolys (3)
+   * @return <code>Byte</code> defining if no parameter or one bbox (0), bboxes (1), bpoints (2), or bpolys (3)
    *         are given.
    * @throws BadRequestException The provided boundary parameter does not fit to its format, or more
    *         than one boundary parameter is given.
@@ -671,7 +671,7 @@ public class InputValidator {
             LocalDateTime.parse(timeSplit[0]);
           }
           timeVals[0] = timeSplit[0];
-          if (time.endsWith("/")) {
+          if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
             // latest timestamp
             timeVals[1] = defEndTime;
             return timeVals;
