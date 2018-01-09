@@ -1,8 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -35,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
+import net.bytebuddy.jar.asm.commons.TryCatchBlockSorter;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
@@ -343,17 +342,24 @@ public class ElementsController {
   }
 
   /**
-   * GET request giving the count of OSM objects grouped by the key.
+   * GET request giving the count of OSM objects grouped by the tag.
    * <p>
-   * The parameters are described in the
+   * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/count/groupBy/key")
-  public ElementsResponseContent getCountGroupByKey(
+  @RequestMapping("/count/groupBy/tag")
+  public ElementsResponseContent getCountGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -361,12 +367,13 @@ public class ElementsController {
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
       @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-    
-    throw new NotImplementedException("The resource groupBy/key is not implemented yet.");
 
-    // return executeCountGroupByKey(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    return executeCountGroupByTag(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, groupByKey, groupByValues);
   }
 
   /**
@@ -719,6 +726,43 @@ public class ElementsController {
 
     return executeCountGroupByBoundary(true, bboxes, bpoints, bpolys, types, keys, values, userids,
         time);
+  }
+
+  /**
+   * POST request giving the count of OSM objects grouped by the tag. POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/count/groupBy/tag", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postCountGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeCountGroupByTag(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+        groupByKey, groupByValues);
   }
 
   /**
@@ -1251,7 +1295,7 @@ public class ElementsController {
         resultSet, null);
     return response;
   }
-  
+
   private ElementsResponseContent executeCountGroupByBoundaryyy(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time) throws UnsupportedOperationException, Exception {
@@ -1269,8 +1313,8 @@ public class ElementsController {
         iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
     // db result
     result = mapRed.aggregateByTimestamp().count();
-    
-    
+
+
     // output
     Result[] resultSet = new Result[result.size()];
     int count = 0;
@@ -1279,10 +1323,9 @@ public class ElementsController {
           String.valueOf(entry.getValue().intValue()));
       count++;
     }
-    
-    
-    
-    
+
+
+
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
@@ -1348,15 +1391,16 @@ public class ElementsController {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by keys.
+   * Gets the input parameters of the request and performs a count grouped by tags.
    */
-  private ElementsResponseContent executeCountGroupByKey(boolean isPost, String[] bboxes,
+  private ElementsResponseContent executeCountGroupByTag(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
-    
+      String[] userids, String[] time, String[] groupByKey, String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
+
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Integer> result;
+    SortedMap<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
@@ -1367,65 +1411,88 @@ public class ElementsController {
     EventHolderBean bean = Application.getEventHolderBean();
     OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
     TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
-    Integer[] keysInt = new Integer[keys.length];
-    // check for the keys parameter
-    if (keys[0].equals(""))
+    Integer[] keysInt = new Integer[groupByKey.length];
+    Integer[] valuesInt = new Integer[groupByValues.length];
+    if (groupByKey == null || groupByKey.length == 0) {
       throw new BadRequestException(
-          "You need to give at least one key as parameter if you want to use/groupBy/key.");
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
+    }
     // input parameter processing
     mapRed =
-        iV.processParameters(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
-
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
     // get the integer values for the given keys
-    for (int i = 0; i < keys.length; i++) {
-      keysInt[i] = tt.key2Int(keys[i]);
+    for (int i = 0; i < groupByKey.length; i++) {
+      keysInt[i] = tt.key2Int(groupByKey[i]);
+      if (groupByValues != null) {
+        // get the integer values for the given values
+        for (int j = 0; j < groupByValues.length; j++) {
+          valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
+        }
+      }
     }
     // group by tag logic
-    result = mapRed.flatMap(f -> {
-      List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
+    result = mapRed.map(f -> {
       int[] tags = f.getEntity().getTags();
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
-        // int tagValueId = tags[i+1];
+        int tagValueId = tags[i + 1];
         for (int key : keysInt) {
           // if key in input key list
-          if (tagKeyId == key)
-            res.add(new ImmutablePair<>(tagKeyId, f));
+          if (tagKeyId == key) {
+            if (valuesInt.length == 0) {
+              return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
+                  f);
+            }
+            for (int value : valuesInt) {
+              // if value in input value list
+              if (tagValueId == value)
+                return new ImmutablePair<>(
+                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+            }
+          }
         }
       }
-      return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey)
-        // .map(Pair::getValue)
-        .count();
+      return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
 
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
 
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    String groupByName = "";
     int count = 0;
     int innerCount = 0;
-    // iterate over the entry objects aggregated by type
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+    // iterate over the entry objects aggregated by tags
+    for (Entry<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
+        .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
+      // check for non-remainder objects (which do have the defined key/tag)
+      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
+        groupByName = tt.tag2String(entry.getKey()).getValue();
+      } else {
+        groupByName = "remainder";
+      }
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
             String.valueOf(innerEntry.getValue()));
         innerCount++;
       }
-      resultSet[count] = new GroupByResult(tt.key2String(entry.getKey()), results);
+      resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,", "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the keys.", requestURL),
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+        new MetaData(duration, "amount", "Total number of items aggregated on the tags.",
+            requestURL),
         resultSet, null);
     return response;
   }
-  
+
   /**
    * Gets the input parameters of the request and computes the length, perimeter, or area results
    * grouped by the user.
