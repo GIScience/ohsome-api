@@ -22,7 +22,7 @@ public class RatioController {
    * items selected by types, keys and values.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @param types2 <code>String</code> array having the same format as types.
@@ -58,7 +58,7 @@ public class RatioController {
    * would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @param types2 <code>String</code> array having the same format as types.

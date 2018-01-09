@@ -71,7 +71,7 @@ public class InputValidator {
    * Method to process the input parameters of a POST or GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
@@ -588,7 +588,7 @@ public class InputValidator {
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#createCircularPolygon
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#createCircularPolygons
    * createCircularPolygon}. Adapted code from UTMCodeFromLonLat.java class in the osmatrix project
    * (© by Michael Auer)
    * 
@@ -745,8 +745,8 @@ public class InputValidator {
   /**
    * Unifies polygons, which intersect with each other and adds the unified polygons to the collection.
    * 
-   * @param collection <code>Collection<Geometry></code> that includes all polygons.
-   * @return Collection<Geometry> that includes unified polygons created from intersected polygons
+   * @param collection <code>Collection</code> that includes all polygons.
+   * @return Collection that includes unified polygons created from intersected polygons
    *         and other polygons, which do not intersect with any other polygon.
    */
   private Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
@@ -774,7 +774,7 @@ public class InputValidator {
   /**
    * Creates a <code>MultiPolygon</code> out of the polygons in the given <code>Collection</code>.
    * 
-   * @param collection <code>Collection<Geometry></code> that holds the polygons.
+   * @param collection <code>Collection</code> that holds the polygons.
    * @return <code>MultiPolygon</code> object consisting of the given polygons.
    */
   private MultiPolygon createMultiPolygon(Collection<Geometry> collection) {

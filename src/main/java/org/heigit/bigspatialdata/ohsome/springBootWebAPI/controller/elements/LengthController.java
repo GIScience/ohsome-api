@@ -22,7 +22,7 @@ public class LengthController {
    * GET request giving the length of OSM objects.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
@@ -49,7 +49,7 @@ public class LengthController {
    * GET request giving the length of OSM objects grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
@@ -85,7 +85,7 @@ public class LengthController {
    * GET request giving the length of OSM objects grouped by the userId.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
@@ -113,7 +113,7 @@ public class LengthController {
    * URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
@@ -135,7 +135,7 @@ public class LengthController {
    * be used if the request URL would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
@@ -173,7 +173,7 @@ public class LengthController {
    * be used if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
