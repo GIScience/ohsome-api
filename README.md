@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
 * atm for local testing as well: IDE like [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a), or an editor that can be used to modify .java files like [Notepad++](https://notepad-plus-plus.org/download/v7.5.4.html)
-* data: keytables.mv.db and baden-wuerttemberg.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data*)
+* data: keytables.mv.db and baden-wuerttemberg.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data* or click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/How+to+set+up+the+database+locally) to see a guide how to download new data yourself)
 
 ### Setting-up/Running
 
@@ -80,20 +80,25 @@ To be able to test the REST-API with your own requests, you will also need a des
 
 ### Implemented URIs
 
-This gives you an overview of resources that are already implemented and can therefore be accessed (state 2017-12-22).
+This gives you an overview of resources that are already implemented and can therefore be accessed (state 2018-01-09).
 All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed its limit (e.g. when using a lot of bboxes or complex polygons).
+POST request data can only be sent in the format *application/x-www-form-urlencoded*.
 
 * /elements/count
 * /elements/count/groupBy/bbox (atm still quite slow for more bboxes)
 * /elements/count/groupBy/type
+* /elements/count/groupBy/tag
 * /elements/count/groupBy/user
 * /elements/length
+* /elements/length/groupBy/tag
 * /elements/length/groupBy/user
 * /elements/perimeter
 * /elements/perimeter/groupBy/type
+* /elements/perimeter/groupBy/tag
 * /elements/perimeter/groupBy/user
 * /elements/area
 * /elements/area/groupBy/type
+* /elements/area/groupBy/tag
 * /elements/area/groupBy/user
 * /elements/density
 * /elements/ratio
