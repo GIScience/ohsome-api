@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller;
+package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.changesets;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
