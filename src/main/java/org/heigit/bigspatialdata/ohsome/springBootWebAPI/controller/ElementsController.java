@@ -377,6 +377,41 @@ public class ElementsController {
   }
 
   /**
+   * GET request giving the length of OSM objects grouped by the tag.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/length/groupBy/tag")
+  public ElementsResponseContent getLengthGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
+
+    return executeLengthPerimeterAreaGroupByTag((byte) 1, false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, groupByKey, groupByValues);
+  }
+  
+  /**
    * GET request giving the length of OSM objects grouped by the userId.
    * <p>
    * The parameters are described in the
@@ -429,6 +464,102 @@ public class ElementsController {
   }
 
   /**
+   * GET request giving the area of OSM objects grouped by the tag.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/area/groupBy/tag")
+  public ElementsResponseContent getAreaGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
+
+    return executeLengthPerimeterAreaGroupByTag((byte) 3, false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, groupByKey, groupByValues);
+  }
+  
+  /**
+   * GET request giving the perimeter of polygonal OSM objects grouped by the userId.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/perimeter/groupBy/user")
+  public ElementsResponseContent getPerimeterGroupByUser(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time)
+      throws UnsupportedOperationException, Exception {
+
+    return executeLengthPerimeterAreaGroupByUser((byte) 2, false, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
+  }
+
+  /**
+   * GET request giving the perimeter of OSM objects grouped by the tag.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/perimeter/groupBy/tag")
+  public ElementsResponseContent getPerimeterGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
+
+    return executeLengthPerimeterAreaGroupByTag((byte) 2, false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, groupByKey, groupByValues);
+  }
+  
+  /**
    * GET request giving the area of OSM objects grouped by the userId.
    * <p>
    * The parameters are described in the
@@ -478,32 +609,6 @@ public class ElementsController {
 
     return executeAreaPerimeterGroupByType(true, false, bboxes, bpoints, bpolys, types, keys,
         values, userids, time);
-  }
-
-  /**
-   * GET request giving the perimeter of polygonal OSM objects grouped by the userId.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
-   */
-  @RequestMapping("/perimeter/groupBy/user")
-  public ElementsResponseContent getPerimeterGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception {
-
-    return executeLengthPerimeterAreaGroupByUser((byte) 2, false, bboxes, bpoints, bpolys, types,
-        keys, values, userids, time);
   }
 
   /*
@@ -766,6 +871,43 @@ public class ElementsController {
   }
 
   /**
+   * POST request giving the length of OSM objects grouped by the tag. POST requests should only
+   * be used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/length/groupBy/tag", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postLengthGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthPerimeterAreaGroupByTag((byte) 1, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time, groupByKey, groupByValues);
+  }
+  
+  /**
    * POST request giving the length of OSM objects grouped by the userID. POST requests should only
    * be used if the request URL would be too long for a GET request.
    * <p>
@@ -821,6 +963,43 @@ public class ElementsController {
         userids, time);
   }
 
+  /**
+   * POST request giving the area of OSM objects grouped by the tag. POST requests should only
+   * be used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/area/groupBy/tag", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postAreaGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthPerimeterAreaGroupByTag((byte) 3, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time, groupByKey, groupByValues);
+  }
+  
   /**
    * POST request giving the area of OSM objects grouped by the userID. POST requests should only be
    * used if the request URL would be too long for a GET request.
@@ -878,6 +1057,43 @@ public class ElementsController {
   }
 
   /**
+   * POST request giving the perimeter of OSM objects grouped by the tag. POST requests should only
+   * be used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.ElementsController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/perimeter/groupBy/tag", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postPerimeterGroupByTag(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return executeLengthPerimeterAreaGroupByTag((byte) 2, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time, groupByKey, groupByValues);
+  }
+  
+  /**
    * POST request giving the perimeter of polygonal OSM objects grouped by the userID. POST requests
    * should only be used if the request URL would be too long for a GET request.
    * <p>
@@ -905,6 +1121,7 @@ public class ElementsController {
         keys, values, userids, time);
   }
 
+  
   /*
    * EXECUTING methods of all requests start here
    */
@@ -1487,9 +1704,144 @@ public class ElementsController {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the tags.",
+        new MetaData(duration, "amount", "Total number of items aggregated on the tag.",
             requestURL),
         resultSet, null);
+    return response;
+  }
+
+  /**
+   * Gets the input parameters of the request and computes the length, perimeter, or area results
+   * grouped by the user.
+   * 
+   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   */
+  private ElementsResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
+      boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Number> result;
+    SortedMap<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputValidator iV = new InputValidator();
+    String unit = "";
+    String description = "";
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    // needed to get access to the keytables
+    EventHolderBean bean = Application.getEventHolderBean();
+    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
+    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    Integer[] keysInt = new Integer[groupByKey.length];
+    Integer[] valuesInt = new Integer[groupByValues.length];
+    if (groupByKey == null || groupByKey.length == 0) {
+      throw new BadRequestException(
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
+    }
+    // input parameter processing
+    mapRed =
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    // get the integer values for the given keys
+    for (int i = 0; i < groupByKey.length; i++) {
+      keysInt[i] = tt.key2Int(groupByKey[i]);
+      if (groupByValues != null) {
+        // get the integer values for the given values
+        for (int j = 0; j < groupByValues.length; j++) {
+          valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
+        }
+      }
+    }
+    // group by tag logic
+    result = mapRed.map(f -> {
+      int[] tags = f.getEntity().getTags();
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        int tagValueId = tags[i + 1];
+        for (int key : keysInt) {
+          // if key in input key list
+          if (tagKeyId == key) {
+            if (valuesInt.length == 0) {
+              return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
+                  f);
+            }
+            for (int value : valuesInt) {
+              // if value in input value list
+              if (tagValueId == value)
+                return new ImmutablePair<>(
+                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+            }
+          }
+        }
+      }
+      return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue)
+        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          switch (requestType) {
+            case 1:
+              return Geo.lengthOf(snapshot.getGeometry());
+            case 2:
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            case 3:
+              return Geo.areaOf(snapshot.getGeometry());
+            default:
+              return 0.0;
+          }
+        });;
+
+    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+
+    // output
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    String groupByName = "";
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects aggregated by tags
+    for (Entry<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
+        .entrySet()) {
+      Result[] results = new Result[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      // check for non-remainder objects (which do have the defined key/tag)
+      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
+        groupByName = tt.tag2String(entry.getKey()).getValue();
+      } else {
+        groupByName = "remainder";
+      }
+      // iterate over the inner entry objects containing timestamp-value pairs
+      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+            String.valueOf(innerEntry.getValue()));
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(groupByName, results);
+      count++;
+    }
+    // setting of the unit and description output parameters
+    switch (requestType) {
+      case 1:
+        unit = "meter";
+        description = "Total length of items aggregated on the tag.";
+        break;
+      case 2:
+        unit = "meter";
+        description = "Total perimeter of polygonal items aggregated on the tag.";
+        break;
+      case 3:
+        unit = "square-meter";
+        description = "Total area of items aggregated on the tag.";
+        break;
+    }
+    long duration = System.currentTimeMillis() - startTime;
+    // response
+    ElementsResponseContent response = new ElementsResponseContent(
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+        new MetaData(duration, unit, description, requestURL), resultSet, null);
     return response;
   }
 
