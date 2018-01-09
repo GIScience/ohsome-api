@@ -18,7 +18,6 @@ import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -187,7 +186,7 @@ public class InputValidator {
 
   /**
    * Gets the array of points (bounding box, polygon and point [+ radius]) and adds an id before
-   * each element. Works at the moment for bounding boxes and points.
+   * each element. Works at the moment for bounding boxes and points, but is not used in the current implementation.
    * 
    * @param boundary <code>String</code> array containing either bounding boxes, polygons, or points
    *        (+ radius).
@@ -419,7 +418,7 @@ public class InputValidator {
    * @throws BadRequestException Invalid coordinates.
    */
   private Geometry createBpolys(String[] bpolys)
-      throws BadRequestException, NotImplementedException {
+      throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 

@@ -28,6 +28,9 @@ import org.heigit.bigspatialdata.oshdb.util.TagTranslator;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
+/**
+ * Includes all execute methods for requests mapped to /elements.
+ */
 public class ElementsRequestExecutor {
  
   /**
