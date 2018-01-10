@@ -74,7 +74,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by types.
+   * Gets the input parameters of the request and performs a count grouped by type.
    */
   public ElementsResponseContent executeCountGroupByType(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
@@ -241,7 +241,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by users.
+   * Gets the input parameters of the request and performs a count grouped by user.
    */
   public ElementsResponseContent executeCountGroupByUser(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
@@ -294,7 +294,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by tags.
+   * Gets the input parameters of the request and performs a count grouped by tag.
    */
   public ElementsResponseContent executeCountGroupByTag(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
@@ -396,6 +396,92 @@ public class ElementsRequestExecutor {
     return response;
   }
 
+  /**
+   * Gets the input parameters of the request and performs a count grouped by key.
+   */
+  public ElementsResponseContent executeCountGroupByKey(boolean isPost, String[] bboxes,
+      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String[] groupByKey)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    // needed to get access to the keytables
+    EventHolderBean bean = Application.getEventHolderBean();
+    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
+    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    Integer[] keysInt = new Integer[groupByKey.length];
+    if (groupByKey == null || groupByKey.length == 0) {
+      throw new BadRequestException(
+          "You need to give one groupByKey parameters, if you want to use groupBy/key");
+    }
+    // input parameter processing
+    mapRed =
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    // get the integer values for the given keys
+    for (int i = 0; i < groupByKey.length; i++) {
+      keysInt[i] = tt.key2Int(groupByKey[i]);
+    }
+    // group by key logic
+    result = mapRed.map(f -> {
+      int[] tags = f.getEntity().getTags();
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        for (int key : keysInt) {
+          // if key in input key list
+          if (tagKeyId == key) {
+              return new ImmutablePair<>(tagKeyId, f);
+          }
+        }
+      }
+      return new ImmutablePair<>(-1, f);
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).count();
+
+    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+
+    // output
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    String groupByName = "";
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects aggregated by keys
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
+        .entrySet()) {
+      Result[] results = new Result[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      // check for non-remainder objects (which do have the defined key)
+      if (entry.getKey() != -1) {
+        groupByName = tt.key2String(entry.getKey());
+      } else {
+        groupByName = "remainder";
+      }
+      // iterate over the inner entry objects containing timestamp-value pairs
+      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+            String.valueOf(innerEntry.getValue()));
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(groupByName, results);
+      count++;
+    }
+    long duration = System.currentTimeMillis() - startTime;
+    // response
+    ElementsResponseContent response = new ElementsResponseContent(
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+        new MetaData(duration, "amount", "Total number of items aggregated on the tag.",
+            requestURL),
+        resultSet, null);
+    return response;
+  }
+  
   /**
    * Gets the input parameters of the request and performs a length or area calculation.
    * 
@@ -499,7 +585,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and computes the length, perimeter, or area results
-   * grouped by the user.
+   * grouped by the tag.
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
@@ -911,6 +997,5 @@ public class ElementsRequestExecutor {
         null, resultSet);
     return response;
   }
-
 
 }

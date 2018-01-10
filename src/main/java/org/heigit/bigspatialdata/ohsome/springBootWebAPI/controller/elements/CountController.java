@@ -187,6 +187,38 @@ public class CountController {
     return executor.executeCountGroupByTag(false, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, groupByKey, groupByValues);
   }
+  
+  /**
+   * GET request giving the count of OSM objects grouped by the key.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
+   *        grouping. One or more keys can be provided.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/groupBy/key")
+  public ElementsResponseContent getCountGroupByKey(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKeys", defaultValue = "") String[] groupByKeys,
+      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeCountGroupByKey(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, groupByKeys);
+  }
 
   /**
    * POST request giving the count of OSM objects. POST requests should only be used if the request
