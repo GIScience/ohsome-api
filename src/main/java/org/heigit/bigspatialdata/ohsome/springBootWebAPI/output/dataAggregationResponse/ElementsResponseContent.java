@@ -22,14 +22,16 @@ public class ElementsResponseContent {
   private MetaData metaData;
   private GroupByResult[] groupByResult;
   private Result[] result;
+  private RatioResult[] ratioResult;
 
   public ElementsResponseContent(String license, String copyright, MetaData metaData,
-      GroupByResult[] groupByResult, Result[] result) {
+      GroupByResult[] groupByResult, Result[] result, RatioResult[] ratioResult) {
     this.license = license;
     this.copyright = copyright;
     this.metaData = metaData;
     this.groupByResult = groupByResult;
     this.result = result;
+    this.ratioResult = ratioResult;
   }
 
   public String getLicense() {
@@ -50,6 +52,10 @@ public class ElementsResponseContent {
 
   public Result[] getResult() {
     return result;
+  }
+  
+  public RatioResult[] getRatioResult() {
+    return ratioResult;
   }
 
 }

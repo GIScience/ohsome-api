@@ -16,6 +16,7 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.interceptor.ElementsReq
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.RatioResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
@@ -70,7 +71,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
             "Total number of elements, which are selected by the parameters.", requestURL),
-        null, resultSet);
+        null, resultSet, null);
 
     return response;
   }
@@ -124,7 +125,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
             requestURL),
-        resultSet, null);
+        resultSet, null, null);
     return response;
   }
 
@@ -197,7 +198,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
             "Total number of items aggregated on the bounding objects.", requestURL),
-        resultSet, null);
+        resultSet, null, null);
     return response;
   }
 
@@ -238,7 +239,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
             "Total number of elements, which are selected by the parameters.", requestURL),
-        null, resultSet);
+        null, resultSet, null);
     return response;
   }
 
@@ -326,7 +327,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the key.",
             requestURL),
-        resultSet, null);
+        resultSet, null, null);
     return response;
   }
 
@@ -429,7 +430,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the tag.",
             requestURL),
-        resultSet, null);
+        resultSet, null, null);
     return response;
   }
 
@@ -482,7 +483,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
             requestURL),
-        resultSet, null);
+        resultSet, null, null);
     return response;
   }
 
@@ -537,7 +538,7 @@ public class ElementsRequestExecutor {
     // response
     ElementsResponseContent response = new ElementsResponseContent(
         "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
-        new MetaData(duration, unit, description, requestURL), null, resultSet);
+        new MetaData(duration, unit, description, requestURL), null, resultSet, null);
     return response;
   }
 
@@ -583,7 +584,7 @@ public class ElementsRequestExecutor {
         new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
             "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "meters",
                 "Total length of the perimeter (polygon boundaries)", requestURL),
-            null, resultSet);
+            null, resultSet, null);
     return response;
   }
 
@@ -703,7 +704,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
     return response;
   }
 
@@ -838,7 +839,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
     return response;
   }
 
@@ -924,7 +925,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
     return response;
   }
 
@@ -998,7 +999,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
     return response;
   }
 
@@ -1056,12 +1057,11 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response =
-        new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-            "-Hier könnte Ihr Copyright stehen.-",
-            new MetaData(duration, "items per square-kilometer",
-                "Density of selected items (number of items per area).", requestURL),
-            null, resultSet);
+    ElementsResponseContent response = new ElementsResponseContent(
+        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
+        new MetaData(duration, "items per square-kilometer",
+            "Density of selected items (number of items per area).", requestURL),
+        null, resultSet, null);
     return response;
   }
 
@@ -1100,14 +1100,15 @@ public class ElementsRequestExecutor {
       count++;
     }
     // output
-    Result[] resultSet = new Result[result1.size()];
+    RatioResult[] resultSet = new RatioResult[result1.size()];
     count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
       // gets the timestamp and the results from both counts and divides 2 through 1
       String date = resultSet1[count].getTimestamp();
-      String value = String
+      String ratio = String
           .valueOf(entry.getValue().floatValue() / Float.parseFloat(resultSet1[count].getValue()));
-      resultSet[count] = new Result(date, value);
+      resultSet[count] = new RatioResult(date, String.valueOf(resultSet1[count].getValue()),
+          String.valueOf(entry.getValue().intValue()), ratio);
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -1118,7 +1119,7 @@ public class ElementsRequestExecutor {
         new MetaData(duration, "ratio",
             "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values.",
             requestURL),
-        null, resultSet);
+        null, null, resultSet);
     return response;
   }
 
