@@ -141,30 +141,7 @@ public class InputValidator {
     }
 
     // key/value parameters
-    if (keys.length < values.length) {
-      throw new BadRequestException(
-          "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
-    }
-    if (keys.length != values.length) {
-      String[] tempVal = new String[keys.length];
-      // extracts the value entries from the old values array
-      for (int a = 0; a < values.length; a++) {
-        tempVal[a] = values[a];
-      }
-      // adds empty entries in the tempVal array
-      for (int i = values.length; i < keys.length; i++) {
-        tempVal[i] = "";
-      }
-      values = tempVal;
-    }
-    // prerequisites: both arrays (keys and values) must be of the same length
-    // and key-value pairs need to be at the same index in both arrays
-    for (int i = 0; i < keys.length; i++) {
-      if (values[i].equals(""))
-        mapRed = mapRed.where(keys[i]);
-      else
-        mapRed = mapRed.where(keys[i], values[i]);
-    }
+    mapRed = checkKeysValues(mapRed, keys, values);
 
     // checks if the userids parameter is not empty
     if (userids.length != 0) {
@@ -566,6 +543,34 @@ public class InputValidator {
     return osmTypes;
   }
 
+  private MapReducer<OSMEntitySnapshot> checkKeysValues (MapReducer<OSMEntitySnapshot> mapRed, String[] keys, String[] values) {
+    if (keys.length < values.length) {
+      throw new BadRequestException(
+          "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
+    }
+    if (keys.length != values.length) {
+      String[] tempVal = new String[keys.length];
+      // extracts the value entries from the old values array
+      for (int a = 0; a < values.length; a++) {
+        tempVal[a] = values[a];
+      }
+      // adds empty entries in the tempVal array
+      for (int i = values.length; i < keys.length; i++) {
+        tempVal[i] = "";
+      }
+      values = tempVal;
+    }
+    // prerequisites: both arrays (keys and values) must be of the same length
+    // and key-value pairs need to be at the same index in both arrays
+    for (int i = 0; i < keys.length; i++) {
+      if (values[i].equals(""))
+        mapRed = mapRed.where(keys[i]);
+      else
+        mapRed = mapRed.where(keys[i], values[i]);
+    }
+    return mapRed;
+  }
+  
   /**
    * Checks the content of the userids <code>String</code> array.
    * 

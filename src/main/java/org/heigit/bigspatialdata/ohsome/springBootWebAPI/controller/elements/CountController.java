@@ -221,6 +221,39 @@ public class CountController {
   }
 
   /**
+   * GET request giving the share of selected items satisfying keys2 and values2 within
+   * items selected by types, keys and values.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param keys2 <code>String</code> array having the same format as keys.
+   * @param values2 <code>String</code> array having the same format as values.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/share")
+  public ElementsResponseContent getShare(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeShare(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+        keys2, values2);
+  }
+  
+  /**
    * POST request giving the count of OSM objects. POST requests should only be used if the request
    * URL would be too long for a GET request.
    * <p>

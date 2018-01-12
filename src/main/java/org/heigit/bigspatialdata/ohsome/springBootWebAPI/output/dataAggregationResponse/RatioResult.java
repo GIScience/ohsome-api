@@ -2,7 +2,7 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregation
 
 /**
  * Represents the result JSON object for the ratio request containing the timestamp together with
- * both values and the resulting ratio.
+ * two values and their resulting ratio.
  */
 public class RatioResult {
 

@@ -1,11 +1,14 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.executor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.Map.Entry;
+import java.util.Objects;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
@@ -18,6 +21,7 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationR
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.RatioResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ShareResult;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
@@ -71,7 +75,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
             "Total number of elements, which are selected by the parameters.", requestURL),
-        null, resultSet, null);
+        null, resultSet, null, null);
 
     return response;
   }
@@ -125,7 +129,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
             requestURL),
-        resultSet, null, null);
+        resultSet, null, null, null);
     return response;
   }
 
@@ -198,7 +202,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
             "Total number of items aggregated on the bounding objects.", requestURL),
-        resultSet, null, null);
+        resultSet, null, null, null);
     return response;
   }
 
@@ -239,7 +243,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount",
             "Total number of elements, which are selected by the parameters.", requestURL),
-        null, resultSet, null);
+        null, resultSet, null, null);
     return response;
   }
 
@@ -327,7 +331,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the key.",
             requestURL),
-        resultSet, null, null);
+        resultSet, null, null, null);
     return response;
   }
 
@@ -430,7 +434,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the tag.",
             requestURL),
-        resultSet, null, null);
+        resultSet, null, null, null);
     return response;
   }
 
@@ -483,7 +487,7 @@ public class ElementsRequestExecutor {
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
             requestURL),
-        resultSet, null, null);
+        resultSet, null, null, null);
     return response;
   }
 
@@ -538,7 +542,7 @@ public class ElementsRequestExecutor {
     // response
     ElementsResponseContent response = new ElementsResponseContent(
         "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
-        new MetaData(duration, unit, description, requestURL), null, resultSet, null);
+        new MetaData(duration, unit, description, requestURL), null, resultSet, null, null);
     return response;
   }
 
@@ -584,7 +588,7 @@ public class ElementsRequestExecutor {
         new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
             "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "meters",
                 "Total length of the perimeter (polygon boundaries)", requestURL),
-            null, resultSet, null);
+            null, resultSet, null, null);
     return response;
   }
 
@@ -704,7 +708,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
 
@@ -839,7 +843,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
 
@@ -925,7 +929,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
 
@@ -999,7 +1003,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null);
+        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
 
@@ -1061,7 +1065,119 @@ public class ElementsRequestExecutor {
         "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
         new MetaData(duration, "items per square-kilometer",
             "Density of selected items (number of items per area).", requestURL),
-        null, resultSet, null);
+        null, resultSet, null, null);
+    return response;
+  }
+
+  /**
+   * Gets the input parameters of the request and performs a share calculation.
+   */
+  public ElementsResponseContent executeShare(boolean isPost, String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndOtherIndex<Boolean>, Integer> result;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputValidator iV = new InputValidator();
+    String requestURL = null;
+    // needed to get access to the keytables
+    EventHolderBean bean = Application.getEventHolderBean();
+    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
+    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    Integer[] keysInt2 = new Integer[keys2.length];
+    Integer[] valuesInt2 = new Integer[values2.length];
+    // request url is only returned in output for GET requests
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    // get the integer values for the given keys
+    for (int i = 0; i < keys2.length; i++) {
+      keysInt2[i] = tt.key2Int(keys2[i]);
+      if (keysInt2[i] == null)
+        throw new BadRequestException(
+            "All provided keys2 parameters have to be in the OSM database.");
+      if (values2 != null && i < values2.length) {
+        valuesInt2[i] = tt.tag2Int(keys2[i], values2[i]).getValue();
+        if (valuesInt2[i] == null)
+          throw new BadRequestException(
+              "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
+      }
+    }
+    // input parameter processing
+    mapRed =
+        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
+      // result aggregated on true (if obj contains all tags) and false (if not all are contained)
+      boolean hasTags = false;
+      // if there is the same amount of keys and values
+      for (int i = 0; i < keysInt2.length; i++) {
+        if (f.getEntity().hasTagKey(keysInt2[i])) {
+          if (i >= valuesInt2.length) {
+            // if more keys2 than values2 are given
+            hasTags = true;
+            continue;
+          }
+          if (f.getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
+            hasTags = true;
+          } else {
+            hasTags = false;
+            break;
+          }
+        } else {
+          hasTags = false;
+          break;
+        }
+      }
+      return hasTags;
+    }).count();
+
+    String[] whole = new String[result.size()];
+    String[] part = new String[result.size()];
+    String[] timeArray = new String[result.size()];
+    int partCount = 0;
+    int wholeCount = 0;
+    // time and value extraction
+    for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Integer> entry : result.entrySet()) {
+      if (entry.getKey().getOtherIndex()) {
+        // if true - set timestamp and set/increase part and/or whole
+        timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
+        part[partCount] = String.valueOf(entry.getValue());
+
+        if (whole[partCount] == null || whole[partCount].isEmpty())
+          whole[partCount] = String.valueOf(entry.getValue());
+        else
+          whole[partCount] = String.valueOf(Integer.valueOf(whole[partCount]) + entry.getValue());
+
+        partCount++;
+      } else {
+        // else - set/increase only whole
+        if (whole[wholeCount] == null || whole[wholeCount].isEmpty())
+          whole[wholeCount] = String.valueOf(entry.getValue());
+        else
+          whole[wholeCount] = String.valueOf(Integer.valueOf(whole[wholeCount]) + entry.getValue());
+
+        wholeCount++;
+      }
+    }
+    // remove the possible null values in the arrays
+    timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
+    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(String[]::new);
+    part = Arrays.stream(part).filter(Objects::nonNull).toArray(String[]::new);
+    // output
+    ShareResult[] resultSet = new ShareResult[timeArray.length];
+    for (int i = 0; i < timeArray.length; i++) {
+      resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
+    }
+    long duration = System.currentTimeMillis() - startTime;
+    // response
+    ElementsResponseContent response = new ElementsResponseContent(
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
+        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+        new MetaData(duration, "share",
+            "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
+            requestURL),
+        null, null, null, resultSet);
     return response;
   }
 
@@ -1119,7 +1235,7 @@ public class ElementsRequestExecutor {
         new MetaData(duration, "ratio",
             "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values.",
             requestURL),
-        null, null, resultSet);
+        null, null, resultSet, null);
     return response;
   }
 
