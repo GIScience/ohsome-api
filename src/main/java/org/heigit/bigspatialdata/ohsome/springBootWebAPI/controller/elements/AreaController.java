@@ -153,7 +153,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(false, true, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeLengthArea(true, true, bboxes, bpoints, bpolys, types, keys, values, userids,
         time);
   }
 
