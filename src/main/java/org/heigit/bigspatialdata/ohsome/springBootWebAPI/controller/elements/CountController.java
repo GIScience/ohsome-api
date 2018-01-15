@@ -235,7 +235,7 @@ public class CountController {
    *         ElementsResponseContent}
    */
   @RequestMapping("/share")
-  public ElementsResponseContent getShare(
+  public ElementsResponseContent getCountShare(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -249,7 +249,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeShare(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+    return executor.executeCountShare(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
         keys2, values2);
   }
   
@@ -398,6 +398,77 @@ public class CountController {
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountGroupByTag(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
         groupByKey, groupByValues);
+  }
+  
+  /**
+   * POST request giving the count of OSM objects grouped by the key. POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
+   *        grouping. One or more keys can be provided.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postCountGroupByKey(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "groupByKeys", defaultValue = "") String[] groupByKeys)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeCountGroupByKey(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+        groupByKeys);
+  }
+  
+  /**
+   * POST request giving the count of OSM objects grouped by the tag. POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @param groupByValues <code>String</code> array containing the values used to create the tags
+   *        for grouping. If a given value does not appear in the output, then there are no objects
+   *        assigned to it (within the given filters).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/share", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postCountShare(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeCountShare(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+        keys2, values2);
   }
 
 }

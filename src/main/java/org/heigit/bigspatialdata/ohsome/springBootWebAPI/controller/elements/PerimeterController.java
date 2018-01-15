@@ -155,7 +155,6 @@ public class PerimeterController {
     return executor.executePerimeter(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
   }
 
-
   /**
    * POST request giving the perimeter of polygonal OSM objects grouped by the OSM type. POST
    * requests should only be used if the request URL would be too long for a GET request.
