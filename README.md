@@ -77,6 +77,24 @@ To be able to test the REST-API with your own requests, you will also need a des
     * the forward slashes (/) are a very important part of the parameter and used to recognize which time parameter should be used
     * an absence of the start and|or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
     * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
+* types2
+    * same format as types
+    * used in /ratio requests
+* keys2
+    * same format as keys
+    * used in /ratio and /share requests
+* values2
+    * same format as values
+    * used in /ratio and /share requests
+* groupByKey
+    * grouping by elements that have this key only
+    * used in /groupBy/tag
+* groupByKeys
+    * grouping by elements that have these keys
+    * used in groupBy/key
+* groupByValues
+    * 0...n groupByValues can be used, where n <= groupByKey.length and groupByValues(n) must refer to groupByKey(n)
+    * used in groupBy/tag
 
 ### Implemented URIs
 
@@ -89,19 +107,23 @@ POST request data can only be sent in the format *application/x-www-form-urlenco
 * /elements/count/groupBy/type
 * /elements/count/groupBy/tag
 * /elements/count/groupBy/user
+* /elements/count/share
+* /elements/count/ratio
 * /elements/length
 * /elements/length/groupBy/tag
 * /elements/length/groupBy/user
+* /elements/length/share
 * /elements/perimeter
 * /elements/perimeter/groupBy/type
 * /elements/perimeter/groupBy/tag
 * /elements/perimeter/groupBy/user
+* /elements/perimeter/share
 * /elements/area
 * /elements/area/groupBy/type
 * /elements/area/groupBy/tag
 * /elements/area/groupBy/user
+* /elements/area/share
 * /elements/density
-* /elements/ratio
 
 ## Examples
 
