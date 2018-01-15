@@ -352,6 +352,11 @@ public class ElementsRequestExecutor {
     // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
+    // check the groupByKey and groupByValues parameters
+    if (groupByKey == null || groupByKey.length == 0)
+      throw new BadRequestException("There has to be one groupByKey value given.");
+    if (groupByValues == null)
+      groupByValues = new String[0];
     // needed to get access to the keytables
     EventHolderBean bean = Application.getEventHolderBean();
     OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
@@ -733,6 +738,11 @@ public class ElementsRequestExecutor {
     // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
+    // check the groupByKey and groupByValues parameters
+    if (groupByKey == null || groupByKey.length == 0)
+      throw new BadRequestException("There has to be one groupByKey value given.");
+    if (groupByValues == null)
+      groupByValues = new String[0];
     // needed to get access to the keytables
     EventHolderBean bean = Application.getEventHolderBean();
     OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
@@ -1082,9 +1092,11 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // check on length of keys2 and values 2
-    if (keys2.length < 1)
+    // check on null and length of keys2 and values 2
+    if (keys2 == null || keys2.length < 1)
       throw new BadRequestException("You need to define at least one key if you want to use /share.");
+    if (values2 == null)
+      values2 = new String[0];
     if (keys2.length < values2.length)
       throw new BadRequestException("There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     // needed to get access to the keytables
@@ -1202,9 +1214,11 @@ public class ElementsRequestExecutor {
     String unit = "";
     String description = "";
     String requestURL = null;
-    // check on length of keys2 and values 2
-    if (keys2.length < 1)
+    // check on null and length of keys2 and values 2
+    if (keys2 == null || keys2.length < 1)
       throw new BadRequestException("You need to define at least one key if you want to use /share.");
+    if (values2 == null)
+      values2 = new String[0];
     if (keys2.length < values2.length)
       throw new BadRequestException("There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     // needed to get access to the keytables

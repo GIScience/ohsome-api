@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {
-  
+
   /**
    * GET request giving the count of OSM objects.
    * <p>
@@ -67,7 +67,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCount(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    return executor.executeCount(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
   }
 
   /**
@@ -93,8 +94,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(false, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time);
+    return executor.executeCountGroupByType(false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -120,8 +121,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByUser(false, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time);
+    return executor.executeCountGroupByUser(false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -148,8 +149,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByBoundary(false, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time);
+    return executor.executeCountGroupByBoundary(false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -184,10 +185,10 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByTag(false, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time, groupByKey, groupByValues);
+    return executor.executeCountGroupByTag(false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time, groupByKey, groupByValues);
   }
-  
+
   /**
    * GET request giving the count of OSM objects grouped by the key.
    * <p>
@@ -216,20 +217,22 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByKey(false, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time, groupByKeys);
+    return executor.executeCountGroupByKey(false, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time, groupByKeys);
   }
 
   /**
-   * GET request giving the share of selected items satisfying keys2 and values2 within
-   * items selected by types, keys and values.
+   * GET request giving the share of selected items satisfying keys2 and values2 within items
+   * selected by types, keys and values.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
+   * @param keys2 <code>String</code> array having the same format as keys and used to define the
+   *        subgroup(share).
+   * @param values2 <code>String</code> array having the same format as values and used to define
+   *        the subgroup(share).
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
@@ -249,10 +252,10 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountShare(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
-        keys2, values2);
+    return executor.executeCountShare(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, keys2, values2);
   }
-  
+
   /**
    * POST request giving the count of OSM objects. POST requests should only be used if the request
    * URL would be too long for a GET request.
@@ -287,20 +290,13 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception {
+  public ElementsResponseContent postCountGroupByType(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(true, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time);
+    return executor.executeCountGroupByType(true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -316,20 +312,13 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public ElementsResponseContent postCountGroupByUser(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByUser(true, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time);
+    return executor.executeCountGroupByUser(true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -346,20 +335,13 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupByBoundary(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public ElementsResponseContent postCountGroupByBoundary(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByBoundary(true, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time);
+    return executor.executeCountGroupByBoundary(true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time);
   }
 
   /**
@@ -382,24 +364,16 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
-      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+  public ElementsResponseContent postCountGroupByTag(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByTag(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
-        groupByKey, groupByValues);
+    return executor.executeCountGroupByTag(true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time, groupByKey, groupByValues);
   }
-  
+
   /**
    * POST request giving the count of OSM objects grouped by the key. POST requests should only be
    * used if the request URL would be too long for a GET request.
@@ -416,23 +390,16 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountGroupByKey(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
-      @RequestParam(value = "groupByKeys", defaultValue = "") String[] groupByKeys)
+  public ElementsResponseContent postCountGroupByKey(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByKey(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
-        groupByKeys);
+    return executor.executeCountGroupByKey(true, bboxes, bpoints, bpolys, types, keys, values,
+        userids, time, groupByKeys);
   }
-  
+
   /**
    * POST request giving the count of OSM objects grouped by the tag. POST requests should only be
    * used if the request URL would be too long for a GET request.
@@ -453,22 +420,14 @@ public class CountController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
-      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+  public ElementsResponseContent postCountShare(String[] bboxes, String[] bpoints, String[] bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountShare(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
-        keys2, values2);
+    return executor.executeCountShare(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, keys2, values2);
   }
 
 }

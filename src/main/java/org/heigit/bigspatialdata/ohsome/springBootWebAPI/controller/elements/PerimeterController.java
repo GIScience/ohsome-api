@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
-  
+
   /**
    * GET request giving the perimeter of polygonal OSM objects.
    * <p>
@@ -41,7 +41,8 @@ public class PerimeterController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executePerimeter(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    return executor.executePerimeter(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
   }
 
   /**
@@ -67,8 +68,8 @@ public class PerimeterController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeAreaPerimeterGroupByType(false, false, bboxes, bpoints, bpolys, types, keys,
-        values, userids, time);
+    return executor.executeAreaPerimeterGroupByType(false, false, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /**
@@ -94,8 +95,8 @@ public class PerimeterController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 2, false, bboxes, bpoints, bpolys, types,
-        keys, values, userids, time);
+    return executor.executeLengthPerimeterAreaGroupByUser((byte) 2, false, bboxes, bpoints, bpolys,
+        types, keys, values, userids, time);
   }
 
   /**
@@ -130,10 +131,45 @@ public class PerimeterController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 2, false, bboxes, bpoints, bpolys, types, keys, values, userids,
-        time, groupByKey, groupByValues);
+    return executor.executeLengthPerimeterAreaGroupByTag((byte) 2, false, bboxes, bpoints, bpolys,
+        types, keys, values, userids, time, groupByKey, groupByValues);
   }
- 
+
+  /**
+   * GET request giving the perimeter of items satisfying keys, values (+ other params) and part of items
+   * satisfying keys2, values2.(+ other params).
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param keys2 <code>String</code> array having the same format as keys and used to define the
+   *        subgroup(share).
+   * @param values2 <code>String</code> array having the same format as values and used to define
+   *        the subgroup(share).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping("/share")
+  public ElementsResponseContent getPerimeterShare(
+      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "types", defaultValue = "") String[] types,
+      @RequestParam(value = "keys", defaultValue = "") String[] keys,
+      @RequestParam(value = "values", defaultValue = "") String[] values,
+      @RequestParam(value = "userids", defaultValue = "") String[] userids,
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeLengthPerimeterAreaShare((byte) 2, false, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time, keys2, values2);
+  }
+  
   /**
    * POST request giving the perimeter of polygonal OSM objects. POST requests should only be used
    * if the request URL would be too long for a GET request.
@@ -152,7 +188,8 @@ public class PerimeterController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executePerimeter(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    return executor.executePerimeter(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time);
   }
 
   /**
@@ -168,20 +205,13 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public ElementsResponseContent postPerimeterGroupByType(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeAreaPerimeterGroupByType(false, true, bboxes, bpoints, bpolys, types, keys,
-        values, userids, time);
+    return executor.executeAreaPerimeterGroupByType(false, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time);
   }
 
   /**
@@ -204,24 +234,16 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
-      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+  public ElementsResponseContent postPerimeterGroupByTag(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 2, true, bboxes, bpoints, bpolys, types,
-        keys, values, userids, time, groupByKey, groupByValues);
+    return executor.executeLengthPerimeterAreaGroupByTag((byte) 2, true, bboxes, bpoints, bpolys,
+        types, keys, values, userids, time, groupByKey, groupByValues);
   }
-  
+
   /**
    * POST request giving the perimeter of polygonal OSM objects grouped by the userID. POST requests
    * should only be used if the request URL would be too long for a GET request.
@@ -235,21 +257,41 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
+  public ElementsResponseContent postPerimeterGroupByUser(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time) throws UnsupportedOperationException, Exception, BadRequestException {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeLengthPerimeterAreaGroupByUser((byte) 2, true, bboxes, bpoints, bpolys,
+        types, keys, values, userids, time);
+  }
+
+  /**
+   * POST request giving the perimeter of items satisfying keys, values (+ other params) and part of
+   * items satisfying keys2, values2.(+ other params). POST requests should only be used if the
+   * request URL would be too long for a GET request.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * getCount} method.
+   * 
+   * @param keys2 <code>String</code> array having the same format as keys and used to define the
+   *        subgroup(share).
+   * @param values2 <code>String</code> array having the same format as values and used to define
+   *        the subgroup(share).
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   */
+  @RequestMapping(value = "/share", method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ElementsResponseContent postPerimeterShare(String[] bboxes, String[] bpoints, String[] bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 2, true, bboxes, bpoints, bpolys, types,
-        keys, values, userids, time);
+    return executor.executeLengthPerimeterAreaShare((byte) 2, true, bboxes, bpoints, bpolys, types,
+        keys, values, userids, time, keys2, values2);
   }
-
-
 }
