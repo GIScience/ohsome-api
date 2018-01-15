@@ -98,7 +98,7 @@ To be able to test the REST-API with your own requests, you will also need a des
 
 ### Implemented URIs
 
-This gives you an overview of resources that are already implemented and can therefore be accessed (state 2018-01-09).
+This gives you an overview of resources that are already implemented and can therefore be accessed (state 2018-01-15).
 All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed its limit (e.g. when using a lot of bboxes or complex polygons).
 POST request data can only be sent in the format *application/x-www-form-urlencoded*.
 
