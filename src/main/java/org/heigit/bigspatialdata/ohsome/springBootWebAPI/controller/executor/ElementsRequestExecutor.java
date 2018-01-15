@@ -1083,8 +1083,8 @@ public class ElementsRequestExecutor {
     InputValidator iV = new InputValidator();
     String requestURL = null;
     // check on length of keys2 and values 2
-    if (keys2.length < 1 || values2.length < 1)
-      throw new BadRequestException("You need to define at least one key/value pair if you want to use /share.");
+    if (keys2.length < 1)
+      throw new BadRequestException("You need to define at least one key if you want to use /share.");
     if (keys2.length < values2.length)
       throw new BadRequestException("There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     // needed to get access to the keytables
@@ -1203,8 +1203,8 @@ public class ElementsRequestExecutor {
     String description = "";
     String requestURL = null;
     // check on length of keys2 and values 2
-    if (keys2.length < 1 || values2.length < 1)
-      throw new BadRequestException("You need to define at least one key/value pair if you want to use /share.");
+    if (keys2.length < 1)
+      throw new BadRequestException("You need to define at least one key if you want to use /share.");
     if (keys2.length < values2.length)
       throw new BadRequestException("There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     // needed to get access to the keytables
