@@ -126,7 +126,7 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
+        new MetaData(duration, "amount", "Total number of items aggregated on the type.",
             requestURL),
         resultSet, null, null, null);
     return response;
@@ -588,11 +588,10 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response =
-        new ElementsResponseContent("-Hier könnte Ihre Lizenz stehen.-",
-            "-Hier könnte Ihr Copyright stehen.-", new MetaData(duration, "meters",
-                "Total length of the perimeter (polygon boundaries)", requestURL),
-            null, resultSet, null, null);
+    ElementsResponseContent response = new ElementsResponseContent(
+        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
+        new MetaData(duration, "meters", "Total perimeter of polygonal items.", requestURL), null,
+        resultSet, null, null);
     return response;
   }
 
@@ -1002,10 +1001,10 @@ public class ElementsRequestExecutor {
     // setting of the unit and description output parameters
     if (isArea) {
       unit = "square-meter";
-      description = "Total area of items aggregated on the OSM type.";
+      description = "Total area of items aggregated on the type.";
     } else {
       unit = "meter";
-      description = "Total perimeter of items aggregated on the OSM type.";
+      description = "Total perimeter of items aggregated on the type.";
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
@@ -1093,11 +1092,13 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     // check on null and length of keys2 and values 2
     if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException("You need to define at least one key if you want to use /share.");
+      throw new BadRequestException(
+          "You need to define at least one key if you want to use /share.");
     if (values2 == null)
       values2 = new String[0];
     if (keys2.length < values2.length)
-      throw new BadRequestException("There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+      throw new BadRequestException(
+          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     // needed to get access to the keytables
     EventHolderBean bean = Application.getEventHolderBean();
     OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
@@ -1215,11 +1216,13 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     // check on null and length of keys2 and values 2
     if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException("You need to define at least one key if you want to use /share.");
+      throw new BadRequestException(
+          "You need to define at least one key if you want to use /share.");
     if (values2 == null)
       values2 = new String[0];
     if (keys2.length < values2.length)
-      throw new BadRequestException("There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+      throw new BadRequestException(
+          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     // needed to get access to the keytables
     EventHolderBean bean = Application.getEventHolderBean();
     OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
@@ -1328,17 +1331,17 @@ public class ElementsRequestExecutor {
       case 1:
         unit = "meter";
         description =
-            "Total length of the whole and a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
+            "Total length of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
       case 2:
         unit = "meter";
         description =
-            "Total perimeter of the whole and a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
+            "Total perimeter of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
       case 3:
         unit = "square-meter";
         description =
-            "Total area of the whole and a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
+            "Total area of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -1402,7 +1405,7 @@ public class ElementsRequestExecutor {
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
         new MetaData(duration, "ratio",
-            "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values.",
+            "Ratio of items satisfying types2, keys2, values2 within items selected by types, keys, values.",
             requestURL),
         null, null, resultSet, null);
     return response;
