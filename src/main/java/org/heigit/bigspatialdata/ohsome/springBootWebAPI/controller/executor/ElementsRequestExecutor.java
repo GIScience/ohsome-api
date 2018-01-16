@@ -2,13 +2,12 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.executor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
@@ -419,7 +418,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // check for non-remainder objects (which do have the defined key/tag)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = tt.tag2String(entry.getKey()).getValue();
+        groupByName = groupByKey[0] + "=" + tt.tag2String(entry.getKey()).getValue();
       } else {
         groupByName = "remainder";
       }
@@ -820,7 +819,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // check for non-remainder objects (which do have the defined key/tag)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = tt.tag2String(entry.getKey()).getValue();
+        groupByName = groupByKey[0] + "=" + tt.tag2String(entry.getKey()).getValue();
       } else {
         groupByName = "remainder";
       }
