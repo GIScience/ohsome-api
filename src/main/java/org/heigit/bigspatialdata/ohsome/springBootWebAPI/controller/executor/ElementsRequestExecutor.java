@@ -1053,7 +1053,7 @@ public class ElementsRequestExecutor {
         geom = iV.getBbox().getGeometry();
         break;
       case 2:
-        geom = iV.getBpoint();
+        geom = iV.getBpointGeom();
         break;
       case 3:
         geom = iV.getBpoly();

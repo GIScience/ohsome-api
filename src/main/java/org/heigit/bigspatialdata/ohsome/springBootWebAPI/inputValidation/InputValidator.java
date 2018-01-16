@@ -54,7 +54,7 @@ public class InputValidator {
   private final double defMaxLat = 49.9079;
   private byte boundary;
   private BoundingBox bbox;
-  private Geometry bpoint;
+  private Geometry bpointGeom;
   private Polygon bpoly;
   private final String defEndTime =
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
@@ -366,6 +366,7 @@ public class InputValidator {
         // transform back again
         transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
         geom = JTS.transform(buffer, transform);
+        bpointGeom = geom;
         // returns this geometry if there was only one bpoint given
         if (bpoints.length == 3)
           return geom;
@@ -375,7 +376,8 @@ public class InputValidator {
       geometryCollection = unifyIntersectedPolys(geometryCollection);
       // creates a MultiPolygon out of the polygons in the collection
       MultiPolygon combined = createMultiPolygon(geometryCollection);
-
+      bpointGeom = combined;
+   
       return combined;
     } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
@@ -810,8 +812,8 @@ public class InputValidator {
     return bbox;
   }
 
-  public Geometry getBpoint() {
-    return bpoint;
+  public Geometry getBpointGeom() {
+    return bpointGeom;
   }
 
   public Polygon getBpoly() {
