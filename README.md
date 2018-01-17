@@ -1,7 +1,7 @@
 # OSHDB Web REST API
 
 This REST API aims to leverage the tools of the [oshdb Java API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/core) through allowing to access some of its functionalities via HTTP requests.
-Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST API.
+Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST API and [here](http://129.206.7.121:8044/rest-api/target/site/apidocs/index.html) to access the javadoc, which gets updated daily.
 
 ## Getting Started
 
