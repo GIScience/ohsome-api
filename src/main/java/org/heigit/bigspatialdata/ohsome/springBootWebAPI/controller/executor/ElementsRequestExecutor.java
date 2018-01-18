@@ -1,9 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.executor;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -63,7 +66,8 @@ public class ElementsRequestExecutor {
     Result[] resultSet = new Result[result.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),entry.getValue().intValue());
+      resultSet[count] =
+          new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -113,8 +117,8 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().intValue());
+        results[innerCount] =
+            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -132,8 +136,8 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by boundary.
-   * Sends a request for each boundary object, which makes it quite slow.
+   * Gets the input parameters of the request and performs a count grouped by boundary. Sends a
+   * request for each boundary object, which makes it quite slow.
    */
   @Deprecated
   public ElementsResponseContent executeCountGroupByBoundaryOld(boolean isPost, String[] bboxes,
@@ -293,8 +297,8 @@ public class ElementsRequestExecutor {
       groupByName = "boundary object " + (entry.getKey() + 1);
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().intValue());
+        results[innerCount] =
+            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -381,8 +385,8 @@ public class ElementsRequestExecutor {
       }
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().intValue());
+        results[innerCount] =
+            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -489,8 +493,8 @@ public class ElementsRequestExecutor {
       }
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().intValue());
+        results[innerCount] =
+            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -542,8 +546,8 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().intValue());
+        results[innerCount] =
+            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -720,10 +724,13 @@ public class ElementsRequestExecutor {
         });
     // output
     Result[] resultSet = new Result[result.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          entry.getValue().doubleValue());
+          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
       count++;
     }
     if (isArea) {
@@ -771,10 +778,13 @@ public class ElementsRequestExecutor {
         });
     // output
     Result[] resultSet = new Result[result.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          entry.getValue().doubleValue());
+          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -861,6 +871,9 @@ public class ElementsRequestExecutor {
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by keys
@@ -876,7 +889,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().doubleValue());
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -1000,6 +1013,9 @@ public class ElementsRequestExecutor {
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by tags
@@ -1016,7 +1032,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().doubleValue());
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -1093,6 +1109,9 @@ public class ElementsRequestExecutor {
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1102,7 +1121,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().doubleValue());
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -1174,6 +1193,9 @@ public class ElementsRequestExecutor {
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1183,7 +1205,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            innerEntry.getValue().doubleValue());
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -1229,8 +1251,8 @@ public class ElementsRequestExecutor {
     int count = 0;
     Result[] countResultSet = new Result[countResult.size()];
     for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
-      countResultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          entry.getValue().intValue());
+      countResultSet[count] =
+          new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
       count++;
     }
     // geometry
@@ -1251,10 +1273,14 @@ public class ElementsRequestExecutor {
     }
     // output
     Result[] resultSet = new Result[countResult.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat densityDf = new DecimalFormat("#.##########", otherSymbols);
     for (int i = 0; i < resultSet.length; i++) {
       // gets the timestamp and the results from count and divides it through the area
       String date = countResultSet[i].getTimestamp();
-      double value = (countResultSet[i].getValue() / (Geo.areaOf(geom) / 1000000));
+      double value = Double.parseDouble(
+          densityDf.format((countResultSet[i].getValue() / (Geo.areaOf(geom) / 1000000))));
       resultSet[i] = new Result(date, value);
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -1356,45 +1382,50 @@ public class ElementsRequestExecutor {
       }
     });
 
-    Integer[] whole = new Integer[result.size()];
-    Integer[] part = new Integer[result.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    Double[] whole = new Double[result.size()];
+    Double[] part = new Double[result.size()];
     String[] timeArray = new String[result.size()];
     int partCount = 0;
     int wholeCount = 0;
     // fill whole and part arrays with -1 values to indicate "no value"
     for (int i = 0; i < result.size(); i++) {
-      whole[i] = -1;
-      part[i] = -1;
+      whole[i] = -1.0;
+      part[i] = -1.0;
     }
     // time and value extraction
     for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Number> entry : result.entrySet()) {
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
-        part[partCount] = entry.getValue().intValue();
+        part[partCount] = Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
 
         if (whole[partCount] == null || whole[partCount] == -1)
-          whole[partCount] = entry.getValue().intValue();
-        else
           whole[partCount] =
-              whole[partCount] + entry.getValue().intValue();
+              Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
+        else
+          whole[partCount] = whole[partCount]
+              + Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
 
         partCount++;
       } else {
         // else - set/increase only whole
         if (whole[wholeCount] == null || whole[wholeCount] == -1)
-          whole[wholeCount] = entry.getValue().intValue();
-        else
           whole[wholeCount] =
-              whole[partCount] + entry.getValue().intValue();
+              Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
+        else
+          whole[wholeCount] = whole[partCount]
+              + Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
 
         wholeCount++;
       }
     }
     // remove the possible null values in the arrays
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(Integer[]::new);
-    part = Arrays.stream(part).filter(Objects::nonNull).toArray(Integer[]::new);
+    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(Double[]::new);
+    part = Arrays.stream(part).filter(Objects::nonNull).toArray(Double[]::new);
     // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
@@ -1457,8 +1488,8 @@ public class ElementsRequestExecutor {
     Result[] resultSet1 = new Result[result1.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
-      resultSet1[count] = new Result(entry.getKey().formatIsoDateTime(),
-          entry.getValue().intValue());
+      resultSet1[count] =
+          new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
       count++;
     }
     // output
@@ -1468,8 +1499,8 @@ public class ElementsRequestExecutor {
       // gets the timestamp and the results from both counts and divides 2 through 1
       String date = resultSet1[count].getTimestamp();
       double ratio = entry.getValue().floatValue() / resultSet1[count].getValue();
-      resultSet[count] = new RatioResult(date, resultSet1[count].getValue(),
-          entry.getValue().intValue(), ratio);
+      resultSet[count] =
+          new RatioResult(date, resultSet1[count].getValue(), entry.getValue().intValue(), ratio);
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
