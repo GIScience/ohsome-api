@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
@@ -18,6 +19,7 @@ import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.Application;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.NotImplementedException;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -56,6 +58,9 @@ public class InputValidator {
   private BoundingBox bbox;
   private Geometry bpointGeom;
   private Polygon bpoly;
+  private Collection<Geometry> bboxColl;
+  private Collection<Geometry> bpointColl;
+  private Collection<Geometry> bpolyColl;
   private final String defEndTime =
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
   private final String defStartTime = "2007-11-01";
@@ -101,6 +106,7 @@ public class InputValidator {
     EventHolderBean bean = Application.getEventHolderBean();
     dbConnObjects = bean.getDbConnObjects();
     mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
+
 
     // boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
     boundary = checkBoundary(bboxes, bpoints, bpolys);
@@ -163,7 +169,7 @@ public class InputValidator {
 
   /**
    * Gets the array of points (bounding box, polygon and point [+ radius]) and adds an id before
-   * each element. Works at the moment for bounding boxes and points, but is not used in the current implementation.
+   * each element. Works atm for bboxes and bpoints.
    * 
    * @param boundary <code>String</code> array containing either bounding boxes, polygons, or points
    *        (+ radius).
@@ -207,7 +213,8 @@ public class InputValidator {
         }
         break;
       case "bpoly":
-        break;
+        throw new NotImplementedException(
+            "Using polygons for groupBy/boundary is not implemented yet.");
     }
 
     return boundaryId;
@@ -222,8 +229,8 @@ public class InputValidator {
    *        of the bounding points.
    * @param bpolys <code>String</code> array containing the lon/lat coordinate pairs of the bounding
    *        polygons.
-   * @return <code>Byte</code> defining if no parameter or one bbox (0), bboxes (1), bpoints (2), or bpolys (3)
-   *         are given.
+   * @return <code>Byte</code> defining if no parameter or one bbox (0), bboxes (1), bpoints (2), or
+   *         bpolys (3) are given.
    * @throws BadRequestException The provided boundary parameter does not fit to its format, or more
    *         than one boundary parameter is given.
    */
@@ -314,6 +321,9 @@ public class InputValidator {
       // creation of the first bbox
       this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
       unifiedBbox = gf.createGeometry(this.bbox.getGeometry());
+      // create the collection and add the bbox geometry
+      bboxColl = new LinkedHashSet<Geometry>();;
+      bboxColl.add(this.bbox.getGeometry());
 
       for (int i = 4; i < bboxes.length; i += 4) {
         // parsing of the other bboxes values
@@ -322,6 +332,8 @@ public class InputValidator {
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
         this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+        // add it to the geometry collection
+        bboxColl.add(this.bbox.getGeometry());
         // union of the bboxes
         unifiedBbox = unifiedBbox.union(this.bbox.getGeometry());
       }
@@ -350,7 +362,7 @@ public class InputValidator {
     CoordinateReferenceSystem sourceCRS;
     CoordinateReferenceSystem targetCRS;
     MathTransform transform = null;
-    Collection<Geometry> geometryCollection = new HashSet<Geometry>();
+    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     try {
       // walks through all bounding points, creates polygons and adds them to the collection
       for (int i = 0; i < bpoints.length; i += 3) {
@@ -372,12 +384,14 @@ public class InputValidator {
           return geom;
         geometryCollection.add(geom);
       }
+      // set the geometryCollection to be accessible for /groupBy/boundary
+      bpointColl = geometryCollection;
       // unifies polygons that intersect with each other
       geometryCollection = unifyIntersectedPolys(geometryCollection);
       // creates a MultiPolygon out of the polygons in the collection
       MultiPolygon combined = createMultiPolygon(geometryCollection);
       bpointGeom = combined;
-   
+
       return combined;
     } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
@@ -396,11 +410,9 @@ public class InputValidator {
    * 
    * @throws BadRequestException Invalid coordinates.
    */
-  private Geometry createBpolys(String[] bpolys)
-      throws BadRequestException {
+  private Geometry createBpolys(String[] bpolys) throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
-
     // checks if the first and last coordinate pairs are the same (= only 1 polygon)
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
@@ -418,18 +430,15 @@ public class InputValidator {
       }
       // creates a polygon from the coordinates
       this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
-
       return this.bpoly;
     } else {
 
-      Collection<Geometry> geometryCollection = new HashSet<Geometry>();
+      Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
       Coordinate firstPoint;
-
       try {
         // sets the first point and adds it to the arraylist
         firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
         coords.add(firstPoint);
-
         // walks through all remaining coordinates, creates polygons and adds them to the collection
         for (int i = 2; i < bpolys.length; i += 2) {
           // compares the current point to the first point
@@ -454,6 +463,8 @@ public class InputValidator {
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
+        // set the geometryCollection to be accessible for /groupBy/boundary
+        bpolyColl = geometryCollection;
         // unifies polygons that intersect with each other
         geometryCollection = unifyIntersectedPolys(geometryCollection);
         // creates a MultiPolygon out of the polygons in the collection
@@ -545,7 +556,8 @@ public class InputValidator {
     return osmTypes;
   }
 
-  private MapReducer<OSMEntitySnapshot> checkKeysValues (MapReducer<OSMEntitySnapshot> mapRed, String[] keys, String[] values) {
+  private MapReducer<OSMEntitySnapshot> checkKeysValues(MapReducer<OSMEntitySnapshot> mapRed,
+      String[] keys, String[] values) {
     if (keys.length < values.length) {
       throw new BadRequestException(
           "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
@@ -572,7 +584,7 @@ public class InputValidator {
     }
     return mapRed;
   }
-  
+
   /**
    * Checks the content of the userids <code>String</code> array.
    * 
@@ -749,11 +761,12 @@ public class InputValidator {
   }
 
   /**
-   * Unifies polygons, which intersect with each other and adds the unified polygons to the collection.
+   * Unifies polygons, which intersect with each other and adds the unified polygons to the
+   * collection.
    * 
    * @param collection <code>Collection</code> that includes all polygons.
-   * @return Collection that includes unified polygons created from intersected polygons
-   *         and other polygons, which do not intersect with any other polygon.
+   * @return Collection that includes unified polygons created from intersected polygons and other
+   *         polygons, which do not intersect with any other polygon.
    */
   private Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
     // converts the collection to an array
@@ -773,7 +786,7 @@ public class InputValidator {
       }
     }
     // convert the array back to a collection
-    collection = new HashSet<Geometry>(Arrays.asList(polys));
+    collection = new LinkedHashSet<Geometry>(Arrays.asList(polys));
     return collection;
   }
 
@@ -800,10 +813,38 @@ public class InputValidator {
     return combined;
   }
 
+  /**
+   * Creates the <code>Geometry</code> for each boundary object in the given <code>String</code>
+   * array.
+   * 
+   * @param boundary <code>String</code> array containing bboxes, bpoints, or bpolys.
+   * @param type <code>String</code> defining the boundary type (bbox, bpoint, bpoly)
+   * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
+   *         boundary object sorted by the given order of the array.
+   */
+  public ArrayList<Geometry> createGeometry(String[] boundary, String type) {
+
+    ArrayList<Geometry> geoms = new ArrayList<>();
+    switch(type) {
+      case "bbox":
+        // add the bbox geoms from the geometry collection to the arraylist
+        geoms.addAll(bboxColl);
+        break;
+      case "bpoint":
+        // add the bpoint geoms from the geometry collection to the arraylist
+        geoms.addAll(bpointColl);
+        break;
+      case "bpoly":
+        // add the bpoly geoms from the geometry collection to the arraylist
+        geoms.addAll(bpolyColl);
+        break;
+    }
+    return geoms;
+  }
+
   /*
    * Getters start here
    */
-
   public byte getBoundary() {
     return boundary;
   }
@@ -819,4 +860,5 @@ public class InputValidator {
   public Polygon getBpoly() {
     return bpoly;
   }
+
 }
