@@ -7,11 +7,11 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregation
 public class RatioResult {
 
   private String timestamp;
-  private String value;
-  private String value2;
-  private String ratio;
+  private double value;
+  private double value2;
+  private double ratio;
 
-  public RatioResult(String timestamp, String value, String value2, String ratio) {
+  public RatioResult(String timestamp, double value, double value2, double ratio) {
     this.timestamp = timestamp;
     this.value = value;
     this.value2 = value2;
@@ -22,15 +22,15 @@ public class RatioResult {
     return timestamp;
   }
 
-  public String getValue() {
+  public double getValue() {
     return value;
   }
   
-  public String getValue2() {
+  public double getValue2() {
     return value2;
   }
   
-  public String getRatio() {
+  public double getRatio() {
     return ratio;
   }
 }

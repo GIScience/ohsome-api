@@ -7,9 +7,9 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregation
 public class Result {
 
   private String timestamp;
-  private String value;
+  private double value;
 
-  public Result(String timestamp, String value) {
+  public Result(String timestamp, double value) {
     this.timestamp = timestamp;
     this.value = value;
   }
@@ -18,7 +18,7 @@ public class Result {
     return timestamp;
   }
 
-  public String getValue() {
+  public double getValue() {
     return value;
   }
 }

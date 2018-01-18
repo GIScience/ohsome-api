@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result
 public class ShareResult {
   private String timestamp;
-  private String whole;
-  private String part;
+  private double whole;
+  private double part;
 
-  public ShareResult(String timestamp, String whole, String part) {
+  public ShareResult(String timestamp, double whole, double part) {
     this.timestamp = timestamp;
     this.whole = whole;
     this.part = part;
@@ -23,11 +23,11 @@ public class ShareResult {
     return timestamp;
   }
 
-  public String getWhole() {
+  public double getWhole() {
     return whole;
   }
 
-  public String getPart() {
+  public double getPart() {
     return part;
   }
 }

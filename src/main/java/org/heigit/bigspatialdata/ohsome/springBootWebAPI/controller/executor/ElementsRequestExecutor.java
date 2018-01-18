@@ -63,8 +63,7 @@ public class ElementsRequestExecutor {
     Result[] resultSet = new Result[result.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          String.valueOf(entry.getValue().intValue()));
+      resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),entry.getValue().intValue());
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -115,7 +114,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -190,7 +189,7 @@ public class ElementsRequestExecutor {
       // iterate over each entry in the map containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> entry : map.entrySet()) {
         results[innerCount] =
-            new Result(entry.getKey().formatIsoDateTime(), String.valueOf(entry.getValue()));
+            new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
         innerCount++;
       }
       resultSet[count - 1] = new GroupByResult(boundaryDescr + String.valueOf(count), results);
@@ -295,7 +294,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -383,7 +382,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -491,7 +490,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -544,7 +543,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -633,38 +632,43 @@ public class ElementsRequestExecutor {
       return hasTags;
     }).count();
 
-    String[] whole = new String[result.size()];
-    String[] part = new String[result.size()];
+    Integer[] whole = new Integer[result.size()];
+    Integer[] part = new Integer[result.size()];
     String[] timeArray = new String[result.size()];
     int partCount = 0;
     int wholeCount = 0;
+    // fill whole and part arrays with -1 values to indicate "no value"
+    for (int i = 0; i < result.size(); i++) {
+      whole[i] = -1;
+      part[i] = -1;
+    }
     // time and value extraction
     for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Integer> entry : result.entrySet()) {
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
-        part[partCount] = String.valueOf(entry.getValue());
+        part[partCount] = entry.getValue();
 
-        if (whole[partCount] == null || whole[partCount].isEmpty())
-          whole[partCount] = String.valueOf(entry.getValue());
+        if (whole[partCount] == null || whole[partCount] == -1)
+          whole[partCount] = entry.getValue();
         else
-          whole[partCount] = String.valueOf(Integer.valueOf(whole[partCount]) + entry.getValue());
+          whole[partCount] = whole[partCount] + entry.getValue();
 
         partCount++;
       } else {
         // else - set/increase only whole
-        if (whole[wholeCount] == null || whole[wholeCount].isEmpty())
-          whole[wholeCount] = String.valueOf(entry.getValue());
+        if (whole[wholeCount] == null || whole[wholeCount] == -1)
+          whole[wholeCount] = entry.getValue();
         else
-          whole[wholeCount] = String.valueOf(Integer.valueOf(whole[wholeCount]) + entry.getValue());
+          whole[wholeCount] = whole[wholeCount] + entry.getValue();
 
         wholeCount++;
       }
     }
     // remove the possible null values in the arrays
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(String[]::new);
-    part = Arrays.stream(part).filter(Objects::nonNull).toArray(String[]::new);
+    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(Integer[]::new);
+    part = Arrays.stream(part).filter(Objects::nonNull).toArray(Integer[]::new);
     // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
@@ -719,7 +723,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          String.valueOf(entry.getValue().floatValue()));
+          entry.getValue().doubleValue());
       count++;
     }
     if (isArea) {
@@ -770,7 +774,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          String.valueOf(entry.getValue().floatValue()));
+          entry.getValue().doubleValue());
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -872,7 +876,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().doubleValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -1012,7 +1016,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue()));
+            innerEntry.getValue().doubleValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -1098,7 +1102,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue().floatValue()));
+            innerEntry.getValue().doubleValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -1179,7 +1183,7 @@ public class ElementsRequestExecutor {
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
-            String.valueOf(innerEntry.getValue().floatValue()));
+            innerEntry.getValue().doubleValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -1226,7 +1230,7 @@ public class ElementsRequestExecutor {
     Result[] countResultSet = new Result[countResult.size()];
     for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
       countResultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
-          String.valueOf(entry.getValue().intValue()));
+          entry.getValue().intValue());
       count++;
     }
     // geometry
@@ -1250,8 +1254,7 @@ public class ElementsRequestExecutor {
     for (int i = 0; i < resultSet.length; i++) {
       // gets the timestamp and the results from count and divides it through the area
       String date = countResultSet[i].getTimestamp();
-      String value = String
-          .valueOf((Float.parseFloat(countResultSet[i].getValue()) / (Geo.areaOf(geom) / 1000000)));
+      double value = (countResultSet[i].getValue() / (Geo.areaOf(geom) / 1000000));
       resultSet[i] = new Result(date, value);
     }
     long duration = System.currentTimeMillis() - startTime;
@@ -1353,40 +1356,45 @@ public class ElementsRequestExecutor {
       }
     });
 
-    String[] whole = new String[result.size()];
-    String[] part = new String[result.size()];
+    Integer[] whole = new Integer[result.size()];
+    Integer[] part = new Integer[result.size()];
     String[] timeArray = new String[result.size()];
     int partCount = 0;
     int wholeCount = 0;
+    // fill whole and part arrays with -1 values to indicate "no value"
+    for (int i = 0; i < result.size(); i++) {
+      whole[i] = -1;
+      part[i] = -1;
+    }
     // time and value extraction
     for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Number> entry : result.entrySet()) {
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
-        part[partCount] = String.valueOf(entry.getValue());
+        part[partCount] = entry.getValue().intValue();
 
-        if (whole[partCount] == null || whole[partCount].isEmpty())
-          whole[partCount] = String.valueOf(entry.getValue());
+        if (whole[partCount] == null || whole[partCount] == -1)
+          whole[partCount] = entry.getValue().intValue();
         else
           whole[partCount] =
-              String.valueOf(Float.valueOf(whole[partCount]) + entry.getValue().floatValue());
+              whole[partCount] + entry.getValue().intValue();
 
         partCount++;
       } else {
         // else - set/increase only whole
-        if (whole[wholeCount] == null || whole[wholeCount].isEmpty())
-          whole[wholeCount] = String.valueOf(entry.getValue());
+        if (whole[wholeCount] == null || whole[wholeCount] == -1)
+          whole[wholeCount] = entry.getValue().intValue();
         else
           whole[wholeCount] =
-              String.valueOf(Float.valueOf(whole[partCount]) + entry.getValue().floatValue());
+              whole[partCount] + entry.getValue().intValue();
 
         wholeCount++;
       }
     }
     // remove the possible null values in the arrays
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(String[]::new);
-    part = Arrays.stream(part).filter(Objects::nonNull).toArray(String[]::new);
+    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(Integer[]::new);
+    part = Arrays.stream(part).filter(Objects::nonNull).toArray(Integer[]::new);
     // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
@@ -1450,7 +1458,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
       resultSet1[count] = new Result(entry.getKey().formatIsoDateTime(),
-          String.valueOf(entry.getValue().intValue()));
+          entry.getValue().intValue());
       count++;
     }
     // output
@@ -1459,10 +1467,9 @@ public class ElementsRequestExecutor {
     for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
       // gets the timestamp and the results from both counts and divides 2 through 1
       String date = resultSet1[count].getTimestamp();
-      String ratio = String
-          .valueOf(entry.getValue().floatValue() / Float.parseFloat(resultSet1[count].getValue()));
-      resultSet[count] = new RatioResult(date, String.valueOf(resultSet1[count].getValue()),
-          String.valueOf(entry.getValue().intValue()), ratio);
+      double ratio = entry.getValue().floatValue() / resultSet1[count].getValue();
+      resultSet[count] = new RatioResult(date, resultSet1[count].getValue(),
+          entry.getValue().intValue(), ratio);
       count++;
     }
     long duration = System.currentTimeMillis() - startTime;
