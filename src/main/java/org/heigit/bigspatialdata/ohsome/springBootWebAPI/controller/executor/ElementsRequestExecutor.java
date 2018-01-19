@@ -42,6 +42,10 @@ import com.vividsolutions.jts.geom.Polygonal;
  */
 public class ElementsRequestExecutor {
 
+  private final String license = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,";
+  private final String copyright =
+      "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
+
   /**
    * Gets the input parameters of the request and performs a count calculation.
    */
@@ -72,9 +76,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, "amount",
             "Total number of elements, which are selected by the parameters.", requestURL),
         null, resultSet, null, null);
@@ -127,10 +129,8 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the type.",
-            requestURL),
+        license, copyright, new MetaData(duration, "amount",
+            "Total number of items aggregated on the type.", requestURL),
         resultSet, null, null, null);
     return response;
   }
@@ -201,9 +201,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, "amount",
             "Total number of items aggregated on the bounding objects.", requestURL),
         resultSet, null, null, null);
@@ -307,10 +305,8 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the boundary object.",
-            requestURL),
+        license, copyright, new MetaData(duration, "amount",
+            "Total number of items aggregated on the boundary object.", requestURL),
         resultSet, null, null, null);
     return response;
   }
@@ -395,10 +391,8 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the key.",
-            requestURL),
+        license, copyright, new MetaData(duration, "amount",
+            "Total number of items aggregated on the key.", requestURL),
         resultSet, null, null, null);
     return response;
   }
@@ -503,10 +497,8 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the tag.",
-            requestURL),
+        license, copyright, new MetaData(duration, "amount",
+            "Total number of items aggregated on the tag.", requestURL),
         resultSet, null, null, null);
     return response;
   }
@@ -556,10 +548,8 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     // response
     ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount", "Total number of items aggregated on the userids.",
-            requestURL),
+        license, copyright, new MetaData(duration, "amount",
+            "Total number of items aggregated on the userids.", requestURL),
         resultSet, null, null, null);
     return response;
   }
@@ -680,13 +670,10 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount",
-            "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
-            requestURL),
-        null, null, null, resultSet);
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright, new MetaData(
+        duration, "amount",
+        "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
+        requestURL), null, null, null, resultSet);
     return response;
   }
 
@@ -742,8 +729,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, unit, description, requestURL), null, resultSet, null, null);
     return response;
   }
@@ -789,8 +775,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, "meters", "Total perimeter of polygonal items.", requestURL), null,
         resultSet, null, null);
     return response;
@@ -912,9 +897,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
@@ -1055,9 +1038,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
@@ -1144,9 +1125,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
@@ -1221,9 +1200,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
     return response;
   }
@@ -1285,8 +1262,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "-Hier könnte Ihre Lizenz stehen.-", "-Hier könnte Ihr Copyright stehen.-",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, "items per square-kilometer",
             "Density of selected items (number of items per area).", requestURL),
         null, resultSet, null, null);
@@ -1452,9 +1428,7 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
         new MetaData(duration, unit, description, requestURL), null, null, null, resultSet);
     return response;
   }
@@ -1506,14 +1480,11 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-        "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "amount and ratio",
-            "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
-                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
-            requestURL),
-        null, null, resultSet, null);
+    ElementsResponseContent response = new ElementsResponseContent(license, copyright, new MetaData(
+        duration, "amount and ratio",
+        "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
+            + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
+        requestURL), null, null, resultSet, null);
     return response;
   }
 
