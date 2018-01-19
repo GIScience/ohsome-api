@@ -43,26 +43,32 @@ To be able to test the REST-API with your own requests, you will also need a des
     * has to consist of double-parse able Strings in the format (lon1, lat1, lon2, lat2, meaning bottom left and top right point of each bbox)
     * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
     * if bbox is given, bpoint and bpoly must be null or empty
+    * optional for all resources
 * bpoint
     * has to consist of double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
     * if bpoint is given, bbox and bpoly must be null or empty
+    * optional for all resources
 * bpoly
     * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
     * if bpoly is given, bbox and bpoint must be null or empty
+    * optional for all resources
 * types
     * can be one, two or all three of "node", "way", "relation" in any order
     * if no type is given, all three are used
+    * optional for all resources
 * keys
     * 0...n keys can be used
     * if keys is null or empty, no key will be used (and values must also be null or empty)
+    * optional for all resources
 * values
     * 0...n values can be used, where n <= keys.length and values(n) must refer to keys(n)
     * if values is null or empty, no value will be used
+    * optional for all resources
 * userids
     * 0...n userids can be given
-    * if userids is empty in .../groupBy/user then all affected users are used
+    * if userids is empty, all users are used (and the result is grouped on all affected userids in /groupBy/user)
+    * optional for all resources
 * time
-    * if no time parameter is given, the most recent timestamp is used
     * ten different versions of the time parameter can be provided:
         1. timestamp: YYYY-MM-DD
         2. start/end: YYYY-MM-DD/YYYY-MM-DD
@@ -74,27 +80,27 @@ To be able to test the REST-API with your own requests, you will also need a des
         8. /: / where ‘null’/’null’ equals the earliest and latest timestamp
         9. //period: //PnYnMnD
         10. list of 2-n timestamps separated via a “,” e.g.: 2015-01-01,2015-05-15,2016-03-18
+    * if no time parameter is given, the most recent timestamp is used
     * the forward slashes (/) are a very important part of the parameter and used to recognize which time parameter should be used
     * an absence of the start and|or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
     * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
+    * optional for all resources
 * types2
     * same format as types
-    * used in /ratio requests
+    * optional in /ratio resource, not used in the others
 * keys2
     * same format as keys
-    * used in /ratio and /share requests
+    * optional in /ratio and /share resources, not used in the others
 * values2
     * same format as values
     * used in /ratio and /share requests
+    * optional in /ratio and /share resources, not used in the others
 * groupByKey
     * grouping by elements that have this key only
-    * used in /groupBy/tag
-* groupByKeys
-    * grouping by elements that have these keys
-    * used in groupBy/key
+    * mandatory in /groupBy/tag resource, not used in the others
 * groupByValues
     * 0...n groupByValues can be used, where n <= groupByKey.length and groupByValues(n) must refer to groupByKey(n)
-    * used in groupBy/tag
+    * optional in /groupBy/tag resource, not used in the others
 
 ### Implemented URIs
 
@@ -110,11 +116,11 @@ POST request data can only be sent in the format *application/x-www-form-urlenco
         * /groupBy/user
         * /share
         * /ratio
-    * /length
+    * /length (for line features)
         * /groupBy/tag
         * /groupBy/user
         * /share
-    * /perimeter
+    * /perimeter (for polygonal features)
         * /groupBy/type
         * /groupBy/tag
         * /groupBy/user
@@ -279,7 +285,7 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
 
 ## Tested With
 
-* [Postman](https://www.getpostman.com/) - Software to test REST APIs (e.g. build and send HTTP requests and view the responses)
+* [Postman](https://www.getpostman.com/) - Software to test REST APIs (build and send HTTP requests and view the responses)
 
 ## Authors
 
