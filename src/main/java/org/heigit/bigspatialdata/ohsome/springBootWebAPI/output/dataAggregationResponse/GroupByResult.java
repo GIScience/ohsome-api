@@ -9,16 +9,16 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregation
  */
 public class GroupByResult {
 
-  private String groupByObj;
+  private String groupByObject;
   private Result[] result;
 
-  public GroupByResult(String groupByObj, Result[] result) {
-    this.groupByObj = groupByObj;
+  public GroupByResult(String groupByObject, Result[] result) {
+    this.groupByObject = groupByObject;
     this.result = result;
   }
 
-  public String getGroupByObj() {
-    return groupByObj;
+  public String getGroupByObject() {
+    return groupByObject;
   }
 
   public Result[] getResult() {
