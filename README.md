@@ -128,9 +128,9 @@ POST request data can only be sent in the format *application/x-www-form-urlenco
 
 ## Examples
 
-This section gives you some example request URLs and shows the results returned by the REST API.
+This section gives you some example request URLs and shows the results returned by the REST API (state 2018-01-19).
 
-* http://localhost:8080/elements/count?bboxes=8.6528,49.3683,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes
+* http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes
 <p> 
 Gives the count within the given bounding box for all ways, which have the key “building” and the value “yes” for the time from 2008-01-01 till 2016-01-01 in a two year interval.
 
@@ -139,74 +139,82 @@ Gives the count within the given bounding box for all ways, which have the key �
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "metaData": {
-        "executionTime": 4499,
+        "executionTime": 5539,
         "unit": "amount",
         "description": "Total number of elements, which are selected by the parameters.",
-        "requestURL": "http://localhost:8080/elements/count?bboxes=8.6528,49.3683,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes"
+        "requestURL": "http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes"
     },
     "result": [
         {
             "timestamp": "2008-01-01T00:00:00Z",
-            "value": "1"
+            "value": 1
         },
         {
             "timestamp": "2010-01-01T00:00:00Z",
-            "value": "451"
+            "value": 629
         },
         {
             "timestamp": "2012-01-01T00:00:00Z",
-            "value": "6590"
+            "value": 9359
         },
         {
             "timestamp": "2014-01-01T00:00:00Z",
-            "value": "10961"
+            "value": 16521
         },
         {
             "timestamp": "2016-01-01T00:00:00Z",
-            "value": "13299"
+            "value": 20810
         }
     ]
 }
 ```
 <p>
-* http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2013-01-01/2014-01-01/P1Y&keys=building
+* http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential
 <p> 
-Gives the count grouped by the type within the given bbox for all ways and relations, which have the key "building" for the time from 2013-01-01 till 2014-01-01 in a yearly interval.
+Gives the count grouped by the boundary objects for all ways, which have the key "building" and the value "residential" for the time from 2015-01-01 till 2017-01-01 in a yearly interval.
 
 ```json
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "metaData": {
-        "executionTime": 5171,
+        "executionTime": 7372,
         "unit": "amount",
-        "description": "Total number of items aggregated on the userids.",
-        "requestURL": "http://localhost:8080/elements/count/groupBy/type?bboxes=8.6128,49.3183,8.7294,49.4376&types=way,relation&time=2013-01-01/2014-01-01/P1Y&keys=building"
+        "description": "Total number of items aggregated on the boundary object.",
+        "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential"
     },
     "groupByResult": [
         {
-            "groupByObj": "WAY",
+            "groupByObj": "boundary object 1",
             "result": [
                 {
-                    "timestamp": "2013-01-01T00:00:00Z",
-                    "value": "17461"
+                    "timestamp": "2015-01-01T00:00:00Z",
+                    "value": 9577
                 },
                 {
-                    "timestamp": "2014-01-01T00:00:00Z",
-                    "value": "28406"
+                    "timestamp": "2016-01-01T00:00:00Z",
+                    "value": 10656
+                },
+                {
+                    "timestamp": "2017-01-01T00:00:00Z",
+                    "value": 10911
                 }
             ]
         },
         {
-            "groupByObj": "RELATION",
+            "groupByObj": "boundary object 2",
             "result": [
                 {
-                    "timestamp": "2013-01-01T00:00:00Z",
-                    "value": "49"
+                    "timestamp": "2015-01-01T00:00:00Z",
+                    "value": 926
                 },
                 {
-                    "timestamp": "2014-01-01T00:00:00Z",
-                    "value": "37"
+                    "timestamp": "2016-01-01T00:00:00Z",
+                    "value": 1037
+                },
+                {
+                    "timestamp": "2017-01-01T00:00:00Z",
+                    "value": 1058
                 }
             ]
         }
@@ -214,40 +222,50 @@ Gives the count grouped by the type within the given bbox for all ways and relat
 }
 ```
 <p>
-* http://localhost:8080/elements/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-11-01/2017-11-01/P2Y&keys=highway&values=residential&types2=way&keys2=highway,maxspeed&values2=residential
+* http://localhost:8080/elements/count/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-05-01/2017-05-01/P2Y&keys=building&types2=node&keys2=addr:housenumber
 <p>
-Gives the ratio within the given bounding polygon for all residential highways with a maxspeed compared to the total number of residential highways for the time from 2009-05-01 till 2017-05-01 in a two year interval.
+Gives the values and the ratio within the given bounding polygon for all nodes with the key "addr:housenumber" compared to the total number of objects with the type "way" and the key "building" for the time from 2009-05-01 till 2017-05-01 in a two year interval.
 
 ```json
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "metaData": {
-        "executionTime": 9058,
-        "unit": "ratio",
-        "description": "Ratio of items satisfying types2, keys2, values2 within items are selected by types, keys, values.",
-        "requestURL": "http://localhost:8080/elements/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-11-01/2017-11-01/P2Y&keys=highway&values=residential&types2=way&keys2=highway,maxspeed&values2=residential"
+        "executionTime": 11063,
+        "unit": "amount and ratio",
+        "description": "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
+        "requestURL": "http://localhost:8080/elements/count/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-05-01/2017-05-01/P2Y&keys=building&types2=node&keys2=addr:housenumber"
     },
-    "result": [
+    "ratioResult": [
         {
-            "timestamp": "2009-11-01T00:00:00Z",
-            "value": "0.32243815"
+            "timestamp": "2009-05-01T00:00:00Z",
+            "value": 297,
+            "value2": 130,
+            "ratio": 0.4377104377104377
         },
         {
-            "timestamp": "2011-11-01T00:00:00Z",
-            "value": "0.4064665"
+            "timestamp": "2011-05-01T00:00:00Z",
+            "value": 5889,
+            "value2": 1354,
+            "ratio": 0.22992019018509086
         },
         {
-            "timestamp": "2013-11-01T00:00:00Z",
-            "value": "0.48918355"
+            "timestamp": "2013-05-01T00:00:00Z",
+            "value": 17204,
+            "value2": 1422,
+            "ratio": 0.08265519646593815
         },
         {
-            "timestamp": "2015-11-01T00:00:00Z",
-            "value": "0.5744681"
+            "timestamp": "2015-05-01T00:00:00Z",
+            "value": 25265,
+            "value2": 1943,
+            "ratio": 0.07690480902434198
         },
         {
-            "timestamp": "2017-11-01T00:00:00Z",
-            "value": "0.6723485"
+            "timestamp": "2017-05-01T00:00:00Z",
+            "value": 27818,
+            "value2": 2080,
+            "ratio": 0.0747717305341865
         }
     ]
 }
