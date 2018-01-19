@@ -1400,7 +1400,8 @@ public class ElementsRequestExecutor {
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
-        part[partCount] = Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
+        part[partCount] =
+            Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
 
         if (whole[partCount] == null || whole[partCount] == -1)
           whole[partCount] =
@@ -1508,8 +1509,9 @@ public class ElementsRequestExecutor {
     ElementsResponseContent response = new ElementsResponseContent(
         "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
         "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-        new MetaData(duration, "ratio",
-            "Ratio of items satisfying types2, keys2, values2 within items selected by types, keys, values.",
+        new MetaData(duration, "amount and ratio",
+            "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
+                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
             requestURL),
         null, null, resultSet, null);
     return response;
