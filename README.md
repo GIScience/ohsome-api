@@ -191,7 +191,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
     },
     "groupByResult": [
         {
-            "groupByObj": "boundary object 1",
+            "groupByObject": "boundary object 1",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
