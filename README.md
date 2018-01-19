@@ -98,32 +98,33 @@ To be able to test the REST-API with your own requests, you will also need a des
 
 ### Implemented URIs
 
-This gives you an overview of resources that are already implemented and can therefore be accessed (state 2018-01-15).
+This gives you an overview of resources that are already implemented and can therefore be accessed (state 2018-01-19).
 All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed its limit (e.g. when using a lot of bboxes or complex polygons).
 POST request data can only be sent in the format *application/x-www-form-urlencoded*.
 
-* /elements/count
-* /elements/count/groupBy/bbox (atm still quite slow for more bboxes)
-* /elements/count/groupBy/type
-* /elements/count/groupBy/tag
-* /elements/count/groupBy/user
-* /elements/count/share
-* /elements/count/ratio
-* /elements/length
-* /elements/length/groupBy/tag
-* /elements/length/groupBy/user
-* /elements/length/share
-* /elements/perimeter
-* /elements/perimeter/groupBy/type
-* /elements/perimeter/groupBy/tag
-* /elements/perimeter/groupBy/user
-* /elements/perimeter/share
-* /elements/area
-* /elements/area/groupBy/type
-* /elements/area/groupBy/tag
-* /elements/area/groupBy/user
-* /elements/area/share
-* /elements/density
+* /elements
+    * /count
+        * /groupBy/boundary
+        * /groupBy/type
+        * /groupBy/tag
+        * /groupBy/user
+        * /share
+        * /ratio
+    * /length
+        * /groupBy/tag
+        * /groupBy/user
+        * /share
+    * /perimeter
+        * /groupBy/type
+        * /groupBy/tag
+        * /groupBy/user
+        * /share
+    * /area
+        * /groupBy/type
+        * /groupBy/tag
+        * /groupBy/user
+        * /share
+    * /density
 
 ## Examples
 
