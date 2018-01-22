@@ -1,21 +1,21 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse;
 
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
- * Represents the outer JSON response object for the data aggregation requests. It contains the
- * requested
+ * Represents the outer JSON response object for the data aggregation requests that do not use the
+ * /groupBy resource. It contains the license and copyright, optional
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData MetaData} as well as the
+ * results section showing either
  * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result
- * Result} (in a groupBy response the
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.GroupByResult
- * GroupByResult}, in a ratio response the
+ * Result},
  * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.RatioResult
- * RatioResult}, or in a share response the
+ * RatioResult}, or
  * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ShareResult
- * ShareResult}), as well as additional
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData MetaData}.
+ * ShareResult} objects.
  *
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result

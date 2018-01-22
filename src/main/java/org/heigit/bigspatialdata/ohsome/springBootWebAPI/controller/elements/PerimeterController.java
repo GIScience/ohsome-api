@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,11 +53,11 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   @RequestMapping("/groupBy/type")
-  public ElementsResponseContent getPerimeterGroupByType(
+  public GroupByResponseContent getPerimeterGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -79,11 +80,11 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   @RequestMapping("/groupBy/user")
-  public ElementsResponseContent getPerimeterGroupByUser(
+  public GroupByResponseContent getPerimeterGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -113,11 +114,11 @@ public class PerimeterController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   @RequestMapping("/groupBy/tag")
-  public ElementsResponseContent getPerimeterGroupByTag(
+  public GroupByResponseContent getPerimeterGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
       @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
@@ -136,8 +137,8 @@ public class PerimeterController {
   }
 
   /**
-   * GET request giving the perimeter of items satisfying keys, values (+ other params) and part of items
-   * satisfying keys2, values2.(+ other params).
+   * GET request giving the perimeter of items satisfying keys, values (+ other params) and part of
+   * items satisfying keys2, values2.(+ other params).
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
@@ -169,7 +170,7 @@ public class PerimeterController {
     return executor.executeLengthPerimeterAreaShare((byte) 2, false, bboxes, bpoints, bpolys, types,
         keys, values, userids, time, keys2, values2);
   }
-  
+
   /**
    * POST request giving the perimeter of polygonal OSM objects. POST requests should only be used
    * if the request URL would be too long for a GET request.
@@ -200,12 +201,12 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterGroupByType(String[] bboxes, String[] bpoints,
+  public GroupByResponseContent postPerimeterGroupByType(String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time) throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -229,12 +230,12 @@ public class PerimeterController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterGroupByTag(String[] bboxes, String[] bpoints,
+  public GroupByResponseContent postPerimeterGroupByTag(String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -252,12 +253,12 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterGroupByUser(String[] bboxes, String[] bpoints,
+  public GroupByResponseContent postPerimeterGroupByUser(String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time) throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -285,9 +286,9 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterShare(String[] bboxes, String[] bpoints, String[] bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String[] keys2, String[] values2)
+  public ElementsResponseContent postPerimeterShare(String[] bboxes, String[] bpoints,
+      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();

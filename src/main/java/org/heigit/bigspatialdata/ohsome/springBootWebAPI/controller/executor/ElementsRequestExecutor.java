@@ -20,10 +20,11 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputVa
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.interceptor.ElementsRequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.RatioResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ShareResult;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResponseContent;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
@@ -87,7 +88,7 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by type.
    */
-  public ElementsResponseContent executeCountGroupByType(boolean isPost, String[] bboxes,
+  public GroupByResponseContent executeCountGroupByType(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time) throws UnsupportedOperationException, Exception {
 
@@ -128,10 +129,10 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
+    GroupByResponseContent response = new GroupByResponseContent(
         license, copyright, new MetaData(duration, "amount",
             "Total number of items aggregated on the type.", requestURL),
-        resultSet, null, null, null);
+        null, resultSet, null, null, null);
     return response;
   }
 
@@ -211,7 +212,7 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by boundary.
    */
-  public ElementsResponseContent executeCountGroupByBoundary(boolean isPost, String[] bboxes,
+  public GroupByResponseContent executeCountGroupByBoundary(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time) throws UnsupportedOperationException, Exception {
 
@@ -292,7 +293,7 @@ public class ElementsRequestExecutor {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       // set the name of the current boundary object
-      groupByName = "boundary object " + (entry.getKey() + 1);
+      groupByName = (entry.getKey() + 1) + "";
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
@@ -304,17 +305,17 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
+    GroupByResponseContent response = new GroupByResponseContent(
         license, copyright, new MetaData(duration, "amount",
             "Total number of items aggregated on the boundary object.", requestURL),
-        resultSet, null, null, null);
+        resultSet, null, null, null, null);
     return response;
   }
 
   /**
    * Gets the input parameters of the request and performs a count grouped by key.
    */
-  public ElementsResponseContent executeCountGroupByKey(boolean isPost, String[] bboxes,
+  public GroupByResponseContent executeCountGroupByKey(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
@@ -390,17 +391,17 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
+    GroupByResponseContent response = new GroupByResponseContent(
         license, copyright, new MetaData(duration, "amount",
             "Total number of items aggregated on the key.", requestURL),
-        resultSet, null, null, null);
+        null, null, resultSet, null, null);
     return response;
   }
 
   /**
    * Gets the input parameters of the request and performs a count grouped by tag.
    */
-  public ElementsResponseContent executeCountGroupByTag(boolean isPost, String[] bboxes,
+  public GroupByResponseContent executeCountGroupByTag(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception {
@@ -496,17 +497,17 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
+    GroupByResponseContent response = new GroupByResponseContent(
         license, copyright, new MetaData(duration, "amount",
             "Total number of items aggregated on the tag.", requestURL),
-        resultSet, null, null, null);
+        null, null, null, resultSet, null);
     return response;
   }
 
   /**
    * Gets the input parameters of the request and performs a count grouped by user.
    */
-  public ElementsResponseContent executeCountGroupByUser(boolean isPost, String[] bboxes,
+  public GroupByResponseContent executeCountGroupByUser(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time) throws UnsupportedOperationException, Exception {
 
@@ -547,10 +548,10 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(
+    GroupByResponseContent response = new GroupByResponseContent(
         license, copyright, new MetaData(duration, "amount",
             "Total number of items aggregated on the userids.", requestURL),
-        resultSet, null, null, null);
+        null, null, null, null, resultSet);
     return response;
   }
 
@@ -787,7 +788,7 @@ public class ElementsRequestExecutor {
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
-  public ElementsResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
+  public GroupByResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
       boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
       String[] keys, String[] values, String[] userids, String[] time, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
@@ -897,8 +898,8 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
+        new MetaData(duration, unit, description, requestURL), null, null, resultSet, null, null);
     return response;
   }
 
@@ -908,7 +909,7 @@ public class ElementsRequestExecutor {
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
-  public ElementsResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
+  public GroupByResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
       boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
       String[] keys, String[] values, String[] userids, String[] time, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
@@ -1038,8 +1039,8 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
+        new MetaData(duration, unit, description, requestURL), null, null, null, resultSet, null);
     return response;
   }
 
@@ -1049,7 +1050,7 @@ public class ElementsRequestExecutor {
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
-  public ElementsResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
+  public GroupByResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
       boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
       String[] keys, String[] values, String[] userids, String[] time)
       throws UnsupportedOperationException, Exception {
@@ -1125,8 +1126,8 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
+        new MetaData(duration, unit, description, requestURL), null, null, null, null, resultSet);
     return response;
   }
 
@@ -1136,7 +1137,7 @@ public class ElementsRequestExecutor {
    * 
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    */
-  public ElementsResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
+  public GroupByResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
       String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time)
       throws UnsupportedOperationException, Exception {
@@ -1200,8 +1201,8 @@ public class ElementsRequestExecutor {
     }
     long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), resultSet, null, null, null);
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
+        new MetaData(duration, unit, description, requestURL), null, resultSet, null, null, null);
     return response;
   }
 
