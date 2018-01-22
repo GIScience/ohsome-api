@@ -189,7 +189,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
         "description": "Total number of items aggregated on the boundary object.",
         "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential"
     },
-    "groupByResult": [
+    "groupByBoundaryResult": [
         {
             "groupByObject": "boundary object 1",
             "result": [
