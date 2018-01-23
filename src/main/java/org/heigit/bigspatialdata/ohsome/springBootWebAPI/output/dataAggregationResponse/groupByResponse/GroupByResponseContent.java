@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse;
 
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.Metadata;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -19,20 +19,20 @@ public class GroupByResponseContent {
 
   private String license;
   private String copyright;
-  private MetaData metaData;
+  private Metadata metadata;
   private GroupByResult[] groupByBoundaryResult;
   private GroupByResult[] groupByTypeResult;
   private GroupByResult[] groupByKeyResult;
   private GroupByResult[] groupByTagResult;
   private GroupByResult[] groupByUserResult;
 
-  public GroupByResponseContent(String license, String copyright, MetaData metaData,
+  public GroupByResponseContent(String license, String copyright, Metadata metadata,
       GroupByResult[] groupByBoundaryResult, GroupByResult[] groupByTypeResult,
       GroupByResult[] groupByKeyResult, GroupByResult[] groupByTagResult,
       GroupByResult[] groupByUserResult) {
     this.license = license;
     this.copyright = copyright;
-    this.metaData = metaData;
+    this.metadata = metadata;
     this.groupByBoundaryResult = groupByBoundaryResult;
     this.groupByTypeResult = groupByTypeResult;
     this.groupByKeyResult = groupByKeyResult;
@@ -48,8 +48,8 @@ public class GroupByResponseContent {
     return copyright;
   }
 
-  public MetaData getMetaData() {
-    return metaData;
+  public Metadata getMetaData() {
+    return metadata;
   }
 
   public GroupByResult[] getGroupByBoundaryResult() {

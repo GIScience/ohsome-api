@@ -11,17 +11,19 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  *
  */
 @JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result
-public class MetaData {
+public class Metadata {
 
   private long executionTime;
   private String unit;
   private String description;
+  private String[] idBoundaryCombination;
   private String requestURL;
 
-  public MetaData(long executionTime, String unit, String description, String requestURL) {
+  public Metadata(long executionTime, String unit, String description, String[] idBoundaryCombination, String requestURL) {
     this.executionTime = executionTime;
     this.unit = unit;
     this.description = description;
+    this.idBoundaryCombination = idBoundaryCombination;
     this.requestURL = requestURL;
   }
 
@@ -35,6 +37,10 @@ public class MetaData {
 
   public String getDescription() {
     return description;
+  }
+  
+  public String[] getIdBoundaryCombination() {
+    return idBoundaryCombination;
   }
 
   public String getRequestURL() {

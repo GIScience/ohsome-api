@@ -36,11 +36,11 @@ public class DensityController {
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
       @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time)
+      @RequestParam(value = "time", defaultValue = "") String[] time, @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(false, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    return executor.executeDensity(false, bboxes, bpoints, bpolys, types, keys, values, userids, time, showMetadata);
   }
   
   /**
@@ -57,11 +57,11 @@ public class DensityController {
   @RequestMapping(value = "", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postDensity(String[] bboxes, String[] bpoints, String[] bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time)
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    return executor.executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
 }

@@ -23,6 +23,7 @@ public class EventHolderBean {
    * @param multiThread <code>Boolean</code> parameter to say if multi-threaded processing should be
    *        applied, or not.
    */
+  @SuppressWarnings("resource")
   public void dbConn(String dbPath, String keytablesPath, boolean multiThread) {
     OSHDB_H2 oshdb;
     OSHDB_H2 oshdbKeytables;

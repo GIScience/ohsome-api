@@ -18,7 +18,7 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.eventHolder.EventHolder
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.interceptor.ElementsRequestInterceptor;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.Metadata;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.RatioResult;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result;
@@ -52,7 +52,7 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executeCount(boolean isPost, String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time) throws UnsupportedOperationException, Exception {
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
@@ -63,8 +63,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp().count();
     // output
@@ -75,12 +75,15 @@ public class ElementsRequestExecutor {
           new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount",
+          "Total number of elements, which are selected by the parameters.", null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, "amount",
-            "Total number of elements, which are selected by the parameters.", requestURL),
-        null, resultSet, null, null);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
 
     return response;
   }
@@ -90,7 +93,8 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeCountGroupByType(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
@@ -102,8 +106,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -127,85 +131,15 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    // response
-    GroupByResponseContent response = new GroupByResponseContent(
-        license, copyright, new MetaData(duration, "amount",
-            "Total number of items aggregated on the type.", requestURL),
-        null, resultSet, null, null, null);
-    return response;
-  }
-
-  /**
-   * Gets the input parameters of the request and performs a count grouped by boundary. Sends a
-   * request for each boundary object, which makes it quite slow.
-   */
-  @Deprecated
-  public ElementsResponseContent executeCountGroupByBoundaryOld(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    ArrayList<SortedMap<OSHDBTimestamp, Integer>> reqResults =
-        new ArrayList<SortedMap<OSHDBTimestamp, Integer>>();
-    String requestURL = null;
-    String boundaryDescr;
-    // request url is only returned in output for GET requests
-    if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
-    if (bboxes != null) {
-      boundaryDescr = "bounding box ";
-      for (int i = 0; i < bboxes.length; i += 4) {
-        InputValidator iV = new InputValidator();
-        SortedMap<OSHDBTimestamp, Integer> result;
-        MapReducer<OSMEntitySnapshot> mapRed;
-        // extraction of the bbox
-        String[] bbox = new String[4];
-        bbox[0] = bboxes[i];
-        bbox[1] = bboxes[i + 1];
-        bbox[2] = bboxes[i + 2];
-        bbox[3] = bboxes[i + 3];
-        // input parameter processing
-        mapRed =
-            iV.processParameters(isPost, bbox, bpoints, bpolys, types, keys, values, userids, time);
-        // db result
-        result = mapRed.aggregateByTimestamp().count();
-        // add it to the array and increase counter
-        reqResults.add(result);
-      }
-    } else if (bpoints != null) {
-      boundaryDescr = "bounding point ";
-      // bpoints given
-    } else if (bpolys != null) {
-      boundaryDescr = "bounding polygon ";
-      // bpolys given
-    } else {
-      boundaryDescr = "whole dataset ";
-      // no boundary --> default bbox == whole data
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
+          null, requestURL);
     }
-    // output
-    GroupByResult[] resultSet = new GroupByResult[reqResults.size()];
-    int count = 1;
-    int innerCount = 0;
-    // iterate over each result
-    for (SortedMap<OSHDBTimestamp, Integer> map : reqResults) {
-      Result[] results = new Result[map.size()];
-      innerCount = 0;
-      // iterate over each entry in the map containing timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Integer> entry : map.entrySet()) {
-        results[innerCount] =
-            new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
-        innerCount++;
-      }
-      resultSet[count - 1] = new GroupByResult(boundaryDescr + String.valueOf(count), results);
-      count++;
-    }
-    long duration = System.currentTimeMillis() - startTime;
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, "amount",
-            "Total number of items aggregated on the bounding objects.", requestURL),
-        resultSet, null, null, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, resultSet, null, null, null);
     return response;
   }
 
@@ -214,7 +148,8 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeCountGroupByBoundary(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result = null;
@@ -226,8 +161,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // switch on the given boundary parameter
     switch (iV.getBoundary()) {
       case 0:
@@ -303,12 +238,15 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount",
+          "Total number of items aggregated on the boundary object.", null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(
-        license, copyright, new MetaData(duration, "amount",
-            "Total number of items aggregated on the boundary object.", requestURL),
-        resultSet, null, null, null, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, resultSet, null, null, null, null);
     return response;
   }
 
@@ -317,7 +255,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeCountGroupByKey(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String[] groupByKeys)
+      String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -339,8 +277,8 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/key");
     }
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // get the integer values for the given keys
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
@@ -389,12 +327,15 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount", "Total number of items aggregated on the key.",
+          null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(
-        license, copyright, new MetaData(duration, "amount",
-            "Total number of items aggregated on the key.", requestURL),
-        null, null, resultSet, null, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, null, resultSet, null, null);
     return response;
   }
 
@@ -403,8 +344,8 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeCountGroupByTag(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String[] groupByKey, String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      String[] userids, String[] time, String showMetadata, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Integer> result;
@@ -431,8 +372,8 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     }
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // get the integer values for the given keys
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
@@ -495,12 +436,15 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
+          null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(
-        license, copyright, new MetaData(duration, "amount",
-            "Total number of items aggregated on the tag.", requestURL),
-        null, null, null, resultSet, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, null, null, resultSet, null);
     return response;
   }
 
@@ -509,7 +453,8 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeCountGroupByUser(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
@@ -521,8 +466,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -546,12 +491,15 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount",
+          "Total number of items aggregated on the userids.", null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(
-        license, copyright, new MetaData(duration, "amount",
-            "Total number of items aggregated on the userids.", requestURL),
-        null, null, null, null, resultSet);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, null, null, null, resultSet);
     return response;
   }
 
@@ -560,7 +508,7 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executeCountShare(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String[] keys2, String[] values2)
+      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -600,8 +548,8 @@ public class ElementsRequestExecutor {
       }
     }
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
@@ -669,12 +617,16 @@ public class ElementsRequestExecutor {
     for (int i = 0; i < timeArray.length; i++) {
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount",
+          "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
+          null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright, new MetaData(
-        duration, "amount",
-        "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
-        requestURL), null, null, null, resultSet);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
     return response;
   }
 
@@ -685,7 +637,8 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executeLengthArea(boolean isArea, boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws UnsupportedOperationException, Exception {
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
@@ -699,8 +652,8 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
 
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -728,10 +681,14 @@ public class ElementsRequestExecutor {
       unit = "meter";
       description = "Total length of lines.";
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), null, resultSet, null, null);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
   }
 
@@ -740,7 +697,7 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executePerimeter(boolean isPost, String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time) throws UnsupportedOperationException, Exception {
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
@@ -752,8 +709,8 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
 
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -774,11 +731,15 @@ public class ElementsRequestExecutor {
           Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata =
+          new Metadata(duration, "meters", "Total perimeter of polygonal items.", null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, "meters", "Total perimeter of polygonal items.", requestURL), null,
-        resultSet, null, null);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
   }
 
@@ -790,8 +751,8 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
       boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] groupByKeys) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
@@ -813,8 +774,8 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     }
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // get the integer values for the given keys
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
@@ -896,10 +857,14 @@ public class ElementsRequestExecutor {
         description = "Total area of items aggregated on the key.";
         break;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), null, null, resultSet, null, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, null, resultSet, null, null);
     return response;
   }
 
@@ -911,8 +876,8 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
       boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Number> result;
     SortedMap<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
@@ -940,8 +905,8 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     }
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // get the integer values for the given keys
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
@@ -1037,10 +1002,14 @@ public class ElementsRequestExecutor {
         description = "Total area of items aggregated on the tag.";
         break;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), null, null, null, resultSet, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, null, null, resultSet, null);
     return response;
   }
 
@@ -1052,7 +1021,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
       boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time)
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1067,8 +1036,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
@@ -1124,10 +1093,14 @@ public class ElementsRequestExecutor {
         description = "Total area of items aggregated on the userid.";
         break;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), null, null, null, null, resultSet);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, null, null, null, resultSet);
     return response;
   }
 
@@ -1139,7 +1112,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
       String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time)
+      String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1154,8 +1127,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -1199,10 +1172,14 @@ public class ElementsRequestExecutor {
       unit = "meter";
       description = "Total perimeter of items aggregated on the type.";
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, null, requestURL);
+    }
     // response
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), null, resultSet, null, null, null);
+    GroupByResponseContent response =
+        new GroupByResponseContent(license, copyright, metadata, null, resultSet, null, null, null);
     return response;
   }
 
@@ -1211,7 +1188,7 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executeDensity(boolean isPost, String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time) throws UnsupportedOperationException, Exception {
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> countResult;
@@ -1222,8 +1199,8 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     // count result
     countResult = mapRed.aggregateByTimestamp().count();
     int count = 0;
@@ -1261,12 +1238,15 @@ public class ElementsRequestExecutor {
           densityDf.format((countResultSet[i].getValue() / (Geo.areaOf(geom) / 1000000))));
       resultSet[i] = new Result(date, value);
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "items per square-kilometer",
+          "Density of selected items (number of items per area).", null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, "items per square-kilometer",
-            "Density of selected items (number of items per area).", requestURL),
-        null, resultSet, null, null);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
   }
 
@@ -1276,8 +1256,8 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executeLengthPerimeterAreaShare(byte requestType, boolean isPost,
       String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+      String[] values, String[] userids, String[] time, String showMetadata, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Boolean>, Number> result;
@@ -1318,8 +1298,8 @@ public class ElementsRequestExecutor {
       }
     }
     // input parameter processing
-    mapRed =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
@@ -1427,10 +1407,14 @@ public class ElementsRequestExecutor {
             "Total area of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright,
-        new MetaData(duration, unit, description, requestURL), null, null, null, resultSet);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
     return response;
   }
 
@@ -1439,7 +1423,7 @@ public class ElementsRequestExecutor {
    */
   public ElementsResponseContent executeRatio(boolean isPost, String[] bboxes, String[] bpoints,
       String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String[] types2, String[] keys2, String[] values2)
+      String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1453,12 +1437,12 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     // input parameter processing 1 and result 1
-    mapRed1 =
-        iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids, time);
+    mapRed1 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
     result1 = mapRed1.aggregateByTimestamp().count();
     // input parameter processing 2 and result 2
     mapRed2 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types2, keys2, values2, userids,
-        time);
+        time, showMetadata);
     result2 = mapRed2.aggregateByTimestamp().count();
     // resultSet 1
     Result[] resultSet1 = new Result[result1.size()];
@@ -1479,13 +1463,17 @@ public class ElementsRequestExecutor {
           new RatioResult(date, resultSet1[count].getValue(), entry.getValue().intValue(), ratio);
       count++;
     }
+    Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
+    if (iV.getShowMetadata()) {
+      metadata = new Metadata(duration, "amount and ratio",
+          "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
+              + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
+          null, requestURL);
+    }
     // response
-    ElementsResponseContent response = new ElementsResponseContent(license, copyright, new MetaData(
-        duration, "amount and ratio",
-        "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
-            + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
-        requestURL), null, null, resultSet, null);
+    ElementsResponseContent response =
+        new ElementsResponseContent(license, copyright, metadata, null, null, resultSet, null);
     return response;
   }
 

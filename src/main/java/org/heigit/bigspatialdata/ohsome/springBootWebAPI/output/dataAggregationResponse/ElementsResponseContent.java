@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse;
 
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.Metadata;
 import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
  * /groupBy resource. It contains the license and copyright, optional
- * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData MetaData} as well as the
+ * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.Metadata MetaData} as well as the
  * results section showing either
  * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.Result
  * Result},
@@ -23,18 +23,18 @@ public class ElementsResponseContent {
 
   private String license;
   private String copyright;
-  private MetaData metaData;
+  private Metadata metadata;
   private GroupByResult[] groupByResult;
   private Result[] result;
   private RatioResult[] ratioResult;
   private ShareResult[] shareResult;
 
-  public ElementsResponseContent(String license, String copyright, MetaData metaData,
+  public ElementsResponseContent(String license, String copyright, Metadata metadata,
       GroupByResult[] groupByResult, Result[] result, RatioResult[] ratioResult,
       ShareResult[] shareResult) {
     this.license = license;
     this.copyright = copyright;
-    this.metaData = metaData;
+    this.metadata = metadata;
     this.groupByResult = groupByResult;
     this.result = result;
     this.ratioResult = ratioResult;
@@ -49,8 +49,8 @@ public class ElementsResponseContent {
     return copyright;
   }
 
-  public MetaData getMetaData() {
-    return metaData;
+  public Metadata getMetaData() {
+    return metadata;
   }
 
   public GroupByResult[] getGroupByResult() {

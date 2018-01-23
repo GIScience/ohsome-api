@@ -1,7 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataExtractionResponse;
 
 import java.util.ArrayList;
-import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
+import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.Metadata;
 
 /**
  * First level object in the POST JSON response. This was implemented before the detailed concept of
@@ -12,18 +12,18 @@ import org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.MetaData;
 public class DataExtractionResponseContent {
 
   private final String status;
-  private final MetaData metaData;
+  private final Metadata metadata;
   private final ArrayList<OshdbResult> results;
 
   /**
    * @param status
-   * @param metaData
+   * @param metadata
    * @param results
    */
-  public DataExtractionResponseContent(String status, MetaData metaData,
+  public DataExtractionResponseContent(String status, Metadata metadata,
       ArrayList<OshdbResult> results) {
     this.status = status;
-    this.metaData = metaData;
+    this.metadata = metadata;
     this.results = results;
   }
 
@@ -31,8 +31,8 @@ public class DataExtractionResponseContent {
     return status;
   }
 
-  public MetaData getMetaData() {
-    return metaData;
+  public Metadata getMetaData() {
+    return metadata;
   }
 
   public ArrayList<OshdbResult> getResults() {

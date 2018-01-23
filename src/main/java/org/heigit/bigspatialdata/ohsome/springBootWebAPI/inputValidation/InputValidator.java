@@ -55,6 +55,8 @@ public class InputValidator {
   private final double defMinLat = 47.3937;
   private final double defMaxLat = 49.9079;
   private byte boundary;
+  private String[] boundaryIds;
+  private String[] bboxes;
   private BoundingBox bbox;
   private Geometry bpointGeom;
   private Polygon bpoly;
@@ -66,6 +68,7 @@ public class InputValidator {
   private final String defStartTime = "2007-11-01";
   private String[] timeData;
   private EnumSet<OSMType> osmTypes;
+  private boolean showMetadata;
   /**
    * [0]:oshdb [1]:keytables
    */
@@ -75,7 +78,7 @@ public class InputValidator {
    * Method to process the input parameters of a POST or GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
@@ -86,7 +89,7 @@ public class InputValidator {
    */
   public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String[] bboxes,
       String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time) throws BadRequestException {
+      String[] userids, String[] time, String showMetadata) throws BadRequestException {
 
     // check if this method is called from a POST request
     if (isPost) {
@@ -106,14 +109,21 @@ public class InputValidator {
     EventHolderBean bean = Application.getEventHolderBean();
     dbConnObjects = bean.getDbConnObjects();
     mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
-
+    
+    // metadata
+    if (showMetadata.equals("true"))
+      this.showMetadata = true;
+    else if (showMetadata.equals("false") || showMetadata.equals(""))
+      this.showMetadata = false;
+    else
+      throw new BadRequestException("The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
 
     // boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
     boundary = checkBoundary(bboxes, bpoints, bpolys);
     if (boundary == 0) {
       mapRed = mapRed.areaOfInterest(createBbox(bboxes));
     } else if (boundary == 1) {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(bboxes));
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(this.bboxes));
     } else if (boundary == 2) {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygons(bpoints));
     } else if (boundary == 3) {
@@ -237,12 +247,15 @@ public class InputValidator {
   private byte checkBoundary(String[] bboxes, String[] bpoints, String[] bpolys) {
     // checks the given parameters
     if ((bboxes.length == 0 || bboxes.length == 4) && bpoints.length == 0 && bpolys.length == 0) {
+      checkBboxesOnId(bboxes);
       this.boundary = 0;
       return this.boundary;
     } else if (bboxes.length > 4 && bpoints.length == 0 && bpolys.length == 0) {
       if (bboxes.length % 4 != 0)
         throw new BadRequestException(
-            "Each of your provided bboxes must consist of 2 lon/lat points (bottom left and top right).");
+            "Each of your provided bboxes must consist of 2 lon/lat points (bottom left and top right) "
+                + "with an optional name bound to the first coordinate of each bbox with a colon (e.g.: Heidelberg:8.6128,49.3183,...).");
+      checkBboxesOnId(bboxes);
       this.boundary = 1;
       return this.boundary;
     } else if (bboxes.length == 0 && bpoints.length >= 3 && bpolys.length == 0) {
@@ -261,6 +274,38 @@ public class InputValidator {
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format, "
               + "or you defined more than one boundary parameter.");
+  }
+
+  /**
+   * Checks if the first coordinate of each bbox starts with a letter (= custom name).
+   * 
+   * @param bboxes <code>String</code> array containing the bboxes with/without a custom ID.
+   */
+  private void checkBboxesOnId(String[] bboxes) {
+
+    // check if the first entry has a colon
+    if (bboxes[0].contains(":")) {
+      char c = bboxes[0].charAt(0);
+      // check if the first bbox starts with a letter (= custom ids)
+      if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'i') {
+        this.boundaryIds = new String[(bboxes.length / 4)];
+        int count = 0;
+        // look at the first value of each bbox
+        for (int i = 0; i < bboxes.length; i += 4) {
+          String[] idAndBox = bboxes[i].split(":");
+          if (idAndBox[0] == null || idAndBox[0].equals("") || idAndBox[0].equals(bboxes[i]))
+            throw new BadRequestException(
+                "You need to set the custom names of the bounding boxes for either all, or none of them.");
+          boundaryIds[count] = idAndBox[0];
+          bboxes[i] = idAndBox[1];
+          count++;
+        }
+      } else {
+        throw new BadRequestException(
+            "The custom names for your bounding boxes need to start with a letter before the colon of each first coordinate.");
+      }
+    }
+    this.bboxes = bboxes;
   }
 
   /**
@@ -290,11 +335,11 @@ public class InputValidator {
         return this.bbox;
       } catch (NumberFormatException e) {
         throw new BadRequestException(
-            "The bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
+            "Apart from the custom id, the bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
       }
     } else {
       throw new BadRequestException(
-          "The bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
+          "Apart from the custom id, the bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
     }
   }
 
@@ -310,6 +355,7 @@ public class InputValidator {
    * @throws BadRequestException Invalid coordinates.
    */
   private Geometry createBboxes(String[] bboxes) throws BadRequestException {
+
     try {
       Geometry unifiedBbox;
       GeometryFactory gf = new GeometryFactory();
@@ -340,7 +386,7 @@ public class InputValidator {
       return unifiedBbox;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
-          "The bboxeses array must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
+          "Apart from the custom ids, the bboxeses array must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
     }
   }
 
@@ -825,7 +871,7 @@ public class InputValidator {
   public ArrayList<Geometry> createGeometry(String[] boundary, String type) {
 
     ArrayList<Geometry> geoms = new ArrayList<>();
-    switch(type) {
+    switch (type) {
       case "bbox":
         // add the bbox geoms from the geometry collection to the arraylist
         geoms.addAll(bboxColl);
@@ -849,6 +895,10 @@ public class InputValidator {
     return boundary;
   }
 
+  public String[] getBoundaryIds() {
+    return boundaryIds;
+  }
+
   public BoundingBox getBbox() {
     return bbox;
   }
@@ -861,4 +911,7 @@ public class InputValidator {
     return bpoly;
   }
 
+  public boolean getShowMetadata() {
+    return this.showMetadata;
+  }
 }
