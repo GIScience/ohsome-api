@@ -107,7 +107,7 @@ To be able to test the REST-API with your own requests, you will also need a des
 
 ### Implemented URIs
 
-This gives you an overview of resources that are already implemented and can therefore be accessed (state 2018-01-19).
+This gives you an overview of resources that are already implemented and can therefore be accessed.
 All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed its limit (e.g. when using a lot of bboxes or complex polygons).
 POST request data can only be sent in the format *application/x-www-form-urlencoded*.
 
@@ -137,7 +137,7 @@ POST request data can only be sent in the format *application/x-www-form-urlenco
 
 ## Examples
 
-This section gives you some example request URLs and shows the results returned by the REST API (state 2018-01-19).
+This section gives you some example request URLs and shows the results returned by the REST API.
 
 * http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes
 <p> 
