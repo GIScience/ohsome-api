@@ -85,6 +85,9 @@ To be able to test the REST-API with your own requests, you will also need a des
     * an absence of the start and|or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
     * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
     * optional for all resources
+* showMetadata
+    * can have the values 'true' or 'false'
+    * if empty, 'false' is used as default
 * types2
     * same format as types
     * optional in /ratio resource, not used in the others
@@ -144,12 +147,6 @@ Gives the count within the given bounding box for all ways, which have the key â
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    "metaData": {
-        "executionTime": 5539,
-        "unit": "amount",
-        "description": "Total number of elements, which are selected by the parameters.",
-        "requestURL": "http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes"
-    },
     "result": [
         {
             "timestamp": "2008-01-01T00:00:00Z",
@@ -175,7 +172,7 @@ Gives the count within the given bounding box for all ways, which have the key â
 }
 ```
 <p>
-* http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential
+* http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true
 <p> 
 Gives the count grouped by the boundary objects for all ways, which have the key "building" and the value "residential" for the time from 2015-01-01 till 2017-01-01 in a yearly interval.
 
@@ -183,15 +180,9 @@ Gives the count grouped by the boundary objects for all ways, which have the key
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    "metaData": {
-        "executionTime": 7372,
-        "unit": "amount",
-        "description": "Total number of items aggregated on the boundary object.",
-        "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential"
-    },
     "groupByBoundaryResult": [
         {
-            "groupByObject": "boundary object 1",
+            "groupByObject": "1",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
@@ -208,7 +199,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
             ]
         },
         {
-            "groupByObject": "boundary object 2",
+            "groupByObject": "2",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
@@ -224,7 +215,13 @@ Gives the count grouped by the boundary objects for all ways, which have the key
                 }
             ]
         }
-    ]
+    ],
+    "metaData": {
+        "executionTime": 7428,
+        "unit": "amount",
+        "description": "Total number of items aggregated on the boundary object.",
+        "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true"
+    }
 }
 ```
 <p>
@@ -236,12 +233,6 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    "metaData": {
-        "executionTime": 11063,
-        "unit": "amount and ratio",
-        "description": "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
-        "requestURL": "http://localhost:8080/elements/count/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-05-01/2017-05-01/P2Y&keys=building&types2=node&keys2=addr:housenumber"
-    },
     "ratioResult": [
         {
             "timestamp": "2009-05-01T00:00:00Z",
@@ -273,7 +264,13 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
             "value2": 2080,
             "ratio": 0.0747717305341865
         }
-    ]
+    ],
+    "metaData": {
+        "executionTime": 12396,
+        "unit": "amount and ratio",
+        "description": "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
+        "requestURL": "http://localhost:8080/elements/count/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-05-01/2017-05-01/P2Y&keys=building&types2=node&keys2=addr:housenumber&showMetadata=true"
+    }
 }
 ```
 
