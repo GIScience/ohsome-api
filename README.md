@@ -217,7 +217,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
             ]
         }
     ],
-    "metaData": {
+    "metadata": {
         "executionTime": 7428,
         "unit": "amount",
         "description": "Total number of items aggregated on the boundary object.",
@@ -266,7 +266,7 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
             "ratio": 0.0747717305341865
         }
     ],
-    "metaData": {
+    "metadata": {
         "executionTime": 12396,
         "unit": "amount and ratio",
         "description": "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
