@@ -109,14 +109,15 @@ public class InputValidator {
     EventHolderBean bean = Application.getEventHolderBean();
     dbConnObjects = bean.getDbConnObjects();
     mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
-    
+
     // metadata
     if (showMetadata.equals("true"))
       this.showMetadata = true;
     else if (showMetadata.equals("false") || showMetadata.equals(""))
       this.showMetadata = false;
     else
-      throw new BadRequestException("The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
+      throw new BadRequestException(
+          "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
 
     // boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
     boundary = checkBoundary(bboxes, bpoints, bpolys);
@@ -693,7 +694,7 @@ public class InputValidator {
    * <ul>
    * <li><strong>YYYY-MM-DD</strong> or <strong>YYYY-MM-DDThh:mm:ss</strong>: When a timestamp
    * includes 'T', hh:mm must also be given. This applies for all time formats, which use
-   * timestamps.</li>
+   * timestamps. If -MM-DD or only -DD is missing, '01' is used as default for month and day.</li>
    * <li><strong>YYYY-MM-DD/YYYY-MM-DD</strong>: start/end timestamps</li>
    * <li><strong>YYYY-MM-DD/YYYY-MM-DD/PnYnMnD</strong>: start/end/period where n refers to the size
    * of the respective period</li>
@@ -727,22 +728,12 @@ public class InputValidator {
       String[] timeSplit = time.split("/");
       if (timeSplit[0].length() > 0) {
         // start timestamp
-        try {
-          // to differ between timestamps with or without 'Thh:mm:ss'
-          if (timeSplit[0].length() == 10) {
-            LocalDate.parse(timeSplit[0]);
-          } else {
-            LocalDateTime.parse(timeSplit[0]);
-          }
-          timeVals[0] = timeSplit[0];
-          if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
-            // latest timestamp
-            timeVals[1] = defEndTime;
-            return timeVals;
-          }
-        } catch (DateTimeParseException e) {
-          throw new BadRequestException(
-              "The start time of the provided time parameter is not ISO-8601 conform.");
+        checkIsoConformity(timeSplit[0], "start");
+        timeVals[0] = timeSplit[0];
+        if (timeSplit[0].endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
+          // latest timestamp
+          timeVals[1] = defEndTime;
+          return timeVals;
         }
       } else {
         // earliest timestamp
@@ -750,17 +741,8 @@ public class InputValidator {
       }
       if (timeSplit[1].length() > 0) {
         // end timestamp
-        try {
-          if (timeSplit[1].length() == 10) {
-            LocalDate.parse(timeSplit[1]);
-          } else {
-            LocalDateTime.parse(timeSplit[1]);
-          }
-          timeVals[1] = timeSplit[1];
-        } catch (DateTimeParseException e) {
-          throw new BadRequestException(
-              "The end time of the provided time parameter is not ISO-8601 conform.");
-        }
+        checkIsoConformity(timeSplit[1], "end");
+        timeVals[1] = timeSplit[1];
       } else {
         // latest timestamp
         timeVals[1] = defEndTime;
@@ -792,6 +774,44 @@ public class InputValidator {
     }
 
     return timeVals;
+  }
+
+  /**
+   * Checks the given <code>String</code> on its content and if it is ISO-8601 conform.
+   * 
+   * @param time <code>String</code> containing the start or end time from the given time parameter.
+   * @throws BadRequestException if the given time-String is not ISO-8601 conform;
+   */
+  private void checkIsoConformity(String time, String startEnd) {
+
+    try {
+      // YYYY
+      if (time.length() == 4) {
+        // add the month and day and try to parse it
+        time = time + "-01-01";
+        LocalDate.parse(time);
+      }
+      // YYYY-MM
+      else if (time.length() == 7) {
+        // add the day and try to parse it
+        time = time + "-01";
+        LocalDate.parse(time);
+      }
+      // YYYY-MM-DD
+      else if (time.length() == 10) {
+        LocalDate.parse(time);
+      }
+      // YYYY-MM-DDThh:mm or YYYY-MM-DDThh:mm:ss
+      else if (time.length() == 16 || time.length() == 19) {
+        LocalDateTime.parse(time);
+      } else {
+        throw new BadRequestException(
+            "The " + startEnd + " time of the provided time parameter is not ISO-8601 conform.");
+      }
+    } catch (DateTimeParseException e) {
+      throw new BadRequestException(
+          "The " + startEnd + " time of the provided time parameter is not ISO-8601 conform.");
+    }
   }
 
   /**
