@@ -578,8 +578,11 @@ public class ElementsRequestExecutor {
     Integer[] whole = new Integer[result.size()];
     Integer[] part = new Integer[result.size()];
     String[] timeArray = new String[result.size()];
+    // needed time array in case no key can be found
+    String[] noPartTimeArray = new String[result.size()];
     int partCount = 0;
     int wholeCount = 0;
+    int timeCount = 0;
     // fill whole and part arrays with -1 values to indicate "no value"
     for (int i = 0; i < result.size(); i++) {
       whole[i] = -1;
@@ -587,6 +590,8 @@ public class ElementsRequestExecutor {
     }
     // time and value extraction
     for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Integer> entry : result.entrySet()) {
+      // this time array counts for each entry in the entrySet
+      noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
@@ -607,14 +612,24 @@ public class ElementsRequestExecutor {
 
         wholeCount++;
       }
+      timeCount++;
     }
-    // remove the possible null values in the arrays
+    // remove the possible null values in the array
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(Integer[]::new);
-    part = Arrays.stream(part).filter(Objects::nonNull).toArray(Integer[]::new);
+    // overwrite time array in case the given key for part is not existent in the whole for no
+    // timestamp
+    if (timeArray.length < 1) {
+      timeArray = noPartTimeArray;
+    }
     // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
+      // set whole or part to 0 if they have -1 (== no value)
+      if (whole[i] == -1)
+        whole[i] = 0;
+      if (part[i] == -1)
+        part[i] = 0;
+
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
     Metadata metadata = null;
@@ -910,10 +925,16 @@ public class ElementsRequestExecutor {
     // get the integer values for the given keys
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
+      // if the given key cannot be resolved
+      if (keysInt[i] == null)
+        keysInt[i] = -1;
       if (groupByValues != null) {
         // get the integer values for the given values
         for (int j = 0; j < groupByValues.length; j++) {
           valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
+          // if the given value cannot be resolved
+          if (valuesInt[j] == null)
+            valuesInt[j] = -1;
         }
       }
     }
@@ -924,6 +945,10 @@ public class ElementsRequestExecutor {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
         for (int key : keysInt) {
+          // if key could not be resolved
+          if (key == -1)
+            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1),
+                f);
           // if key in input key list
           if (tagKeyId == key) {
             if (valuesInt.length == 0) {
@@ -931,6 +956,10 @@ public class ElementsRequestExecutor {
                   f);
             }
             for (int value : valuesInt) {
+              // if value could not be resolved
+              if (value == -1)
+                return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, -1),
+                    f);
               // if value in input value list
               if (tagValueId == value)
                 return new ImmutablePair<>(
@@ -958,6 +987,8 @@ public class ElementsRequestExecutor {
         });
 
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    
+    System.out.println(groupByResult.size());
 
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -1345,8 +1376,11 @@ public class ElementsRequestExecutor {
     Double[] whole = new Double[result.size()];
     Double[] part = new Double[result.size()];
     String[] timeArray = new String[result.size()];
+    // needed time array in case no key can be found
+    String[] noPartTimeArray = new String[result.size()];
     int partCount = 0;
     int wholeCount = 0;
+    int timeCount = 0;
     // fill whole and part arrays with -1 values to indicate "no value"
     for (int i = 0; i < result.size(); i++) {
       whole[i] = -1.0;
@@ -1354,6 +1388,8 @@ public class ElementsRequestExecutor {
     }
     // time and value extraction
     for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Number> entry : result.entrySet()) {
+      // this time array counts for each entry in the entrySet
+      noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
@@ -1379,14 +1415,23 @@ public class ElementsRequestExecutor {
 
         wholeCount++;
       }
+      timeCount++;
     }
     // remove the possible null values in the arrays
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    whole = Arrays.stream(whole).filter(Objects::nonNull).toArray(Double[]::new);
-    part = Arrays.stream(part).filter(Objects::nonNull).toArray(Double[]::new);
+    // overwrite time array in case the given key for part is not existent in the whole for no
+    // timestamp
+    if (timeArray.length < 1) {
+      timeArray = noPartTimeArray;
+    }
     // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
+      // set whole or part to 0 if they have -1 (== no value)
+      if (whole[i] == -1)
+        whole[i] = 0.0;
+      if (part[i] == -1)
+        part[i] = 0.0;
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
     // setting of the unit and description output parameters
