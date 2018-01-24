@@ -8,11 +8,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 
 /**
- * Config class, which adds the ElementsRequestInterceptor into the spring MVC life cycle.
+ * Configuration class, which adds the ElementsRequestInterceptor into the spring MVC life cycle.
  *
  */
 @Configuration
-public class ElementsMVCConfig extends WebMvcConfigurerAdapter {
+public class ElementsMvcConfig extends WebMvcConfigurerAdapter {
  
     @Autowired
     private ElementsRequestInterceptor elementsRequestInterceptor;
