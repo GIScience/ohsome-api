@@ -49,7 +49,7 @@ public class ElementsResponseContent {
     return copyright;
   }
 
-  public Metadata getMetaData() {
+  public Metadata getMetadata() {
     return metadata;
   }
 
