@@ -84,6 +84,7 @@ To be able to test the REST-API with your own requests, you will also need a des
     * the forward slashes (/) are a very important part of the parameter and used to recognize which time parameter should be used
     * an absence of the start and|or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
     * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
+    * '-MM-DD' or '-DD' as well as ':ss' can be omitted and will be replaced with '01' for month or year and '00' for seconds
     * optional for all resources
 * showMetadata
     * can have the values 'true' or 'false'
