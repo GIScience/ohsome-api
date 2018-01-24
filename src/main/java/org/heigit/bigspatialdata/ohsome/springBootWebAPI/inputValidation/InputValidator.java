@@ -730,7 +730,7 @@ public class InputValidator {
         // start timestamp
         checkIsoConformity(timeSplit[0], "start");
         timeVals[0] = timeSplit[0];
-        if (timeSplit[0].endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
+        if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
           // latest timestamp
           timeVals[1] = defEndTime;
           return timeVals;
