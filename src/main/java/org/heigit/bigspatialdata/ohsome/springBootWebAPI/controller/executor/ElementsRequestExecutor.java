@@ -4,12 +4,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -367,6 +369,9 @@ public class ElementsRequestExecutor {
     TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKey.length];
     Integer[] valuesInt = new Integer[groupByValues.length];
+    // will hold those input groupByValues, which cannot be found in the OSM data
+    Set<String> valuesSet = new HashSet<String>(Arrays.asList(groupByValues));
+    boolean hasUnresolvableKey = false;
     if (groupByKey == null || groupByKey.length == 0) {
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
@@ -377,10 +382,18 @@ public class ElementsRequestExecutor {
     // get the integer values for the given keys
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
+      // if the given key cannot be resolved
+      if (keysInt[i] == null) {
+        keysInt[i] = -2;
+        hasUnresolvableKey = true;
+      }
       if (groupByValues != null) {
         // get the integer values for the given values
         for (int j = 0; j < groupByValues.length; j++) {
           valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
+          if (valuesInt[j] == null) {
+            valuesInt[j] = -1;
+          }
         }
       }
     }
@@ -410,25 +423,36 @@ public class ElementsRequestExecutor {
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
 
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
     // output
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
     String groupByName = "";
     int count = 0;
-    int innerCount = 0;
+    // needed in case of unresolved values
+    int entrySetSize = 0;
+    ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
     for (Entry<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // check for non-remainder objects (which do have the defined key/tag)
+      entrySetSize = entry.getValue().entrySet().size();
+      int innerCount = 0;
+      // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = groupByKey[0] + "=" + tt.tag2String(entry.getKey()).getValue();
+        valuesSet.remove(tt.tag2String(entry.getKey()).getValue());
+      } else if (entry.getKey().getKey() == -2) {
+        groupByName = "remainder";
       } else {
         groupByName = "remainder";
+        // happens when the groupByKey is in keytables but not in the defined filter
+        if (groupByResult.entrySet().size() == 1)
+          hasUnresolvableKey = true;
       }
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+        if (count == 0)
+          // write the timestamps into an ArrayList for later usage
+          resultTimestamps.add(innerEntry.getKey().formatIsoDateTime());
         results[innerCount] =
             new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
         innerCount++;
@@ -436,6 +460,32 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    // if the groupByKey is unresolved
+    if (hasUnresolvableKey) {
+      Result[] results = new Result[entrySetSize];
+      int innerCount = 0;
+      for (String timestamp : resultTimestamps) {
+        results[innerCount] = new Result(timestamp, 0.0);
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(groupByKey[0], results);
+    } else {
+      // adding of the unresolved values
+      if (valuesSet.size() > 0) {
+        for (String value : valuesSet) {
+          Result[] results = new Result[entrySetSize];
+          int innerCount = 0;
+          for (String timestamp : resultTimestamps) {
+            results[innerCount] = new Result(timestamp, 0.0);
+            innerCount++;
+          }
+          resultSet[count] = new GroupByResult(groupByKey[0] + "=" + value, results);
+          count++;
+        }
+      }
+    }
+    // remove null objects in the resultSet
+    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
@@ -906,7 +956,8 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     // check the groupByKey and groupByValues parameters
     if (groupByKey == null || groupByKey.length == 0)
-      throw new BadRequestException("There has to be one groupByKey value given.");
+      throw new BadRequestException(
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     if (groupByValues == null)
       groupByValues = new String[0];
     // needed to get access to the keytables
@@ -915,10 +966,9 @@ public class ElementsRequestExecutor {
     TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKey.length];
     Integer[] valuesInt = new Integer[groupByValues.length];
-    if (groupByKey == null || groupByKey.length == 0) {
-      throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
-    }
+    // will hold those input groupByValues, which cannot be found in the OSM data
+    Set<String> valuesSet = new HashSet<String>(Arrays.asList(groupByValues));
+    boolean hasUnresolvableKey = false;
     // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -926,15 +976,18 @@ public class ElementsRequestExecutor {
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
       // if the given key cannot be resolved
-      if (keysInt[i] == null)
-        keysInt[i] = -1;
+      if (keysInt[i] == null) {
+        keysInt[i] = -2;
+        hasUnresolvableKey = true;
+      }
       if (groupByValues != null) {
         // get the integer values for the given values
         for (int j = 0; j < groupByValues.length; j++) {
+          // gets null, if value cannot be found in keytables
           valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
-          // if the given value cannot be resolved
-          if (valuesInt[j] == null)
+          if (valuesInt[j] == null) {
             valuesInt[j] = -1;
+          }
         }
       }
     }
@@ -945,23 +998,19 @@ public class ElementsRequestExecutor {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
         for (int key : keysInt) {
-          // if key could not be resolved
-          if (key == -1)
-            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1),
-                f);
+          // if key is unresolved
+          if (key == -2) {
+            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-2, -1), f);
+          }
           // if key in input key list
           if (tagKeyId == key) {
             if (valuesInt.length == 0) {
               return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
                   f);
             }
-            for (int value : valuesInt) {
-              // if value could not be resolved
-              if (value == -1)
-                return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, -1),
-                    f);
+            for (int j = 0; j < valuesInt.length; j++) {
               // if value in input value list
-              if (tagValueId == value)
+              if (tagValueId == valuesInt[j])
                 return new ImmutablePair<>(
                     new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
             }
@@ -985,32 +1034,41 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    
-    System.out.println(groupByResult.size());
-
     // output
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    // +1 is needed in case the groupByKey is unresolved (not in keytables)
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
     String groupByName = "";
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
     DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
-    int innerCount = 0;
+    // needed in case of unresolved values
+    int entrySetSize = 0;
+    ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
     for (Entry<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
         .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // check for non-remainder objects (which do have the defined key/tag)
+      entrySetSize = entry.getValue().entrySet().size();
+      int innerCount = 0;
+      // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = groupByKey[0] + "=" + tt.tag2String(entry.getKey()).getValue();
+        valuesSet.remove(tt.tag2String(entry.getKey()).getValue());
+      } else if (entry.getKey().getKey() == -2) {
+        groupByName = "remainder";
       } else {
         groupByName = "remainder";
+        // happens when the groupByKey is in keytables but not in the defined filter
+        if (groupByResult.entrySet().size() == 1)
+          hasUnresolvableKey = true;
       }
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+        if (count == 0)
+          // write the timestamps into an ArrayList for later usage
+          resultTimestamps.add(innerEntry.getKey().formatIsoDateTime());
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
@@ -1018,6 +1076,32 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    // if the groupByKey is unresolved
+    if (hasUnresolvableKey) {
+      Result[] results = new Result[entrySetSize];
+      int innerCount = 0;
+      for (String timestamp : resultTimestamps) {
+        results[innerCount] = new Result(timestamp, 0.0);
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(groupByKey[0], results);
+    } else {
+      // adding of the unresolved values
+      if (valuesSet.size() > 0) {
+        for (String value : valuesSet) {
+          Result[] results = new Result[entrySetSize];
+          int innerCount = 0;
+          for (String timestamp : resultTimestamps) {
+            results[innerCount] = new Result(timestamp, 0.0);
+            innerCount++;
+          }
+          resultSet[count] = new GroupByResult(groupByKey[0] + "=" + value, results);
+          count++;
+        }
+      }
+    }
+    // remove null objects in the resultSet
+    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     // setting of the unit and description output parameters
     switch (requestType) {
       case 1:
