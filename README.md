@@ -16,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Setting-up/Running
 
-1. checkout/download the repository and import it as a Maven project in your IDE
+1. checkout/download the repository and import it as a Maven project in your IDE (or navigate in an editor to the class defined in step 2)
 2. go to the class ContextRefreshedListener.java in the package listener and change the following paths to your local directories of the db files and make sure to exclude the file endings '.mv.db' from the path
 
     ```java
@@ -28,7 +28,7 @@ These instructions will get you a copy of the project up and running on your loc
     ```
 3. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 4. enter the command *mvn package* to build the project
-5. enter the command *java -jar target/springBootWebAPI-0.0.1-SNAPSHOT.jar* to run the jar file
+5. enter the command *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar* to run the jar file
 
 Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
@@ -265,13 +265,7 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
             "value2": 2080,
             "ratio": 0.0747717305341865
         }
-    ],
-    "metadata": {
-        "executionTime": 12396,
-        "unit": "amount and ratio",
-        "description": "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
-        "requestURL": "http://localhost:8080/elements/count/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-05-01/2017-05-01/P2Y&keys=building&types2=node&keys2=addr:housenumber&showMetadata=true"
-    }
+    ]
 }
 ```
 
