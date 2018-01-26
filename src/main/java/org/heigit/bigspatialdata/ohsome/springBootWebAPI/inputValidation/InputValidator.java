@@ -111,7 +111,9 @@ public class InputValidator {
     mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
 
     // metadata
-    if (showMetadata.equals("true"))
+    if (showMetadata == null)
+      this.showMetadata = false;
+    else if (showMetadata.equals("true"))
       this.showMetadata = true;
     else if (showMetadata.equals("false") || showMetadata.equals(""))
       this.showMetadata = false;
