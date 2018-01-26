@@ -48,7 +48,7 @@ public class GroupByResponseContent {
     return copyright;
   }
 
-  public Metadata getMetaData() {
+  public Metadata getMetadata() {
     return metadata;
   }
 

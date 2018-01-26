@@ -46,6 +46,7 @@ public class CountController {
    *        which fits to one of the formats used by the method
    *        {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.inputValidation.InputValidator#extractIsoTime(String)
    *        extractIsoTime(String time)}.
+   * @param showMetadata <code>String</code> containing the values "true" or "false".
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.springBootWebAPI.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
