@@ -21,7 +21,7 @@ public class DensityController {
    * GET request giving the density of selected items (number of items per area).
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
@@ -48,7 +48,7 @@ public class DensityController {
    * request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
