@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements/density")
 public class DensityController {
-  
+
   /**
    * GET request giving the density of selected items (number of items per area).
    * <p>
@@ -29,20 +29,22 @@ public class DensityController {
    */
   @RequestMapping("")
   public ElementsResponseContent getDensity(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
       @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time, @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(false, bboxes, bpoints, bpolys, types, keys, values, userids, time, showMetadata);
+    return executor.executeDensity(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
   }
-  
+
   /**
    * POST request giving the density of OSM objects. POST requests should only be used if the
    * request URL would be too long for a GET request.
@@ -56,12 +58,13 @@ public class DensityController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postDensity(String[] bboxes, String[] bpoints, String[] bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public ElementsResponseContent postDensity(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids, time, showMetadata);
+    return executor.executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata);
   }
 
 }

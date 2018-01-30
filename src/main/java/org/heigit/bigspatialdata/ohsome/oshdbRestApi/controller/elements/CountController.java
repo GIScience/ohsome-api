@@ -58,9 +58,9 @@ public class CountController {
    */
   @RequestMapping("")
   public ElementsResponseContent getCount(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -86,9 +86,9 @@ public class CountController {
    */
   @RequestMapping("/groupBy/type")
   public GroupByResponseContent getCountGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -114,9 +114,9 @@ public class CountController {
    */
   @RequestMapping("/groupBy/user")
   public GroupByResponseContent getCountGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -143,9 +143,9 @@ public class CountController {
    */
   @RequestMapping("/groupBy/boundary")
   public GroupByResponseContent getCountGroupByBoundary(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -178,9 +178,9 @@ public class CountController {
    */
   @RequestMapping("/groupBy/tag")
   public GroupByResponseContent getCountGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -211,9 +211,9 @@ public class CountController {
    */
   @RequestMapping("/groupBy/key")
   public GroupByResponseContent getCountGroupByKey(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -247,9 +247,9 @@ public class CountController {
    */
   @RequestMapping("/share")
   public ElementsResponseContent getCountShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -282,9 +282,9 @@ public class CountController {
    */
   @RequestMapping("/ratio")
   public ElementsResponseContent getCountRatio(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -314,7 +314,7 @@ public class CountController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCount(String[] bboxes, String[] bpoints, String[] bpolys,
+  public ElementsResponseContent postCount(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
@@ -336,9 +336,9 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postCountGroupByType(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public GroupByResponseContent postCountGroupByType(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountGroupByType(true, bboxes, bpoints, bpolys, types, keys, values,
@@ -358,10 +358,9 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postCountGroupByUser(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public GroupByResponseContent postCountGroupByUser(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountGroupByUser(true, bboxes, bpoints, bpolys, types, keys, values,
@@ -382,8 +381,8 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postCountGroupByBoundary(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public GroupByResponseContent postCountGroupByBoundary(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -412,9 +411,9 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postCountGroupByTag(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+  public GroupByResponseContent postCountGroupByTag(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -438,9 +437,9 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postCountGroupByKey(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKeys)
+  public GroupByResponseContent postCountGroupByKey(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -467,7 +466,7 @@ public class CountController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountShare(String[] bboxes, String[] bpoints, String[] bpolys,
+  public ElementsResponseContent postCountShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -495,7 +494,7 @@ public class CountController {
    */
   @RequestMapping(value = "/ratio", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postCountRatio(String[] bboxes, String[] bpoints, String[] bpolys,
+  public ElementsResponseContent postCountRatio(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {

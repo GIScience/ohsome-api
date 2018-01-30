@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
@@ -55,8 +56,10 @@ public class InputValidator {
   private final double defMinLat = 47.3937;
   private final double defMaxLat = 49.9079;
   private byte boundary;
+  /**
+   * Contains either custom ids or generated ones (int values starting at 1).
+   */
   private String[] boundaryIds;
-  private String[] bboxes;
   private BoundingBox bbox;
   private Geometry bpointGeom;
   private Polygon bpoly;
@@ -87,21 +90,21 @@ public class InputValidator {
    * @return <code>MapReducer</code> object including the settings derived from the given
    *         parameters.
    */
-  public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata) throws BadRequestException {
 
     // check if this method is called from a POST request
     if (isPost) {
       // sets the string arrays to empty if they are null
-      bboxes = checkParameterOnNull(bboxes);
-      bpoints = checkParameterOnNull(bpoints);
-      bpolys = checkParameterOnNull(bpolys);
-      types = checkParameterOnNull(types);
-      keys = checkParameterOnNull(keys);
-      values = checkParameterOnNull(values);
-      userids = checkParameterOnNull(userids);
-      time = checkParameterOnNull(time);
+      bboxes = checkBoundaryParamOnNull(bboxes);
+      bpoints = checkBoundaryParamOnNull(bpoints);
+      bpolys = checkBoundaryParamOnNull(bpolys);
+      types = checkParamOnNull(types);
+      keys = checkParamOnNull(keys);
+      values = checkParamOnNull(values);
+      userids = checkParamOnNull(userids);
+      time = checkParamOnNull(time);
     }
     MapReducer<OSMEntitySnapshot> mapRed;
 
@@ -122,15 +125,20 @@ public class InputValidator {
           "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
 
     // boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
-    boundary = checkBoundary(bboxes, bpoints, bpolys);
-    if (boundary == 0) {
-      mapRed = mapRed.areaOfInterest(createBbox(bboxes));
-    } else if (boundary == 1) {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(this.bboxes));
-    } else if (boundary == 2) {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygons(bpoints));
-    } else if (boundary == 3) {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBpolys(bpolys));
+    checkBoundaryParams(bboxes, bpoints, bpolys);
+    String[] boundaryValues;
+
+    if (this.boundary == 0) {
+      mapRed = mapRed.areaOfInterest(createBbox(new String[0]));
+    } else if (this.boundary == 1) {
+      boundaryValues = splitBoundaryParam(bboxes, (byte) 1);
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(boundaryValues));
+    } else if (this.boundary == 2) {
+      boundaryValues = splitBoundaryParam(bpoints, (byte) 2);
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygons(boundaryValues));
+    } else if (this.boundary == 3) {
+      boundaryValues = splitBoundaryParam(bpolys, (byte) 3);
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBpolys(boundaryValues));
     } else
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
@@ -234,45 +242,30 @@ public class InputValidator {
   }
 
   /**
-   * Checks which boundary parameter is given.
+   * Checks the given boundary parameter(s) and sets a corresponding byte value (0 for no boundary,
+   * 1 for bboxes, 2 for bpoints, 3 for bpolys). Only one (or none) of them is allowed to have
+   * content in it.
    * 
-   * @param bboxes <code>String</code> array containing the lon/lat coordinate pairs of the bounding
-   *        boxes.
-   * @param bpoints <code>String</code> array containing the lon/lat coordinate pairs and the radius
-   *        of the bounding points.
-   * @param bpolys <code>String</code> array containing the lon/lat coordinate pairs of the bounding
-   *        polygons.
-   * @return <code>Byte</code> defining if no parameter or one bbox (0), bboxes (1), bpoints (2), or
-   *         bpolys (3) are given.
-   * @throws BadRequestException The provided boundary parameter does not fit to its format, or more
-   *         than one boundary parameter is given.
+   * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
+   *        optional custom names at each first coordinate appended with a colon (:).
+   * @param bpoints <code>String</code> containing the bounding points separated via a pipe (|) and
+   *        optional custom names at each first coordinate appended with a colon (:).
+   * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
+   *        optional custom names at each first coordinate appended with a colon (:).
    */
-  private byte checkBoundary(String[] bboxes, String[] bpoints, String[] bpolys) {
-    // checks the given parameters
-    if ((bboxes.length == 0 || bboxes.length == 4) && bpoints.length == 0 && bpolys.length == 0) {
-      checkBboxesOnId(bboxes);
+  private void checkBoundaryParams(String bboxes, String bpoints, String bpolys) {
+    if (bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
+      // no boundary param given --> 'global' request
       this.boundary = 0;
-      return this.boundary;
-    } else if (bboxes.length > 4 && bpoints.length == 0 && bpolys.length == 0) {
-      if (bboxes.length % 4 != 0)
-        throw new BadRequestException(
-            "Each of your provided bboxes must consist of 2 lon/lat points (bottom left and top right) "
-                + "with an optional name bound to the first coordinate of each bbox with a colon (e.g.: Heidelberg:8.6128,49.3183,...).");
-      checkBboxesOnId(bboxes);
+    } else if (!bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
+      // bboxes given
       this.boundary = 1;
-      return this.boundary;
-    } else if (bboxes.length == 0 && bpoints.length >= 3 && bpolys.length == 0) {
-      if (bpoints.length % 3 != 0)
-        throw new BadRequestException(
-            "Each of your provided bpoints must consist of 1 lon/lat point plus a radius.");
+    } else if (bboxes.isEmpty() && !bpoints.isEmpty() && bpolys.isEmpty()) {
+      // bpoints given
       this.boundary = 2;
-      return this.boundary;
-    } else if (bboxes.length == 0 && bpoints.length == 0 && bpolys.length >= 6) {
-      if (bpolys.length % 2 != 0)
-        throw new BadRequestException(
-            "Each of your provided bpolys must consist of n lon/lat coordinate pairs.");
+    } else if (bboxes.isEmpty() && bpoints.isEmpty() && !bpolys.isEmpty()) {
+      // bpolys given
       this.boundary = 3;
-      return this.boundary;
     } else
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format, "
@@ -280,35 +273,171 @@ public class InputValidator {
   }
 
   /**
-   * Checks if the first coordinate of each bbox starts with a letter (= custom name).
+   * Splits the given boundary parameter (bboxes, bpoints, or bpolys) two times. The first split is
+   * on '|' and to seperate the bounding objects; The second is on ':' to seperate the custom ids
+   * from each first coordinate; Returns the coordinates after the second split (and the radius in
+   * case of bounding points).
    * 
-   * @param bboxes <code>String</code> array containing the bboxes with/without a custom ID.
+   * @param boundaryParam <code>String</code> containing the given boundary parameter.
+   * @param boundaryType <code>Byte</code> containing the value 1 (bboxes), 2 (bpoints) or 3
+   *        (bpolys).
+   * @return <code>String</code> array holding only coordinates (plus the radius in case of bounding
+   *         points).
    */
-  private void checkBboxesOnId(String[] bboxes) {
+  private String[] splitBoundaryParam(String boundaryParam, byte boundaryType) {
 
-    // check if the first entry has a colon
-    if (bboxes[0].contains(":")) {
-      char c = bboxes[0].charAt(0);
-      // check if the first bbox starts with a letter (= custom ids)
-      if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'i') {
-        this.boundaryIds = new String[(bboxes.length / 4)];
-        int count = 0;
-        // look at the first value of each bbox
-        for (int i = 0; i < bboxes.length; i += 4) {
-          String[] idAndBox = bboxes[i].split(":");
-          if (idAndBox[0] == null || idAndBox[0].equals("") || idAndBox[0].equals(bboxes[i]))
-            throw new BadRequestException(
-                "You need to set the custom names of the bounding boxes for either all, or none of them.");
-          boundaryIds[count] = idAndBox[0];
-          bboxes[i] = idAndBox[1];
-          count++;
+    String[] boundaryObjects;
+    String[] boundaryParamValues = null;
+    String[] boundaryIds = null;
+    String[] coords;
+    // to check if there is more than one boundary object given
+    if (boundaryParam.contains("|"))
+      boundaryObjects = boundaryParam.split("\\|");
+    else
+      boundaryObjects = new String[] {boundaryParam};
+
+    boundaryIds = new String[boundaryObjects.length];
+    int idCount = 0;
+    int paramCount = 0;
+
+    try {
+      if (boundaryType == 1) {
+        // bboxes given
+        if (boundaryObjects[0].contains(":")) {
+          // custom ids are given
+          boundaryParamValues = new String[boundaryObjects.length * 4];
+          for (String bObject : boundaryObjects) {
+            coords = bObject.split("\\,");
+            if (coords[0].contains(":")) {
+              String[] idAndCoordinate = coords[0].split(":");
+              // extract the id
+              boundaryIds[idCount] = idAndCoordinate[0];
+              // extract the coordinates
+              boundaryParamValues[paramCount] = idAndCoordinate[1];
+              boundaryParamValues[paramCount + 1] = coords[1];
+              boundaryParamValues[paramCount + 2] = coords[2];
+              boundaryParamValues[paramCount + 3] = coords[3];
+              idCount++;
+              paramCount += 4;
+            } else {
+              throw new BadRequestException(
+                  "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
+                      + "You can either set custom ids for all your boundary objects, or for none.");
+            }
+          }
+        } else {
+          // no custom ids are given
+          boundaryParamValues = new String[boundaryObjects.length * 4];
+          idCount = 1;
+          // walks through the bbox objects
+          for (String bObject : boundaryObjects) {
+            coords = bObject.split("\\,");
+            // walks through the coordinates
+            for (String coord : coords) {
+              boundaryParamValues[paramCount] = coord;
+              paramCount++;
+            }
+            // adding of ids
+            boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
+            idCount++;
+          }
+        }
+      } else if (boundaryType == 2) {
+        // bpoints given
+        if (boundaryObjects[0].contains(":")) {
+          // custom ids are given
+          boundaryParamValues = new String[boundaryObjects.length * 3];
+          for (String bObject : boundaryObjects) {
+            coords = bObject.split("\\,");
+            if (coords[0].contains(":")) {
+              String[] idAndCoordinate = coords[0].split(":");
+              // extract the id
+              boundaryIds[idCount] = idAndCoordinate[0];
+              // extract the coordinate
+              boundaryParamValues[paramCount] = idAndCoordinate[1];
+              boundaryParamValues[paramCount + 1] = coords[1];
+              // extract the radius
+              boundaryParamValues[paramCount + 2] = coords[2];
+              idCount++;
+              paramCount += 3;
+            } else {
+              throw new BadRequestException(
+                  "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
+                      + "You can either set custom ids for all your boundary objects, or for none.");
+            }
+          }
+        } else {
+          // no custom ids are given
+          boundaryParamValues = new String[boundaryObjects.length * 3];
+          idCount = 1;
+          // walks through the bbox objects
+          for (String bObject : boundaryObjects) {
+            coords = bObject.split("\\,");
+            // walks through the coordinates + radius
+            for (String coord : coords) {
+              boundaryParamValues[paramCount] = coord;
+              paramCount++;
+            }
+            // adding of ids
+            boundaryIds[idCount - 1] = "bpoint" + String.valueOf(idCount);
+            idCount++;
+          }
         }
       } else {
-        throw new BadRequestException(
-            "The custom names for your bounding boxes need to start with a letter before the colon of each first coordinate.");
+        // bpolys given
+        if (boundaryObjects[0].contains(":")) {
+          // custom ids are given
+          boundaryParamValues = new String[boundaryParam.length()];
+          for (String bObject : boundaryObjects) {
+            coords = bObject.split("\\,");
+            if (coords[0].contains(":")) {
+              String[] idAndCoordinate = coords[0].split(":");
+              // extract the id and the first coordinate
+              boundaryIds[idCount] = idAndCoordinate[0];
+              boundaryParamValues[paramCount] = idAndCoordinate[1];
+              paramCount++;
+              // extract the other coordinates
+              for (int i = 1; i < coords.length; i++) {
+                boundaryParamValues[paramCount] = coords[i];
+                paramCount++;
+              }
+              idCount++;
+
+            } else {
+              throw new BadRequestException(
+                  "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
+                      + "You can either set custom ids for all your boundary objects, or for none.");
+            }
+          }
+        } else {
+          // no custom ids are given
+          boundaryParamValues = new String[boundaryParam.length()];
+          idCount = 1;
+          // walks through the bbox objects
+          for (String bObject : boundaryObjects) {
+            coords = bObject.split("\\,");
+            // walks through the coordinates
+            for (String coord : coords) {
+              boundaryParamValues[paramCount] = coord;
+              paramCount++;
+            }
+            // adding of ids
+            boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
+            idCount++;
+          }
+        }
       }
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new BadRequestException(
+          "The processing of the boundary parameter gave an error. Please use the predefined format "
+              + "where you delimit different objects with the pipe-sign '|' "
+              + "and optionally add custom ids with the colon ':' at the first coordinate of each object.");
     }
-    this.bboxes = bboxes;
+    this.boundaryIds = boundaryIds;
+    // remove the possible null values in the array
+    boundaryParamValues =
+        Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
+    return boundaryParamValues;
   }
 
   /**
@@ -335,6 +464,8 @@ public class InputValidator {
         double maxLat = Double.parseDouble(bbox[3]);
         // creation of the bbox
         this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+        bboxColl = new LinkedHashSet<Geometry>();;
+        bboxColl.add(this.bbox.getGeometry());
         return this.bbox;
       } catch (NumberFormatException e) {
         throw new BadRequestException(
@@ -429,8 +560,11 @@ public class InputValidator {
         geom = JTS.transform(buffer, transform);
         bpointGeom = geom;
         // returns this geometry if there was only one bpoint given
-        if (bpoints.length == 3)
+        if (bpoints.length == 3) {
+          geometryCollection.add(geom);
+          bpointColl = geometryCollection;
           return geom;
+        }
         geometryCollection.add(geom);
       }
       // set the geometryCollection to be accessible for /groupBy/boundary
@@ -484,6 +618,7 @@ public class InputValidator {
 
       Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
       Coordinate firstPoint;
+
       try {
         // sets the first point and adds it to the arraylist
         firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
@@ -501,6 +636,7 @@ public class InputValidator {
             geometryCollection.add(poly);
             // clear the coords array
             coords.removeAll(coords);
+            // if the end is reached
             if (i + 2 >= bpolys.length)
               break;
             // set the new first point and add it to the array
@@ -512,7 +648,6 @@ public class InputValidator {
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
-        // set the geometryCollection to be accessible for /groupBy/boundary
         bpolyColl = geometryCollection;
         // unifies polygons that intersect with each other
         geometryCollection = unifyIntersectedPolys(geometryCollection);
@@ -654,42 +789,6 @@ public class InputValidator {
   }
 
   /**
-   * Finds and returns the EPSG code of the given point, which is needed for
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#createCircularPolygons
-   * createCircularPolygon}. Adapted code from UTMCodeFromLonLat.java class in the osmatrix project
-   * (© by Michael Auer)
-   * 
-   * @param lon Longitude coordinate of the point.
-   * @param lat Latitude coordinate of the point.
-   * @return <code>String</code> representing the corresponding EPSG code.
-   */
-  private String findEPSG(double lon, double lat) {
-
-    if (lat >= 84)
-      return "EPSG:32661"; // UPS North
-    if (lat < -80)
-      return "EPSG:32761"; // UPS South
-
-    int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
-    if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0)
-      zoneNumber = 32;
-    // Special zones for Svalbard
-    if (lat >= 72.0 && lat < 84.0) {
-      if (lon >= 0.0 && lon < 9.0)
-        zoneNumber = 31;
-      else if (lon >= 9.0 && lon < 21.0)
-        zoneNumber = 33;
-      else if (lon >= 21.0 && lon < 33.0)
-        zoneNumber = 35;
-      else if (lon >= 33.0 && lon < 42.0)
-        zoneNumber = 37;
-    }
-    String isNorth = (lat > 0) ? "6" : "7";
-    String zone = (zoneNumber < 10) ? "0" + zoneNumber : "" + zoneNumber;
-    return "EPSG:32" + isNorth + zone;
-  }
-
-  /**
    * Extracts the time information out of the time parameter and checks the content on its format,
    * as well as <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> conformity. This
    * method is used if one datetimestring is given. Following time formats are allowed:
@@ -822,9 +921,21 @@ public class InputValidator {
    * @param toCheck <code>String</code> array, which is checked.
    * @return <code>String</code> array, which is empty, but not null.
    */
-  private String[] checkParameterOnNull(String[] toCheck) {
+  private String[] checkParamOnNull(String[] toCheck) {
     if (toCheck == null)
       toCheck = new String[0];
+    return toCheck;
+  }
+
+  /**
+   * Checking if a given boundary input parameter of a POST request is null.
+   * 
+   * @param toCheck <code>String</code>, which is checked.
+   * @return <code>String</code>, which is empty, but not null.
+   */
+  private String checkBoundaryParamOnNull(String toCheck) {
+    if (toCheck == null)
+      toCheck = "";
     return toCheck;
   }
 
@@ -882,15 +993,13 @@ public class InputValidator {
   }
 
   /**
-   * Creates the <code>Geometry</code> for each boundary object in the given <code>String</code>
-   * array.
+   * Gets the <code>Geometry</code> for each boundary object in the given <code>String</code> array.
    * 
-   * @param boundary <code>String</code> array containing bboxes, bpoints, or bpolys.
    * @param type <code>String</code> defining the boundary type (bbox, bpoint, bpoly)
    * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
    *         boundary object sorted by the given order of the array.
    */
-  public ArrayList<Geometry> createGeometry(String[] boundary, String type) {
+  public ArrayList<Geometry> getGeometry(String type) {
 
     ArrayList<Geometry> geoms = new ArrayList<>();
     switch (type) {
@@ -908,6 +1017,42 @@ public class InputValidator {
         break;
     }
     return geoms;
+  }
+
+  /**
+   * Finds and returns the EPSG code of the given point, which is needed for
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#createCircularPolygons
+   * createCircularPolygon}. Adapted code from UTMCodeFromLonLat.java class in the osmatrix project
+   * (© by Michael Auer)
+   * 
+   * @param lon Longitude coordinate of the point.
+   * @param lat Latitude coordinate of the point.
+   * @return <code>String</code> representing the corresponding EPSG code.
+   */
+  private String findEPSG(double lon, double lat) {
+
+    if (lat >= 84)
+      return "EPSG:32661"; // UPS North
+    if (lat < -80)
+      return "EPSG:32761"; // UPS South
+
+    int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
+    if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0)
+      zoneNumber = 32;
+    // Special zones for Svalbard
+    if (lat >= 72.0 && lat < 84.0) {
+      if (lon >= 0.0 && lon < 9.0)
+        zoneNumber = 31;
+      else if (lon >= 9.0 && lon < 21.0)
+        zoneNumber = 33;
+      else if (lon >= 21.0 && lon < 33.0)
+        zoneNumber = 35;
+      else if (lon >= 33.0 && lon < 42.0)
+        zoneNumber = 37;
+    }
+    String isNorth = (lat > 0) ? "6" : "7";
+    String zone = (zoneNumber < 10) ? "0" + zoneNumber : "" + zoneNumber;
+    return "EPSG:32" + isNorth + zone;
   }
 
   /*

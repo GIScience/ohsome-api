@@ -52,8 +52,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count calculation.
    */
-  public ElementsResponseContent executeCount(boolean isPost, String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public ElementsResponseContent executeCount(boolean isPost, String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -93,8 +93,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by type.
    */
-  public GroupByResponseContent executeCountGroupByType(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public GroupByResponseContent executeCountGroupByType(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -148,8 +148,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by boundary.
    */
-  public GroupByResponseContent executeCountGroupByBoundary(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public GroupByResponseContent executeCountGroupByBoundary(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -172,7 +172,7 @@ public class ElementsRequestExecutor {
             "You need to give more than one bbox if you want to use /groupBy/boundary.");
       case 1:
         // create the geometry of the bboxes
-        ArrayList<Geometry> bboxGeoms = iV.createGeometry(bboxes, "bbox");
+        ArrayList<Geometry> bboxGeoms = iV.getGeometry("bbox");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bboxesList = new LinkedList<>();
           // check in which bbox the current element is (if any)
@@ -186,11 +186,8 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).count();
         break;
       case 2:
-        if (bpoints.length <= 3)
-          throw new BadRequestException(
-              "You need to give more than one bpoint element if you want to use /groupBy/boundary.");
         // create the geometry of the bpoints
-        ArrayList<Geometry> bpointGeoms = iV.createGeometry(bpoints, "bpoint");
+        ArrayList<Geometry> bpointGeoms = iV.getGeometry("bpoint");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpointsList = new LinkedList<>();
           // check in which bpoint the current element is (if any)
@@ -205,7 +202,7 @@ public class ElementsRequestExecutor {
         break;
       case 3:
         // create the geometry of the bpolys
-        ArrayList<Geometry> bpolyGeoms = iV.createGeometry(bpolys, "bpoly");
+        ArrayList<Geometry> bpolyGeoms = iV.getGeometry("bpoly");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpolysList = new LinkedList<>();
           // check in which bpoly the current element is (if any)
@@ -223,6 +220,7 @@ public class ElementsRequestExecutor {
     // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
+    String[] boundaryIds = iV.getBoundaryIds();
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by the boundary
@@ -230,7 +228,7 @@ public class ElementsRequestExecutor {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       // set the name of the current boundary object
-      groupByName = (entry.getKey() + 1) + "";
+      groupByName = boundaryIds[count];
       // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
@@ -255,8 +253,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by key.
    */
-  public GroupByResponseContent executeCountGroupByKey(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public GroupByResponseContent executeCountGroupByKey(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
@@ -344,8 +342,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by tag.
    */
-  public GroupByResponseContent executeCountGroupByTag(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public GroupByResponseContent executeCountGroupByTag(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
@@ -501,8 +499,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count grouped by user.
    */
-  public GroupByResponseContent executeCountGroupByUser(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public GroupByResponseContent executeCountGroupByUser(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -556,9 +554,9 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a count-share calculation.
    */
-  public ElementsResponseContent executeCountShare(boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
+  public ElementsResponseContent executeCountShare(boolean isPost, String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -700,8 +698,8 @@ public class ElementsRequestExecutor {
    * 
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    */
-  public ElementsResponseContent executeLengthArea(boolean isArea, boolean isPost, String[] bboxes,
-      String[] bpoints, String[] bpolys, String[] types, String[] keys, String[] values,
+  public ElementsResponseContent executeLengthArea(boolean isArea, boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -760,8 +758,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a perimeter calculation.
    */
-  public ElementsResponseContent executePerimeter(boolean isPost, String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public ElementsResponseContent executePerimeter(boolean isPost, String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -815,9 +813,9 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
-      boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] groupByKeys) throws UnsupportedOperationException, Exception {
+      boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
+      throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
@@ -940,9 +938,9 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
-      boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
+      boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Number> result;
     SortedMap<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
@@ -1135,8 +1133,8 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
-      boolean isPost, String[] bboxes, String[] bpoints, String[] bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
+      boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1226,8 +1224,8 @@ public class ElementsRequestExecutor {
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    */
   public GroupByResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
-      String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
+      String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1301,8 +1299,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a density calculation.
    */
-  public ElementsResponseContent executeDensity(boolean isPost, String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public ElementsResponseContent executeDensity(boolean isPost, String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1370,9 +1368,9 @@ public class ElementsRequestExecutor {
    * calculation.
    */
   public ElementsResponseContent executeLengthPerimeterAreaShare(byte requestType, boolean isPost,
-      String[] bboxes, String[] bpoints, String[] bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] keys2,
-      String[] values2) throws UnsupportedOperationException, Exception {
+      String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Boolean>, Number> result;
@@ -1501,7 +1499,7 @@ public class ElementsRequestExecutor {
       }
       timeCount++;
     }
-    // remove the possible null values in the arrays
+    // remove the possible null values in the array
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
     // overwrite time array in case the given key for part is not existent in the whole for no
     // timestamp
@@ -1550,8 +1548,8 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a ratio calculation.
    */
-  public ElementsResponseContent executeRatio(boolean isPost, String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public ElementsResponseContent executeRatio(boolean isPost, String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 

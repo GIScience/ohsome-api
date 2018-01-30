@@ -31,9 +31,9 @@ public class PerimeterController {
    */
   @RequestMapping("")
   public ElementsResponseContent getPerimeter(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -59,9 +59,9 @@ public class PerimeterController {
    */
   @RequestMapping("/groupBy/type")
   public GroupByResponseContent getPerimeterGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -87,9 +87,9 @@ public class PerimeterController {
    */
   @RequestMapping("/groupBy/user")
   public GroupByResponseContent getPerimeterGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -122,9 +122,9 @@ public class PerimeterController {
    */
   @RequestMapping("/groupBy/tag")
   public GroupByResponseContent getPerimeterGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -158,9 +158,9 @@ public class PerimeterController {
    */
   @RequestMapping("/share")
   public ElementsResponseContent getPerimeterShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -189,7 +189,7 @@ public class PerimeterController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeter(String[] bboxes, String[] bpoints, String[] bpolys,
+  public ElementsResponseContent postPerimeter(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
@@ -211,8 +211,8 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postPerimeterGroupByType(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public GroupByResponseContent postPerimeterGroupByType(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -241,8 +241,8 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postPerimeterGroupByTag(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public GroupByResponseContent postPerimeterGroupByTag(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -264,8 +264,8 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postPerimeterGroupByUser(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
+  public GroupByResponseContent postPerimeterGroupByUser(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -293,9 +293,9 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterShare(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] keys2, String[] values2)
+  public ElementsResponseContent postPerimeterShare(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();

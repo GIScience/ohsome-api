@@ -31,9 +31,9 @@ public class AreaController {
    */
   @RequestMapping("")
   public ElementsResponseContent getArea(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -66,9 +66,9 @@ public class AreaController {
    */
   @RequestMapping("/groupBy/tag")
   public GroupByResponseContent getAreaGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -96,9 +96,9 @@ public class AreaController {
    */
   @RequestMapping("/groupBy/user")
   public GroupByResponseContent getAreaGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -124,9 +124,9 @@ public class AreaController {
    */
   @RequestMapping("/groupBy/type")
   public GroupByResponseContent getAreaGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -158,9 +158,9 @@ public class AreaController {
    */
   @RequestMapping("/share")
   public ElementsResponseContent getAreaShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -189,7 +189,7 @@ public class AreaController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postArea(String[] bboxes, String[] bpoints, String[] bpolys,
+  public ElementsResponseContent postArea(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
@@ -211,10 +211,9 @@ public class AreaController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postAreaGroupByType(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public GroupByResponseContent postAreaGroupByType(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeAreaPerimeterGroupByType(true, true, bboxes, bpoints, bpolys, types,
@@ -241,9 +240,9 @@ public class AreaController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postAreaGroupByTag(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+  public GroupByResponseContent postAreaGroupByTag(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -264,10 +263,9 @@ public class AreaController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postAreaGroupByUser(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public GroupByResponseContent postAreaGroupByUser(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, true, bboxes, bpoints, bpolys,
@@ -293,7 +291,7 @@ public class AreaController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postAreaShare(String[] bboxes, String[] bpoints, String[] bpolys,
+  public ElementsResponseContent postAreaShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {

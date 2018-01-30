@@ -31,14 +31,15 @@ public class LengthController {
    */
   @RequestMapping("")
   public ElementsResponseContent getLength(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
       @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time, @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -65,9 +66,9 @@ public class LengthController {
    */
   @RequestMapping("/groupBy/tag")
   public GroupByResponseContent getLengthGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -95,14 +96,15 @@ public class LengthController {
    */
   @RequestMapping("/groupBy/user")
   public GroupByResponseContent getLengthGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
       @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time, @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -128,9 +130,9 @@ public class LengthController {
    */
   @RequestMapping("/share")
   public ElementsResponseContent getLengthShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String[] bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String[] bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String[] bpolys,
+      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
       @RequestParam(value = "types", defaultValue = "") String[] types,
       @RequestParam(value = "keys", defaultValue = "") String[] keys,
       @RequestParam(value = "values", defaultValue = "") String[] values,
@@ -159,9 +161,9 @@ public class LengthController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postLength(String[] bboxes, String[] bpoints, String[] bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public ElementsResponseContent postLength(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthArea(false, true, bboxes, bpoints, bpolys, types, keys, values,
@@ -188,9 +190,9 @@ public class LengthController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postLengthGroupByTag(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+  public GroupByResponseContent postLengthGroupByTag(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -211,9 +213,9 @@ public class LengthController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postLengthGroupByUser(String[] bboxes, String[] bpoints,
-      String[] bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
+  public GroupByResponseContent postLengthGroupByUser(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByUser((byte) 1, true, bboxes, bpoints, bpolys,
@@ -239,9 +241,9 @@ public class LengthController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postLengthShare(String[] bboxes, String[] bpoints, String[] bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] keys2, String[] values2)
+  public ElementsResponseContent postLengthShare(String bboxes, String bpoints, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
