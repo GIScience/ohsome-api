@@ -39,18 +39,22 @@ To be able to test the REST-API with your own requests, you will also need a des
 ### Parameters
 
 
-* bbox
+* bboxes
     * has to consist of double-parse able Strings in the format (lon1, lat1, lon2, lat2, meaning bottom left and top right point of each bbox)
     * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
-    * if bbox is given, bpoint and bpoly must be null or empty
+    * if bboxes is given, bpoints and bpolys must be null or empty
+    * format: id1:x1,y1,x2,y2|id2:x1,y1,x2,y2|id3:x1,... OR x1,y1,x2,y2|x1,y1,x2,y2|x1,...
     * optional for all resources
-* bpoint
+* bpoints
     * has to consist of double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
-    * if bpoint is given, bbox and bpoly must be null or empty
+    * if bpoints is given, bboxes and bpolys must be null or empty
+    * format: id1:x,y,r|id2:x,y,r|id3:x,... OR x,y,r|x,y,r|x,...
     * optional for all resources
-* bpoly
+* bpolys
     * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
-    * if bpoly is given, bbox and bpoint must be null or empty
+    * if bpolys is given, bboxes and bpoints must be null or empty
+    * format: id1:x1,y1,x2,y2,... xn,yn,x1,y1|id2:x1,y1,x2,y2,... xm,ym,x1,y1|id3:x1,... OR x1,y1,x2,y2,... xn,yn,x1,y1|x1,y1,x2,y2,... xm,ym,x1,y1|x1,...
+    * only simple polygons are supported atm (without holes and no multipolygon)
     * optional for all resources
 * types
     * can be one, two or all three of "node", "way", "relation" in any order
@@ -88,7 +92,8 @@ To be able to test the REST-API with your own requests, you will also need a des
     * optional for all resources
 * showMetadata
     * can have the values 'true' or 'false'
-    * if empty, 'false' is used as default
+    * if empty (or not defined), 'false' is used as default
+    * optional for all resources
 * types2
     * same format as types
     * optional in /ratio resource, not used in the others
@@ -173,7 +178,7 @@ Gives the count within the given bounding box for all ways, which have the key â
 }
 ```
 <p>
-* http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true
+* http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376|8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true
 <p> 
 Gives the count grouped by the boundary objects for all ways, which have the key "building" and the value "residential" for the time from 2015-01-01 till 2017-01-01 in a yearly interval.
 
@@ -181,9 +186,15 @@ Gives the count grouped by the boundary objects for all ways, which have the key
 {
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "metadata": {
+        "executionTime": 7832,
+        "unit": "amount",
+        "description": "Total number of items aggregated on the boundary object.",
+        "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376%7C8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true"
+    },
     "groupByBoundaryResult": [
         {
-            "groupByObject": "1",
+            "groupByObject": "bbox1",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
@@ -200,7 +211,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
             ]
         },
         {
-            "groupByObject": "2",
+            "groupByObject": "bbox2",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
@@ -216,13 +227,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
                 }
             ]
         }
-    ],
-    "metadata": {
-        "executionTime": 7428,
-        "unit": "amount",
-        "description": "Total number of items aggregated on the boundary object.",
-        "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376,8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true"
-    }
+    ]
 }
 ```
 <p>
