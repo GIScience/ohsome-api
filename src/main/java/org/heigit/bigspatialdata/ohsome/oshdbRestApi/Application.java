@@ -1,7 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -32,13 +31,14 @@ public class Application implements ApplicationRunner {
   public void run(ApplicationArguments args) throws Exception {
     OSHDB_H2 oshdb;
     OSHDB_H2 oshdbKeytables;
+    String dbPath = null;
+    String keytablesPath = null;
     boolean multithreading = true;
-    ArrayList<String> paths = new ArrayList<String>();
     for (String paramName : args.getOptionNames()){
       if (paramName.equals("database.db")) {
-        paths.add(args.getOptionValues(paramName).get(0));
+        dbPath = args.getOptionValues(paramName).get(0);
       } else if (paramName.equals("database.keytables")) {
-        paths.add(args.getOptionValues(paramName).get(0));
+        keytablesPath = args.getOptionValues(paramName).get(0);
       } else if (paramName.equals("database.multithreading")) {
         if (args.getOptionValues(paramName).get(0).equals("false"))
           multithreading = false;
@@ -47,12 +47,12 @@ public class Application implements ApplicationRunner {
             "There are only three possible option-names: database.db, database.keytables and database.multithreading.");
       }
     }
-    try {
+    try {   
       dbConnObjects = new OSHDB_H2[2];
-      oshdb = (new OSHDB_H2(paths.get(0)).multithreading(multithreading));
+      oshdb = (new OSHDB_H2(dbPath).multithreading(multithreading));
       dbConnObjects[0] = oshdb;
-      if (paths.size() == 2) {
-        oshdbKeytables = new OSHDB_H2(paths.get(1));
+      if (keytablesPath != null) {
+        oshdbKeytables = new OSHDB_H2(keytablesPath);
         dbConnObjects[1] = oshdbKeytables;
       }
     } catch (ClassNotFoundException | SQLException e) {
