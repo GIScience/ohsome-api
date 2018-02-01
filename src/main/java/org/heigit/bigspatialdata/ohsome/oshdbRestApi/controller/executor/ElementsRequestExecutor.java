@@ -16,7 +16,6 @@ import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.interceptor.ElementsRequestInterceptor;
@@ -267,10 +266,13 @@ public class ElementsRequestExecutor {
     // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
+    TagTranslator tt;
     // needed to get access to the keytables
-    EventHolderBean bean = Application.getEventHolderBean();
-    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
-    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
@@ -361,10 +363,13 @@ public class ElementsRequestExecutor {
       throw new BadRequestException("There has to be one groupByKey value given.");
     if (groupByValues == null)
       groupByValues = new String[0];
+    TagTranslator tt;
     // needed to get access to the keytables
-    EventHolderBean bean = Application.getEventHolderBean();
-    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
-    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKey.length];
     Integer[] valuesInt = new Integer[groupByValues.length];
     // will hold those input groupByValues, which cannot be found in the OSM data
@@ -573,10 +578,13 @@ public class ElementsRequestExecutor {
     if (keys2.length < values2.length)
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    TagTranslator tt;
     // needed to get access to the keytables
-    EventHolderBean bean = Application.getEventHolderBean();
-    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
-    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     // request url is only returned in output for GET requests
@@ -827,10 +835,13 @@ public class ElementsRequestExecutor {
     // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
+    TagTranslator tt;
     // needed to get access to the keytables
-    EventHolderBean bean = Application.getEventHolderBean();
-    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
-    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
@@ -958,10 +969,13 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     if (groupByValues == null)
       groupByValues = new String[0];
+    TagTranslator tt;
     // needed to get access to the keytables
-    EventHolderBean bean = Application.getEventHolderBean();
-    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
-    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKey.length];
     Integer[] valuesInt = new Integer[groupByValues.length];
     // will hold those input groupByValues, which cannot be found in the OSM data
@@ -1388,10 +1402,13 @@ public class ElementsRequestExecutor {
     if (keys2.length < values2.length)
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    TagTranslator tt;
     // needed to get access to the keytables
-    EventHolderBean bean = Application.getEventHolderBean();
-    OSHDB_H2[] dbConnObjects = bean.getDbConnObjects();
-    TagTranslator tt = new TagTranslator(dbConnObjects[1].getConnection());
+    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     // request url is only returned in output for GET requests

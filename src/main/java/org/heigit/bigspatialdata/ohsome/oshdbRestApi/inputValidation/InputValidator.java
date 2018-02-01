@@ -18,7 +18,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.eventHolder.EventHolderBean;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.NotImplementedException;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
@@ -94,9 +93,7 @@ public class InputValidator {
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata) throws BadRequestException {
 
-    // check if this method is called from a POST request
     if (isPost) {
-      // sets the string arrays to empty if they are null
       bboxes = checkBoundaryParamOnNull(bboxes);
       bpoints = checkBoundaryParamOnNull(bpoints);
       bpolys = checkBoundaryParamOnNull(bpolys);
@@ -106,12 +103,15 @@ public class InputValidator {
       userids = checkParamOnNull(userids);
       time = checkParamOnNull(time);
     }
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
 
     // database
-    EventHolderBean bean = Application.getEventHolderBean();
-    dbConnObjects = bean.getDbConnObjects();
-    mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
+    dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0].multithreading(true));
+    else
+      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0].multithreading(true))
+          .keytables(dbConnObjects[1]);
 
     // metadata
     if (showMetadata == null)
@@ -124,7 +124,6 @@ public class InputValidator {
       throw new BadRequestException(
           "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
 
-    // boundary (no parameter = 0, bboxes = 1, bpoints = 2, or bpolys = 3)
     checkBoundaryParams(bboxes, bpoints, bpolys);
     String[] boundaryValues;
 
@@ -155,7 +154,6 @@ public class InputValidator {
         // interval is given
         mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
       } else
-        // no interval given
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
     } else if (time.length == 0) {
       // if no time parameter given --> return the default end time
@@ -170,13 +168,12 @@ public class InputValidator {
     // key/value parameters
     mapRed = checkKeysValues(mapRed, keys, values);
 
-    // checks if the userids parameter is not empty
     if (userids.length != 0) {
       checkUserids(userids);
-      // more efficient way to include all userIDs
       Set<Integer> useridSet = new HashSet<>();
-      for (String user : userids)
+      for (String user : userids) {
         useridSet.add(Integer.valueOf(user));
+      }
 
       mapRed = mapRed.where(entity -> {
         return useridSet.contains(entity.getUserId());
