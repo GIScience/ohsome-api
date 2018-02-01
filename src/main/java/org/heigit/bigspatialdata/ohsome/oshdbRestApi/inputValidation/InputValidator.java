@@ -19,7 +19,6 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.NotImplementedException;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -47,17 +46,12 @@ import com.vividsolutions.jts.geom.Polygonal;
  */
 public class InputValidator {
 
-  // HD: 8.6528, 49.3683, 8.7294, 49.4376
-  // world: -179.9999, 180, -85.0511, 85.0511
-  // default bbox defining the whole area (here: BW)
+  // default bbox coordinates defining the whole area (here: BW)
   private final double defMinLon = 7.3949;
   private final double defMaxLon = 10.6139;
   private final double defMinLat = 47.3937;
   private final double defMaxLat = 49.9079;
   private byte boundary;
-  /**
-   * Contains either custom ids or generated ones (int values starting at 1).
-   */
   private String[] boundaryIds;
   private BoundingBox bbox;
   private Geometry bpointGeom;
@@ -71,13 +65,10 @@ public class InputValidator {
   private String[] timeData;
   private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
-  /**
-   * [0]:oshdb [1]:keytables
-   */
   private OSHDB_H2[] dbConnObjects;
 
   /**
-   * Method to process the input parameters of a POST or GET request.
+   * Method to process the input parameters of any request.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
@@ -143,11 +134,9 @@ public class InputValidator {
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
               + "or you defined more than one boundary parameter.");
 
-    // osm-type (node, way, relation)
     osmTypes = checkTypes(types);
     mapRed = mapRed.osmTypes(osmTypes);
 
-    // time parameter
     if (time.length == 1) {
       timeData = extractIsoTime(time[0]);
       if (timeData[2] != null) {
@@ -156,7 +145,7 @@ public class InputValidator {
       } else
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
     } else if (time.length == 0) {
-      // if no time parameter given --> return the default end time
+      //no time parameter --> return default end time
       mapRed = mapRed.timestamps(defEndTime);
     } else {
       // list of timestamps
@@ -165,7 +154,6 @@ public class InputValidator {
       mapRed = mapRed.timestamps(firstElem, time);
     }
 
-    // key/value parameters
     mapRed = checkKeysValues(mapRed, keys, values);
 
     if (userids.length != 0) {
@@ -186,59 +174,6 @@ public class InputValidator {
   }
 
   /**
-   * Gets the array of points (bounding box, polygon and point [+ radius]) and adds an id before
-   * each element. Works atm for bboxes and bpoints.
-   * 
-   * @param boundary <code>String</code> array containing either bounding boxes, polygons, or points
-   *        (+ radius).
-   * @param boundaryType <code>String</code> defining which boundary parameter is given (bbox,
-   *        bpoint, bpoly).
-   * @return <code>String</code> array containing the given coordinates of each element + an added
-   *         ID.
-   */
-  @SuppressWarnings("unused")
-  private String[] addId(String[] boundary, String boundaryType) {
-
-    int length;
-    String[] boundaryId = null;
-    int count = 0;
-    switch (boundaryType) {
-      case "bbox":
-        length = boundary.length + (boundary.length / 4);
-        boundaryId = new String[length];
-        for (int i = 0; i < boundary.length; i += 4) {
-          // sets the id
-          boundaryId[i + count] = String.valueOf(count);
-          // sets the coordinate values
-          boundaryId[i + 1 + count] = boundary[i];
-          boundaryId[i + 2 + count] = boundary[i + 1];
-          boundaryId[i + 3 + count] = boundary[i + 2];
-          boundaryId[i + 4 + count] = boundary[i + 3];
-          count++;
-        }
-        break;
-      case "bpoint":
-        length = boundary.length + (boundary.length / 3);
-        boundaryId = new String[length];
-        for (int i = 0; i < boundary.length; i += 3) {
-          // sets the id
-          boundaryId[i + count] = String.valueOf(count);
-          // sets the coordinate values + the radius
-          boundaryId[i + 1 + count] = boundary[i];
-          boundaryId[i + 2 + count] = boundary[i + 1];
-          boundaryId[i + 3 + count] = boundary[i + 2];
-          count++;
-        }
-        break;
-      case "bpoly":
-        throw new NotImplementedException(
-            "Using polygons for groupBy/boundary is not implemented yet.");
-    }
-
-    return boundaryId;
-  }
-
-  /**
    * Checks the given boundary parameter(s) and sets a corresponding byte value (0 for no boundary,
    * 1 for bboxes, 2 for bpoints, 3 for bpolys). Only one (or none) of them is allowed to have
    * content in it.
@@ -252,16 +187,12 @@ public class InputValidator {
    */
   private void checkBoundaryParams(String bboxes, String bpoints, String bpolys) {
     if (bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
-      // no boundary param given --> 'global' request
       this.boundary = 0;
     } else if (!bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
-      // bboxes given
       this.boundary = 1;
     } else if (bboxes.isEmpty() && !bpoints.isEmpty() && bpolys.isEmpty()) {
-      // bpoints given
       this.boundary = 2;
     } else if (bboxes.isEmpty() && bpoints.isEmpty() && !bpolys.isEmpty()) {
-      // bpolys given
       this.boundary = 3;
     } else
       throw new BadRequestException(

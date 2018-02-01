@@ -16,7 +16,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class SwaggerConfig {
   @Bean
   public Docket api() {
-    return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.springBootWebAPI"))
+    return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.oshdbRestApi"))
         .paths(regex("/elements.*")).build();
   }
 }

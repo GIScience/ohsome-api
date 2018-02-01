@@ -141,8 +141,8 @@ public class AreaController {
   }
 
   /**
-   * GET request giving the area of items satisfying keys, values (+ other params) and part of items
-   * satisfying keys2, values2.(+ other params).
+   * GET request giving the area of items satisfying keys, values (plus other parameters) and part of items
+   * satisfying keys2, values2 (plus other parameters).
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
