@@ -11,24 +11,21 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* atm for local testing as well: IDE like [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a), or an editor that can be used to modify .java files like [Notepad++](https://notepad-plus-plus.org/download/v7.5.4.html)
-* data: keytables.mv.db and baden-wuerttemberg.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data* or click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/How+to+set+up+the+database+locally) to see a guide how to download new data yourself)
+* data: e.g. baden-wuerttemberg.oshdb.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data* or click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/How+to+set+up+the+database+locally) to see a guide how to download new data yourself)
 
 ### Setting-up/Running
 
-1. checkout/download the repository and import it as a Maven project in your IDE (or navigate in an editor to the class defined in step 2)
-2. go to the class ContextRefreshedListener.java in the package listener and change the following paths to your local directories of the db files and make sure to exclude the file endings '.mv.db' from the path
+1. checkout/download the repository
+2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
+3. enter the command *mvn package* to build the project
+4. to run the jar file enter the following (changes depending on your data):
+    * keytables included (v_0.3.1): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb*
+    * keytables not included (v_0.3.1): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
 
-    ```java
-        @Override
-        public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-            System.out.println("Context Event Received");
-            eventHolderBean.dbConn("C:/yourPath/baden-wuerttemberg.oshdb",
-    				"C:/yourPath/keytables", true);
-    ```
-3. move to your Maven project directory in a shell (e.g. Windows PowerShell)
-4. enter the command *mvn package* to build the project
-5. enter the command *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar* to run the jar file
+Note:
+* additionally you can add an optional run-parameter to disable multithreading: *--database.multithreading=false*
+* if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
+    * in Eclipse: Run As --> Run Configurations --> (x)= Arguments --> Program arguments: --enter the parameters here--
 
 Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
