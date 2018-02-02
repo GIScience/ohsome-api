@@ -62,15 +62,12 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp().count();
-    // output
     Result[] resultSet = new Result[result.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
@@ -84,7 +81,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount",
           "Total number of elements, which are selected by the parameters.", null, requestURL);
     }
-
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
 
@@ -105,10 +101,8 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     // db result
@@ -117,7 +111,6 @@ public class ElementsRequestExecutor {
           return f.getEntity().getType();
         }).count();
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     int innerCount = 0;
@@ -125,7 +118,7 @@ public class ElementsRequestExecutor {
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
@@ -140,7 +133,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
           null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, resultSet, null, null, null);
     return response;
@@ -160,26 +152,20 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // switch on the given boundary parameter
     switch (iV.getBoundary()) {
       case 0:
         throw new BadRequestException(
             "You need to give more than one bbox if you want to use /groupBy/boundary.");
       case 1:
-        // create the geometry of the bboxes
         ArrayList<Geometry> bboxGeoms = iV.getGeometry("bbox");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bboxesList = new LinkedList<>();
-          // check in which bbox the current element is (if any)
           for (int i = 0; i < bboxGeoms.size(); i++) {
             if (f.getGeometry().intersects(bboxGeoms.get(i))) {
-              // add the ID of the current bbox to the list
               bboxesList.add(i);
             }
           }
@@ -187,14 +173,11 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).count();
         break;
       case 2:
-        // create the geometry of the bpoints
         ArrayList<Geometry> bpointGeoms = iV.getGeometry("bpoint");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpointsList = new LinkedList<>();
-          // check in which bpoint the current element is (if any)
           for (int i = 0; i < bpointGeoms.size(); i++) {
             if (f.getGeometry().intersects(bpointGeoms.get(i))) {
-              // add the ID of the current bpoint to the list
               bpointsList.add(i);
             }
           }
@@ -202,14 +185,11 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).count();
         break;
       case 3:
-        // create the geometry of the bpolys
         ArrayList<Geometry> bpolyGeoms = iV.getGeometry("bpoly");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpolysList = new LinkedList<>();
-          // check in which bpoly the current element is (if any)
           for (int i = 0; i < bpolyGeoms.size(); i++) {
             if (f.getGeometry().intersects(bpolyGeoms.get(i))) {
-              // add the ID of the current bpoly to the list
               bpolysList.add(i);
             }
           }
@@ -218,7 +198,6 @@ public class ElementsRequestExecutor {
         break;
     }
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     String[] boundaryIds = iV.getBoundaryIds();
@@ -296,11 +275,9 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt;
-    // needed to get access to the keytables
     OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
@@ -311,10 +288,8 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/key");
     }
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // get the integer values for the given keys
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
     }
@@ -325,7 +300,6 @@ public class ElementsRequestExecutor {
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         for (int key : keysInt) {
-          // if key in input key list
           if (tagKeyId == key) {
             res.add(new ImmutablePair<>(tagKeyId, f));
           }
@@ -335,10 +309,7 @@ public class ElementsRequestExecutor {
         res.add(new ImmutablePair<>(-1, f));
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
-
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
@@ -353,7 +324,7 @@ public class ElementsRequestExecutor {
       } else {
         groupByName = "remainder";
       }
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
@@ -368,7 +339,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the key.",
           null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, null, resultSet, null, null);
     return response;
@@ -388,16 +358,13 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // check the groupByKey and groupByValues parameters
     if (groupByKey == null || groupByKey.length == 0)
       throw new BadRequestException("There has to be one groupByKey value given.");
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
-    // needed to get access to the keytables
     OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
@@ -405,26 +372,22 @@ public class ElementsRequestExecutor {
       tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKey.length];
     Integer[] valuesInt = new Integer[groupByValues.length];
-    // will hold those input groupByValues, which cannot be found in the OSM data
+    // will hold those input groupByValues, which do not exist in the OSM database
     Set<String> valuesSet = new HashSet<String>(Arrays.asList(groupByValues));
     boolean hasUnresolvableKey = false;
     if (groupByKey == null || groupByKey.length == 0) {
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     }
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // get the integer values for the given keys
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
-      // if the given key cannot be resolved
       if (keysInt[i] == null) {
         keysInt[i] = -2;
         hasUnresolvableKey = true;
       }
       if (groupByValues != null) {
-        // get the integer values for the given values
         for (int j = 0; j < groupByValues.length; j++) {
           valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
           if (valuesInt[j] == null) {
@@ -440,14 +403,12 @@ public class ElementsRequestExecutor {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
         for (int key : keysInt) {
-          // if key in input key list
           if (tagKeyId == key) {
             if (valuesInt.length == 0) {
               return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
                   f);
             }
             for (int value : valuesInt) {
-              // if value in input value list
               if (tagValueId == value)
                 return new ImmutablePair<>(
                     new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
@@ -457,13 +418,10 @@ public class ElementsRequestExecutor {
       }
       return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
-
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
     String groupByName = "";
     int count = 0;
-    // needed in case of unresolved values
     int entrySetSize = 0;
     ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
@@ -484,10 +442,10 @@ public class ElementsRequestExecutor {
         if (groupByResult.entrySet().size() == 1)
           hasUnresolvableKey = true;
       }
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         if (count == 0)
-          // write the timestamps into an ArrayList for later usage
+          // timestamps needed for later usage
           resultTimestamps.add(innerEntry.getKey().formatIsoDateTime());
         results[innerCount] =
             new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
@@ -496,7 +454,6 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    // if the groupByKey is unresolved
     if (hasUnresolvableKey) {
       Result[] results = new Result[entrySetSize];
       int innerCount = 0;
@@ -528,7 +485,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
           null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, null, null, resultSet, null);
     return response;
@@ -541,26 +497,21 @@ public class ElementsRequestExecutor {
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
-
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
         }).count();
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     int innerCount = 0;
@@ -568,7 +519,7 @@ public class ElementsRequestExecutor {
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
@@ -583,7 +534,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount",
           "Total number of items aggregated on the userids.", null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, null, null, null, resultSet);
     return response;
@@ -602,7 +552,6 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // check on null and length of keys2 and values 2
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
           "You need to define at least one key if you want to use /share.");
@@ -612,7 +561,6 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
-    // needed to get access to the keytables
     OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
@@ -620,10 +568,8 @@ public class ElementsRequestExecutor {
       tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // get the integer values for the given keys
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.key2Int(keys2[i]);
       if (keysInt2[i] == null)
@@ -636,13 +582,11 @@ public class ElementsRequestExecutor {
               "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }
     }
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
-      // if there is the same amount of keys and values
       for (int i = 0; i < keysInt2.length; i++) {
         if (f.getEntity().hasTagKey(keysInt2[i])) {
           if (i >= valuesInt2.length) {
@@ -663,7 +607,6 @@ public class ElementsRequestExecutor {
       }
       return hasTags;
     }).count();
-
     Integer[] whole = new Integer[result.size()];
     Integer[] part = new Integer[result.size()];
     String[] timeArray = new String[result.size()];
@@ -685,12 +628,10 @@ public class ElementsRequestExecutor {
         // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
         part[partCount] = entry.getValue();
-
         if (whole[partCount] == null || whole[partCount] == -1)
           whole[partCount] = entry.getValue();
         else
           whole[partCount] = whole[partCount] + entry.getValue();
-
         partCount++;
       } else {
         // else - set/increase only whole
@@ -698,7 +639,6 @@ public class ElementsRequestExecutor {
           whole[wholeCount] = entry.getValue();
         else
           whole[wholeCount] = whole[wholeCount] + entry.getValue();
-
         wholeCount++;
       }
       timeCount++;
@@ -710,15 +650,12 @@ public class ElementsRequestExecutor {
     if (timeArray.length < 1) {
       timeArray = noPartTimeArray;
     }
-    // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
-      // set whole or part to 0 if they have -1 (== no value)
       if (whole[i] == -1)
         whole[i] = 0;
       if (part[i] == -1)
         part[i] = 0;
-
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
     Metadata metadata = null;
@@ -728,7 +665,6 @@ public class ElementsRequestExecutor {
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
           null, requestURL);
     }
-
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
     return response;
@@ -751,14 +687,10 @@ public class ElementsRequestExecutor {
     String unit;
     String description;
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // db result
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           if (isArea) {
@@ -767,7 +699,6 @@ public class ElementsRequestExecutor {
             return Geo.lengthOf(snapshot.getGeometry());
           }
         });
-    // output
     Result[] resultSet = new Result[result.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
@@ -790,7 +721,6 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
@@ -808,14 +738,10 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // db result
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           // checks if the geometry is polygonal (needed for OSM relations, which are not polygonal)
@@ -824,7 +750,6 @@ public class ElementsRequestExecutor {
           else
             return 0.0;
         });
-    // output
     Result[] resultSet = new Result[result.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
@@ -841,7 +766,6 @@ public class ElementsRequestExecutor {
       metadata =
           new Metadata(duration, "meters", "Total perimeter of polygonal items.", null, requestURL);
     }
-
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
@@ -865,11 +789,9 @@ public class ElementsRequestExecutor {
     String unit = "";
     String description = "";
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt;
-    // needed to get access to the keytables
     OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
@@ -880,10 +802,8 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     }
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // get the integer values for the given keys
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
     }
@@ -919,10 +839,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
@@ -940,7 +857,7 @@ public class ElementsRequestExecutor {
       } else {
         groupByName = "remainder";
       }
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
@@ -949,7 +866,6 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    // setting of the unit and description output parameters
     switch (requestType) {
       case 1:
         unit = "meter";
@@ -969,7 +885,6 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, null, resultSet, null, null);
     return response;
@@ -993,17 +908,14 @@ public class ElementsRequestExecutor {
     String unit = "";
     String description = "";
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // check the groupByKey and groupByValues parameters
     if (groupByKey == null || groupByKey.length == 0)
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
-    // needed to get access to the keytables
     OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
@@ -1014,21 +926,16 @@ public class ElementsRequestExecutor {
     // will hold those input groupByValues, which cannot be found in the OSM data
     Set<String> valuesSet = new HashSet<String>(Arrays.asList(groupByValues));
     boolean hasUnresolvableKey = false;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // get the integer values for the given keys
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
-      // if the given key cannot be resolved
       if (keysInt[i] == null) {
         keysInt[i] = -2;
         hasUnresolvableKey = true;
       }
       if (groupByValues != null) {
-        // get the integer values for the given values
         for (int j = 0; j < groupByValues.length; j++) {
-          // gets null, if value cannot be found in keytables
           valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
           if (valuesInt[j] == null) {
             valuesInt[j] = -1;
@@ -1047,14 +954,12 @@ public class ElementsRequestExecutor {
           if (key == -2) {
             return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-2, -1), f);
           }
-          // if key in input key list
           if (tagKeyId == key) {
             if (valuesInt.length == 0) {
               return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
                   f);
             }
             for (int j = 0; j < valuesInt.length; j++) {
-              // if value in input value list
               if (tagValueId == valuesInt[j])
                 return new ImmutablePair<>(
                     new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
@@ -1080,7 +985,6 @@ public class ElementsRequestExecutor {
           }
         });
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
     String groupByName = "";
@@ -1109,7 +1013,7 @@ public class ElementsRequestExecutor {
         if (groupByResult.entrySet().size() == 1)
           hasUnresolvableKey = true;
       }
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         if (count == 0)
           // write the timestamps into an ArrayList for later usage
@@ -1121,7 +1025,6 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    // if the groupByKey is unresolved
     if (hasUnresolvableKey) {
       Result[] results = new Result[entrySetSize];
       int innerCount = 0;
@@ -1147,7 +1050,6 @@ public class ElementsRequestExecutor {
     }
     // remove null objects in the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-    // setting of the unit and description output parameters
     switch (requestType) {
       case 1:
         unit = "meter";
@@ -1167,7 +1069,6 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, null, null, resultSet, null);
     return response;
@@ -1192,13 +1093,10 @@ public class ElementsRequestExecutor {
     String unit = "";
     String description = "";
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
@@ -1218,7 +1116,6 @@ public class ElementsRequestExecutor {
           }
         });
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
@@ -1229,7 +1126,7 @@ public class ElementsRequestExecutor {
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
@@ -1238,7 +1135,6 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    // setting of the unit and description output parameters
     switch (requestType) {
       case 1:
         unit = "meter";
@@ -1258,7 +1154,6 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, null, null, null, resultSet);
     return response;
@@ -1283,13 +1178,10 @@ public class ElementsRequestExecutor {
     String unit;
     String description;
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
@@ -1304,7 +1196,6 @@ public class ElementsRequestExecutor {
           }
         });
     groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
-    // output
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
@@ -1315,7 +1206,7 @@ public class ElementsRequestExecutor {
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // iterate over the inner entry objects containing timestamp-value pairs
+      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
@@ -1324,7 +1215,6 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    // setting of the unit and description output parameters
     if (isArea) {
       unit = "square-meter";
       description = "Total area of items aggregated on the type.";
@@ -1337,7 +1227,6 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-
     GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
         null, resultSet, null, null, null);
     return response;
@@ -1355,13 +1244,10 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // count result
     countResult = mapRed.aggregateByTimestamp().count();
     int count = 0;
     Result[] countResultSet = new Result[countResult.size()];
@@ -1370,7 +1256,6 @@ public class ElementsRequestExecutor {
           new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
       count++;
     }
-    // geometry
     Geometry geom = null;
     switch (iV.getBoundary()) {
       case 0:
@@ -1386,13 +1271,11 @@ public class ElementsRequestExecutor {
         geom = iV.getBpoly();
         break;
     }
-    // output
     Result[] resultSet = new Result[countResult.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
     DecimalFormat densityDf = new DecimalFormat("#.##########", otherSymbols);
     for (int i = 0; i < resultSet.length; i++) {
-      // gets the timestamp and the results from count and divides it through the area
       String date = countResultSet[i].getTimestamp();
       double value = Double.parseDouble(
           densityDf.format((countResultSet[i].getValue() / (Geo.areaOf(geom) / 1000000))));
@@ -1404,7 +1287,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "items per square-kilometer",
           "Density of selected items (number of items per area).", null, requestURL);
     }
-
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
@@ -1426,7 +1308,6 @@ public class ElementsRequestExecutor {
     String unit = "";
     String description = "";
     String requestURL = null;
-    // check on null and length of keys2 and values 2
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
           "You need to define at least one key if you want to use /share.");
@@ -1444,10 +1325,8 @@ public class ElementsRequestExecutor {
       tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // get the integer values for the given keys
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.key2Int(keys2[i]);
       if (keysInt2[i] == null)
@@ -1460,13 +1339,11 @@ public class ElementsRequestExecutor {
               "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }
     }
-    // input parameter processing
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
-      // if there is the same amount of keys and values
       for (int i = 0; i < keysInt2.length; i++) {
         if (f.getEntity().hasTagKey(keysInt2[i])) {
           if (i >= valuesInt2.length) {
@@ -1501,7 +1378,6 @@ public class ElementsRequestExecutor {
           return 0.0;
       }
     });
-
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
     DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
@@ -1523,18 +1399,15 @@ public class ElementsRequestExecutor {
       // this time array counts for each entry in the entrySet
       noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
       if (entry.getKey().getOtherIndex()) {
-        // if true - set timestamp and set/increase part and/or whole
         timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
         part[partCount] =
             Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
-
         if (whole[partCount] == null || whole[partCount] == -1)
           whole[partCount] =
               Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
         else
           whole[partCount] = whole[partCount]
               + Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
-
         partCount++;
       } else {
         // else - set/increase only whole
@@ -1544,19 +1417,16 @@ public class ElementsRequestExecutor {
         else
           whole[wholeCount] = whole[partCount]
               + Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
-
         wholeCount++;
       }
       timeCount++;
     }
     // remove the possible null values in the array
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    // overwrite time array in case the given key for part is not existent in the whole for no
-    // timestamp
+    // overwrite in case the given key for part is not existent in the whole for no timestamp
     if (timeArray.length < 1) {
       timeArray = noPartTimeArray;
     }
-    // output
     ShareResult[] resultSet = new ShareResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
       // set whole or part to 0 if they have -1 (== no value)
@@ -1566,7 +1436,6 @@ public class ElementsRequestExecutor {
         part[i] = 0.0;
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
-    // setting of the unit and description output parameters
     switch (requestType) {
       case 1:
         unit = "meter";
@@ -1589,7 +1458,6 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
     return response;
@@ -1610,18 +1478,14 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed2;
     InputValidator iV = new InputValidator();
     String requestURL = null;
-    // request url is only returned in output for GET requests
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    // input parameter processing 1 and result 1
     mapRed1 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result1 = mapRed1.aggregateByTimestamp().count();
-    // input parameter processing 2 and result 2
     mapRed2 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types2, keys2, values2, userids,
         time, showMetadata);
     result2 = mapRed2.aggregateByTimestamp().count();
-    // resultSet 1
     Result[] resultSet1 = new Result[result1.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
@@ -1629,11 +1493,9 @@ public class ElementsRequestExecutor {
           new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
       count++;
     }
-    // output
     RatioResult[] resultSet = new RatioResult[result1.size()];
     count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
-      // gets the timestamp and the results from both counts and divides 2 through 1
       String date = resultSet1[count].getTimestamp();
       double ratio = entry.getValue().floatValue() / resultSet1[count].getValue();
       resultSet[count] =
