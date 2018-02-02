@@ -1,7 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataExtractionResponse;
 
 import java.util.ArrayList;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.Metadata;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Metadata;
 
 /**
  * First level object in the POST JSON response. This was implemented before the detailed concept of

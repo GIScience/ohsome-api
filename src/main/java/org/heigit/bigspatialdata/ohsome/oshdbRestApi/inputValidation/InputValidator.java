@@ -56,6 +56,7 @@ public class InputValidator {
   private BoundingBox bbox;
   private Geometry bpointGeom;
   private Polygon bpoly;
+  private String[] boundaryValues;
   private Collection<Geometry> bboxColl;
   private Collection<Geometry> bpointColl;
   private Collection<Geometry> bpolyColl;
@@ -116,7 +117,6 @@ public class InputValidator {
           "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
 
     checkBoundaryParams(bboxes, bpoints, bpolys);
-    String[] boundaryValues;
 
     if (this.boundary == 0) {
       mapRed = mapRed.areaOfInterest(createBbox(new String[0]));
@@ -994,6 +994,10 @@ public class InputValidator {
     return boundaryIds;
   }
 
+  public String[] getBoundaryValues() {
+    return boundaryValues;
+  }
+  
   public BoundingBox getBbox() {
     return bbox;
   }

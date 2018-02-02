@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
 
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.Metadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -8,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
  * /groupBy resource. It contains the license and copyright, optional
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.Metadata Metadata} as well as the
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Metadata Metadata} as well as the
  * results section showing either
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result
  * Result},
@@ -18,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * ShareResult} objects.
  *
  */
-@JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result
+@JsonInclude(Include.NON_NULL)
 public class ElementsResponseContent {
 
   private String license;

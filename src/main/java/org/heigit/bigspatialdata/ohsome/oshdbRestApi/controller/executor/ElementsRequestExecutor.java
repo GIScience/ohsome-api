@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,11 +20,12 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.interceptor.ElementsRequestInterceptor;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.Metadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Metadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResult;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByBoundaryMetadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
@@ -82,7 +84,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount",
           "Total number of elements, which are selected by the parameters.", null, requestURL);
     }
-    // response
+
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
 
@@ -138,9 +140,9 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
           null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, resultSet, null, null, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, resultSet, null, null, null);
     return response;
   }
 
@@ -226,9 +228,7 @@ public class ElementsRequestExecutor {
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // set the name of the current boundary object
       groupByName = boundaryIds[count];
-      // iterate over the inner entry objects containing timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
@@ -237,15 +237,48 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    Metadata metadata = null;
+    GroupByBoundaryMetadata gBBMetadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, "amount",
-          "Total number of items aggregated on the boundary object.", null, requestURL);
+      Map<String, double[]> boundaries = new HashMap<String, double[]>();
+      switch (iV.getBoundary()) {
+        case 0:
+          double[] singleBboxValues = new double[4];
+          for (int i = 0; i < 4; i++)
+            singleBboxValues[i] = Double.parseDouble(iV.getBoundaryValues()[i]);
+          boundaries.put(boundaryIds[0], singleBboxValues);
+          break;
+        case 1:
+          int bboxCount = 0;
+          for (int i = 0; i < iV.getBoundaryValues().length; i += 4) {
+            double[] bboxValues = new double[4];
+            for (int j = 0; j < 4; j++)
+              bboxValues[j] = Double.parseDouble(iV.getBoundaryValues()[i + j]);
+            boundaries.put(boundaryIds[bboxCount], bboxValues);
+            bboxCount++;
+          }
+          break;
+        case 2:
+          int bpointCount = 0;
+          for (int i = 0; i < iV.getBoundaryValues().length; i += 3) {
+            double[] bpointValues = new double[3];
+            for (int j = 0; j < 3; j++)
+              bpointValues[j] = Double.parseDouble(iV.getBoundaryValues()[i + j]);
+            boundaries.put(boundaryIds[bpointCount], bpointValues);
+            bpointCount++;
+          }
+          break;
+        case 3:
+          // TODO implement for bpolys (should be done together with WKT implementation)
+          boundaries = null;
+          break;
+      }
+      gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
+          "Total number of items aggregated on the boundary object.", requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, resultSet, null, null, null, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, null,
+        gBBMetadata, resultSet, null, null, null, null);
     return response;
   }
 
@@ -335,9 +368,9 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the key.",
           null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, null, resultSet, null, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, null, resultSet, null, null);
     return response;
   }
 
@@ -495,9 +528,9 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
           null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, null, null, resultSet, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, null, null, resultSet, null);
     return response;
   }
 
@@ -550,9 +583,9 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount",
           "Total number of items aggregated on the userids.", null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, null, null, null, resultSet);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, null, null, null, resultSet);
     return response;
   }
 
@@ -695,7 +728,7 @@ public class ElementsRequestExecutor {
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
           null, requestURL);
     }
-    // response
+
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
     return response;
@@ -757,7 +790,7 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-    // response
+
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
@@ -808,7 +841,7 @@ public class ElementsRequestExecutor {
       metadata =
           new Metadata(duration, "meters", "Total perimeter of polygonal items.", null, requestURL);
     }
-    // response
+
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
@@ -936,9 +969,9 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, null, resultSet, null, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, null, resultSet, null, null);
     return response;
   }
 
@@ -1134,9 +1167,9 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, null, null, resultSet, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, null, null, resultSet, null);
     return response;
   }
 
@@ -1225,9 +1258,9 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, null, null, null, resultSet);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, null, null, null, resultSet);
     return response;
   }
 
@@ -1304,9 +1337,9 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-    // response
-    GroupByResponseContent response =
-        new GroupByResponseContent(license, copyright, metadata, null, resultSet, null, null, null);
+
+    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
+        null, resultSet, null, null, null);
     return response;
   }
 
@@ -1371,7 +1404,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "items per square-kilometer",
           "Density of selected items (number of items per area).", null, requestURL);
     }
-    // response
+
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
     return response;
@@ -1556,7 +1589,7 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, null, requestURL);
     }
-    // response
+
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
     return response;
@@ -1615,10 +1648,8 @@ public class ElementsRequestExecutor {
               + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
           null, requestURL);
     }
-    // response
     ElementsResponseContent response =
         new ElementsResponseContent(license, copyright, metadata, null, null, resultSet, null);
     return response;
   }
-
 }

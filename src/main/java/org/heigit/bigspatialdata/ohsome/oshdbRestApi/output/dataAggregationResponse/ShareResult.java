@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * Represents the result JSON object for the share request containing the timestamp together with
  * the whole and the part(ial) value.
  */
-@JsonInclude(Include.NON_NULL) // needed to exclude NULL objects from the result
+@JsonInclude(Include.NON_NULL)
 public class ShareResult {
   private String timestamp;
   private double whole;
