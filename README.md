@@ -20,12 +20,12 @@ These instructions will get you a copy of the project up and running on your loc
 3. enter the command *mvn package* to build the project
 4. to run the jar file enter the following (changes depending on your data):
     * keytables included (v_0.3.1): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb*
-    * keytables not included (v_0.3.1): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
+    * keytables not included (v_0.3): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
 
 Note:
 * additionally you can add an optional run-parameter to disable multithreading: *--database.multithreading=false*
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
-    * in Eclipse: Run As --> Run Configurations --> (x)= Arguments --> Program arguments: --enter the parameters here--
+    * in Eclipse: Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'
 
 Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
 
