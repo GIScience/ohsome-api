@@ -217,7 +217,6 @@ public class ElementsRequestExecutor {
       count++;
     }
     GroupByBoundaryMetadata gBBMetadata = null;
-    long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       Map<String, double[]> boundaries = new HashMap<String, double[]>();
       switch (iV.getBoundary()) {
@@ -252,6 +251,7 @@ public class ElementsRequestExecutor {
           boundaries = null;
           break;
       }
+      long duration = System.currentTimeMillis() - startTime;
       gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
           "Total number of items aggregated on the boundary object.", requestURL);
     }
@@ -1494,10 +1494,19 @@ public class ElementsRequestExecutor {
       count++;
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.######", otherSymbols);
     count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
       String date = resultSet1[count].getTimestamp();
-      double ratio = entry.getValue().floatValue() / resultSet1[count].getValue();
+      double ratio = (entry.getValue().doubleValue() / resultSet1[count].getValue());
+      // in case ratio has the value "NaN", "Infinity", etc.
+      try {
+        ratio = Double.parseDouble(lengthPerimeterAreaDf.format(ratio));
+      } catch (Exception e) {
+        // do nothing --> just return ratio without rounding (trimming)
+      }
       resultSet[count] =
           new RatioResult(date, resultSet1[count].getValue(), entry.getValue().intValue(), ratio);
       count++;
