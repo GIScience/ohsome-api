@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
- * database on startup using parameters provided via the console.
+ * database on startup in the {@link #run(ApplicationArguments) run()} method using parameters
+ * provided via the console.
  */
 @SpringBootApplication
 public class Application implements ApplicationRunner {
@@ -44,8 +45,8 @@ public class Application implements ApplicationRunner {
       } else {
         throw new RuntimeException(
             "There are only three possible option-names: database.db, database.keytables and database.multithreading. "
-            + "The first one is mandatory, the second one becomes mandatory if the keytables are not included in the db file "
-            + "and the third one is optional.");
+                + "The first one is mandatory, the second one becomes mandatory if the keytables are not included in the db file "
+                + "and the third one is optional.");
       }
     }
     try {

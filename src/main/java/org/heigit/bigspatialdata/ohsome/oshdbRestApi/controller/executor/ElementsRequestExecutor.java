@@ -736,7 +736,6 @@ public class ElementsRequestExecutor {
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -800,7 +799,6 @@ public class ElementsRequestExecutor {
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -857,7 +855,6 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -985,7 +982,6 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -1178,7 +1174,6 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -1272,7 +1267,6 @@ public class ElementsRequestExecutor {
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -1352,7 +1346,6 @@ public class ElementsRequestExecutor {
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -1424,7 +1417,6 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -1604,7 +1596,6 @@ public class ElementsRequestExecutor {
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */

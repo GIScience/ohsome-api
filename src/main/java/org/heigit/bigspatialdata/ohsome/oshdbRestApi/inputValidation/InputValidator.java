@@ -76,9 +76,8 @@ public class InputValidator {
    * 
    * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
    *        request.
-   * 
-   * @return <code>MapReducer</code> object including the settings derived from the given
-   *         parameters.
+   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   *         including the settings derived from the given parameters.
    */
   public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -229,7 +228,6 @@ public class InputValidator {
 
     try {
       if (boundaryType == 1) {
-        // bboxes given
         if (boundaryObjects[0].contains(":")) {
           // custom ids are given
           boundaryParamValues = new String[boundaryObjects.length * 4];
@@ -256,10 +254,8 @@ public class InputValidator {
           // no custom ids are given
           boundaryParamValues = new String[boundaryObjects.length * 4];
           idCount = 1;
-          // walks through the bbox objects
           for (String bObject : boundaryObjects) {
             coords = bObject.split("\\,");
-            // walks through the coordinates
             for (String coord : coords) {
               boundaryParamValues[paramCount] = coord;
               paramCount++;
@@ -297,7 +293,6 @@ public class InputValidator {
           // no custom ids are given
           boundaryParamValues = new String[boundaryObjects.length * 3];
           idCount = 1;
-          // walks through the bbox objects
           for (String bObject : boundaryObjects) {
             coords = bObject.split("\\,");
             // walks through the coordinates + radius
@@ -329,7 +324,6 @@ public class InputValidator {
                 paramCount++;
               }
               idCount++;
-
             } else {
               throw new BadRequestException(
                   "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
@@ -340,7 +334,6 @@ public class InputValidator {
           // no custom ids are given
           boundaryParamValues = new String[boundaryParam.length()];
           idCount = 1;
-          // walks through the bbox objects
           for (String bObject : boundaryObjects) {
             coords = bObject.split("\\,");
             // walks through the coordinates
@@ -361,7 +354,6 @@ public class InputValidator {
               + "and optionally add custom ids with the colon ':' at the first coordinate of each object.");
     }
     this.boundaryIds = boundaryIds;
-    // remove the possible null values in the array
     boundaryParamValues =
         Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
     return boundaryParamValues;
@@ -373,7 +365,6 @@ public class InputValidator {
    * 
    * @param bbox <code>String</code> array containing the lon/lat coordinates of the bounding box.
    *        It must consist of 2 lon/lat coordinate pairs (bottom-left and top-right).
-   * 
    * @return <code>BoundingBox</code> object.
    * @throws BadRequestException Invalid coordinates.
    */
@@ -384,12 +375,10 @@ public class InputValidator {
       return this.bbox;
     } else if (bbox.length == 4) {
       try {
-        // parsing of the bbox values
         double minLon = Double.parseDouble(bbox[0]);
         double minLat = Double.parseDouble(bbox[1]);
         double maxLon = Double.parseDouble(bbox[2]);
         double maxLat = Double.parseDouble(bbox[3]);
-        // creation of the bbox
         this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
         bboxColl = new LinkedHashSet<Geometry>();;
         bboxColl.add(this.bbox.getGeometry());
@@ -411,7 +400,6 @@ public class InputValidator {
    * @param bboxes <code>String</code> array containing the lon/lat coordinates of the bounding
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
-   * 
    * @return <code>Geometry</code> object representing the unified bounding boxes.
    * @throws BadRequestException Invalid coordinates.
    */
@@ -420,28 +408,22 @@ public class InputValidator {
     try {
       Geometry unifiedBbox;
       GeometryFactory gf = new GeometryFactory();
-      // parsing of the first bboxes values
       double minLon = Double.parseDouble(bboxes[0]);
       double minLat = Double.parseDouble(bboxes[1]);
       double maxLon = Double.parseDouble(bboxes[2]);
       double maxLat = Double.parseDouble(bboxes[3]);
-      // creation of the first bbox
       this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
       unifiedBbox = gf.createGeometry(this.bbox.getGeometry());
-      // create the collection and add the bbox geometry
       bboxColl = new LinkedHashSet<Geometry>();;
       bboxColl.add(this.bbox.getGeometry());
 
       for (int i = 4; i < bboxes.length; i += 4) {
-        // parsing of the other bboxes values
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
         this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
-        // add it to the geometry collection
         bboxColl.add(this.bbox.getGeometry());
-        // union of the bboxes
         unifiedBbox = unifiedBbox.union(this.bbox.getGeometry());
       }
       return unifiedBbox;
@@ -457,9 +439,7 @@ public class InputValidator {
    * 
    * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
    *        and [1] and the size of the buffer at [2].
-   * 
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
-   * 
    * @throws BadRequestException Invalid coordinates or radius.
    */
   private Geometry createCircularPolygons(String[] bpoints) throws BadRequestException {
@@ -471,14 +451,11 @@ public class InputValidator {
     MathTransform transform = null;
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     try {
-      // walks through all bounding points, creates polygons and adds them to the collection
       for (int i = 0; i < bpoints.length; i += 3) {
-        // Set source and target CRS + transformation
         sourceCRS = CRS.decode("EPSG:4326", true);
         targetCRS = CRS.decode(
             findEPSG(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])), true);
         transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
-        // creates a point and a buffer from the coordinates
         Point p = geomFact.createPoint(
             new Coordinate(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])));
         buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[i + 2]));
@@ -496,12 +473,9 @@ public class InputValidator {
       }
       // set the geometryCollection to be accessible for /groupBy/boundary
       bpointColl = geometryCollection;
-      // unifies polygons that intersect with each other
       geometryCollection = unifyIntersectedPolys(geometryCollection);
-      // creates a MultiPolygon out of the polygons in the collection
       MultiPolygon combined = createMultiPolygon(geometryCollection);
       bpointGeom = combined;
-
       return combined;
     } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
@@ -517,7 +491,6 @@ public class InputValidator {
    *        polygon(s).
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
-   * 
    * @throws BadRequestException Invalid coordinates.
    */
   private Geometry createBpolys(String[] bpolys) throws BadRequestException {
@@ -527,13 +500,10 @@ public class InputValidator {
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
-        // walks through the string array and parses the coordinates
         for (int i = 0; i < bpolys.length; i += 2) {
           coords.add(
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
-        // adds the first coordinate pair again so the polygon will be closed
-        coords.add(new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1])));
       } catch (NumberFormatException e) {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
@@ -542,31 +512,23 @@ public class InputValidator {
       this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
       return this.bpoly;
     } else {
-
       Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
       Coordinate firstPoint;
-
       try {
-        // sets the first point and adds it to the arraylist
         firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
         coords.add(firstPoint);
-        // walks through all remaining coordinates, creates polygons and adds them to the collection
         for (int i = 2; i < bpolys.length; i += 2) {
-          // compares the current point to the first point
           if (firstPoint.x == Double.parseDouble(bpolys[i])
               && firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
             Polygon poly;
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
-            // create a polygon from the coordinates and add it to the collection
             poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
             geometryCollection.add(poly);
-            // clear the coords array
             coords.removeAll(coords);
             // if the end is reached
             if (i + 2 >= bpolys.length)
               break;
-            // set the new first point and add it to the array
             firstPoint = new Coordinate(Double.parseDouble(bpolys[i + 2]),
                 Double.parseDouble(bpolys[i + 3]));
             coords.add(firstPoint);
@@ -576,9 +538,7 @@ public class InputValidator {
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
         bpolyColl = geometryCollection;
-        // unifies polygons that intersect with each other
         geometryCollection = unifyIntersectedPolys(geometryCollection);
-        // creates a MultiPolygon out of the polygons in the collection
         MultiPolygon combined = createMultiPolygon(geometryCollection);
         return combined;
       } catch (NumberFormatException e) {
@@ -593,18 +553,15 @@ public class InputValidator {
    * 
    * @param types <code>String</code> array containing 1, 2, or all 3 OSM types (node, way,
    *        relation). If the array is empty, all 3 types are used.
-   * 
    * @return <code>EnumSet</code> containing the requested OSM type(s).
    * @throws BadRequestException If the content of the parameter does not represent one, two, or all
    *         three OSM types.
    */
   private EnumSet<OSMType> checkTypes(String[] types) throws BadRequestException {
-    // checks if the types array is too big
     if (types.length > 3) {
       throw new BadRequestException(
           "Parameter containing the OSM Types cannot have more than 3 entries.");
     }
-    // check if the types array only contains the default value (length == 0)
     if (types.length == 0) {
       return EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
     }
@@ -667,15 +624,29 @@ public class InputValidator {
     return osmTypes;
   }
 
+  /**
+   * Checks the given keys and values parameters on their length and includes them in the
+   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String) where(key)}, or
+   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String, String)
+   * where(key, value)} method.
+   * <p>
+   * The keys and values parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   *         including the settings derived from the given parameters.
+   * @throws BadRequestException if there are more values than keys given
+   */
   private MapReducer<OSMEntitySnapshot> checkKeysValues(MapReducer<OSMEntitySnapshot> mapRed,
-      String[] keys, String[] values) {
+      String[] keys, String[] values) throws BadRequestException{
     if (keys.length < values.length) {
       throw new BadRequestException(
           "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
     }
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
-      // extracts the value entries from the old values array
       for (int a = 0; a < values.length; a++) {
         tempVal[a] = values[a];
       }
@@ -700,13 +671,11 @@ public class InputValidator {
    * Checks the content of the userids <code>String</code> array.
    * 
    * @param userids String array containing the OSM user IDs.
-   * 
-   * @throws BadRequestException If one of the userids is invalid.
+   * @throws BadRequestException if one of the userids is invalid
    */
   private void checkUserids(String[] userids) {
     for (String user : userids) {
       try {
-        // tries to parse the String to a long
         Long.valueOf(user);
       } catch (NumberFormatException e) {
         throw new BadRequestException(
@@ -800,28 +769,27 @@ public class InputValidator {
         throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
       }
     }
-
     return timeVals;
   }
 
   /**
-   * Checks the given <code>String</code> on its content and if it is ISO-8601 conform.
+   * Checks the given time-<code>String</code> on its content and if it is ISO-8601 conform.
    * 
    * @param time <code>String</code> containing the start or end time from the given time parameter.
-   * @throws BadRequestException if the given time-String is not ISO-8601 conform;
+   * @param startEnd <code>String</code> containing either "start" or "end" depending on the given
+   *        timestamp.
+   * @throws BadRequestException if the given time-String is not ISO-8601 conform
    */
   private void checkIsoConformity(String time, String startEnd) {
 
     try {
       // YYYY
       if (time.length() == 4) {
-        // add the month and day and try to parse it
         time = time + "-01-01";
         LocalDate.parse(time);
       }
       // YYYY-MM
       else if (time.length() == 7) {
-        // add the day and try to parse it
         time = time + "-01";
         LocalDate.parse(time);
       }
@@ -846,6 +814,7 @@ public class InputValidator {
    * Checking if an input parameter of a POST request is null.
    * 
    * @param toCheck <code>String</code> array, which is checked.
+   * 
    * @return <code>String</code> array, which is empty, but not null.
    */
   private String[] checkParamOnNull(String[] toCheck) {
@@ -875,23 +844,17 @@ public class InputValidator {
    *         polygons, which do not intersect with any other polygon.
    */
   private Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
-    // converts the collection to an array
     Geometry[] polys = collection.toArray(new Geometry[collection.size()]);
-    // walks through all polys and checks if one or more intersect with each other
     for (int i = 0; i < polys.length - 1; i++) {
       for (int j = i + 1; j < polys.length; j++) {
         if (polys[i].intersects(polys[j])) {
-          // union the polys that intersect
           Geometry unionedPoly = polys[i].union(polys[j]);
-          // remove them from the array
           polys = ArrayUtils.remove(polys, i);
           polys = ArrayUtils.remove(polys, j - 1);
-          // add the unioned poly to the array via creating a new one
           polys = ArrayUtils.add(polys, unionedPoly);
         }
       }
     }
-    // convert the array back to a collection
     collection = new LinkedHashSet<Geometry>(Arrays.asList(polys));
     return collection;
   }
@@ -905,7 +868,6 @@ public class InputValidator {
   private MultiPolygon createMultiPolygon(Collection<Geometry> collection) {
     Polygon p = null;
     MultiPolygon combined = null;
-    // creates a union out of the polygons in the collection
     for (Geometry g : collection) {
       if (p == null)
         p = (Polygon) g;
@@ -931,15 +893,12 @@ public class InputValidator {
     ArrayList<Geometry> geoms = new ArrayList<>();
     switch (type) {
       case "bbox":
-        // add the bbox geoms from the geometry collection to the arraylist
         geoms.addAll(bboxColl);
         break;
       case "bpoint":
-        // add the bpoint geoms from the geometry collection to the arraylist
         geoms.addAll(bpointColl);
         break;
       case "bpoly":
-        // add the bpoly geoms from the geometry collection to the arraylist
         geoms.addAll(bpolyColl);
         break;
     }
@@ -949,8 +908,9 @@ public class InputValidator {
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#createCircularPolygons
-   * createCircularPolygon}. Adapted code from UTMCodeFromLonLat.java class in the osmatrix project
-   * (© by Michael Auer)
+   * createCircularPolygon}. 
+   * <p>
+   * Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
    * 
    * @param lon Longitude coordinate of the point.
    * @param lat Latitude coordinate of the point.

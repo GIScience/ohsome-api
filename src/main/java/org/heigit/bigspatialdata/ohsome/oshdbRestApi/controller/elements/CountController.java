@@ -20,7 +20,6 @@ public class CountController {
 
   /**
    * GET request giving the count of OSM objects.
-   * <p>
    * 
    * @param bboxes <code>String</code> array containing lon1, lat1, lon2, lat2 values, which have to
    *        be <code>double</code> parse-able. The coordinates refer to the bottom-left and
@@ -46,7 +45,6 @@ public class CountController {
    *        {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#extractIsoTime(String)
    *        extractIsoTime(String time)}.
    * @param showMetadata <code>String</code> containing the values "true" or "false".
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    * @throws UnsupportedOperationException thrown by
@@ -171,7 +169,6 @@ public class CountController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -204,7 +201,6 @@ public class CountController {
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -239,7 +235,6 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -274,7 +269,6 @@ public class CountController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -295,8 +289,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountRatio(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
-        showMetadata, types2, keys2, values2);
+    return executor.executeCountRatio(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata, types2, keys2, values2);
   }
 
   /**
@@ -403,7 +397,6 @@ public class CountController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -429,7 +422,6 @@ public class CountController {
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
@@ -458,7 +450,6 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -486,7 +477,6 @@ public class CountController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
@@ -498,8 +488,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountRatio(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
-        showMetadata, types2, keys2, values2);
+    return executor.executeCountRatio(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+        time, showMetadata, types2, keys2, values2);
   }
 
 }
