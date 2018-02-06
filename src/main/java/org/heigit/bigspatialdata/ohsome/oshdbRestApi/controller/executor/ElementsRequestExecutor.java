@@ -41,9 +41,7 @@ import org.heigit.bigspatialdata.oshdb.util.TagTranslator;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
-/**
- * Includes all execute methods for requests mapped to /elements.
- */
+/** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
   private final String license = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,";
@@ -52,10 +50,26 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and performs a count calculation.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
+   * @throws UnsupportedOperationException by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *         aggregateByTimestamp()}
+   * @throws BadRequestException by
+   *         {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#processParameters(boolean, String, String, String, String[], String[], String[], String[], String[], String)
+   *         processParameters()}
+   * @throws Exception by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
   public ElementsResponseContent executeCount(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+      String[] time, String showMetadata)
+      throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
@@ -88,7 +102,14 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by type.
+   * Gets the input parameters of the request and performs a count grouped by the type.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeCountGroupByType(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -139,7 +160,14 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by boundary.
+   * Gets the input parameters of the request and performs a count grouped by the boundary.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeCountGroupByBoundary(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -262,7 +290,14 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by key.
+   * Gets the input parameters of the request and performs a count grouped by the key.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
+   * getCountGroupByKey} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeCountGroupByKey(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -345,7 +380,14 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by tag.
+   * Gets the input parameters of the request and performs a count grouped by the tag.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeCountGroupByTag(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -491,7 +533,14 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by user.
+   * Gets the input parameters of the request and performs a count grouped by the user.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeCountGroupByUser(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -541,6 +590,13 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and performs a count-share calculation.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * getCountShare} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
    */
   public ElementsResponseContent executeCountShare(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
@@ -672,8 +728,17 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and performs a length or area calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
    * 
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
    */
   public ElementsResponseContent executeLengthArea(boolean isArea, boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -728,6 +793,16 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and performs a perimeter calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
    */
   public ElementsResponseContent executePerimeter(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
@@ -774,8 +849,17 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and computes the length, perimeter, or area results
    * grouped by the key.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
+   * groupByKey} method.
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
@@ -893,8 +977,17 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and computes the length, perimeter, or area results
    * grouped by the tag.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * getCountGroupByTag} method.
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
@@ -1077,8 +1170,17 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and computes the length, perimeter, or area results
    * grouped by the user.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
    * 
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
@@ -1162,8 +1264,17 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and computes the area, or the perimeter grouped by the
    * OSM type.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
    * 
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   *         GroupByResponseContent}
    */
   public GroupByResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
       String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -1234,6 +1345,16 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and performs a density calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
    */
   public ElementsResponseContent executeDensity(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
@@ -1295,6 +1416,17 @@ public class ElementsRequestExecutor {
   /**
    * Gets the input parameters of the request and performs a length|perimeter|area-share
    * calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * getCountShare} method.
+   * 
+   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
    */
   public ElementsResponseContent executeLengthPerimeterAreaShare(byte requestType, boolean isPost,
       String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -1465,8 +1597,18 @@ public class ElementsRequestExecutor {
 
   /**
    * Gets the input parameters of the request and performs a ratio calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
+   * 
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   *         ElementsResponseContent}
    */
-  public ElementsResponseContent executeRatio(boolean isPost, String bboxes, String bpoints,
+  public ElementsResponseContent executeCountRatio(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {

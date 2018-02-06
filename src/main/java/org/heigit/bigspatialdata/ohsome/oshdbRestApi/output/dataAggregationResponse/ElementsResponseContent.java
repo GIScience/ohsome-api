@@ -7,15 +7,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
  * /groupBy resource. It contains the license and copyright, optional
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Metadata Metadata} as well as the
- * results section showing either
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Metadata
+ * Metadata} as well as the results section showing either
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result
  * Result},
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResult
  * RatioResult}, or
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResult
  * ShareResult} objects.
- *
  */
 @JsonInclude(Include.NON_NULL)
 public class ElementsResponseContent {

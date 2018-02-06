@@ -2,7 +2,6 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResp
 
 /**
  * Represents the result JSON object containing the timestamp together with the corresponding value.
- *
  */
 public class Result {
 

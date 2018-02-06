@@ -7,17 +7,19 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
- * Configuration class, which adds the ElementsRequestInterceptor into the spring MVC life cycle.
+ * Configuration class, which adds the
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.interceptor.ElementsRequestInterceptor
+ * ElementsRequestInterceptor} class into the spring MVC life cycle.
  */
 @Configuration
 public class ElementsMvcConfig extends WebMvcConfigurerAdapter {
- 
-    @Autowired
-    private ElementsRequestInterceptor elementsRequestInterceptor;
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(elementsRequestInterceptor)
-          .addPathPatterns("/**/elements/**/");
-    }
+
+  @Autowired
+  private ElementsRequestInterceptor elementsRequestInterceptor;
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(elementsRequestInterceptor).addPathPatterns("/**/elements/**/");
+  }
 
 }

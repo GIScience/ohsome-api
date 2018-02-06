@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * the values, which are in the
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result
  * Result} objects, as well as the request URL.
- *
  */
 @JsonInclude(Include.NON_NULL)
 public class Metadata {

@@ -25,11 +25,11 @@ public class RatioResult {
   public double getValue() {
     return value;
   }
-  
+
   public double getValue2() {
     return value2;
   }
-  
+
   public double getRatio() {
     return ratio;
   }

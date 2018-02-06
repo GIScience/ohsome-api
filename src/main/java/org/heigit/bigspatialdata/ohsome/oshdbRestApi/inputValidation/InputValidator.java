@@ -42,7 +42,6 @@ import com.vividsolutions.jts.geom.Polygonal;
 /**
  * Holds general input validation and computation methods and validates specific parameters given by
  * the request. Throws exceptions depending on their validity.
- *
  */
 public class InputValidator {
 
@@ -72,7 +71,7 @@ public class InputValidator {
    * Method to process the input parameters of any request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
@@ -145,7 +144,7 @@ public class InputValidator {
       } else
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
     } else if (time.length == 0) {
-      //no time parameter --> return default end time
+      // no time parameter --> return default end time
       mapRed = mapRed.timestamps(defEndTime);
     } else {
       // list of timestamps
@@ -997,7 +996,7 @@ public class InputValidator {
   public String[] getBoundaryValues() {
     return boundaryValues;
   }
-  
+
   public BoundingBox getBbox() {
     return bbox;
   }

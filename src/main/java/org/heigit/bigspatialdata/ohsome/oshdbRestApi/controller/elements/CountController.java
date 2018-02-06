@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
- *
  */
 @RestController
 @RequestMapping("/elements/count")
@@ -78,7 +77,7 @@ public class CountController {
    * GET request giving the count of OSM objects grouped by the OSM type.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
@@ -106,7 +105,7 @@ public class CountController {
    * GET request giving the count of OSM objects grouped by the userId.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
@@ -135,7 +134,7 @@ public class CountController {
    * box/point/polygon).
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
@@ -163,7 +162,7 @@ public class CountController {
    * GET request giving the count of OSM objects grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
@@ -200,7 +199,7 @@ public class CountController {
    * GET request giving the count of OSM objects grouped by the key.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
@@ -220,8 +219,7 @@ public class CountController {
       @RequestParam(value = "userids", defaultValue = "") String[] userids,
       @RequestParam(value = "time", defaultValue = "") String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKeys", defaultValue = "") String[] groupByKeys,
-      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      @RequestParam(value = "groupByKeys", defaultValue = "") String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -234,7 +232,7 @@ public class CountController {
    * selected by types, keys and values.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param keys2 <code>String</code> array having the same format as keys and used to define the
@@ -270,7 +268,7 @@ public class CountController {
    * items selected by types, keys and values.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param types2 <code>String</code> array having the same format as types.
@@ -297,7 +295,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeRatio(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+    return executor.executeCountRatio(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
         showMetadata, types2, keys2, values2);
   }
 
@@ -306,7 +304,7 @@ public class CountController {
    * URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
@@ -328,7 +326,7 @@ public class CountController {
    * be used if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
@@ -350,7 +348,7 @@ public class CountController {
    * be used if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
@@ -373,7 +371,7 @@ public class CountController {
    * a GET request.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
@@ -396,7 +394,7 @@ public class CountController {
    * used if the request URL would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
@@ -426,7 +424,7 @@ public class CountController {
    * used if the request URL would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
@@ -453,7 +451,7 @@ public class CountController {
    * be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param keys2 <code>String</code> array having the same format as keys and used to define the
@@ -482,7 +480,7 @@ public class CountController {
    * would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String[], String[], String[], String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param types2 <code>String</code> array having the same format as types.
@@ -500,7 +498,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeRatio(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+    return executor.executeCountRatio(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
         showMetadata, types2, keys2, values2);
   }
 

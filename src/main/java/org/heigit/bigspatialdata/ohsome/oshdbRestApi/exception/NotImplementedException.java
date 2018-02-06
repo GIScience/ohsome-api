@@ -3,10 +3,7 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-/**
- * Exception class corresponding to the HTTP status code 501.
- *
- */
+/** Exception class corresponding to the HTTP status code 501. */
 @ResponseStatus(value = HttpStatus.NOT_IMPLEMENTED)
 public class NotImplementedException extends RuntimeException {
 
