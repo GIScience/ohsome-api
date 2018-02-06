@@ -63,7 +63,6 @@ public class InputValidator {
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
   private final String defStartTime = "2007-11-01";
   private String[] timeData;
-  private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
   private OSHDB_H2[] dbConnObjects;
 
@@ -132,8 +131,7 @@ public class InputValidator {
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
               + "or you defined more than one boundary parameter.");
 
-    osmTypes = checkTypes(types);
-    mapRed = mapRed.osmTypes(osmTypes);
+    mapRed = mapRed.osmTypes(checkTypes(types));
 
     if (time.length == 1) {
       timeData = extractIsoTime(time[0]);
@@ -551,77 +549,33 @@ public class InputValidator {
   /**
    * Checks and extracts the content of the types parameter.
    * 
-   * @param types <code>String</code> array containing 1, 2, or all 3 OSM types (node, way,
-   *        relation). If the array is empty, all 3 types are used.
+   * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
+   *        relation). If the array is empty, all three types are used.
    * @return <code>EnumSet</code> containing the requested OSM type(s).
-   * @throws BadRequestException If the content of the parameter does not represent one, two, or all
-   *         three OSM types.
+   * @throws BadRequestException if the content of the parameter does not represent one, two, or all
+   *         three OSM types
    */
   private EnumSet<OSMType> checkTypes(String[] types) throws BadRequestException {
     if (types.length > 3) {
       throw new BadRequestException(
-          "Parameter containing the OSM Types cannot have more than 3 entries.");
-    }
-    if (types.length == 0) {
+          "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
+    } else if (types.length == 0) {
       return EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
-    }
-    // complex if-else structure, which adds the corresponding OSMType(s) depending
-    // on the String(s) and throws exceptions if they aren't one or more of "node",
-    // "way", "relation"
-    if (types.length == 1) {
-      if (types[0].equalsIgnoreCase("node"))
-        osmTypes = EnumSet.of(OSMType.NODE);
-      else if (types[0].equalsIgnoreCase("way"))
-        osmTypes = EnumSet.of(OSMType.WAY);
-      else if (types[0].equalsIgnoreCase("relation"))
-        osmTypes = EnumSet.of(OSMType.RELATION);
-      else
-        throw new BadRequestException(
-            "Array containing the OSM-Types can only have one, two, or all three of the following Strings: 'node', 'way', 'relation'.");
-    } else if (types.length == 2) {
-      if (types[0].equalsIgnoreCase("node")) {
-        if (types[1].equalsIgnoreCase("way"))
-          osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY);
-        else if (types[1].equalsIgnoreCase("relation"))
-          osmTypes = EnumSet.of(OSMType.NODE, OSMType.RELATION);
+    } else {
+      EnumSet<OSMType> osmTypes = EnumSet.noneOf(OSMType.class);
+      for (String type : types) {
+        if (type.equals("node"))
+          osmTypes.add(OSMType.NODE);
+        else if (type.equals("way"))
+          osmTypes.add(OSMType.WAY);
+        else if (type.equals("relation"))
+          osmTypes.add(OSMType.RELATION);
         else
           throw new BadRequestException(
-              "Array containing the OSM-Types can only have one, two, or all three of the following Strings: 'node', 'way', 'relation'.");
-      } else if (types[0].equalsIgnoreCase("way")) {
-        if (types[1].equalsIgnoreCase("node"))
-          osmTypes = EnumSet.of(OSMType.WAY, OSMType.NODE);
-        else if (types[1].equalsIgnoreCase("relation"))
-          osmTypes = EnumSet.of(OSMType.WAY, OSMType.RELATION);
-        else
-          throw new BadRequestException(
-              "Array containing the OSM-Types can only have one, two, or all three of the following Strings: 'node', 'way', 'relation'.");
-      } else if (types[0].equalsIgnoreCase("relation")) {
-        if (types[1].equalsIgnoreCase("node"))
-          osmTypes = EnumSet.of(OSMType.RELATION, OSMType.NODE);
-        else if (types[1].equalsIgnoreCase("way"))
-          osmTypes = EnumSet.of(OSMType.RELATION, OSMType.WAY);
-        else
-          throw new BadRequestException(
-              "Array containing the OSM-Types can only have one, two, or all three of the following Strings: 'node', 'way', 'relation'.");
+              "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' as its content.");
       }
-      // happens when array.size == 3
-    } else if ((types[0].equalsIgnoreCase("node") && types[1].equalsIgnoreCase("way")
-        && types[2].equalsIgnoreCase("relation"))
-        || (types[0].equalsIgnoreCase("node") && types[1].equalsIgnoreCase("relation")
-            && types[2].equalsIgnoreCase("way"))
-        || (types[0].equalsIgnoreCase("way") && types[1].equalsIgnoreCase("node")
-            && types[2].equalsIgnoreCase("relation"))
-        || (types[0].equalsIgnoreCase("way") && types[1].equalsIgnoreCase("relation")
-            && types[2].equalsIgnoreCase("node"))
-        || (types[0].equalsIgnoreCase("relation") && types[1].equalsIgnoreCase("node")
-            && types[2].equalsIgnoreCase("way"))
-        || (types[0].equalsIgnoreCase("relation") && types[1].equalsIgnoreCase("way")
-            && types[2].equalsIgnoreCase("node")))
-      osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
-    else
-      throw new BadRequestException(
-          "Array containing the OSM-Types can only have one, two, or all three of the following Strings: 'node', 'way', 'relation'.");
-    return osmTypes;
+      return osmTypes;
+    }
   }
 
   /**
@@ -634,13 +588,14 @@ public class InputValidator {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
+   *        MapReducer} object
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    * @throws BadRequestException if there are more values than keys given
    */
   private MapReducer<OSMEntitySnapshot> checkKeysValues(MapReducer<OSMEntitySnapshot> mapRed,
-      String[] keys, String[] values) throws BadRequestException{
+      String[] keys, String[] values) throws BadRequestException {
     if (keys.length < values.length) {
       throw new BadRequestException(
           "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
@@ -908,7 +863,7 @@ public class InputValidator {
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#createCircularPolygons
-   * createCircularPolygon}. 
+   * createCircularPolygon}.
    * <p>
    * Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
    * 
