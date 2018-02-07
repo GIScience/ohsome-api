@@ -28,7 +28,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.GET)
+  @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getPerimeter(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -56,7 +56,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getPerimeterGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -84,7 +85,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getPerimeterGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -118,7 +120,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getPerimeterGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -153,7 +155,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.GET)
+  @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getPerimeterShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -184,7 +186,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.POST,
+  @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postPerimeter(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -207,7 +209,7 @@ public class PerimeterController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postPerimeterGroupByType(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
@@ -236,7 +238,7 @@ public class PerimeterController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postPerimeterGroupByTag(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
@@ -259,7 +261,7 @@ public class PerimeterController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postPerimeterGroupByUser(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
@@ -286,7 +288,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.POST,
+  @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postPerimeterShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,

@@ -28,7 +28,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.GET)
+  @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getLength(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -62,7 +62,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getLengthGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -92,7 +92,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getLengthGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -125,7 +126,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.GET)
+  @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getLengthShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -156,7 +157,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.POST,
+  @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postLength(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -185,7 +186,7 @@ public class LengthController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postLengthGroupByTag(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
@@ -208,7 +209,7 @@ public class LengthController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postLengthGroupByUser(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
@@ -234,7 +235,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.POST,
+  @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postLengthShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,

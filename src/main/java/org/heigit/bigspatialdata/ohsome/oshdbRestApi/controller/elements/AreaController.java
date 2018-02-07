@@ -28,7 +28,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.GET)
+  @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getArea(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -62,7 +62,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getAreaGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -92,7 +92,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getAreaGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -120,7 +120,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getAreaGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -153,7 +153,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.GET)
+  @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getAreaShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -184,7 +184,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.POST,
+  @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postArea(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -206,7 +206,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postAreaGroupByType(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -234,7 +234,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postAreaGroupByTag(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -257,7 +257,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postAreaGroupByUser(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -284,7 +284,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.POST,
+  @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postAreaShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,

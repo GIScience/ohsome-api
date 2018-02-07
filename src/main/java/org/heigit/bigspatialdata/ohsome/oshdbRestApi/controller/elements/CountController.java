@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
@@ -53,7 +54,8 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @RequestMapping(value = "", method = RequestMethod.GET)
+  @ApiOperation(value = "Get the count of OSM objects",response = ElementsResponseContent.class)
+  @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getCount(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -81,7 +83,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getCountGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -109,7 +112,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getCountGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -138,7 +142,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getCountGroupByBoundary(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -172,7 +177,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getCountGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -204,7 +209,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET)
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getCountGroupByKey(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -238,7 +243,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.GET)
+  @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getCountShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -272,7 +277,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "ratio", method = RequestMethod.GET)
+  @RequestMapping(value = "ratio", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getCountRatio(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -304,7 +309,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.POST,
+  @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postCount(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -327,7 +332,7 @@ public class CountController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postCountGroupByType(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
@@ -349,7 +354,7 @@ public class CountController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postCountGroupByUser(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
@@ -372,7 +377,7 @@ public class CountController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postCountGroupByBoundary(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
@@ -401,7 +406,7 @@ public class CountController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postCountGroupByTag(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
@@ -426,7 +431,7 @@ public class CountController {
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postCountGroupByKey(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKeys)
@@ -453,7 +458,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/share", method = RequestMethod.POST,
+  @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postCountShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
@@ -480,7 +485,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/ratio", method = RequestMethod.POST,
+  @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postCountRatio(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,

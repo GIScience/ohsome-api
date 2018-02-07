@@ -26,7 +26,7 @@ public class DensityController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.GET)
+  @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getDensity(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -55,7 +55,7 @@ public class DensityController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "", method = RequestMethod.POST,
+  @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ElementsResponseContent postDensity(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,

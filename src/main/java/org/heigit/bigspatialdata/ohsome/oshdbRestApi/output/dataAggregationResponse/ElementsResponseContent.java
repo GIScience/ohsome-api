@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResp
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
@@ -19,12 +20,19 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class ElementsResponseContent {
 
+  @ApiModelProperty(notes = "The license of the used data.", required = true)
   private String license;
+  @ApiModelProperty(notes = "The copyright of the used data.", required = true)
   private String copyright;
+  @ApiModelProperty(notes = "The metadata describing the output.")
   private Metadata metadata;
+  @ApiModelProperty(notes = "The result for /count|length|area|perimeter/groupBy requests.")
   private GroupByResult[] groupByResult;
+  @ApiModelProperty(notes = "The result for /count|length|area|perimeter or /density requests.")
   private Result[] result;
+  @ApiModelProperty(notes = "The result for /count/ratio requests.")
   private RatioResult[] ratioResult;
+  @ApiModelProperty(notes = "The result for /count|length|area|perimeter/share requests.")
   private ShareResult[] shareResult;
 
   public ElementsResponseContent(String license, String copyright, Metadata metadata,
