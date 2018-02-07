@@ -28,7 +28,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("")
+  @RequestMapping(value = "", method = RequestMethod.GET)
   public ElementsResponseContent getLength(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -62,7 +62,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/tag")
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
   public GroupByResponseContent getLengthGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -92,7 +92,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/user")
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
   public GroupByResponseContent getLengthGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -125,7 +125,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/share")
+  @RequestMapping(value = "/share", method = RequestMethod.GET)
   public ElementsResponseContent getLengthShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,

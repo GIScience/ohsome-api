@@ -28,7 +28,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("")
+  @RequestMapping(value = "", method = RequestMethod.GET)
   public ElementsResponseContent getPerimeter(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -56,7 +56,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/type")
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET)
   public GroupByResponseContent getPerimeterGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -84,7 +84,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/user")
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
   public GroupByResponseContent getPerimeterGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -118,7 +118,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/tag")
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
   public GroupByResponseContent getPerimeterGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -153,7 +153,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/share")
+  @RequestMapping(value = "/share", method = RequestMethod.GET)
   public ElementsResponseContent getPerimeterShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,

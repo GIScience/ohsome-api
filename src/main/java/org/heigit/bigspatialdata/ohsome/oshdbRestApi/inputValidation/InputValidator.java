@@ -67,7 +67,7 @@ public class InputValidator {
   private OSHDB_H2[] dbConnObjects;
 
   /**
-   * Method to process the input parameters of any request.
+   * Processes the input parameters from the given request.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -364,7 +364,7 @@ public class InputValidator {
    * @param bbox <code>String</code> array containing the lon/lat coordinates of the bounding box.
    *        It must consist of 2 lon/lat coordinate pairs (bottom-left and top-right).
    * @return <code>BoundingBox</code> object.
-   * @throws BadRequestException Invalid coordinates.
+   * @throws BadRequestException if coordinates are invalid
    */
   private BoundingBox createBbox(String[] bbox) throws BadRequestException {
     if (bbox.length == 0) {
@@ -399,7 +399,7 @@ public class InputValidator {
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
    * @return <code>Geometry</code> object representing the unified bounding boxes.
-   * @throws BadRequestException Invalid coordinates.
+   * @throws BadRequestException if coordinates are invalid
    */
   private Geometry createBboxes(String[] bboxes) throws BadRequestException {
 
@@ -438,7 +438,7 @@ public class InputValidator {
    * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
    *        and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
-   * @throws BadRequestException Invalid coordinates or radius.
+   * @throws BadRequestException if coordinates or radius are invalid
    */
   private Geometry createCircularPolygons(String[] bpoints) throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
@@ -489,7 +489,7 @@ public class InputValidator {
    *        polygon(s).
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
-   * @throws BadRequestException Invalid coordinates.
+   * @throws BadRequestException if coordinates are invalid
    */
   private Geometry createBpolys(String[] bpolys) throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
@@ -591,7 +591,7 @@ public class InputValidator {
    * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
    *        MapReducer} object
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
-   *         including the settings derived from the given parameters.
+   *         including the filters derived from the given parameters.
    * @throws BadRequestException if there are more values than keys given
    */
   private MapReducer<OSMEntitySnapshot> checkKeysValues(MapReducer<OSMEntitySnapshot> mapRed,
@@ -666,7 +666,7 @@ public class InputValidator {
    * @param time <code>String</code> holding the unparsed time information.
    * @return <code>String</code> array containing the startTime at at [0], the endTime at [1] and
    *         the period at [2].
-   * @throws BadRequestException The provided time parameter does not fit to any specified format.
+   * @throws BadRequestException if the provided time parameter does not fit to any specified format
    */
   private String[] extractIsoTime(String time) throws BadRequestException {
     String[] timeVals = new String[3];

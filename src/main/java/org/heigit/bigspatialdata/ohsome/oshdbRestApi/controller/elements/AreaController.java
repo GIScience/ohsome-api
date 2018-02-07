@@ -28,7 +28,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("")
+  @RequestMapping(value = "", method = RequestMethod.GET)
   public ElementsResponseContent getArea(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -62,7 +62,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/groupBy/tag")
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
   public GroupByResponseContent getAreaGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -92,7 +92,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/groupBy/user")
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
   public GroupByResponseContent getAreaGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -120,7 +120,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/type")
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET)
   public GroupByResponseContent getAreaGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -153,7 +153,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/share")
+  @RequestMapping(value = "/share", method = RequestMethod.GET)
   public ElementsResponseContent getAreaShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,

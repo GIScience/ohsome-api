@@ -53,7 +53,7 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @RequestMapping("")
+  @RequestMapping(value = "", method = RequestMethod.GET)
   public ElementsResponseContent getCount(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -81,7 +81,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/type")
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET)
   public GroupByResponseContent getCountGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -109,7 +109,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/user")
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET)
   public GroupByResponseContent getCountGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -138,7 +138,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/boundary")
+  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET)
   public GroupByResponseContent getCountGroupByBoundary(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -172,7 +172,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/tag")
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET)
   public GroupByResponseContent getCountGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -204,7 +204,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping("/groupBy/key")
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET)
   public GroupByResponseContent getCountGroupByKey(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -238,7 +238,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/share")
+  @RequestMapping(value = "/share", method = RequestMethod.GET)
   public ElementsResponseContent getCountShare(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
@@ -272,7 +272,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping("/ratio")
+  @RequestMapping(value = "ratio", method = RequestMethod.GET)
   public ElementsResponseContent getCountRatio(
       @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
