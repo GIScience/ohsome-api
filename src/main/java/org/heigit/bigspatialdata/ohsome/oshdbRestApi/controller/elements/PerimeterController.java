@@ -30,14 +30,14 @@ public class PerimeterController {
    */
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getPerimeter(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -59,14 +59,14 @@ public class PerimeterController {
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponseContent getPerimeterGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -88,14 +88,14 @@ public class PerimeterController {
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponseContent getPerimeterGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -122,17 +122,18 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getPerimeterGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "",
+          required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -157,17 +158,17 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getPerimeterShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();

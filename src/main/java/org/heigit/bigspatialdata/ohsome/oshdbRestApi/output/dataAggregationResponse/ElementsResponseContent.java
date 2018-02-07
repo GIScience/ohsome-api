@@ -20,11 +20,11 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class ElementsResponseContent {
 
-  @ApiModelProperty(notes = "The license of the used data.", required = true)
+  @ApiModelProperty(notes = "The license of the used data.", required = true, position = 0)
   private String license;
-  @ApiModelProperty(notes = "The copyright of the used data.", required = true)
+  @ApiModelProperty(notes = "The copyright of the used data.", required = true, position = 1)
   private String copyright;
-  @ApiModelProperty(notes = "The metadata describing the output.")
+  @ApiModelProperty(notes = "The metadata describing the output.", position = 2)
   private Metadata metadata;
   @ApiModelProperty(notes = "The result for /count|length|area|perimeter/groupBy requests.")
   private GroupByResult[] groupByResult;

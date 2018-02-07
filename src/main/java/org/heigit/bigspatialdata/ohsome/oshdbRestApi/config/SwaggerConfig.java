@@ -22,6 +22,7 @@ public class SwaggerConfig {
   @Bean
   public Docket api() {
 
+    // custom response messages to define the used error codes and their exception class
     ArrayList<ResponseMessage> responseMessages = new ArrayList<ResponseMessage>();
     responseMessages.add(new ResponseMessageBuilder().code(400).message("BadRequestException").build());
     responseMessages.add(new ResponseMessageBuilder().code(401).message("UnauthorizedException").build());
@@ -35,6 +36,10 @@ public class SwaggerConfig {
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
 
+  /**
+   * 
+   * @return {@link springfox.documentation.service.ApiInfo ApiInfo} defining information about this API.
+   */
   private ApiInfo apiInfo() {
     return new ApiInfo("OSHDB Web REST API",
         "This REST API aims to leverage the tools of the oshdb Java API through allowing to access some of its functionalities via HTTP requests.",

@@ -57,15 +57,15 @@ public class CountController {
   @ApiOperation(value = "Get the count of OSM objects",response = ElementsResponseContent.class)
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getCount(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
-      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @RequestParam(value = "bboxes", defaultValue = "",required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
+      @RequestParam(value = "showMetadata", defaultValue = "false", required = false) String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -86,14 +86,14 @@ public class CountController {
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponseContent getCountGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -115,14 +115,14 @@ public class CountController {
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponseContent getCountGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -145,14 +145,14 @@ public class CountController {
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponseContent getCountGroupByBoundary(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -179,17 +179,17 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getCountGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -211,16 +211,16 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getCountGroupByKey(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKeys", defaultValue = "") String[] groupByKeys)
+      @RequestParam(value = "groupByKeys", defaultValue = "", required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -245,17 +245,17 @@ public class CountController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getCountShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -279,18 +279,18 @@ public class CountController {
    */
   @RequestMapping(value = "ratio", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getCountRatio(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "types2", defaultValue = "") String[] types2,
-      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();

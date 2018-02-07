@@ -30,14 +30,14 @@ public class AreaController {
    */
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getArea(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -64,17 +64,18 @@ public class AreaController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByResponseContent getAreaGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKey", defaultValue = "") String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "") String[] groupByValues)
+      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "",
+          required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -92,16 +93,17 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
    *         ElementsResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getAreaGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -120,16 +122,17 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
+      produces = "application/json")
   public GroupByResponseContent getAreaGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -155,17 +158,17 @@ public class AreaController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getAreaShare(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
-      @RequestParam(value = "keys2", defaultValue = "") String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "") String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -206,8 +209,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postAreaGroupByType(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
@@ -234,8 +237,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postAreaGroupByTag(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
@@ -257,8 +260,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponseContent postAreaGroupByUser(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {

@@ -28,14 +28,14 @@ public class DensityController {
    */
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public ElementsResponseContent getDensity(
-      @RequestParam(value = "bboxes", defaultValue = "") String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "") String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "") String bpolys,
-      @RequestParam(value = "types", defaultValue = "") String[] types,
-      @RequestParam(value = "keys", defaultValue = "") String[] keys,
-      @RequestParam(value = "values", defaultValue = "") String[] values,
-      @RequestParam(value = "userids", defaultValue = "") String[] userids,
-      @RequestParam(value = "time", defaultValue = "") String[] time,
+      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
+      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
+      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
+      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
+      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
+      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
+      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
+      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
       @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
