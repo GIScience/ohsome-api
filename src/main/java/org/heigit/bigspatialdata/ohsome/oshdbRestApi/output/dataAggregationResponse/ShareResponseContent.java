@@ -17,14 +17,15 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class ShareResponseContent {
 
-  @ApiModelProperty(notes = "The license of the used data.", required = true, position = 0)
+  @ApiModelProperty(notes = "License of the used data", required = true, position = 0)
   private String license;
-  @ApiModelProperty(notes = "The copyright of the used data.", required = true, position = 1)
+  @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
   private String copyright;
-  @ApiModelProperty(notes = "The metadata describing the output.", position = 2)
+  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
   @ApiModelProperty(
-      notes = "The result for /share requests, holding the timestamp, whole and part values.")
+      notes = "Result for /share requests, " + "holding the " + "timestamp, whole and part values",
+      position = 3)
   private ShareResult[] shareResult;
 
   public ShareResponseContent(String license, String copyright, Metadata metadata,

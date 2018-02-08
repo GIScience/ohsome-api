@@ -4,6 +4,7 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationRespo
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
@@ -18,9 +19,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class GroupByTagResponseContent {
 
+  @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
   private String license;
+  @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
   private String copyright;
+  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
+  @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
+      + "with their timestamp-value pairs", required = true)
   private GroupByResult[] groupByTagResult;
 
   public GroupByTagResponseContent(String license, String copyright, Metadata metadata,

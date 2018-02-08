@@ -17,13 +17,13 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class DefaultAggregationResponseContent {
 
-  @ApiModelProperty(notes = "The license of the used data.", required = true, position = 0)
+  @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
   private String license;
-  @ApiModelProperty(notes = "The copyright of the used data.", required = true, position = 1)
+  @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
   private String copyright;
-  @ApiModelProperty(notes = "The metadata describing the output.", position = 2)
+  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "The result for /count|length|area|perimeter or /density requests.")
+  @ApiModelProperty(notes = "Result holding timestamp-value pairs", required = true)
   private Result[] result;
 
   public DefaultAggregationResponseContent(String license, String copyright, Metadata metadata,

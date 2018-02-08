@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * Represents the groupBy result JSON object containing the groupBy value and the respective
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result
@@ -7,7 +9,9 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResp
  */
 public class GroupByResult {
 
+  @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
   private String groupByObject;
+  @ApiModelProperty(notes = "Result holding timestamp-value pairs", required = true)
   private Result[] result;
 
   public GroupByResult(String groupByObject, Result[] result) {
