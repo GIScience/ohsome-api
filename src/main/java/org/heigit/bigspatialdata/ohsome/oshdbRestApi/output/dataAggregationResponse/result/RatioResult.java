@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result;
 
 /**
  * Represents the result JSON object for the ratio request containing the timestamp together with

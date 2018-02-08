@@ -2,8 +2,11 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponseContent;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,11 +28,11 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
-  public ElementsResponseContent getArea(
+  public DefaultAggregationResponseContent getArea(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -59,11 +62,11 @@ public class AreaController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
-  public GroupByResponseContent getAreaGroupByTag(
+  public GroupByTagResponseContent getAreaGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -90,12 +93,12 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponseContent getAreaGroupByUser(
+  public GroupByUserResponseContent getAreaGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -119,12 +122,12 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponseContent getAreaGroupByType(
+  public GroupByTypeResponseContent getAreaGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -153,11 +156,11 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public ElementsResponseContent getAreaShare(
+  public ShareResponseContent getAreaShare(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -184,12 +187,12 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postArea(String bboxes, String bpoints, String bpolys,
+  public DefaultAggregationResponseContent postArea(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
@@ -206,14 +209,15 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postAreaGroupByType(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
+  public GroupByTypeResponseContent postAreaGroupByType(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeAreaPerimeterGroupByType(true, true, bboxes, bpoints, bpolys, types,
@@ -234,12 +238,12 @@ public class AreaController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postAreaGroupByTag(String bboxes, String bpoints, String bpolys,
+  public GroupByTagResponseContent postAreaGroupByTag(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -257,14 +261,15 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postAreaGroupByUser(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
+  public GroupByUserResponseContent postAreaGroupByUser(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, true, bboxes, bpoints, bpolys,
@@ -284,12 +289,12 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postAreaShare(String bboxes, String bpoints, String bpolys,
+  public ShareResponseContent postAreaShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {

@@ -20,14 +20,20 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.interceptor.ElementsRequestInterceptor;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResult;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResult;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByBoundaryMetadata;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByBoundaryResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
@@ -55,7 +61,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    * @throws UnsupportedOperationException by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
@@ -66,9 +72,9 @@ public class ElementsRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public ElementsResponseContent executeCount(boolean isPost, String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public DefaultAggregationResponseContent executeCount(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -93,10 +99,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "amount",
-          "Total number of elements, which are selected by the parameters.", null, requestURL);
+          "Total number of elements, which are selected by the parameters.", requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
+    DefaultAggregationResponseContent response =
+        new DefaultAggregationResponseContent(license, copyright, metadata, resultSet);
 
     return response;
   }
@@ -108,10 +114,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeCountGroupByType(boolean isPost, String bboxes,
+  public GroupByTypeResponseContent executeCountGroupByType(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -152,10 +158,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
-          null, requestURL);
+          requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, resultSet, null, null, null);
+    GroupByTypeResponseContent response =
+        new GroupByTypeResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -166,10 +172,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeCountGroupByBoundary(boolean isPost, String bboxes,
+  public GroupByBoundaryResponseContent executeCountGroupByBoundary(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -284,8 +290,8 @@ public class ElementsRequestExecutor {
           "Total number of items aggregated on the boundary object.", requestURL);
     }
 
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, null,
-        gBBMetadata, resultSet, null, null, null, null);
+    GroupByBoundaryResponseContent response =
+        new GroupByBoundaryResponseContent(license, copyright, gBBMetadata, resultSet);
     return response;
   }
 
@@ -296,10 +302,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * getCountGroupByKey} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeCountGroupByKey(boolean isPost, String bboxes,
+  public GroupByKeyResponseContent executeCountGroupByKey(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
@@ -372,10 +378,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the key.",
-          null, requestURL);
+          requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, null, resultSet, null, null);
+    GroupByKeyResponseContent response =
+        new GroupByKeyResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -386,10 +392,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeCountGroupByTag(boolean isPost, String bboxes,
+  public GroupByTagResponseContent executeCountGroupByTag(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
@@ -525,10 +531,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
-          null, requestURL);
+          requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, null, null, resultSet, null);
+    GroupByTagResponseContent response =
+        new GroupByTagResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -539,10 +545,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeCountGroupByUser(boolean isPost, String bboxes,
+  public GroupByUserResponseContent executeCountGroupByUser(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -581,10 +587,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "amount",
-          "Total number of items aggregated on the userids.", null, requestURL);
+          "Total number of items aggregated on the userids.", requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, null, null, null, resultSet);
+    GroupByUserResponseContent response =
+        new GroupByUserResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -595,10 +601,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ElementsResponseContent executeCountShare(boolean isPost, String bboxes, String bpoints,
+  public ShareResponseContent executeCountShare(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -719,10 +725,10 @@ public class ElementsRequestExecutor {
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "amount",
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
-          null, requestURL);
+          requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
+    ShareResponseContent response =
+        new ShareResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -736,11 +742,11 @@ public class ElementsRequestExecutor {
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ElementsResponseContent executeLengthArea(boolean isArea, boolean isPost, String bboxes,
-      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+  public DefaultAggregationResponseContent executeLengthArea(boolean isArea, boolean isPost,
+      String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
@@ -783,10 +789,10 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, null, requestURL);
+      metadata = new Metadata(duration, unit, description, requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
+    DefaultAggregationResponseContent response =
+        new DefaultAggregationResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -799,12 +805,13 @@ public class ElementsRequestExecutor {
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ElementsResponseContent executePerimeter(boolean isPost, String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponseContent executePerimeter(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
@@ -837,10 +844,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata =
-          new Metadata(duration, "meters", "Total perimeter of polygonal items.", null, requestURL);
+          new Metadata(duration, "meters", "Total perimeter of polygonal items.", requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
+    DefaultAggregationResponseContent response =
+        new DefaultAggregationResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -855,10 +862,10 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
+  public GroupByKeyResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
@@ -964,10 +971,10 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, null, requestURL);
+      metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, null, resultSet, null, null);
+    GroupByKeyResponseContent response =
+        new GroupByKeyResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -982,10 +989,10 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
+  public GroupByTagResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
@@ -1156,10 +1163,10 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, null, requestURL);
+      metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, null, null, resultSet, null);
+    GroupByTagResponseContent response =
+        new GroupByTagResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1174,10 +1181,10 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
+  public GroupByUserResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -1249,10 +1256,10 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, null, requestURL);
+      metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, null, null, null, resultSet);
+    GroupByUserResponseContent response =
+        new GroupByUserResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1267,10 +1274,10 @@ public class ElementsRequestExecutor {
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
-  public GroupByResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
+  public GroupByTypeResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
       String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -1330,10 +1337,10 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, null, requestURL);
+      metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByResponseContent response = new GroupByResponseContent(license, copyright, metadata, null,
-        null, resultSet, null, null, null);
+    GroupByTypeResponseContent response =
+        new GroupByTypeResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1346,12 +1353,13 @@ public class ElementsRequestExecutor {
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ElementsResponseContent executeDensity(boolean isPost, String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponseContent executeDensity(boolean isPost, String bboxes,
+      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> countResult;
@@ -1399,10 +1407,10 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
       metadata = new Metadata(duration, "items per square-kilometer",
-          "Density of selected items (number of items per area).", null, requestURL);
+          "Density of selected items (number of items per area).", requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, resultSet, null, null);
+    DefaultAggregationResponseContent response =
+        new DefaultAggregationResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1417,10 +1425,10 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ElementsResponseContent executeLengthPerimeterAreaShare(byte requestType, boolean isPost,
+  public ShareResponseContent executeLengthPerimeterAreaShare(byte requestType, boolean isPost,
       String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -1580,10 +1588,10 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, null, requestURL);
+      metadata = new Metadata(duration, unit, description, requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, null, null, resultSet);
+    ShareResponseContent response =
+        new ShareResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1596,10 +1604,10 @@ public class ElementsRequestExecutor {
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ElementsResponseContent executeCountRatio(boolean isPost, String bboxes, String bpoints,
+  public RatioResponseContent executeCountRatio(boolean isPost, String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -1650,10 +1658,10 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount and ratio",
           "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
               + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
-          null, requestURL);
+          requestURL);
     }
-    ElementsResponseContent response =
-        new ElementsResponseContent(license, copyright, metadata, null, null, resultSet, null);
+    RatioResponseContent response =
+        new RatioResponseContent(license, copyright, metadata, resultSet);
     return response;
   }
 }

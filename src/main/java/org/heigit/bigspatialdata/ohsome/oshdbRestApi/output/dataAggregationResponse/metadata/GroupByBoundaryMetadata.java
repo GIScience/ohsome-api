@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse;
+package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata;
 
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 /**
  * Represents the meta data JSON object for the /groupBy/boundary response containing the execution
  * time, the unit, the boundary array and a description of the values, which are in the
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result
  * Result} objects, as well as the request URL
  */
 @JsonInclude(Include.NON_NULL)

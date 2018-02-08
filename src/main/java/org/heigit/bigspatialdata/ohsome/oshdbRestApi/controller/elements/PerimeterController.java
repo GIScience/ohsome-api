@@ -2,8 +2,11 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponseContent;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,11 +28,11 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
-  public ElementsResponseContent getPerimeter(
+  public DefaultAggregationResponseContent getPerimeter(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -53,12 +56,12 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponseContent getPerimeterGroupByType(
+  public GroupByTypeResponseContent getPerimeterGroupByType(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -82,12 +85,12 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponseContent getPerimeterGroupByUser(
+  public GroupByUserResponseContent getPerimeterGroupByUser(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -117,11 +120,11 @@ public class PerimeterController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
-  public GroupByResponseContent getPerimeterGroupByTag(
+  public GroupByTagResponseContent getPerimeterGroupByTag(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -153,11 +156,11 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public ElementsResponseContent getPerimeterShare(
+  public ShareResponseContent getPerimeterShare(
       @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
       @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
       @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
@@ -184,14 +187,14 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeter(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponseContent postPerimeter(String bboxes, String bpoints,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executePerimeter(true, bboxes, bpoints, bpolys, types, keys, values, userids,
@@ -206,12 +209,12 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postPerimeterGroupByType(String bboxes, String bpoints,
+  public GroupByTypeResponseContent postPerimeterGroupByType(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -235,12 +238,12 @@ public class PerimeterController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postPerimeterGroupByTag(String bboxes, String bpoints,
+  public GroupByTagResponseContent postPerimeterGroupByTag(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -258,12 +261,12 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse.GroupByResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
    *         GroupByResponseContent}
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponseContent postPerimeterGroupByUser(String bboxes, String bpoints,
+  public GroupByUserResponseContent postPerimeterGroupByUser(String bboxes, String bpoints,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -286,12 +289,12 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ElementsResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ElementsResponseContent postPerimeterShare(String bboxes, String bpoints, String bpolys,
+  public ShareResponseContent postPerimeterShare(String bboxes, String bpoints, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {

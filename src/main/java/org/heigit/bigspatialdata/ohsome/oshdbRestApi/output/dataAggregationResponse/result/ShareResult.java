@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

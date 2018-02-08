@@ -1,10 +1,8 @@
-package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.groupByResponse;
-
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result;
+package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result;
 
 /**
  * Represents the groupBy result JSON object containing the groupBy value and the respective
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.Result
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result
  * Result} objects. The GroupByResult is only used in responses for groupBy requests.
  */
 public class GroupByResult {

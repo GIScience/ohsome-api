@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result;
 
 /**
  * Represents the result JSON object containing the timestamp together with the corresponding value.
