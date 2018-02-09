@@ -40,17 +40,17 @@ To be able to test the REST-API with your own requests, you will also need a des
     * has to consist of double-parse able Strings in the format (lon1, lat1, lon2, lat2, meaning bottom left and top right point of each bbox)
     * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
     * if bboxes is given, bpoints and bpolys must be null or empty
-    * format: id1:x1,y1,x2,y2|id2:x1,y1,x2,y2|id3:x1,... OR x1,y1,x2,y2|x1,y1,x2,y2|x1,...
+    * format: id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...
     * optional for all resources
 * bpoints
     * has to consist of double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
     * if bpoints is given, bboxes and bpolys must be null or empty
-    * format: id1:x,y,r|id2:x,y,r|id3:x,... OR x,y,r|x,y,r|x,...
+    * format: id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...
     * optional for all resources
 * bpolys
     * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
     * if bpolys is given, bboxes and bpoints must be null or empty
-    * format: id1:x1,y1,x2,y2,... xn,yn,x1,y1|id2:x1,y1,x2,y2,... xm,ym,x1,y1|id3:x1,... OR x1,y1,x2,y2,... xn,yn,x1,y1|x1,y1,x2,y2,... xm,ym,x1,y1|x1,...
+    * format: id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...
     * only simple polygons are supported atm (without holes and no multipolygon)
     * optional for all resources
 * types
