@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.Api;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/density".
  */
+@Api(tags = "density-controller")
 @RestController
 @RequestMapping("/elements/density")
 public class DensityController {

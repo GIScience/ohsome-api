@@ -114,8 +114,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
+   *         GroupByTypeResponseContent}
    */
   public GroupByTypeResponseContent executeCountGroupByType(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -172,8 +172,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByBoundaryResponseContent
+   *         GroupByBoundaryResponseContent}
    */
   public GroupByBoundaryResponseContent executeCountGroupByBoundary(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -302,8 +302,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * getCountGroupByKey} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
+   *         GroupByKeyResponseContent}
    */
   public GroupByKeyResponseContent executeCountGroupByKey(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -392,8 +392,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
+   *         GroupByTagResponseContent}
    */
   public GroupByTagResponseContent executeCountGroupByTag(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -545,8 +545,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
+   *         GroupByUserResponseContent}
    */
   public GroupByUserResponseContent executeCountGroupByUser(boolean isPost, String bboxes,
       String bpoints, String bpolys, String[] types, String[] keys, String[] values,
@@ -862,8 +862,8 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
+   *         GroupByKeyResponseContent}
    */
   public GroupByKeyResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
@@ -989,8 +989,8 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
+   *         GroupByTagResponseContent}
    */
   public GroupByTagResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
@@ -1181,8 +1181,8 @@ public class ElementsRequestExecutor {
    * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
+   *         GroupByUserResponseContent}
    */
   public GroupByUserResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
       boolean isPost, String bboxes, String bpoints, String bpolys, String[] types, String[] keys,
@@ -1274,8 +1274,8 @@ public class ElementsRequestExecutor {
    * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByResponseContent
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
+   *         GroupByTypeResponseContent}
    */
   public GroupByTypeResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
       String bboxes, String bpoints, String bpolys, String[] types, String[] keys, String[] values,
