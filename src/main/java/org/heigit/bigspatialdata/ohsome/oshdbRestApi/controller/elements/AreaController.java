@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiParam;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
@@ -33,15 +36,24 @@ public class AreaController {
    */
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponseContent getArea(
-      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
-      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
-      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
-      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
-      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
-      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
-      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
+          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -65,17 +77,33 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey",
+          value = "OSM key e.g.: 'highway', 'building'; default: null", required = false,
+          defaultValue = "", dataType = "string", paramType = "query"),
+      @ApiImplicitParam(name = "groupByValues",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
+          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponseContent getAreaGroupByTag(
-      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
-      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
-      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
-      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
-      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
-      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
-      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
+          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
@@ -99,15 +127,24 @@ public class AreaController {
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByUserResponseContent getAreaGroupByUser(
-      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
-      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
-      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
-      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
-      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
-      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
-      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
+          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -128,15 +165,24 @@ public class AreaController {
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByTypeResponseContent getAreaGroupByType(
-      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
-      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
-      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
-      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
-      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
-      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
-      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata)
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
+          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -159,17 +205,33 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "keys2",
+          value = "OSM key(s) e.g.: 'highway', 'building'; default: null", required = false,
+          defaultValue = "", dataType = "string", paramType = "query"),
+      @ApiImplicitParam(name = "values2",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
+          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponseContent getAreaShare(
-      @RequestParam(value = "bboxes", defaultValue = "", required = false) String bboxes,
-      @RequestParam(value = "bpoints", defaultValue = "", required = false) String bpoints,
-      @RequestParam(value = "bpolys", defaultValue = "", required = false) String bpolys,
-      @RequestParam(value = "types", defaultValue = "", required = false) String[] types,
-      @RequestParam(value = "keys", defaultValue = "", required = false) String[] keys,
-      @RequestParam(value = "values", defaultValue = "", required = false) String[] values,
-      @RequestParam(value = "userids", defaultValue = "", required = false) String[] userids,
-      @RequestParam(value = "time", defaultValue = "", required = false) String[] time,
-      @RequestParam(value = "showMetadata", defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
+          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
