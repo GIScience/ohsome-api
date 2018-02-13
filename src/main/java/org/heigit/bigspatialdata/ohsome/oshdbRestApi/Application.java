@@ -26,7 +26,6 @@ public class Application implements ApplicationRunner {
     SpringApplication.run(Application.class, args);
   }
 
-  @SuppressWarnings("resource")
   @Override
   public void run(ApplicationArguments args) throws Exception {
     OSHDB_H2 oshdb;
@@ -51,7 +50,8 @@ public class Application implements ApplicationRunner {
     }
     try {
       dbConnObjects = new OSHDB_H2[2];
-      oshdb = (new OSHDB_H2(dbPath).multithreading(multithreading));
+      oshdb = new OSHDB_H2(dbPath);
+      oshdb.multithreading(multithreading);
       dbConnObjects[0] = oshdb;
       if (keytablesPath != null) {
         oshdbKeytables = new OSHDB_H2(keytablesPath);

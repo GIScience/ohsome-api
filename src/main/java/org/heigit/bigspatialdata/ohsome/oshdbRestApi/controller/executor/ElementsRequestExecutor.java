@@ -190,11 +190,11 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    switch (iV.getBoundary()) {
-      case 0:
+    switch (iV.getBoundaryType()) {
+      case NOBOUNDARY:
         throw new BadRequestException(
             "You need to give more than one bbox if you want to use /groupBy/boundary.");
-      case 1:
+      case BBOXES:
         ArrayList<Geometry> bboxGeoms = iV.getGeometry("bbox");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bboxesList = new LinkedList<>();
@@ -206,7 +206,7 @@ public class ElementsRequestExecutor {
           return bboxesList;
         }).aggregateBy(f -> f).count();
         break;
-      case 2:
+      case BPOINTS:
         ArrayList<Geometry> bpointGeoms = iV.getGeometry("bpoint");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpointsList = new LinkedList<>();
@@ -218,7 +218,7 @@ public class ElementsRequestExecutor {
           return bpointsList;
         }).aggregateBy(f -> f).count();
         break;
-      case 3:
+      case BPOLYS:
         ArrayList<Geometry> bpolyGeoms = iV.getGeometry("bpoly");
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpolysList = new LinkedList<>();
@@ -253,14 +253,14 @@ public class ElementsRequestExecutor {
     GroupByBoundaryMetadata gBBMetadata = null;
     if (iV.getShowMetadata()) {
       Map<String, double[]> boundaries = new HashMap<String, double[]>();
-      switch (iV.getBoundary()) {
-        case 0:
+      switch (iV.getBoundaryType()) {
+        case NOBOUNDARY:
           double[] singleBboxValues = new double[4];
           for (int i = 0; i < 4; i++)
             singleBboxValues[i] = Double.parseDouble(iV.getBoundaryValues()[i]);
           boundaries.put(boundaryIds[0], singleBboxValues);
           break;
-        case 1:
+        case BBOXES:
           int bboxCount = 0;
           for (int i = 0; i < iV.getBoundaryValues().length; i += 4) {
             double[] bboxValues = new double[4];
@@ -270,7 +270,7 @@ public class ElementsRequestExecutor {
             bboxCount++;
           }
           break;
-        case 2:
+        case BPOINTS:
           int bpointCount = 0;
           for (int i = 0; i < iV.getBoundaryValues().length; i += 3) {
             double[] bpointValues = new double[3];
@@ -280,7 +280,7 @@ public class ElementsRequestExecutor {
             bpointCount++;
           }
           break;
-        case 3:
+        case BPOLYS:
           // TODO implement for bpolys (should be done together with WKT implementation)
           boundaries = null;
           break;
@@ -1379,17 +1379,17 @@ public class ElementsRequestExecutor {
       count++;
     }
     Geometry geom = null;
-    switch (iV.getBoundary()) {
-      case 0:
+    switch (iV.getBoundaryType()) {
+      case NOBOUNDARY:
         geom = iV.getBbox().getGeometry();
         break;
-      case 1:
+      case BBOXES:
         geom = iV.getBbox().getGeometry();
         break;
-      case 2:
+      case BPOINTS:
         geom = iV.getBpointGeom();
         break;
-      case 3:
+      case BPOLYS:
         geom = iV.getBpoly();
         break;
     }

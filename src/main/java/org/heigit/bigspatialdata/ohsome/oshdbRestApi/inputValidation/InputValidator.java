@@ -50,7 +50,7 @@ public class InputValidator {
   private final double defMaxLon = 10.6139;
   private final double defMinLat = 47.3937;
   private final double defMaxLat = 49.9079;
-  private byte boundary;
+  private BoundaryType boundary;
   private String[] boundaryIds;
   private BoundingBox bbox;
   private Geometry bpointGeom;
@@ -83,23 +83,23 @@ public class InputValidator {
       String[] userids, String[] time, String showMetadata) throws BadRequestException {
 
     if (isPost) {
-      bboxes = checkBoundaryParamOnNull(bboxes);
-      bpoints = checkBoundaryParamOnNull(bpoints);
-      bpolys = checkBoundaryParamOnNull(bpolys);
-      types = checkParamOnNull(types);
-      keys = checkParamOnNull(keys);
-      values = checkParamOnNull(values);
-      userids = checkParamOnNull(userids);
-      time = checkParamOnNull(time);
+      bboxes = createEmptyStringIfNull(bboxes);
+      bpoints = createEmptyStringIfNull(bpoints);
+      bpolys = createEmptyStringIfNull(bpolys);
+      types = createEmptyArrayIfNull(types);
+      keys = createEmptyArrayIfNull(keys);
+      values = createEmptyArrayIfNull(values);
+      userids = createEmptyArrayIfNull(userids);
+      time = createEmptyArrayIfNull(time);
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
 
     // database
     dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
-      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0].multithreading(true));
+      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]);
     else
-      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0].multithreading(true))
+      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0])
           .keytables(dbConnObjects[1]);
 
     // metadata
@@ -115,21 +115,28 @@ public class InputValidator {
 
     checkBoundaryParams(bboxes, bpoints, bpolys);
 
-    if (this.boundary == 0) {
-      mapRed = mapRed.areaOfInterest(createBbox(new String[0]));
-    } else if (this.boundary == 1) {
-      boundaryValues = splitBoundaryParam(bboxes, (byte) 1);
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(boundaryValues));
-    } else if (this.boundary == 2) {
-      boundaryValues = splitBoundaryParam(bpoints, (byte) 2);
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygons(boundaryValues));
-    } else if (this.boundary == 3) {
-      boundaryValues = splitBoundaryParam(bpolys, (byte) 3);
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBpolys(boundaryValues));
-    } else
-      throw new BadRequestException(
-          "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
-              + "or you defined more than one boundary parameter.");
+    switch (boundary) {
+      case NOBOUNDARY:
+        mapRed = mapRed.areaOfInterest(createBbox(new String[0]));
+        break;
+      case BBOXES:
+        boundaryValues = splitBoundaryParam(bboxes, (byte) 1);
+        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBboxes(boundaryValues));
+        break;
+      case BPOINTS:
+        boundaryValues = splitBoundaryParam(bpoints, (byte) 2);
+        mapRed =
+            mapRed.areaOfInterest((Geometry & Polygonal) createCircularPolygons(boundaryValues));
+        break;
+      case BPOLYS:
+        boundaryValues = splitBoundaryParam(bpolys, (byte) 3);
+        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) createBpolys(boundaryValues));
+        break;
+      default:
+        throw new BadRequestException(
+            "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
+                + "or you defined more than one boundary parameter.");
+    }
 
     mapRed = mapRed.osmTypes(checkTypes(types));
 
@@ -170,9 +177,9 @@ public class InputValidator {
   }
 
   /**
-   * Checks the given boundary parameter(s) and sets a corresponding byte value (0 for no boundary,
-   * 1 for bboxes, 2 for bpoints, 3 for bpolys). Only one (or none) of them is allowed to have
-   * content in it.
+   * Checks the given boundary parameter(s) and sets a corresponding enum (NO_BOUNDARY for no
+   * boundary, BBOXES for bboxes, BPOINTS for bpoints, BPOLYS for bpolys). Only one (or none) of
+   * them is allowed to have content in it.
    * 
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
@@ -183,13 +190,13 @@ public class InputValidator {
    */
   private void checkBoundaryParams(String bboxes, String bpoints, String bpolys) {
     if (bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
-      this.boundary = 0;
+      boundary = BoundaryType.NOBOUNDARY;
     } else if (!bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
-      this.boundary = 1;
+      boundary = BoundaryType.BBOXES;
     } else if (bboxes.isEmpty() && !bpoints.isEmpty() && bpolys.isEmpty()) {
-      this.boundary = 2;
+      boundary = BoundaryType.BPOINTS;
     } else if (bboxes.isEmpty() && bpoints.isEmpty() && !bpolys.isEmpty()) {
-      this.boundary = 3;
+      boundary = BoundaryType.BPOLYS;
     } else
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format, "
@@ -766,25 +773,25 @@ public class InputValidator {
   }
 
   /**
-   * Checking if an input parameter of a POST request is null.
+   * Creates an empty array if an input parameter of a POST request is null.
    * 
    * @param toCheck <code>String</code> array, which is checked.
-   * 
-   * @return <code>String</code> array, which is empty, but not null.
+   * @return <code>String</code> array, which is empty.
    */
-  private String[] checkParamOnNull(String[] toCheck) {
+  private String[] createEmptyArrayIfNull(String[] toCheck) {
     if (toCheck == null)
       toCheck = new String[0];
     return toCheck;
   }
 
   /**
-   * Checking if a given boundary input parameter of a POST request is null.
+   * Creates an empty <code>String</code>, if a given boundary input parameter of a POST request is
+   * null.
    * 
    * @param toCheck <code>String</code>, which is checked.
    * @return <code>String</code>, which is empty, but not null.
    */
-  private String checkBoundaryParamOnNull(String toCheck) {
+  private String createEmptyStringIfNull(String toCheck) {
     if (toCheck == null)
       toCheck = "";
     return toCheck;
@@ -900,7 +907,7 @@ public class InputValidator {
   /*
    * Getters start here
    */
-  public byte getBoundary() {
+  public BoundaryType getBoundaryType() {
     return boundary;
   }
 
