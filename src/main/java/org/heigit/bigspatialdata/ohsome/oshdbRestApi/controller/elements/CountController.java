@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -25,7 +23,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
  */
-@Api(tags = "count-controller")
+@Api(tags = "count")
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {
@@ -65,7 +63,7 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @ApiOperation(value = "Get the count of OSM objects",
+  @ApiOperation(value = "Count of OSM objects",
       response = DefaultAggregationResponseContent.class)
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponseContent getCount(
@@ -225,13 +223,6 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey",
-          value = "OSM key e.g.: 'highway', 'building'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query"),
-      @ApiImplicitParam(name = "groupByValues",
-          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponseContent getCountGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -252,9 +243,12 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
+      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "groupByKey", defaultValue = "",
+              required = false) String[] groupByKey,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "groupByValues",
+              defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -274,9 +268,6 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
    *         GroupByKeyResponseContent}
    */
-  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
-      value = "OSM key(s) e.g.: 'highway', 'building'; default: null", required = false,
-      defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponseContent getCountGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -297,8 +288,9 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKeys", defaultValue = "",
-          required = false) String[] groupByKeys)
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "groupByKeys", defaultValue = "",
+              required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -321,13 +313,6 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2",
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query"),
-      @ApiImplicitParam(name = "values2",
-          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponseContent getCountShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -348,8 +333,12 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "keys2", defaultValue = "",
+              required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
+              required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -371,16 +360,6 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2",
-          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
-          required = false, defaultValue = "", dataType = "string", paramType = "query"),
-      @ApiImplicitParam(name = "keys2",
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query"),
-      @ApiImplicitParam(name = "values2",
-          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "ratio", method = RequestMethod.GET, produces = "application/json")
   public RatioResponseContent getCountRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -401,9 +380,15 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "types2", defaultValue = "",
+              required = false) String[] types2,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "keys2", defaultValue = "",
+              required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
+              required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -424,9 +409,30 @@ public class CountController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponseContent postCount(@ApiParam(hidden = true) String bboxes,
-      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public DefaultAggregationResponseContent postCount(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -447,9 +453,31 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByTypeResponseContent postCountGroupByType(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public GroupByTypeResponseContent postCountGroupByType(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountGroupByType(true, bboxes, bpoints, bpolys, types, keys, values,
@@ -469,9 +497,30 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByUserResponseContent postCountGroupByUser(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public GroupByUserResponseContent postCountGroupByUser(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -493,9 +542,30 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByBoundaryResponseContent postCountGroupByBoundary(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public GroupByBoundaryResponseContent postCountGroupByBoundary(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -522,9 +592,34 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByTagResponseContent postCountGroupByTag(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKey, String[] groupByValues)
+  public GroupByTagResponseContent postCountGroupByTag(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] groupByKey,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -547,9 +642,32 @@ public class CountController {
    */
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByKeyResponseContent postCountGroupByKey(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKeys)
+  public GroupByKeyResponseContent postCountGroupByKey(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -575,9 +693,34 @@ public class CountController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareResponseContent postCountShare(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] keys2, String[] values2)
+  public ShareResponseContent postCountShare(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -602,9 +745,36 @@ public class CountController {
    */
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioResponseContent postCountRatio(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] types2, String[] keys2, String[] values2)
+  public RatioResponseContent postCountRatio(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types2,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();

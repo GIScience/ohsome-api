@@ -42,13 +42,12 @@ public class SwaggerConfig {
     return new Docket(DocumentationType.SWAGGER_2).select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.oshdbRestApi"))
         .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        // .ignoredParameterTypes(String.class) // removes all string parameters from swagger
         .globalOperationParameters(defineGOPs())
-        .tags(new Tag("area-controller", "Processes /elements/area resources"),
-            new Tag("count-controller", "Processes /elements/count resources"),
-            new Tag("density-controller", "Processes /elements/density resources"),
-            new Tag("length-controller", "Processes /elements/length resources"),
-            new Tag("perimeter-controller", "Processes /elements/perimeter resources"))
+        .tags(new Tag("area", "Areal computations of polygonal objects"),
+            new Tag("count", "Count computations of point/line/polygonal objects"),
+            new Tag("density", "Density computations of point/line/polygonal objects"),
+            new Tag("length", "Length computations of line objects"),
+            new Tag("perimeter", "Perimeter computations of polygonal objects"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
@@ -96,22 +95,22 @@ public class SwaggerConfig {
         .build());
     gOPs.add(new ParameterBuilder().name("types")
         .description("OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null")
-        .modelRef(new ModelRef("string")).allowMultiple(true).parameterType("query")
+        .modelRef(new ModelRef("array", new ModelRef("string"))).allowMultiple(true).parameterType("query")
         .defaultValue("").required(false).build());
     gOPs.add(new ParameterBuilder().name("keys")
         .description("OSM key(s) e.g.: 'highway', 'building'; default: null")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
-        .build());
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query")
+        .defaultValue("").required(false).build());
     gOPs.add(new ParameterBuilder().name("values")
         .description("OSM value(s) e.g.: 'primary', 'residential'; default: null")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query").defaultValue("").required(false)
+        .build());
+    gOPs.add(new ParameterBuilder().name("userids").description("OSM userids; default: null")
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query").defaultValue("").required(false)
         .build());
     gOPs.add(new ParameterBuilder().name("time")
         .description("ISO-8601 conform timestring(s); default: today")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
-        .build());
-    gOPs.add(new ParameterBuilder().name("userids").description("OSM userids; default: null")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query").defaultValue("").required(false)
         .build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
         .description("'Boolean' operator 'true' or 'false'; default: 'false'")

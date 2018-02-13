@@ -13,15 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiParam;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/perimeter".
  */
-@Api(tags = "perimeter-controller")
+@Api(tags = "perimeter")
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
@@ -155,13 +153,6 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey",
-          value = "OSM key e.g.: 'highway', 'building'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query"),
-      @ApiImplicitParam(name = "groupByValues",
-          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponseContent getPerimeterGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -182,9 +173,12 @@ public class PerimeterController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
+      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "groupByKey", defaultValue = "",
+              required = false) String[] groupByKey,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "groupByValues",
+              defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -207,13 +201,6 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2",
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query"),
-      @ApiImplicitParam(name = "values2",
-          value = "OSM value(s) e.g.: 'primary', 'residential'; default: null", required = false,
-          defaultValue = "", dataType = "string", paramType = "query")})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponseContent getPerimeterShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -234,8 +221,12 @@ public class PerimeterController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "keys2", defaultValue = "",
+              required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
+              required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -256,9 +247,31 @@ public class PerimeterController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponseContent postPerimeter(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponseContent postPerimeter(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executePerimeter(true, bboxes, bpoints, bpolys, types, keys, values, userids,
@@ -278,9 +291,30 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByTypeResponseContent postPerimeterGroupByType(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public GroupByTypeResponseContent postPerimeterGroupByType(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -307,9 +341,34 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByTagResponseContent postPerimeterGroupByTag(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+  public GroupByTagResponseContent postPerimeterGroupByTag(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] groupByKey,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -330,9 +389,30 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByUserResponseContent postPerimeterGroupByUser(String bboxes, String bpoints,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public GroupByUserResponseContent postPerimeterGroupByUser(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -358,9 +438,34 @@ public class PerimeterController {
    */
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareResponseContent postPerimeterShare(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] keys2, String[] values2)
+  public ShareResponseContent postPerimeterShare(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();

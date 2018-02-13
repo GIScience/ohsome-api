@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/density".
  */
-@Api(tags = "density-controller")
+@Api(tags = "density")
 @RestController
 @RequestMapping("/elements/density")
 public class DensityController {
@@ -69,9 +69,31 @@ public class DensityController {
    */
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponseContent postDensity(String bboxes, String bpoints, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponseContent postDensity(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bpoints,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids,
