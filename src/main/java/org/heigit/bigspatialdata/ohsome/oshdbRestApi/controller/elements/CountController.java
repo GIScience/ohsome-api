@@ -63,8 +63,7 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @ApiOperation(value = "Count of OSM objects",
-      response = DefaultAggregationResponseContent.class)
+  @ApiOperation(value = "Count of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponseContent getCount(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -102,6 +101,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
    *         GroupByTypeResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the type")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByTypeResponseContent getCountGroupByType(
@@ -140,6 +140,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
    *         GroupByUserResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the user")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByUserResponseContent getCountGroupByUser(
@@ -179,6 +180,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByBoundaryResponseContent
    *         GroupByBoundaryResponseContent}
    */
+  @ApiOperation(
+      value = "Count of OSM elements grouped by the boundary (bboxes, bpoints, or bpolys)")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByBoundaryResponseContent getCountGroupByBoundary(
@@ -223,6 +226,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the tag")
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponseContent getCountGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -268,6 +272,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
    *         GroupByKeyResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the key")
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponseContent getCountGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -313,6 +318,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(
+      value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponseContent getCountShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -360,6 +367,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
   @RequestMapping(value = "ratio", method = RequestMethod.GET, produces = "application/json")
   public RatioResponseContent getCountRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -407,6 +416,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponseContent postCount(
@@ -451,6 +461,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
    *         GroupByTypeResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the type")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponseContent postCountGroupByType(
@@ -495,6 +506,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
    *         GroupByUserResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the user")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByUserResponseContent postCountGroupByUser(
@@ -540,6 +552,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByBoundaryResponseContent
    *         GroupByBoundaryResponseContent}
    */
+  @ApiOperation(
+      value = "Count of OSM elements grouped by the boundary (bboxes, bpoints, or bpolys)")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByBoundaryResponseContent postCountGroupByBoundary(
@@ -590,6 +604,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the tag")
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponseContent postCountGroupByTag(
@@ -640,6 +655,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
    *         GroupByKeyResponseContent}
    */
+  @ApiOperation(value = "Count of OSM elements grouped by the key")
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByKeyResponseContent postCountGroupByKey(
@@ -691,6 +707,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(
+      value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareResponseContent postCountShare(
@@ -743,6 +761,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public RatioResponseContent postCountRatio(

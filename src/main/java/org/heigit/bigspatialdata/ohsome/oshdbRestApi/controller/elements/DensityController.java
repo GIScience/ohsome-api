@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 /**
@@ -29,6 +30,7 @@ public class DensityController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(value = "Density of OSM elements (number of elements per area)")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponseContent getDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -67,6 +69,7 @@ public class DensityController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(value = "Density of OSM elements (number of elements per area)")
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponseContent postDensity(

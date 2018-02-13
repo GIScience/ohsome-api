@@ -43,11 +43,11 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.oshdbRestApi"))
         .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
-        .tags(new Tag("area", "Areal computations of polygonal objects"),
-            new Tag("count", "Count computations of point/line/polygonal objects"),
-            new Tag("density", "Density computations of point/line/polygonal objects"),
-            new Tag("length", "Length computations of line objects"),
-            new Tag("perimeter", "Perimeter computations of polygonal objects"))
+        .tags(new Tag("area", "Areal resources for polygonal objects"),
+            new Tag("count", "Count resources for point/line/polygonal objects"),
+            new Tag("density", "Density resources for point/line/polygonal objects"),
+            new Tag("length", "Length resources for line objects"),
+            new Tag("perimeter", "Perimeter resources for polygonal objects"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }

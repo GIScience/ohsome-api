@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/perimeter".
  */
-@Api(tags = "perimeter")
+@Api(tags = "perimeter-controller")
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
@@ -34,6 +35,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponseContent getPerimeter(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -71,6 +73,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
    *         GroupByTypeResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the type")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByTypeResponseContent getPerimeterGroupByType(
@@ -109,6 +112,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
    *         GroupByUserResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the user")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByUserResponseContent getPerimeterGroupByUser(
@@ -153,6 +157,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag")
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponseContent getPerimeterGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -201,6 +206,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(
+      value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponseContent getPerimeterShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -245,6 +252,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponseContent postPerimeter(
@@ -289,6 +297,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
    *         GroupByTypeResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the type")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponseContent postPerimeterGroupByType(
@@ -339,6 +348,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag")
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponseContent postPerimeterGroupByTag(
@@ -387,6 +397,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
    *         GroupByUserResponseContent}
    */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the user")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByUserResponseContent postPerimeterGroupByUser(
@@ -436,6 +447,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
+  @ApiOperation(
+      value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareResponseContent postPerimeterShare(
