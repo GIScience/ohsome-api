@@ -34,16 +34,18 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationRespo
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndOtherIndex;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapBiAggregatorByTimestamps;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.Geo;
-import org.heigit.bigspatialdata.oshdb.util.TagTranslator;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
+import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -90,9 +92,10 @@ public class ElementsRequestExecutor {
     result = mapRed.aggregateByTimestamp().count();
     Result[] resultSet = new Result[result.size()];
     int count = 0;
+    
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
       resultSet[count] =
-          new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
+          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), entry.getValue().intValue());
       count++;
     }
     Metadata metadata = null;
@@ -123,7 +126,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Integer> result;
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -137,7 +140,7 @@ public class ElementsRequestExecutor {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
         }).count();
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     int innerCount = 0;
@@ -148,7 +151,7 @@ public class ElementsRequestExecutor {
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -181,7 +184,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result = null;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result = null;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -231,7 +234,7 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).count();
         break;
     }
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     String[] boundaryIds = iV.getBoundaryIds();
@@ -244,7 +247,7 @@ public class ElementsRequestExecutor {
       groupByName = boundaryIds[count];
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -311,7 +314,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -319,7 +322,7 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt;
-    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
     else
@@ -350,7 +353,7 @@ public class ElementsRequestExecutor {
         res.add(new ImmutablePair<>(-1, f));
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
@@ -365,10 +368,11 @@ public class ElementsRequestExecutor {
       } else {
         groupByName = "remainder";
       }
+      
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -401,8 +405,8 @@ public class ElementsRequestExecutor {
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Integer> result;
-    SortedMap<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
+    SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
@@ -413,7 +417,7 @@ public class ElementsRequestExecutor {
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
-    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
     else
@@ -466,14 +470,14 @@ public class ElementsRequestExecutor {
       }
       return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
     String groupByName = "";
     int count = 0;
     int entrySetSize = 0;
     ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
-    for (Entry<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
+    for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       entrySetSize = entry.getValue().entrySet().size();
@@ -494,9 +498,9 @@ public class ElementsRequestExecutor {
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         if (count == 0)
           // timestamps needed for later usage
-          resultTimestamps.add(innerEntry.getKey().formatIsoDateTime());
+          resultTimestamps.add(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()));
         results[innerCount] =
-            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -553,7 +557,7 @@ public class ElementsRequestExecutor {
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Integer> result;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -566,7 +570,7 @@ public class ElementsRequestExecutor {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
         }).count();
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     int innerCount = 0;
@@ -577,7 +581,7 @@ public class ElementsRequestExecutor {
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(innerEntry.getKey().formatIsoDateTime(), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -610,7 +614,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Boolean>, Integer> result;
+    SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
@@ -623,7 +627,7 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
-    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
     else
@@ -683,12 +687,12 @@ public class ElementsRequestExecutor {
       part[i] = -1;
     }
     // time and value extraction
-    for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Integer> entry : result.entrySet()) {
+    for (Entry<OSHDBTimestampAndIndex<Boolean>, Integer> entry : result.entrySet()) {
       // this time array counts for each entry in the entrySet
-      noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
+      noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().toString();
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
-        timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
+        timeArray[partCount] = TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
         part[partCount] = entry.getValue();
         if (whole[partCount] == null || whole[partCount] == -1)
           whole[partCount] = entry.getValue();
@@ -775,7 +779,7 @@ public class ElementsRequestExecutor {
     DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
       count++;
     }
@@ -836,7 +840,7 @@ public class ElementsRequestExecutor {
     DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      resultSet[count] = new Result(entry.getKey().formatIsoDateTime(),
+      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
       count++;
     }
@@ -870,7 +874,7 @@ public class ElementsRequestExecutor {
       String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -880,7 +884,7 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt;
-    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
     else
@@ -927,7 +931,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
@@ -947,7 +951,7 @@ public class ElementsRequestExecutor {
       }
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -997,8 +1001,8 @@ public class ElementsRequestExecutor {
       String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<ImmutablePair<Integer, Integer>>, Number> result;
-    SortedMap<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
+    SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String unit = "";
@@ -1012,7 +1016,7 @@ public class ElementsRequestExecutor {
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
-    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
     else
@@ -1080,7 +1084,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
     String groupByName = "";
@@ -1092,7 +1096,7 @@ public class ElementsRequestExecutor {
     int entrySetSize = 0;
     ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
-    for (Entry<ImmutablePair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
+    for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
         .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       entrySetSize = entry.getValue().entrySet().size();
@@ -1113,8 +1117,8 @@ public class ElementsRequestExecutor {
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
         if (count == 0)
           // write the timestamps into an ArrayList for later usage
-          resultTimestamps.add(innerEntry.getKey().formatIsoDateTime());
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+          resultTimestamps.add(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()));
+        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1190,7 +1194,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Integer>, Number> result;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -1219,7 +1223,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
@@ -1232,7 +1236,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1283,7 +1287,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<OSMType>, Number> result;
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
@@ -1307,7 +1311,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    groupByResult = MapBiAggregatorByTimestamps.nest_IndexThenTime(result);
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
@@ -1320,7 +1324,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(innerEntry.getKey().formatIsoDateTime(),
+        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1375,16 +1379,16 @@ public class ElementsRequestExecutor {
     Result[] countResultSet = new Result[countResult.size()];
     for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
       countResultSet[count] =
-          new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
+          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), entry.getValue().intValue());
       count++;
     }
     Geometry geom = null;
     switch (iV.getBoundaryType()) {
       case NOBOUNDARY:
-        geom = iV.getBbox().getGeometry();
+        geom = OSHDBGeometryBuilder.getGeometry(iV.getBbox());
         break;
       case BBOXES:
-        geom = iV.getBbox().getGeometry();
+        geom = OSHDBGeometryBuilder.getGeometry(iV.getBbox());
         break;
       case BPOINTS:
         geom = iV.getBpointGeom();
@@ -1434,7 +1438,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndOtherIndex<Boolean>, Number> result;
+    SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String unit = "";
@@ -1450,7 +1454,7 @@ public class ElementsRequestExecutor {
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
     // needed to get access to the keytables
-    OSHDB_H2[] dbConnObjects = Application.getDbConnObjects();
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
     if (dbConnObjects[1] == null)
       tt = new TagTranslator(dbConnObjects[0].getConnection());
     else
@@ -1527,11 +1531,11 @@ public class ElementsRequestExecutor {
       part[i] = -1.0;
     }
     // time and value extraction
-    for (Entry<OSHDBTimestampAndOtherIndex<Boolean>, Number> entry : result.entrySet()) {
+    for (Entry<OSHDBTimestampAndIndex<Boolean>, Number> entry : result.entrySet()) {
       // this time array counts for each entry in the entrySet
-      noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
+      noPartTimeArray[timeCount] = TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
       if (entry.getKey().getOtherIndex()) {
-        timeArray[partCount] = entry.getKey().getTimeIndex().formatIsoDateTime();
+        timeArray[partCount] = TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
         part[partCount] =
             Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
         if (whole[partCount] == null || whole[partCount] == -1)
@@ -1631,7 +1635,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
       resultSet1[count] =
-          new Result(entry.getKey().formatIsoDateTime(), entry.getValue().intValue());
+          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), entry.getValue().intValue());
       count++;
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];

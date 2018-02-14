@@ -1,7 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi;
 
 import java.sql.SQLException;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +17,7 @@ public class Application implements ApplicationRunner {
   /**
    * 0: oshdb 1: keytables
    */
-  private static OSHDB_H2[] dbConnObjects;
+  private static OSHDBH2[] dbConnObjects;
 
   public static void main(String[] args) {
     if (args == null || args.length == 0)
@@ -28,8 +28,8 @@ public class Application implements ApplicationRunner {
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
-    OSHDB_H2 oshdb;
-    OSHDB_H2 oshdbKeytables;
+    OSHDBH2 oshdb;
+    OSHDBH2 oshdbKeytables;
     String dbPath = null;
     String keytablesPath = null;
     boolean multithreading = true;
@@ -49,12 +49,12 @@ public class Application implements ApplicationRunner {
       }
     }
     try {
-      dbConnObjects = new OSHDB_H2[2];
-      oshdb = new OSHDB_H2(dbPath);
+      dbConnObjects = new OSHDBH2[2];
+      oshdb = new OSHDBH2(dbPath);
       oshdb.multithreading(multithreading);
       dbConnObjects[0] = oshdb;
       if (keytablesPath != null) {
-        oshdbKeytables = new OSHDB_H2(keytablesPath);
+        oshdbKeytables = new OSHDBH2(keytablesPath);
         dbConnObjects[1] = oshdbKeytables;
       }
     } catch (ClassNotFoundException | SQLException e) {
@@ -62,7 +62,7 @@ public class Application implements ApplicationRunner {
     }
   }
 
-  public static OSHDB_H2[] getDbConnObjects() {
+  public static OSHDBH2[] getDbConnObjects() {
     return dbConnObjects;
   }
 }

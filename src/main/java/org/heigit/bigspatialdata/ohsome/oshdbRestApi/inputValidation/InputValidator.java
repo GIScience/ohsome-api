@@ -19,13 +19,14 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDB_H2;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.api.utils.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.BoundingBox;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
+import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -52,7 +53,7 @@ public class InputValidator {
   private final double defMaxLat = 49.9079;
   private BoundaryType boundary;
   private String[] boundaryIds;
-  private BoundingBox bbox;
+  private OSHDBBoundingBox bbox;
   private Geometry bpointGeom;
   private Polygon bpoly;
   private String[] boundaryValues;
@@ -64,7 +65,7 @@ public class InputValidator {
   private final String defStartTime = "2007-11-01";
   private String[] timeData;
   private boolean showMetadata;
-  private OSHDB_H2[] dbConnObjects;
+  private OSHDBH2[] dbConnObjects;
 
   /**
    * Processes the input parameters from the given request.
@@ -154,7 +155,7 @@ public class InputValidator {
       // list of timestamps
       String firstElem = time[0];
       time = ArrayUtils.remove(time, 0);
-      mapRed = mapRed.timestamps(firstElem, time);
+      mapRed = mapRed.timestamps(firstElem, firstElem, time);
     }
 
     mapRed = checkKeysValues(mapRed, keys, values);
@@ -177,7 +178,7 @@ public class InputValidator {
   }
 
   /**
-   * Checks the given boundary parameter(s) and sets a corresponding enum (NO_BOUNDARY for no
+   * Checks the given boundary parameter(s) and sets a corresponding enum (NOBOUNDARY for no
    * boundary, BBOXES for bboxes, BPOINTS for bpoints, BPOLYS for bpolys). Only one (or none) of
    * them is allowed to have content in it.
    * 
@@ -373,10 +374,10 @@ public class InputValidator {
    * @return <code>BoundingBox</code> object.
    * @throws BadRequestException if coordinates are invalid
    */
-  private BoundingBox createBbox(String[] bbox) throws BadRequestException {
+  private OSHDBBoundingBox createBbox(String[] bbox) throws BadRequestException {
     if (bbox.length == 0) {
       // no bboxes given -> global request
-      this.bbox = new BoundingBox(defMinLon, defMaxLon, defMinLat, defMaxLat);
+      this.bbox = new OSHDBBoundingBox(defMinLon, defMinLat, defMaxLon, defMaxLat);
       return this.bbox;
     } else if (bbox.length == 4) {
       try {
@@ -384,9 +385,9 @@ public class InputValidator {
         double minLat = Double.parseDouble(bbox[1]);
         double maxLon = Double.parseDouble(bbox[2]);
         double maxLat = Double.parseDouble(bbox[3]);
-        this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+        this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
         bboxColl = new LinkedHashSet<Geometry>();;
-        bboxColl.add(this.bbox.getGeometry());
+        bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
         return this.bbox;
       } catch (NumberFormatException e) {
         throw new BadRequestException(
@@ -417,19 +418,19 @@ public class InputValidator {
       double minLat = Double.parseDouble(bboxes[1]);
       double maxLon = Double.parseDouble(bboxes[2]);
       double maxLat = Double.parseDouble(bboxes[3]);
-      this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
-      unifiedBbox = gf.createGeometry(this.bbox.getGeometry());
+      this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
+      unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(this.bbox));
       bboxColl = new LinkedHashSet<Geometry>();;
-      bboxColl.add(this.bbox.getGeometry());
+      bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
 
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
-        this.bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
-        bboxColl.add(this.bbox.getGeometry());
-        unifiedBbox = unifiedBbox.union(this.bbox.getGeometry());
+        this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
+        bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
+        unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(this.bbox));
       }
       return unifiedBbox;
     } catch (NumberFormatException e) {
@@ -919,7 +920,7 @@ public class InputValidator {
     return boundaryValues;
   }
 
-  public BoundingBox getBbox() {
+  public OSHDBBoundingBox getBbox() {
     return bbox;
   }
 
