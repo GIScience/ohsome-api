@@ -92,10 +92,10 @@ public class ElementsRequestExecutor {
     result = mapRed.aggregateByTimestamp().count();
     Result[] resultSet = new Result[result.size()];
     int count = 0;
-    
+
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] =
-          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), entry.getValue().intValue());
+      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+          entry.getValue().intValue());
       count++;
     }
     Metadata metadata = null;
@@ -139,7 +139,7 @@ public class ElementsRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).count();
+        }).zerofillIndices(iV.getOsmTypes()).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
@@ -151,7 +151,8 @@ public class ElementsRequestExecutor {
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -196,42 +197,45 @@ public class ElementsRequestExecutor {
     switch (iV.getBoundaryType()) {
       case NOBOUNDARY:
         throw new BadRequestException(
-            "You need to give more than one bbox if you want to use /groupBy/boundary.");
+            "You need to give more at least one boundary parameter if you want to use /groupBy/boundary.");
       case BBOXES:
         ArrayList<Geometry> bboxGeoms = iV.getGeometry("bbox");
+        ArrayList<Integer> zeroBboxFill = new ArrayList<Integer>();
+        for (int j = 0; j < bboxGeoms.size(); j++)
+          zeroBboxFill.add(j);
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bboxesList = new LinkedList<>();
-          for (int i = 0; i < bboxGeoms.size(); i++) {
-            if (f.getGeometry().intersects(bboxGeoms.get(i))) {
+          for (int i = 0; i < bboxGeoms.size(); i++)
+            if (f.getGeometry().intersects(bboxGeoms.get(i)))
               bboxesList.add(i);
-            }
-          }
           return bboxesList;
-        }).aggregateBy(f -> f).count();
+        }).aggregateBy(f -> f).zerofillIndices(zeroBboxFill).count();
         break;
       case BPOINTS:
         ArrayList<Geometry> bpointGeoms = iV.getGeometry("bpoint");
+        ArrayList<Integer> zeroBpointFill = new ArrayList<Integer>();
+        for (int j = 0; j < bpointGeoms.size(); j++)
+          zeroBpointFill.add(j);
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpointsList = new LinkedList<>();
-          for (int i = 0; i < bpointGeoms.size(); i++) {
-            if (f.getGeometry().intersects(bpointGeoms.get(i))) {
+          for (int i = 0; i < bpointGeoms.size(); i++)
+            if (f.getGeometry().intersects(bpointGeoms.get(i)))
               bpointsList.add(i);
-            }
-          }
           return bpointsList;
-        }).aggregateBy(f -> f).count();
+        }).aggregateBy(f -> f).zerofillIndices(zeroBpointFill).count();
         break;
       case BPOLYS:
         ArrayList<Geometry> bpolyGeoms = iV.getGeometry("bpoly");
+        ArrayList<Integer> zeroBpolyFill = new ArrayList<Integer>();
+        for (int j = 0; j < bpolyGeoms.size(); j++)
+          zeroBpolyFill.add(j);
         result = mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Integer> bpolysList = new LinkedList<>();
-          for (int i = 0; i < bpolyGeoms.size(); i++) {
-            if (f.getGeometry().intersects(bpolyGeoms.get(i))) {
+          for (int i = 0; i < bpolyGeoms.size(); i++)
+            if (f.getGeometry().intersects(bpolyGeoms.get(i)))
               bpolysList.add(i);
-            }
-          }
           return bpolysList;
-        }).aggregateBy(f -> f).count();
+        }).aggregateBy(f -> f).zerofillIndices(zeroBpolyFill).count();
         break;
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -247,7 +251,8 @@ public class ElementsRequestExecutor {
       groupByName = boundaryIds[count];
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -334,8 +339,11 @@ public class ElementsRequestExecutor {
     }
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
+    // ArrayList<Integer> nonExistantKeys = new ArrayList<Integer>();
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
+//      if (keysInt[i] == null)
+//        keysInt[i] = -i-2;
     }
     // group by key logic
     result = mapRed.flatMap(f -> {
@@ -344,9 +352,10 @@ public class ElementsRequestExecutor {
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         for (int key : keysInt) {
-          if (tagKeyId == key) {
+          if (tagKeyId == key)
             res.add(new ImmutablePair<>(tagKeyId, f));
-          }
+//          if (tagKeyId < 0)
+//            nonExistantKeys.add(tagKeyId);
         }
       }
       if (res.size() == 0)
@@ -368,11 +377,12 @@ public class ElementsRequestExecutor {
       } else {
         groupByName = "remainder";
       }
-      
+
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -500,7 +510,8 @@ public class ElementsRequestExecutor {
           // timestamps needed for later usage
           resultTimestamps.add(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()));
         results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -562,14 +573,18 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputValidator iV = new InputValidator();
     String requestURL = null;
+    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
+    // converting userids to int for usage in zerofill
+    for (String user : userids)
+      useridsInt.add(Integer.parseInt(user));
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
-        }).count();
+        }).zerofillIndices(useridsInt).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
@@ -581,7 +596,8 @@ public class ElementsRequestExecutor {
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), innerEntry.getValue().intValue());
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -672,7 +688,7 @@ public class ElementsRequestExecutor {
         }
       }
       return hasTags;
-    }).count();
+    }).zerofillIndices(Arrays.asList(true, false)).count();
     Integer[] whole = new Integer[result.size()];
     Integer[] part = new Integer[result.size()];
     String[] timeArray = new String[result.size()];
@@ -692,7 +708,8 @@ public class ElementsRequestExecutor {
       noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().toString();
       if (entry.getKey().getOtherIndex()) {
         // if true - set timestamp and set/increase part and/or whole
-        timeArray[partCount] = TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
+        timeArray[partCount] =
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
         part[partCount] = entry.getValue();
         if (whole[partCount] == null || whole[partCount] == -1)
           whole[partCount] = entry.getValue();
@@ -951,7 +968,8 @@ public class ElementsRequestExecutor {
       }
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1118,7 +1136,8 @@ public class ElementsRequestExecutor {
         if (count == 0)
           // write the timestamps into an ArrayList for later usage
           resultTimestamps.add(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()));
-        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1201,14 +1220,18 @@ public class ElementsRequestExecutor {
     String unit = "";
     String description = "";
     String requestURL = null;
+    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
+    // converting userids to int for usage in zerofill
+    for (String user : userids)
+      useridsInt.add(Integer.parseInt(user));
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
-        }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+        }).zerofillIndices(useridsInt).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           switch (requestType) {
             case 1:
               return Geo.lengthOf(snapshot.getGeometry());
@@ -1236,7 +1259,8 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1301,7 +1325,7 @@ public class ElementsRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+        }).zerofillIndices(iV.getOsmTypes()).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           if (isArea) {
             return Geo.areaOf(snapshot.getGeometry());
           } else {
@@ -1324,7 +1348,8 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -1379,7 +1404,8 @@ public class ElementsRequestExecutor {
     Result[] countResultSet = new Result[countResult.size()];
     for (Entry<OSHDBTimestamp, Integer> entry : countResult.entrySet()) {
       countResultSet[count] =
-          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), entry.getValue().intValue());
+          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+              entry.getValue().intValue());
       count++;
     }
     Geometry geom = null;
@@ -1499,7 +1525,7 @@ public class ElementsRequestExecutor {
         }
       }
       return hasTags;
-    }).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+    }).zerofillIndices(Arrays.asList(true, false)).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
       switch (requestType) {
         case 1:
           return Geo.lengthOf(snapshot.getGeometry());
@@ -1533,9 +1559,11 @@ public class ElementsRequestExecutor {
     // time and value extraction
     for (Entry<OSHDBTimestampAndIndex<Boolean>, Number> entry : result.entrySet()) {
       // this time array counts for each entry in the entrySet
-      noPartTimeArray[timeCount] = TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
+      noPartTimeArray[timeCount] =
+          TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
       if (entry.getKey().getOtherIndex()) {
-        timeArray[partCount] = TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
+        timeArray[partCount] =
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
         part[partCount] =
             Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue()));
         if (whole[partCount] == null || whole[partCount] == -1)
@@ -1634,8 +1662,8 @@ public class ElementsRequestExecutor {
     Result[] resultSet1 = new Result[result1.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
-      resultSet1[count] =
-          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), entry.getValue().intValue());
+      resultSet1[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+          entry.getValue().intValue());
       count++;
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];

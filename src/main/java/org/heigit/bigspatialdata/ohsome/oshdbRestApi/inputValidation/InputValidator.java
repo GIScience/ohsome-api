@@ -60,6 +60,7 @@ public class InputValidator {
   private Collection<Geometry> bboxColl;
   private Collection<Geometry> bpointColl;
   private Collection<Geometry> bpolyColl;
+  private EnumSet<OSMType> osmTypes;
   private final String defEndTime =
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
   private final String defStartTime = "2007-11-01";
@@ -100,8 +101,7 @@ public class InputValidator {
     if (dbConnObjects[1] == null)
       mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]);
     else
-      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0])
-          .keytables(dbConnObjects[1]);
+      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
 
     // metadata
     if (showMetadata == null)
@@ -568,21 +568,22 @@ public class InputValidator {
       throw new BadRequestException(
           "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
     } else if (types.length == 0) {
-      return EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
+      this.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
+      return this.osmTypes;
     } else {
-      EnumSet<OSMType> osmTypes = EnumSet.noneOf(OSMType.class);
+      this.osmTypes = EnumSet.noneOf(OSMType.class);
       for (String type : types) {
         if (type.equals("node"))
-          osmTypes.add(OSMType.NODE);
+          this.osmTypes.add(OSMType.NODE);
         else if (type.equals("way"))
-          osmTypes.add(OSMType.WAY);
+          this.osmTypes.add(OSMType.WAY);
         else if (type.equals("relation"))
-          osmTypes.add(OSMType.RELATION);
+          this.osmTypes.add(OSMType.RELATION);
         else
           throw new BadRequestException(
               "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' as its content.");
       }
-      return osmTypes;
+      return this.osmTypes;
     }
   }
 
@@ -934,5 +935,9 @@ public class InputValidator {
 
   public boolean getShowMetadata() {
     return this.showMetadata;
+  }
+
+  public EnumSet<OSMType> getOsmTypes() {
+    return osmTypes;
   }
 }
