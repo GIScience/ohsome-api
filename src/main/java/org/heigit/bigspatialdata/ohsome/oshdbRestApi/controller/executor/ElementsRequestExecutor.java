@@ -339,11 +339,13 @@ public class ElementsRequestExecutor {
     }
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    // ArrayList<Integer> nonExistantKeys = new ArrayList<Integer>();
+    ArrayList<String> nonExistantKeys = new ArrayList<String>();
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
-//      if (keysInt[i] == null)
-//        keysInt[i] = -i-2;
+      if (keysInt[i] == -1) {
+        nonExistantKeys.add(groupByKeys[i]);
+        keysInt[i] = -i - 2;
+      }
     }
     // group by key logic
     result = mapRed.flatMap(f -> {
@@ -352,40 +354,52 @@ public class ElementsRequestExecutor {
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         for (int key : keysInt) {
-          if (tagKeyId == key)
+          if (tagKeyId == key) {
             res.add(new ImmutablePair<>(tagKeyId, f));
-//          if (tagKeyId < 0)
-//            nonExistantKeys.add(tagKeyId);
+          }
         }
       }
       if (res.size() == 0)
         res.add(new ImmutablePair<>(-1, f));
       return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
+        .map(Pair::getValue).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
     int innerCount = 0;
+    int nonExistantCount = 0;
     // iterate over the entry objects aggregated by keys
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+      boolean hasValues = false;
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // check for non-remainder objects (which do have the defined key)
+      // check for non-remainder objects and not existing keys
       if (entry.getKey() != -1) {
         groupByName = tt.key2String(entry.getKey());
       } else {
         groupByName = "remainder";
       }
-
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                 innerEntry.getValue().intValue());
+        if (innerEntry.getValue().intValue() != 0)
+          hasValues = true;
         innerCount++;
       }
-      resultSet[count] = new GroupByResult(groupByName, results);
+      if (hasValues) {
+        resultSet[count] = new GroupByResult(groupByName, results);
+      } else {
+        if (nonExistantCount < nonExistantKeys.size()) {
+          resultSet[count] = new GroupByResult(nonExistantKeys.get(nonExistantCount), results);
+          nonExistantCount++;
+        } else {
+          resultSet[count] = new GroupByResult(groupByName, results);
+        }
+      }
       count++;
     }
     Metadata metadata = null;
@@ -422,7 +436,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    if (groupByKey == null || groupByKey.length == 0)
+    if (groupByKey.length != 1)
       throw new BadRequestException("There has to be one groupByKey value given.");
     if (groupByValues == null)
       groupByValues = new String[0];
@@ -434,28 +448,25 @@ public class ElementsRequestExecutor {
       tt = new TagTranslator(dbConnObjects[1].getConnection());
     Integer[] keysInt = new Integer[groupByKey.length];
     Integer[] valuesInt = new Integer[groupByValues.length];
-    // will hold those input groupByValues, which do not exist in the OSM database
-    Set<String> valuesSet = new HashSet<String>(Arrays.asList(groupByValues));
-    boolean hasUnresolvableKey = false;
-    if (groupByKey == null || groupByKey.length == 0) {
-      throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
-    }
+    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
+    ArrayList<String> nonExistantValues = new ArrayList<String>();
     mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
-      if (keysInt[i] == null) {
+      if (keysInt[i] == -1) {
         keysInt[i] = -2;
-        hasUnresolvableKey = true;
       }
       if (groupByValues != null) {
         for (int j = 0; j < groupByValues.length; j++) {
           valuesInt[j] = tt.tag2Int(groupByKey[i], groupByValues[j]).getValue();
-          if (valuesInt[j] == null) {
-            valuesInt[j] = -1;
+          zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt[i], valuesInt[j]));
+          if (valuesInt[j] == -1) {
+            nonExistantValues.add(groupByValues[j]);
           }
         }
+      } else {
+        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt[i], null));
       }
     }
     // group by tag logic
@@ -479,69 +490,46 @@ public class ElementsRequestExecutor {
         }
       }
       return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue).count();
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
+        .map(Pair::getValue).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size() + valuesSet.size() + 1];
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    int entrySetSize = 0;
-    ArrayList<String> resultTimestamps = new ArrayList<String>();
+    int nonExistantcount = 0;
     // iterate over the entry objects aggregated by tags
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
+      boolean hasValues = false;
       Result[] results = new Result[entry.getValue().entrySet().size()];
-      entrySetSize = entry.getValue().entrySet().size();
       int innerCount = 0;
       // check for non-remainder objects (which do have the defined key and value)
-      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
+      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1)
         groupByName = groupByKey[0] + "=" + tt.tag2String(entry.getKey()).getValue();
-        valuesSet.remove(tt.tag2String(entry.getKey()).getValue());
-      } else if (entry.getKey().getKey() == -2) {
+      else
         groupByName = "remainder";
-      } else {
-        groupByName = "remainder";
-        // happens when the groupByKey is in keytables but not in the defined filter
-        if (groupByResult.entrySet().size() == 1)
-          hasUnresolvableKey = true;
-      }
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        if (count == 0)
-          // timestamps needed for later usage
-          resultTimestamps.add(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()));
         results[innerCount] =
             new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().intValue());
+                innerEntry.getValue().doubleValue());
+        if (innerEntry.getValue().doubleValue() != 0)
+          hasValues = true;
         innerCount++;
       }
-      resultSet[count] = new GroupByResult(groupByName, results);
-      count++;
-    }
-    if (hasUnresolvableKey) {
-      Result[] results = new Result[entrySetSize];
-      int innerCount = 0;
-      for (String timestamp : resultTimestamps) {
-        results[innerCount] = new Result(timestamp, 0.0);
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(groupByKey[0], results);
-    } else {
-      // adding of the unresolved values
-      if (valuesSet.size() > 0) {
-        for (String value : valuesSet) {
-          Result[] results = new Result[entrySetSize];
-          int innerCount = 0;
-          for (String timestamp : resultTimestamps) {
-            results[innerCount] = new Result(timestamp, 0.0);
-            innerCount++;
-          }
-          resultSet[count] = new GroupByResult(groupByKey[0] + "=" + value, results);
-          count++;
+      if (hasValues) {
+        resultSet[count] = new GroupByResult(groupByName, results);
+      } else {
+        if (nonExistantValues.size() > nonExistantcount) {
+          resultSet[count] = new GroupByResult(
+              groupByKey[0] + "=" + nonExistantValues.get(nonExistantcount), results);
+          nonExistantcount++;
+        } else {
+          resultSet[count] = new GroupByResult(groupByKey[0] + "=" + groupByValues[count-1], results);
         }
       }
+      count++;
     }
-    // remove null objects in the resultSet
-    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iV.getShowMetadata()) {
@@ -1231,7 +1219,8 @@ public class ElementsRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
-        }).zerofillIndices(useridsInt).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+        }).zerofillIndices(useridsInt)
+        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           switch (requestType) {
             case 1:
               return Geo.lengthOf(snapshot.getGeometry());
@@ -1325,7 +1314,8 @@ public class ElementsRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).zerofillIndices(iV.getOsmTypes()).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+        }).zerofillIndices(iV.getOsmTypes())
+        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           if (isArea) {
             return Geo.areaOf(snapshot.getGeometry());
           } else {
@@ -1525,21 +1515,22 @@ public class ElementsRequestExecutor {
         }
       }
       return hasTags;
-    }).zerofillIndices(Arrays.asList(true, false)).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-      switch (requestType) {
-        case 1:
-          return Geo.lengthOf(snapshot.getGeometry());
-        case 2:
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        case 3:
-          return Geo.areaOf(snapshot.getGeometry());
-        default:
-          return 0.0;
-      }
-    });
+    }).zerofillIndices(Arrays.asList(true, false))
+        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          switch (requestType) {
+            case 1:
+              return Geo.lengthOf(snapshot.getGeometry());
+            case 2:
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            case 3:
+              return Geo.areaOf(snapshot.getGeometry());
+            default:
+              return 0.0;
+          }
+        });
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
     DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
