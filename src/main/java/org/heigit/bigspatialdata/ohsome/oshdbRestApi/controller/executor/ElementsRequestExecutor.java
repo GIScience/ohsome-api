@@ -18,7 +18,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.InputProcessor;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.Utils;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.interceptor.ElementsRequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByBoundaryResponseContent;
@@ -69,7 +71,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimestamp()}
    * @throws BadRequestException by
-   *         {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#processParameters(boolean, String, String, String, String[], String[], String[], String[], String[], String)
+   *         {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.InputProcessor#processParameters(boolean, String, String, String, String[], String[], String[], String[], String[], String)
    *         processParameters()}
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
@@ -82,11 +84,11 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp().count();
@@ -100,7 +102,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount",
           "Total number of elements, which are selected by the parameters.", requestURL);
     }
@@ -129,17 +131,17 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).zerofillIndices(iV.getOsmTypes()).count();
+        }).zerofillIndices(iP.getOsmTypes()).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
@@ -160,7 +162,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
           requestURL);
     }
@@ -188,18 +190,20 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result = null;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
-    switch (iV.getBoundaryType()) {
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Utils utils = iP.getUtils();
+    switch (iP.getBoundaryType()) {
       case NOBOUNDARY:
         throw new BadRequestException(
-            "You need to give more at least one boundary parameter if you want to use /groupBy/boundary.");
+            "You need to giPe more at least one boundary parameter if you want to use /groupBy/boundary.");
       case BBOXES:
-        ArrayList<Geometry> bboxGeoms = iV.getGeometry("bbox");
+        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry("bbox");
         ArrayList<Integer> zeroBboxFill = new ArrayList<Integer>();
         for (int j = 0; j < bboxGeoms.size(); j++)
           zeroBboxFill.add(j);
@@ -212,7 +216,7 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).zerofillIndices(zeroBboxFill).count();
         break;
       case BPOINTS:
-        ArrayList<Geometry> bpointGeoms = iV.getGeometry("bpoint");
+        ArrayList<Geometry> bpointGeoms = geomBuilder.getGeometry("bpoint");
         ArrayList<Integer> zeroBpointFill = new ArrayList<Integer>();
         for (int j = 0; j < bpointGeoms.size(); j++)
           zeroBpointFill.add(j);
@@ -225,7 +229,7 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).zerofillIndices(zeroBpointFill).count();
         break;
       case BPOLYS:
-        ArrayList<Geometry> bpolyGeoms = iV.getGeometry("bpoly");
+        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry("bpoly");
         ArrayList<Integer> zeroBpolyFill = new ArrayList<Integer>();
         for (int j = 0; j < bpolyGeoms.size(); j++)
           zeroBpolyFill.add(j);
@@ -241,7 +245,7 @@ public class ElementsRequestExecutor {
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    String[] boundaryIds = iV.getBoundaryIds();
+    String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by the boundary
@@ -259,31 +263,31 @@ public class ElementsRequestExecutor {
       count++;
     }
     GroupByBoundaryMetadata gBBMetadata = null;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       Map<String, double[]> boundaries = new HashMap<String, double[]>();
-      switch (iV.getBoundaryType()) {
+      switch (iP.getBoundaryType()) {
         case NOBOUNDARY:
           double[] singleBboxValues = new double[4];
           for (int i = 0; i < 4; i++)
-            singleBboxValues[i] = Double.parseDouble(iV.getBoundaryValues()[i]);
+            singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
           boundaries.put(boundaryIds[0], singleBboxValues);
           break;
         case BBOXES:
           int bboxCount = 0;
-          for (int i = 0; i < iV.getBoundaryValues().length; i += 4) {
+          for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
             double[] bboxValues = new double[4];
             for (int j = 0; j < 4; j++)
-              bboxValues[j] = Double.parseDouble(iV.getBoundaryValues()[i + j]);
+              bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
             boundaries.put(boundaryIds[bboxCount], bboxValues);
             bboxCount++;
           }
           break;
         case BPOINTS:
           int bpointCount = 0;
-          for (int i = 0; i < iV.getBoundaryValues().length; i += 3) {
+          for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
             double[] bpointValues = new double[3];
             for (int j = 0; j < 3; j++)
-              bpointValues[j] = Double.parseDouble(iV.getBoundaryValues()[i + j]);
+              bpointValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
             boundaries.put(boundaryIds[bpointCount], bpointValues);
             bpointCount++;
           }
@@ -322,7 +326,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -335,9 +339,9 @@ public class ElementsRequestExecutor {
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/key");
+          "You need to giPe one groupByKey parameters, if you want to use groupBy/key");
     }
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     ArrayList<String> nonExistantKeys = new ArrayList<String>();
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -404,7 +408,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the key.",
           requestURL);
     }
@@ -432,12 +436,12 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     if (groupByKey.length != 1)
-      throw new BadRequestException("There has to be one groupByKey value given.");
+      throw new BadRequestException("There has to be one groupByKey value giPen.");
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
@@ -450,7 +454,7 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     ArrayList<String> nonExistantValues = new ArrayList<String>();
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
@@ -525,14 +529,15 @@ public class ElementsRequestExecutor {
               groupByKey[0] + "=" + nonExistantValues.get(nonExistantcount), results);
           nonExistantcount++;
         } else {
-          resultSet[count] = new GroupByResult(groupByKey[0] + "=" + groupByValues[count-1], results);
+          resultSet[count] =
+              new GroupByResult(groupByKey[0] + "=" + groupByValues[count - 1], results);
         }
       }
       count++;
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
           requestURL);
     }
@@ -559,13 +564,15 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
+    if (userids == null)
+      userids = new String[0];
     // converting userids to int for usage in zerofill
     for (String user : userids)
       useridsInt.add(Integer.parseInt(user));
@@ -593,7 +600,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount",
           "Total number of items aggregated on the userids.", requestURL);
     }
@@ -620,7 +627,7 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
@@ -652,7 +659,7 @@ public class ElementsRequestExecutor {
               "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }
     }
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
@@ -660,7 +667,7 @@ public class ElementsRequestExecutor {
       for (int i = 0; i < keysInt2.length; i++) {
         if (f.getEntity().hasTagKey(keysInt2[i])) {
           if (i >= valuesInt2.length) {
-            // if more keys2 than values2 are given
+            // if more keys2 than values2 are giPen
             hasTags = true;
             continue;
           }
@@ -716,7 +723,7 @@ public class ElementsRequestExecutor {
     }
     // remove the possible null values in the array
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    // overwrite time array in case the given key for part is not existent in the whole for no
+    // overwrite time array in case the giPen key for part is not existent in the whole for no
     // timestamp
     if (timeArray.length < 1) {
       timeArray = noPartTimeArray;
@@ -731,7 +738,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount",
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
           requestURL);
@@ -762,13 +769,13 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String unit;
     String description;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -797,7 +804,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
     DefaultAggregationResponseContent response =
@@ -825,11 +832,11 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -851,7 +858,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata =
           new Metadata(duration, "meters", "Total perimeter of polygonal items.", requestURL);
     }
@@ -882,7 +889,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -897,9 +904,9 @@ public class ElementsRequestExecutor {
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
+          "You need to giPe one groupByKey parameters, if you want to use groupBy/tag");
     }
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.key2Int(groupByKeys[i]);
@@ -980,7 +987,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
     GroupByKeyResponseContent response =
@@ -1010,7 +1017,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1018,7 +1025,7 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     if (groupByKey == null || groupByKey.length == 0)
       throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
+          "You need to giPe one groupByKey parameters, if you want to use groupBy/tag.");
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
@@ -1032,7 +1039,7 @@ public class ElementsRequestExecutor {
     // will hold those input groupByValues, which cannot be found in the OSM data
     Set<String> valuesSet = new HashSet<String>(Arrays.asList(groupByValues));
     boolean hasUnresolvableKey = false;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKey.length; i++) {
       keysInt[i] = tt.key2Int(groupByKey[i]);
@@ -1173,7 +1180,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
     GroupByTagResponseContent response =
@@ -1204,14 +1211,14 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String unit = "";
     String description = "";
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     // converting userids to int for usage in zerofill
     for (String user : userids)
@@ -1272,7 +1279,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
     GroupByUserResponseContent response =
@@ -1303,18 +1310,18 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String unit;
     String description;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).zerofillIndices(iV.getOsmTypes())
+        }).zerofillIndices(iP.getOsmTypes())
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           if (isArea) {
             return Geo.areaOf(snapshot.getGeometry());
@@ -1355,7 +1362,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
     GroupByTypeResponseContent response =
@@ -1383,12 +1390,13 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> countResult;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
     countResult = mapRed.aggregateByTimestamp().count();
     int count = 0;
     Result[] countResultSet = new Result[countResult.size()];
@@ -1399,18 +1407,18 @@ public class ElementsRequestExecutor {
       count++;
     }
     Geometry geom = null;
-    switch (iV.getBoundaryType()) {
+    switch (iP.getBoundaryType()) {
       case NOBOUNDARY:
-        geom = OSHDBGeometryBuilder.getGeometry(iV.getBbox());
+        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
         break;
       case BBOXES:
-        geom = OSHDBGeometryBuilder.getGeometry(iV.getBbox());
+        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
         break;
       case BPOINTS:
-        geom = iV.getBpointGeom();
+        geom = geomBuilder.getBpointGeom();
         break;
       case BPOLYS:
-        geom = iV.getBpoly();
+        geom = geomBuilder.getBpoly();
         break;
     }
     Result[] resultSet = new Result[countResult.size()];
@@ -1425,7 +1433,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "items per square-kilometer",
           "Density of selected items (number of items per area).", requestURL);
     }
@@ -1456,7 +1464,7 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1491,7 +1499,7 @@ public class ElementsRequestExecutor {
               "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }
     }
-    mapRed = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
@@ -1499,7 +1507,7 @@ public class ElementsRequestExecutor {
       for (int i = 0; i < keysInt2.length; i++) {
         if (f.getEntity().hasTagKey(keysInt2[i])) {
           if (i >= valuesInt2.length) {
-            // if more keys2 than values2 are given
+            // if more keys2 than values2 are giPen
             hasTags = true;
             continue;
           }
@@ -1578,7 +1586,7 @@ public class ElementsRequestExecutor {
     }
     // remove the possible null values in the array
     timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    // overwrite in case the given key for part is not existent in the whole for no timestamp
+    // overwrite in case the giPen key for part is not existent in the whole for no timestamp
     if (timeArray.length < 1) {
       timeArray = noPartTimeArray;
     }
@@ -1610,7 +1618,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
     ShareResponseContent response =
@@ -1640,14 +1648,14 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestamp, Integer> result2;
     MapReducer<OSMEntitySnapshot> mapRed1;
     MapReducer<OSMEntitySnapshot> mapRed2;
-    InputValidator iV = new InputValidator();
+    InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed1 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
+    mapRed1 = iP.processParameters(isPost, bboxes, bpoints, bpolys, types, keys, values, userids,
         time, showMetadata);
     result1 = mapRed1.aggregateByTimestamp().count();
-    mapRed2 = iV.processParameters(isPost, bboxes, bpoints, bpolys, types2, keys2, values2, userids,
+    mapRed2 = iP.processParameters(isPost, bboxes, bpoints, bpolys, types2, keys2, values2, userids,
         time, showMetadata);
     result2 = mapRed2.aggregateByTimestamp().count();
     Result[] resultSet1 = new Result[result1.size()];
@@ -1677,7 +1685,7 @@ public class ElementsRequestExecutor {
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
-    if (iV.getShowMetadata()) {
+    if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "amount and ratio",
           "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) "
               + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
