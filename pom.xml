@@ -1,131 +1,137 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.heigit.bigspatialdata</groupId>
-    <artifactId>bigspatialdata-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+	<parent>
+		<groupId>org.heigit.bigspatialdata</groupId>
+		<artifactId>bigspatialdata-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
 
-  <groupId>org.heigit.bigspatialdata.ohsome</groupId>
-  <artifactId>oshdb-rest-api</artifactId>
-  <name>springBootWebAPI</name>
-  <description>A public Web-REST-API for the BigData-Cluster</description>
-  <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+	<groupId>org.heigit.bigspatialdata.ohsome</groupId>
+	<artifactId>oshdb-rest-api</artifactId>
+	<name>springBootWebAPI</name>
+	<description>A public Web-REST-API for the BigData-Cluster</description>
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
 
-  <properties>
-    <springboot.version>1.5.8.RELEASE</springboot.version>
-    <jsonpath.version>2.2.0</jsonpath.version>
-    <oshdb.version>0.4.0-SNAPSHOT</oshdb.version>
-    <jacksondatatype.version>2.8.10</jacksondatatype.version>
-    <geotools.version>17.2</geotools.version>
-    <springfox.version>2.7.0</springfox.version>
-    <apachecommons.version>3.7</apachecommons.version>
-  </properties>
+	<properties>
+		<springboot.version>1.5.8.RELEASE</springboot.version>
+		<jsonpath.version>2.2.0</jsonpath.version>
+		<oshdb.version>0.4.0-SNAPSHOT</oshdb.version>
+		<jacksondatatype.version>2.8.10</jacksondatatype.version>
+		<geotools.version>17.2</geotools.version>
+		<springfox.version>2.7.0</springfox.version>
+		<apachecommons.version>3.7</apachecommons.version>
+	</properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>${springboot.version}</version>
-    </dependency>
-    <!-- to have a basic auth with a user+key security on first request <dependency> 
-    <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId> 
-    </dependency> -->
-    <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>${jsonpath.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.heigit.bigspatialdata</groupId>
-      <artifactId>oshdb-api</artifactId>
-      <version>${oshdb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.heigit.bigspatialdata</groupId>
-      <artifactId>oshdb-util</artifactId>
-      <version>${oshdb.version}</version>
-    </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<version>${springboot.version}</version>
+		</dependency>
+		<!-- to have a basic auth with a user+key security on first request <dependency> 
+			<groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId> 
+			</dependency> -->
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>${jsonpath.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.heigit.bigspatialdata</groupId>
+			<artifactId>oshdb-api</artifactId>
+			<version>${oshdb.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.heigit.bigspatialdata</groupId>
+			<artifactId>oshdb-util</artifactId>
+			<version>${oshdb.version}</version>
+		</dependency>
 
-    <!-- needed for creating a custom error reporting class -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>${jacksondatatype.version}</version>
-    </dependency>
+		<!-- needed for creating a custom error reporting class -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>${jacksondatatype.version}</version>
+		</dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>${geotools.version}</version>
-    </dependency>
-    <!-- Springfox implementation of the Swagger specification -->
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
-      <version>${springfox.version}</version>
-    </dependency>
-    <!-- Springfox Swagger UI -->
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <version>${springfox.version}</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>${apachecommons.version}</version>
-    </dependency>
+		<!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-epsg-hsql</artifactId>
+			<version>${geotools.version}</version>
+		</dependency>
+		<!-- Springfox implementation of the Swagger specification -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+		<!-- Springfox Swagger UI -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${apachecommons.version}</version>
+		</dependency>
 
-  </dependencies>
+	</dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${springboot.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${springboot.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
-  <repositories>
-    <repository>
-      <id>oshdb-respository</id>
-      <name>Heigit/GIScience maven repository</name>
-      <url>http://129.206.7.121:8081/artifactory/main</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>oshdb-respository</id>
-      <name>Heigit/GIScience maven repository</name>
-      <url>http://129.206.7.121:8081/artifactory/main</url>
-    </pluginRepository>
-  </pluginRepositories>
+	<repositories>
+		<repository>
+			<id>oshdb-respository</id>
+			<name>Heigit/GIScience maven repository</name>
+			<url>http://129.206.7.121:8081/artifactory/main</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>oshdb-respository</id>
+			<name>Heigit/GIScience maven repository</name>
+			<url>http://129.206.7.121:8081/artifactory/main</url>
+		</pluginRepository>
+	</pluginRepositories>
 
-  <scm>
-    <!-- https://maven.apache.org/pom.html#SCM -->
-    <connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</connection>
-    <developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</developerConnection>
-    <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</url>
-  </scm>
+	<scm>
+		<!-- https://maven.apache.org/pom.html#SCM -->
+		<connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</connection>
+		<developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</developerConnection>
+		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</url>
+	</scm>
 
-  <issueManagement>
-    <system>GitLab</system>
-    <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api/issues</url>
-  </issueManagement>
+	<issueManagement>
+		<system>GitLab</system>
+		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api/issues</url>
+	</issueManagement>
 </project>
