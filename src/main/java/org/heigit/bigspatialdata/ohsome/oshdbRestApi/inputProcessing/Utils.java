@@ -26,7 +26,7 @@ public class Utils {
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder#createCircularPolygons(String[] bpoints)
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder#createCircularPolygons(String[] bcircles)
    * createCircularPolygons}.
    * <p>
    * Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
@@ -62,13 +62,13 @@ public class Utils {
   }
 
   /**
-   * Splits the given boundary parameter (bboxes, bpoints, or bpolys) two times. The first split is
+   * Splits the given boundary parameter (bboxes, bcircles, or bpolys) two times. The first split is
    * on '|' and to seperate the bounding objects; The second is on ':' to seperate the custom ids
    * from each first coordinate; Returns the coordinates after the second split (and the radius in
    * case of bounding points).
    * 
    * @param boundaryParam <code>String</code> containing the given boundary parameter.
-   * @param boundaryType <code>Byte</code> containing the value 1 (bboxes), 2 (bpoints) or 3
+   * @param boundaryType <code>Byte</code> containing the value 1 (bboxes), 2 (bcircles) or 3
    *        (bpolys).
    * @return <code>String</code> array holding only coordinates (plus the radius in case of bounding
    *         points).
@@ -129,7 +129,7 @@ public class Utils {
           }
         }
       } else if (boundaryType == 2) {
-        // bpoints given
+        // bcircles given
         if (boundaryObjects[0].contains(":")) {
           // custom ids are given
           boundaryParamValues = new String[boundaryObjects.length * 3];
@@ -164,7 +164,7 @@ public class Utils {
               paramCount++;
             }
             // adding of ids
-            boundaryIds[idCount - 1] = "bpoint" + String.valueOf(idCount);
+            boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
             idCount++;
           }
         }

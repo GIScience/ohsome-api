@@ -40,8 +40,8 @@ public class AreaController {
   public DefaultAggregationResponseContent getArea(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -59,7 +59,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(true, false, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeLengthArea(true, false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -79,8 +79,8 @@ public class AreaController {
   public GroupByTypeResponseContent getAreaGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -98,7 +98,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeAreaPerimeterGroupByType(true, false, bboxes, bpoints, bpolys, types,
+    return executor.executeAreaPerimeterGroupByType(true, false, bboxes, bcircles, bpolys, types,
         keys, values, userids, time, showMetadata);
   }
 
@@ -118,8 +118,8 @@ public class AreaController {
   public GroupByUserResponseContent getAreaGroupByUser(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -137,7 +137,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, false, bboxes, bpoints, bpolys,
+    return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, false, bboxes, bcircles, bpolys,
         types, keys, values, userids, time, showMetadata);
   }
 
@@ -162,8 +162,8 @@ public class AreaController {
   public GroupByTagResponseContent getAreaGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -187,7 +187,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 3, false, bboxes, bpoints, bpolys,
+    return executor.executeLengthPerimeterAreaGroupByTag((byte) 3, false, bboxes, bcircles, bpolys,
         types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
   }
 
@@ -212,8 +212,8 @@ public class AreaController {
   public ShareResponseContent getAreaShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -237,7 +237,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare((byte) 3, false, bboxes, bpoints, bpolys, types,
+    return executor.executeLengthPerimeterAreaShare((byte) 3, false, bboxes, bcircles, bpolys, types,
         keys, values, userids, time, showMetadata, keys2, values2);
   }
 
@@ -262,7 +262,7 @@ public class AreaController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -282,7 +282,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(true, true, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeLengthArea(true, true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -307,7 +307,7 @@ public class AreaController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -327,7 +327,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeAreaPerimeterGroupByType(true, true, bboxes, bpoints, bpolys, types,
+    return executor.executeAreaPerimeterGroupByType(true, true, bboxes, bcircles, bpolys, types,
         keys, values, userids, time, showMetadata);
   }
 
@@ -352,7 +352,7 @@ public class AreaController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -372,7 +372,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, true, bboxes, bpoints, bpolys,
+    return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, true, bboxes, bcircles, bpolys,
         types, keys, values, userids, time, showMetadata);
   }
 
@@ -403,7 +403,7 @@ public class AreaController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -427,7 +427,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 3, true, bboxes, bpoints, bpolys,
+    return executor.executeLengthPerimeterAreaGroupByTag((byte) 3, true, bboxes, bcircles, bpolys,
         types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
   }
 
@@ -458,7 +458,7 @@ public class AreaController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -482,7 +482,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare((byte) 3, true, bboxes, bpoints, bpolys, types,
+    return executor.executeLengthPerimeterAreaShare((byte) 3, true, bboxes, bcircles, bpolys, types,
         keys, values, userids, time, showMetadata, keys2, values2);
   }
 

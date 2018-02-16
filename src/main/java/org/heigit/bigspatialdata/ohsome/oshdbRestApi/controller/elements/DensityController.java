@@ -35,8 +35,8 @@ public class DensityController {
   public DefaultAggregationResponseContent getDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -54,7 +54,7 @@ public class DensityController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeDensity(false, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
   }
 
@@ -79,7 +79,7 @@ public class DensityController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -99,7 +99,7 @@ public class DensityController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeDensity(true, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
   }
 

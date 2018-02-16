@@ -47,7 +47,7 @@ public class InputProcessor {
    *         including the settings derived from the given parameters.
    */
   public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String bboxes,
-      String bpoints, String bpolys, String[] types, String[] keys, String[] values,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata) throws BadRequestException {
 
     geomBuilder = new GeometryBuilder();
@@ -55,7 +55,7 @@ public class InputProcessor {
 
     if (isPost) {
       bboxes = createEmptyStringIfNull(bboxes);
-      bpoints = createEmptyStringIfNull(bpoints);
+      bcircles = createEmptyStringIfNull(bcircles);
       bpolys = createEmptyStringIfNull(bpolys);
       types = createEmptyArrayIfNull(types);
       keys = createEmptyArrayIfNull(keys);
@@ -83,7 +83,7 @@ public class InputProcessor {
       throw new BadRequestException(
           "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
 
-    checkBoundaryParams(bboxes, bpoints, bpolys);
+    checkBoundaryParams(bboxes, bcircles, bpolys);
 
     switch (boundary) {
       case NOBOUNDARY:
@@ -94,8 +94,8 @@ public class InputProcessor {
         mapRed =
             mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
         break;
-      case BPOINTS:
-        boundaryValues = utils.splitBoundaryParam(bpoints, (byte) 2);
+      case BCIRCLES:
+        boundaryValues = utils.splitBoundaryParam(bcircles, (byte) 2);
         mapRed = mapRed.areaOfInterest(
             (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
         break;
@@ -106,7 +106,7 @@ public class InputProcessor {
         break;
       default:
         throw new BadRequestException(
-            "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format. "
+            "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format. "
                 + "or you defined more than one boundary parameter.");
     }
 
@@ -150,28 +150,28 @@ public class InputProcessor {
 
   /**
    * Checks the given boundary parameter(s) and sets a corresponding enum (NOBOUNDARY for no
-   * boundary, BBOXES for bboxes, BPOINTS for bpoints, BPOLYS for bpolys). Only one (or none) of
+   * boundary, BBOXES for bboxes, bcircleS for bcircles, BPOLYS for bpolys). Only one (or none) of
    * them is allowed to have content in it.
    * 
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
-   * @param bpoints <code>String</code> containing the bounding points separated via a pipe (|) and
+   * @param bcircles <code>String</code> containing the bounding points separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
    * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
    */
-  private void checkBoundaryParams(String bboxes, String bpoints, String bpolys) {
-    if (bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
+  private void checkBoundaryParams(String bboxes, String bcircles, String bpolys) {
+    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       boundary = BoundaryType.NOBOUNDARY;
-    } else if (!bboxes.isEmpty() && bpoints.isEmpty() && bpolys.isEmpty()) {
+    } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       boundary = BoundaryType.BBOXES;
-    } else if (bboxes.isEmpty() && !bpoints.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.BPOINTS;
-    } else if (bboxes.isEmpty() && bpoints.isEmpty() && !bpolys.isEmpty()) {
+    } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {
+      boundary = BoundaryType.BCIRCLES;
+    } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       boundary = BoundaryType.BPOLYS;
     } else
       throw new BadRequestException(
-          "Your provided boundary parameter (bboxes, bpoints, or bpolys) does not fit its format, "
+          "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
               + "or you defined more than one boundary parameter.");
   }
 

@@ -33,15 +33,15 @@ public class CountController {
    * 
    * @param bboxes <code>String</code> array containing lon1, lat1, lon2, lat2 values, which have to
    *        be <code>double</code> parse-able. The coordinates refer to the bottom-left and
-   *        top-right corner points of a bounding box. If bboxes is given, bpoints and bpolys must
+   *        top-right corner points of a bounding box. If bboxes is given, bcircles and bpolys must
    *        be <code>null</code> or <code>empty</code>. If neither of these parameters is given, a
    *        global request is computed.
-   * @param bpoints <code>String</code> array containing lon, lat and radius values, which have to
-   *        be <code>double</code> parse-able. If bpoints is given, bboxes and bpolys must be
+   * @param bcircles <code>String</code> array containing lon, lat and radius values, which have to
+   *        be <code>double</code> parse-able. If bcircles is given, bboxes and bpolys must be
    *        <code>null</code> or <code>empty</code>.
    * @param bpolys <code>String</code> array containing lon1, lat1, ..., lonN, latN values, which
    *        have to be <code>double</code> parse-able. The first and the last coordinate pair of
-   *        each polygon have to be the same. If bpolys is given, bboxes and bpoints must be
+   *        each polygon have to be the same. If bpolys is given, bboxes and bcircles must be
    *        <code>null</code> or <code>empty</code>.
    * @param types <code>String</code> array containing one or more OSMTypes. It can contain "node"
    *        and/or "way" and/or "relation". If types is <code>null</code> or <code>empty</code>, all
@@ -68,8 +68,8 @@ public class CountController {
   public DefaultAggregationResponseContent getCount(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -87,7 +87,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCount(false, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+    return executor.executeCount(false, bboxes, bcircles, bpolys, types, keys, values, userids, time,
         showMetadata);
   }
 
@@ -107,8 +107,8 @@ public class CountController {
   public GroupByTypeResponseContent getCountGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -126,7 +126,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(false, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByType(false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -146,8 +146,8 @@ public class CountController {
   public GroupByUserResponseContent getCountGroupByUser(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -165,7 +165,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByUser(false, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByUser(false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -181,14 +181,14 @@ public class CountController {
    *         GroupByBoundaryResponseContent}
    */
   @ApiOperation(
-      value = "Count of OSM elements grouped by the boundary (bboxes, bpoints, or bpolys)")
+      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByBoundaryResponseContent getCountGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -206,7 +206,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByBoundary(false, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByBoundary(false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -231,8 +231,8 @@ public class CountController {
   public GroupByTagResponseContent getCountGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -256,7 +256,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByTag(false, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByTag(false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata, groupByKey, groupByValues);
   }
 
@@ -277,8 +277,8 @@ public class CountController {
   public GroupByKeyResponseContent getCountGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -299,7 +299,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByKey(false, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByKey(false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata, groupByKeys);
   }
 
@@ -324,8 +324,8 @@ public class CountController {
   public ShareResponseContent getCountShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -349,7 +349,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountShare(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeCountShare(false, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata, keys2, values2);
   }
 
@@ -373,8 +373,8 @@ public class CountController {
   public RatioResponseContent getCountRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bpoints", defaultValue = "",
-          required = false) String bpoints,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
       @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
           required = false) String bpolys,
       @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
@@ -401,7 +401,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountRatio(false, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeCountRatio(false, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata, types2, keys2, values2);
   }
 
@@ -426,7 +426,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -446,7 +446,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCount(true, bboxes, bpoints, bpolys, types, keys, values, userids, time,
+    return executor.executeCount(true, bboxes, bcircles, bpolys, types, keys, values, userids, time,
         showMetadata);
   }
 
@@ -471,7 +471,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -491,7 +491,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(true, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByType(true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -516,7 +516,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -536,7 +536,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByUser(true, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByUser(true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -553,7 +553,7 @@ public class CountController {
    *         GroupByBoundaryResponseContent}
    */
   @ApiOperation(
-      value = "Count of OSM elements grouped by the boundary (bboxes, bpoints, or bpolys)")
+      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByBoundaryResponseContent postCountGroupByBoundary(
@@ -563,7 +563,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -583,7 +583,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByBoundary(true, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByBoundary(true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
   }
 
@@ -614,7 +614,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -638,7 +638,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByTag(true, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByTag(true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata, groupByKey, groupByValues);
   }
 
@@ -665,7 +665,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -687,7 +687,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByKey(true, bboxes, bpoints, bpolys, types, keys, values,
+    return executor.executeCountGroupByKey(true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata, groupByKeys);
   }
 
@@ -718,7 +718,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -742,7 +742,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountShare(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeCountShare(true, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata, keys2, values2);
   }
 
@@ -772,7 +772,7 @@ public class CountController {
       @ApiParam(
           value = "WGS84 coordinates + radius in meters in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bpoints,
+          defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
           + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
@@ -798,7 +798,7 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountRatio(true, bboxes, bpoints, bpolys, types, keys, values, userids,
+    return executor.executeCountRatio(true, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata, types2, keys2, values2);
   }
 

@@ -33,10 +33,10 @@ public class GeometryBuilder {
   private final double defMinLat = 47.3937;
   private final double defMaxLat = 49.9079;
   private OSHDBBoundingBox bbox;
-  private Geometry bpointGeom;
+  private Geometry bcircleGeom;
   private Polygon bpoly;
   private Collection<Geometry> bboxColl;
-  private Collection<Geometry> bpointColl;
+  private Collection<Geometry> bcircleColl;
   private Collection<Geometry> bpolyColl;
 
   /**
@@ -117,12 +117,12 @@ public class GeometryBuilder {
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
    * array.
    * 
-   * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
+   * @param bcircles <code>String</code> array containing the lon/lat coordinates of the point at [0]
    *        and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
    * @throws BadRequestException if coordinates or radius are invalid
    */
-  public Geometry createCircularPolygons(String[] bpoints) throws BadRequestException {
+  public Geometry createCircularPolygons(String[] bcircles) throws BadRequestException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     Geometry geom;
@@ -132,36 +132,36 @@ public class GeometryBuilder {
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     Utils utils = new Utils();
     try {
-      for (int i = 0; i < bpoints.length; i += 3) {
+      for (int i = 0; i < bcircles.length; i += 3) {
         sourceCRS = CRS.decode("EPSG:4326", true);
         targetCRS = CRS.decode(
-            utils.findEPSG(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])),
+            utils.findEPSG(Double.parseDouble(bcircles[i]), Double.parseDouble(bcircles[i + 1])),
             true);
         transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
         Point p = geomFact.createPoint(
-            new Coordinate(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])));
-        buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[i + 2]));
+            new Coordinate(Double.parseDouble(bcircles[i]), Double.parseDouble(bcircles[i + 1])));
+        buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bcircles[i + 2]));
         // transform back again
         transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
         geom = JTS.transform(buffer, transform);
-        bpointGeom = geom;
-        // returns this geometry if there was only one bpoint given
-        if (bpoints.length == 3) {
+        bcircleGeom = geom;
+        // returns this geometry if there was only one bcircle given
+        if (bcircles.length == 3) {
           geometryCollection.add(geom);
-          bpointColl = geometryCollection;
+          bcircleColl = geometryCollection;
           return geom;
         }
         geometryCollection.add(geom);
       }
       // set the geometryCollection to be accessible for /groupBy/boundary
-      bpointColl = geometryCollection;
+      bcircleColl = geometryCollection;
       geometryCollection = unifyIntersectedPolys(geometryCollection);
       MultiPolygon combined = createMultiPolygon(geometryCollection);
-      bpointGeom = combined;
+      bcircleGeom = combined;
       return combined;
     } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
-          "Each bpoint must consist of a lon/lat coordinate pair plus a buffer in meters.");
+          "Each bcircle must consist of a lon/lat coordinate pair plus a buffer in meters.");
     }
   }
 
@@ -279,7 +279,7 @@ public class GeometryBuilder {
   /**
    * Gets the <code>Geometry</code> for each boundary object in the given <code>String</code> array.
    * 
-   * @param type <code>String</code> defining the boundary type (bbox, bpoint, bpoly)
+   * @param type <code>String</code> defining the boundary type (bbox, bcircle, bpoly)
    * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
    *         boundary object sorted by the given order of the array.
    */
@@ -290,8 +290,8 @@ public class GeometryBuilder {
       case "bbox":
         geoms.addAll(bboxColl);
         break;
-      case "bpoint":
-        geoms.addAll(bpointColl);
+      case "bcircle":
+        geoms.addAll(bcircleColl);
         break;
       case "bpoly":
         geoms.addAll(bpolyColl);
@@ -304,8 +304,8 @@ public class GeometryBuilder {
     return bbox;
   }
 
-  public Geometry getBpointGeom() {
-    return bpointGeom;
+  public Geometry getbcircleGeom() {
+    return bcircleGeom;
   }
 
   public Polygon getBpoly() {
