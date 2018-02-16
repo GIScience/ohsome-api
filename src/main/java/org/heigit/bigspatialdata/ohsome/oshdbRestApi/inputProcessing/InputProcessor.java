@@ -16,8 +16,12 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
 /**
- * Holds general input validation and computation methods and validates specific parameters given by
- * the request. Throws exceptions depending on their validity.
+ * Holds general input processing and validation methods and validates specific parameters given by
+ * the request. Uses geometry methods from
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder
+ * GeometryBuilder} and utils from
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.Utils Utils}. Throws
+ * exceptions depending on their validity.
  */
 public class InputProcessor {
 

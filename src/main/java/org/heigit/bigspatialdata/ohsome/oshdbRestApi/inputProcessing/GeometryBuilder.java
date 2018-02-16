@@ -22,6 +22,9 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+/**
+ * Includes methods to create and manipulate geometries derived from the boundary input parameters.
+ */
 public class GeometryBuilder {
 
   // default bbox coordinates defining the whole area (here: BW)
@@ -235,7 +238,7 @@ public class GeometryBuilder {
    * @return Collection that includes unified polygons created from intersected polygons and other
    *         polygons, which do not intersect with any other polygon.
    */
-  public Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
+  private Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
     Geometry[] polys = collection.toArray(new Geometry[collection.size()]);
     for (int i = 0; i < polys.length - 1; i++) {
       for (int j = i + 1; j < polys.length; j++) {

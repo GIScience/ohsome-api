@@ -10,6 +10,13 @@ import java.util.Date;
 import java.util.Objects;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 
+/**
+ * Holds additional utility methods needed for classes
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder
+ * GeometryBuilder} and
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.InputProcessor
+ * InputProcessor}.
+ */
 public class Utils {
 
   public final static String defStartTime = "2007-11-01";
@@ -19,8 +26,8 @@ public class Utils {
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputValidation.InputValidator#createCircularPolygons
-   * createCircularPolygon}.
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder#createCircularPolygons(String[] bpoints)
+   * createCircularPolygons}.
    * <p>
    * Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
    * 
