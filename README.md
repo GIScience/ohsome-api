@@ -1,6 +1,6 @@
-# OSHDB Web REST API
+# OHSOME API
 
-This REST API aims to leverage the tools of the [oshdb Java API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
+This REST API aims to leverage the tools of the [oshdb API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
 Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST API and [here](http://129.206.7.121:8044/rest-api/target/site/apidocs/index.html) to access the javadoc, which gets updated daily.
 
 ## Getting Started
@@ -31,7 +31,7 @@ Now you should have a running local REST API, which is ready for receiving reque
 
 ## Testing
 
-To be able to test the REST-API with your own requests, you will also need a description of the parameters and available resources. Both are given here below.
+To be able to test the REST API with your own requests, you will also need a description of the parameters and available resources. Both are given here below.
 
 ### Parameters
 
@@ -39,17 +39,17 @@ To be able to test the REST-API with your own requests, you will also need a des
 * bboxes
     * has to consist of double-parse able Strings in the format (lon1, lat1, lon2, lat2, meaning bottom left and top right point of each bbox)
     * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
-    * if bboxes is given, bpoints and bpolys must be null or empty
+    * if bboxes is given, bcircles and bpolys must be null or empty
     * format: id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...
     * optional for all resources
-* bpoints
+* bcircles
     * has to consist of double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
-    * if bpoints is given, bboxes and bpolys must be null or empty
+    * if bcircles is given, bboxes and bpolys must be null or empty
     * format: id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...
     * optional for all resources
 * bpolys
     * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
-    * if bpolys is given, bboxes and bpoints must be null or empty
+    * if bpolys is given, bboxes and bcircles must be null or empty
     * format: id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...
     * only simple polygons are supported atm (without holes and no multipolygon)
     * optional for all resources
