@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent;
@@ -142,7 +143,50 @@ public class PerimeterController {
   }
 
   /**
-   * GET request giving the perimeter of OSM objects grouped by the tag.
+   * GET request giving the perimeter of polygonal OSM objects grouped by the key.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
+   *        grouping. One or more keys can be provided.
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
+   *         GroupByKeyResponseContent}
+   */
+  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
+  public GroupByKeyResponseContent getPerimeterGroupByKey(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "groupByKeys", defaultValue = "",
+              required = false) String[] groupByKeys)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeLengthPerimeterAreaGroupByKey((byte) 2, false, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata, groupByKeys);
+  }
+  
+  /**
+   * GET request giving the perimeter of polygonal OSM objects grouped by the tag.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -331,6 +375,56 @@ public class PerimeterController {
         keys, values, userids, time, showMetadata);
   }
 
+  /**
+   * POST request giving the perimeter of polygonal OSM objects grouped by the key. POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
+   *        grouping. At the current implementation, there must be one key given (not more and not
+   *        less).
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
+   *         GroupByTagResponseContent}
+   */
+  @ApiOperation(value = "Length of OSM elements grouped by the tag")
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public GroupByKeyResponseContent postPerimeterGroupByKey(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bcircles,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+      required = false) String[] groupByKeys)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeLengthPerimeterAreaGroupByKey((byte) 2, true, bboxes, bcircles, bpolys,
+        types, keys, values, userids, time, showMetadata, groupByKeys);
+  }
+  
   /**
    * POST request giving the perimeter of OSM objects grouped by the tag. POST requests should only
    * be used if the request URL would be too long for a GET request.

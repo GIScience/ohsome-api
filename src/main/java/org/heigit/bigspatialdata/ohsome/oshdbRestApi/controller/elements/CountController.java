@@ -211,6 +211,49 @@ public class CountController {
   }
 
   /**
+   * GET request giving the count of OSM objects grouped by the key.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
+   *        grouping. One or more keys can be provided.
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
+   *         GroupByKeyResponseContent}
+   */
+  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
+  public GroupByKeyResponseContent getCountGroupByKey(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "groupByKeys", defaultValue = "",
+              required = false) String[] groupByKeys)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeCountGroupByKey(false, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata, groupByKeys);
+  }
+  
+  /**
    * GET request giving the count of OSM objects grouped by the tag.
    * <p>
    * The other parameters are described in the
@@ -258,49 +301,6 @@ public class CountController {
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountGroupByTag(false, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata, groupByKey, groupByValues);
-  }
-
-  /**
-   * GET request giving the count of OSM objects grouped by the key.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
-   *        grouping. One or more keys can be provided.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
-   *         GroupByKeyResponseContent}
-   */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
-  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
-  public GroupByKeyResponseContent getCountGroupByKey(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) @RequestParam(value = "groupByKeys", defaultValue = "",
-              required = false) String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
-
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByKey(false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata, groupByKeys);
   }
 
   /**
@@ -588,6 +588,55 @@ public class CountController {
   }
 
   /**
+   * POST request giving the count of OSM objects grouped by the key. POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
+   *        grouping. One or more keys can be provided.
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
+   *         GroupByKeyResponseContent}
+   */
+  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public GroupByKeyResponseContent postCountGroupByKey(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bcircles,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] groupByKeys)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeCountGroupByKey(true, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata, groupByKeys);
+  }
+  
+  /**
    * POST request giving the count of OSM objects grouped by the tag. POST requests should only be
    * used if the request URL would be too long for a GET request.
    * <p>
@@ -640,55 +689,6 @@ public class CountController {
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountGroupByTag(true, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata, groupByKey, groupByValues);
-  }
-
-  /**
-   * POST request giving the count of OSM objects grouped by the key. POST requests should only be
-   * used if the request URL would be too long for a GET request.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
-   *        grouping. One or more keys can be provided.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
-   *         GroupByKeyResponseContent}
-   */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
-  @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByKeyResponseContent postCountGroupByKey(
-      @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
-          defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
-          defaultValue = "", required = false) String bcircles,
-      @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
-          defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
-          defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
-          defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
-          required = false) String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] groupByKeys)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByKey(true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata, groupByKeys);
   }
 
   /**

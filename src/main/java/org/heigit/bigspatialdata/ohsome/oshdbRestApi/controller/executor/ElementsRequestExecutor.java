@@ -867,11 +867,10 @@ public class ElementsRequestExecutor {
     // group by key logic
     result = mapRed.flatMap(f -> {
       List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
-      int[] tags = f.getEntity().getRawTags();
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
+      Iterable<OSHDBTag> tags = f.getEntity().getTags();
+      for (OSHDBTag tag : tags) {
+        int tagKeyId = tag.getKey();
         for (int key : keysInt) {
-          // if key in input key list
           if (tagKeyId == key) {
             res.add(new ImmutablePair<>(tagKeyId, f));
           }
@@ -880,7 +879,7 @@ public class ElementsRequestExecutor {
       if (res.size() == 0)
         res.add(new ImmutablePair<>(-1, f));
       return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue)
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt)).map(Pair::getValue)
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           switch (requestType) {
             case 1:
@@ -998,8 +997,6 @@ public class ElementsRequestExecutor {
         valuesInt[j] = tt.oshdbTagOf(groupByKey[0], groupByValues[j]).getValue();
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
-    } else {
-      zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, -1));
     }
     // group by tag logic
     result = mapRed.map(f -> {
@@ -1007,25 +1004,21 @@ public class ElementsRequestExecutor {
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
-        // if key is unresolved
-        if (keysInt == -2) {
-          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-2, -1), f);
-        }
         if (tagKeyId == keysInt) {
           if (valuesInt.length == 0) {
             return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
                 f);
           }
-          for (int j = 0; j < valuesInt.length; j++) {
-            if (tagValueId == valuesInt[j])
+          for (int value : valuesInt) {
+            if (tagValueId == value)
               return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
                   f);
           }
         }
       }
       return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue)
-        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
+        .map(Pair::getValue).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           switch (requestType) {
             case 1:
               return Geo.lengthOf(snapshot.getGeometry());
@@ -1056,7 +1049,7 @@ public class ElementsRequestExecutor {
       int innerCount = 0;
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = groupByKey[0] + "=" + tt.osmTagKeyOf(entry.getKey().getValue()).toString();
+        groupByName = tt.osmTagOf(keysInt, entry.getKey().getValue()).toString();
       } else {
         groupByName = "remainder";
       }
