@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.Utils;
@@ -200,9 +201,9 @@ public class ElementsRequestExecutor {
     switch (iP.getBoundaryType()) {
       case NOBOUNDARY:
         throw new BadRequestException(
-            "You need to giPe more at least one boundary parameter if you want to use /groupBy/boundary.");
+            "You need to give more at least one boundary parameter if you want to use /groupBy/boundary.");
       case BBOXES:
-        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry("bbox");
+        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
         ArrayList<Integer> zeroBboxFill = new ArrayList<Integer>();
         for (int j = 0; j < bboxGeoms.size(); j++)
           zeroBboxFill.add(j);
@@ -215,7 +216,7 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).zerofillIndices(zeroBboxFill).count();
         break;
       case BCIRCLES:
-        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry("bcircle");
+        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry(BoundaryType.BCIRCLES);
         ArrayList<Integer> zerobcircleFill = new ArrayList<Integer>();
         for (int j = 0; j < bcircleGeoms.size(); j++)
           zerobcircleFill.add(j);
@@ -228,7 +229,7 @@ public class ElementsRequestExecutor {
         }).aggregateBy(f -> f).zerofillIndices(zerobcircleFill).count();
         break;
       case BPOLYS:
-        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry("bpoly");
+        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry(BoundaryType.BPOLYS);
         ArrayList<Integer> zeroBpolyFill = new ArrayList<Integer>();
         for (int j = 0; j < bpolyGeoms.size(); j++)
           zeroBpolyFill.add(j);
@@ -338,7 +339,7 @@ public class ElementsRequestExecutor {
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
-          "You need to giPe one groupByKey parameters, if you want to use groupBy/key");
+          "You need to give one groupByKey parameters, if you want to use groupBy/key");
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -602,12 +603,12 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
-      if (keysInt2[i] == null)
+      if (keysInt2[i] < 0)
         throw new BadRequestException(
             "All provided keys2 parameters have to be in the OSM database.");
       if (values2 != null && i < values2.length) {
         valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
-        if (valuesInt2[i] == null)
+        if (valuesInt2[i] < 0)
           throw new BadRequestException(
               "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }
@@ -865,7 +866,7 @@ public class ElementsRequestExecutor {
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
-          "You need to giPe one groupByKey parameters, if you want to use groupBy/tag");
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -986,7 +987,7 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     if (groupByKey == null || groupByKey.length == 0)
       throw new BadRequestException(
-          "You need to giPe one groupByKey parameters, if you want to use groupBy/tag.");
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
@@ -1409,12 +1410,12 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
-      if (keysInt2[i] == null)
+      if (keysInt2[i] < 0)
         throw new BadRequestException(
             "All provided keys2 parameters have to be in the OSM database.");
       if (values2 != null && i < values2.length) {
         valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
-        if (valuesInt2[i] == null)
+        if (valuesInt2[i] < 0)
           throw new BadRequestException(
               "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }

@@ -283,18 +283,21 @@ public class GeometryBuilder {
    * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
    *         boundary object sorted by the given order of the array.
    */
-  public ArrayList<Geometry> getGeometry(String type) {
+  public ArrayList<Geometry> getGeometry(BoundaryType type) {
 
     ArrayList<Geometry> geoms = new ArrayList<>();
     switch (type) {
-      case "bbox":
+      case BBOXES:
         geoms.addAll(bboxColl);
         break;
-      case "bcircle":
+      case BCIRCLES:
         geoms.addAll(bcircleColl);
         break;
-      case "bpoly":
+      case BPOLYS:
         geoms.addAll(bpolyColl);
+        break;
+      default:
+        geoms = null;
         break;
     }
     return geoms;
