@@ -11,7 +11,7 @@ public class GroupByResult {
 
   @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
   private String groupByObject;
-  @ApiModelProperty(notes = "Result holding timestamp-value pairs", required = true)
+  @ApiModelProperty(notes = "Result array holding timestamp-value pairs", required = true)
   private Result[] result;
 
   public GroupByResult(String groupByObject, Result[] result) {
