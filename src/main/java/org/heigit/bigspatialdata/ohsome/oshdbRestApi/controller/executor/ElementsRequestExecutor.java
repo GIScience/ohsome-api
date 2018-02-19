@@ -714,17 +714,17 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponseContent executeLengthArea(boolean isArea, boolean isPost,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public DefaultAggregationResponseContent executeLengthArea(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    String unit;
-    String description;
+    String unit = null;
+    String description = null;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -732,10 +732,13 @@ public class ElementsRequestExecutor {
         time, showMetadata);
     result = mapRed.aggregateByTimestamp()
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (isArea) {
-            return Geo.areaOf(snapshot.getGeometry());
-          } else {
-            return Geo.lengthOf(snapshot.getGeometry());
+          switch (requestResource) {
+            case AREA:
+              return Geo.areaOf(snapshot.getGeometry());
+            case LENGTH:
+              return Geo.lengthOf(snapshot.getGeometry());
+            default:
+              return null;
           }
         });
     Result[] resultSet = new Result[result.size()];
@@ -748,12 +751,16 @@ public class ElementsRequestExecutor {
           Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
       count++;
     }
-    if (isArea) {
-      unit = "square-meter";
-      description = "Total area of polygons.";
-    } else {
-      unit = "meter";
-      description = "Total length of lines.";
+    switch (requestResource) {
+      case AREA:
+        unit = "square-meter";
+        description = "Total area of polygons.";
+      case LENGTH:
+        unit = "meter";
+        description = "Total length of lines.";
+      default:
+        // do nothing.. should never reach this :D
+        break;
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -834,9 +841,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent
    *         GroupByKeyResponseContent}
    */
-  public GroupByKeyResponseContent executeLengthPerimeterAreaGroupByKey(byte requestType,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
+  public GroupByKeyResponseContent executeLengthPerimeterAreaGroupByKey(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
@@ -879,17 +887,17 @@ public class ElementsRequestExecutor {
       if (res.size() == 0)
         res.add(new ImmutablePair<>(-1, f));
       return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt)).map(Pair::getValue)
-        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestType) {
-            case 1:
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
+        .map(Pair::getValue).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          switch (requestResource) {
+            case LENGTH:
               return Geo.lengthOf(snapshot.getGeometry());
-            case 2:
+            case PERIMETER:
               if (snapshot.getGeometry() instanceof Polygonal)
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
               else
                 return 0.0;
-            case 3:
+            case AREA:
               return Geo.areaOf(snapshot.getGeometry());
             default:
               return 0.0;
@@ -923,16 +931,16 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    switch (requestType) {
-      case 1:
+    switch (requestResource) {
+      case LENGTH:
         unit = "meter";
         description = "Total length of items aggregated on the key.";
         break;
-      case 2:
+      case PERIMETER:
         unit = "meter";
         description = "Total perimeter of polygonal items aggregated on the key.";
         break;
-      case 3:
+      case AREA:
         unit = "square-meter";
         description = "Total area of items aggregated on the key.";
         break;
@@ -961,10 +969,11 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponseContent
    *         GroupByTagResponseContent}
    */
-  public GroupByTagResponseContent executeLengthPerimeterAreaGroupByTag(byte requestType,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
+  public GroupByTagResponseContent executeLengthPerimeterAreaGroupByTag(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
@@ -1019,15 +1028,15 @@ public class ElementsRequestExecutor {
       return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
         .map(Pair::getValue).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestType) {
-            case 1:
+          switch (requestResource) {
+            case LENGTH:
               return Geo.lengthOf(snapshot.getGeometry());
-            case 2:
+            case PERIMETER:
               if (snapshot.getGeometry() instanceof Polygonal)
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
               else
                 return 0.0;
-            case 3:
+            case AREA:
               return Geo.areaOf(snapshot.getGeometry());
             default:
               return 0.0;
@@ -1068,16 +1077,16 @@ public class ElementsRequestExecutor {
     }
     // remove null objects in the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-    switch (requestType) {
-      case 1:
+    switch (requestResource) {
+      case LENGTH:
         unit = "meter";
         description = "Total length of items aggregated on the tag.";
         break;
-      case 2:
+      case PERIMETER:
         unit = "meter";
         description = "Total perimeter of polygonal items aggregated on the tag.";
         break;
-      case 3:
+      case AREA:
         unit = "square-meter";
         description = "Total area of items aggregated on the tag.";
         break;
@@ -1106,10 +1115,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponseContent
    *         GroupByUserResponseContent}
    */
-  public GroupByUserResponseContent executeLengthPerimeterAreaGroupByUser(byte requestType,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public GroupByUserResponseContent executeLengthPerimeterAreaGroupByUser(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
@@ -1132,15 +1141,15 @@ public class ElementsRequestExecutor {
           return f.getEntity().getUserId();
         }).zerofillIndices(useridsInt)
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestType) {
-            case 1:
+          switch (requestResource) {
+            case LENGTH:
               return Geo.lengthOf(snapshot.getGeometry());
-            case 2:
+            case PERIMETER:
               if (snapshot.getGeometry() instanceof Polygonal)
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
               else
                 return 0.0;
-            case 3:
+            case AREA:
               return Geo.areaOf(snapshot.getGeometry());
             default:
               return 0.0;
@@ -1167,16 +1176,16 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    switch (requestType) {
-      case 1:
+    switch (requestResource) {
+      case LENGTH:
         unit = "meter";
         description = "Total length of items aggregated on the userid.";
         break;
-      case 2:
+      case PERIMETER:
         unit = "meter";
         description = "Total perimeter of polygonal items aggregated on the userid.";
         break;
-      case 3:
+      case AREA:
         unit = "square-meter";
         description = "Total area of items aggregated on the userid.";
         break;
@@ -1205,9 +1214,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponseContent
    *         GroupByTypeResponseContent}
    */
-  public GroupByTypeResponseContent executeAreaPerimeterGroupByType(boolean isArea, boolean isPost,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public GroupByTypeResponseContent executeAreaPerimeterGroupByType(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1215,8 +1224,8 @@ public class ElementsRequestExecutor {
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    String unit;
-    String description;
+    String unit = null;
+    String description = null;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -1227,13 +1236,16 @@ public class ElementsRequestExecutor {
           return f.getEntity().getType();
         }).zerofillIndices(iP.getOsmTypes())
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (isArea) {
-            return Geo.areaOf(snapshot.getGeometry());
-          } else {
-            if (snapshot.getGeometry() instanceof Polygonal)
-              return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-            else
-              return 0.0;
+          switch (requestResource) {
+            case AREA:
+              return Geo.areaOf(snapshot.getGeometry());
+            case PERIMETER:
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            default:
+              return null;
           }
         });
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -1257,12 +1269,16 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    if (isArea) {
-      unit = "square-meter";
-      description = "Total area of items aggregated on the type.";
-    } else {
-      unit = "meter";
-      description = "Total perimeter of items aggregated on the type.";
+    switch (requestResource) {
+      case AREA:
+        unit = "square-meter";
+        description = "Total area of items aggregated on the type.";
+      case PERIMETER:
+        unit = "meter";
+        description = "Total perimeter of items aggregated on the type.";
+      default:
+        // do nothing.. should never reach this :D
+        break;
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -1360,10 +1376,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
    *         ElementsResponseContent}
    */
-  public ShareResponseContent executeLengthPerimeterAreaShare(byte requestType, boolean isPost,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+  public ShareResponseContent executeLengthPerimeterAreaShare(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
@@ -1429,15 +1445,15 @@ public class ElementsRequestExecutor {
       return hasTags;
     }).zerofillIndices(Arrays.asList(true, false))
         .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestType) {
-            case 1:
+          switch (requestResource) {
+            case LENGTH:
               return Geo.lengthOf(snapshot.getGeometry());
-            case 2:
+            case PERIMETER:
               if (snapshot.getGeometry() instanceof Polygonal)
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
               else
                 return 0.0;
-            case 3:
+            case AREA:
               return Geo.areaOf(snapshot.getGeometry());
             default:
               return 0.0;
@@ -1503,18 +1519,18 @@ public class ElementsRequestExecutor {
         part[i] = 0.0;
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
-    switch (requestType) {
-      case 1:
+    switch (requestResource) {
+      case LENGTH:
         unit = "meter";
         description =
             "Total length of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
-      case 2:
+      case PERIMETER:
         unit = "meter";
         description =
             "Total perimeter of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
-      case 3:
+      case AREA:
         unit = "square-meter";
         description =
             "Total area of the whole and of a share of items satisfying keys2 and values2 within items selected by types, keys, values.";

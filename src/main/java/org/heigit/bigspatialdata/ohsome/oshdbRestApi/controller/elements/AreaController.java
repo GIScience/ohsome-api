@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent;
@@ -60,8 +61,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(true, false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeLengthArea(RequestResource.AREA, false, bboxes, bcircles, bpolys, types,
+        keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -99,8 +100,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeAreaPerimeterGroupByType(true, false, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata);
+    return executor.executeAreaPerimeterGroupByType(RequestResource.AREA, false, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -138,8 +139,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.AREA, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -181,10 +182,10 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByKey((byte) 3, false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata, groupByKeys);
+    return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.AREA, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
   }
-  
+
   /**
    * GET request giving the area of OSM objects grouped by the tag.
    * <p>
@@ -231,8 +232,9 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 3, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.AREA, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
+        groupByValues);
   }
 
   /**
@@ -281,8 +283,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare((byte) 3, false, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata, keys2, values2);
+    return executor.executeLengthPerimeterAreaShare(RequestResource.AREA, false, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
   /**
@@ -326,8 +328,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(true, true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeLengthArea(RequestResource.AREA, true, bboxes, bcircles, bpolys, types,
+        keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -371,8 +373,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeAreaPerimeterGroupByType(true, true, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata);
+    return executor.executeAreaPerimeterGroupByType(RequestResource.AREA, true, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -416,8 +418,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 3, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.AREA, true, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -462,14 +464,14 @@ public class AreaController {
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
       @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-      required = false) String[] groupByKeys)
+          required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByKey((byte) 3, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKeys);
+    return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.AREA, true, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
   }
-  
+
   /**
    * POST request giving the area of OSM objects grouped by the tag. POST requests should only be
    * used if the request URL would be too long for a GET request.
@@ -521,8 +523,9 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 3, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.AREA, true, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
+        groupByValues);
   }
 
   /**
@@ -576,8 +579,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare((byte) 3, true, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata, keys2, values2);
+    return executor.executeLengthPerimeterAreaShare(RequestResource.AREA, true, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
 }

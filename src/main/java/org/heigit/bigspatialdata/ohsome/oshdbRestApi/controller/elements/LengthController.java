@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponseContent;
@@ -59,8 +60,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(false, false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeLengthArea(RequestResource.LENGTH, false, bboxes, bcircles, bpolys,
+        types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -98,8 +99,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 1, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.LENGTH, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -141,10 +142,10 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByKey((byte) 1, false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata, groupByKeys);
+    return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.LENGTH, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
   }
-  
+
   /**
    * GET request giving the length of OSM objects grouped by the tag.
    * <p>
@@ -191,8 +192,9 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 1, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.LENGTH, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
+        groupByValues);
   }
 
   /**
@@ -241,8 +243,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare((byte) 1, false, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata, keys2, values2);
+    return executor.executeLengthPerimeterAreaShare(RequestResource.LENGTH, false, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
   /**
@@ -286,8 +288,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthArea(false, true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeLengthArea(RequestResource.LENGTH, true, bboxes, bcircles, bpolys, types,
+        keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -331,8 +333,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser((byte) 1, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.LENGTH, true, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -386,10 +388,11 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag((byte) 1, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.LENGTH, true, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
+        groupByValues);
   }
-  
+
   /**
    * POST request giving the length of OSM objects grouped by the key. POST requests should only be
    * used if the request URL would be too long for a GET request.
@@ -432,12 +435,12 @@ public class LengthController {
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
       @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-      required = false) String[] groupByKeys)
+          required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByKey((byte) 1, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKeys);
+    return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.LENGTH, true, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
   }
 
   /**
@@ -491,8 +494,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare((byte) 1, true, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata, keys2, values2);
+    return executor.executeLengthPerimeterAreaShare(RequestResource.LENGTH, true, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
 }
