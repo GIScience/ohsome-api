@@ -21,7 +21,7 @@ public class GroupByBoundaryMetadata {
       position = 1)
   private String unit;
   @ApiModelProperty(
-      notes = "Name of the boundary object & " + "its coordinates (+ radius in case of bcircles)",
+      notes = "Name of the boundary object & its coordinates (+ radius in case of bcircles)",
       required = true, position = 2)
   private Map<String, double[]> boundary;
   @ApiModelProperty(notes = "Text describing the result in a sentence", required = true,

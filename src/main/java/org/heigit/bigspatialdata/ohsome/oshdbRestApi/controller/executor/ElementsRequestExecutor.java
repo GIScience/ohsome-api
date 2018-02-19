@@ -201,7 +201,7 @@ public class ElementsRequestExecutor {
     switch (iP.getBoundaryType()) {
       case NOBOUNDARY:
         throw new BadRequestException(
-            "You need to give more at least one boundary parameter if you want to use /groupBy/boundary.");
+            "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
       case BBOXES:
         ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
         ArrayList<Integer> zeroBboxFill = new ArrayList<Integer>();
