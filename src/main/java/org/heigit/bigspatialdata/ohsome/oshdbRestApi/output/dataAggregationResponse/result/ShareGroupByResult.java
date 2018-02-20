@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -7,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult
  * ShareResult} objects. The ShareGroupByResult is only used in responses for /share/groupBy requests.
  */
+@JsonInclude(Include.NON_NULL)
 public class ShareGroupByResult {
   
   @ApiModelProperty(notes = "Object on which the share-results are grouped on", required = true)

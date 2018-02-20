@@ -50,6 +50,7 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -78,9 +79,9 @@ public class ElementsRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public DefaultAggregationResponse executeCount(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public DefaultAggregationResponse executeCount(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata)
       throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -124,10 +125,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponse
    *         GroupByTypeResponseContent}
    */
-  public GroupByTypeResponse executeCountGroupByType(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public GroupByTypeResponse executeCountGroupByType(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result;
@@ -168,8 +168,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
           requestURL);
     }
-    GroupByTypeResponse response =
-        new GroupByTypeResponse(license, copyright, metadata, resultSet);
+    GroupByTypeResponse response = new GroupByTypeResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -319,9 +318,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponse
    *         GroupByKeyResponseContent}
    */
-  public GroupByKeyResponse executeCountGroupByKey(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] groupByKeys)
+  public GroupByKeyResponse executeCountGroupByKey(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -396,8 +395,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the key.",
           requestURL);
     }
-    GroupByKeyResponse response =
-        new GroupByKeyResponse(license, copyright, metadata, resultSet);
+    GroupByKeyResponse response = new GroupByKeyResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -411,10 +409,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
-  public GroupByTagResponse executeCountGroupByTag(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
+  public GroupByTagResponse executeCountGroupByTag(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
@@ -497,8 +495,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
           requestURL);
     }
-    GroupByTagResponse response =
-        new GroupByTagResponse(license, copyright, metadata, resultSet);
+    GroupByTagResponse response = new GroupByTagResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -512,10 +509,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponse
    *         GroupByUserResponseContent}
    */
-  public GroupByUserResponse executeCountGroupByUser(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public GroupByUserResponse executeCountGroupByUser(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
@@ -560,8 +556,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "amount",
           "Total number of items aggregated on the userids.", requestURL);
     }
-    GroupByUserResponse response =
-        new GroupByUserResponse(license, copyright, metadata, resultSet);
+    GroupByUserResponse response = new GroupByUserResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -699,13 +694,13 @@ public class ElementsRequestExecutor {
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
           requestURL);
     }
-    ShareResponse response =
-        new ShareResponse(license, copyright, metadata, resultSet);
+    ShareResponse response = new ShareResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
   /**
-   * Gets the input parameters of the request and performs a count-share calculation grouped by the boundary.
+   * Gets the input parameters of the request and performs a count-share calculation grouped by the
+   * boundary.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -714,13 +709,14 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] keys2, String[] values2)
+  public ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(boolean isPost,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result = null;
+    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
@@ -756,93 +752,219 @@ public class ElementsRequestExecutor {
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
-      // result aggregated on true (if obj contains all tags) and false (if not all are contained)
-      boolean hasTags = false;
-      for (int i = 0; i < keysInt2.length; i++) {
-        if (f.getEntity().hasTagKey(keysInt2[i])) {
-          if (i >= valuesInt2.length) {
-            // if more keys2 than values2 are given
-            hasTags = true;
-            continue;
+
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Utils utils = iP.getUtils();
+    switch (iP.getBoundaryType()) {
+      case NOBOUNDARY:
+        throw new BadRequestException(
+            "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+      case BBOXES:
+        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
+        ArrayList<Pair<Integer, Boolean>> zeroBboxFill = new ArrayList<>();
+        for (int j = 0; j < bboxGeoms.size(); j++) {
+          zeroBboxFill.add(new ImmutablePair<>(j, true));
+          zeroBboxFill.add(new ImmutablePair<>(j, false));
+        }
+        result = mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntity>> bboxesList = new LinkedList<>();
+          for (int i = 0; i < bboxGeoms.size(); i++)
+            if (f.getGeometry().intersects(bboxGeoms.get(i)))
+              bboxesList.add(new ImmutablePair<>(i, f.getEntity()));
+          return bboxesList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
           }
-          if (f.getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
-            hasTags = true;
-          } else {
-            hasTags = false;
-            break;
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroBboxFill).count();
+        break;
+      case BCIRCLES:
+        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry(BoundaryType.BCIRCLES);
+        ArrayList<Pair<Integer, Boolean>> zeroBcircleFill = new ArrayList<>();
+        for (int j = 0; j < bcircleGeoms.size(); j++) {
+          zeroBcircleFill.add(new ImmutablePair<>(j, true));
+          zeroBcircleFill.add(new ImmutablePair<>(j, false));
+        }
+        result = mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntity>> bcirclesList = new LinkedList<>();
+          for (int i = 0; i < bcircleGeoms.size(); i++)
+            if (f.getGeometry().intersects(bcircleGeoms.get(i)))
+              bcirclesList.add(new ImmutablePair<>(i, f.getEntity()));
+          return bcirclesList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
           }
-        } else {
-          hasTags = false;
-          break;
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroBcircleFill).count();
+        break;
+      case BPOLYS:
+        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry(BoundaryType.BPOLYS);
+        ArrayList<Pair<Integer, Boolean>> zeroBpolyFill = new ArrayList<>();
+        for (int j = 0; j < bpolyGeoms.size(); j++) {
+          zeroBpolyFill.add(new ImmutablePair<>(j, true));
+          zeroBpolyFill.add(new ImmutablePair<>(j, false));
+        }
+        result = mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntity>> bpolysList = new LinkedList<>();
+          for (int i = 0; i < bpolyGeoms.size(); i++)
+            if (f.getGeometry().intersects(bpolyGeoms.get(i)))
+              bpolysList.add(new ImmutablePair<>(i, f.getEntity()));
+          return bpolysList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
+          }
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroBpolyFill).count();
+        break;
+    }
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
+    String groupByName = "";
+    String[] boundaryIds = utils.getBoundaryIds();
+    Integer[] whole = null;
+    Integer[] part = null;
+    String[] timeArray = null;
+    int count = 1;
+    int gBNCount = 0;
+    for (Entry<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
+        .entrySet()) {
+      // on boundary param aggregated values (2x the same param)
+      if (count == 1)
+        timeArray = new String[entry.getValue().entrySet().size()];
+      if (entry.getKey().getRight()) {
+        // on true aggregated values
+        part = new Integer[entry.getValue().entrySet().size()];
+        int partCount = 0;
+        for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+          part[partCount] = innerEntry.getValue();
+          partCount++;
+        }
+      } else {
+        // on false aggregated values
+        whole = new Integer[entry.getValue().entrySet().size()];
+        int wholeCount = 0;
+        for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+          whole[wholeCount] = innerEntry.getValue();
+          if (count == 1)
+            timeArray[wholeCount] = innerEntry.getKey().toString();
+          wholeCount++;
         }
       }
-      return hasTags;
-    }).zerofillIndices(Arrays.asList(true, false)).count();
-    Integer[] whole = new Integer[result.size()];
-    Integer[] part = new Integer[result.size()];
-    String[] timeArray = new String[result.size()];
-    // needed time array in case no key can be found
-    String[] noPartTimeArray = new String[result.size()];
-    int partCount = 0;
-    int wholeCount = 0;
-    int timeCount = 0;
-    // fill whole and part arrays with -1 values to indicate "no value"
-    for (int i = 0; i < result.size(); i++) {
-      whole[i] = -1;
-      part[i] = -1;
-    }
-    // time and value extraction
-    for (Entry<OSHDBTimestampAndIndex<Boolean>, Integer> entry : result.entrySet()) {
-      // this time array counts for each entry in the entrySet
-      noPartTimeArray[timeCount] = entry.getKey().getTimeIndex().toString();
-      if (entry.getKey().getOtherIndex()) {
-        // if true - set timestamp and set/increase part and/or whole
-        timeArray[partCount] =
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
-        part[partCount] = entry.getValue();
-        if (whole[partCount] == null || whole[partCount] == -1)
-          whole[partCount] = entry.getValue();
-        else
-          whole[partCount] = whole[partCount] + entry.getValue();
-        partCount++;
-      } else {
-        // else - set/increase only whole
-        if (whole[wholeCount] == null || whole[wholeCount] == -1)
-          whole[wholeCount] = entry.getValue();
-        else
-          whole[wholeCount] = whole[wholeCount] + entry.getValue();
-        wholeCount++;
+      if (count % 2 == 0) {
+        // is only executed every second run
+        groupByName = boundaryIds[gBNCount];
+        ShareResult[] resultSet = new ShareResult[timeArray.length];
+        for (int i = 0; i < timeArray.length; i++) {
+          whole[i] = whole[i] + part[i];
+          resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
+        }
+        groupByResultSet[gBNCount] = new ShareGroupByResult(groupByName, resultSet);
+        gBNCount++;
       }
-      timeCount++;
+      count++;
     }
-    // remove the possible null values in the array
-    timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    // overwrite time array in case the given key for part is not existent in the whole for no
-    // timestamp
-    if (timeArray.length < 1) {
-      timeArray = noPartTimeArray;
-    }
-    ShareGroupByResult[] resultSet = new ShareGroupByResult[timeArray.length];
-    for (int i = 0; i < timeArray.length; i++) {
-      if (whole[i] == -1)
-        whole[i] = 0;
-      if (part[i] == -1)
-        part[i] = 0;
-      //resultSet[i] = new ShareGroupByResult(timeArray[i], whole[i], part[i]);
-    }
-    GroupByBoundaryMetadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
+    GroupByBoundaryMetadata gBBMetadata = null;
     if (iP.getShowMetadata()) {
-      metadata = new GroupByBoundaryMetadata(duration, "amount", null,
-          "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
+      Map<String, double[]> boundaries = new HashMap<String, double[]>();
+      switch (iP.getBoundaryType()) {
+        case NOBOUNDARY:
+          double[] singleBboxValues = new double[4];
+          for (int i = 0; i < 4; i++)
+            singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
+          boundaries.put(boundaryIds[0], singleBboxValues);
+          break;
+        case BBOXES:
+          int bboxCount = 0;
+          for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
+            double[] bboxValues = new double[4];
+            for (int j = 0; j < 4; j++)
+              bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
+            boundaries.put(boundaryIds[bboxCount], bboxValues);
+            bboxCount++;
+          }
+          break;
+        case BCIRCLES:
+          int bcircleCount = 0;
+          for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
+            double[] bcircleValues = new double[3];
+            for (int j = 0; j < 3; j++)
+              bcircleValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
+            boundaries.put(boundaryIds[bcircleCount], bcircleValues);
+            bcircleCount++;
+          }
+          break;
+        case BPOLYS:
+          // TODO implement for bpolys (should be done together with WKT implementation)
+          boundaries = null;
+          break;
+      }
+      long duration = System.currentTimeMillis() - startTime;
+      gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
+          "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
           requestURL);
     }
     ShareGroupByBoundaryResponse response =
-        new ShareGroupByBoundaryResponse(license, copyright, metadata, resultSet);
+        new ShareGroupByBoundaryResponse(license, copyright, gBBMetadata, groupByResultSet);
     return response;
   }
-  
+
   /**
    * Gets the input parameters of the request and performs a length or area calculation.
    * <p>
@@ -926,10 +1048,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executePerimeter(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponse executePerimeter(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result;
@@ -983,10 +1104,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponse
    *         GroupByKeyResponseContent}
    */
-  public GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKeys)
+  public GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
@@ -1092,8 +1212,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByKeyResponse response =
-        new GroupByKeyResponse(license, copyright, metadata, resultSet);
+    GroupByKeyResponse response = new GroupByKeyResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1111,11 +1230,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
-  public GroupByTagResponse executeLengthPerimeterAreaGroupByTag(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+  public GroupByTagResponse executeLengthPerimeterAreaGroupByTag(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
@@ -1238,8 +1356,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByTagResponse response =
-        new GroupByTagResponse(license, copyright, metadata, resultSet);
+    GroupByTagResponse response = new GroupByTagResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1257,10 +1374,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponse
    *         GroupByUserResponseContent}
    */
-  public GroupByUserResponse executeLengthPerimeterAreaGroupByUser(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public GroupByUserResponse executeLengthPerimeterAreaGroupByUser(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
@@ -1337,8 +1454,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByUserResponse response =
-        new GroupByUserResponse(license, copyright, metadata, resultSet);
+    GroupByUserResponse response = new GroupByUserResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1427,8 +1543,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
-    GroupByTypeResponse response =
-        new GroupByTypeResponse(license, copyright, metadata, resultSet);
+    GroupByTypeResponse response = new GroupByTypeResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1444,10 +1559,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executeDensity(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponse executeDensity(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> countResult;
@@ -1683,8 +1797,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
     }
-    ShareResponse response =
-        new ShareResponse(license, copyright, metadata, resultSet);
+    ShareResponse response = new ShareResponse(license, copyright, metadata, resultSet);
     return response;
   }
 
@@ -1753,8 +1866,7 @@ public class ElementsRequestExecutor {
               + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
           requestURL);
     }
-    RatioResponse response =
-        new RatioResponse(license, copyright, metadata, resultSet);
+    RatioResponse response = new RatioResponse(license, copyright, metadata, resultSet);
     return response;
   }
 }

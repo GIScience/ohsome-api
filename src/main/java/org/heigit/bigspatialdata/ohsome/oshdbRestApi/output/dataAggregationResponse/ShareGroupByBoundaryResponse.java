@@ -2,6 +2,8 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResp
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareGroupByResult;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -15,6 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult
  * ShareResult} objects.
  */
+@JsonInclude(Include.NON_NULL)
 public class ShareGroupByBoundaryResponse {
   
   @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
@@ -25,14 +28,14 @@ public class ShareGroupByBoundaryResponse {
   private GroupByBoundaryMetadata groupByBoundaryMetadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-whole-part values", required = true)
-  private ShareGroupByResult[] groupByBoundaryResult;
+  private ShareGroupByResult[] shareGroupByBoundaryResult;
 
   public ShareGroupByBoundaryResponse(String license, String copyright,
-      GroupByBoundaryMetadata groupByBoundaryMetadata, ShareGroupByResult[] groupByBoundaryResult) {
+      GroupByBoundaryMetadata groupByBoundaryMetadata, ShareGroupByResult[] shareGroupByBoundaryResult) {
     this.license = license;
     this.copyright = copyright;
     this.groupByBoundaryMetadata = groupByBoundaryMetadata;
-    this.groupByBoundaryResult = groupByBoundaryResult;
+    this.shareGroupByBoundaryResult = shareGroupByBoundaryResult;
   }
 
   public String getLicense() {
@@ -47,8 +50,8 @@ public class ShareGroupByBoundaryResponse {
     return groupByBoundaryMetadata;
   }
 
-  public ShareGroupByResult[] getGroupByBoundaryResult() {
-    return groupByBoundaryResult;
+  public ShareGroupByResult[] getShareGroupByBoundaryResult() {
+    return shareGroupByBoundaryResult;
   }
 
 }
