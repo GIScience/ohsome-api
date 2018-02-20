@@ -1,23 +1,21 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the whole JSON response object for the data aggregation response using the
- * /groupBy/type resource. It contains an optional
+ * Represents the outer JSON response object for the data aggregation requests that do not use the
+ * /groupBy resource. It contains the license and copyright, optional
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata
- * Metadata}, the requested
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult
- * GroupByResult} and an identifier of the object plus the corresponding
+ * Metadata} and the
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result
  * Result} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class GroupByTypeResponseContent {
+public class DefaultAggregationResponse {
 
   @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
   private String license;
@@ -25,16 +23,15 @@ public class GroupByTypeResponseContent {
   private String copyright;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
-      + "with their timestamp-value pairs", required = true)
-  private GroupByResult[] groupByTypeResult;
+  @ApiModelProperty(notes = "Result holding timestamp-value pairs", required = true)
+  private Result[] result;
 
-  public GroupByTypeResponseContent(String license, String copyright, Metadata metadata,
-      GroupByResult[] groupByTypeResult) {
+  public DefaultAggregationResponse(String license, String copyright, Metadata metadata,
+      Result[] result) {
     this.license = license;
     this.copyright = copyright;
     this.metadata = metadata;
-    this.groupByTypeResult = groupByTypeResult;
+    this.result = result;
   }
 
   public String getLicense() {
@@ -49,8 +46,8 @@ public class GroupByTypeResponseContent {
     return metadata;
   }
 
-  public GroupByResult[] getGroupByTypeResult() {
-    return groupByTypeResult;
+  public Result[] getResult() {
+    return result;
   }
 
 }

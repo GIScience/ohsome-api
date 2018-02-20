@@ -1,7 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,12 +27,12 @@ public class DensityController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
   @ApiOperation(value = "Density of OSM elements (number of elements per area)")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponseContent getDensity(
+  public DefaultAggregationResponse getDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -66,13 +66,13 @@ public class DensityController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponseContent
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
   @ApiOperation(value = "Density of OSM elements (number of elements per area)")
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponseContent postDensity(
+  public DefaultAggregationResponse postDensity(
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
           defaultValue = "", required = false) String bboxes,

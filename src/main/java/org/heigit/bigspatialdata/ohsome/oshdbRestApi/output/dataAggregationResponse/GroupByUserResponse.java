@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * /groupBy/tag resource. It contains an optional
+ * /groupBy/user resource. It contains an optional
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata
  * Metadata}, the requested
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult
@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Result} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class GroupByTagResponseContent {
+public class GroupByUserResponse {
 
   @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
   private String license;
@@ -27,14 +27,14 @@ public class GroupByTagResponseContent {
   private Metadata metadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
-  private GroupByResult[] groupByTagResult;
+  private GroupByResult[] groupByUserResult;
 
-  public GroupByTagResponseContent(String license, String copyright, Metadata metadata,
-      GroupByResult[] groupByTagResult) {
+  public GroupByUserResponse(String license, String copyright, Metadata metadata,
+      GroupByResult[] groupByUserResult) {
     this.license = license;
     this.copyright = copyright;
     this.metadata = metadata;
-    this.groupByTagResult = groupByTagResult;
+    this.groupByUserResult = groupByUserResult;
   }
 
   public String getLicense() {
@@ -49,8 +49,8 @@ public class GroupByTagResponseContent {
     return metadata;
   }
 
-  public GroupByResult[] getGroupByTagResult() {
-    return groupByTagResult;
+  public GroupByResult[] getGroupByUserResult() {
+    return groupByUserResult;
   }
 
 }

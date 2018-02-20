@@ -1,37 +1,37 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the outer JSON response object for the data aggregation requests that do not use the
- * /groupBy resource. It contains the license and copyright, optional
+ * Represents the whole JSON response object for the data aggregation response using the /ratio
+ * resource. It contains the license and copyright, optional
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata
- * Metadata} and the
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result
- * Result} objects.
+ * Metadata} as well as the results section showing
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult
+ * RatioResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class DefaultAggregationResponseContent {
+public class RatioResponse {
 
-  @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
+  @ApiModelProperty(notes = "License of the used data", required = true, position = 0)
   private String license;
   @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
   private String copyright;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result holding timestamp-value pairs", required = true)
-  private Result[] result;
+  @ApiModelProperty(notes = "Result for /count/ratio requests")
+  private RatioResult[] ratioResult;
 
-  public DefaultAggregationResponseContent(String license, String copyright, Metadata metadata,
-      Result[] result) {
+  public RatioResponse(String license, String copyright, Metadata metadata,
+      RatioResult[] ratioResult) {
     this.license = license;
     this.copyright = copyright;
     this.metadata = metadata;
-    this.result = result;
+    this.ratioResult = ratioResult;
   }
 
   public String getLicense() {
@@ -46,8 +46,7 @@ public class DefaultAggregationResponseContent {
     return metadata;
   }
 
-  public Result[] getResult() {
-    return result;
+  public RatioResult[] getRatioResult() {
+    return ratioResult;
   }
-
 }

@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
 
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -8,34 +8,33 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * /groupBy/boundary resource. It contains an optional
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata
- * GroupByBoundaryMetadata} object, the requested
+ * /groupBy/key resource. It contains an optional
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata
+ * Metadata}, the requested
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult
- * GroupByResult}, which is named after the used /groupBy resource (e.g. groupByBoundaryResult for
- * using /groupBy/boundary) and an identifier of the object plus the corresponding
+ * GroupByResult} and an identifier of the object plus the corresponding
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result
  * Result} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class GroupByBoundaryResponseContent {
+public class GroupByKeyResponse {
 
   @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
   private String license;
   @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
   private String copyright;
-  @ApiModelProperty(notes = "Metadata describing the /groupBy/boundary output", position = 2)
-  private GroupByBoundaryMetadata groupByBoundaryMetadata;
+  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
+  private Metadata metadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
-  private GroupByResult[] groupByBoundaryResult;
+  private GroupByResult[] groupByKeyResult;
 
-  public GroupByBoundaryResponseContent(String license, String copyright,
-      GroupByBoundaryMetadata groupByBoundaryMetadata, GroupByResult[] groupByBoundaryResult) {
+  public GroupByKeyResponse(String license, String copyright, Metadata metadata,
+      GroupByResult[] groupByKeyResult) {
     this.license = license;
     this.copyright = copyright;
-    this.groupByBoundaryMetadata = groupByBoundaryMetadata;
-    this.groupByBoundaryResult = groupByBoundaryResult;
+    this.metadata = metadata;
+    this.groupByKeyResult = groupByKeyResult;
   }
 
   public String getLicense() {
@@ -46,12 +45,12 @@ public class GroupByBoundaryResponseContent {
     return copyright;
   }
 
-  public GroupByBoundaryMetadata getGroupByBoundaryMetadata() {
-    return groupByBoundaryMetadata;
+  public Metadata getMetadata() {
+    return metadata;
   }
 
-  public GroupByResult[] getGroupByBoundaryResult() {
-    return groupByBoundaryResult;
+  public GroupByResult[] getGroupByKeyResult() {
+    return groupByKeyResult;
   }
 
 }

@@ -1,21 +1,21 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse;
 
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the whole JSON response object for the data aggregation response using the /ratio
+ * Represents the whole JSON response object for the data aggregation response using the /share
  * resource. It contains the license and copyright, optional
  * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata
  * Metadata} as well as the results section showing
- * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult
- * RatioResult} objects.
+ * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult
+ * ShareResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class RatioResponseContent {
+public class ShareResponse {
 
   @ApiModelProperty(notes = "License of the used data", required = true, position = 0)
   private String license;
@@ -23,15 +23,17 @@ public class RatioResponseContent {
   private String copyright;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result for /count/ratio requests")
-  private RatioResult[] ratioResult;
+  @ApiModelProperty(
+      notes = "Result for /share requests, " + "holding the " + "timestamp, whole and part values",
+      position = 3)
+  private ShareResult[] shareResult;
 
-  public RatioResponseContent(String license, String copyright, Metadata metadata,
-      RatioResult[] ratioResult) {
+  public ShareResponse(String license, String copyright, Metadata metadata,
+      ShareResult[] shareResult) {
     this.license = license;
     this.copyright = copyright;
     this.metadata = metadata;
-    this.ratioResult = ratioResult;
+    this.shareResult = shareResult;
   }
 
   public String getLicense() {
@@ -46,7 +48,8 @@ public class RatioResponseContent {
     return metadata;
   }
 
-  public RatioResult[] getRatioResult() {
-    return ratioResult;
+  public ShareResult[] getShareResult() {
+    return shareResult;
   }
+
 }
