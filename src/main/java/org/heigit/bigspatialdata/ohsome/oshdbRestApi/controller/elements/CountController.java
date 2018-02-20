@@ -371,7 +371,8 @@ public class CountController {
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values grouped by the boundary")
-  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
   public ShareGroupByBoundaryResponse getCountShareGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
@@ -400,8 +401,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountShareGroupByBoundary(false, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata, keys2, values2);
+    return executor.executeCountShareGroupByBoundary(false, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata, keys2, values2);
   }
 
   /**
@@ -796,11 +797,11 @@ public class CountController {
     return executor.executeCountShare(true, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata, keys2, values2);
   }
-  
+
   /**
    * POST request giving the share of selected items satisfying keys2 and values2 within items
-   * selected by types, keys and values, grouped by the boundary. POST requests should only be used if the request URL would
-   * be too long for a GET request.
+   * selected by types, keys and values, grouped by the boundary. POST requests should only be used
+   * if the request URL would be too long for a GET request.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -815,8 +816,8 @@ public class CountController {
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values, grouped by the boundary")
-  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareGroupByBoundaryResponse postCountShareGroupByBoundary(
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
@@ -848,8 +849,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountShareGroupByBoundary(true, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata, keys2, values2);
+    return executor.executeCountShareGroupByBoundary(true, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata, keys2, values2);
   }
 
   /**

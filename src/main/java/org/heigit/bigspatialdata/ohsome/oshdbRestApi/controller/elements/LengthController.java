@@ -7,6 +7,7 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationRespo
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponse;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -245,6 +246,57 @@ public class LengthController {
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaShare(RequestResource.LENGTH, false, bboxes, bcircles,
         bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+  }
+
+  /**
+   * GET request giving the length of items satisfying keys, values (+ other params) and part of
+   * items satisfying keys2, values2 (plus other parameters), grouped by the boundary.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param keys2 <code>String</code> array having the same format as keys and used to define the
+   *        subgroup(share).
+   * @param values2 <code>String</code> array having the same format as values and used to define
+   *        the subgroup(share).
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
+   *         ShareGroupByBoundaryResponse}
+   */
+  @ApiOperation(
+      value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values, grouped by the boundary")
+  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
+  public ShareGroupByBoundaryResponse getLengthShareGroupByBoundary(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) @RequestParam(value = "keys2", defaultValue = "",
+              required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
+              required = false) String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.LENGTH, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
   /**
@@ -496,6 +548,61 @@ public class LengthController {
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaShare(RequestResource.LENGTH, true, bboxes, bcircles,
         bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+  }
+
+  /**
+   * POST request giving the length of items satisfying keys, values and part of items satisfying
+   * keys2, values2, grouped by the boundary. POST requests should only be used if the request URL
+   * would be too long for a GET request.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param keys2 <code>String</code> array having the same format as keys and used to define the
+   *        subgroup(share).
+   * @param values2 <code>String</code> array having the same format as values and used to define
+   *        the subgroup(share).
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
+   *         ShareGroupByBoundaryResponse}
+   */
+  @ApiOperation(
+      value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ShareGroupByBoundaryResponse postLengthShareGroupByBoundary(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(
+          value = "WGS84 coordinates + radius in meters in the following format: "
+              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+          defaultValue = "", required = false) String bcircles,
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          defaultValue = "", required = false) String bpolys,
+      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+          defaultValue = "", required = false) String[] types,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values,
+      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
+          required = false) String showMetadata,
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
+          required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+          defaultValue = "", required = false) String[] values2)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.LENGTH, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
 }

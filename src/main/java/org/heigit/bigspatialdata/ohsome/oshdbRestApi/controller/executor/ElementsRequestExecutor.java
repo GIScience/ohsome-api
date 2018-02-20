@@ -1802,6 +1802,324 @@ public class ElementsRequestExecutor {
   }
 
   /**
+   * Gets the input parameters of the request and performs a length|perimeter|area share calculation
+   * grouped by the boundary.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * getCountShare} method.
+   * 
+   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
+   *         ShareGroupByBoundaryResponse}
+   */
+  public ShareGroupByBoundaryResponse executeLengthPerimeterAreaShareGroupByBoundary(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result = null;
+    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    String requestURL = null;
+    if (keys2 == null || keys2.length < 1)
+      throw new BadRequestException(
+          "You need to define at least one key if you want to use /share.");
+    if (values2 == null)
+      values2 = new String[0];
+    if (keys2.length < values2.length)
+      throw new BadRequestException(
+          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    TagTranslator tt;
+    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
+    if (dbConnObjects[1] == null)
+      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    else
+      tt = new TagTranslator(dbConnObjects[1].getConnection());
+    Integer[] keysInt2 = new Integer[keys2.length];
+    Integer[] valuesInt2 = new Integer[values2.length];
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    for (int i = 0; i < keys2.length; i++) {
+      keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
+      if (keysInt2[i] < 0)
+        throw new BadRequestException(
+            "All provided keys2 parameters have to be in the OSM database.");
+      if (values2 != null && i < values2.length) {
+        valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
+        if (valuesInt2[i] < 0)
+          throw new BadRequestException(
+              "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
+      }
+    }
+    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
+        time, showMetadata);
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Utils utils = iP.getUtils();
+    switch (iP.getBoundaryType()) {
+      case NOBOUNDARY:
+        throw new BadRequestException(
+            "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+      case BBOXES:
+        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
+        ArrayList<Pair<Integer, Boolean>> zeroBboxFill = new ArrayList<>();
+        for (int j = 0; j < bboxGeoms.size(); j++) {
+          zeroBboxFill.add(new ImmutablePair<>(j, true));
+          zeroBboxFill.add(new ImmutablePair<>(j, false));
+        }
+        result = mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntitySnapshot>> bboxesList = new LinkedList<>();
+          for (int i = 0; i < bboxGeoms.size(); i++)
+            if (f.getGeometry().intersects(bboxGeoms.get(i)))
+              bboxesList.add(new ImmutablePair<>(i, f));
+          return bboxesList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().getEntity().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
+          }
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroBboxFill)
+            .sum((SerializableFunction<Pair<Integer, OSMEntitySnapshot>, Number>) snapshot -> {
+              switch (requestResource) {
+                case LENGTH:
+                  return Geo.lengthOf(snapshot.getRight().getGeometry());
+                case PERIMETER:
+                  if (snapshot.getRight().getGeometry() instanceof Polygonal)
+                    return Geo.lengthOf(snapshot.getRight().getGeometry().getBoundary());
+                  else
+                    return 0.0;
+                case AREA:
+                  return Geo.areaOf(snapshot.getRight().getGeometry());
+                default:
+                  return 0.0;
+              }
+            });
+        break;
+      case BCIRCLES:
+        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry(BoundaryType.BCIRCLES);
+        ArrayList<Pair<Integer, Boolean>> zeroBcircleFill = new ArrayList<>();
+        for (int j = 0; j < bcircleGeoms.size(); j++) {
+          zeroBcircleFill.add(new ImmutablePair<>(j, true));
+          zeroBcircleFill.add(new ImmutablePair<>(j, false));
+        }
+        result = mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntitySnapshot>> bcirclesList = new LinkedList<>();
+          for (int i = 0; i < bcircleGeoms.size(); i++)
+            if (f.getGeometry().intersects(bcircleGeoms.get(i)))
+              bcirclesList.add(new ImmutablePair<>(i, f));
+          return bcirclesList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().getEntity().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
+          }
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroBcircleFill)
+            .sum((SerializableFunction<Pair<Integer, OSMEntitySnapshot>, Number>) snapshot -> {
+              switch (requestResource) {
+                case LENGTH:
+                  return Geo.lengthOf(snapshot.getRight().getGeometry());
+                case PERIMETER:
+                  if (snapshot.getRight().getGeometry() instanceof Polygonal)
+                    return Geo.lengthOf(snapshot.getRight().getGeometry().getBoundary());
+                  else
+                    return 0.0;
+                case AREA:
+                  return Geo.areaOf(snapshot.getRight().getGeometry());
+                default:
+                  return 0.0;
+              }
+            });
+        break;
+      case BPOLYS:
+        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry(BoundaryType.BPOLYS);
+        ArrayList<Pair<Integer, Boolean>> zeroBpolyFill = new ArrayList<>();
+        for (int j = 0; j < bpolyGeoms.size(); j++) {
+          zeroBpolyFill.add(new ImmutablePair<>(j, true));
+          zeroBpolyFill.add(new ImmutablePair<>(j, false));
+        }
+        result = mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntitySnapshot>> bpolysList = new LinkedList<>();
+          for (int i = 0; i < bpolyGeoms.size(); i++)
+            if (f.getGeometry().intersects(bpolyGeoms.get(i)))
+              bpolysList.add(new ImmutablePair<>(i, f));
+          return bpolysList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().getEntity().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
+          }
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroBpolyFill)
+            .sum((SerializableFunction<Pair<Integer, OSMEntitySnapshot>, Number>) snapshot -> {
+              switch (requestResource) {
+                case LENGTH:
+                  return Geo.lengthOf(snapshot.getRight().getGeometry());
+                case PERIMETER:
+                  if (snapshot.getRight().getGeometry() instanceof Polygonal)
+                    return Geo.lengthOf(snapshot.getRight().getGeometry().getBoundary());
+                  else
+                    return 0.0;
+                case AREA:
+                  return Geo.areaOf(snapshot.getRight().getGeometry());
+                default:
+                  return 0.0;
+              }
+            });
+        break;
+    }
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    String groupByName = "";
+    String[] boundaryIds = utils.getBoundaryIds();
+    Double[] whole = null;
+    Double[] part = null;
+    String[] timeArray = null;
+    int count = 1;
+    int gBNCount = 0;
+    for (Entry<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
+        .entrySet()) {
+      // on boundary param aggregated values (2x the same param)
+      if (count == 1)
+        timeArray = new String[entry.getValue().entrySet().size()];
+      if (entry.getKey().getRight()) {
+        // on true aggregated values
+        part = new Double[entry.getValue().entrySet().size()];
+        int partCount = 0;
+        for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+          part[partCount] = Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
+          partCount++;
+        }
+      } else {
+        // on false aggregated values
+        whole = new Double[entry.getValue().entrySet().size()];
+        int wholeCount = 0;
+        for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+          whole[wholeCount] = Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
+          if (count == 1)
+            timeArray[wholeCount] = innerEntry.getKey().toString();
+          wholeCount++;
+        }
+      }
+      if (count % 2 == 0) {
+        // is only executed every second run
+        groupByName = boundaryIds[gBNCount];
+        ShareResult[] resultSet = new ShareResult[timeArray.length];
+        for (int i = 0; i < timeArray.length; i++) {
+          whole[i] = whole[i] + part[i];
+          resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
+        }
+        groupByResultSet[gBNCount] = new ShareGroupByResult(groupByName, resultSet);
+        gBNCount++;
+      }
+      count++;
+    }
+    GroupByBoundaryMetadata gBBMetadata = null;
+    if (iP.getShowMetadata()) {
+      Map<String, double[]> boundaries = new HashMap<String, double[]>();
+      switch (iP.getBoundaryType()) {
+        case NOBOUNDARY:
+          double[] singleBboxValues = new double[4];
+          for (int i = 0; i < 4; i++)
+            singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
+          boundaries.put(boundaryIds[0], singleBboxValues);
+          break;
+        case BBOXES:
+          int bboxCount = 0;
+          for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
+            double[] bboxValues = new double[4];
+            for (int j = 0; j < 4; j++)
+              bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
+            boundaries.put(boundaryIds[bboxCount], bboxValues);
+            bboxCount++;
+          }
+          break;
+        case BCIRCLES:
+          int bcircleCount = 0;
+          for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
+            double[] bcircleValues = new double[3];
+            for (int j = 0; j < 3; j++)
+              bcircleValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
+            boundaries.put(boundaryIds[bcircleCount], bcircleValues);
+            bcircleCount++;
+          }
+          break;
+        case BPOLYS:
+          // TODO implement for bpolys (should be done together with WKT implementation)
+          boundaries = null;
+          break;
+      }
+      long duration = System.currentTimeMillis() - startTime;
+      gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
+          "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
+          requestURL);
+    }
+    ShareGroupByBoundaryResponse response =
+        new ShareGroupByBoundaryResponse(license, copyright, gBBMetadata, groupByResultSet);
+    return response;
+  }
+
+  /**
    * Gets the input parameters of the request and performs a ratio calculation.
    * <p>
    * The other parameters are described in the
