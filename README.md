@@ -1,7 +1,7 @@
 # OHSOME API
 
-This REST API aims to leverage the tools of the [oshdb API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
-Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST API and [here](http://129.206.7.121:8044/rest-api/target/site/apidocs/index.html) to access the javadoc, which gets updated daily.
+This REST-API aims to leverage the tools of the [OSHDB-API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
+Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST-API.
 
 ## Getting Started
 
@@ -19,128 +19,26 @@ These instructions will get you a copy of the project up and running on your loc
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 3. enter the command *mvn package* to build the project
 4. to run the jar file enter the following (changes depending on your data):
-    * keytables included (v_0.3.1): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb*
-    * keytables not included (v_0.3): *java -jar target/oshdb-rest-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
+    * keytables included (v_0.3.1): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb*
+    * keytables not included (v_0.3): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
+
+Now you should have a running local REST-API, which is ready for receiving requests under *http://localhost:8080/*.
 
 Note:
 * additionally you can add an optional run-parameter to disable multithreading: *--database.multithreading=false*
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
     * in Eclipse: Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'
-
-Now you should have a running local REST API, which is ready for receiving requests under *http://localhost:8080/*
+* if you want to get information about the code directly, you can access the [Javadoc](http://129.206.7.121:8044/master/ohsome-api/target/site/apidocs/index.html), which gets updated daily.
 
 ## Testing
 
-To be able to test the REST API with your own requests, you will also need a description of the parameters and available resources. Both are given here below.
-
-### Parameters
-
-
-* bboxes
-    * has to consist of double-parse able Strings in the format (lon1, lat1, lon2, lat2, meaning bottom left and top right point of each bbox)
-    * if no bbox (and no other boundary parameter) is given, a default bbox representing the maximum extend (7.3948, 47.3937, 10.6139, 49.9079 for BW) is used
-    * if bboxes is given, bcircles and bpolys must be null or empty
-    * format: id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...
-    * optional for all resources
-* bcircles
-    * has to consist of double-parse able Strings (lon/lat) + a double value representing the size of the buffer around the point
-    * if bcircles is given, bboxes and bpolys must be null or empty
-    * format: id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...
-    * optional for all resources
-* bpolys
-    * has to consist of double-parse able lon/lat coordinate pairs, where the first point is the same as the last point
-    * if bpolys is given, bboxes and bcircles must be null or empty
-    * format: id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...
-    * only simple polygons are supported atm (without holes and no multipolygon)
-    * optional for all resources
-* types
-    * can be one, two or all three of "node", "way", "relation" in any order
-    * if no type is given, all three are used
-    * optional for all resources
-* keys
-    * 0...n keys can be used
-    * if keys is null or empty, no key will be used (and values must also be null or empty)
-    * optional for all resources
-* values
-    * 0...n values can be used, where n <= keys.length and values(n) must refer to keys(n)
-    * if values is null or empty, no value will be used
-    * optional for all resources
-* userids
-    * 0...n userids can be given
-    * if userids is empty, all users are used (and the result is grouped on all affected userids in /groupBy/user)
-    * optional for all resources
-* time
-    * ten different versions of the time parameter can be provided:
-        1. timestamp: YYYY-MM-DD
-        2. start/end: YYYY-MM-DD/YYYY-MM-DD
-        3. start/end/period: YYYY-MM-DD/YYYY-MM-DD/PnYnMnD where n refers to the size of the respective period
-        4. /end: /YYYY-MM-DD where ‘null’/ equals the earliest timestamp
-        5. /end/period: /YYYY-MM-DD/PnYnMnD
-        6. start/: YYYY-MM-DD/ where /’null’ equals the latest timestamp
-        7. start//period: YYYY-MM-DD//PnYnMnD
-        8. /: / where ‘null’/’null’ equals the earliest and latest timestamp
-        9. //period: //PnYnMnD
-        10. list of 2-n timestamps separated via a “,” e.g.: 2015-01-01,2015-05-15,2016-03-18
-    * if no time parameter is given, the most recent timestamp is used
-    * the forward slashes (/) are a very important part of the parameter and used to recognize which time parameter should be used
-    * an absence of the start and|or end timestamp when using a start-end pattern (e.g.: 2010-01-01//P6M) causes in using the earliest or latest timestamp available for the missing timestamp
-    * more precise time parameters (using hours, minutes, seconds) are supported as well following the pattern  YYYY-MM-DDThh:mm:ss (e.g.: 2017-01-01T12:30:15)
-    * '-MM-DD' or '-DD' as well as ':ss' can be omitted and will be replaced with '01' for month or day and '00' for seconds
-    * optional for all resources
-* showMetadata
-    * can have the values 'true' or 'false'
-    * if empty (or not defined), 'false' is used as default
-    * optional for all resources
-* types2
-    * same format as types
-    * optional in /ratio resource, not used in the others
-* keys2
-    * same format as keys
-    * optional in /ratio and /share resources, not used in the others
-* values2
-    * same format as values
-    * used in /ratio and /share requests
-    * optional in /ratio and /share resources, not used in the others
-* groupByKey
-    * grouping by elements that have this key only
-    * mandatory in /groupBy/tag resource, not used in the others
-* groupByValues
-    * 0...n groupByValues can be used, where n <= groupByKey.length and groupByValues(n) must refer to groupByKey(n)
-    * optional in /groupBy/tag resource, not used in the others
-
-### Implemented URIs
-
-This gives you an overview of resources that are already implemented and can therefore be accessed.
-All of them can be accessed with GET and POST requests, although it is recommended to use POST requests only if the length of the URL would exceed its limit (e.g. when using a lot of bboxes or complex polygons).
-POST request data can only be sent in the format *application/x-www-form-urlencoded*.
-
-* /elements
-    * /count
-        * /groupBy/boundary
-        * /groupBy/type
-        * /groupBy/tag
-        * /groupBy/user
-        * /share
-        * /ratio
-    * /length (for line features)
-        * /groupBy/tag
-        * /groupBy/user
-        * /share
-    * /perimeter (for polygonal features)
-        * /groupBy/type
-        * /groupBy/tag
-        * /groupBy/user
-        * /share
-    * /area
-        * /groupBy/type
-        * /groupBy/tag
-        * /groupBy/user
-        * /share
-    * /density
+To be able to test the REST API with your own requests, you will also need a description of the parameters and available resources. 
+Both are given in the [Swagger2](http://localhost:8080/swagger-ui.html#/) documentation, which can be accessed while your local OHSOME-API copy is running.
+It lists all available resources and gives detailled information about the individual input parameters and JSON responses.
 
 ## Examples
 
-This section gives you some example request URLs and shows the results returned by the REST API.
+This section gives you some example request URLs and shows the returned JSON responses.
 
 * http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes
 <p> 
