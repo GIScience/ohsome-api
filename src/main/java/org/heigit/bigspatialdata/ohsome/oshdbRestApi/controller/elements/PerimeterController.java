@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse;
@@ -333,10 +334,11 @@ public class PerimeterController {
           defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
               required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
+    
+    throw new NotImplementedException("This resource is still under development and not finished yet.");
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+    // ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
   /**
@@ -685,9 +687,10 @@ public class PerimeterController {
           defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+    throw new NotImplementedException("This resource is still under development and not finished yet.");
+    
+    // ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
 }
