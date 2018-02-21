@@ -298,7 +298,7 @@ public class Utils {
         if (time.length() == 10) {
           LocalDate.parse(time);
         } else {
-          LocalDateTime.parse(time);
+          checkIsoConformity(time, "given");
         }
         timeVals[0] = time;
         timeVals[1] = time;

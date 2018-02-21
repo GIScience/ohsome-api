@@ -42,14 +42,11 @@ public class Application implements ApplicationRunner {
         if (args.getOptionValues(paramName).get(0).equals("false"))
           multithreading = false;
       } else {
-        throw new RuntimeException(
-            "There are only three possible option-names: database.db, database.keytables and database.multithreading. "
-                + "The first one is mandatory, the second one becomes mandatory if the keytables are not included in the db file "
-                + "and the third one is optional.");
       }
     }
     try {
       dbConnObjects = new OSHDBH2[2];
+      //new OSHDBIgnite
       oshdb = new OSHDBH2(dbPath);
       oshdb.multithreading(multithreading);
       dbConnObjects[0] = oshdb;
