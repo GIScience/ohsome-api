@@ -82,7 +82,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
     "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
     "groupByBoundaryMetadata": {
-        "executionTime": 8448,
+        "executionTime": 2865,
         "unit": "amount",
         "boundary": {
             "bbox2": [
@@ -153,31 +153,31 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
             "timestamp": "2009-05-01T00:00:00Z",
             "value": 297,
             "value2": 130,
-            "ratio": 0.4377104377104377
+            "ratio": 0.43771
         },
         {
             "timestamp": "2011-05-01T00:00:00Z",
             "value": 5889,
             "value2": 1354,
-            "ratio": 0.22992019018509086
+            "ratio": 0.22992
         },
         {
             "timestamp": "2013-05-01T00:00:00Z",
             "value": 17204,
             "value2": 1422,
-            "ratio": 0.08265519646593815
+            "ratio": 0.082655
         },
         {
             "timestamp": "2015-05-01T00:00:00Z",
             "value": 25265,
             "value2": 1943,
-            "ratio": 0.07690480902434198
+            "ratio": 0.076905
         },
         {
             "timestamp": "2017-05-01T00:00:00Z",
             "value": 27818,
             "value2": 2080,
-            "ratio": 0.0747717305341865
+            "ratio": 0.074772
         }
     ]
 }
