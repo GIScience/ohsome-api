@@ -43,7 +43,7 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.oshdbRestApi"))
         .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
-        .tags(new Tag("area", "Areal resources for polygonal objects"),
+        .tags(new Tag("area", "Area resources for polygonal objects"),
             new Tag("count", "Count resources for point/line/polygonal objects"),
             new Tag("density", "Density resources for point/line/polygonal objects"),
             new Tag("length", "Length resources for line objects"),
@@ -60,7 +60,7 @@ public class SwaggerConfig {
    */
   private ApiInfo apiInfo() {
     return new ApiInfo("OHSOME API",
-        "This RESTful API aims to leverage the tools of the OSHDB Java API through allowing to access some of its functionalities via HTTP requests.",
+        "This REST-API aims to leverage the tools of the OSHDB-API through allowing to access some of its functionalities via HTTP requests.",
         "v_0.1", "Terms of service",
         new Contact("Heidelberg Institute for Geoinformation Technology", "http://www.heigit.org",
             "fabian.kowatsch@uni-heidelberg.de"),
@@ -78,40 +78,40 @@ public class SwaggerConfig {
 
     List<Parameter> gOPs = new ArrayList<Parameter>();
     gOPs.add(new ParameterBuilder().name("bboxes")
-        .description("WGS84 coordinates in the following format: "
-            + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null")
+        .description("WGS84 coordinates in the following formats: "
+            + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
         .build());
-    gOPs.add(new ParameterBuilder().name("bpoints")
-        .description("WGS84 coordinates + radius in meters in the following format: "
-            + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null")
+    gOPs.add(new ParameterBuilder().name("bcircles")
+        .description("WGS84 coordinates + radius in meters in the following formats: "
+            + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
         .build());
     gOPs.add(new ParameterBuilder().name("bpolys")
-        .description("WGS84 coordinates in the following format: "
+        .description("WGS84 coordinates in the following formats: "
             + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-            + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null")
+            + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: whole dataset (if all three boundary parameters are empty)")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
         .build());
     gOPs.add(new ParameterBuilder().name("types")
-        .description("OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null")
-        .modelRef(new ModelRef("array", new ModelRef("string"))).allowMultiple(true).parameterType("query")
-        .defaultValue("").required(false).build());
+        .description("OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types")
+        .modelRef(new ModelRef("array", new ModelRef("string"))).allowMultiple(true)
+        .parameterType("query").defaultValue("").required(false).build());
     gOPs.add(new ParameterBuilder().name("keys")
-        .description("OSM key(s) e.g.: 'highway', 'building'; default: null")
+        .description("OSM key(s) e.g.: 'highway', 'building'; default: no key")
         .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query")
         .defaultValue("").required(false).build());
     gOPs.add(new ParameterBuilder().name("values")
-        .description("OSM value(s) e.g.: 'primary', 'residential'; default: null")
-        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query").defaultValue("").required(false)
-        .build());
-    gOPs.add(new ParameterBuilder().name("userids").description("OSM userids; default: null")
-        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query").defaultValue("").required(false)
-        .build());
+        .description("OSM value(s) e.g.: 'primary', 'residential'; default: no value")
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query")
+        .defaultValue("").required(false).build());
+    gOPs.add(new ParameterBuilder().name("userids").description("OSM userids; default: no userid")
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query")
+        .defaultValue("").required(false).build());
     gOPs.add(new ParameterBuilder().name("time")
         .description("ISO-8601 conform timestring(s); default: today")
-        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query").defaultValue("").required(false)
-        .build());
+        .modelRef(new ModelRef("array", new ModelRef("string"))).parameterType("query")
+        .defaultValue("").required(false).build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
         .description("'Boolean' operator 'true' or 'false'; default: 'false'")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)

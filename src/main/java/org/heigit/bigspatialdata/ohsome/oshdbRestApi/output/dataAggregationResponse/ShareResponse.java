@@ -23,9 +23,7 @@ public class ShareResponse {
   private String copyright;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(
-      notes = "Result for /share requests, " + "holding the " + "timestamp, whole and part values",
-      position = 3)
+  @ApiModelProperty(notes = "Result for /share requests", position = 3, required = true)
   private ShareResult[] shareResult;
 
   public ShareResponse(String license, String copyright, Metadata metadata,

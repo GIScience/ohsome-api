@@ -178,9 +178,9 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) @RequestParam(value = "groupByKeys", defaultValue = "",
-              required = false) String[] groupByKeys)
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) @RequestParam(value = "groupByKeys",
+              defaultValue = "", required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -225,10 +225,10 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: null", defaultValue = "",
+      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "",
           required = false) @RequestParam(value = "groupByKey", defaultValue = "",
               required = false) String[] groupByKey,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) @RequestParam(value = "groupByValues",
               defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
@@ -276,10 +276,10 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) @RequestParam(value = "keys2", defaultValue = "",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
               required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
               required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -304,8 +304,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
-  @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public ShareGroupByBoundaryResponse getAreaShareGroupByBoundary(
@@ -327,17 +326,19 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) @RequestParam(value = "keys2", defaultValue = "",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
               required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
               required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    throw new NotImplementedException("This resource is still under development and not finished yet.");
+    throw new NotImplementedException(
+        "This resource is still under development and not finished yet.");
     // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.AREA, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.AREA, false,
+    // bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
   /**
@@ -356,23 +357,23 @@ public class AreaController {
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postArea(
       @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
@@ -401,23 +402,23 @@ public class AreaController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponse postAreaGroupByType(
       @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
@@ -446,23 +447,23 @@ public class AreaController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByUserResponse postAreaGroupByUser(
       @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
@@ -494,30 +495,30 @@ public class AreaController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByKeyResponse postAreaGroupByKey(
       @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] groupByKeys)
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -547,31 +548,31 @@ public class AreaController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postAreaGroupByTag(
       @ApiParam(value = "WGS84 coordinates in the following format: "
-          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
-      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: null", defaultValue = "",
+      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "",
           required = false) String[] groupByKey,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -602,31 +603,31 @@ public class AreaController {
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareResponse postAreaShare(@ApiParam(value = "WGS84 coordinates in the following format: "
-      + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
+      + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
       defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -637,8 +638,8 @@ public class AreaController {
 
   /**
    * POST request giving the share of selected items satisfying keys2 and values2 within items
-   * selected by types, keys and values, grouped by the boundary. POST requests should only be used if the request URL would
-   * be too long for a GET request.
+   * selected by types, keys and values, grouped by the boundary. POST requests should only be used
+   * if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -651,42 +652,44 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
-  @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
-  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareGroupByBoundaryResponse postAreaShareGroupByBoundary(@ApiParam(value = "WGS84 coordinates in the following format: "
-      + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: null",
-      defaultValue = "", required = false) String bboxes,
-      @ApiParam(
-          value = "WGS84 coordinates + radius in meters in the following format: "
-              + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: null",
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ShareGroupByBoundaryResponse postAreaShareGroupByBoundary(
+      @ApiParam(value = "WGS84 coordinates in the following format: "
+          + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)",
+          defaultValue = "", required = false) String bboxes,
+      @ApiParam(value = "WGS84 coordinates + radius in meters in the following format: "
+          + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bcircles,
       @ApiParam(value = "WGS84 coordinates in the following format: "
           + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: null",
+          + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)",
           defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: null",
+      @ApiParam(
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "", required = false) String[] types,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values,
-      @ApiParam(value = "OSM userids; default: null", defaultValue = "",
+      @ApiParam(value = "OSM userids; default: no userid", defaultValue = "",
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: null", defaultValue = "",
-          required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: null",
+      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "", required = false) String[] keys2,
+      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    throw new NotImplementedException("This resource is still under development and not finished yet.");
+    throw new NotImplementedException(
+        "This resource is still under development and not finished yet.");
     // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.AREA, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.AREA, true,
+    // bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
 }

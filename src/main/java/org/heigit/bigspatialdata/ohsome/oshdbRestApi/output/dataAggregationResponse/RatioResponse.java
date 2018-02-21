@@ -23,7 +23,7 @@ public class RatioResponse {
   private String copyright;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result for /count/ratio requests")
+  @ApiModelProperty(notes = "Result for /ratio requests", required = true)
   private RatioResult[] ratioResult;
 
   public RatioResponse(String license, String copyright, Metadata metadata,
