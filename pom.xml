@@ -9,8 +9,8 @@
 	</parent>
 
 	<groupId>org.heigit.bigspatialdata.ohsome</groupId>
-	<artifactId>oshdb-rest-api</artifactId>
-	<name>springBootWebAPI</name>
+	<artifactId>ohsome-api</artifactId>
+	<name>ohsome-api</name>
 	<description>A public Web-REST-API for the BigData-Cluster</description>
 	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
