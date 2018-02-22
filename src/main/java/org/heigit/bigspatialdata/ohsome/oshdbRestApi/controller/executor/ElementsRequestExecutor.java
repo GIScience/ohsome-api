@@ -1387,6 +1387,8 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
+    if (userids == null)
+      userids = new String[0];
     // converting userids to int for usage in zerofill
     for (String user : userids)
       useridsInt.add(Integer.parseInt(user));
