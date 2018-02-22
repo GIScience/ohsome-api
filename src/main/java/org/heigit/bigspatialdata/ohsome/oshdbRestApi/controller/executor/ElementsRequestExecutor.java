@@ -1014,9 +1014,11 @@ public class ElementsRequestExecutor {
       case AREA:
         unit = "square-meter";
         description = "Total area of polygons.";
+        break;
       case LENGTH:
         unit = "meter";
         description = "Total length of lines.";
+        break;
       default:
         // do nothing.. should never reach this :D
         break;
@@ -1524,9 +1526,11 @@ public class ElementsRequestExecutor {
       case AREA:
         unit = "square-meter";
         description = "Total area of items aggregated on the type.";
+        break;
       case PERIMETER:
         unit = "meter";
         description = "Total perimeter of items aggregated on the type.";
+        break;
       default:
         // do nothing.. should never reach this :D
         break;
