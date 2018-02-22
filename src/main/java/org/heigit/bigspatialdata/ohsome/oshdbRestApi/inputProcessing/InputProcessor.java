@@ -6,7 +6,6 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
@@ -30,7 +29,6 @@ public class InputProcessor {
   private EnumSet<OSMType> osmTypes;
   private String[] timeData;
   private boolean showMetadata;
-  private OSHDBH2[] dbConnObjects;
   private GeometryBuilder geomBuilder;
   private Utils utils;
 
@@ -66,11 +64,12 @@ public class InputProcessor {
     MapReducer<OSMEntitySnapshot> mapRed = null;
 
     // database
-    dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]);
+    if (Application.getKeytables() == null)
+      mapRed = OSMEntitySnapshotView.on(Application.getH2Db());
+    else if (Application.getIgniteDb() == null)
+      mapRed = OSMEntitySnapshotView.on(Application.getH2Db()).keytables(Application.getKeytables());
     else
-      mapRed = OSMEntitySnapshotView.on(dbConnObjects[0]).keytables(dbConnObjects[1]);
+      mapRed = OSMEntitySnapshotView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
 
     // metadata
     if (showMetadata == null)

@@ -37,12 +37,12 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationRespo
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareResult;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
@@ -50,7 +50,6 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -332,11 +331,10 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
@@ -427,11 +425,10 @@ public class ElementsRequestExecutor {
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     int keysInt;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
@@ -589,11 +586,10 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -729,11 +725,10 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -1119,11 +1114,10 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
@@ -1250,11 +1244,10 @@ public class ElementsRequestExecutor {
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     int keysInt;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
@@ -1653,12 +1646,10 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
-    // needed to get access to the keytables
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -1836,11 +1827,10 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
     TagTranslator tt;
-    OSHDBH2[] dbConnObjects = Application.getDbConnObjects();
-    if (dbConnObjects[1] == null)
-      tt = new TagTranslator(dbConnObjects[0].getConnection());
+    if (Application.getH2Db() == null)
+      tt = new TagTranslator(Application.getKeytables().getConnection());
     else
-      tt = new TagTranslator(dbConnObjects[1].getConnection());
+      tt = new TagTranslator(Application.getH2Db().getConnection());
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -2047,7 +2037,8 @@ public class ElementsRequestExecutor {
         part = new Double[entry.getValue().entrySet().size()];
         int partCount = 0;
         for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-          part[partCount] = Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
+          part[partCount] =
+              Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
           partCount++;
         }
       } else {
@@ -2055,7 +2046,8 @@ public class ElementsRequestExecutor {
         whole = new Double[entry.getValue().entrySet().size()];
         int wholeCount = 0;
         for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-          whole[wholeCount] = Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
+          whole[wholeCount] =
+              Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
           if (count == 1)
             timeArray[wholeCount] = innerEntry.getKey().toString();
           wholeCount++;
