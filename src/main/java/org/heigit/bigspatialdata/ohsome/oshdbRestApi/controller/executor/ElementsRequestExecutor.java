@@ -972,7 +972,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
@@ -1098,7 +1098,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * groupByKey} method.
    * 
-   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByKeyResponse
@@ -1224,7 +1224,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountGroupByTag} method.
    * 
-   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
@@ -1368,7 +1368,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponse
@@ -1466,7 +1466,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isArea <code>Boolean</code> defining an area (true) or a length (false) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponse
@@ -1626,7 +1626,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
-   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
@@ -1809,7 +1809,7 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
-   * @param requestType <code>Byte</code> defining a length (1), perimeter (2), or area (3) request.
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
