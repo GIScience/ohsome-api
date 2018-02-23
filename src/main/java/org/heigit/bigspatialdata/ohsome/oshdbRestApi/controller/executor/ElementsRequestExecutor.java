@@ -562,18 +562,11 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException(
-          "You need to define at least one key if you want to use /share.");
-    if (values2 == null)
-      values2 = new String[0];
-    if (keys2.length < values2.length)
-      throw new BadRequestException(
-          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -690,19 +683,12 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException(
-          "You need to define at least one key if you want to use /share.");
-    if (values2 == null)
-      values2 = new String[0];
-    if (keys2.length < values2.length)
-      throw new BadRequestException(
-          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result = null;
     SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -1585,18 +1571,11 @@ public class ElementsRequestExecutor {
       String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException(
-          "You need to define at least one key if you want to use /share.");
-    if (values2 == null)
-      values2 = new String[0];
-    if (keys2.length < values2.length)
-      throw new BadRequestException(
-          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1754,19 +1733,12 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException(
-          "You need to define at least one key if you want to use /share.");
-    if (values2 == null)
-      values2 = new String[0];
-    if (keys2.length < values2.length)
-      throw new BadRequestException(
-          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result = null;
     SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
