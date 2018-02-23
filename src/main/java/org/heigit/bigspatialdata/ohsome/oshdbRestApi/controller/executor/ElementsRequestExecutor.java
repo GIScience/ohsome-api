@@ -61,7 +61,7 @@ public class ElementsRequestExecutor {
       "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
   /**
-   * Gets the input parameters of the request and performs a count calculation.
+   * Performs a count calculation.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -115,7 +115,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by the type.
+   * Performs a count calculation grouped by the type.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -172,7 +172,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by the boundary.
+   * Performs a count calculation grouped by the boundary.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -308,7 +308,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by the key.
+   * Performs a count calculation grouped by the key.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
@@ -398,7 +398,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by the tag.
+   * Performs a count calculation grouped by the tag.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -497,7 +497,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count grouped by the user.
+   * Performs a count calculation grouped by the user.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -558,7 +558,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count-share calculation.
+   * Performs a count-share calculation.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -695,8 +695,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a count-share calculation grouped by the
-   * boundary.
+   * Performs a count-share calculation grouped by the boundary.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -961,7 +960,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a length or area calculation.
+   * Performs a length or area calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1034,7 +1033,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a perimeter calculation.
+   * Performs a perimeter calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1088,8 +1087,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and computes the length, perimeter, or area results
-   * grouped by the key.
+   * Performs a length, perimeter, or area calculation grouped by the key.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
@@ -1213,8 +1211,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and computes the length, perimeter, or area results
-   * grouped by the tag.
+   * Performs a length, perimeter, or area calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -1356,8 +1353,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and computes the length, perimeter, or area results
-   * grouped by the user.
+   * Performs a length, perimeter, or area calculation grouped by the user.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1456,8 +1452,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and computes the area, or the perimeter grouped by the
-   * OSM type.
+   * Performs a perimeter, or area calculation grouped by the OSM type.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1547,7 +1542,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a density calculation.
+   * Performs a count-density calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1558,9 +1553,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executeDensity(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponse executeCountDensity(boolean isPost, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> countResult;
@@ -1618,8 +1614,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a length|perimeter|area-share
-   * calculation.
+   * Performs a length|perimeter|area-share calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -1799,8 +1794,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a length|perimeter|area share calculation
-   * grouped by the boundary.
+   * Performs a length|perimeter|area-share calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -2118,7 +2112,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Gets the input parameters of the request and performs a ratio calculation.
+   * Performs a count-ratio calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])

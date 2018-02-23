@@ -509,8 +509,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(false, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    return executor.executeCountDensity(false, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata);
   }
 
   /**
@@ -943,11 +943,10 @@ public class CountController {
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "", required = false,
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "", required = false,
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -1090,8 +1089,8 @@ public class CountController {
       String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeDensity(true, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    return executor.executeCountDensity(true, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata);
   }
 
 }
