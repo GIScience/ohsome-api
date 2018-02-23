@@ -226,6 +226,9 @@ public class CountController {
    *         GroupByKeyResponseContent}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
+      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+      paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getCountGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -246,9 +249,8 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "groupByKeys",
-              defaultValue = "", required = false) String[] groupByKeys)
+      @RequestParam(value = "groupByKeys", defaultValue = "",
+          required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -273,6 +275,13 @@ public class CountController {
    *         GroupByTagResponseContent}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the tag")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+          paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponse getCountGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -293,12 +302,9 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "",
-          required = false) @RequestParam(value = "groupByKey", defaultValue = "",
-              required = false) String[] groupByKey,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "groupByValues",
-              defaultValue = "", required = false) String[] groupByValues)
+      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "",
+          required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -323,6 +329,13 @@ public class CountController {
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "keys2",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "maxspeed",
+          paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "values2",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponse getCountShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -343,12 +356,8 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
-              required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
-              required = false) String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -372,6 +381,13 @@ public class CountController {
    *         ShareGroupByBoundaryResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "keys2",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "maxspeed",
+          paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "values2",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public ShareGroupByBoundaryResponse getCountShareGroupByBoundary(
@@ -393,12 +409,8 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
-              required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
-              required = false) String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -422,6 +434,17 @@ public class CountController {
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "types2",
+          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
+          defaultValue = "node", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key",
+          defaultValue = "addr:housenumber", paramType = "query", dataType = "string",
+          required = false),
+      @ApiImplicitParam(name = "values2",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "ratio", method = RequestMethod.GET, produces = "application/json")
   public RatioResponse getCountRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -442,16 +465,9 @@ public class CountController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(
-          value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
-          defaultValue = "", required = false) @RequestParam(value = "types2", defaultValue = "",
-              required = false) String[] types2,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
-              required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
-              required = false) String[] values2)
+      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -574,10 +590,10 @@ public class CountController {
               + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
               + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false,
+          defaultValue = "way, relation", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = "residential", required = false,
@@ -737,11 +753,10 @@ public class CountController {
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false,
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -929,10 +944,10 @@ public class CountController {
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false,
+          defaultValue = "", required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -1007,7 +1022,7 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "types2", paramType = "form", dataType = "string",
-          defaultValue = "way", required = true,
+          defaultValue = "node", required = true,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
           defaultValue = "addr:housenumber", required = true,

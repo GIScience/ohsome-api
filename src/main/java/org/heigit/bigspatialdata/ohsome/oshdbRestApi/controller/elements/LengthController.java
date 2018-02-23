@@ -120,6 +120,9 @@ public class LengthController {
    *         GroupByKeyResponseContent}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
+      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+      paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getLengthGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -140,9 +143,8 @@ public class LengthController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "groupByKeys",
-              defaultValue = "", required = false) String[] groupByKeys)
+      @RequestParam(value = "groupByKeys", defaultValue = "",
+          required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -167,6 +169,13 @@ public class LengthController {
    *         GroupByTagResponseContent}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+          paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponse getLengthGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -187,12 +196,9 @@ public class LengthController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "",
-          required = false) @RequestParam(value = "groupByKey", defaultValue = "",
-              required = false) String[] groupByKey,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "groupByValues",
-              defaultValue = "", required = false) String[] groupByValues)
+      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
+      @RequestParam(value = "groupByValues", defaultValue = "",
+          required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -218,6 +224,13 @@ public class LengthController {
    */
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "keys2",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "maxspeed",
+          paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "values2",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponse getLengthShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -238,12 +251,8 @@ public class LengthController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
-              required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
-              required = false) String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
@@ -267,6 +276,13 @@ public class LengthController {
    *         ShareGroupByBoundaryResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "keys2",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "maxspeed",
+          paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "values2",
+          value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public ShareGroupByBoundaryResponse getLengthShareGroupByBoundary(
@@ -288,12 +304,8 @@ public class LengthController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
-          defaultValue = "", required = false) @RequestParam(value = "keys2", defaultValue = "",
-              required = false) String[] keys2,
-      @ApiParam(value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
-          defaultValue = "", required = false) @RequestParam(value = "values2", defaultValue = "",
-              required = false) String[] values2)
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     throw new NotImplementedException(
@@ -439,11 +451,10 @@ public class LengthController {
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false,
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
