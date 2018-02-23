@@ -1599,7 +1599,7 @@ public class ElementsRequestExecutor {
     Result[] resultSet = new Result[countResult.size()];
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
-    DecimalFormat densityDf = new DecimalFormat("#.##########", otherSymbols);
+    DecimalFormat densityDf = new DecimalFormat("#.######", otherSymbols);
     for (int i = 0; i < resultSet.length; i++) {
       String date = countResultSet[i].getTimestamp();
       double value = Double.parseDouble(
