@@ -1,13 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor;
 
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -981,6 +979,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestamp, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = null;
     String description = null;
     String requestURL = null;
@@ -1000,9 +999,7 @@ public class ElementsRequestExecutor {
           }
         });
     Result[] resultSet = new Result[result.size()];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
@@ -1052,6 +1049,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestamp, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -1066,9 +1064,7 @@ public class ElementsRequestExecutor {
             return 0.0;
         });
     Result[] resultSet = new Result[result.size()];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
@@ -1108,6 +1104,7 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1162,9 +1159,7 @@ public class ElementsRequestExecutor {
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by keys
@@ -1232,6 +1227,7 @@ public class ElementsRequestExecutor {
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1298,9 +1294,7 @@ public class ElementsRequestExecutor {
     // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     int count = 0;
     ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
@@ -1375,6 +1369,7 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1409,9 +1404,7 @@ public class ElementsRequestExecutor {
         });
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1474,6 +1467,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = null;
     String description = null;
     String requestURL = null;
@@ -1500,9 +1494,7 @@ public class ElementsRequestExecutor {
         });
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1562,6 +1554,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestamp, Integer> countResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -1593,9 +1586,7 @@ public class ElementsRequestExecutor {
         break;
     }
     Result[] resultSet = new Result[countResult.size()];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat densityDf = new DecimalFormat("#.######", otherSymbols);
+    DecimalFormat densityDf = exeUtils.decimalFormat("#.######");
     for (int i = 0; i < resultSet.length; i++) {
       String date = countResultSet[i].getTimestamp();
       double value = Double.parseDouble(
@@ -1635,6 +1626,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String unit = "";
     String description = "";
     String requestURL = null;
@@ -1707,9 +1699,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     Double[] whole = new Double[result.size()];
     Double[] part = new Double[result.size()];
     String[] timeArray = new String[result.size()];
@@ -1817,6 +1807,7 @@ public class ElementsRequestExecutor {
     SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
@@ -2017,9 +2008,7 @@ public class ElementsRequestExecutor {
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.####", otherSymbols);
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
     String groupByName = "";
     String[] boundaryIds = utils.getBoundaryIds();
     Double[] whole = null;
@@ -2134,6 +2123,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed1;
     MapReducer<OSMEntitySnapshot> mapRed2;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -2151,16 +2141,14 @@ public class ElementsRequestExecutor {
       count++;
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    DecimalFormat lengthPerimeterAreaDf = new DecimalFormat("#.######", otherSymbols);
+    DecimalFormat ratioDF = exeUtils.decimalFormat("#.######");
     count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
       String date = resultSet1[count].getTimestamp();
       double ratio = (entry.getValue().doubleValue() / resultSet1[count].getValue());
       // in case ratio has the value "NaN", "Infinity", etc.
       try {
-        ratio = Double.parseDouble(lengthPerimeterAreaDf.format(ratio));
+        ratio = Double.parseDouble(ratioDF.format(ratio));
       } catch (Exception e) {
         // do nothing --> just return ratio without rounding (trimming)
       }
