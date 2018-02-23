@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder;
@@ -321,23 +320,20 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
-    Integer[] keysInt = new Integer[groupByKeys.length];
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/key");
     }
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String requestURL = null;
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    TagTranslator tt = exeUtils.createTagTranslator();
+    Integer[] keysInt = new Integer[groupByKeys.length];
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -411,28 +407,24 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
-    SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
     if (groupByKey.length != 1)
       throw new BadRequestException("There has to be one groupByKey value given.");
     if (groupByValues == null)
       groupByValues = new String[0];
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
-    int keysInt;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
+    SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String requestURL = null;
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    keysInt = tt.oshdbTagKeyOf(groupByKey[0]).toInt();
+    int keysInt = tt.oshdbTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
         valuesInt[j] = tt.oshdbTagOf(groupByKey[0], groupByValues[j]).getValue();
@@ -518,11 +510,10 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    if (userids == null)
-      userids = new String[0];
-    // converting userids to int for usage in zerofill
-    for (String user : userids)
-      useridsInt.add(Integer.parseInt(user));
+    if (userids != null)
+      for (String user : userids)
+        // converting userids to int for usage in zerofill
+        useridsInt.add(Integer.parseInt(user));
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
@@ -571,10 +562,6 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
           "You need to define at least one key if you want to use /share.");
@@ -583,25 +570,20 @@ public class ElementsRequestExecutor {
     if (keys2.length < values2.length)
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
+    SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String requestURL = null;
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
-      if (keysInt2[i] < 0)
-        throw new BadRequestException(
-            "All provided keys2 parameters have to be in the OSM database.");
       if (values2 != null && i < values2.length) {
         valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
-        if (valuesInt2[i] < 0)
-          throw new BadRequestException(
-              "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
       }
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
@@ -708,11 +690,6 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result = null;
-    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
           "You need to define at least one key if you want to use /share.");
@@ -721,30 +698,24 @@ public class ElementsRequestExecutor {
     if (keys2.length < values2.length)
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result = null;
+    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String requestURL = null;
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
-      if (keysInt2[i] < 0)
-        throw new BadRequestException(
-            "All provided keys2 parameters have to be in the OSM database.");
-      if (values2 != null && i < values2.length) {
+      if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
-        if (valuesInt2[i] < 0)
-          throw new BadRequestException(
-              "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
-      }
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Utils utils = iP.getUtils();
     switch (iP.getBoundaryType()) {
@@ -999,7 +970,7 @@ public class ElementsRequestExecutor {
           }
         });
     Result[] resultSet = new Result[result.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
@@ -1064,7 +1035,7 @@ public class ElementsRequestExecutor {
             return 0.0;
         });
     Result[] resultSet = new Result[result.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
@@ -1099,7 +1070,11 @@ public class ElementsRequestExecutor {
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
+
     long startTime = System.currentTimeMillis();
+    if (groupByKeys == null || groupByKeys.length == 0)
+      throw new BadRequestException(
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
@@ -1110,16 +1085,8 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
-    if (groupByKeys == null || groupByKeys.length == 0) {
-      throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
-    }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -1159,7 +1126,7 @@ public class ElementsRequestExecutor {
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by keys
@@ -1222,7 +1189,11 @@ public class ElementsRequestExecutor {
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
+
     long startTime = System.currentTimeMillis();
+    if (groupByKey == null || groupByKey.length == 0)
+      throw new BadRequestException(
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
@@ -1233,22 +1204,14 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    if (groupByKey == null || groupByKey.length == 0)
-      throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     if (groupByValues == null)
       groupByValues = new String[0];
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
-    int keysInt;
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    keysInt = tt.oshdbTagKeyOf(groupByKey[0]).toInt();
+    int keysInt = tt.oshdbTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
         valuesInt[j] = tt.oshdbTagOf(groupByKey[0], groupByValues[j]).getValue();
@@ -1294,7 +1257,7 @@ public class ElementsRequestExecutor {
     // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     int count = 0;
     ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
@@ -1378,11 +1341,10 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    if (userids == null)
-      userids = new String[0];
-    // converting userids to int for usage in zerofill
-    for (String user : userids)
-      useridsInt.add(Integer.parseInt(user));
+    if (userids != null)
+      for (String user : userids)
+        // converting userids to int for usage in zerofill
+        useridsInt.add(Integer.parseInt(user));
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
@@ -1404,7 +1366,7 @@ public class ElementsRequestExecutor {
         });
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1494,7 +1456,7 @@ public class ElementsRequestExecutor {
         });
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1586,7 +1548,7 @@ public class ElementsRequestExecutor {
         break;
     }
     Result[] resultSet = new Result[countResult.size()];
-    DecimalFormat densityDf = exeUtils.decimalFormat("#.######");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
     for (int i = 0; i < resultSet.length; i++) {
       String date = countResultSet[i].getTimestamp();
       double value = Double.parseDouble(
@@ -1623,13 +1585,6 @@ public class ElementsRequestExecutor {
       String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = "";
-    String description = "";
-    String requestURL = null;
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
           "You need to define at least one key if you want to use /share.");
@@ -1638,26 +1593,22 @@ public class ElementsRequestExecutor {
     if (keys2.length < values2.length)
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
+    SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String unit = "";
+    String description = "";
+    String requestURL = null;
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
-      if (keysInt2[i] < 0)
-        throw new BadRequestException(
-            "All provided keys2 parameters have to be in the OSM database.");
-      if (values2 != null && i < values2.length) {
+      if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
-        if (valuesInt2[i] < 0)
-          throw new BadRequestException(
-              "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
-      }
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -1699,7 +1650,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     Double[] whole = new Double[result.size()];
     Double[] part = new Double[result.size()];
     String[] timeArray = new String[result.size()];
@@ -1803,12 +1754,6 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result = null;
-    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String requestURL = null;
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
           "You need to define at least one key if you want to use /share.");
@@ -1817,26 +1762,21 @@ public class ElementsRequestExecutor {
     if (keys2.length < values2.length)
       throw new BadRequestException(
           "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result = null;
+    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String requestURL = null;
+    TagTranslator tt = exeUtils.createTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
-      if (keysInt2[i] < 0)
-        throw new BadRequestException(
-            "All provided keys2 parameters have to be in the OSM database.");
-      if (values2 != null && i < values2.length) {
+      if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
-        if (valuesInt2[i] < 0)
-          throw new BadRequestException(
-              "All provided values2 parameters have to fit to keys2 and be in the OSM database.");
-      }
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -2008,7 +1948,7 @@ public class ElementsRequestExecutor {
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.decimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
     String groupByName = "";
     String[] boundaryIds = utils.getBoundaryIds();
     Double[] whole = null;
@@ -2141,7 +2081,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];
-    DecimalFormat ratioDF = exeUtils.decimalFormat("#.######");
+    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
     count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
       String date = resultSet1[count].getTimestamp();
