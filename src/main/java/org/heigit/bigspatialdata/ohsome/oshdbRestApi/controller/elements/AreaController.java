@@ -40,7 +40,7 @@ public class AreaController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Area of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
@@ -116,8 +116,8 @@ public class AreaController {
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponse
+   *         GroupByUserResponse}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the user")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
@@ -206,8 +206,8 @@ public class AreaController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
+   *         GroupByTagResponse}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the tag")
   @ApiImplicitParams({
@@ -260,8 +260,8 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -364,7 +364,7 @@ public class AreaController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
@@ -459,7 +459,7 @@ public class AreaController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Area of OSM elements")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
@@ -743,8 +743,8 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -860,7 +860,7 @@ public class AreaController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",

@@ -39,7 +39,7 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Length of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
@@ -220,8 +220,8 @@ public class LengthController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -326,7 +326,7 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
@@ -367,8 +367,8 @@ public class LengthController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResponse
+   *         RatioResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -421,7 +421,7 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Length of OSM elements")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
@@ -653,8 +653,8 @@ public class LengthController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -772,7 +772,7 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",

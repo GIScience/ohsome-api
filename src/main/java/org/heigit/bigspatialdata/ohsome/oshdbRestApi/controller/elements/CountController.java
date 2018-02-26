@@ -59,7 +59,7 @@ public class CountController {
    *        extractIsoTime(String time)}.
    * @param showMetadata <code>String</code> containing the values "true" or "false".
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    * @throws UnsupportedOperationException thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimestamp()}
@@ -324,8 +324,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -426,7 +426,7 @@ public class CountController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
@@ -522,7 +522,7 @@ public class CountController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Count of OSM elements")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
@@ -859,8 +859,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -924,8 +924,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
+   *         ShareGroupByBoundaryResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
@@ -1050,7 +1050,7 @@ public class CountController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",

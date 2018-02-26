@@ -40,7 +40,7 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Perimeter of OSM elements")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
@@ -260,8 +260,8 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -366,7 +366,7 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
@@ -462,7 +462,7 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Perimeter of OSM elements")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
@@ -734,9 +734,9 @@ public class PerimeterController {
   }
 
   /**
-   * POST request giving the perimeter of items satisfying keys, values (+ other params) and part of
-   * items satisfying keys2, values2.(+ other params). POST requests should only be used if the
-   * request URL would be too long for a GET request.
+   * POST request giving the share of perimeter of items satisfying keys, values (+ other params)
+   * and part of items satisfying keys2, values2.(+ other params). POST requests should only be used
+   * if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -746,8 +746,8 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -865,7 +865,7 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
