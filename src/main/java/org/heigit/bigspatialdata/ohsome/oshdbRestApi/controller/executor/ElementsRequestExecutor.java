@@ -391,19 +391,22 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count calculation grouped by the tag.
+   * Performs a count or density calculation grouped by the tag.
    * <p>
-   * The parameters are described in the
+   * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
+   * 
+   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
+   *        resource (true) or not (false).
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
-  public GroupByTagResponse executeCountGroupByTag(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+  public GroupByTagResponse executeCountGroupByTag(boolean isPost, boolean isDensity, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKey.length != 1)
@@ -455,6 +458,9 @@ public class ElementsRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     // iterate over the entry objects aggregated by tags
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
@@ -467,9 +473,15 @@ public class ElementsRequestExecutor {
         groupByName = "remainder";
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().doubleValue());
+        if (isDensity)
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                  Double.parseDouble(densityDf
+                      .format((innerEntry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
+        else
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                  innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -478,8 +490,12 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
-          requestURL);
+      if (isDensity)
+        metadata = new Metadata(duration, "items per square-kilometer",
+            "Density of selected items (number of items per square-kilometer).", requestURL);
+      else
+        metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
+            requestURL);
     }
     GroupByTagResponse response = new GroupByTagResponse(license, copyright, metadata, resultSet);
     return response;
@@ -956,7 +972,7 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "items per square-kilometer",
-          "Density of selected items (number of items per area).", requestURL);
+          "Density of selected items (number of items per square-kilometer).", requestURL);
     }
     DefaultAggregationResponse response =
         new DefaultAggregationResponse(license, copyright, metadata, resultSet);

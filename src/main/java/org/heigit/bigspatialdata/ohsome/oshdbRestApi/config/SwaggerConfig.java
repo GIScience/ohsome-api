@@ -95,19 +95,19 @@ public class SwaggerConfig {
         .build());
     gOPs.add(new ParameterBuilder().name("types")
         .description("OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types")
-        .modelRef(new ModelRef("string")).allowMultiple(true)
-        .parameterType("query").defaultValue("way").required(false).build());
+        .modelRef(new ModelRef("string")).allowMultiple(true).parameterType("query")
+        .defaultValue("way").required(false).build());
     gOPs.add(new ParameterBuilder().name("keys")
         .description("OSM key(s) e.g.: 'highway', 'building'; default: no key")
-        .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue("").required(false).build());
+        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
+        .build());
     gOPs.add(new ParameterBuilder().name("values")
         .description("OSM value(s) e.g.: 'primary', 'residential'; default: no value")
-        .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue("").required(false).build());
+        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
+        .build());
     gOPs.add(new ParameterBuilder().name("userids").description("OSM userids; default: no userid")
-        .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue("").required(false).build());
+        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
+        .build());
     gOPs.add(new ParameterBuilder().name("time")
         .description("ISO-8601 conform timestring(s); default: today")
         .modelRef(new ModelRef("string")).parameterType("query")
@@ -119,5 +119,4 @@ public class SwaggerConfig {
 
     return gOPs;
   }
-
 }
