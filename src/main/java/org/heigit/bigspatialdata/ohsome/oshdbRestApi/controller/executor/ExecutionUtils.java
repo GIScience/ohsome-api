@@ -5,8 +5,12 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.BoundaryType;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
+import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class ExecutionUtils {
 
@@ -62,4 +66,33 @@ public class ExecutionUtils {
     return values2;
   }
 
+  /**
+   * Gets the geometry from the currently in-use boundary object(s).
+   * 
+   * @param boundary <code>BoundaryType</code> object (NOBOUNDARY, BBOXES, BCIRCLES, BPOLYS).
+   * @param geomBuilder <code>GeometryBuilder</code> object.
+   * @return <code>Geometry</code> object of the used boundary parameter.
+   */
+  public Geometry getGeometry(BoundaryType boundary, GeometryBuilder geomBuilder) {
+
+    Geometry geom;
+    switch (boundary) {
+      case NOBOUNDARY:
+        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
+        break;
+      case BBOXES:
+        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
+        break;
+      case BCIRCLES:
+        geom = geomBuilder.getbcircleGeom();
+        break;
+      case BPOLYS:
+        geom = geomBuilder.getBpoly();
+        break;
+      default:
+        geom = null;
+    }
+
+    return geom;
+  }
 }

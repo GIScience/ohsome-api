@@ -44,7 +44,6 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
@@ -943,28 +942,14 @@ public class ElementsRequestExecutor {
         time, showMetadata);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     result = mapRed.aggregateByTimestamp().count();
-    Geometry geom = null;
-    switch (iP.getBoundaryType()) {
-      case NOBOUNDARY:
-        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
-        break;
-      case BBOXES:
-        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
-        break;
-      case BCIRCLES:
-        geom = geomBuilder.getbcircleGeom();
-        break;
-      case BPOLYS:
-        geom = geomBuilder.getBpoly();
-        break;
-    }
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     Result[] resultSet = new Result[result.size()];
     DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] =
-          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-              Double.parseDouble(densityDf.format((entry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
+      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+          Double.parseDouble(
+              densityDf.format((entry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
       count++;
     }
     Metadata metadata = null;
@@ -2045,10 +2030,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executeLengthPerimeterAreaDensity(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public DefaultAggregationResponse executeLengthPerimeterAreaDensity(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result = null;
@@ -2091,29 +2076,15 @@ public class ElementsRequestExecutor {
         description = "Density of selected items (perimeter of items per square-kilometers).";
         break;
     }
-    Geometry geom = null;
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    switch (iP.getBoundaryType()) {
-      case NOBOUNDARY:
-        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
-        break;
-      case BBOXES:
-        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
-        break;
-      case BCIRCLES:
-        geom = geomBuilder.getbcircleGeom();
-        break;
-      case BPOLYS:
-        geom = geomBuilder.getBpoly();
-        break;
-    }
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     Result[] resultSet = new Result[result.size()];
     DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      resultSet[count] =
-          new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-              Double.parseDouble(densityDf.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+          Double.parseDouble(
+              densityDf.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
       count++;
     }
     Metadata metadata = null;
