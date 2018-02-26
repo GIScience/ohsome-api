@@ -162,7 +162,7 @@ public class PerimeterController {
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
-      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "building",
       paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getPerimeterGroupByKey(

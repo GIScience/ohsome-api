@@ -227,7 +227,7 @@ public class CountController {
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
-      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "building",
       paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getCountGroupByKey(
@@ -277,7 +277,7 @@ public class CountController {
   @ApiOperation(value = "Count of OSM elements grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey",
-          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "building",
           paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues",
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
@@ -476,7 +476,7 @@ public class CountController {
   @ApiOperation(value = "Density of OSM elements grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey",
-          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "building",
           paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues",
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
@@ -597,7 +597,7 @@ public class CountController {
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = "residential", required = false,
@@ -701,7 +701,7 @@ public class CountController {
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = "residential", required = false,
@@ -755,7 +755,7 @@ public class CountController {
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = "residential", required = false,
@@ -823,7 +823,7 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "groupByKeys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = true,
+          defaultValue = "building", required = true,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key")})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -871,7 +871,7 @@ public class CountController {
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false,
@@ -885,7 +885,7 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "maxspeed", required = true,
+          defaultValue = "height", required = true,
           value = "OSM key e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
           defaultValue = "", required = false,
@@ -936,7 +936,7 @@ public class CountController {
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = "residential", required = false,
@@ -950,10 +950,10 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = true,
+          defaultValue = "building", required = true,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "", required = false,
+          defaultValue = "residential", required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value")})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -1013,7 +1013,7 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = true,
+          defaultValue = "building", required = true,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = "", required = false,
@@ -1116,9 +1116,8 @@ public class CountController {
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
           defaultValue = "way", required = false,
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types"),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false,
-          value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
@@ -1131,7 +1130,7 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "maxspeed", required = true,
+          defaultValue = "building", required = true,
           value = "OSM key e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
           defaultValue = "", required = false,

@@ -162,7 +162,7 @@ public class AreaController {
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
-      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+      value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "building",
       paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getAreaGroupByKey(
@@ -415,7 +415,7 @@ public class AreaController {
       value = "Density of selected items (area of items per square-kilometers) grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey",
-          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "highway",
+          value = "OSM key e.g.: 'highway', 'building'; default: no key", defaultValue = "building",
           paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues",
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
