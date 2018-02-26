@@ -419,6 +419,44 @@ public class CountController {
   }
 
   /**
+   * GET request giving the density of selected items (number of items per square-kilometers).
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
+   *         ElementsResponseContent}
+   */
+  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)")
+  @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
+  public DefaultAggregationResponse getCountDensity(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata)
+      throws UnsupportedOperationException, Exception {
+
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.executeCountDensity(false, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata);
+  }
+
+  /**
    * GET request giving the ratio of selected items satisfying types2, keys2 and values2 within
    * items selected by types, keys and values.
    * <p>
@@ -429,8 +467,8 @@ public class CountController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResponse
+   *         RatioResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -473,44 +511,6 @@ public class CountController {
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeCountRatio(false, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata, types2, keys2, values2);
-  }
-
-  /**
-   * GET request giving the density of selected items (number of items per area).
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
-   */
-  @ApiOperation(value = "Density of OSM elements (number of elements per area)")
-  @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponse getCountDensity(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
-      throws UnsupportedOperationException, Exception {
-
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountDensity(false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
   }
 
   /**
@@ -986,8 +986,8 @@ public class CountController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResponse
+   *         RatioResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -1052,7 +1052,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  @ApiOperation(value = "Density of OSM elements (number of elements per area)")
+  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
       defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false,
       value = "WGS84 coordinates in the following format: "

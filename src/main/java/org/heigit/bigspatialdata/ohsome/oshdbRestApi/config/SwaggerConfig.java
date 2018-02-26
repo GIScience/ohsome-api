@@ -111,7 +111,7 @@ public class SwaggerConfig {
     gOPs.add(new ParameterBuilder().name("time")
         .description("ISO-8601 conform timestring(s); default: today")
         .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue("2015-01-01/2017-01-01/P1Y").required(false).build());
+        .defaultValue("2008-01-01/2017-01-01/P1Y").required(false).build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
         .description("'Boolean' operator 'true' or 'false'; default: 'false'")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("true")
