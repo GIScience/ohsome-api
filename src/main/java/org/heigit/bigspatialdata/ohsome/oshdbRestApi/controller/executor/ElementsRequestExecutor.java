@@ -1264,9 +1264,10 @@ public class ElementsRequestExecutor {
    *         GroupByTagResponseContent}
    */
   public GroupByTagResponse executeLengthPerimeterAreaGroupByTag(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
+      boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKey, String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length == 0)
@@ -1335,9 +1336,11 @@ public class ElementsRequestExecutor {
     // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
-    ArrayList<String> resultTimestamps = new ArrayList<String>();
     // iterate over the entry objects aggregated by tags
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
         .entrySet()) {
@@ -1351,12 +1354,15 @@ public class ElementsRequestExecutor {
       }
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        if (count == 0)
-          // write the timestamps into an ArrayList for later usage
-          resultTimestamps.add(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()));
-        results[innerCount] = new Result(
-            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
+        if (isDensity)
+          results[innerCount] = new Result(
+              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+              Double.parseDouble(densityDf
+                  .format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+        else
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
+                  .parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
@@ -1366,16 +1372,31 @@ public class ElementsRequestExecutor {
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     switch (requestResource) {
       case LENGTH:
-        unit = "meter";
-        description = "Total length of items aggregated on the tag.";
+        if (isDensity) {
+          unit = "meters per square-kilometer";
+          description = "Density of selected items (length of items per square-kilometers).";
+        } else {
+          unit = "meter";
+          description = "Total length of items aggregated on the tag.";
+        }
         break;
       case PERIMETER:
-        unit = "meter";
-        description = "Total perimeter of polygonal items aggregated on the tag.";
+        if (isDensity) {
+          unit = "meters per square-kilometer";
+          description = "Density of selected items (perimeter of items per square-kilometers).";
+        } else {
+          unit = "meter";
+          description = "Total perimeter of polygonal items aggregated on the tag.";
+        }
         break;
       case AREA:
-        unit = "square-meter";
-        description = "Total area of items aggregated on the tag.";
+        if (isDensity) {
+          unit = "square-meters per square-kilometer";
+          description = "Density of selected items (area of items per square-kilometers).";
+        } else {
+          unit = "square-meter";
+          description = "Total area of items aggregated on the tag.";
+        }
         break;
     }
     Metadata metadata = null;
