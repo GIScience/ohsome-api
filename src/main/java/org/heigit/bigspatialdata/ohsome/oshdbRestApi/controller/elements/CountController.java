@@ -445,7 +445,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2",
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "ratio", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
   public RatioResponse getCountRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,

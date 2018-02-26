@@ -927,7 +927,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executeLengthArea(RequestResource requestResource,
+  public DefaultAggregationResponse executeLengthPerimeterArea(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -951,12 +951,17 @@ public class ElementsRequestExecutor {
               return Geo.areaOf(snapshot.getGeometry());
             case LENGTH:
               return Geo.lengthOf(snapshot.getGeometry());
+            case PERIMETER:
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
             default:
               return null;
           }
         });
     Result[] resultSet = new Result[result.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     int count = 0;
     for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
@@ -972,6 +977,10 @@ public class ElementsRequestExecutor {
         unit = "meter";
         description = "Total length of lines.";
         break;
+      case PERIMETER:
+        unit = "meter";
+        description = "Total perimeter of polygonal items.";
+        break;
       default:
         // do nothing.. should never reach this :D
         break;
@@ -980,59 +989,6 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, unit, description, requestURL);
-    }
-    DefaultAggregationResponse response =
-        new DefaultAggregationResponse(license, copyright, metadata, resultSet);
-    return response;
-  }
-
-  /**
-   * Performs a perimeter calculation.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
-   */
-  public DefaultAggregationResponse executePerimeter(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Number> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String requestURL = null;
-    if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
-    result = mapRed.aggregateByTimestamp()
-        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          // checks if the geometry is polygonal (needed for OSM relations, which are not polygonal)
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        });
-    Result[] resultSet = new Result[result.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
-    int count = 0;
-    for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
-      count++;
-    }
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata =
-          new Metadata(duration, "meters", "Total perimeter of polygonal items.", requestURL);
     }
     DefaultAggregationResponse response =
         new DefaultAggregationResponse(license, copyright, metadata, resultSet);
@@ -2079,4 +2035,134 @@ public class ElementsRequestExecutor {
     RatioResponse response = new RatioResponse(license, copyright, metadata, resultSet);
     return response;
   }
+
+  /**
+   * Performs a length|perimeter|area-ratio calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
+   * 
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
+   *         ElementsResponseContent}
+   */
+  public RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata, String[] types2,
+      String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestamp, Number> result1 = null;
+    SortedMap<OSHDBTimestamp, Number> result2 = null;
+    MapReducer<OSMEntitySnapshot> mapRed1;
+    MapReducer<OSMEntitySnapshot> mapRed2;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String unit = "";
+    String description = "";
+    String requestURL = null;
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    mapRed1 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
+        time, showMetadata);
+    mapRed2 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types2, keys2, values2,
+        userids, time, showMetadata);
+    switch (requestResource) {
+      case AREA:
+        result1 = mapRed1.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.areaOf(snapshot.getGeometry());
+            });
+        result2 = mapRed2.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.areaOf(snapshot.getGeometry());
+            });
+        break;
+      case LENGTH:
+        result1 = mapRed1.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.lengthOf(snapshot.getGeometry());
+            });
+        result2 = mapRed2.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.lengthOf(snapshot.getGeometry());
+            });
+        break;
+      case PERIMETER:
+        result1 = mapRed1.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            });
+        result2 = mapRed2.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            });
+        break;
+    }
+    Result[] resultSet1 = new Result[result1.size()];
+    int count = 0;
+    for (Entry<OSHDBTimestamp, Number> entry : result1.entrySet()) {
+      resultSet1[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+          entry.getValue().doubleValue());
+      count++;
+    }
+    RatioResult[] resultSet = new RatioResult[result1.size()];
+    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
+    count = 0;
+    for (Entry<OSHDBTimestamp, Number> entry : result2.entrySet()) {
+      String date = resultSet1[count].getTimestamp();
+      double ratio = (entry.getValue().doubleValue() / resultSet1[count].getValue());
+      // in case ratio has the value "NaN", "Infinity", etc.
+      try {
+        ratio = Double.parseDouble(ratioDF.format(ratio));
+      } catch (Exception e) {
+        // do nothing --> just return ratio without rounding (trimming)
+      }
+      resultSet[count] = new RatioResult(date,
+          Double.parseDouble(lengthPerimeterAreaDf.format(resultSet1[count].getValue())),
+          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())), ratio);
+      count++;
+    }
+    switch (requestResource) {
+      case AREA:
+        unit = "area in square-meters and ratio";
+        description =
+            "Area of items satisfying types2, keys2, values2 parameters (= value2 output) "
+                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
+        break;
+      case LENGTH:
+        unit = "length in meters and ratio";
+        description =
+            "Length of items satisfying types2, keys2, values2 parameters (= value2 output) "
+                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
+        break;
+      case PERIMETER:
+        unit = "perimeter in meters and ratio";
+        description =
+            "Perimeter of items satisfying types2, keys2, values2 parameters (= value2 output) "
+                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
+        break;
+      default:
+        // do nothing.. should never reach this :D
+        break;
+    }
+    Metadata metadata = null;
+    long duration = System.currentTimeMillis() - startTime;
+    if (iP.getShowMetadata()) {
+      metadata = new Metadata(duration, unit, description, requestURL);
+    }
+    RatioResponse response = new RatioResponse(license, copyright, metadata, resultSet);
+    return response;
+  }
+
 }
