@@ -39,7 +39,6 @@ import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
@@ -187,60 +186,17 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Utils utils = iP.getUtils();
-    switch (iP.getBoundaryType()) {
-      case NOBOUNDARY:
-        throw new BadRequestException(
-            "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-      case BBOXES:
-        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
-        ArrayList<Integer> zeroBboxFill = new ArrayList<Integer>();
-        for (int j = 0; j < bboxGeoms.size(); j++)
-          zeroBboxFill.add(j);
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Integer> bboxesList = new LinkedList<>();
-          for (int i = 0; i < bboxGeoms.size(); i++)
-            if (f.getGeometry().intersects(bboxGeoms.get(i)))
-              bboxesList.add(i);
-          return bboxesList;
-        }).aggregateBy(f -> f).zerofillIndices(zeroBboxFill).count();
-        break;
-      case BCIRCLES:
-        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry(BoundaryType.BCIRCLES);
-        ArrayList<Integer> zerobcircleFill = new ArrayList<Integer>();
-        for (int j = 0; j < bcircleGeoms.size(); j++)
-          zerobcircleFill.add(j);
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Integer> bcirclesList = new LinkedList<>();
-          for (int i = 0; i < bcircleGeoms.size(); i++)
-            if (f.getGeometry().intersects(bcircleGeoms.get(i)))
-              bcirclesList.add(i);
-          return bcirclesList;
-        }).aggregateBy(f -> f).zerofillIndices(zerobcircleFill).count();
-        break;
-      case BPOLYS:
-        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry(BoundaryType.BPOLYS);
-        ArrayList<Integer> zeroBpolyFill = new ArrayList<Integer>();
-        for (int j = 0; j < bpolyGeoms.size(); j++)
-          zeroBpolyFill.add(j);
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Integer> bpolysList = new LinkedList<>();
-          for (int i = 0; i < bpolyGeoms.size(); i++)
-            if (f.getGeometry().intersects(bpolyGeoms.get(i)))
-              bpolysList.add(i);
-          return bpolysList;
-        }).aggregateBy(f -> f).zerofillIndices(zeroBpolyFill).count();
-        break;
-    }
+    result = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
+    Utils utils = iP.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     int innerCount = 0;
@@ -717,130 +673,12 @@ public class ElementsRequestExecutor {
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Utils utils = iP.getUtils();
-    switch (iP.getBoundaryType()) {
-      case NOBOUNDARY:
-        throw new BadRequestException(
-            "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-      case BBOXES:
-        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
-        ArrayList<Pair<Integer, Boolean>> zeroBboxFill = new ArrayList<>();
-        for (int j = 0; j < bboxGeoms.size(); j++) {
-          zeroBboxFill.add(new ImmutablePair<>(j, true));
-          zeroBboxFill.add(new ImmutablePair<>(j, false));
-        }
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntity>> bboxesList = new LinkedList<>();
-          for (int i = 0; i < bboxGeoms.size(); i++)
-            if (f.getGeometry().intersects(bboxGeoms.get(i)))
-              bboxesList.add(new ImmutablePair<>(i, f.getEntity()));
-          return bboxesList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroBboxFill).count();
-        break;
-      case BCIRCLES:
-        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry(BoundaryType.BCIRCLES);
-        ArrayList<Pair<Integer, Boolean>> zeroBcircleFill = new ArrayList<>();
-        for (int j = 0; j < bcircleGeoms.size(); j++) {
-          zeroBcircleFill.add(new ImmutablePair<>(j, true));
-          zeroBcircleFill.add(new ImmutablePair<>(j, false));
-        }
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntity>> bcirclesList = new LinkedList<>();
-          for (int i = 0; i < bcircleGeoms.size(); i++)
-            if (f.getGeometry().intersects(bcircleGeoms.get(i)))
-              bcirclesList.add(new ImmutablePair<>(i, f.getEntity()));
-          return bcirclesList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroBcircleFill).count();
-        break;
-      case BPOLYS:
-        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry(BoundaryType.BPOLYS);
-        ArrayList<Pair<Integer, Boolean>> zeroBpolyFill = new ArrayList<>();
-        for (int j = 0; j < bpolyGeoms.size(); j++) {
-          zeroBpolyFill.add(new ImmutablePair<>(j, true));
-          zeroBpolyFill.add(new ImmutablePair<>(j, false));
-        }
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntity>> bpolysList = new LinkedList<>();
-          for (int i = 0; i < bpolyGeoms.size(); i++)
-            if (f.getGeometry().intersects(bpolyGeoms.get(i)))
-              bpolysList.add(new ImmutablePair<>(i, f.getEntity()));
-          return bpolysList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroBpolyFill).count();
-        break;
-    }
+    result = exeUtils.computeCountShareGBBResult(iP.getBoundaryType(), mapRed, keysInt2, valuesInt2,
+        iP.getGeomBuilder());
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
     String groupByName = "";
+    Utils utils = iP.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     Integer[] whole = null;
     Integer[] part = null;

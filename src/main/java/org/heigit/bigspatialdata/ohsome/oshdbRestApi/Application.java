@@ -51,9 +51,8 @@ public class Application implements ApplicationRunner {
 
       if (h2Db != null)
         h2Db.multithreading(multithreading);
-      else 
+      else
         keytables.multithreading(multithreading);
-      
     } catch (ClassNotFoundException | SQLException e) {
       throw new RuntimeException(e.getMessage());
     }

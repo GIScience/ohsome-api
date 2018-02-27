@@ -2,11 +2,21 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.SortedMap;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.inputProcessing.GeometryBuilder;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
@@ -94,5 +104,101 @@ public class ExecutionUtils {
     }
 
     return geom;
+  }
+
+  /**
+   * Computes the result for the /count/groupBy/boundary resource using the map-reduce functions
+   * from the oshdb.
+   * 
+   * @param bType
+   * @param mapRed
+   * @param geomBuilder
+   * @return <code>SortedMap</code> result object.
+   * @throws UnsupportedOperationException
+   * @throws Exception
+   */
+  public SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> computeCountGBBResult(
+      BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder)
+      throws UnsupportedOperationException, Exception {
+
+    if (bType == BoundaryType.NOBOUNDARY)
+      throw new BadRequestException(
+          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    ArrayList<Integer> zeroFill = new ArrayList<Integer>();
+    for (int j = 0; j < geoms.size(); j++)
+      zeroFill.add(j);
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result =
+        mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Integer> boundaryList = new LinkedList<>();
+          for (int i = 0; i < geoms.size(); i++)
+            if (f.getGeometry().intersects(geoms.get(i)))
+              boundaryList.add(i);
+          return boundaryList;
+        }).aggregateBy(f -> f).zerofillIndices(zeroFill).count();
+
+    return result;
+  }
+
+  /**
+   * Computes the result for the /count/share/groupBy/boundary resource using the map-reduce
+   * functions from the oshdb.
+   * 
+   * @param bType
+   * @param mapRed
+   * @param keysInt2
+   * @param valuesInt2
+   * @param geomBuilder
+   * @return <code>SortedMap</code> result object.
+   * @throws UnsupportedOperationException
+   * @throws Exception
+   */
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGBBResult(
+      BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
+      Integer[] valuesInt2, GeometryBuilder geomBuilder)
+      throws UnsupportedOperationException, Exception {
+
+    if (bType == BoundaryType.NOBOUNDARY)
+      throw new BadRequestException(
+          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    ArrayList<Pair<Integer, Boolean>> zeroFill = new ArrayList<>();
+    for (int j = 0; j < geoms.size(); j++) {
+      zeroFill.add(new ImmutablePair<>(j, true));
+      zeroFill.add(new ImmutablePair<>(j, false));
+    }
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result =
+        mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Integer, OSMEntity>> boundaryList = new LinkedList<>();
+          for (int i = 0; i < geoms.size(); i++)
+            if (f.getGeometry().intersects(geoms.get(i)))
+              boundaryList.add(new ImmutablePair<>(i, f.getEntity()));
+          return boundaryList;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not all are
+          // contained)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getRight().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
+          }
+          return new ImmutablePair<>(f.getLeft(), hasTags);
+        }).zerofillIndices(zeroFill).count();
+
+    return result;
   }
 }
