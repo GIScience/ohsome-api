@@ -920,12 +920,12 @@ public class ElementsRequestExecutor {
    *         ElementsResponseContent}
    */
   public DefaultAggregationResponse executeLengthPerimeterArea(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+      boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Number> result;
+    SortedMap<OSHDBTimestamp, Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -936,46 +936,64 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    result = mapRed.aggregateByTimestamp()
-        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestResource) {
-            case AREA:
+    switch (requestResource) {
+      case AREA:
+        result = mapRed.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
-            case LENGTH:
+            });
+        if (isDensity) {
+          unit = "square-meters per square-kilometer";
+          description = "Density of selected items (area of items per square-kilometers).";
+        } else {
+          unit = "square-meter";
+          description = "Total area of polygons.";
+        }
+        break;
+      case LENGTH:
+        result = mapRed.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.lengthOf(snapshot.getGeometry());
-            case PERIMETER:
+            });
+        if (isDensity) {
+          unit = "meters per square-kilometer";
+          description = "Density of selected items (length of items per square-kilometers).";
+        } else {
+          unit = "meter";
+          description = "Total length of lines.";
+        }
+        break;
+      case PERIMETER:
+        result = mapRed.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal)
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
               else
                 return 0.0;
-            default:
-              return null;
-          }
-        });
-    Result[] resultSet = new Result[result.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    int count = 0;
-    for (Map.Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())));
-      count++;
+            });
+        if (isDensity) {
+          unit = "meters per square-kilometer";
+          description = "Density of selected items (perimeter of items per square-kilometers).";
+        } else {
+          unit = "meter";
+          description = "Total perimeter of polygonal items.";
+        }
+        break;
     }
-    switch (requestResource) {
-      case AREA:
-        unit = "square-meter";
-        description = "Total area of polygons.";
-        break;
-      case LENGTH:
-        unit = "meter";
-        description = "Total length of lines.";
-        break;
-      case PERIMETER:
-        unit = "meter";
-        description = "Total perimeter of polygonal items.";
-        break;
-      default:
-        // do nothing.. should never reach this :D
-        break;
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
+    int count = 0;
+    Result[] resultSet = new Result[result.size()];
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
+    for (Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
+      if (isDensity)
+        resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+            Double.parseDouble(
+                densityDf.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+      else
+        resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+            Double.parseDouble(densityDf.format((entry.getValue().doubleValue()))));
+      count++;
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -1116,6 +1134,8 @@ public class ElementsRequestExecutor {
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
+   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
+   *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
@@ -1371,16 +1391,18 @@ public class ElementsRequestExecutor {
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
+   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
+   *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponse
    *         GroupByTypeResponseContent}
    */
-  public GroupByTypeResponse executeAreaPerimeterGroupByType(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public GroupByTypeResponse executePerimeterAreaGroupByType(RequestResource requestResource,
+      boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result;
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result = null;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
@@ -1392,26 +1414,54 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-          return f.getEntity().getType();
-        }).zerofillIndices(iP.getOsmTypes())
-        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestResource) {
-            case AREA:
+    switch (requestResource) {
+      case AREA:
+        result = mapRed.aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+              return f.getEntity().getType();
+            }).zerofillIndices(iP.getOsmTypes())
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
-            case PERIMETER:
+            });
+        if (isDensity) {
+          unit = "square-meters per square-kilometer";
+          description =
+              "Density of selected items (area of items per square-kilometers) aggregated on the type.";
+        } else {
+          unit = "square-meter";
+          description = "Total area of items aggregated on the type.";
+        }
+        break;
+      case PERIMETER:
+        result = mapRed.aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+              return f.getEntity().getType();
+            }).zerofillIndices(iP.getOsmTypes())
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal)
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
               else
                 return 0.0;
-            default:
-              return null;
-          }
-        });
+            });
+        if (isDensity) {
+          unit = "meters per square-kilometer";
+          description =
+              "Density of selected items (perimeter of items per square-kilometers) aggregated on the type.";
+        } else {
+          unit = "meter";
+          description = "Total perimeter of items aggregated on the type.";
+        }
+        break;
+      default:
+        // do nothing.. should never reach this :D
+        break;
+    }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1420,26 +1470,19 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(
-            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
+        if (isDensity)
+          results[innerCount] = new Result(
+              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+              Double.parseDouble(densityDf
+                  .format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+        else
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
+                  .parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
-    }
-    switch (requestResource) {
-      case AREA:
-        unit = "square-meter";
-        description = "Total area of items aggregated on the type.";
-        break;
-      case PERIMETER:
-        unit = "meter";
-        description = "Total perimeter of items aggregated on the type.";
-        break;
-      default:
-        // do nothing.. should never reach this :D
-        break;
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -1907,86 +1950,6 @@ public class ElementsRequestExecutor {
     }
     ShareGroupByBoundaryResponse response =
         new ShareGroupByBoundaryResponse(license, copyright, gBBMetadata, groupByResultSet);
-    return response;
-  }
-
-  /**
-   * Performs a length|perimeter|area-density calculation.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
-   */
-  public DefaultAggregationResponse executeLengthPerimeterAreaDensity(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Number> result = null;
-    MapReducer<OSMEntitySnapshot> mapRed;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = null;
-    String description = null;
-    String requestURL = null;
-    if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
-    switch (requestResource) {
-      case AREA:
-        result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
-        unit = "square-meters per square-kilometer";
-        description = "Density of selected items (area of items per square-kilometers).";
-        break;
-      case LENGTH:
-        result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
-            });
-        unit = "meters per square-kilometer";
-        description = "Density of selected items (length of items per square-kilometers).";
-        break;
-      case PERIMETER:
-        result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
-        unit = "meters per square-kilometer";
-        description = "Density of selected items (perimeter of items per square-kilometers).";
-        break;
-    }
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    int count = 0;
-    Result[] resultSet = new Result[result.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
-    for (Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-          Double.parseDouble(
-              densityDf.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
-      count++;
-    }
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, unit, description, requestURL);
-    }
-    DefaultAggregationResponse response =
-        new DefaultAggregationResponse(license, copyright, metadata, resultSet);
     return response;
   }
 

@@ -65,8 +65,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterArea(RequestResource.LENGTH, false, bboxes, bcircles,
-        bpolys, types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterArea(RequestResource.LENGTH, false, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -352,7 +352,7 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaDensity(RequestResource.LENGTH, false, bboxes,
+    return executor.executeLengthPerimeterArea(RequestResource.LENGTH, false, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -518,8 +518,8 @@ public class LengthController {
       String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterArea(RequestResource.LENGTH, true, bboxes, bcircles,
-        bpolys, types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterArea(RequestResource.LENGTH, true, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**
@@ -869,8 +869,8 @@ public class LengthController {
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaDensity(RequestResource.LENGTH, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+    return executor.executeLengthPerimeterArea(RequestResource.LENGTH, true, true, bboxes, bcircles,
+        bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**

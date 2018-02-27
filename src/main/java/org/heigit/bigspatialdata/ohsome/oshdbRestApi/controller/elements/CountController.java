@@ -129,8 +129,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(false, false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeCountGroupByType(false, false, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
   }
 
   /**
@@ -491,8 +491,8 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(false, true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeCountGroupByType(false, true, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
   }
 
   /**
@@ -690,8 +690,8 @@ public class CountController {
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
           defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "", required = false,
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -708,8 +708,8 @@ public class CountController {
       String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(true, false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeCountGroupByType(true, false, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
   }
 
   /**
@@ -1122,8 +1122,8 @@ public class CountController {
   }
 
   /**
-   * POST request giving the density of OSM objects grouped by the OSM type. POST requests should only
-   * be used if the request URL would be too long for a GET request.
+   * POST request giving the density of OSM objects grouped by the OSM type. POST requests should
+   * only be used if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1151,8 +1151,8 @@ public class CountController {
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
           defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "", required = false,
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -1164,13 +1164,13 @@ public class CountController {
           value = "'Boolean' operator 'true' or 'false'; default: 'false'")})
   @RequestMapping(value = "/density/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByTypeResponse postCountDensityGroupByType(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public GroupByTypeResponse postCountDensityGroupByType(String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountGroupByType(true, true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return executor.executeCountGroupByType(true, true, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
   }
 
   /**
