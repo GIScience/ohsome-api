@@ -1,6 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.oshdbRestApi;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.springframework.boot.ApplicationArguments;
@@ -19,6 +21,7 @@ public class Application implements ApplicationRunner {
   private static OSHDBH2 h2Db = null;
   private static OSHDBIgnite igniteDb = null;
   private static OSHDBH2 keytables = null;
+  private static ArrayList<String> metadata = null;
 
   public static void main(String[] args) {
     if (args == null || args.length == 0)
@@ -34,8 +37,10 @@ public class Application implements ApplicationRunner {
       for (String paramName : args.getOptionNames()) {
         if (paramName.equals("database.db")) {
           h2Db = new OSHDBH2(args.getOptionValues(paramName).get(0));
+          metadata = extractMetadata(h2Db);
         } else if (paramName.equals("database.ignite")) {
           igniteDb = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
+          metadata = extractMetadata(igniteDb);
         } else if (paramName.equals("database.keytables")) {
           keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
         } else if (paramName.equals("database.multithreading")) {
@@ -53,9 +58,30 @@ public class Application implements ApplicationRunner {
         h2Db.multithreading(multithreading);
       else
         keytables.multithreading(multithreading);
+
     } catch (ClassNotFoundException | SQLException e) {
       throw new RuntimeException(e.getMessage());
     }
+  }
+
+  /**
+   * Extracts some metadata from the given db object.
+   * 
+   * @param db
+   * @return
+   */
+  private ArrayList<String> extractMetadata(OSHDBDatabase db) {
+    
+    if (db.metadata("data.timerange_str") != null) {
+      ArrayList<String> metadata = new ArrayList<String>();
+      String[] timeranges = db.metadata("data.timerange_str").split(",");
+      metadata.add(timeranges[0]);
+      metadata.add(timeranges[1]);
+      metadata.add(db.metadata("data.bbox_double"));
+      return metadata;
+    }
+
+    return null;
   }
 
   public static OSHDBH2 getH2Db() {
@@ -68,5 +94,9 @@ public class Application implements ApplicationRunner {
 
   public static OSHDBH2 getKeytables() {
     return keytables;
+  }
+
+  public static ArrayList<String> getMetadata() {
+    return metadata;
   }
 }

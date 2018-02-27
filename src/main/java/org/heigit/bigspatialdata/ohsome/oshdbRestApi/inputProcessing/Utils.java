@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.Application;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestException;
 
 /**
@@ -19,8 +20,8 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.exception.BadRequestExcepti
  */
 public class Utils {
 
-  public final static String defStartTime = "2007-11-01";
-  public final static String defEndTime =
+  public static String defStartTime = "2007-11-01";
+  public static String defEndTime =
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
   private String[] boundaryIds;
 
@@ -252,6 +253,11 @@ public class Utils {
    * @throws BadRequestException if the provided time parameter does not fit to any specified format
    */
   public String[] extractIsoTime(String time) throws BadRequestException {
+    // retrieve earliest/latest timestamp from metadata (if available)
+    if (Application.getMetadata() != null) {
+      defStartTime = Application.getMetadata().get(0);
+      defEndTime = Application.getMetadata().get(1);
+    }
     String[] timeVals = new String[3];
     if (time.contains("/")) {
       if (time.length() == 1) {
