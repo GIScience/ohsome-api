@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.executor;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +23,14 @@ import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationRespo
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByUserResponse;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.metadata.Metadata;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioGroupByResult;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.RatioResult;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.Result;
 import org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.result.ShareGroupByResult;
@@ -234,44 +235,11 @@ public class ElementsRequestExecutor {
     }
     GroupByBoundaryMetadata gBBMetadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = new HashMap<String, double[]>();
-      switch (iP.getBoundaryType()) {
-        case NOBOUNDARY:
-          double[] singleBboxValues = new double[4];
-          for (int i = 0; i < 4; i++)
-            singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
-          boundaries.put(boundaryIds[0], singleBboxValues);
-          break;
-        case BBOXES:
-          int bboxCount = 0;
-          for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
-            double[] bboxValues = new double[4];
-            for (int j = 0; j < 4; j++)
-              bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-            boundaries.put(boundaryIds[bboxCount], bboxValues);
-            bboxCount++;
-          }
-          break;
-        case BCIRCLES:
-          int bcircleCount = 0;
-          for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
-            double[] bcircleValues = new double[3];
-            for (int j = 0; j < 3; j++)
-              bcircleValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-            boundaries.put(boundaryIds[bcircleCount], bcircleValues);
-            bcircleCount++;
-          }
-          break;
-        case BPOLYS:
-          // TODO implement for bpolys (should be done together with WKT implementation)
-          boundaries = null;
-          break;
-      }
+      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
       gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
           "Total number of items aggregated on the boundary object.", requestURL);
     }
-
     GroupByBoundaryResponse response =
         new GroupByBoundaryResponse(license, copyright, gBBMetadata, resultSet);
     return response;
@@ -742,39 +710,7 @@ public class ElementsRequestExecutor {
     }
     GroupByBoundaryMetadata gBBMetadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = new HashMap<String, double[]>();
-      switch (iP.getBoundaryType()) {
-        case NOBOUNDARY:
-          double[] singleBboxValues = new double[4];
-          for (int i = 0; i < 4; i++)
-            singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
-          boundaries.put(boundaryIds[0], singleBboxValues);
-          break;
-        case BBOXES:
-          int bboxCount = 0;
-          for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
-            double[] bboxValues = new double[4];
-            for (int j = 0; j < 4; j++)
-              bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-            boundaries.put(boundaryIds[bboxCount], bboxValues);
-            bboxCount++;
-          }
-          break;
-        case BCIRCLES:
-          int bcircleCount = 0;
-          for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
-            double[] bcircleValues = new double[3];
-            for (int j = 0; j < 3; j++)
-              bcircleValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-            boundaries.put(boundaryIds[bcircleCount], bcircleValues);
-            bcircleCount++;
-          }
-          break;
-        case BPOLYS:
-          // TODO implement for bpolys (should be done together with WKT implementation)
-          boundaries = null;
-          break;
-      }
+      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
       gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
@@ -903,6 +839,101 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     RatioResponse response = new RatioResponse(license, copyright, metadata, resultSet);
+    return response;
+  }
+
+  /**
+   * Performs a count-ratio calculation grouped by the boundary.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * @param types2 <code>String</code> array having the same format as types.
+   * @param keys2 <code>String</code> array having the same format as keys.
+   * @param values2 <code>String</code> array having the same format as values.
+   * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   *         GroupByBoundaryResponseContent}
+   */
+  public RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(boolean isPost,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata, String[] types2, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result1;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result2;
+    MapReducer<OSMEntitySnapshot> mapRed1;
+    MapReducer<OSMEntitySnapshot> mapRed2;
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult1;
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult2;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String requestURL = null;
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    mapRed1 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
+        time, showMetadata);
+    result1 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
+    mapRed2 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types2, keys2, values2,
+        userids, time, showMetadata);
+    result2 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
+
+    groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
+    groupByResult2 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result2);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult1.size()];
+    RatioGroupByResult[] ratioResultSet = new RatioGroupByResult[groupByResult1.size()];
+    String groupByName = "";
+    Utils utils = iP.getUtils();
+    String[] boundaryIds = utils.getBoundaryIds();
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects of result1
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult1.entrySet()) {
+      Result[] results = new Result[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      groupByName = boundaryIds[count];
+      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] =
+            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                innerEntry.getValue().intValue());
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(groupByName, results);
+      count++;
+    }
+    count = 0;
+    innerCount = 0;
+    // iterate over the entry objects of result2
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult2.entrySet()) {
+      RatioResult[] ratioResults = new RatioResult[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      groupByName = boundaryIds[count];
+      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+        double value = resultSet[count].getResult()[innerCount].getValue();
+        double value2 = innerEntry.getValue().doubleValue();
+        double ratio = value2 / value;
+        ratioResults[innerCount] =
+            new RatioResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                value, value2, ratio);
+        innerCount++;
+      }
+      ratioResultSet[count] = new RatioGroupByResult(groupByName, ratioResults);
+      count++;
+    }
+    GroupByBoundaryMetadata gBBMetadata = null;
+    if (iP.getShowMetadata()) {
+      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
+      long duration = System.currentTimeMillis() - startTime;
+      gBBMetadata = new GroupByBoundaryMetadata(duration, "amount and ratio", boundaries,
+          "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items "
+              + "selected by types, keys, values parameters (= value output) and ratio of value2:value grouped on the boundary objects.",
+          requestURL);
+    }
+    RatioGroupByBoundaryResponse response =
+        new RatioGroupByBoundaryResponse(license, copyright, gBBMetadata, ratioResultSet);
     return response;
   }
 
@@ -1910,39 +1941,7 @@ public class ElementsRequestExecutor {
     }
     GroupByBoundaryMetadata gBBMetadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = new HashMap<String, double[]>();
-      switch (iP.getBoundaryType()) {
-        case NOBOUNDARY:
-          double[] singleBboxValues = new double[4];
-          for (int i = 0; i < 4; i++)
-            singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
-          boundaries.put(boundaryIds[0], singleBboxValues);
-          break;
-        case BBOXES:
-          int bboxCount = 0;
-          for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
-            double[] bboxValues = new double[4];
-            for (int j = 0; j < 4; j++)
-              bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-            boundaries.put(boundaryIds[bboxCount], bboxValues);
-            bboxCount++;
-          }
-          break;
-        case BCIRCLES:
-          int bcircleCount = 0;
-          for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
-            double[] bcircleValues = new double[3];
-            for (int j = 0; j < 3; j++)
-              bcircleValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-            boundaries.put(boundaryIds[bcircleCount], bcircleValues);
-            bcircleCount++;
-          }
-          break;
-        case BPOLYS:
-          // TODO implement for bpolys (should be done together with WKT implementation)
-          boundaries = null;
-          break;
-      }
+      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
       gBBMetadata = new GroupByBoundaryMetadata(duration, "amount", boundaries,
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
