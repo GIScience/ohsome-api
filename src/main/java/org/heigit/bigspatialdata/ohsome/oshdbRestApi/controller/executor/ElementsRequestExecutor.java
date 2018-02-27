@@ -110,24 +110,28 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count calculation grouped by the type.
+   * Performs a count or density calculation grouped by the type.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
+   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
+   *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTypeResponse
    *         GroupByTypeResponseContent}
    */
-  public GroupByTypeResponse executeCountGroupByType(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public GroupByTypeResponse executeCountGroupByType(boolean isPost, boolean isDensity,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
@@ -140,6 +144,9 @@ public class ElementsRequestExecutor {
         }).zerofillIndices(iP.getOsmTypes()).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by user
@@ -148,9 +155,15 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().intValue());
+        if (isDensity)
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                  Double.parseDouble(densityDf
+                      .format((innerEntry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
+        else
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                  innerEntry.getValue().intValue());
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
@@ -159,8 +172,13 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
-          requestURL);
+      if (isDensity)
+        metadata = new Metadata(duration, "items per square-kilometer",
+            "Density of selected items (number of items per square-kilometer) aggregated on the type.",
+            requestURL);
+      else
+        metadata = new Metadata(duration, "amount", "Total number of items aggregated on the type.",
+            requestURL);
     }
     GroupByTypeResponse response = new GroupByTypeResponse(license, copyright, metadata, resultSet);
     return response;
@@ -355,7 +373,6 @@ public class ElementsRequestExecutor {
    * 
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
    *        resource (true) or not (false).
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.oshdbRestApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
@@ -448,7 +465,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       if (isDensity)
         metadata = new Metadata(duration, "items per square-kilometer",
-            "Density of selected items (number of items per square-kilometer).", requestURL);
+            "Density of selected items (number of items per square-kilometer) aggregated on the tag.",
+            requestURL);
       else
         metadata = new Metadata(duration, "amount", "Total number of items aggregated on the tag.",
             requestURL);
