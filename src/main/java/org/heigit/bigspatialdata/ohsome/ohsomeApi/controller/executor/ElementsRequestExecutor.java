@@ -952,7 +952,7 @@ public class ElementsRequestExecutor {
    */
   public DefaultAggregationResponse executeLengthPerimeterArea(RequestResource requestResource,
       boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -960,7 +960,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = null;
+    
     String description = null;
     String requestURL = null;
     if (!isPost)
@@ -1051,7 +1051,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
+      String[] values, String[] userids, String[] time, String unit, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1063,7 +1063,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = "";
+    
     String description = "";
     String requestURL = null;
     if (!isPost)
@@ -1172,7 +1172,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByTagResponse executeLengthPerimeterAreaGroupByTag(RequestResource requestResource,
       boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
@@ -1185,7 +1185,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = "";
+    
     String description = "";
     String requestURL = null;
     if (!isPost)
@@ -1330,7 +1330,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByUserResponse executeLengthPerimeterAreaGroupByUser(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
+      String[] values, String[] userids, String[] time, String unit, String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1339,7 +1339,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = "";
+    
     String description = "";
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
@@ -1429,7 +1429,7 @@ public class ElementsRequestExecutor {
    */
   public GroupByTypeResponse executePerimeterAreaGroupByType(RequestResource requestResource,
       boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1438,7 +1438,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = null;
+    
     String description = null;
     String requestURL = null;
     if (!isPost)
@@ -1539,7 +1539,7 @@ public class ElementsRequestExecutor {
    */
   public ShareResponse executeLengthPerimeterAreaShare(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] keys2,
+      String[] values, String[] userids, String[] time, String unit, String showMetadata, String[] keys2,
       String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1548,7 +1548,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    String unit = "";
+    
     String description = "";
     String requestURL = null;
     TagTranslator tt = exeUtils.createTagTranslator();
@@ -1970,7 +1970,7 @@ public class ElementsRequestExecutor {
    */
   public RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] types2,
+      String[] values, String[] userids, String[] time, String unit, String showMetadata, String[] types2,
       String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1980,7 +1980,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed2;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    String unit = "";
+    
     String description = "";
     String requestURL = null;
     if (!isPost)

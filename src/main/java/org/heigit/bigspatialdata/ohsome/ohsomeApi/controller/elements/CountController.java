@@ -623,8 +623,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
    *         RatioResponse}
    */
-  @ApiOperation(
-      value = "Ratio of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of selected items grouped by the boundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2",
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
@@ -636,7 +635,8 @@ public class CountController {
       @ApiImplicitParam(name = "values2",
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value",
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
   public RatioGroupByBoundaryResponse getCountRatioGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
@@ -662,11 +662,11 @@ public class CountController {
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountRatioGroupByBoundary(false, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata, types2, keys2, values2);
+    return executor.executeCountRatioGroupByBoundary(false, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata, types2, keys2, values2);
   }
 
-  
+
   /**
    * POST request giving the count of OSM objects. POST requests should only be used if the request
    * URL would be too long for a GET request.
@@ -1036,8 +1036,8 @@ public class CountController {
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
           defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "", required = false,
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -1366,8 +1366,8 @@ public class CountController {
 
   /**
    * POST request giving the ratio of selected items satisfying types2, keys2 and values2 within
-   * items selected by types, keys and values grouped by the boundary. POST requests should only be used if the request URL
-   * would be too long for a GET request.
+   * items selected by types, keys and values grouped by the boundary. POST requests should only be
+   * used if the request URL would be too long for a GET request.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1379,8 +1379,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
    *         RatioResponse}
    */
-  @ApiOperation(
-      value = "Ratio of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of selected items grouped by the boundary")
   @ApiImplicitParams({@ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
       defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false,
       value = "WGS84 coordinates in the following format: "
@@ -1419,16 +1418,16 @@ public class CountController {
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = "", required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value")})
-  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioGroupByBoundaryResponse postCountRatioGroupByBoundary(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] types2, String[] keys2, String[] values2)
+  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public RatioGroupByBoundaryResponse postCountRatioGroupByBoundary(String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeCountRatioGroupByBoundary(true, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata, types2, keys2, values2);
+    return executor.executeCountRatioGroupByBoundary(true, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata, types2, keys2, values2);
   }
 
 }

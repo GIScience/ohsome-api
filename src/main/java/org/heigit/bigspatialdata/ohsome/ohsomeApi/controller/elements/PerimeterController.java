@@ -61,13 +61,15 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, false, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -100,13 +102,15 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, false, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -139,13 +143,15 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.PERIMETER, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -182,6 +188,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "groupByKeys", defaultValue = "",
@@ -190,7 +198,7 @@ public class PerimeterController {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata, groupByKeys);
   }
 
   /**
@@ -235,6 +243,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
@@ -244,8 +254,8 @@ public class PerimeterController {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, false, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
-        groupByValues);
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata,
+        groupByKey, groupByValues);
   }
 
   /**
@@ -290,6 +300,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
@@ -298,7 +310,7 @@ public class PerimeterController {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaShare(RequestResource.PERIMETER, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata, keys2, values2);
   }
 
   /**
@@ -343,6 +355,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
@@ -354,7 +368,8 @@ public class PerimeterController {
 
     // ElementsRequestExecutor executor = new ElementsRequestExecutor();
     // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER,
-    // false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2,
+    // false, bboxes, bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata,
+    // keys2,
     // values2);
   }
 
@@ -387,13 +402,15 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, false, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -428,13 +445,15 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, false, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -482,6 +501,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
@@ -491,8 +512,8 @@ public class PerimeterController {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, false, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
-        groupByValues);
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata,
+        groupByKey, groupByValues);
   }
 
   /**
@@ -540,6 +561,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
@@ -549,7 +572,8 @@ public class PerimeterController {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaRatio(RequestResource.PERIMETER, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata, types2, keys2, values2);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata, types2, keys2,
+        values2);
   }
 
   /**
@@ -590,18 +614,21 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'")})
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postPerimeter(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, true, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -642,18 +669,21 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'")})
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponse postPerimeterGroupByType(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, true, false, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -694,18 +724,21 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'")})
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByUserResponse postPerimeterGroupByUser(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.PERIMETER, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -748,6 +781,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
@@ -757,13 +793,13 @@ public class PerimeterController {
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByKeyResponse postPerimeterGroupByKey(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata, groupByKeys);
   }
 
   /**
@@ -810,6 +846,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
@@ -822,14 +861,14 @@ public class PerimeterController {
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postPerimeterGroupByTag(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
-        groupByValues);
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata,
+        groupByKey, groupByValues);
   }
 
   /**
@@ -876,6 +915,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
@@ -888,13 +930,13 @@ public class PerimeterController {
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareResponse postPerimeterShare(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaShare(RequestResource.PERIMETER, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata, keys2, values2);
   }
 
   /**
@@ -938,6 +980,8 @@ public class PerimeterController {
           required = false) String[] userids,
       @ApiParam(value = "ISO-8601 conform timestring(s); default: today", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "unit", defaultValue = "",
+          required = false) String unit,
       @ApiParam(value = "'Boolean' operator 'true' or 'false'; default: 'false'", defaultValue = "",
           required = false) String showMetadata,
       @ApiParam(value = "OSM key(s) e.g.: 'highway', 'building'; default: no key",
@@ -951,7 +995,8 @@ public class PerimeterController {
 
     // ElementsRequestExecutor executor = new ElementsRequestExecutor();
     // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER,
-    // true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2,
+    // true, bboxes, bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata,
+    // keys2,
     // values2);
   }
 
@@ -993,6 +1038,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'")})
@@ -1000,12 +1048,12 @@ public class PerimeterController {
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postPerimeterDensity(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+      String[] time, String unit, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, true, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -1048,6 +1096,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'")})
@@ -1055,12 +1106,12 @@ public class PerimeterController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponse postPerimeterDensityGroupByType(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+      String[] time, String unit, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, true, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata);
   }
 
   /**
@@ -1109,6 +1160,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
@@ -1122,13 +1176,13 @@ public class PerimeterController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postPerimeterDensityGroupByTag(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+      String[] time, String unit, String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
-        groupByValues);
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata,
+        groupByKey, groupByValues);
   }
 
   /**
@@ -1174,6 +1228,9 @@ public class PerimeterController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
           value = "ISO-8601 conform timestring(s); default: today"),
+      @ApiImplicitParam(name = "unit", paramType = "form", dataType = "string", defaultValue = "",
+          required = false,
+          value = "Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area"),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
@@ -1189,12 +1246,13 @@ public class PerimeterController {
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public RatioResponse postPerimeterRatio(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time, String unit,
       String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     ElementsRequestExecutor executor = new ElementsRequestExecutor();
     return executor.executeLengthPerimeterAreaRatio(RequestResource.PERIMETER, true, bboxes,
-        bcircles, bpolys, types, keys, values, userids, time, showMetadata, types2, keys2, values2);
+        bcircles, bpolys, types, keys, values, userids, time, unit, showMetadata, types2, keys2,
+        values2);
   }
 }
