@@ -9,6 +9,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
@@ -16,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * provided via the console.
  */
 @SpringBootApplication
+@ComponentScan({"org.heigit.bigspatialdata.ohsome.ohsomeApi"})
 public class Application implements ApplicationRunner {
 
   private static OSHDBH2 h2Db = null;
@@ -24,6 +26,7 @@ public class Application implements ApplicationRunner {
   private static ArrayList<String> metadata = null;
 
   public static void main(String[] args) {
+
     if (args == null || args.length == 0)
       throw new RuntimeException(
           "You need to define at least the '--database.db' or the '--database.ignite' + '--database.keytables' parameter(s).");
@@ -33,6 +36,10 @@ public class Application implements ApplicationRunner {
   @Override
   public void run(ApplicationArguments args) throws Exception {
     boolean multithreading = true;
+    
+    if (System.getProperty("database.db") != null)
+      h2Db = new OSHDBH2(System.getProperty("database.db"));
+
     try {
       for (String paramName : args.getOptionNames()) {
         if (paramName.equals("database.db")) {
@@ -71,7 +78,7 @@ public class Application implements ApplicationRunner {
    * @return
    */
   private ArrayList<String> extractMetadata(OSHDBDatabase db) {
-    
+
     if (db.metadata("data.timerange_str") != null) {
       ArrayList<String> metadata = new ArrayList<String>();
       String[] timeranges = db.metadata("data.timerange_str").split(",");

@@ -31,6 +31,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>${springboot.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<version>1.5.3.RELEASE</version>
+		</dependency>
 		<!-- to have a basic auth with a user+key security on first request <dependency> 
 			<groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId> 
 			</dependency> -->
@@ -56,7 +62,6 @@
 			<artifactId>oshdb-util</artifactId>
 			<version>${oshdb.version}</version>
 		</dependency>
-
 		<!-- needed for creating a custom error reporting class -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>

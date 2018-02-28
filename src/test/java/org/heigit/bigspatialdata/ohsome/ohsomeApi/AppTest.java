@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.springBootWebAPI;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
