@@ -1037,7 +1037,7 @@ public class CountController {
           defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false,
+          defaultValue = "", required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value"),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = "OSM userids; default: no userid"),
@@ -1048,10 +1048,10 @@ public class CountController {
           defaultValue = "true", required = false,
           value = "'Boolean' operator 'true' or 'false'; default: 'false'"),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "building", required = true,
+          defaultValue = "building,addr:housenumber", required = true,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false,
+          defaultValue = "", required = false,
           value = "OSM value(s) e.g.: 'primary', 'residential'; default: no value")})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

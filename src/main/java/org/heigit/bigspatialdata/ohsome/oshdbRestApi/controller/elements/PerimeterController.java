@@ -1181,7 +1181,7 @@ public class PerimeterController {
           value = "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types",
           defaultValue = "way", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "building", required = true,
+          defaultValue = "building", required = false,
           value = "OSM key(s) e.g.: 'highway', 'building'; default: no key"),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = "yes", required = false,

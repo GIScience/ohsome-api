@@ -145,7 +145,7 @@ public class ElementsRequestExecutor {
         }).zerofillIndices(iP.getOsmTypes()).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.####");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
@@ -399,7 +399,7 @@ public class ElementsRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.####");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     // iterate over the entry objects aggregated by tags
@@ -753,7 +753,7 @@ public class ElementsRequestExecutor {
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     Result[] resultSet = new Result[result.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.####");
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           Double.parseDouble(
@@ -1244,7 +1244,7 @@ public class ElementsRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.####");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
@@ -1490,7 +1490,7 @@ public class ElementsRequestExecutor {
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.####");
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.####");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
