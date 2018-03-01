@@ -112,8 +112,12 @@ public class SwaggerConfig {
         .description("ISO-8601 conform timestring(s); default: today")
         .modelRef(new ModelRef("string")).parameterType("query")
         .defaultValue("2008-01-01/2017-01-01/P1Y").required(false).build());
+    gOPs.add(new ParameterBuilder().name("unit")
+        .description("Length or area metric unit e.g.: 'meter', 'square-meter'; default: 'meter' for length|perimeter, 'square-meter' for area")
+        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("")
+        .required(false).build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
-        .description("'Boolean' operator 'true' or 'false'; default: 'false'")
+        .description("Boolean operator 'true' or 'false'; default: 'false'")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("true")
         .required(false).build());
 

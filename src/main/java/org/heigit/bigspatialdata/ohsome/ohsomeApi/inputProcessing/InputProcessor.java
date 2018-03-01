@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -19,8 +20,8 @@ import com.vividsolutions.jts.geom.Polygonal;
  * the request. Uses geometry methods from
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder
  * GeometryBuilder} and utils from
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils Utils}. Throws
- * exceptions depending on their validity.
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils Utils}. Throws exceptions
+ * depending on their validity.
  */
 public class InputProcessor {
 
@@ -67,9 +68,11 @@ public class InputProcessor {
     if (Application.getKeytables() == null)
       mapRed = OSMEntitySnapshotView.on(Application.getH2Db());
     else if (Application.getIgniteDb() == null)
-      mapRed = OSMEntitySnapshotView.on(Application.getH2Db()).keytables(Application.getKeytables());
+      mapRed =
+          OSMEntitySnapshotView.on(Application.getH2Db()).keytables(Application.getKeytables());
     else
-      mapRed = OSMEntitySnapshotView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
+      mapRed =
+          OSMEntitySnapshotView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
 
     // metadata
     if (showMetadata == null)
@@ -145,6 +148,74 @@ public class InputProcessor {
     }
 
     return mapRed;
+  }
+
+  /**
+   * Checks the given unit parameter. If it is null or empty --> unit gets the default value
+   * depending on the <code>RequestResource</code>: 'meters' for length|perimeter and
+   * 'square-meters' for area.
+   * 
+   * @param unit
+   * @param requestResource
+   * @return <code>String</code> defining the given or default unit.
+   */
+  public String setDefaultUnitIfNullOrEmpty(String unit, RequestResource requestResource) {
+
+    if (unit == null || unit.length() == 0) {
+      switch (requestResource) {
+        case LENGTH:
+        case PERIMETER:
+          unit = "meters";
+          break;
+        case AREA:
+          unit = "square-meters";
+          break;
+      }
+    }
+    return unit;
+  }
+
+  /**
+   * Processes the given unit parameter and returns the corresponding factor. Throws an exception if
+   * the given unit does not fit to the request resource.
+   * 
+   * @param unit
+   * @param requestResource
+   * @return <code>Double</code> value defining the factor.
+   */
+  public double processUnit(String unit, RequestResource requestResource)
+      throws BadRequestException {
+
+    switch (unit) {
+      case "meter":
+      case "meters":
+        if (requestResource == RequestResource.AREA)
+          throw new BadRequestException("You cannot define a unit of length for an area request.");
+        return 1;
+      case "kilometer":
+      case "kilometers":
+        if (requestResource == RequestResource.AREA)
+          throw new BadRequestException("You cannot define a unit of length for an area request.");
+        return 0.001;
+      case "square-meter":
+      case "square-meters":
+        if (requestResource == RequestResource.PERIMETER
+            || requestResource == RequestResource.LENGTH)
+          throw new BadRequestException(
+              "You cannot define a unit of area for a length|perimeter request.");
+        return 1;
+      case "square-kilometer":
+      case "square-kilometers":
+        if (requestResource == RequestResource.PERIMETER
+            || requestResource == RequestResource.LENGTH)
+          throw new BadRequestException(
+              "You cannot define a unit of area for a length|perimeter request.");
+        return 0.000001;
+      default:
+        throw new BadRequestException(
+            "The defined unit parameter is invalid. You can only choose between meter(s), "
+                + "or kilometer(s) for length|perimeter and square-meter(s), or square-kilometer(s) for area.");
+    }
   }
 
   /**
