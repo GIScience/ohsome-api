@@ -24,13 +24,13 @@ public class Metadata {
   private String description;
   @ApiModelProperty(notes = "Request URL to which this whole output JSON was generated",
       required = true, position = 4)
-  private String requestURL;
+  private String requestUrl;
 
-  public Metadata(long executionTime, String unit, String description, String requestURL) {
+  public Metadata(long executionTime, String unit, String description, String requestUrl) {
     this.executionTime = executionTime;
     this.unit = unit;
     this.description = description;
-    this.requestURL = requestURL;
+    this.requestUrl = requestUrl;
   }
 
   public long getExecutionTime() {
@@ -45,8 +45,8 @@ public class Metadata {
     return description;
   }
 
-  public String getRequestURL() {
-    return requestURL;
+  public String getRequestUrl() {
+    return requestUrl;
   }
 
 }

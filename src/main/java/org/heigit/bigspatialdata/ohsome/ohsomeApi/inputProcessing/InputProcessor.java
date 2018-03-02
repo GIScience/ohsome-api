@@ -165,10 +165,10 @@ public class InputProcessor {
       switch (requestResource) {
         case LENGTH:
         case PERIMETER:
-          unit = "meters";
+          unit = "meter";
           break;
         case AREA:
-          unit = "square-meters";
+          unit = "square-meter";
           break;
       }
     }

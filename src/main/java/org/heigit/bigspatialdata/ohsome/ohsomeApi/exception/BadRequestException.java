@@ -3,10 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-/**
- * Exception class corresponding to the HTTP status code 400. It gives an informative exception
- * message that explains the error.
- */
+/** Exception class corresponding to the HTTP status code 400. */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class BadRequestException extends RuntimeException {
 

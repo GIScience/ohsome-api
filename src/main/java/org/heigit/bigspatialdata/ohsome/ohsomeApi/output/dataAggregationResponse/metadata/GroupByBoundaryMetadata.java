@@ -29,15 +29,15 @@ public class GroupByBoundaryMetadata {
   private String description;
   @ApiModelProperty(notes = "Request URL to which this whole output JSON was generated",
       required = true, position = 4)
-  private String requestURL;
+  private String requestUrl;
 
   public GroupByBoundaryMetadata(long executionTime, String unit, Map<String, double[]> boundary,
-      String description, String requestURL) {
+      String description, String requestUrl) {
     this.executionTime = executionTime;
     this.unit = unit;
     this.boundary = boundary;
     this.description = description;
-    this.requestURL = requestURL;
+    this.requestUrl = requestUrl;
   }
 
   public long getExecutionTime() {
@@ -56,7 +56,7 @@ public class GroupByBoundaryMetadata {
     return description;
   }
 
-  public String getRequestURL() {
-    return requestURL;
+  public String getRequestUrl() {
+    return requestUrl;
   }
 }
