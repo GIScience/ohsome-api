@@ -1,12 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Objects;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
@@ -22,9 +22,8 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class Utils {
 
-  public static String defStartTime = "2007-11-01";
-  public static String defEndTime =
-      new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
+  public static String defStartTime = "2007-01-01";
+  public static String defEndTime = "2018-03-01";
   private String[] boundaryIds;
   private FastPolygonOperations dataPolyOps = new FastPolygonOperations(Application.getDataPoly());
 
@@ -304,11 +303,7 @@ public class Utils {
     } else {
       // just one timestamp
       try {
-        if (time.length() == 10) {
-          LocalDate.parse(time);
-        } else {
-          checkIsoConformity(time, "given timestamp");
-        }
+        checkIsoConformity(time, "given timestamp");
         timeVals[0] = time;
         timeVals[1] = time;
         timeVals[2] = "P1Y";
@@ -344,14 +339,24 @@ public class Utils {
       else if (time.length() == 10) {
         LocalDate.parse(time);
       }
-      // YYYY-MM-DDThh:mm or YYYY-MM-DDThh:mm:ss
-      else if (time.length() == 16 || time.length() == 19) {
+      // YYYY-MM-DDThh
+      else if (time.length() == 13) {
+        time = time + ":00:00";
+        LocalDateTime.parse(time);
+      }
+      // YYYY-MM-DDThh:mm
+      else if (time.length() == 16) {
+        time = time + ":00";
+        LocalDateTime.parse(time);
+      }
+      // YYYY-MM-DDThh:mm:ss
+      else if (time.length() == 19) {
         LocalDateTime.parse(time);
       } else {
         throw new BadRequestException(
             "The " + startEndTstamp + " of the provided time parameter is not ISO-8601 conform.");
       }
-      
+
       checkTemporalExtend(time);
     } catch (DateTimeParseException e) {
       throw new BadRequestException(
@@ -365,8 +370,47 @@ public class Utils {
    * 
    * @param timeInfo
    */
-  private void checkTemporalExtend(String... timeInfo) throws NotFoundException{
+  private void checkTemporalExtend(String... timeInfo) throws NotFoundException {
 
+    SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    long start = 0;
+    long end = 0;
+    long timestampLong;
+    if (Application.getMetadata() == null) {
+      start = parseTimestamp(sdf1, defStartTime);
+      end = parseTimestamp(sdf1, defEndTime);
+    } else {
+      start = parseTimestamp(sdf2, defStartTime);
+      end = parseTimestamp(sdf2, defEndTime);
+    }
+
+    for (String timestamp : timeInfo) {
+      timestampLong = parseTimestamp(sdf2, timestamp);
+      if (timestampLong == 0)
+        timestampLong = parseTimestamp(sdf1, timestamp);
+      if (timestampLong < start || timestampLong > end)
+        throw new NotFoundException(
+            "The given time parameter is not completely within the timeframe (" + defStartTime
+                + " to " + defEndTime + ") of the underlying osh-data.");
+    }
+  }
+
+  /**
+   * Parses the given timestamp-<code>String</code> into a <code>long</code> using the given
+   * <code>SimpleDateFormat</code>.
+   * 
+   * @param format
+   * @param timestamp
+   * @return parsed <code>long</code> value (0 in case of not able to parse).
+   */
+  private long parseTimestamp(SimpleDateFormat format, String timestamp) {
+
+    try {
+      return format.parse(timestamp).getTime();
+    } catch (ParseException e) {
+      return 0;
+    }
   }
 
   /**
