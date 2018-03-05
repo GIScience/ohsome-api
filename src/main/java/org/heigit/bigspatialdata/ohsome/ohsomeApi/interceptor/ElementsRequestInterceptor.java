@@ -14,6 +14,7 @@ public class ElementsRequestInterceptor extends HandlerInterceptorAdapter {
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
       Object handler) {
+    
     // builds the initial url, which was sent as request
     requestUrl = request.getRequestURL() + "?" + request.getQueryString();
     return true;
@@ -22,6 +23,6 @@ public class ElementsRequestInterceptor extends HandlerInterceptorAdapter {
   @Override
   public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
       Object handler, Exception ex) {
-    //
+    
   }
 }

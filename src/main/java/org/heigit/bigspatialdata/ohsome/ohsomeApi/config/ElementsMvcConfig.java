@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,19 +37,27 @@ public class ElementsMvcConfig extends WebMvcConfigurerAdapter {
   }
 
   @Bean
+  /**
+   * Modifies the error response to have a more meaningful content.
+   * 
+   * @return <code>Map</code> containing the error-attributes as key-value pairs.
+   */
   public ErrorAttributes modifyExceptionResponse() {
     return new DefaultErrorAttributes() {
       @Override
       public Map<String, Object> getErrorAttributes(RequestAttributes requestAttributes,
           boolean includeStackTrace) {
+
         Map<String, Object> errorAttributes =
             super.getErrorAttributes(requestAttributes, includeStackTrace);
-
         errorAttributes.remove("path");
         errorAttributes.remove("exception");
-        errorAttributes.put("timestamp", LocalDateTime.now().toString());
-        errorAttributes.put("requestUrl", ElementsRequestInterceptor.requestUrl);
-
+        errorAttributes.put("timestamp",
+            LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        if (errorAttributes.get("message").toString().equals("No message available"))
+          errorAttributes.remove("requestUrl");
+        else
+          errorAttributes.put("requestUrl", ElementsRequestInterceptor.requestUrl);
         return errorAttributes;
       }
 
