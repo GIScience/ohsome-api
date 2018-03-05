@@ -126,6 +126,11 @@ public class InputProcessor {
       mapRed = mapRed.timestamps(Utils.defEndTime);
     } else {
       // list of timestamps
+      int tCount = 1;
+      for (String timestamp : time) {
+        utils.checkIsoConformity(timestamp, "timestamp number " + tCount);
+        tCount++;
+      }
       String firstElem = time[0];
       time = ArrayUtils.remove(time, 0);
       mapRed = mapRed.timestamps(firstElem, firstElem, time);

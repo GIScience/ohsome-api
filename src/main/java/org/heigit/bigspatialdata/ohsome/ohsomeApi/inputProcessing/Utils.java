@@ -10,13 +10,15 @@ import java.util.Date;
 import java.util.Objects;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotFoundException;
+import org.heigit.bigspatialdata.oshdb.util.geometry.fip.FastPolygonOperations;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Holds additional utility methods needed for classes
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder
  * GeometryBuilder} and
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor
- * InputProcessor}.
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor InputProcessor}.
  */
 public class Utils {
 
@@ -24,6 +26,7 @@ public class Utils {
   public static String defEndTime =
       new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
   private String[] boundaryIds;
+  private FastPolygonOperations dataPolyOps = new FastPolygonOperations(Application.getDataPoly());
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
@@ -269,7 +272,7 @@ public class Utils {
       String[] timeSplit = time.split("/");
       if (timeSplit[0].length() > 0) {
         // start timestamp
-        checkIsoConformity(timeSplit[0], "start");
+        checkIsoConformity(timeSplit[0], "start-timestamp");
         timeVals[0] = timeSplit[0];
         if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
           // latest timestamp
@@ -282,7 +285,7 @@ public class Utils {
       }
       if (timeSplit[1].length() > 0) {
         // end timestamp
-        checkIsoConformity(timeSplit[1], "end");
+        checkIsoConformity(timeSplit[1], "end-timestamp");
         timeVals[1] = timeSplit[1];
       } else {
         // latest timestamp
@@ -304,7 +307,7 @@ public class Utils {
         if (time.length() == 10) {
           LocalDate.parse(time);
         } else {
-          checkIsoConformity(time, "given");
+          checkIsoConformity(time, "given timestamp");
         }
         timeVals[0] = time;
         timeVals[1] = time;
@@ -324,7 +327,7 @@ public class Utils {
    *        timestamp.
    * @throws BadRequestException if the given time-String is not ISO-8601 conform
    */
-  private void checkIsoConformity(String time, String startEnd) {
+  public void checkIsoConformity(String time, String startEndTstamp) {
 
     try {
       // YYYY
@@ -346,13 +349,42 @@ public class Utils {
         LocalDateTime.parse(time);
       } else {
         throw new BadRequestException(
-            "The " + startEnd + " time of the provided time parameter is not ISO-8601 conform.");
+            "The " + startEndTstamp + " of the provided time parameter is not ISO-8601 conform.");
       }
+      
+      checkTemporalExtend(time);
     } catch (DateTimeParseException e) {
       throw new BadRequestException(
-          "The " + startEnd + " time of the provided time parameter is not ISO-8601 conform.");
+          "The " + startEndTstamp + " of the provided time parameter is not ISO-8601 conform.");
     }
   }
+
+  /**
+   * Checks the provided time info on its temporal extent. Throws a 404 exception if it is not
+   * completely within the timerange of the underlying data.
+   * 
+   * @param timeInfo
+   */
+  private void checkTemporalExtend(String... timeInfo) throws NotFoundException{
+
+  }
+
+  /**
+   * Clips the given boundary parameter through the underlying polygon of the data-file.
+   * 
+   * @param geom
+   * @return <code>Geometry</code> which represents the intersection between the provided boundary
+   *         and the data-boundary.
+   */
+  public Geometry clipBoundary(Geometry geom) {
+
+    if (!geom.intersects(Application.getDataPoly()))
+      return null;
+
+    Geometry intersection = dataPolyOps.intersection(geom);
+    return intersection;
+  }
+
 
   public String[] getBoundaryIds() {
     return boundaryIds;
