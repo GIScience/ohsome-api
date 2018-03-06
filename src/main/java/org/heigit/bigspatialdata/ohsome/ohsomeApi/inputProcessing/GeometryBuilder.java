@@ -81,10 +81,12 @@ public class GeometryBuilder {
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
    * @return <code>Geometry</code> object representing the unified bounding boxes.
-   * @throws BadRequestException if coordinates are invalid
+   * @throws BadRequestException if coordinates are invalid, or boundary does not intersect with
+   *         underlying data polygon
    */
   public Geometry createBboxes(String[] bboxes) throws BadRequestException {
 
+    Utils utils = new Utils();
     try {
       Geometry unifiedBbox;
       GeometryFactory gf = new GeometryFactory();
@@ -106,6 +108,9 @@ public class GeometryBuilder {
         bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(this.bbox));
       }
+      if (utils.isWithin(unifiedBbox) == false)
+        throw new BadRequestException(
+            "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
       return unifiedBbox;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
@@ -117,8 +122,8 @@ public class GeometryBuilder {
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
    * array.
    * 
-   * @param bcircles <code>String</code> array containing the lon/lat coordinates of the point at [0]
-   *        and [1] and the size of the buffer at [2].
+   * @param bcircles <code>String</code> array containing the lon/lat coordinates of the point at
+   *        [0] and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
    * @throws BadRequestException if coordinates or radius are invalid
    */

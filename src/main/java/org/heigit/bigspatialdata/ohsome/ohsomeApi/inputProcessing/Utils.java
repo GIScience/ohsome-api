@@ -11,7 +11,6 @@ import java.util.Objects;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotFoundException;
-import org.heigit.bigspatialdata.oshdb.util.geometry.fip.FastPolygonOperations;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -25,7 +24,6 @@ public class Utils {
   public static String defStartTime = "2007-01-01";
   public static String defEndTime = "2018-03-01";
   private String[] boundaryIds;
-  private FastPolygonOperations dataPolyOps = new FastPolygonOperations(Application.getDataPoly());
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
@@ -414,19 +412,18 @@ public class Utils {
   }
 
   /**
-   * Clips the given boundary parameter through the underlying polygon of the data-file.
+   * Checks if the given geometry is within the underlying data-polygon.
+   * Returns also true if no data-polygon is given.
    * 
-   * @param geom
-   * @return <code>Geometry</code> which represents the intersection between the provided boundary
-   *         and the data-boundary.
+   * @param geom <code>Geometry</code>, which is tested against the data-polygon
+   * @return <code>true</code> - if inside <br>
+   *         <code>false</code> - if not inside
    */
-  public Geometry clipBoundary(Geometry geom) {
+  public boolean isWithin(Geometry geom) {
 
-    if (!geom.intersects(Application.getDataPoly()))
-      return null;
-
-    Geometry intersection = dataPolyOps.intersection(geom);
-    return intersection;
+    if (Application.getDataPoly() != null)
+      return geom.within(Application.getDataPoly());
+    return true;
   }
 
 
