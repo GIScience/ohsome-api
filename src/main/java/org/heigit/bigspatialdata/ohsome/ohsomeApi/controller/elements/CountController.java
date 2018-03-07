@@ -685,7 +685,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -737,7 +737,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -789,7 +789,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -843,7 +843,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -898,7 +898,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -959,7 +959,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1024,7 +1024,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1088,7 +1088,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1146,7 +1146,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1198,7 +1198,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1257,7 +1257,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1320,7 +1320,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "
@@ -1386,7 +1386,7 @@ public class CountController {
           + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false,
-          value = "WGS84 coordinates + radius in meters in the following format: "
+          value = "WGS84 coordinates + radius in meter in the following format: "
               + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)"),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = "WGS84 coordinates in the following format: "

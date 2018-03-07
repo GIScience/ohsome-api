@@ -17,24 +17,20 @@ public class GroupByBoundaryMetadata {
   @ApiModelProperty(notes = "Time the server needed to execute the request", required = true,
       position = 0)
   private long executionTime;
-  @ApiModelProperty(notes = "Unit of the value in the result object(s)", required = true,
-      position = 1)
-  private String unit;
   @ApiModelProperty(
       notes = "Name of the boundary object & its coordinates (+ radius in case of bcircles)",
-      required = true, position = 2)
+      required = true, position = 1)
   private Map<String, double[]> boundary;
   @ApiModelProperty(notes = "Text describing the result in a sentence", required = true,
-      position = 3)
+      position = 2)
   private String description;
   @ApiModelProperty(notes = "Request URL to which this whole output JSON was generated",
-      required = true, position = 4)
+      required = true, position = 3)
   private String requestUrl;
 
-  public GroupByBoundaryMetadata(long executionTime, String unit, Map<String, double[]> boundary,
+  public GroupByBoundaryMetadata(long executionTime, Map<String, double[]> boundary,
       String description, String requestUrl) {
     this.executionTime = executionTime;
-    this.unit = unit;
     this.boundary = boundary;
     this.description = description;
     this.requestUrl = requestUrl;
@@ -42,10 +38,6 @@ public class GroupByBoundaryMetadata {
 
   public long getExecutionTime() {
     return executionTime;
-  }
-
-  public String getUnit() {
-    return unit;
   }
 
   public Map<String, double[]> getBoundary() {
