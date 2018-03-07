@@ -1,16 +1,16 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.Objects;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotFoundException;
+import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -21,8 +21,8 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class Utils {
 
-  public static String defStartTime = "2007-01-01";
-  public static String defEndTime = "2018-03-01";
+  public static String defStartTime;
+  public static String defEndTime;
   private String[] boundaryIds;
 
   /**
@@ -250,14 +250,9 @@ public class Utils {
    * @param time <code>String</code> holding the unparsed time information.
    * @return <code>String</code> array containing the startTime at at [0], the endTime at [1] and
    *         the period at [2].
-   * @throws BadRequestException if the provided time parameter does not fit to any specified format
    */
-  public String[] extractIsoTime(String time) throws BadRequestException {
-    // retrieve earliest/latest timestamp from metadata (if available)
-    if (Application.getMetadata() != null) {
-      defStartTime = Application.getMetadata().get(0);
-      defEndTime = Application.getMetadata().get(1);
-    }
+  public String[] extractIsoTime(String time) throws Exception {
+
     String[] timeVals = new String[3];
     if (time.contains("/")) {
       if (time.length() == 1) {
@@ -315,50 +310,19 @@ public class Utils {
   /**
    * Checks the given time-<code>String</code> on its content and if it is ISO-8601 conform.
    * 
-   * @param time <code>String</code> containing the start or end time from the given time parameter.
-   * @param startEnd <code>String</code> containing either "start" or "end" depending on the given
-   *        timestamp.
-   * @throws BadRequestException if the given time-String is not ISO-8601 conform
+   * @param time <code>String</code> containing a start-, end-, or single timestamp from the given
+   *        time parameter.
+   * @param startEnd <code>String</code> containing either "start", "end", or "timestamp x", where x
+   *        refers to the number of the timestamp.
+   * @throws Exception
    */
-  public void checkIsoConformity(String time, String startEndTstamp) {
+  public void checkIsoConformity(String time, String startEndTstamp) throws Exception {
 
     try {
-      // YYYY
-      if (time.length() == 4) {
-        time = time + "-01-01";
-        LocalDate.parse(time);
-      }
-      // YYYY-MM
-      else if (time.length() == 7) {
-        time = time + "-01";
-        LocalDate.parse(time);
-      }
-      // YYYY-MM-DD
-      else if (time.length() == 10) {
-        LocalDate.parse(time);
-      }
-      // YYYY-MM-DDThh
-      else if (time.length() == 13) {
-        time = time + ":00:00";
-        LocalDateTime.parse(time);
-      }
-      // YYYY-MM-DDThh:mm
-      else if (time.length() == 16) {
-        time = time + ":00";
-        LocalDateTime.parse(time);
-      }
-      // YYYY-MM-DDThh:mm:ss
-      else if (time.length() == 19) {
-        LocalDateTime.parse(time);
-      } else {
-        throw new BadRequestException(
-            "The " + startEndTstamp + " of the provided time parameter is not ISO-8601 conform.");
-      }
-
-      checkTemporalExtend(time);
-    } catch (DateTimeParseException e) {
-      throw new BadRequestException(
-          "The " + startEndTstamp + " of the provided time parameter is not ISO-8601 conform.");
+      ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(time);
+      checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+    } catch (Exception e) {
+      throw e;
     }
   }
 
@@ -370,23 +334,18 @@ public class Utils {
    */
   private void checkTemporalExtend(String... timeInfo) throws NotFoundException {
 
-    SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-    SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     long start = 0;
     long end = 0;
-    long timestampLong;
-    if (Application.getMetadata() == null) {
-      start = parseTimestamp(sdf1, defStartTime);
-      end = parseTimestamp(sdf1, defEndTime);
-    } else {
-      start = parseTimestamp(sdf2, defStartTime);
-      end = parseTimestamp(sdf2, defEndTime);
-    }
+    long timestampLong = 0;
+
+    start = DateTimeFormatter.ISO_DATE_TIME.parse(defStartTime + "Z")
+        .getLong(ChronoField.INSTANT_SECONDS);
+    end = DateTimeFormatter.ISO_DATE_TIME.parse(defEndTime + "Z")
+        .getLong(ChronoField.INSTANT_SECONDS);
 
     for (String timestamp : timeInfo) {
-      timestampLong = parseTimestamp(sdf2, timestamp);
-      if (timestampLong == 0)
-        timestampLong = parseTimestamp(sdf1, timestamp);
+      timestampLong =
+          DateTimeFormatter.ISO_DATE_TIME.parse(timestamp).getLong(ChronoField.INSTANT_SECONDS);
       if (timestampLong < start || timestampLong > end)
         throw new NotFoundException(
             "The given time parameter is not completely within the timeframe (" + defStartTime
@@ -395,25 +354,8 @@ public class Utils {
   }
 
   /**
-   * Parses the given timestamp-<code>String</code> into a <code>long</code> using the given
-   * <code>SimpleDateFormat</code>.
-   * 
-   * @param format
-   * @param timestamp
-   * @return parsed <code>long</code> value (0 in case of not able to parse).
-   */
-  private long parseTimestamp(SimpleDateFormat format, String timestamp) {
-
-    try {
-      return format.parse(timestamp).getTime();
-    } catch (ParseException e) {
-      return 0;
-    }
-  }
-
-  /**
-   * Checks if the given geometry is within the underlying data-polygon.
-   * Returns also true if no data-polygon is given.
+   * Checks if the given geometry is within the underlying data-polygon. Returns also true if no
+   * data-polygon is given.
    * 
    * @param geom <code>Geometry</code>, which is tested against the data-polygon
    * @return <code>true</code> - if inside <br>
@@ -425,6 +367,7 @@ public class Utils {
       return geom.within(Application.getDataPoly());
     return true;
   }
+
 
 
   public String[] getBoundaryIds() {

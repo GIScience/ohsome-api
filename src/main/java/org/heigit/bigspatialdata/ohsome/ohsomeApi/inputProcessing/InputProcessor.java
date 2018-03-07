@@ -47,8 +47,17 @@ public class InputProcessor {
    */
   public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String bboxes,
       String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata) throws BadRequestException {
+      String[] userids, String[] time, String showMetadata) throws Exception {
 
+    // set earliest/latest timestamps (if in metadata)
+    if (Application.getMetadata() != null && !Application.getMetadata().get(0).isEmpty()
+        && !Application.getMetadata().get(2).isEmpty()) {
+      Utils.defStartTime = Application.getMetadata().get(0);
+      Utils.defEndTime = Application.getMetadata().get(1);
+    } else {
+      Utils.defStartTime = "2007-11-01T00:00:00";
+      Utils.defEndTime = "2018-03-01T00:00:00";
+    }
     geomBuilder = new GeometryBuilder();
     utils = new Utils();
 
