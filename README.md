@@ -25,7 +25,9 @@ These instructions will get you a copy of the project up and running on your loc
 Now you should have a running local REST-API, which is ready for receiving requests under *http://localhost:8080/*.
 
 Note:
-* additionally you can add an optional run-parameter to disable multithreading: *--database.multithreading=false*
+* additionally you can add optional run-parameters:
+    * to disable multithreading: *--database.multithreading=false*
+    * to enable in-memory-caching: *--database.caching=true* (caution.. enabling this option requires quite some memory)
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
     * in Eclipse: Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'
 * if you want to get information about the code directly, you can access the [Javadoc](http://129.206.7.121:8044/master/ohsome-api/target/site/apidocs/index.html), which gets updated daily.
