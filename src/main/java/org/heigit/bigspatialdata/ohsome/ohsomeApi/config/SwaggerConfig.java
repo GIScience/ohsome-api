@@ -64,7 +64,7 @@ public class SwaggerConfig {
         "v_0.1", "Terms of service",
         new Contact("Heidelberg Institute for Geoinformation Technology", "http://www.heigit.org",
             "info@heigit.org"),
-        "License of API", "API license URL", Collections.emptyList());
+        "License of API and used data", "http://ohsome.org", Collections.emptyList());
   }
 
   /**
