@@ -46,8 +46,11 @@ Gives the count within the given bounding box for all ways, which have the key �
 
 ```json
 {
-    "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-    "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "attribution": {
+        "url": "http://ohsome.org",
+        "text": "© OpenStreetMap contributors"
+    },
+    "apiVersion": "0.9",
     "result": [
         {
             "timestamp": "2008-01-01T00:00:00Z",
@@ -79,11 +82,13 @@ Gives the count grouped by the boundary objects for all ways, which have the key
 
 ```json
 {
-    "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-    "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "attribution": {
+        "url": "http://ohsome.org",
+        "text": "© OpenStreetMap contributors"
+    },
+    "apiVersion": "0.9",
     "groupByBoundaryMetadata": {
-        "executionTime": 2865,
-        "unit": "amount",
+        "executionTime": 1537,
         "boundary": {
             "bbox2": [
                 8.7128,
@@ -99,7 +104,7 @@ Gives the count grouped by the boundary objects for all ways, which have the key
             ]
         },
         "description": "Total number of items aggregated on the boundary object.",
-        "requestURL": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376%7C8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true"
+        "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376%7C8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true"
     },
     "groupByBoundaryResult": [
         {
@@ -146,8 +151,11 @@ Gives the values and the ratio within the given bounding polygon for all nodes w
 
 ```json
 {
-    "license": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-    "copyright": "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
+    "attribution": {
+        "url": "http://ohsome.org",
+        "text": "© OpenStreetMap contributors"
+    },
+    "apiVersion": "0.9",
     "ratioResult": [
         {
             "timestamp": "2009-05-01T00:00:00Z",
