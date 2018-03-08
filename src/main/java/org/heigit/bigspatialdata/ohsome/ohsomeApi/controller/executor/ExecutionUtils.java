@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
@@ -20,9 +19,7 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
-import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class ExecutionUtils {
@@ -39,22 +36,6 @@ public class ExecutionUtils {
     otherSymbols.setDecimalSeparator('.');
     DecimalFormat decForm = new DecimalFormat(format, otherSymbols);
     return decForm;
-  }
-
-  /**
-   * Creates a TagTranslator object from the given keytables or OSHDB file.
-   * 
-   * @return <code>TagTranslator</code> object.
-   * @throws OSHDBKeytablesNotFoundException
-   */
-  public TagTranslator createTagTranslator() throws OSHDBKeytablesNotFoundException {
-    TagTranslator tt;
-    if (Application.getH2Db() == null)
-      tt = new TagTranslator(Application.getKeytables().getConnection());
-    else
-      tt = new TagTranslator(Application.getH2Db().getConnection());
-
-    return tt;
   }
 
   /**

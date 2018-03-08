@@ -65,8 +65,8 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, false, false, bboxes,
+
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.PERIMETER, false, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -104,8 +104,7 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, false, false, bboxes,
+    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, false, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -143,8 +142,7 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.PERIMETER, false, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByUser(RequestResource.PERIMETER, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -188,8 +186,7 @@ public class PerimeterController {
           required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER, false, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
   }
 
@@ -242,8 +239,7 @@ public class PerimeterController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, false, false,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, false, false,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
         groupByValues);
   }
@@ -296,8 +292,7 @@ public class PerimeterController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare(RequestResource.PERIMETER, false, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.PERIMETER, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
@@ -353,7 +348,7 @@ public class PerimeterController {
         "This resource is still under development and not finished yet.");
 
     // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER,
+    // return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER,
     // false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
     // keys2,
     // values2);
@@ -392,8 +387,7 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, false, true, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.PERIMETER, false, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -433,8 +427,7 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, false, true, bboxes,
+    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, false, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -490,8 +483,7 @@ public class PerimeterController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, false, true,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, false, true,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
         groupByValues);
   }
@@ -548,8 +540,7 @@ public class PerimeterController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaRatio(RequestResource.PERIMETER, false, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaRatio(RequestResource.PERIMETER, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata, types2, keys2, values2);
   }
 
@@ -600,8 +591,7 @@ public class PerimeterController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, true, false, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.PERIMETER, true, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -652,8 +642,7 @@ public class PerimeterController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, true, false, bboxes,
+    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, true, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -704,8 +693,7 @@ public class PerimeterController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByUser(RequestResource.PERIMETER, true, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByUser(RequestResource.PERIMETER, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -762,8 +750,7 @@ public class PerimeterController {
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER, true, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKeys);
   }
 
@@ -827,8 +814,7 @@ public class PerimeterController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, true, false,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, true, false,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
         groupByValues);
   }
@@ -893,8 +879,7 @@ public class PerimeterController {
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaShare(RequestResource.PERIMETER, true, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.PERIMETER, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
   }
 
@@ -951,7 +936,7 @@ public class PerimeterController {
         "This resource is still under development and not finished yet.");
 
     // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    // return executor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER,
+    // return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.PERIMETER,
     // true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
     // keys2,
     // values2);
@@ -1005,8 +990,7 @@ public class PerimeterController {
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterArea(RequestResource.PERIMETER, true, true, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.PERIMETER, true, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -1060,8 +1044,7 @@ public class PerimeterController {
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, true, true, bboxes,
+    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER, true, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -1127,8 +1110,7 @@ public class PerimeterController {
       String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, true, true,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.PERIMETER, true, true,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, groupByKey,
         groupByValues);
   }
@@ -1195,8 +1177,7 @@ public class PerimeterController {
       String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.executeLengthPerimeterAreaRatio(RequestResource.PERIMETER, true, bboxes,
+    return ElementsRequestExecutor.executeLengthPerimeterAreaRatio(RequestResource.PERIMETER, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata, types2, keys2, values2);
   }
 }

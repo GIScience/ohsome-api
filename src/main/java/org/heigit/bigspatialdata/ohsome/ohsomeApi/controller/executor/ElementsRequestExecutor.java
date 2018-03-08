@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
@@ -53,9 +54,9 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  private final String url = "http://ohsome.org";
-  private final String text = "© OpenStreetMap contributors";
-  private final String apiVersion = "0.9";
+  private static final String url = "http://ohsome.org";
+  private static final String text = "© OpenStreetMap contributors";
+  private static final String apiVersion = "0.9";
 
   /**
    * Performs a count calculation.
@@ -75,9 +76,9 @@ public class ElementsRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public DefaultAggregationResponse executeCount(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public static DefaultAggregationResponse executeCount(boolean isPost, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -122,7 +123,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse
    *         GroupByTypeResponseContent}
    */
-  public GroupByTypeResponse executeCountGroupByType(boolean isPost, boolean isDensity,
+  public static GroupByTypeResponse executeCountGroupByType(boolean isPost, boolean isDensity,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -196,7 +197,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
    *         GroupByBoundaryResponseContent}
    */
-  public GroupByBoundaryResponse executeCountGroupByBoundary(boolean isPost, String bboxes,
+  public static GroupByBoundaryResponse executeCountGroupByBoundary(boolean isPost, String bboxes,
       String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -256,9 +257,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
    *         GroupByKeyResponseContent}
    */
-  public GroupByKeyResponse executeCountGroupByKey(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKeys)
+  public static GroupByKeyResponse executeCountGroupByKey(boolean isPost, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -270,11 +271,10 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -345,8 +345,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
-  public GroupByTagResponse executeCountGroupByTag(boolean isPost, boolean isDensity, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+  public static GroupByTagResponse executeCountGroupByTag(boolean isPost, boolean isDensity,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
@@ -363,7 +363,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
@@ -455,9 +455,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
    *         GroupByUserResponseContent}
    */
-  public GroupByUserResponse executeCountGroupByUser(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+  public static GroupByUserResponse executeCountGroupByUser(boolean isPost, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
@@ -516,7 +517,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public ShareResponse executeCountShare(boolean isPost, String bboxes, String bcircles,
+  public static ShareResponse executeCountShare(boolean isPost, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -528,7 +529,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -638,7 +639,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(boolean isPost,
+  public static ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(boolean isPost,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -651,7 +652,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -737,7 +738,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executeCountDensity(boolean isPost, String bboxes,
+  public static DefaultAggregationResponse executeCountDensity(boolean isPost, String bboxes,
       String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception {
@@ -790,7 +791,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public RatioResponse executeCountRatio(boolean isPost, String bboxes, String bcircles,
+  public static RatioResponse executeCountRatio(boolean isPost, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
@@ -862,7 +863,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
    *         GroupByBoundaryResponseContent}
    */
-  public RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(boolean isPost,
+  public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(boolean isPost,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata, String[] types2, String[] keys2,
       String[] values2) throws UnsupportedOperationException, Exception {
@@ -955,10 +956,11 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public DefaultAggregationResponse executeLengthPerimeterArea(RequestResource requestResource,
-      boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public static DefaultAggregationResponse executeLengthPerimeterArea(
+      RequestResource requestResource, boolean isPost, boolean isDensity, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result = null;
@@ -1055,9 +1057,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
    *         GroupByKeyResponseContent}
    */
-  public GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] groupByKeys)
+  public static GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1073,7 +1076,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -1175,11 +1178,11 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
-  public GroupByTagResponse executeLengthPerimeterAreaGroupByTag(RequestResource requestResource,
-      boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKey, String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+  public static GroupByTagResponse executeLengthPerimeterAreaGroupByTag(
+      RequestResource requestResource, boolean isPost, boolean isDensity, String bboxes,
+      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length == 0)
@@ -1197,7 +1200,7 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     if (groupByValues == null)
       groupByValues = new String[0];
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
@@ -1338,10 +1341,10 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
    *         GroupByUserResponseContent}
    */
-  public GroupByUserResponse executeLengthPerimeterAreaGroupByUser(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
+  public static GroupByUserResponse executeLengthPerimeterAreaGroupByUser(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
@@ -1436,7 +1439,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse
    *         GroupByTypeResponseContent}
    */
-  public GroupByTypeResponse executePerimeterAreaGroupByType(RequestResource requestResource,
+  public static GroupByTypeResponse executePerimeterAreaGroupByType(RequestResource requestResource,
       boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
@@ -1548,7 +1551,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public ShareResponse executeLengthPerimeterAreaShare(RequestResource requestResource,
+  public static ShareResponse executeLengthPerimeterAreaShare(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata, String[] keys2,
       String[] values2) throws UnsupportedOperationException, Exception {
@@ -1561,7 +1564,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String description = "";
     String requestURL = null;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -1708,7 +1711,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
-  public ShareGroupByBoundaryResponse executeLengthPerimeterAreaShareGroupByBoundary(
+  public static ShareGroupByBoundaryResponse executeLengthPerimeterAreaShareGroupByBoundary(
       RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] keys2, String[] values2)
@@ -1722,7 +1725,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    TagTranslator tt = exeUtils.createTagTranslator();
+    TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
@@ -1980,7 +1983,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         ElementsResponseContent}
    */
-  public RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
+  public static RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
       String[] values, String[] userids, String[] time, String showMetadata, String[] types2,
       String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {

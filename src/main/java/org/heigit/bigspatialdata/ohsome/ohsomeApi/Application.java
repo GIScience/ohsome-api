@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -28,6 +29,7 @@ public class Application implements ApplicationRunner {
   private static OSHDBH2 keytables = null;
   private static ArrayList<String> metadata = null;
   private static Polygon dataPoly = null;
+  private static TagTranslator tagTranslator = null;
 
   public static void main(String[] args) {
 
@@ -76,12 +78,14 @@ public class Application implements ApplicationRunner {
       if ((h2Db == null && igniteDb == null) || (h2Db != null && igniteDb != null))
         throw new RuntimeException(
             "You have to define either the '--database.db' or the '--database.ignite' parameter.");
-      if (h2Db != null)
+      if (h2Db != null) {
         h2Db.multithreading(multithreading);
-      else
-        keytables.multithreading(multithreading);
-      if (h2Db != null)
         h2Db.inMemory(caching);
+        tagTranslator = new TagTranslator(Application.getH2Db().getConnection());
+      } else {
+        keytables.multithreading(multithreading);
+        tagTranslator = new TagTranslator(Application.getKeytables().getConnection());
+      }
       createDataPoly();
     } catch (ClassNotFoundException | SQLException e) {
       throw new RuntimeException(e.getMessage());
@@ -157,5 +161,9 @@ public class Application implements ApplicationRunner {
 
   public static Polygon getDataPoly() {
     return dataPoly;
+  }
+
+  public static TagTranslator getTagTranslator() {
+    return tagTranslator;
   }
 }
