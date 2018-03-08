@@ -41,6 +41,7 @@ public class Application implements ApplicationRunner {
   public void run(ApplicationArguments args) throws Exception {
 
     boolean multithreading = true;
+    boolean caching = false;
 
     // only used when tests are executed
     if (System.getProperty("database.db") != null)
@@ -48,32 +49,40 @@ public class Application implements ApplicationRunner {
 
     try {
       for (String paramName : args.getOptionNames()) {
-        if (paramName.equals("database.db")) {
-          h2Db = new OSHDBH2(args.getOptionValues(paramName).get(0));
-          metadata = extractMetadata(h2Db);
-        } else if (paramName.equals("database.ignite")) {
-          igniteDb = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
-          metadata = extractMetadata(igniteDb);
-        } else if (paramName.equals("database.keytables")) {
-          keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
-        } else if (paramName.equals("database.multithreading")) {
-          if (args.getOptionValues(paramName).get(0).equals("false"))
-            multithreading = false;
-        } else {
-          // do nothing as some configuration parameters have a direct impact
+        switch (paramName) {
+          case "database.db":
+            h2Db = new OSHDBH2(args.getOptionValues(paramName).get(0));
+            metadata = extractMetadata(h2Db);
+            break;
+          case "database.ignite":
+            igniteDb = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
+            metadata = extractMetadata(igniteDb);
+            break;
+          case "database.keytables":
+            keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
+            break;
+          case "database.multithreading":
+            if (args.getOptionValues(paramName).get(0).equals("false"))
+              multithreading = false;
+            break;
+          case "database.caching":
+            if (args.getOptionValues(paramName).get(0).equals("true"))
+              caching = true;
+            break;
+          default:
+            break;
         }
       }
       if ((h2Db == null && igniteDb == null) || (h2Db != null && igniteDb != null))
         throw new RuntimeException(
             "You have to define either the '--database.db' or the '--database.ignite' parameter.");
-
       if (h2Db != null)
         h2Db.multithreading(multithreading);
       else
         keytables.multithreading(multithreading);
-
+      if (h2Db != null)
+        h2Db.inMemory(caching);
       createDataPoly();
-
     } catch (ClassNotFoundException | SQLException e) {
       throw new RuntimeException(e.getMessage());
     }
@@ -104,7 +113,7 @@ public class Application implements ApplicationRunner {
 
   /**
    * Creates a polygon from the coordinates provided by the metadata containing the spatial extend
-   * of the underlying data.
+   * of the underlying data. Works at the moment only for non-complex polygons.
    */
   private void createDataPoly() {
 
