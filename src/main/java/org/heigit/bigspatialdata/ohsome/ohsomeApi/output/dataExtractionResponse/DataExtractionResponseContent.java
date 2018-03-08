@@ -13,7 +13,7 @@ public class DataExtractionResponseContent {
 
   private final String status;
   private final Metadata metadata;
-  private final ArrayList<OshdbResult> results;
+  private final ArrayList<OSHDBResult> results;
 
   /**
    * @param status
@@ -21,7 +21,7 @@ public class DataExtractionResponseContent {
    * @param results
    */
   public DataExtractionResponseContent(String status, Metadata metadata,
-      ArrayList<OshdbResult> results) {
+      ArrayList<OSHDBResult> results) {
     this.status = status;
     this.metadata = metadata;
     this.results = results;
@@ -35,7 +35,7 @@ public class DataExtractionResponseContent {
     return metadata;
   }
 
-  public ArrayList<OshdbResult> getResults() {
+  public ArrayList<OSHDBResult> getResults() {
     return results;
   }
 }

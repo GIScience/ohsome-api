@@ -7,16 +7,16 @@ import java.util.ArrayList;
  * of the REST API was defined in Confluence.
  *
  */
-public class OshdbResult {
+public class OSHDBResult {
 
   private final String timestamp; // is the actual timestamp
-  private final ArrayList<OshdbObjects> osmObjects;
+  private final ArrayList<OSHDBObjects> osmObjects;
 
   /**
    * @param timestamp
    * @param osmObjects
    */
-  public OshdbResult(String timestamp, ArrayList<OshdbObjects> osmObjects) {
+  public OSHDBResult(String timestamp, ArrayList<OSHDBObjects> osmObjects) {
     this.timestamp = timestamp;
     this.osmObjects = osmObjects;
   }
@@ -25,7 +25,7 @@ public class OshdbResult {
     return timestamp;
   }
 
-  public ArrayList<OshdbObjects> getOsmObjects() {
+  public ArrayList<OSHDBObjects> getOsmObjects() {
     return osmObjects;
   }
 

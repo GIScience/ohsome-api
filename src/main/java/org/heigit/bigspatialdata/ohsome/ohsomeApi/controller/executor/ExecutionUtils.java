@@ -42,7 +42,7 @@ public class ExecutionUtils {
   }
 
   /**
-   * Creates a TagTranslator object from the given keytables or oshdb file.
+   * Creates a TagTranslator object from the given keytables or OSHDB file.
    * 
    * @return <code>TagTranslator</code> object.
    * @throws OSHDBKeytablesNotFoundException
@@ -111,7 +111,7 @@ public class ExecutionUtils {
 
   /**
    * Computes the result for the /count/groupBy/boundary resource using the map-reduce functions
-   * from the oshdb.
+   * from the OSHDB.
    * 
    * @param bType
    * @param mapRed
@@ -145,7 +145,7 @@ public class ExecutionUtils {
 
   /**
    * Computes the result for the /count/share/groupBy/boundary resource using the map-reduce
-   * functions from the oshdb.
+   * functions from the OSHDB.
    * 
    * @param bType
    * @param mapRed
