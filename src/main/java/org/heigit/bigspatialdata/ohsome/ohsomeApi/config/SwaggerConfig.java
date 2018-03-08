@@ -63,7 +63,7 @@ public class SwaggerConfig {
         "This REST-API aims to leverage the tools of the OSHDB-API through allowing to access some of its functionalities via HTTP requests.",
         "v_0.1", "Terms of service",
         new Contact("Heidelberg Institute for Geoinformation Technology", "http://www.heigit.org",
-            "fabian.kowatsch@uni-heidelberg.de"),
+            "info@heigit.org"),
         "License of API", "API license URL", Collections.emptyList());
   }
 
