@@ -145,7 +145,7 @@ public class ElementsRequestExecutor {
         }).zerofillIndices(iP.getOsmTypes()).count();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
@@ -175,7 +175,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       if (isDensity)
         metadata = new Metadata(duration,
-            "Density of selected items (number of items per square-kilometer) aggregated on the type.",
+            "Density of selected items (number of items per square kilometer) aggregated on the type.",
             requestURL);
       else
         metadata =
@@ -400,7 +400,7 @@ public class ElementsRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     // iterate over the entry objects aggregated by tags
@@ -434,7 +434,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       if (isDensity)
         metadata = new Metadata(duration,
-            "Density of selected items (number of items per square-kilometer) aggregated on the tag.",
+            "Density of selected items (number of items per square kilometer) aggregated on the tag.",
             requestURL);
       else
         metadata =
@@ -757,7 +757,7 @@ public class ElementsRequestExecutor {
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     Result[] resultSet = new Result[result.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           Double.parseDouble(
@@ -768,7 +768,7 @@ public class ElementsRequestExecutor {
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration,
-          "Density of selected items (number of items per square-kilometer).", requestURL);
+          "Density of selected items (number of items per square kilometer).", requestURL);
     }
     DefaultAggregationResponse response =
         new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
@@ -982,9 +982,9 @@ public class ElementsRequestExecutor {
             });
         if (isDensity) {
           description =
-              "Density of selected items (area of items in square-meter per square-kilometer).";
+              "Density of selected items (area of items in square meter per square kilometer).";
         } else {
-          description = "Total area of polygons in square-meter.";
+          description = "Total area of polygons in square meter.";
         }
         break;
       case LENGTH:
@@ -994,7 +994,7 @@ public class ElementsRequestExecutor {
             });
         if (isDensity) {
           description =
-              "Density of selected items (length of items in meter per square-kilometer).";
+              "Density of selected items (length of items in meter per square kilometer).";
         } else {
           description = "Total length of lines in meter.";
         }
@@ -1010,7 +1010,7 @@ public class ElementsRequestExecutor {
         if (isDensity) {
 
           description =
-              "Density of selected items (perimeter of items in meter per square-kilometer).";
+              "Density of selected items (perimeter of items in meter per square kilometer).";
         } else {
 
           description = "Total perimeter of polygonal items in meter.";
@@ -1021,7 +1021,7 @@ public class ElementsRequestExecutor {
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     Result[] resultSet = new Result[result.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
       if (isDensity)
         resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
@@ -1116,7 +1116,7 @@ public class ElementsRequestExecutor {
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by keys
@@ -1147,7 +1147,7 @@ public class ElementsRequestExecutor {
         description = "Total perimeter of polygonal items in meter aggregated on the key.";
         break;
       case AREA:
-        description = "Total area of items in square-meter aggregated on the key.";
+        description = "Total area of items in square meter aggregated on the key.";
         break;
     }
     Metadata metadata = null;
@@ -1250,7 +1250,7 @@ public class ElementsRequestExecutor {
     // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
@@ -1288,7 +1288,7 @@ public class ElementsRequestExecutor {
         if (isDensity) {
 
           description =
-              "Density of selected items (length of items in meter per square-kilometer).";
+              "Density of selected items (length of items in meter per square kilometer).";
         } else {
 
           description = "Total length of items in meter aggregated on the tag.";
@@ -1298,7 +1298,7 @@ public class ElementsRequestExecutor {
         if (isDensity) {
 
           description =
-              "Density of selected items (perimeter of items in meter per square-kilometer).";
+              "Density of selected items (perimeter of items in meter per square kilometer).";
         } else {
 
           description = "Total perimeter of polygonal items in meter aggregated on the tag.";
@@ -1308,10 +1308,10 @@ public class ElementsRequestExecutor {
         if (isDensity) {
 
           description =
-              "Density of selected items (area of items in square-meter per square-kilometer).";
+              "Density of selected items (area of items in square meter per square kilometer).";
         } else {
 
-          description = "Total area of items in square-meter aggregated on the tag.";
+          description = "Total area of items in square meter aggregated on the tag.";
         }
         break;
     }
@@ -1383,7 +1383,7 @@ public class ElementsRequestExecutor {
         });
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
@@ -1408,7 +1408,7 @@ public class ElementsRequestExecutor {
         description = "Total perimeter of polygonal items in meter aggregated on the userid.";
         break;
       case AREA:
-        description = "Total area of items in square-meter aggregated on the userid.";
+        description = "Total area of items in square meter aggregated on the userid.";
         break;
     }
     Metadata metadata = null;
@@ -1468,10 +1468,10 @@ public class ElementsRequestExecutor {
         if (isDensity) {
 
           description =
-              "Density of selected items (area of items in square-meter per square-kilometer) aggregated on the type.";
+              "Density of selected items (area of items in square meter per square kilometer) aggregated on the type.";
         } else {
 
-          description = "Total area of items in square-meter aggregated on the type.";
+          description = "Total area of items in square meter aggregated on the type.";
         }
         break;
       case PERIMETER:
@@ -1488,7 +1488,7 @@ public class ElementsRequestExecutor {
         if (isDensity) {
 
           description =
-              "Density of selected items (perimeter of items in meter per square-kilometer) aggregated on the type.";
+              "Density of selected items (perimeter of items in meter per square kilometer) aggregated on the type.";
         } else {
 
           description = "Total perimeter of items in meter aggregated on the type.";
@@ -1500,7 +1500,7 @@ public class ElementsRequestExecutor {
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
@@ -1613,7 +1613,7 @@ public class ElementsRequestExecutor {
               return 0.0;
           }
         });
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     Double[] whole = new Double[result.size()];
     Double[] part = new Double[result.size()];
     String[] timeArray = new String[result.size()];
@@ -1682,7 +1682,7 @@ public class ElementsRequestExecutor {
         break;
       case AREA:
         description =
-            "Total area of the whole and of a share of items in square-meter satisfying keys2 and values2 within items selected by types, keys, values.";
+            "Total area of the whole and of a share of items in square meter satisfying keys2 and values2 within items selected by types, keys, values.";
         break;
     }
     Metadata metadata = null;
@@ -1904,7 +1904,7 @@ public class ElementsRequestExecutor {
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     String groupByName = "";
     String[] boundaryIds = utils.getBoundaryIds();
     Double[] whole = null;
@@ -2012,7 +2012,7 @@ public class ElementsRequestExecutor {
               return Geo.areaOf(snapshot.getGeometry());
             });
         description =
-            "Area of items in square-meter satisfying types2, keys2, values2 parameters (= value2 output) "
+            "Area of items in square meter satisfying types2, keys2, values2 parameters (= value2 output) "
                 + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
         break;
       case LENGTH:
@@ -2057,7 +2057,7 @@ public class ElementsRequestExecutor {
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];
     DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.###");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     count = 0;
     for (Entry<OSHDBTimestamp, Number> entry : result2.entrySet()) {
       String date = resultSet1[count].getTimestamp();
