@@ -17,6 +17,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilde
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse;
@@ -52,9 +53,9 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  private final String license = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,";
-  private final String copyright =
-      "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
+  private final String url = "http://ohsome.org";
+  private final String text = "© OpenStreetMap contributors";
+  private final String apiVersion = "0.9";
 
   /**
    * Performs a count calculation.
@@ -104,7 +105,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "Total number of items.", requestURL);
     }
     DefaultAggregationResponse response =
-        new DefaultAggregationResponse(license, copyright, metadata, resultSet);
+        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
 
     return response;
   }
@@ -180,7 +181,8 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the type.", requestURL);
     }
-    GroupByTypeResponse response = new GroupByTypeResponse(license, copyright, metadata, resultSet);
+    GroupByTypeResponse response =
+        new GroupByTypeResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -240,7 +242,7 @@ public class ElementsRequestExecutor {
           "Total number of items aggregated on the boundary object.", requestURL);
     }
     GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(license, copyright, gBBMetadata, resultSet);
+        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, gBBMetadata, resultSet);
     return response;
   }
 
@@ -326,7 +328,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Total number of items aggregated on the key.", requestURL);
     }
-    GroupByKeyResponse response = new GroupByKeyResponse(license, copyright, metadata, resultSet);
+    GroupByKeyResponse response =
+        new GroupByKeyResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -437,7 +440,8 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the tag.", requestURL);
     }
-    GroupByTagResponse response = new GroupByTagResponse(license, copyright, metadata, resultSet);
+    GroupByTagResponse response =
+        new GroupByTagResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -497,7 +501,8 @@ public class ElementsRequestExecutor {
       metadata =
           new Metadata(duration, "Total number of items aggregated on the userids.", requestURL);
     }
-    GroupByUserResponse response = new GroupByUserResponse(license, copyright, metadata, resultSet);
+    GroupByUserResponse response =
+        new GroupByUserResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -618,7 +623,8 @@ public class ElementsRequestExecutor {
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values.",
           requestURL);
     }
-    ShareResponse response = new ShareResponse(license, copyright, metadata, resultSet);
+    ShareResponse response =
+        new ShareResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -714,8 +720,8 @@ public class ElementsRequestExecutor {
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
           requestURL);
     }
-    ShareGroupByBoundaryResponse response =
-        new ShareGroupByBoundaryResponse(license, copyright, gBBMetadata, groupByResultSet);
+    ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
+        new Attribution(url, text), apiVersion, gBBMetadata, groupByResultSet);
     return response;
   }
 
@@ -765,7 +771,7 @@ public class ElementsRequestExecutor {
           "Density of selected items (number of items per square-kilometer).", requestURL);
     }
     DefaultAggregationResponse response =
-        new DefaultAggregationResponse(license, copyright, metadata, resultSet);
+        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -836,7 +842,8 @@ public class ElementsRequestExecutor {
               + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
           requestURL);
     }
-    RatioResponse response = new RatioResponse(license, copyright, metadata, resultSet);
+    RatioResponse response =
+        new RatioResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -930,8 +937,8 @@ public class ElementsRequestExecutor {
               + "selected by types, keys, values parameters (= value output) and ratio of value2:value grouped on the boundary objects.",
           requestURL);
     }
-    RatioGroupByBoundaryResponse response =
-        new RatioGroupByBoundaryResponse(license, copyright, gBBMetadata, ratioResultSet);
+    RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
+        new Attribution(url, text), apiVersion, gBBMetadata, ratioResultSet);
     return response;
   }
 
@@ -1031,7 +1038,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     DefaultAggregationResponse response =
-        new DefaultAggregationResponse(license, copyright, metadata, resultSet);
+        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1148,7 +1155,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByKeyResponse response = new GroupByKeyResponse(license, copyright, metadata, resultSet);
+    GroupByKeyResponse response =
+        new GroupByKeyResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1312,7 +1320,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByTagResponse response = new GroupByTagResponse(license, copyright, metadata, resultSet);
+    GroupByTagResponse response =
+        new GroupByTagResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1407,7 +1416,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByUserResponse response = new GroupByUserResponse(license, copyright, metadata, resultSet);
+    GroupByUserResponse response =
+        new GroupByUserResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1520,7 +1530,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByTypeResponse response = new GroupByTypeResponse(license, copyright, metadata, resultSet);
+    GroupByTypeResponse response =
+        new GroupByTypeResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1679,7 +1690,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    ShareResponse response = new ShareResponse(license, copyright, metadata, resultSet);
+    ShareResponse response =
+        new ShareResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1947,8 +1959,8 @@ public class ElementsRequestExecutor {
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
           requestURL);
     }
-    ShareGroupByBoundaryResponse response =
-        new ShareGroupByBoundaryResponse(license, copyright, gBBMetadata, groupByResultSet);
+    ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
+        new Attribution(url, text), apiVersion, gBBMetadata, groupByResultSet);
     return response;
   }
 
@@ -2066,7 +2078,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    RatioResponse response = new RatioResponse(license, copyright, metadata, resultSet);
+    RatioResponse response =
+        new RatioResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 

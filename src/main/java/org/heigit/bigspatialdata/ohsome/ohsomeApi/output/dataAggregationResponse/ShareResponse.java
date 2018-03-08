@@ -17,29 +17,29 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class ShareResponse {
 
-  @ApiModelProperty(notes = "License of the used data", required = true, position = 0)
-  private String license;
-  @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
-  private String copyright;
+  @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
+  private Attribution attribution;
+  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
   @ApiModelProperty(notes = "Result for /share requests", position = 3, required = true)
   private ShareResult[] shareResult;
 
-  public ShareResponse(String license, String copyright, Metadata metadata,
+  public ShareResponse(Attribution attribution, String apiVersion, Metadata metadata,
       ShareResult[] shareResult) {
-    this.license = license;
-    this.copyright = copyright;
+    this.attribution = attribution;
+    this.apiVersion = apiVersion;
     this.metadata = metadata;
     this.shareResult = shareResult;
   }
 
-  public String getLicense() {
-    return license;
+  public Attribution getAttribution() {
+    return attribution;
   }
 
-  public String getCopyright() {
-    return copyright;
+  public String getApiVersion() {
+    return apiVersion;
   }
 
   public Metadata getMetadata() {

@@ -19,30 +19,30 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class GroupByUserResponse {
 
-  @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
-  private String license;
-  @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
-  private String copyright;
+  @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
+  private Attribution attribution;
+  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
   private GroupByResult[] groupByUserResult;
 
-  public GroupByUserResponse(String license, String copyright, Metadata metadata,
+  public GroupByUserResponse(Attribution attribution, String apiVersion, Metadata metadata,
       GroupByResult[] groupByUserResult) {
-    this.license = license;
-    this.copyright = copyright;
+    this.attribution = attribution;
+    this.apiVersion = apiVersion;
     this.metadata = metadata;
     this.groupByUserResult = groupByUserResult;
   }
 
-  public String getLicense() {
-    return license;
+  public Attribution getAttribution() {
+    return attribution;
   }
 
-  public String getCopyright() {
-    return copyright;
+  public String getApiVersion() {
+    return apiVersion;
   }
 
   public Metadata getMetadata() {

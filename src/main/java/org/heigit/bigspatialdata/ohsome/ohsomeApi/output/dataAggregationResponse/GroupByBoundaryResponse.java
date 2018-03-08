@@ -20,30 +20,30 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class GroupByBoundaryResponse {
 
-  @ApiModelProperty(notes = "License of the included data", required = true, position = 0)
-  private String license;
-  @ApiModelProperty(notes = "Copyright of the used data", required = true, position = 1)
-  private String copyright;
+  @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
+  private Attribution attribution;
+  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the /groupBy/boundary output", position = 2)
   private GroupByBoundaryMetadata groupByBoundaryMetadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
   private GroupByResult[] groupByBoundaryResult;
 
-  public GroupByBoundaryResponse(String license, String copyright,
+  public GroupByBoundaryResponse(Attribution attribution, String apiVersion,
       GroupByBoundaryMetadata groupByBoundaryMetadata, GroupByResult[] groupByBoundaryResult) {
-    this.license = license;
-    this.copyright = copyright;
+    this.attribution = attribution;
+    this.apiVersion = apiVersion;
     this.groupByBoundaryMetadata = groupByBoundaryMetadata;
     this.groupByBoundaryResult = groupByBoundaryResult;
   }
 
-  public String getLicense() {
-    return license;
+  public Attribution getAttribution() {
+    return attribution;
   }
 
-  public String getCopyright() {
-    return copyright;
+  public String getApiVersion() {
+    return apiVersion;
   }
 
   public GroupByBoundaryMetadata getGroupByBoundaryMetadata() {
