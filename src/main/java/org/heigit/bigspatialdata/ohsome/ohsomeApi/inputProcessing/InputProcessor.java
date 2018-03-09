@@ -101,17 +101,17 @@ public class InputProcessor {
         mapRed = mapRed.areaOfInterest(geomBuilder.createBbox(new String[0]));
         break;
       case BBOXES:
-        boundaryValues = utils.splitBoundaryParam(bboxes, (byte) 1);
+        boundaryValues = utils.splitBoundaryParam(bboxes, BoundaryType.BBOXES);
         mapRed =
             mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
         break;
       case BCIRCLES:
-        boundaryValues = utils.splitBoundaryParam(bcircles, (byte) 2);
+        boundaryValues = utils.splitBoundaryParam(bcircles, BoundaryType.BCIRCLES);
         mapRed = mapRed.areaOfInterest(
             (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
         break;
       case BPOLYS:
-        boundaryValues = utils.splitBoundaryParam(bpolys, (byte) 3);
+        boundaryValues = utils.splitBoundaryParam(bpolys, BoundaryType.BPOLYS);
         mapRed =
             mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
         break;

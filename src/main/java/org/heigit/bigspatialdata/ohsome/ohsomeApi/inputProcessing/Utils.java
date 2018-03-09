@@ -74,7 +74,7 @@ public class Utils {
    * @return <code>String</code> array holding only coordinates (plus the radius in case of bounding
    *         points).
    */
-  public String[] splitBoundaryParam(String boundaryParam, byte boundaryType) {
+  public String[] splitBoundaryParam(String boundaryParam, BoundaryType boundaryType) {
 
     String[] boundaryObjects;
     String[] boundaryParamValues = null;
@@ -85,132 +85,135 @@ public class Utils {
       boundaryObjects = boundaryParam.split("\\|");
     else
       boundaryObjects = new String[] {boundaryParam};
-
     boundaryIds = new String[boundaryObjects.length];
     int idCount = 0;
     int paramCount = 0;
-
     try {
-      if (boundaryType == 1) {
-        if (boundaryObjects[0].contains(":")) {
-          // custom ids are given
-          boundaryParamValues = new String[boundaryObjects.length * 4];
-          for (String bObject : boundaryObjects) {
-            coords = bObject.split("\\,");
-            if (coords[0].contains(":")) {
-              String[] idAndCoordinate = coords[0].split(":");
-              // extract the id
-              boundaryIds[idCount] = idAndCoordinate[0];
-              // extract the coordinates
-              boundaryParamValues[paramCount] = idAndCoordinate[1];
-              boundaryParamValues[paramCount + 1] = coords[1];
-              boundaryParamValues[paramCount + 2] = coords[2];
-              boundaryParamValues[paramCount + 3] = coords[3];
-              idCount++;
-              paramCount += 4;
-            } else {
-              throw new BadRequestException(
-                  "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
-                      + "You can either set custom ids for all your boundary objects, or for none.");
+      switch (boundaryType) {
+        case BBOXES:
+          if (boundaryObjects[0].contains(":")) {
+            // custom ids are given
+            boundaryParamValues = new String[boundaryObjects.length * 4];
+            for (String bObject : boundaryObjects) {
+              coords = bObject.split("\\,");
+              if (coords[0].contains(":")) {
+                String[] idAndCoordinate = coords[0].split(":");
+                // extract the id
+                boundaryIds[idCount] = idAndCoordinate[0];
+                // extract the coordinates
+                boundaryParamValues[paramCount] = idAndCoordinate[1];
+                boundaryParamValues[paramCount + 1] = coords[1];
+                boundaryParamValues[paramCount + 2] = coords[2];
+                boundaryParamValues[paramCount + 3] = coords[3];
+                idCount++;
+                paramCount += 4;
+              } else {
+                throw new BadRequestException(
+                    "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
+                        + "You can either set custom ids for all your boundary objects, or for none.");
+              }
             }
-          }
-        } else {
-          // no custom ids are given
-          boundaryParamValues = new String[boundaryObjects.length * 4];
-          idCount = 1;
-          for (String bObject : boundaryObjects) {
-            coords = bObject.split("\\,");
-            for (String coord : coords) {
-              boundaryParamValues[paramCount] = coord;
-              paramCount++;
-            }
-            // adding of ids
-            boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
-            idCount++;
-          }
-        }
-      } else if (boundaryType == 2) {
-        // bcircles given
-        if (boundaryObjects[0].contains(":")) {
-          // custom ids are given
-          boundaryParamValues = new String[boundaryObjects.length * 3];
-          for (String bObject : boundaryObjects) {
-            coords = bObject.split("\\,");
-            if (coords[0].contains(":")) {
-              String[] idAndCoordinate = coords[0].split(":");
-              // extract the id
-              boundaryIds[idCount] = idAndCoordinate[0];
-              // extract the coordinate
-              boundaryParamValues[paramCount] = idAndCoordinate[1];
-              boundaryParamValues[paramCount + 1] = coords[1];
-              // extract the radius
-              boundaryParamValues[paramCount + 2] = coords[2];
-              idCount++;
-              paramCount += 3;
-            } else {
-              throw new BadRequestException(
-                  "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
-                      + "You can either set custom ids for all your boundary objects, or for none.");
-            }
-          }
-        } else {
-          // no custom ids are given
-          boundaryParamValues = new String[boundaryObjects.length * 3];
-          idCount = 1;
-          for (String bObject : boundaryObjects) {
-            coords = bObject.split("\\,");
-            // walks through the coordinates + radius
-            for (String coord : coords) {
-              boundaryParamValues[paramCount] = coord;
-              paramCount++;
-            }
-            // adding of ids
-            boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
-            idCount++;
-          }
-        }
-      } else {
-        // bpolys given
-        if (boundaryObjects[0].contains(":")) {
-          // custom ids are given
-          boundaryParamValues = new String[boundaryParam.length()];
-          for (String bObject : boundaryObjects) {
-            coords = bObject.split("\\,");
-            if (coords[0].contains(":")) {
-              String[] idAndCoordinate = coords[0].split(":");
-              // extract the id and the first coordinate
-              boundaryIds[idCount] = idAndCoordinate[0];
-              boundaryParamValues[paramCount] = idAndCoordinate[1];
-              paramCount++;
-              // extract the other coordinates
-              for (int i = 1; i < coords.length; i++) {
-                boundaryParamValues[paramCount] = coords[i];
+          } else {
+            // no custom ids are given
+            boundaryParamValues = new String[boundaryObjects.length * 4];
+            idCount = 1;
+            for (String bObject : boundaryObjects) {
+              coords = bObject.split("\\,");
+              for (String coord : coords) {
+                boundaryParamValues[paramCount] = coord;
                 paramCount++;
               }
+              // adding of ids
+              boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
               idCount++;
-            } else {
-              throw new BadRequestException(
-                  "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
-                      + "You can either set custom ids for all your boundary objects, or for none.");
             }
           }
-        } else {
-          // no custom ids are given
-          boundaryParamValues = new String[boundaryParam.length()];
-          idCount = 1;
-          for (String bObject : boundaryObjects) {
-            coords = bObject.split("\\,");
-            // walks through the coordinates
-            for (String coord : coords) {
-              boundaryParamValues[paramCount] = coord;
-              paramCount++;
+          break;
+        case BCIRCLES:
+          if (boundaryObjects[0].contains(":")) {
+            // custom ids are given
+            boundaryParamValues = new String[boundaryObjects.length * 3];
+            for (String bObject : boundaryObjects) {
+              coords = bObject.split("\\,");
+              if (coords[0].contains(":")) {
+                String[] idAndCoordinate = coords[0].split(":");
+                // extract the id
+                boundaryIds[idCount] = idAndCoordinate[0];
+                // extract the coordinate
+                boundaryParamValues[paramCount] = idAndCoordinate[1];
+                boundaryParamValues[paramCount + 1] = coords[1];
+                // extract the radius
+                boundaryParamValues[paramCount + 2] = coords[2];
+                idCount++;
+                paramCount += 3;
+              } else {
+                throw new BadRequestException(
+                    "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
+                        + "You can either set custom ids for all your boundary objects, or for none.");
+              }
             }
-            // adding of ids
-            boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
-            idCount++;
+          } else {
+            // no custom ids are given
+            boundaryParamValues = new String[boundaryObjects.length * 3];
+            idCount = 1;
+            for (String bObject : boundaryObjects) {
+              coords = bObject.split("\\,");
+              // walks through the coordinates + radius
+              for (String coord : coords) {
+                boundaryParamValues[paramCount] = coord;
+                paramCount++;
+              }
+              // adding of ids
+              boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
+              idCount++;
+            }
           }
-        }
+          break;
+        case BPOLYS:
+          if (boundaryObjects[0].contains(":")) {
+            // custom ids are given
+            boundaryParamValues = new String[boundaryParam.length()];
+            for (String bObject : boundaryObjects) {
+              coords = bObject.split("\\,");
+              if (coords[0].contains(":")) {
+                String[] idAndCoordinate = coords[0].split(":");
+                // extract the id and the first coordinate
+                boundaryIds[idCount] = idAndCoordinate[0];
+                boundaryParamValues[paramCount] = idAndCoordinate[1];
+                paramCount++;
+                // extract the other coordinates
+                for (int i = 1; i < coords.length; i++) {
+                  boundaryParamValues[paramCount] = coords[i];
+                  paramCount++;
+                }
+                idCount++;
+              } else {
+                throw new BadRequestException(
+                    "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
+                        + "You can either set custom ids for all your boundary objects, or for none.");
+              }
+            }
+          } else {
+            // no custom ids are given
+            boundaryParamValues = new String[boundaryParam.length()];
+            idCount = 1;
+            for (String bObject : boundaryObjects) {
+              coords = bObject.split("\\,");
+              // walks through the coordinates
+              for (String coord : coords) {
+                boundaryParamValues[paramCount] = coord;
+                paramCount++;
+              }
+              // adding of ids
+              boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
+              idCount++;
+            }
+          }
+          break;
+        default:
+          break;
       }
+
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new BadRequestException(
           "The processing of the boundary parameter gave an error. Please use the predefined format "
