@@ -8,11 +8,8 @@ import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -46,28 +43,8 @@ public class GeometryBuilder {
    * @throws BadRequestException if coordinates are invalid
    */
   public OSHDBBoundingBox createBbox(String[] bbox) throws BadRequestException {
-    if (bbox.length == 0) {
-      // no bboxes given -> global request
-      this.bbox = new OSHDBBoundingBox(defMinLon, defMinLat, defMaxLon, defMaxLat);
-      return this.bbox;
-    } else if (bbox.length == 4) {
-      try {
-        double minLon = Double.parseDouble(bbox[0]);
-        double minLat = Double.parseDouble(bbox[1]);
-        double maxLon = Double.parseDouble(bbox[2]);
-        double maxLat = Double.parseDouble(bbox[3]);
-        this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-        bboxColl = new LinkedHashSet<Geometry>();;
-        bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
-        return this.bbox;
-      } catch (NumberFormatException e) {
-        throw new BadRequestException(
-            "Apart from the custom id, the bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
-      }
-    } else {
-      throw new BadRequestException(
-          "Apart from the custom id, the bounding box must contain double-parseable values in the following order: minLon, minLat, maxLon, maxLat.");
-    }
+    this.bbox = new OSHDBBoundingBox(defMinLon, defMinLat, defMaxLon, defMaxLat);
+    return this.bbox;
   }
 
   /**
@@ -159,7 +136,7 @@ public class GeometryBuilder {
       bcircleColl = geometryCollection;
       return geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {}))
           .union();
-    } catch (FactoryException | MismatchedDimensionException | TransformException e) {
+    } catch (Exception e) {
       throw new BadRequestException(
           "Each bcircle must consist of a lon/lat coordinate pair plus a buffer in meters.");
     }
