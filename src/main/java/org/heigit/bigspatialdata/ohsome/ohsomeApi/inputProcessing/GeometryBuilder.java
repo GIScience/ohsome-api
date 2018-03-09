@@ -34,15 +34,11 @@ public class GeometryBuilder {
   private Collection<Geometry> bpolyColl;
 
   /**
-   * Creates a <code>BoundingBox</code> object out of the content of the given <code>String</code>
-   * array. Only used if one or no bounding box is given.
+   * Creates a <code>BoundingBox</code> object out of the default coordinates.
    * 
-   * @param bbox <code>String</code> array containing the lon/lat coordinates of the bounding box.
-   *        It must consist of 2 lon/lat coordinate pairs (bottom-left and top-right).
    * @return <code>BoundingBox</code> object.
-   * @throws BadRequestException if coordinates are invalid
    */
-  public OSHDBBoundingBox createBbox(String[] bbox) throws BadRequestException {
+  public OSHDBBoundingBox createDefaultBbox() {
     this.bbox = new OSHDBBoundingBox(defMinLon, defMinLat, defMaxLon, defMaxLat);
     return this.bbox;
   }

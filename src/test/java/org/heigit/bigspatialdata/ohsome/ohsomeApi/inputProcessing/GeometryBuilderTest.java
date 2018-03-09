@@ -20,6 +20,8 @@ public class GeometryBuilderTest {
   public void setup() {
     geomBuilder = new GeometryBuilder();
   }
+  
+  // bboxes tests
 
   @Test(expected = BadRequestException.class)
   public void createPolygonWithWrongCoordinatesFromBboxes() {

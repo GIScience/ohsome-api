@@ -97,7 +97,7 @@ public class InputProcessor {
 
     switch (boundary) {
       case NOBOUNDARY:
-        mapRed = mapRed.areaOfInterest(geomBuilder.createBbox(new String[0]));
+        mapRed = mapRed.areaOfInterest(geomBuilder.createDefaultBbox());
         break;
       case BBOXES:
         boundaryValues = utils.splitBoundaryParam(bboxes, BoundaryType.BBOXES);
