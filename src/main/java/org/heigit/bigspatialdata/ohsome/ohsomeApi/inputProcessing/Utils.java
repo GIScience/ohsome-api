@@ -210,7 +210,7 @@ public class Utils {
             }
           }
           break;
-        default:
+        default: // do nothing as it should never be reached
           break;
       }
 
