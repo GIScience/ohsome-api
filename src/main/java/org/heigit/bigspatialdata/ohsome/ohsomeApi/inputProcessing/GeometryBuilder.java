@@ -1,10 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import org.apache.commons.lang3.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
@@ -18,7 +16,6 @@ import org.opengis.referencing.operation.TransformException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -160,10 +157,8 @@ public class GeometryBuilder {
       }
       // set the geometryCollection to be accessible for /groupBy/boundary
       bcircleColl = geometryCollection;
-      geometryCollection = unifyIntersectedPolys(geometryCollection);
-      MultiPolygon combined = createMultiPolygon(geometryCollection);
-      bcircleGeom = combined;
-      return combined;
+      return geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {}))
+          .union();
     } catch (FactoryException | MismatchedDimensionException | TransformException e) {
       throw new BadRequestException(
           "Each bcircle must consist of a lon/lat coordinate pair plus a buffer in meters.");
@@ -226,59 +221,13 @@ public class GeometryBuilder {
         }
         bpolyColl = geometryCollection;
 
-        return geomFact
-            .createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
+        return geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {}))
+            .union();
       } catch (NumberFormatException e) {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
       }
     }
-  }
-
-  /**
-   * Unifies polygons, which intersect with each other and adds the unified polygons to the
-   * collection.
-   * 
-   * @param collection <code>Collection</code> that includes all polygons.
-   * @return Collection that includes unified polygons created from intersected polygons and other
-   *         polygons, which do not intersect with any other polygon.
-   */
-  private Collection<Geometry> unifyIntersectedPolys(Collection<Geometry> collection) {
-    Geometry[] polys = collection.toArray(new Geometry[collection.size()]);
-    for (int i = 0; i < polys.length - 1; i++) {
-      for (int j = i + 1; j < polys.length; j++) {
-        if (polys[i].intersects(polys[j])) {
-          Geometry unionedPoly = polys[i].union(polys[j]);
-          polys = ArrayUtils.remove(polys, i);
-          polys = ArrayUtils.remove(polys, j - 1);
-          polys = ArrayUtils.add(polys, unionedPoly);
-        }
-      }
-    }
-    collection = new LinkedHashSet<Geometry>(Arrays.asList(polys));
-    return collection;
-  }
-
-  /**
-   * Creates a <code>MultiPolygon</code> out of the polygons in the given <code>Collection</code>.
-   * 
-   * @param collection <code>Collection</code> that holds the polygons.
-   * @return <code>MultiPolygon</code> object consisting of the given polygons.
-   */
-  public MultiPolygon createMultiPolygon(Collection<Geometry> collection) {
-    Polygon p = null;
-    MultiPolygon combined = null;
-    for (Geometry g : collection) {
-      if (p == null)
-        p = (Polygon) g;
-      else {
-        if (combined == null)
-          combined = (MultiPolygon) p.union((Polygon) g);
-        else
-          combined = (MultiPolygon) combined.union((Polygon) g);
-      }
-    }
-    return combined;
   }
 
   /**
