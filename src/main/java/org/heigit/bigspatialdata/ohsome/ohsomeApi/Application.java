@@ -1,7 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
@@ -27,7 +26,10 @@ public class Application implements ApplicationRunner {
   private static OSHDBH2 h2Db = null;
   private static OSHDBIgnite igniteDb = null;
   private static OSHDBH2 keytables = null;
-  private static ArrayList<String> metadata = null;
+  private static String fromTstamp = null;
+  private static String toTstamp = null;
+  private static String attributionShort = null;
+  private static String attributionUrl = null;
   private static Polygon dataPoly = null;
   private static TagTranslator tagTranslator = null;
 
@@ -54,11 +56,11 @@ public class Application implements ApplicationRunner {
         switch (paramName) {
           case "database.db":
             h2Db = new OSHDBH2(args.getOptionValues(paramName).get(0));
-            metadata = extractMetadata(h2Db);
+            extractMetadata(h2Db);
             break;
           case "database.ignite":
             igniteDb = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
-            metadata = extractMetadata(igniteDb);
+            extractMetadata(igniteDb);
             break;
           case "database.keytables":
             keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
@@ -86,61 +88,56 @@ public class Application implements ApplicationRunner {
         keytables.multithreading(multithreading);
         tagTranslator = new TagTranslator(Application.getKeytables().getConnection());
       }
-      createDataPoly();
     } catch (ClassNotFoundException | SQLException e) {
       throw new RuntimeException(e.getMessage());
     }
   }
 
   /**
-   * Extracts some metadata from the given db object.
+   * Extracts some metadata from the given db object and adds it to the corresponding objects.
    * 
    * @param db
-   * @return
    */
-  private ArrayList<String> extractMetadata(OSHDBDatabase db) {
+  private void extractMetadata(OSHDBDatabase db) {
 
-    if (db.metadata("data.bpoly_double") == null && db.metadata("data.timerange_str") == null) {
-      return null;
+    // the here defined hard-coded values are only temporary available
+    // in future an exception will be thrown, if these metadata infos are not retrieveable
+
+    if (db.metadata("extract") != null)
+      createDataPoly(db.metadata("extract"));
+    if (db.metadata("data.timerange_str") != null) {
+      String[] timeranges = db.metadata("data.timerange_str").split(",");
+      fromTstamp = timeranges[0];
+      toTstamp = timeranges[1];
     } else {
-      ArrayList<String> metadata = new ArrayList<String>();
-      if (db.metadata("data.timerange_str") != null) {
-        String[] timeranges = db.metadata("data.timerange_str").split(",");
-        metadata.add(timeranges[0]);
-        metadata.add(timeranges[1]);
-      }
-      if (db.metadata("data.bpoly_double") != null)
-        metadata.add(db.metadata("data.bpoly_double"));
-      return metadata;
+      fromTstamp = "2007-11-01T00:00:00";
+      toTstamp = "2018-03-01T00:00:00";
     }
+    if (db.metadata("attribution.short") != null)
+      attributionShort = db.metadata("attribution.short");
+    else
+      attributionShort = "© OpenStreetMap contributors";
+    if (db.metadata("attribution.url") != null)
+      attributionUrl = db.metadata("attribution.url");
+    else
+      attributionUrl = "http://ohsome.org";
   }
 
   /**
    * Creates a polygon from the coordinates provided by the metadata containing the spatial extend
    * of the underlying data. Works at the moment only for non-complex polygons.
    */
-  private void createDataPoly() {
+  private void createDataPoly(String geoJson) {
 
+    // TODO implement (Multi)Polygon creation from GeoJSON
+    
     GeometryFactory geomFact = new GeometryFactory();
     Coordinate[] coords;
-    if (metadata != null && metadata.get(2) != null) {
-      String[] singleCoords = metadata.get(2).split(",");
-      coords = new Coordinate[singleCoords.length / 2];
-      int count = 0;
-      for (int i = 0; i < singleCoords.length; i += 2) {
-        coords[count] = new Coordinate(Double.parseDouble(singleCoords[i]),
-            Double.parseDouble(singleCoords[i + 1]));
-        count++;
-      }
-      dataPoly = geomFact.createPolygon(coords);
-    }
     // hard-coded values for test purposes
-    // else {
-    // coords = new Coordinate[] {new Coordinate(80.76, 29.42), new Coordinate(88.48, 31.27),
-    // new Coordinate(89.92, 25.6), new Coordinate(84.07, 25.65), new Coordinate(78.87, 25.68),
-    // new Coordinate(80.76, 29.42)};
-    // dataPoly = geomFact.createPolygon(coords);
-    // }
+    coords = new Coordinate[] {new Coordinate(80.76, 29.42), new Coordinate(88.48, 31.27),
+        new Coordinate(89.92, 25.6), new Coordinate(84.07, 25.65), new Coordinate(78.87, 25.68),
+        new Coordinate(80.76, 29.42)};
+    dataPoly = geomFact.createPolygon(coords);
   }
 
   public static OSHDBH2 getH2Db() {
@@ -155,15 +152,27 @@ public class Application implements ApplicationRunner {
     return keytables;
   }
 
-  public static ArrayList<String> getMetadata() {
-    return metadata;
-  }
-
   public static Polygon getDataPoly() {
     return dataPoly;
   }
 
   public static TagTranslator getTagTranslator() {
     return tagTranslator;
+  }
+
+  public static String getFromTstamp() {
+    return fromTstamp;
+  }
+
+  public static String getToTstamp() {
+    return toTstamp;
+  }
+
+  public static String getAttributionShort() {
+    return attributionShort;
+  }
+
+  public static String getAttributionUrl() {
+    return attributionUrl;
   }
 }

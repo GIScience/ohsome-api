@@ -6,10 +6,14 @@ import java.util.LinkedHashSet;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -54,7 +58,7 @@ public class GeometryBuilder {
    * @throws BadRequestException if coordinates are invalid, or boundary does not intersect with
    *         underlying data polygon
    */
-  public Geometry createBboxes(String[] bboxes) throws BadRequestException {
+  public Geometry createBboxes(String[] bboxes) throws BadRequestException, NumberFormatException {
 
     Utils utils = new Utils();
     try {
@@ -79,7 +83,7 @@ public class GeometryBuilder {
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(this.bbox));
       }
       if (utils.isWithin(unifiedBbox) == false)
-        throw new BadRequestException(
+        throw new NotFoundException(
             "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
       return unifiedBbox;
     } catch (NumberFormatException e) {
@@ -97,7 +101,8 @@ public class GeometryBuilder {
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
    * @throws BadRequestException if coordinates or radius are invalid
    */
-  public Geometry createCircularPolygons(String[] bcircles) throws BadRequestException {
+  public Geometry createCircularPolygons(String[] bcircles)
+      throws BadRequestException, NumberFormatException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     Geometry geom;
@@ -122,6 +127,9 @@ public class GeometryBuilder {
         bcircleGeom = geom;
         // returns this geometry if there was only one bcircle given
         if (bcircles.length == 3) {
+          if (utils.isWithin(geom) == false)
+            throw new NotFoundException(
+                "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
           geometryCollection.add(geom);
           bcircleColl = geometryCollection;
           return geom;
@@ -130,9 +138,14 @@ public class GeometryBuilder {
       }
       // set the geometryCollection to be accessible for /groupBy/boundary
       bcircleColl = geometryCollection;
-      return geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {}))
-          .union();
-    } catch (Exception e) {
+      Geometry unifiedBCircles =
+          geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
+      if (utils.isWithin(unifiedBCircles) == false)
+        throw new NotFoundException(
+            "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
+      return unifiedBCircles;
+    } catch (NumberFormatException | FactoryException | MismatchedDimensionException
+        | TransformException e) {
       throw new BadRequestException(
           "Each bcircle must consist of a lon/lat coordinate pair plus a buffer in meters.");
     }
@@ -148,9 +161,10 @@ public class GeometryBuilder {
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
    * @throws BadRequestException if coordinates are invalid
    */
-  public Geometry createBpolys(String[] bpolys) throws BadRequestException {
+  public Geometry createBpolys(String[] bpolys) throws BadRequestException, NumberFormatException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
+    Utils utils = new Utils();
     // checks if the first and last coordinate pairs are the same (= only 1 polygon)
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
@@ -165,6 +179,9 @@ public class GeometryBuilder {
       }
       // creates a polygon from the coordinates
       this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+      if (utils.isWithin(this.bpoly) == false)
+        throw new NotFoundException(
+            "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
       return this.bpoly;
     } else {
       Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
@@ -193,10 +210,13 @@ public class GeometryBuilder {
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
         bpolyColl = geometryCollection;
-
-        return geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {}))
-            .union();
-      } catch (NumberFormatException e) {
+        Geometry unifiedBPolys = geomFact
+            .createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
+        if (utils.isWithin(unifiedBPolys) == false)
+          throw new NotFoundException(
+              "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
+        return unifiedBPolys;
+      } catch (NumberFormatException | MismatchedDimensionException e) {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
       }

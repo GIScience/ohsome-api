@@ -48,15 +48,6 @@ public class InputProcessor {
       String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata) throws Exception {
 
-    // set earliest/latest timestamps (if in metadata)
-    if (Application.getMetadata() != null && !Application.getMetadata().get(0).isEmpty()
-        && !Application.getMetadata().get(2).isEmpty()) {
-      Utils.defStartTime = Application.getMetadata().get(0);
-      Utils.defEndTime = Application.getMetadata().get(1);
-    } else {
-      Utils.defStartTime = "2007-11-01T00:00:00";
-      Utils.defEndTime = "2018-03-01T00:00:00";
-    }
     geomBuilder = new GeometryBuilder();
     utils = new Utils();
 
@@ -130,8 +121,8 @@ public class InputProcessor {
       } else
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
     } else if (time.length == 0) {
-      // no time parameter --> return default end time
-      mapRed = mapRed.timestamps(Utils.defEndTime);
+      // no time parameter --> return end time only
+      mapRed = mapRed.timestamps(Application.getToTstamp());
     } else {
       // list of timestamps
       int tCount = 1;

@@ -21,8 +21,6 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class Utils {
 
-  public static String defStartTime;
-  public static String defEndTime;
   private String[] boundaryIds;
 
   /**
@@ -260,8 +258,8 @@ public class Utils {
     if (time.contains("/")) {
       if (time.length() == 1) {
         // only "/" is given
-        timeVals[0] = defStartTime;
-        timeVals[1] = defEndTime;
+        timeVals[0] = Application.getFromTstamp();
+        timeVals[1] = Application.getToTstamp();
         return timeVals;
       }
       String[] timeSplit = time.split("/");
@@ -271,12 +269,12 @@ public class Utils {
         timeVals[0] = timeSplit[0];
         if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
           // latest timestamp
-          timeVals[1] = defEndTime;
+          timeVals[1] = Application.getToTstamp();
           return timeVals;
         }
       } else {
         // earliest timestamp
-        timeVals[0] = defStartTime;
+        timeVals[0] = Application.getFromTstamp();
       }
       if (timeSplit[1].length() > 0) {
         // end timestamp
@@ -284,7 +282,7 @@ public class Utils {
         timeVals[1] = timeSplit[1];
       } else {
         // latest timestamp
-        timeVals[1] = defEndTime;
+        timeVals[1] = Application.getToTstamp();
       }
       if (timeSplit.length == 3 && timeSplit[2].length() > 0) {
         // interval
@@ -341,18 +339,18 @@ public class Utils {
     long end = 0;
     long timestampLong = 0;
 
-    start = DateTimeFormatter.ISO_DATE_TIME.parse(defStartTime + "Z")
+    start = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getFromTstamp() + "Z")
         .getLong(ChronoField.INSTANT_SECONDS);
-    end = DateTimeFormatter.ISO_DATE_TIME.parse(defEndTime + "Z")
+    end = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getToTstamp() + "Z")
         .getLong(ChronoField.INSTANT_SECONDS);
-
     for (String timestamp : timeInfo) {
       timestampLong =
           DateTimeFormatter.ISO_DATE_TIME.parse(timestamp).getLong(ChronoField.INSTANT_SECONDS);
       if (timestampLong < start || timestampLong > end)
         throw new NotFoundException(
-            "The given time parameter is not completely within the timeframe (" + defStartTime
-                + " to " + defEndTime + ") of the underlying osh-data.");
+            "The given time parameter is not completely within the timeframe ("
+                + Application.getFromTstamp() + " to " + Application.getToTstamp()
+                + ") of the underlying osh-data.");
     }
   }
 
@@ -368,6 +366,7 @@ public class Utils {
 
     if (Application.getDataPoly() != null)
       return geom.within(Application.getDataPoly());
+
     return true;
   }
 
