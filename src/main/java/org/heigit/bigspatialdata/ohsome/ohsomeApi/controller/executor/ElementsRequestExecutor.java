@@ -54,8 +54,8 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  private static final String url = "http://ohsome.org";
-  private static final String text = "© OpenStreetMap contributors";
+  private static final String url = Application.getAttributionUrl();
+  private static final String text = Application.getAttributionShort();
   private static final String apiVersion = "0.9";
 
   /**
