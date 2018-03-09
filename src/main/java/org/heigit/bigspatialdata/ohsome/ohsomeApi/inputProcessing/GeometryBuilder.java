@@ -225,9 +225,9 @@ public class GeometryBuilder {
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
         bpolyColl = geometryCollection;
-        geometryCollection = unifyIntersectedPolys(geometryCollection);
-        MultiPolygon combined = createMultiPolygon(geometryCollection);
-        return combined;
+
+        return geomFact
+            .createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
       } catch (NumberFormatException e) {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
