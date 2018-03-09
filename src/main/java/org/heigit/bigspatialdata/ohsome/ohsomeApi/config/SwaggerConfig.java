@@ -39,7 +39,7 @@ public class SwaggerConfig {
         .add(new ResponseMessageBuilder().code(500).message("Internal server error").build());
     responseMessages.add(new ResponseMessageBuilder().code(501).message("Not implemented").build());
 
-    return new Docket(DocumentationType.SWAGGER_2).select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("ohsome-api").select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi"))
         .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
