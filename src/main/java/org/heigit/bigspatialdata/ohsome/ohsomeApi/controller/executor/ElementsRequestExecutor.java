@@ -279,7 +279,7 @@ public class ElementsRequestExecutor {
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
     for (int i = 0; i < groupByKeys.length; i++) {
-      keysInt[i] = tt.oshdbTagKeyOf(groupByKeys[i]).toInt();
+      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
     // group by key logic
     result = mapRed.flatMap(f -> {
@@ -309,7 +309,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // check for non-remainder objects and not existing keys
       if (entry.getKey() != -1) {
-        groupByName = tt.osmTagKeyOf(entry.getKey().intValue()).toString();
+        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
       } else {
         groupByName = "remainder";
       }
@@ -368,10 +368,10 @@ public class ElementsRequestExecutor {
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-    int keysInt = tt.oshdbTagKeyOf(groupByKey[0]).toInt();
+    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.oshdbTagOf(groupByKey[0], groupByValues[j]).getValue();
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
@@ -410,7 +410,7 @@ public class ElementsRequestExecutor {
       int innerCount = 0;
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1)
-        groupByName = tt.osmTagOf(keysInt, entry.getKey().getValue()).toString();
+        groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
       else
         groupByName = "remainder";
       // iterate over the timestamp-value pairs
@@ -535,9 +535,9 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length) {
-        valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
@@ -658,9 +658,9 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
-        valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -1083,7 +1083,7 @@ public class ElementsRequestExecutor {
 
 
     for (int i = 0; i < groupByKeys.length; i++) {
-      keysInt[i] = tt.oshdbTagKeyOf(groupByKeys[i]).toInt();
+      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
     // group by key logic
     result = mapRed.flatMap(f -> {
@@ -1128,7 +1128,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
-        groupByName = tt.osmTagKeyOf(entry.getKey().intValue()).toString();
+        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
       } else {
         groupByName = "remainder";
       }
@@ -1207,10 +1207,10 @@ public class ElementsRequestExecutor {
         time, showMetadata);
 
 
-    int keysInt = tt.oshdbTagKeyOf(groupByKey[0]).toInt();
+    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.oshdbTagOf(groupByKey[0], groupByValues[j]).getValue();
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
@@ -1264,7 +1264,7 @@ public class ElementsRequestExecutor {
       int innerCount = 0;
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = tt.osmTagOf(keysInt, entry.getKey().getValue()).toString();
+        groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
       } else {
         groupByName = "remainder";
       }
@@ -1570,9 +1570,9 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
-        valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
@@ -1731,9 +1731,9 @@ public class ElementsRequestExecutor {
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.oshdbTagKeyOf(keys2[i]).toInt();
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
-        valuesInt2[i] = tt.oshdbTagOf(keys2[i], values2[i]).getValue();
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
