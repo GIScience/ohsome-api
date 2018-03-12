@@ -27,7 +27,25 @@ public class SwaggerConfig {
   @Bean
   public Docket api() {
 
-    // custom response messages to define the possible response codes
+    ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
+    return new Docket(DocumentationType.SWAGGER_2).groupName("ohsome-api").select()
+        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi"))
+        .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
+        .globalOperationParameters(defineGOPs())
+        .tags(new Tag("area", "Area resources for polygonal objects"),
+            new Tag("length", "Length resources for line objects"),
+            new Tag("count", "Count resources for point/line/polygonal objects"),
+            new Tag("perimeter", "Perimeter resources for polygonal objects"))
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
+        .globalResponseMessage(RequestMethod.POST, responseMessages);
+  }
+
+  /**
+   * Defines custom response messages to define the possible response codes.
+   * @return
+   */
+  private ArrayList<ResponseMessage> defineResponseMessages() {
+
     ArrayList<ResponseMessage> responseMessages = new ArrayList<ResponseMessage>();
     responseMessages.add(new ResponseMessageBuilder().code(200).message("OK").build());
     responseMessages.add(new ResponseMessageBuilder().code(400).message("Bad request").build());
@@ -38,18 +56,7 @@ public class SwaggerConfig {
     responseMessages
         .add(new ResponseMessageBuilder().code(500).message("Internal server error").build());
     responseMessages.add(new ResponseMessageBuilder().code(501).message("Not implemented").build());
-
-    return new Docket(DocumentationType.SWAGGER_2).groupName("ohsome-api").select()
-        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi"))
-        .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGOPs())
-        .tags(new Tag("area", "Area resources for polygonal objects"),
-            new Tag("density", "Density resources for point/line/polygonal objects"),
-            new Tag("length", "Length resources for line objects"),
-            new Tag("count", "Count resources for point/line/polygonal objects"),
-            new Tag("perimeter", "Perimeter resources for polygonal objects"))
-        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
-        .globalResponseMessage(RequestMethod.POST, responseMessages);
+    return responseMessages;
   }
 
   /**
@@ -87,10 +94,9 @@ public class SwaggerConfig {
             + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
         .build());
-    gOPs.add(new ParameterBuilder().name("bpolys")
-        .description("WGS84 coordinates in the following formats: "
-            + "id1:lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|id2:lon1,lat1,lon2,lat2,... lonm,latm,lon1,lat1|... OR "
-            + "lon1,lat1,lon2,lat2,... lonn,latn,lon1,lat1|lon1,lat1,lon2,lat2... lonm,latm,lon1,lat1|...; default: whole dataset (if all three boundary parameters are empty)")
+    gOPs.add(new ParameterBuilder().name("bpolys").description(
+        "WGS84 coordinates given as a list of coordinate pairs (as for bboxes) or GeoJSON FeatureCollection. The first point has to be the same as "
+            + "the last point and MultiPolygons are only supported in GeoJSON; default: whole dataset (if all three boundary parameters are empty)")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
         .build());
     gOPs.add(new ParameterBuilder().name("types")
