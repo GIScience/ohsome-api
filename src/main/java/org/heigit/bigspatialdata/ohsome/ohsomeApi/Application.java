@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi;
 
 import java.sql.SQLException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
@@ -10,9 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
@@ -30,7 +29,7 @@ public class Application implements ApplicationRunner {
   private static String toTstamp = null;
   private static String attributionShort = null;
   private static String attributionUrl = null;
-  private static Polygon dataPoly = null;
+  private static Geometry dataPoly = null;
   private static TagTranslator tagTranslator = null;
 
   public static void main(String[] args) {
@@ -103,8 +102,10 @@ public class Application implements ApplicationRunner {
     // the here defined hard-coded values are only temporary available
     // in future an exception will be thrown, if these metadata infos are not retrieveable
 
-    if (db.metadata("extract") != null)
-      createDataPoly(db.metadata("extract"));
+    if (db.metadata("extract") != null) {
+      GeometryBuilder geomBuilder = new GeometryBuilder();
+      dataPoly = geomBuilder.createGeometryFromGeoJson(db.metadata("extract"));
+    }
     if (db.metadata("data.timerange_str") != null) {
       String[] timeranges = db.metadata("data.timerange_str").split(",");
       fromTstamp = timeranges[0];
@@ -123,23 +124,6 @@ public class Application implements ApplicationRunner {
       attributionUrl = "http://ohsome.org";
   }
 
-  /**
-   * Creates a polygon from the coordinates provided by the metadata containing the spatial extend
-   * of the underlying data. Works at the moment only for non-complex polygons.
-   */
-  private void createDataPoly(String geoJson) {
-
-    // TODO implement (Multi)Polygon creation from GeoJSON
-    
-    GeometryFactory geomFact = new GeometryFactory();
-    Coordinate[] coords;
-    // hard-coded values for test purposes
-    coords = new Coordinate[] {new Coordinate(80.76, 29.42), new Coordinate(88.48, 31.27),
-        new Coordinate(89.92, 25.6), new Coordinate(84.07, 25.65), new Coordinate(78.87, 25.68),
-        new Coordinate(80.76, 29.42)};
-    dataPoly = geomFact.createPolygon(coords);
-  }
-
   public static OSHDBH2 getH2Db() {
     return h2Db;
   }
@@ -152,7 +136,7 @@ public class Application implements ApplicationRunner {
     return keytables;
   }
 
-  public static Polygon getDataPoly() {
+  public static Geometry getDataPoly() {
     return dataPoly;
   }
 
