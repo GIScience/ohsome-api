@@ -26,6 +26,7 @@ public class InputProcessor {
 
   private BoundaryType boundary;
   private String[] boundaryValues;
+  private String boundaryValuesGeoJson;
   private EnumSet<OSMType> osmTypes;
   private String[] timeData;
   private boolean showMetadata;
@@ -91,19 +92,20 @@ public class InputProcessor {
         mapRed = mapRed.areaOfInterest(geomBuilder.createDefaultBbox());
         break;
       case BBOXES:
-        boundaryValues = utils.splitBoundaryParam(bboxes, BoundaryType.BBOXES);
         mapRed =
             mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
         break;
       case BCIRCLES:
-        boundaryValues = utils.splitBoundaryParam(bcircles, BoundaryType.BCIRCLES);
         mapRed = mapRed.areaOfInterest(
             (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
         break;
       case BPOLYS:
-        boundaryValues = utils.splitBoundaryParam(bpolys, BoundaryType.BPOLYS);
-        mapRed =
-            mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
+        if (boundaryValues == null)
+          mapRed = mapRed
+              .areaOfInterest((Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys));
+        else
+          mapRed = mapRed
+              .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
         break;
       default:
         throw new BadRequestException(
@@ -155,9 +157,10 @@ public class InputProcessor {
   }
 
   /**
-   * Checks the given boundary parameter(s) and sets a corresponding enum (NOBOUNDARY for no
-   * boundary, BBOXES for bboxes, bcircleS for bcircles, BPOLYS for bpolys). Only one (or none) of
-   * them is allowed to have content in it.
+   * Checks the given boundary parameter(s), sets a corresponding enum (NOBOUNDARY for no boundary,
+   * BBOXES for bboxes, bcircleS for bcircles, BPOLYS for bpolys) and saves the splitted coordinates
+   * into an array (in case of non-GeoJSON). Only one (or none) of the boundary parameters is
+   * allowed to have content in it.
    * 
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
@@ -171,10 +174,18 @@ public class InputProcessor {
       boundary = BoundaryType.NOBOUNDARY;
     } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       boundary = BoundaryType.BBOXES;
+      boundaryValues = utils.splitBoundaryParam(bboxes, boundary);
     } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {
       boundary = BoundaryType.BCIRCLES;
+      boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
     } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       boundary = BoundaryType.BPOLYS;
+      if (bpolys.startsWith("{")) {
+        // geoJson expected
+        boundaryValues = null;
+      } else {
+        boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
+      }
     } else
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
@@ -309,6 +320,10 @@ public class InputProcessor {
 
   public String[] getBoundaryValues() {
     return boundaryValues;
+  }
+
+  public String getBoundaryValuesGeoJson() {
+    return boundaryValuesGeoJson;
   }
 
   public boolean getShowMetadata() {

@@ -104,7 +104,7 @@ public class Application implements ApplicationRunner {
 
     if (db.metadata("extract") != null) {
       GeometryBuilder geomBuilder = new GeometryBuilder();
-      dataPoly = geomBuilder.createGeometryFromGeoJson(db.metadata("extract"));
+      dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(db.metadata("extract"));
     }
     if (db.metadata("data.timerange_str") != null) {
       String[] timeranges = db.metadata("data.timerange_str").split(",");

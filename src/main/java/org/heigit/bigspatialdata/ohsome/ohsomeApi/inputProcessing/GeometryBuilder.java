@@ -1,8 +1,14 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
@@ -225,13 +231,13 @@ public class GeometryBuilder {
   }
 
   /**
-   * Creates a Geometry object from the given GeoJSON String.
+   * Creates a Geometry object from the given GeoJSON String, which is derived from the metadata.
    * 
    * @param geoJson
    * @return <code>Geometry</code>
    * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
    */
-  public Geometry createGeometryFromGeoJson(String geoJson) throws BadRequestException {
+  public Geometry createPolygonFromMetadataGeoJson(String geoJson) throws BadRequestException {
 
     GeoJSONReader reader = new GeoJSONReader();
     try {
@@ -239,6 +245,42 @@ public class GeometryBuilder {
     } catch (Exception e) {
       throw new BadRequestException("The provided GeoJSON cannot be converted.");
     }
+  }
+
+  /**
+   * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
+   * and its features must be of type 'Polygon' or 'Multipolygon'.
+   * 
+   * @param geoJson
+   * @return <code>Geometry</code>
+   * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
+   */
+  public Geometry createGeometryFromGeoJson(String geoJson) {
+
+    Geometry result = null;
+    GeoJSONReader geoJsonReader = new GeoJSONReader();
+    JsonReader jsonReader = Json.createReader(new StringReader(geoJson));
+    JsonObject root = jsonReader.readObject();
+    if (!root.getString("type").equals("FeatureCollection"))
+      throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
+    JsonArray features = root.getJsonArray("features");
+    for (JsonValue featureVal : features) {
+      JsonObject feature = featureVal.asJsonObject();
+      JsonObject geomObj = feature.getJsonObject("geometry");
+      if (!geomObj.getString("type").equals("Polygon")
+          && !geomObj.getString("type").equals("MultiPolygon"))
+        throw new BadRequestException(
+            "The geometry of each feature in the GeoJSON has to be of type 'Polygon' or 'MultiPolygon'.");
+      try {
+        if (result == null)
+          result = geoJsonReader.read(geomObj.toString());
+        else
+          result = geoJsonReader.read(geomObj.toString()).union(result);
+      } catch (Exception e) {
+        throw new BadRequestException("The provided GeoJSON cannot be converted.");
+      }
+    }
+    return result;
   }
 
   /**
