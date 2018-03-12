@@ -14,6 +14,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+import org.wololo.jts2geojson.GeoJSONReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -220,6 +221,23 @@ public class GeometryBuilder {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
       }
+    }
+  }
+
+  /**
+   * Creates a Geometry object from the given GeoJSON String.
+   * 
+   * @param geoJson
+   * @return <code>Geometry</code>
+   * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
+   */
+  public Geometry createGeometryFromGeoJson(String geoJson) throws BadRequestException {
+
+    GeoJSONReader reader = new GeoJSONReader();
+    try {
+      return reader.read(geoJson);
+    } catch (Exception e) {
+      throw new BadRequestException("The provided GeoJSON cannot be converted.");
     }
   }
 
