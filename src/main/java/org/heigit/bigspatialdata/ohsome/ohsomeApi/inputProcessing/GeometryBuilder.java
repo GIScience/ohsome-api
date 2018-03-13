@@ -260,7 +260,7 @@ public class GeometryBuilder {
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     Utils util = iP.getUtils();
     Geometry result = null;
-    GeoJSONReader geoJsonReader = new GeoJSONReader();
+    GeoJSONReader reader = new GeoJSONReader();
     JsonReader jsonReader = Json.createReader(new StringReader(geoJson));
     JsonObject root = jsonReader.readObject();
     if (!root.getString("type").equals("FeatureCollection"))
@@ -286,11 +286,11 @@ public class GeometryBuilder {
             "The geometry of each feature in the GeoJSON has to be of type 'Polygon' or 'MultiPolygon'.");
       try {
         if (result == null) {
-          result = geoJsonReader.read(geomObj.toString());
+          result = reader.read(geomObj.toString());
           geometryCollection.add(result);
         }
         else {
-          Geometry currentResult = geoJsonReader.read(geomObj.toString());
+          Geometry currentResult = reader.read(geomObj.toString());
           geometryCollection.add(currentResult);
           result = currentResult.union(result);
         }

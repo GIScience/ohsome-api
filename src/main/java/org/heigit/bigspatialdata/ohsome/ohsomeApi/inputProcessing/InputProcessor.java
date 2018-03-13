@@ -342,4 +342,7 @@ public class InputProcessor {
     return utils;
   }
 
+  public void setUtils(Utils utils) {
+    this.utils = utils;
+  }
 }
