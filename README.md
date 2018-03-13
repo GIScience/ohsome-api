@@ -35,16 +35,15 @@ Note:
 ## Testing
 
 To be able to test this API with your own requests, you will also need a description of the parameters and available resources. 
-Both are given in the [Swagger2](http://localhost:8080/swagger-ui.html#/) documentation, which can be accessed while your local copy is running.
+Both are given in the [Swagger2](http://localhost:8080/) documentation, which can be accessed while your local copy is running.
 It lists all available resources and gives detailled information about the individual input parameters and JSON responses.
 
 ## Examples
 
 This section gives you some example request URLs and shows the returned JSON responses.
 
-* http://localhost:8080/elements/count?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2008-01-01/2016-01-01/P2Y&keys=building&values=yes
+* http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true
 <p> 
-Gives the count within the given bounding box for all ways, which have the key “building” and the value “yes” for the time from 2008-01-01 till 2016-01-01 in a two year interval.
 
 ```json
 {
@@ -53,34 +52,34 @@ Gives the count within the given bounding box for all ways, which have the key �
         "text": "© OpenStreetMap contributors"
     },
     "apiVersion": "0.9",
+    "metadata": {
+        "executionTime": 627,
+        "description": "Total length of lines in meter.",
+        "requestUrl": "http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true"
+    },
     "result": [
         {
-            "timestamp": "2008-01-01T00:00:00Z",
-            "value": 1
-        },
-        {
             "timestamp": "2010-01-01T00:00:00Z",
-            "value": 629
+            "value": 344220.86
         },
         {
-            "timestamp": "2012-01-01T00:00:00Z",
-            "value": 9359
+            "timestamp": "2012-03-03T00:00:00Z",
+            "value": 352116.48
         },
         {
-            "timestamp": "2014-01-01T00:00:00Z",
-            "value": 16521
+            "timestamp": "2014-05-05T00:00:00Z",
+            "value": 351579.81
         },
         {
-            "timestamp": "2016-01-01T00:00:00Z",
-            "value": 20810
+            "timestamp": "2016-07-07T00:00:00Z",
+            "value": 350577.72
         }
     ]
 }
 ```
 <p>
-* http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376|8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true
-<p> 
-Gives the count grouped by the boundary objects for all ways, which have the key "building" and the value "residential" for the time from 2015-01-01 till 2017-01-01 in a yearly interval.
+* http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"id":"Heidelberg"},"geometry":{"type":"Polygon","coordinates":[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]}},{"type":"Feature","properties":{"id":"Weinheim"},"geometry":{"type":"Polygon","coordinates":[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]}}]}&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true
+<p>
 
 ```json
 {
@@ -90,104 +89,44 @@ Gives the count grouped by the boundary objects for all ways, which have the key
     },
     "apiVersion": "0.9",
     "groupByBoundaryMetadata": {
-        "executionTime": 1537,
-        "boundary": {
-            "bbox2": [
-                8.7128,
-                49.4183,
-                8.9294,
-                49.5376
-            ],
-            "bbox1": [
-                8.6128,
-                49.3183,
-                8.7294,
-                49.4376
-            ]
-        },
+        "executionTime": 6293,
         "description": "Total number of items aggregated on the boundary object.",
-        "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?bboxes=8.6128,49.3183,8.7294,49.4376%7C8.7128,49.4183,8.9294,49.5376&types=way&time=2015-01-01/2017-01-01/P1Y&keys=building&values=residential&showMetadata=true"
+        "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?bpolys=%7B%22type%22:%22FeatureCollection%22,%22features%22:[%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Heidelberg%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]%7D%7D,%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Weinheim%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]%7D%7D]%7D&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true"
     },
     "groupByBoundaryResult": [
         {
-            "groupByObject": "bbox1",
+            "groupByObject": "Heidelberg",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
-                    "value": 9577
+                    "value": 21914
                 },
                 {
                     "timestamp": "2016-01-01T00:00:00Z",
-                    "value": 10656
+                    "value": 22584
                 },
                 {
                     "timestamp": "2017-01-01T00:00:00Z",
-                    "value": 10911
+                    "value": 24815
                 }
             ]
         },
         {
-            "groupByObject": "bbox2",
+            "groupByObject": "Weinheim",
             "result": [
                 {
                     "timestamp": "2015-01-01T00:00:00Z",
-                    "value": 926
+                    "value": 6968
                 },
                 {
                     "timestamp": "2016-01-01T00:00:00Z",
-                    "value": 1037
+                    "value": 9634
                 },
                 {
                     "timestamp": "2017-01-01T00:00:00Z",
-                    "value": 1058
+                    "value": 11728
                 }
             ]
-        }
-    ]
-}
-```
-<p>
-* http://localhost:8080/elements/count/ratio?bpolys=8.6128,49.3183,8.6130,49.3956,8.7294,49.4376,8.7302,49.3512,8.6128,49.3183&types=way&time=2009-05-01/2017-05-01/P2Y&keys=building&types2=node&keys2=addr:housenumber
-<p>
-Gives the values and the ratio within the given bounding polygon for all nodes with the key "addr:housenumber" compared to the total number of objects with the type "way" and the key "building" for the time from 2009-05-01 till 2017-05-01 in a two year interval.
-
-```json
-{
-    "attribution": {
-        "url": "http://ohsome.org",
-        "text": "© OpenStreetMap contributors"
-    },
-    "apiVersion": "0.9",
-    "ratioResult": [
-        {
-            "timestamp": "2009-05-01T00:00:00Z",
-            "value": 297,
-            "value2": 130,
-            "ratio": 0.43771
-        },
-        {
-            "timestamp": "2011-05-01T00:00:00Z",
-            "value": 5889,
-            "value2": 1354,
-            "ratio": 0.22992
-        },
-        {
-            "timestamp": "2013-05-01T00:00:00Z",
-            "value": 17204,
-            "value2": 1422,
-            "ratio": 0.082655
-        },
-        {
-            "timestamp": "2015-05-01T00:00:00Z",
-            "value": 25265,
-            "value2": 1943,
-            "ratio": 0.076905
-        },
-        {
-            "timestamp": "2017-05-01T00:00:00Z",
-            "value": 27818,
-            "value2": 2080,
-            "ratio": 0.074772
         }
     ]
 }
