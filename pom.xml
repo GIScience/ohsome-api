@@ -55,12 +55,26 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-simple</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.heigit.bigspatialdata</groupId>
 			<artifactId>oshdb-util</artifactId>
 			<version>${oshdb.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- needed for creating a custom error reporting class -->
 		<dependency>
