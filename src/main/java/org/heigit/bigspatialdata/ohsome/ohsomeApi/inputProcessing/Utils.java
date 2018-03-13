@@ -373,5 +373,9 @@ public class Utils {
   public String[] getBoundaryIds() {
     return boundaryIds;
   }
+  
+  public void setBoundaryIds(String[] boundaryIds) {
+    this.boundaryIds = boundaryIds;
+  }
 
 }

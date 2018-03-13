@@ -195,6 +195,10 @@ public class ExecutionUtils {
    */
   public Map<String, double[]> createBoundariesMetadata(String[] boundaryIds, InputProcessor iP) {
 
+    // current helper so geojson input also works for /groupBy/boundary
+    if (iP.getBoundaryValues() == null)
+      return null;
+
     Map<String, double[]> boundaries = new HashMap<String, double[]>();
     switch (iP.getBoundaryType()) {
       case NOBOUNDARY:

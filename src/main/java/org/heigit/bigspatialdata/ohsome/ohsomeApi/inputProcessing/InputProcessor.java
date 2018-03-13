@@ -102,7 +102,7 @@ public class InputProcessor {
       case BPOLYS:
         if (boundaryValues == null)
           mapRed = mapRed
-              .areaOfInterest((Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys));
+              .areaOfInterest((Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
         else
           mapRed = mapRed
               .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));

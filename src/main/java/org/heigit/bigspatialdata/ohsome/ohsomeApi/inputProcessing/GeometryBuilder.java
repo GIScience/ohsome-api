@@ -255,8 +255,10 @@ public class GeometryBuilder {
    * @return <code>Geometry</code>
    * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
    */
-  public Geometry createGeometryFromGeoJson(String geoJson) {
+  public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor iP) {
 
+    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
+    Utils util = iP.getUtils();
     Geometry result = null;
     GeoJSONReader geoJsonReader = new GeoJSONReader();
     JsonReader jsonReader = Json.createReader(new StringReader(geoJson));
@@ -264,22 +266,40 @@ public class GeometryBuilder {
     if (!root.getString("type").equals("FeatureCollection"))
       throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
     JsonArray features = root.getJsonArray("features");
+    String[] boundaryIds = new String[features.size()];
+    int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
+      JsonObject properties = feature.getJsonObject("properties");
+      // custom ids extracted from properties
+      if (properties.containsKey("id")) {
+        boundaryIds[count] = properties.getString("id");
+        count++;
+      } else {
+        boundaryIds[count] = "feature" + String.valueOf(count+1);
+        count++;
+      }
       JsonObject geomObj = feature.getJsonObject("geometry");
       if (!geomObj.getString("type").equals("Polygon")
           && !geomObj.getString("type").equals("MultiPolygon"))
         throw new BadRequestException(
             "The geometry of each feature in the GeoJSON has to be of type 'Polygon' or 'MultiPolygon'.");
       try {
-        if (result == null)
+        if (result == null) {
           result = geoJsonReader.read(geomObj.toString());
-        else
-          result = geoJsonReader.read(geomObj.toString()).union(result);
+          geometryCollection.add(result);
+        }
+        else {
+          Geometry currentResult = geoJsonReader.read(geomObj.toString());
+          geometryCollection.add(currentResult);
+          result = currentResult.union(result);
+        }
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
     }
+    bpolyColl = geometryCollection;
+    util.setBoundaryIds(boundaryIds);
     return result;
   }
 
