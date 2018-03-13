@@ -117,26 +117,26 @@
 		<repository>
 			<id>oshdb-respository</id>
 			<name>Heigit/GIScience maven repository</name>
-			<url>http://129.206.7.121:8081/artifactory/main</url>
+			<url>http://repo.heigit.org/artifactory/main</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>oshdb-respository</id>
 			<name>Heigit/GIScience maven repository</name>
-			<url>http://129.206.7.121:8081/artifactory/main</url>
+			<url>http://repo.heigit.org/artifactory/main</url>
 		</pluginRepository>
 	</pluginRepositories>
 
 	<scm>
 		<!-- https://maven.apache.org/pom.html#SCM -->
-		<connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</connection>
-		<developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</developerConnection>
-		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api.git</url>
+		<connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</connection>
+		<developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</developerConnection>
+		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</url>
 	</scm>
 
 	<issueManagement>
 		<system>GitLab</system>
-		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/oshdb/rest-api/issues</url>
+		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/issues</url>
 	</issueManagement>
 </project>
