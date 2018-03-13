@@ -17,6 +17,8 @@ public class ElementsRequestInterceptor extends HandlerInterceptorAdapter {
     
     // builds the initial url, which was sent as request
     requestUrl = request.getRequestURL() + "?" + request.getQueryString();
+    // adding a 1 year cache option
+    response.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     return true;
   }
 
