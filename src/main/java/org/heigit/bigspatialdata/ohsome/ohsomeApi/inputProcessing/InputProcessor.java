@@ -89,7 +89,9 @@ public class InputProcessor {
 
     switch (boundary) {
       case NOBOUNDARY:
-        mapRed = mapRed.areaOfInterest(geomBuilder.createDefaultBbox());
+        if (Application.getDataPoly() == null)
+          throw new BadRequestException("You need to define one boundary parameter (bboxes, bcircles, bpolys).");
+        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) Application.getDataPoly());
         break;
       case BBOXES:
         mapRed =

@@ -32,27 +32,12 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class GeometryBuilder {
 
-  // default bbox coordinates defining the whole area (here: BW)
-  private final double defMinLon = 7.3949;
-  private final double defMaxLon = 10.6139;
-  private final double defMinLat = 47.3937;
-  private final double defMaxLat = 49.9079;
   private OSHDBBoundingBox bbox;
   private Geometry bcircleGeom;
   private Polygon bpoly;
   private Collection<Geometry> bboxColl;
   private Collection<Geometry> bcircleColl;
   private Collection<Geometry> bpolyColl;
-
-  /**
-   * Creates a <code>BoundingBox</code> object out of the default coordinates.
-   * 
-   * @return <code>BoundingBox</code> object.
-   */
-  public OSHDBBoundingBox createDefaultBbox() {
-    this.bbox = new OSHDBBoundingBox(defMinLon, defMinLat, defMaxLon, defMaxLat);
-    return this.bbox;
-  }
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
