@@ -5,6 +5,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestRes
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse;
@@ -157,6 +158,46 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByUser(RequestResource.AREA,
+        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+  }
+
+  /**
+   * GET request giving the area OSM objects grouped by the boundary parameter (bounding
+   * box/circle/polygon).
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   *         GroupByBoundaryResponseContent}
+   */
+  @ApiOperation(
+      value = "Area of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)")
+  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
+  public GroupByBoundaryResponse getAreaGroupByBoundary(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata)
+      throws UnsupportedOperationException, Exception {
+
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByBoundary(RequestResource.AREA,
         false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
@@ -667,6 +708,50 @@ public class AreaController {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByUser(RequestResource.AREA, true,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+  }
+
+  /**
+   * POST request giving the area of OSM objects grouped by the boundary parameter (bounding
+   * box/circle/polygon). POST requests should only be used if the request URL would be too long for
+   * a GET request.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   *         GroupByBoundaryResponseContent}
+   */
+  @ApiOperation(
+      value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
+          required = false, value = bcirclesDescr),
+      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
+          value = bpolysDescr),
+      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
+          defaultValue = "way", required = false, value = typesDescr),
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
+          defaultValue = "building", required = false, value = keysDescr),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
+          defaultValue = "residential", required = false, value = valuesDescr),
+      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
+          value = useridsDescr),
+      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
+          defaultValue = "true", required = false, value = showMetadataDescr)})
+  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public GroupByBoundaryResponse postAreaGroupByBoundary(String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByBoundary(RequestResource.AREA,
+        true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
   }
 
   /**

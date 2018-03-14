@@ -187,7 +187,7 @@ public class CountController {
 
   /**
    * GET request giving the count of OSM objects grouped by the boundary parameter (bounding
-   * box/point/polygon).
+   * box/circle/polygon).
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -776,7 +776,7 @@ public class CountController {
 
   /**
    * POST request giving the count of OSM objects grouped by the boundary parameter (bounding
-   * box/point/polygon). POST requests should only be used if the request URL would be too long for
+   * box/circle/polygon). POST requests should only be used if the request URL would be too long for
    * a GET request.
    * <p>
    * The parameters are described in the

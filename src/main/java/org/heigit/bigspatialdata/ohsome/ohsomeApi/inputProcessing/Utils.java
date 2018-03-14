@@ -212,7 +212,7 @@ public class Utils {
           break;
       }
 
-    } catch (ArrayIndexOutOfBoundsException e) {
+    } catch (Exception e) {
       throw new BadRequestException(
           "The processing of the boundary parameter gave an error. Please use the predefined format "
               + "where you delimit different objects with the pipe-sign '|' "

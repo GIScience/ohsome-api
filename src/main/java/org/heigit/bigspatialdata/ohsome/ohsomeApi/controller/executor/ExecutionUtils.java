@@ -16,11 +16,14 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
+import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 
 public class ExecutionUtils {
 
@@ -98,12 +101,11 @@ public class ExecutionUtils {
    * @param mapRed
    * @param geomBuilder
    * @return <code>SortedMap</code> result object.
-   * @throws UnsupportedOperationException
    * @throws Exception
    */
   public SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> computeCountGBBResult(
       BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
 
     if (bType == BoundaryType.NOBOUNDARY)
       throw new BadRequestException(
@@ -121,6 +123,60 @@ public class ExecutionUtils {
           return boundaryList;
         }).aggregateBy(f -> f).zerofillIndices(zeroFill).count();
 
+    return result;
+  }
+
+  /**
+   * Computes the result for the /length|perimeter|area/groupBy/boundary resources using the map-reduce functions
+   * from the OSHDB.
+   * 
+   * @param reqResource
+   * @param bType
+   * @param mapRed
+   * @param geomBuilder
+   * @return <code>SortedMap</code> result object.
+   * @throws Exception
+   */
+  public SortedMap<OSHDBTimestampAndIndex<Integer>, Number> computeLengthPerimeterAreaGBBResult(
+      RequestResource reqResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
+      GeometryBuilder geomBuilder) throws Exception {
+
+    if (bType == BoundaryType.NOBOUNDARY)
+      throw new BadRequestException(
+          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result = null;
+    MapAggregator<OSHDBTimestampAndIndex<Integer>, Geometry> preResult;
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    List<Integer> zeroFill = new LinkedList<>();
+    for (int j = 0; j < geoms.size(); j++)
+      zeroFill.add(j);
+    preResult = mapRed.flatMap(f -> {
+      List<Pair<Integer, Geometry>> res = new LinkedList<>();
+      Geometry entityGeom = f.getGeometry();
+      if (reqResource.equals(RequestResource.PERIMETER)) {
+        entityGeom = entityGeom.getBoundary();
+      }
+      for (int i = 0; i < geoms.size(); i++) {
+        if (entityGeom.intersects(geoms.get(i))) {
+          if (entityGeom.within(geoms.get(i)))
+            res.add(new ImmutablePair<>(i, entityGeom));
+          else
+            res.add(
+                new ImmutablePair<>(i, Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+        }
+      }
+      return res;
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
+        .map(Pair::getValue);
+    switch (reqResource) {
+      case LENGTH:
+      case PERIMETER:
+        result = preResult.sum(Geo::lengthOf);
+        break;
+      case AREA:
+        result = preResult.sum(Geo::areaOf);
+        break;
+    }
     return result;
   }
 

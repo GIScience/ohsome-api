@@ -967,7 +967,6 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-
     String description = null;
     String requestURL = null;
     if (!isPost)
@@ -1041,6 +1040,87 @@ public class ElementsRequestExecutor {
     }
     DefaultAggregationResponse response =
         new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+    return response;
+  }
+
+  /**
+   * Performs a length, perimeter, or area calculation grouped by the boundary.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
+   *        GET (false) request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   *         GroupByBoundaryResponseContent}
+   */
+  public static GroupByBoundaryResponse executeLengthPerimeterAreaGroupByBoundary(
+      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result = null;
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String description = null;
+    String requestURL = null;
+    if (!isPost)
+      requestURL = ElementsRequestInterceptor.requestUrl;
+    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
+        time, showMetadata);
+    switch (requestResource) {
+      case LENGTH:
+        result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        description = "Total length of lines in meter aggregated on the boundary object.";
+        break;
+      case PERIMETER:
+        result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.PERIMETER,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        description =
+            "Total perimeter of polygonal items in meter aggregated on the boundary object.";
+        break;
+      case AREA:
+        result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.AREA,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        description = "Total area of polygons in square meter aggregated on the boundary object.";
+        break;
+    }
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    String groupByName = "";
+    Utils utils = iP.getUtils();
+    String[] boundaryIds = utils.getBoundaryIds();
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects aggregated by the boundary
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+      Result[] results = new Result[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      groupByName = boundaryIds[count];
+      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(groupByName, results);
+      count++;
+    }
+    GroupByBoundaryMetadata gBBMetadata = null;
+    if (iP.getShowMetadata()) {
+      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
+      long duration = System.currentTimeMillis() - startTime;
+      gBBMetadata = new GroupByBoundaryMetadata(duration, boundaries, description, requestURL);
+    }
+    GroupByBoundaryResponse response =
+        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, gBBMetadata, resultSet);
     return response;
   }
 
