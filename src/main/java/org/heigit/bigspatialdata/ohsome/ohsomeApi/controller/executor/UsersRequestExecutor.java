@@ -6,9 +6,9 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultUsersResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.Result;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.UsersResult;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
@@ -34,7 +34,7 @@ public class UsersRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public static DefaultAggregationResponse executeCount(boolean isPost, String bboxes,
+  public static DefaultUsersResponse executeCount(boolean isPost, String bboxes,
       String bcircles, String bpolys, String[] types, String[] keys, String[] values,
       String[] userids, String[] time, String showMetadata)
       throws UnsupportedOperationException, BadRequestException, Exception {
@@ -52,10 +52,10 @@ public class UsersRequestExecutor {
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();
     }).countUniq();
-    Result[] resultSet = new Result[result.size()];
+    UsersResult[] resultSet = new UsersResult[result.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+      resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           entry.getValue().intValue());
       count++;
     }
@@ -64,7 +64,7 @@ public class UsersRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Number of different users.", requestURL);
     }
-    DefaultAggregationResponse response = new DefaultAggregationResponse(
+    DefaultUsersResponse response = new DefaultUsersResponse(
         new Attribution(ElementsRequestExecutor.url, ElementsRequestExecutor.text),
         ElementsRequestExecutor.apiVersion, metadata, resultSet);
 

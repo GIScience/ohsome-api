@@ -2,7 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.users;
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.UsersRequestExecutor;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultUsersResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +36,7 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users")
   @RequestMapping(value = "/count", method = RequestMethod.GET,
       produces = "application/json")
-  public DefaultAggregationResponse getCountGroupByType(
+  public DefaultUsersResponse getCountGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -94,7 +94,7 @@ public class UsersController {
           defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/count", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postCount(String bboxes, String bcircles, String bpolys,
+  public DefaultUsersResponse postCount(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
