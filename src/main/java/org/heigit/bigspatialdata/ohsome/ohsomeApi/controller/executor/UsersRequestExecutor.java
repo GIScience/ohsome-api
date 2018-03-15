@@ -2,7 +2,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 
 import java.util.Map.Entry;
 import java.util.SortedMap;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
@@ -16,10 +15,6 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 
 public class UsersRequestExecutor {
-
-  private static final String url = Application.getAttributionUrl();
-  private static final String text = Application.getAttributionShort();
-  private static final String apiVersion = "0.9";
 
   /**
    * Performs a count calculation.
@@ -49,7 +44,6 @@ public class UsersRequestExecutor {
     MapReducer<OSMContribution> mapRed;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processUsersParameters(isPost, bboxes, bcircles, bpolys, types, keys, values,
@@ -60,7 +54,6 @@ public class UsersRequestExecutor {
     }).countUniq();
     Result[] resultSet = new Result[result.size()];
     int count = 0;
-
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           entry.getValue().intValue());
@@ -71,8 +64,9 @@ public class UsersRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Number of different users.", requestURL);
     }
-    DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+    DefaultAggregationResponse response = new DefaultAggregationResponse(
+        new Attribution(ElementsRequestExecutor.url, ElementsRequestExecutor.text),
+        ElementsRequestExecutor.apiVersion, metadata, resultSet);
 
     return response;
   }

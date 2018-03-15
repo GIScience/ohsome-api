@@ -53,9 +53,9 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  private static final String url = Application.getAttributionUrl();
-  private static final String text = Application.getAttributionShort();
-  private static final String apiVersion = "0.9";
+  public static final String url = Application.getAttributionUrl();
+  public static final String text = Application.getAttributionShort();
+  public static final String apiVersion = "0.9";
 
   /**
    * Performs a count calculation.
