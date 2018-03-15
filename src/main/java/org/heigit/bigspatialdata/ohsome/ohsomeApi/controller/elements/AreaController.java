@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements;
 
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
@@ -31,21 +32,6 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {
-
-  final String bboxesDescr = "WGS84 coordinates in the following format: "
-      + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)";
-  final String bcirclesDescr = "WGS84 coordinates + radius in meter in the following format: "
-      + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)";
-  final String bpolysDescr =
-      "WGS84 coordinates given as a list of coordinate pairs (as for bboxes) or GeoJSON FeatureCollection. The first point has to be the same as "
-          + "the last point and MultiPolygons are only supported in GeoJSON; default: whole dataset (if all three boundary parameters are empty)";
-  final String typesDescr =
-      "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types";
-  final String keysDescr = "OSM key(s) e.g.: 'highway', 'building'; default: no key";
-  final String valuesDescr = "OSM value(s) e.g.: 'primary', 'residential'; default: no value";
-  final String useridsDescr = "OSM userids; default: no userid";
-  final String timeDescr = "ISO-8601 conform timestring(s); default: today";
-  final String showMetadataDescr = "'Boolean' operator 'true' or 'false'; default: 'false'";
 
   /**
    * GET request giving the area of OSM objects.
@@ -213,7 +199,7 @@ public class AreaController {
    *         GroupByKeyResponseContent}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
-  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = keysDescr,
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.keysDescr,
       defaultValue = "building", paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getAreaGroupByKey(
@@ -261,9 +247,9 @@ public class AreaController {
    */
   @ApiOperation(value = "Area of OSM elements grouped by the tag")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = keysDescr, defaultValue = "building",
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.keysDescr, defaultValue = "building",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponse getAreaGroupByTag(
@@ -313,9 +299,9 @@ public class AreaController {
   @ApiOperation(
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "addr:street",
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.keysDescr, defaultValue = "addr:street",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponse getAreaShare(
@@ -362,9 +348,9 @@ public class AreaController {
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "addr:street",
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.keysDescr, defaultValue = "addr:street",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
@@ -493,9 +479,9 @@ public class AreaController {
   @ApiOperation(
       value = "Density of selected items (area of items per square-kilometers) grouped by the tag")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = keysDescr, defaultValue = "building",
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.keysDescr, defaultValue = "building",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.GET,
       produces = "application/json")
@@ -545,11 +531,11 @@ public class AreaController {
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = typesDescr, defaultValue = "relation",
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.typesDescr, defaultValue = "relation",
           paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "building",
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.keysDescr, defaultValue = "building",
           paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
   public RatioResponse getAreaRatio(
@@ -595,23 +581,23 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postArea(String bboxes, String bcircles, String bpolys,
@@ -636,23 +622,23 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements grouped by the type")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way, relation", required = false, value = typesDescr),
+          defaultValue = "way, relation", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponse postAreaGroupByType(String bboxes, String bcircles, String bpolys,
@@ -677,23 +663,23 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements grouped by the user")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByUserResponse postAreaGroupByUser(String bboxes, String bcircles, String bpolys,
@@ -720,23 +706,23 @@ public class AreaController {
       value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByBoundaryResponse postAreaGroupByBoundary(String bboxes, String bcircles,
@@ -765,25 +751,25 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements grouped by the key")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = keysDescr),
+          required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "groupByKeys", paramType = "form", dataType = "string",
-          defaultValue = "addr:street", required = true, value = keysDescr)})
+          defaultValue = "addr:street", required = true, value = ParameterDescriptions.keysDescr)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByKeyResponse postAreaGroupByKey(String bboxes, String bcircles, String bpolys,
@@ -815,27 +801,27 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "addr:postcode", required = true, value = keysDescr),
+          defaultValue = "addr:postcode", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = valuesDescr)})
+          defaultValue = "", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postAreaGroupByTag(String bboxes, String bcircles, String bpolys,
@@ -868,27 +854,27 @@ public class AreaController {
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "building", required = true, value = keysDescr),
+          defaultValue = "building", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr)})
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareResponse postAreaShare(String bboxes, String bcircles, String bpolys, String[] types,
@@ -919,27 +905,27 @@ public class AreaController {
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "building", required = true, value = keysDescr),
+          defaultValue = "building", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr)})
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareGroupByBoundaryResponse postAreaShareGroupByBoundary(String bboxes, String bcircles,
@@ -966,23 +952,23 @@ public class AreaController {
   @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/density", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postAreaDensity(String bboxes, String bcircles, String bpolys,
@@ -1009,23 +995,23 @@ public class AreaController {
       value = "Density of OSM elements (area of items per square-kilometers) grouped by the type")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way, relation", required = false, value = typesDescr),
+          defaultValue = "way, relation", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/density/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTypeResponse postAreaDensityGroupByType(String bboxes, String bcircles,
@@ -1059,27 +1045,27 @@ public class AreaController {
       value = "Density of selected items (area of items per square-kilometers) grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "building", required = true, value = keysDescr),
+          defaultValue = "building", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = valuesDescr)})
+          defaultValue = "", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postAreaDensityGroupByTag(String bboxes, String bcircles, String bpolys,
@@ -1111,29 +1097,29 @@ public class AreaController {
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
-      @ApiImplicitParam(name = "types2", value = typesDescr, defaultValue = "relation",
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.typesDescr, defaultValue = "relation",
           paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "building", required = false, value = keysDescr),
+          defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = valuesDescr)})
+          defaultValue = "", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public RatioResponse postAreaRatio(String bboxes, String bcircles, String bpolys, String[] types,

@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements;
 
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
@@ -30,21 +31,6 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @RequestMapping("/elements/length")
 public class LengthController {
-
-  final String bboxesDescr = "WGS84 coordinates in the following format: "
-      + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)";
-  final String bcirclesDescr = "WGS84 coordinates + radius in meter in the following format: "
-      + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)";
-  final String bpolysDescr =
-      "WGS84 coordinates given as a list of coordinate pairs (as for bboxes) or GeoJSON FeatureCollection. The first point has to be the same as "
-          + "the last point and MultiPolygons are only supported in GeoJSON; default: whole dataset (if all three boundary parameters are empty)";
-  final String typesDescr =
-      "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types";
-  final String keysDescr = "OSM key(s) e.g.: 'highway', 'building'; default: no key";
-  final String valuesDescr = "OSM value(s) e.g.: 'primary', 'residential'; default: no value";
-  final String useridsDescr = "OSM userids; default: no userid";
-  final String timeDescr = "ISO-8601 conform timestring(s); default: today";
-  final String showMetadataDescr = "'Boolean' operator 'true' or 'false'; default: 'false'";
 
   /**
    * GET request giving the length of OSM objects.
@@ -174,7 +160,7 @@ public class LengthController {
    *         GroupByKeyResponseContent}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
-  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = keysDescr,
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.keysDescr,
       defaultValue = "highway", paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getLengthGroupByKey(
@@ -223,9 +209,9 @@ public class LengthController {
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = keysDescr, defaultValue = "highway",
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.keysDescr, defaultValue = "highway",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
   public GroupByTagResponse getLengthGroupByTag(
@@ -275,9 +261,9 @@ public class LengthController {
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "maxspeed",
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.keysDescr, defaultValue = "maxspeed",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
   public ShareResponse getLengthShare(
@@ -324,9 +310,9 @@ public class LengthController {
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "maxspeed",
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.keysDescr, defaultValue = "maxspeed",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
@@ -415,9 +401,9 @@ public class LengthController {
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = keysDescr, defaultValue = "highway",
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.keysDescr, defaultValue = "highway",
           paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = valuesDescr, defaultValue = "",
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.GET,
       produces = "application/json")
@@ -467,11 +453,11 @@ public class LengthController {
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = typesDescr, defaultValue = "way",
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.typesDescr, defaultValue = "way",
           paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "highway",
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.keysDescr, defaultValue = "highway",
           paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "primary",
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.valuesDescr, defaultValue = "primary",
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
   public RatioResponse getLengthRatio(
@@ -517,23 +503,23 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postLength(String bboxes, String bcircles, String bpolys,
@@ -558,23 +544,23 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements grouped by the user")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByUserResponse postLengthGroupByUser(String bboxes, String bcircles, String bpolys,
@@ -601,23 +587,23 @@ public class LengthController {
       value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByBoundaryResponse postLengthGroupByBoundary(String bboxes, String bcircles,
@@ -646,25 +632,25 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = keysDescr),
+          required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "groupByKeys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = true, value = keysDescr)})
+          defaultValue = "highway", required = true, value = ParameterDescriptions.keysDescr)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByKeyResponse postLengthGroupByKey(String bboxes, String bcircles, String bpolys,
@@ -697,27 +683,27 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "maxspeed", required = true, value = keysDescr),
+          defaultValue = "maxspeed", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = valuesDescr)})
+          defaultValue = "", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postLengthGroupByTag(String bboxes, String bcircles, String bpolys,
@@ -750,27 +736,27 @@ public class LengthController {
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr),
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = true, value = keysDescr),
+          defaultValue = "highway", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = valuesDescr)})
+          defaultValue = "", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareResponse postLengthShare(String bboxes, String bcircles, String bpolys,
@@ -801,27 +787,27 @@ public class LengthController {
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = true, value = keysDescr),
+          defaultValue = "highway", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr)})
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ShareGroupByBoundaryResponse postLengthShareGroupByBoundary(String bboxes, String bcircles,
@@ -848,23 +834,23 @@ public class LengthController {
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr)})
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/density", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultAggregationResponse postLengthDensity(String bboxes, String bcircles, String bpolys,
@@ -897,27 +883,27 @@ public class LengthController {
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
       @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "maxspeed", required = true, value = keysDescr),
+          defaultValue = "maxspeed", required = true, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = valuesDescr)})
+          defaultValue = "", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByTagResponse postLengthDensityGroupByTag(String bboxes, String bcircles,
@@ -949,29 +935,29 @@ public class LengthController {
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = bcirclesDescr),
+          required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = bpolysDescr),
+          value = ParameterDescriptions.bpolysDescr),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = typesDescr),
+          defaultValue = "way", required = false, value = ParameterDescriptions.typesDescr),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = valuesDescr),
+          required = false, value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = useridsDescr),
+          value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = showMetadataDescr),
-      @ApiImplicitParam(name = "types2", value = typesDescr, defaultValue = "way",
+          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr),
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.typesDescr, defaultValue = "way",
           paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "highway", required = false, value = keysDescr),
+          defaultValue = "highway", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = valuesDescr)})
+          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr)})
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public RatioResponse postLengthRatio(String bboxes, String bcircles, String bpolys,
