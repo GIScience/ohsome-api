@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/area".
  */
-@Api(tags = "area")
+@Api(tags = "/elements/area")
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {

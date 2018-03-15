@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 
-import static springfox.documentation.builders.PathSelectors.regex;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ParameterBuilder;
+import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseMessageBuilder;
 import springfox.documentation.schema.ModelRef;
@@ -30,18 +30,20 @@ public class SwaggerConfig {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("ohsome-api").select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi"))
-        .paths(regex("/elements.*")).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGOPs())
-        .tags(new Tag("area", "Area resources for polygonal objects"),
-            new Tag("length", "Length resources for line objects"),
-            new Tag("count", "Count resources for point/line/polygonal objects"),
-            new Tag("perimeter", "Perimeter resources for polygonal objects"))
+        .paths(PathSelectors.any()).build().apiInfo(apiInfo())
+        .useDefaultResponseMessages(false).globalOperationParameters(defineGOPs())
+        .tags(new Tag("/users", "Data Aggregation functions on users"),
+            new Tag("/elements/area", "Area resources for polygonal objects"),
+            new Tag("/elements/length", "Length resources for line objects"),
+            new Tag("/elements/count", "Count resources for point/line/polygonal objects"),
+            new Tag("/elements/perimeter", "Perimeter resources for polygonal objects"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
 
   /**
    * Defines custom response messages to define the possible response codes.
+   * 
    * @return
    */
   private ArrayList<ResponseMessage> defineResponseMessages() {

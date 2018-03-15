@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/length".
  */
-@Api(tags = "length")
+@Api(tags = "/elements/length")
 @RestController
 @RequestMapping("/elements/length")
 public class LengthController {
