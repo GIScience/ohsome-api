@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotImplementedException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse;
@@ -354,15 +353,9 @@ public class LengthController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    throw new NotImplementedException(
-        "This resource is still under development and not finished yet.");
-
-    // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    // return
-    // ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.LENGTH,
-    // false,bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
-    // keys2,
-    // values2);
+    return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(
+        RequestResource.LENGTH, false, bboxes, bcircles, bpolys, types, keys, values, userids, time,
+        showMetadata, keys2, values2);
   }
 
   /**
@@ -806,30 +799,39 @@ public class LengthController {
    *         ShareGroupByBoundaryResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = bboxesDescr),
+      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
+          required = false, value = bcirclesDescr),
+      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
+          value = bpolysDescr),
+      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
+          defaultValue = "way", required = false, value = typesDescr),
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
+          defaultValue = "highway", required = false, value = keysDescr),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = valuesDescr),
+      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
+          value = useridsDescr),
+      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = timeDescr),
+      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
+          defaultValue = "true", required = false, value = showMetadataDescr),
+      @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
+          defaultValue = "highway", required = true, value = keysDescr),
+      @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
+          defaultValue = "residential", required = false, value = valuesDescr)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareGroupByBoundaryResponse postLengthShareGroupByBoundary(
-      @ApiParam(value = bboxesDescr, defaultValue = "", required = false) String bboxes,
-      @ApiParam(value = bcirclesDescr, defaultValue = "", required = false) String bcircles,
-      @ApiParam(value = bpolysDescr, defaultValue = "", required = false) String bpolys,
-      @ApiParam(value = typesDescr, defaultValue = "", required = false) String[] types,
-      @ApiParam(value = keysDescr, defaultValue = "", required = false) String[] keys,
-      @ApiParam(value = valuesDescr, defaultValue = "", required = false) String[] values,
-      @ApiParam(value = useridsDescr, defaultValue = "", required = false) String[] userids,
-      @ApiParam(value = timeDescr, defaultValue = "", required = false) String[] time,
-      @ApiParam(value = showMetadataDescr, defaultValue = "", required = false) String showMetadata,
-      @ApiParam(value = keysDescr, defaultValue = "", required = false) String[] keys2,
-      @ApiParam(value = valuesDescr, defaultValue = "", required = false) String[] values2)
+  public ShareGroupByBoundaryResponse postLengthShareGroupByBoundary(String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    throw new NotImplementedException(
-        "This resource is still under development and not finished yet.");
-
-    // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    // return
-    // ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(RequestResource.LENGTH,
-    // true,bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2,
-    // values2);
+    return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(
+        RequestResource.LENGTH, true, bboxes, bcircles, bpolys, types, keys, values, userids, time,
+        showMetadata, keys2, values2);
   }
 
   /**

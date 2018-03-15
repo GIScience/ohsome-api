@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
@@ -66,7 +65,7 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    * @throws UnsupportedOperationException by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimestamp()}
@@ -515,7 +514,7 @@ public class ElementsRequestExecutor {
    * getCountShare} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static ShareResponse executeCountShare(boolean isPost, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
@@ -637,7 +636,7 @@ public class ElementsRequestExecutor {
    * getCountShare} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(boolean isPost,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
@@ -736,7 +735,7 @@ public class ElementsRequestExecutor {
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static DefaultAggregationResponse executeCountDensity(boolean isPost, String bboxes,
       String bcircles, String bpolys, String[] types, String[] keys, String[] values,
@@ -789,7 +788,7 @@ public class ElementsRequestExecutor {
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static RatioResponse executeCountRatio(boolean isPost, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
@@ -954,7 +953,7 @@ public class ElementsRequestExecutor {
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static DefaultAggregationResponse executeLengthPerimeterArea(
       RequestResource requestResource, boolean isPost, boolean isDensity, String bboxes,
@@ -1285,8 +1284,6 @@ public class ElementsRequestExecutor {
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-
-
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -1530,15 +1527,12 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-
     String description = null;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-
-
     switch (requestResource) {
       case AREA:
         result = mapRed.aggregateByTimestamp()
@@ -1549,11 +1543,9 @@ public class ElementsRequestExecutor {
               return Geo.areaOf(snapshot.getGeometry());
             });
         if (isDensity) {
-
           description =
               "Density of selected items (area of items in square meter per square kilometer) aggregated on the type.";
         } else {
-
           description = "Total area of items in square meter aggregated on the type.";
         }
         break;
@@ -1569,11 +1561,9 @@ public class ElementsRequestExecutor {
                 return 0.0;
             });
         if (isDensity) {
-
           description =
               "Density of selected items (perimeter of items in meter per square kilometer) aggregated on the type.";
         } else {
-
           description = "Total perimeter of items in meter aggregated on the type.";
         }
         break;
@@ -1629,7 +1619,7 @@ public class ElementsRequestExecutor {
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static ShareResponse executeLengthPerimeterAreaShare(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
@@ -1817,174 +1807,10 @@ public class ElementsRequestExecutor {
     }
     mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
         time, showMetadata);
-
-
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Utils utils = iP.getUtils();
-    switch (iP.getBoundaryType()) {
-      case NOBOUNDARY:
-        throw new BadRequestException(
-            "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-      case BBOXES:
-        ArrayList<Geometry> bboxGeoms = geomBuilder.getGeometry(BoundaryType.BBOXES);
-        ArrayList<Pair<Integer, Boolean>> zeroBboxFill = new ArrayList<>();
-        for (int j = 0; j < bboxGeoms.size(); j++) {
-          zeroBboxFill.add(new ImmutablePair<>(j, true));
-          zeroBboxFill.add(new ImmutablePair<>(j, false));
-        }
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntitySnapshot>> bboxesList = new LinkedList<>();
-          for (int i = 0; i < bboxGeoms.size(); i++)
-            if (f.getGeometry().intersects(bboxGeoms.get(i)))
-              bboxesList.add(new ImmutablePair<>(i, f));
-          return bboxesList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().getEntity().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroBboxFill)
-            .sum((SerializableFunction<Pair<Integer, OSMEntitySnapshot>, Number>) snapshot -> {
-              switch (requestResource) {
-                case LENGTH:
-                  return Geo.lengthOf(snapshot.getRight().getGeometry());
-                case PERIMETER:
-                  if (snapshot.getRight().getGeometry() instanceof Polygonal)
-                    return Geo.lengthOf(snapshot.getRight().getGeometry().getBoundary());
-                  else
-                    return 0.0;
-                case AREA:
-                  return Geo.areaOf(snapshot.getRight().getGeometry());
-                default:
-                  return 0.0;
-              }
-            });
-        break;
-      case BCIRCLES:
-        ArrayList<Geometry> bcircleGeoms = geomBuilder.getGeometry(BoundaryType.BCIRCLES);
-        ArrayList<Pair<Integer, Boolean>> zeroBcircleFill = new ArrayList<>();
-        for (int j = 0; j < bcircleGeoms.size(); j++) {
-          zeroBcircleFill.add(new ImmutablePair<>(j, true));
-          zeroBcircleFill.add(new ImmutablePair<>(j, false));
-        }
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntitySnapshot>> bcirclesList = new LinkedList<>();
-          for (int i = 0; i < bcircleGeoms.size(); i++)
-            if (f.getGeometry().intersects(bcircleGeoms.get(i)))
-              bcirclesList.add(new ImmutablePair<>(i, f));
-          return bcirclesList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().getEntity().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroBcircleFill)
-            .sum((SerializableFunction<Pair<Integer, OSMEntitySnapshot>, Number>) snapshot -> {
-              switch (requestResource) {
-                case LENGTH:
-                  return Geo.lengthOf(snapshot.getRight().getGeometry());
-                case PERIMETER:
-                  if (snapshot.getRight().getGeometry() instanceof Polygonal)
-                    return Geo.lengthOf(snapshot.getRight().getGeometry().getBoundary());
-                  else
-                    return 0.0;
-                case AREA:
-                  return Geo.areaOf(snapshot.getRight().getGeometry());
-                default:
-                  return 0.0;
-              }
-            });
-        break;
-      case BPOLYS:
-        ArrayList<Geometry> bpolyGeoms = geomBuilder.getGeometry(BoundaryType.BPOLYS);
-        ArrayList<Pair<Integer, Boolean>> zeroBpolyFill = new ArrayList<>();
-        for (int j = 0; j < bpolyGeoms.size(); j++) {
-          zeroBpolyFill.add(new ImmutablePair<>(j, true));
-          zeroBpolyFill.add(new ImmutablePair<>(j, false));
-        }
-        result = mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntitySnapshot>> bpolysList = new LinkedList<>();
-          for (int i = 0; i < bpolyGeoms.size(); i++)
-            if (f.getGeometry().intersects(bpolyGeoms.get(i)))
-              bpolysList.add(new ImmutablePair<>(i, f));
-          return bpolysList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().getEntity().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroBpolyFill)
-            .sum((SerializableFunction<Pair<Integer, OSMEntitySnapshot>, Number>) snapshot -> {
-              switch (requestResource) {
-                case LENGTH:
-                  return Geo.lengthOf(snapshot.getRight().getGeometry());
-                case PERIMETER:
-                  if (snapshot.getRight().getGeometry() instanceof Polygonal)
-                    return Geo.lengthOf(snapshot.getRight().getGeometry().getBoundary());
-                  else
-                    return 0.0;
-                case AREA:
-                  return Geo.areaOf(snapshot.getRight().getGeometry());
-                default:
-                  return 0.0;
-              }
-            });
-        break;
-    }
+    result = exeUtils.computeLengthPerimeterAreaShareGBBResult(requestResource,
+        iP.getBoundaryType(), mapRed, keysInt2, valuesInt2, geomBuilder);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
     DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
@@ -2061,7 +1887,7 @@ public class ElementsRequestExecutor {
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         ElementsResponseContent}
+   *         DefaultAggregationResponse}
    */
   public static RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
       boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,

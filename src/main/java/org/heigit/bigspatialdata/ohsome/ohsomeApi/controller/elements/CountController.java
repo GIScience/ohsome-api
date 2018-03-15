@@ -386,7 +386,7 @@ public class CountController {
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "maxspeed",
+      @ApiImplicitParam(name = "keys2", value = keysDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "values2", value = valuesDescr, defaultValue = "",
           paramType = "query", dataType = "string", required = false)})

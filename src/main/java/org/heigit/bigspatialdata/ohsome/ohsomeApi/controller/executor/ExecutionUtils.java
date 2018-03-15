@@ -127,10 +127,10 @@ public class ExecutionUtils {
   }
 
   /**
-   * Computes the result for the /length|perimeter|area/groupBy/boundary resources using the map-reduce functions
-   * from the OSHDB.
+   * Computes the result for the /length|perimeter|area/groupBy/boundary resources using the
+   * map-reduce functions from the OSHDB.
    * 
-   * @param reqResource
+   * @param requestResource
    * @param bType
    * @param mapRed
    * @param geomBuilder
@@ -138,7 +138,7 @@ public class ExecutionUtils {
    * @throws Exception
    */
   public SortedMap<OSHDBTimestampAndIndex<Integer>, Number> computeLengthPerimeterAreaGBBResult(
-      RequestResource reqResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
+      RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
       GeometryBuilder geomBuilder) throws Exception {
 
     if (bType == BoundaryType.NOBOUNDARY)
@@ -153,7 +153,7 @@ public class ExecutionUtils {
     preResult = mapRed.flatMap(f -> {
       List<Pair<Integer, Geometry>> res = new LinkedList<>();
       Geometry entityGeom = f.getGeometry();
-      if (reqResource.equals(RequestResource.PERIMETER)) {
+      if (requestResource.equals(RequestResource.PERIMETER)) {
         entityGeom = entityGeom.getBoundary();
       }
       for (int i = 0; i < geoms.size(); i++) {
@@ -168,7 +168,7 @@ public class ExecutionUtils {
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
         .map(Pair::getValue);
-    switch (reqResource) {
+    switch (requestResource) {
       case LENGTH:
       case PERIMETER:
         result = preResult.sum(Geo::lengthOf);
@@ -243,6 +243,87 @@ public class ExecutionUtils {
   }
 
   /**
+   * Computes the result for the /length|perimeter|area/share/groupBy/boundary resources using the
+   * map-reduce functions from the OSHDB.
+   * 
+   * @param requestResource
+   * @param bType
+   * @param mapRed
+   * @param keysInt2
+   * @param valuesInt2
+   * @param geomBuilder
+   * @return <code>SortedMap</code> result object.
+   * @throws UnsupportedOperationException
+   * @throws Exception
+   */
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> computeLengthPerimeterAreaShareGBBResult(
+      RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
+      Integer[] keysInt2, Integer[] valuesInt2, GeometryBuilder geomBuilder)
+      throws UnsupportedOperationException, Exception {
+
+    if (bType == BoundaryType.NOBOUNDARY)
+      throw new BadRequestException(
+          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    List<Pair<Integer, Boolean>> zeroFill = new LinkedList<>();
+    for (int j = 0; j < geoms.size(); j++) {
+      zeroFill.add(new ImmutablePair<>(j, true));
+      zeroFill.add(new ImmutablePair<>(j, false));
+    }
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result =
+        mapRed.aggregateByTimestamp().flatMap(f -> {
+          List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
+          Geometry entityGeom = f.getGeometry();
+          if (requestResource.equals(RequestResource.PERIMETER)) {
+            entityGeom = entityGeom.getBoundary();
+          }
+          for (int i = 0; i < geoms.size(); i++) {
+            if (entityGeom.intersects(geoms.get(i))) {
+              if (entityGeom.within(geoms.get(i)))
+                res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
+              else
+                res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
+                    Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+            }
+          }
+          return res;
+        }).aggregateBy(f -> {
+          // result aggregated on true (if obj contains all tags) and false (if not)
+          boolean hasTags = false;
+          for (int i = 0; i < keysInt2.length; i++) {
+            if (f.getLeft().getRight().hasTagKey(keysInt2[i])) {
+              if (i >= valuesInt2.length) {
+                // if more keys2 than values2 are given
+                hasTags = true;
+                continue;
+              }
+              if (f.getLeft().getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
+                hasTags = true;
+              } else {
+                hasTags = false;
+                break;
+              }
+            } else {
+              hasTags = false;
+              break;
+            }
+          }
+          return new ImmutablePair<>(f.getLeft().getLeft(), hasTags);
+        }).zerofillIndices(zeroFill).map(Pair::getValue).sum(geom -> {
+          switch (requestResource) {
+            case LENGTH:
+            case PERIMETER:
+              return Geo.lengthOf(geom);
+            case AREA:
+              return Geo.areaOf(geom);
+            default:
+              return 0.0;
+          }
+        });
+    return result;
+  }
+
+  /**
    * Creates the content of the boundary object in the metadata of the JSON response.
    * 
    * @param boundaryIds
@@ -284,7 +365,7 @@ public class ExecutionUtils {
         }
         break;
       case BPOLYS:
-        // TODO implement for bpolys (should be done together with WKT implementation)
+        // bpolys metadata only works for geojson input
         boundaries = null;
         break;
     }
