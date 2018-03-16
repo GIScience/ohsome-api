@@ -41,12 +41,12 @@ public class UsersRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMContribution> mapRed;
+    MapReducer<OSMContribution> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processUsersParameters(isPost, bboxes, bcircles, bpolys, types, keys, values,
+    mapRed = iP.processParameters(mapRed, false, isPost, bboxes, bcircles, bpolys, types, keys, values,
         userids, time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp().map(contrib -> {
@@ -55,7 +55,7 @@ public class UsersRequestExecutor {
     UsersResult[] resultSet = new UsersResult[result.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+      resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), "",
           entry.getValue().intValue());
       count++;
     }

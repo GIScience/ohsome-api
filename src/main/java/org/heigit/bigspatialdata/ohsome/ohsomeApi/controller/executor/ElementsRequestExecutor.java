@@ -82,13 +82,13 @@ public class ElementsRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp().count();
     Result[] resultSet = new Result[result.size()];
@@ -130,14 +130,14 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -204,14 +204,14 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result = null;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     result = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -268,15 +268,15 @@ public class ElementsRequestExecutor {
     }
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
@@ -356,7 +356,7 @@ public class ElementsRequestExecutor {
       groupByValues = new String[0];
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
@@ -365,8 +365,8 @@ public class ElementsRequestExecutor {
     TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -461,14 +461,14 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     if (userids != null)
       for (String user : userids)
         // converting userids to int for usage in zerofill
@@ -525,7 +525,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Integer> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     TagTranslator tt = Application.getTagTranslator();
@@ -539,8 +539,8 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
@@ -648,7 +648,7 @@ public class ElementsRequestExecutor {
     values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result = null;
     SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     TagTranslator tt = Application.getTagTranslator();
@@ -661,8 +661,8 @@ public class ElementsRequestExecutor {
       if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     result = exeUtils.computeCountShareGBBResult(iP.getBoundaryType(), mapRed, keysInt2, valuesInt2,
         iP.getGeomBuilder());
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -744,14 +744,14 @@ public class ElementsRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     result = mapRed.aggregateByTimestamp().count();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
@@ -798,18 +798,18 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result1;
     SortedMap<OSHDBTimestamp, Integer> result2;
-    MapReducer<OSMEntitySnapshot> mapRed1;
-    MapReducer<OSMEntitySnapshot> mapRed2;
+    MapReducer<OSMEntitySnapshot> mapRed1 = null;
+    MapReducer<OSMEntitySnapshot> mapRed2 = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     result1 = mapRed1.aggregateByTimestamp().count();
-    mapRed2 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types2, keys2, values2,
-        userids, time, showMetadata);
+    mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,
+        values2, userids, time, showMetadata);
     result2 = mapRed2.aggregateByTimestamp().count();
     Result[] resultSet1 = new Result[result1.size()];
     int count = 0;
@@ -870,8 +870,8 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result1;
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result2;
-    MapReducer<OSMEntitySnapshot> mapRed1;
-    MapReducer<OSMEntitySnapshot> mapRed2;
+    MapReducer<OSMEntitySnapshot> mapRed1 = null;
+    MapReducer<OSMEntitySnapshot> mapRed2 = null;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult1;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult2;
     InputProcessor iP = new InputProcessor();
@@ -879,11 +879,11 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     result1 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
-    mapRed2 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types2, keys2, values2,
-        userids, time, showMetadata);
+    mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,
+        values2, userids, time, showMetadata);
     result2 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
 
     groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
@@ -963,15 +963,15 @@ public class ElementsRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result = null;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
 
 
     switch (requestResource) {
@@ -1063,15 +1063,15 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result = null;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     switch (requestResource) {
       case LENGTH:
         result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
@@ -1148,7 +1148,7 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = "";
@@ -1157,8 +1157,8 @@ public class ElementsRequestExecutor {
       requestURL = ElementsRequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
 
 
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -1269,7 +1269,7 @@ public class ElementsRequestExecutor {
           "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
 
@@ -1282,8 +1282,8 @@ public class ElementsRequestExecutor {
     TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -1426,7 +1426,7 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = "";
@@ -1434,8 +1434,8 @@ public class ElementsRequestExecutor {
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
 
 
     if (userids != null)
@@ -1524,15 +1524,15 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result = null;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     switch (requestResource) {
       case AREA:
         result = mapRed.aggregateByTimestamp()
@@ -1630,7 +1630,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Boolean>, Number> result;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String description = "";
     String requestURL = null;
@@ -1644,8 +1644,8 @@ public class ElementsRequestExecutor {
       if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
 
 
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
@@ -1792,7 +1792,7 @@ public class ElementsRequestExecutor {
     values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result = null;
     SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     TagTranslator tt = Application.getTagTranslator();
@@ -1805,8 +1805,8 @@ public class ElementsRequestExecutor {
       if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
-    mapRed = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
+    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Utils utils = iP.getUtils();
     result = exeUtils.computeLengthPerimeterAreaShareGBBResult(requestResource,
@@ -1897,8 +1897,8 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result1 = null;
     SortedMap<OSHDBTimestamp, Number> result2 = null;
-    MapReducer<OSMEntitySnapshot> mapRed1;
-    MapReducer<OSMEntitySnapshot> mapRed2;
+    MapReducer<OSMEntitySnapshot> mapRed1 = null;
+    MapReducer<OSMEntitySnapshot> mapRed2 = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
 
@@ -1906,10 +1906,10 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     if (!isPost)
       requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types, keys, values, userids,
-        time, showMetadata);
-    mapRed2 = iP.processParameters(isPost, bboxes, bcircles, bpolys, types2, keys2, values2,
-        userids, time, showMetadata);
+    mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
+    mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,
+        values2, userids, time, showMetadata);
     switch (requestResource) {
       case AREA:
         result1 = mapRed1.aggregateByTimestamp()

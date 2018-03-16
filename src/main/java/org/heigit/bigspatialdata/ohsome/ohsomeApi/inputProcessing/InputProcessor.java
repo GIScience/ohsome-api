@@ -9,8 +9,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import com.vividsolutions.jts.geom.Geometry;
@@ -47,9 +46,10 @@ public class InputProcessor {
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    */
-  public MapReducer<OSMEntitySnapshot> processParameters(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata) throws Exception {
+  @SuppressWarnings("unchecked") // intentionally unchecked
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(MapReducer<? extends OSHDBMapReducible> mapRed, boolean isSnapshot,
+      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
+      String[] values, String[] userids, String[] time, String showMetadata) throws Exception {
 
     geomBuilder = new GeometryBuilder();
     utils = new Utils();
@@ -63,16 +63,27 @@ public class InputProcessor {
       userids = createEmptyArrayIfNull(userids);
       time = createEmptyArrayIfNull(time);
     }
-    MapReducer<OSMEntitySnapshot> mapRed = null;
+
     // database
-    if (Application.getKeytables() == null)
-      mapRed = OSMEntitySnapshotView.on(Application.getH2Db());
-    else if (Application.getIgniteDb() == null)
-      mapRed =
-          OSMEntitySnapshotView.on(Application.getH2Db()).keytables(Application.getKeytables());
-    else
-      mapRed =
-          OSMEntitySnapshotView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
+    if (isSnapshot) {
+      if (Application.getKeytables() == null)
+        mapRed = OSMEntitySnapshotView.on(Application.getH2Db());
+      else if (Application.getIgniteDb() == null)
+        mapRed =
+            OSMEntitySnapshotView.on(Application.getH2Db()).keytables(Application.getKeytables());
+      else
+        mapRed = OSMEntitySnapshotView.on(Application.getIgniteDb())
+            .keytables(Application.getKeytables());
+    } else {
+      if (Application.getKeytables() == null)
+        mapRed = OSMContributionView.on(Application.getH2Db());
+      else if (Application.getIgniteDb() == null)
+        mapRed =
+            OSMContributionView.on(Application.getH2Db()).keytables(Application.getKeytables());
+      else
+        mapRed =
+            OSMContributionView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
+    }
     // metadata
     if (showMetadata == null)
       this.showMetadata = false;
@@ -147,109 +158,7 @@ public class InputProcessor {
     } else {
       // do nothing --> all users will be used
     }
-    return mapRed;
-  }
-
-  public MapReducer<OSMContribution> processUsersParameters(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata) throws Exception {
-
-    geomBuilder = new GeometryBuilder();
-    utils = new Utils();
-    if (isPost) {
-      bboxes = createEmptyStringIfNull(bboxes);
-      bcircles = createEmptyStringIfNull(bcircles);
-      bpolys = createEmptyStringIfNull(bpolys);
-      types = createEmptyArrayIfNull(types);
-      keys = createEmptyArrayIfNull(keys);
-      values = createEmptyArrayIfNull(values);
-      userids = createEmptyArrayIfNull(userids);
-      time = createEmptyArrayIfNull(time);
-    }
-    MapReducer<OSMContribution> mapRed = null;
-    // database
-    if (Application.getKeytables() == null)
-      mapRed = OSMContributionView.on(Application.getH2Db());
-    else if (Application.getIgniteDb() == null)
-      mapRed = OSMContributionView.on(Application.getH2Db()).keytables(Application.getKeytables());
-    else
-      mapRed =
-          OSMContributionView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
-    // metadata
-    if (showMetadata == null)
-      this.showMetadata = false;
-    else if (showMetadata.equals("true"))
-      this.showMetadata = true;
-    else if (showMetadata.equals("false") || showMetadata.equals(""))
-      this.showMetadata = false;
-    else
-      throw new BadRequestException(
-          "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
-    checkBoundaryParams(bboxes, bcircles, bpolys);
-    switch (boundary) {
-      case NOBOUNDARY:
-        if (Application.getDataPoly() == null)
-          throw new BadRequestException(
-              "You need to define one boundary parameter (bboxes, bcircles, bpolys).");
-        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) Application.getDataPoly());
-        break;
-      case BBOXES:
-        mapRed =
-            mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
-        break;
-      case BCIRCLES:
-        mapRed = mapRed.areaOfInterest(
-            (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
-        break;
-      case BPOLYS:
-        if (boundaryValues == null)
-          mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
-        else
-          mapRed = mapRed
-              .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
-        break;
-      default:
-        throw new BadRequestException(
-            "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format. "
-                + "or you defined more than one boundary parameter.");
-    }
-    mapRed = mapRed.osmTypes(checkTypes(types));
-    if (time.length == 1) {
-      timeData = utils.extractIsoTime(time[0]);
-      if (timeData[2] != null) {
-        // interval is given
-        mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-      } else
-        mapRed = mapRed.timestamps(timeData[0], timeData[1]);
-    } else if (time.length == 0) {
-      // no time parameter --> return end time only
-      mapRed = mapRed.timestamps(Application.getToTstamp());
-    } else {
-      // list of timestamps
-      int tCount = 1;
-      for (String timestamp : time) {
-        utils.checkIsoConformity(timestamp, "timestamp number " + tCount);
-        tCount++;
-      }
-      String firstElem = time[0];
-      time = ArrayUtils.remove(time, 0);
-      mapRed = mapRed.timestamps(firstElem, firstElem, time);
-    }
-    mapRed = checkUsersKeysValues(mapRed, keys, values);
-    if (userids.length != 0) {
-      checkUserids(userids);
-      Set<Integer> useridSet = new HashSet<>();
-      for (String user : userids) {
-        useridSet.add(Integer.valueOf(user));
-      }
-      mapRed = mapRed.where(entity -> {
-        return useridSet.contains(entity.getUserId());
-      });
-    } else {
-      // do nothing --> all users will be used
-    }
-    return mapRed;
+    return (MapReducer<T>) mapRed;
   }
 
   /**
@@ -337,51 +246,7 @@ public class InputProcessor {
    *         including the filters derived from the given parameters.
    * @throws BadRequestException if there are more values than keys given
    */
-  private MapReducer<OSMEntitySnapshot> checkKeysValues(MapReducer<OSMEntitySnapshot> mapRed,
-      String[] keys, String[] values) throws BadRequestException {
-    if (keys.length < values.length) {
-      throw new BadRequestException(
-          "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
-    }
-    if (keys.length != values.length) {
-      String[] tempVal = new String[keys.length];
-      for (int a = 0; a < values.length; a++) {
-        tempVal[a] = values[a];
-      }
-      // adds empty entries in the tempVal array
-      for (int i = values.length; i < keys.length; i++) {
-        tempVal[i] = "";
-      }
-      values = tempVal;
-    }
-    // prerequisites: both arrays (keys and values) must be of the same length
-    // and key-value pairs need to be at the same index in both arrays
-    for (int i = 0; i < keys.length; i++) {
-      if (values[i].equals(""))
-        mapRed = mapRed.where(keys[i]);
-      else
-        mapRed = mapRed.where(keys[i], values[i]);
-    }
-    return mapRed;
-  }
-
-  /**
-   * Checks the given keys and values parameters on their length and includes them in the
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String) where(key)}, or
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String, String)
-   * where(key, value)} method.
-   * <p>
-   * The keys and values parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
-   *        MapReducer} object
-   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
-   *         including the filters derived from the given parameters.
-   * @throws BadRequestException if there are more values than keys given
-   */
-  private MapReducer<OSMContribution> checkUsersKeysValues(MapReducer<OSMContribution> mapRed,
+  private MapReducer<? extends OSHDBMapReducible> checkKeysValues(MapReducer<? extends OSHDBMapReducible> mapRed,
       String[] keys, String[] values) throws BadRequestException {
     if (keys.length < values.length) {
       throw new BadRequestException(
