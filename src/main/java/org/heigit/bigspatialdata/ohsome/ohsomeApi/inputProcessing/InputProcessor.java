@@ -1,5 +1,10 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +16,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
@@ -47,9 +53,10 @@ public class InputProcessor {
    *         including the settings derived from the given parameters.
    */
   @SuppressWarnings("unchecked") // intentionally unchecked
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(MapReducer<? extends OSHDBMapReducible> mapRed, boolean isSnapshot,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata) throws Exception {
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
+      MapReducer<? extends OSHDBMapReducible> mapRed, boolean isSnapshot, boolean isPost,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata) throws Exception {
 
     geomBuilder = new GeometryBuilder();
     utils = new Utils();
@@ -124,27 +131,7 @@ public class InputProcessor {
                 + "or you defined more than one boundary parameter.");
     }
     mapRed = mapRed.osmTypes(checkTypes(types));
-    if (time.length == 1) {
-      timeData = utils.extractIsoTime(time[0]);
-      if (timeData[2] != null) {
-        // interval is given
-        mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-      } else
-        mapRed = mapRed.timestamps(timeData[0], timeData[1]);
-    } else if (time.length == 0) {
-      // no time parameter --> return end time only
-      mapRed = mapRed.timestamps(Application.getToTstamp());
-    } else {
-      // list of timestamps
-      int tCount = 1;
-      for (String timestamp : time) {
-        utils.checkIsoConformity(timestamp, "timestamp number " + tCount);
-        tCount++;
-      }
-      String firstElem = time[0];
-      time = ArrayUtils.remove(time, 0);
-      mapRed = mapRed.timestamps(firstElem, firstElem, time);
-    }
+    mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = checkKeysValues(mapRed, keys, values);
     if (userids.length != 0) {
       checkUserids(userids);
@@ -246,8 +233,9 @@ public class InputProcessor {
    *         including the filters derived from the given parameters.
    * @throws BadRequestException if there are more values than keys given
    */
-  private MapReducer<? extends OSHDBMapReducible> checkKeysValues(MapReducer<? extends OSHDBMapReducible> mapRed,
-      String[] keys, String[] values) throws BadRequestException {
+  private MapReducer<? extends OSHDBMapReducible> checkKeysValues(
+      MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values)
+      throws BadRequestException {
     if (keys.length < values.length) {
       throw new BadRequestException(
           "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
@@ -271,6 +259,61 @@ public class InputProcessor {
       else
         mapRed = mapRed.where(keys[i], values[i]);
     }
+    return mapRed;
+  }
+
+  /**
+   * Extracts the information from the given time array and fills the toTimestamps[] with content
+   * (in case of isSnapshot=false).
+   * 
+   * @param mapRed
+   * @param time
+   * @param isSnapshot
+   * @return
+   * @throws Exception
+   */
+  private MapReducer<? extends OSHDBMapReducible> extractTime(
+      MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
+      throws Exception {
+
+    if (time.length == 1) {
+      timeData = utils.extractIsoTime(time[0]);
+      if (timeData[2] != null) {
+        // interval is given
+        mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
+        utils.setTimeIntervalSize(timeData[2]);
+      } else
+        mapRed = mapRed.timestamps(timeData[0], timeData[1]);
+    } else if (time.length == 0) {
+      // no time parameter --> return end time only
+      mapRed = mapRed.timestamps(Application.getToTstamp());
+    } else {
+      // list of timestamps
+      int tCount = 1;
+      for (String timestamp : time) {
+        utils.checkIsoConformity(timestamp, "timestamp number " + tCount);
+        tCount++;
+      }
+      String firstElem = time[0];
+      time = ArrayUtils.remove(time, 0);
+      if (!isSnapshot) {
+        String[] toTimestamps = new String[time.length];
+        // computing toTimestamps for /users result
+        for (int i = 0; i < time.length; i++) {
+          ZonedDateTime zdtInput = ISODateTimeParser.parseISODateTime(time[i]);
+          long timestampLong = DateTimeFormatter.ISO_DATE_TIME
+              .parse(zdtInput.format(DateTimeFormatter.ISO_DATE_TIME))
+              .getLong(ChronoField.INSTANT_SECONDS);
+          timestampLong = timestampLong - 1;
+          ZonedDateTime zdtOutput =
+              ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestampLong), ZoneId.of("Z"));
+          toTimestamps[i] = zdtOutput.format(DateTimeFormatter.ISO_DATE_TIME);
+        }
+        utils.setToTimestamps(toTimestamps);
+      }
+      mapRed = mapRed.timestamps(firstElem, firstElem, time);
+    }
+
     return mapRed;
   }
 

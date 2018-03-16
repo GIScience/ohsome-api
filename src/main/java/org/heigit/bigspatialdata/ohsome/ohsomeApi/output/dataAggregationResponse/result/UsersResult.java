@@ -1,11 +1,14 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the result JSON object for the /users resource containing the from timestamp together
  * with the corresponding value.
  */
+@JsonInclude(Include.NON_NULL)
 public class UsersResult {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)

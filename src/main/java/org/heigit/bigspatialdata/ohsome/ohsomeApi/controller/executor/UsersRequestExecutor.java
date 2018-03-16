@@ -53,10 +53,15 @@ public class UsersRequestExecutor {
       return contrib.getContributorUserId();
     }).countUniq();
     UsersResult[] resultSet = new UsersResult[result.size()];
+    String[] toTimestamps = iP.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), "",
-          entry.getValue().intValue());
+      if (toTimestamps == null)
+        resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), null,
+            entry.getValue().intValue());
+      else
+        resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), toTimestamps[count],
+            entry.getValue().intValue());
       count++;
     }
     Metadata metadata = null;
@@ -66,7 +71,7 @@ public class UsersRequestExecutor {
     }
     DefaultUsersResponse response = new DefaultUsersResponse(
         new Attribution(ElementsRequestExecutor.url, ElementsRequestExecutor.text),
-        ElementsRequestExecutor.apiVersion, metadata, resultSet);
+        ElementsRequestExecutor.apiVersion, metadata, iP.getUtils().getTimeIntervalSize(), resultSet);
 
     return response;
   }

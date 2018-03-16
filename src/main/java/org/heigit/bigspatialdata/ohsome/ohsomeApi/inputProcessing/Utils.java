@@ -22,6 +22,8 @@ import com.vividsolutions.jts.geom.Geometry;
 public class Utils {
 
   private String[] boundaryIds;
+  private String[] toTimestamps = null;
+  private String timeIntervalSize = null;
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
@@ -300,7 +302,6 @@ public class Utils {
         checkIsoConformity(time, "given timestamp");
         timeVals[0] = time;
         timeVals[1] = time;
-        timeVals[2] = "P1Y";
       } catch (DateTimeParseException e) {
         throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
       }
@@ -373,9 +374,24 @@ public class Utils {
   public String[] getBoundaryIds() {
     return boundaryIds;
   }
-  
+
+  public String[] getToTimestamps() {
+    return toTimestamps;
+  }
+
+  public String getTimeIntervalSize() {
+    return timeIntervalSize;
+  }
+
   public void setBoundaryIds(String[] boundaryIds) {
     this.boundaryIds = boundaryIds;
   }
 
+  public void setToTimestamps(String[] toTimestamps) {
+    this.toTimestamps = toTimestamps;
+  }
+
+  public void setTimeIntervalSize(String timeIntervalSize) {
+    this.timeIntervalSize = timeIntervalSize;
+  }
 }
