@@ -911,6 +911,7 @@ public class ElementsRequestExecutor {
     }
     count = 0;
     innerCount = 0;
+    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
     // iterate over the entry objects of result2
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult2.entrySet()) {
       RatioResult[] ratioResults = new RatioResult[entry.getValue().entrySet().size()];
@@ -920,6 +921,12 @@ public class ElementsRequestExecutor {
         double value = resultSet[count].getResult()[innerCount].getValue();
         double value2 = innerEntry.getValue().doubleValue();
         double ratio = value2 / value;
+        // in case ratio has the values "NaN", "Infinity", etc.
+        try {
+          ratio = Double.parseDouble(ratioDF.format(ratio));
+        } catch (Exception e) {
+          // do nothing --> just return ratio without rounding (trimming)
+        }
         ratioResults[innerCount] =
             new RatioResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                 value, value2, ratio);
