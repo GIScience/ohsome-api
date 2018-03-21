@@ -300,7 +300,6 @@ public class Utils {
       try {
         checkIsoConformity(time, "given timestamp");
         timeVals[0] = time;
-        timeVals[1] = time;
       } catch (DateTimeParseException e) {
         throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
       }

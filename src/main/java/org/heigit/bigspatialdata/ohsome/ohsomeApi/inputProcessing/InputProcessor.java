@@ -286,8 +286,15 @@ public class InputProcessor {
       if (timeData[2] != null) {
         // interval is given
         mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-      } else
+      } else if (timeData[1] != null) {
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
+      } else {
+        if (!isSnapshot)
+          throw new BadRequestException(
+              "You need to give at least two timestamps or a time interval for this resource.");
+        mapRed = mapRed.timestamps(timeData[0]);
+      }
+
     } else if (time.length == 0) {
       // no time parameter --> return end time only
       mapRed = mapRed.timestamps(Application.getToTstamp());
