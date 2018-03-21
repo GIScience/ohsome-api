@@ -286,7 +286,6 @@ public class InputProcessor {
       if (timeData[2] != null) {
         // interval is given
         mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-        utils.setTimeIntervalSize(timeData[2]);
       } else
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
     } else if (time.length == 0) {

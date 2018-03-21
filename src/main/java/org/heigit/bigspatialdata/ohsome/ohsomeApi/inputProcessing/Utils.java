@@ -23,7 +23,6 @@ public class Utils {
 
   private String[] boundaryIds;
   private String[] toTimestamps = null;
-  private String timeIntervalSize = null;
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
@@ -379,10 +378,6 @@ public class Utils {
     return toTimestamps;
   }
 
-  public String getTimeIntervalSize() {
-    return timeIntervalSize;
-  }
-
   public void setBoundaryIds(String[] boundaryIds) {
     this.boundaryIds = boundaryIds;
   }
@@ -391,7 +386,4 @@ public class Utils {
     this.toTimestamps = toTimestamps;
   }
 
-  public void setTimeIntervalSize(String timeIntervalSize) {
-    this.timeIntervalSize = timeIntervalSize;
-  }
 }

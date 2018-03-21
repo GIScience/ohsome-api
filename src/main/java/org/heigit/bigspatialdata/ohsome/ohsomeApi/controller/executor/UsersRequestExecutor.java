@@ -71,7 +71,7 @@ public class UsersRequestExecutor {
     }
     DefaultUsersResponse response = new DefaultUsersResponse(
         new Attribution(ElementsRequestExecutor.url, ElementsRequestExecutor.text),
-        ElementsRequestExecutor.apiVersion, metadata, iP.getUtils().getTimeIntervalSize(), resultSet);
+        ElementsRequestExecutor.apiVersion, metadata, resultSet);
 
     return response;
   }
