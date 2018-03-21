@@ -16,7 +16,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse;
@@ -86,7 +86,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     // db result
@@ -135,7 +135,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     // db result
@@ -209,7 +209,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     result = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
@@ -272,7 +272,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
@@ -361,7 +361,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
@@ -466,7 +466,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     if (userids != null)
@@ -532,7 +532,7 @@ public class ElementsRequestExecutor {
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length) {
@@ -655,7 +655,7 @@ public class ElementsRequestExecutor {
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
@@ -749,7 +749,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
@@ -804,7 +804,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     result1 = mapRed1.aggregateByTimestamp().count();
@@ -878,7 +878,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     result1 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
@@ -976,7 +976,7 @@ public class ElementsRequestExecutor {
     String description = null;
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
 
@@ -1076,7 +1076,7 @@ public class ElementsRequestExecutor {
     String description = null;
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     switch (requestResource) {
@@ -1161,7 +1161,7 @@ public class ElementsRequestExecutor {
     String description = "";
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
@@ -1283,7 +1283,7 @@ public class ElementsRequestExecutor {
     String description = "";
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt = Application.getTagTranslator();
@@ -1440,7 +1440,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
 
@@ -1537,7 +1537,7 @@ public class ElementsRequestExecutor {
     String description = null;
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     switch (requestResource) {
@@ -1645,7 +1645,7 @@ public class ElementsRequestExecutor {
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
@@ -1806,7 +1806,7 @@ public class ElementsRequestExecutor {
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
@@ -1912,7 +1912,7 @@ public class ElementsRequestExecutor {
     String description = "";
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
+      requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
     mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,

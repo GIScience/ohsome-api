@@ -4,7 +4,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultUsersResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata;
@@ -34,9 +34,9 @@ public class UsersRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public static DefaultUsersResponse executeCount(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public static DefaultUsersResponse executeCount(boolean isPost, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata)
       throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -45,9 +45,9 @@ public class UsersRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     if (!isPost)
-      requestURL = ElementsRequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, false, isPost, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+      requestURL = RequestInterceptor.requestUrl;
+    mapRed = iP.processParameters(mapRed, false, isPost, bboxes, bcircles, bpolys, types, keys,
+        values, userids, time, showMetadata);
     // db result
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();
@@ -57,11 +57,13 @@ public class UsersRequestExecutor {
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
       if (toTimestamps == null)
-        resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), null,
-            entry.getValue().intValue());
+        resultSet[count] =
+            new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), null,
+                entry.getValue().intValue());
       else
-        resultSet[count] = new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), toTimestamps[count],
-            entry.getValue().intValue());
+        resultSet[count] =
+            new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+                toTimestamps[count], entry.getValue().intValue());
       count++;
     }
     Metadata metadata = null;

@@ -3,7 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.ElementsRequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
@@ -21,14 +21,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * response.
  */
 @Configuration
-public class ElementsMvcConfig extends WebMvcConfigurerAdapter {
+public class MvcConfig extends WebMvcConfigurerAdapter {
 
   @Autowired
-  private ElementsRequestInterceptor elementsRequestInterceptor;
+  private RequestInterceptor requestInterceptor;
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(elementsRequestInterceptor).addPathPatterns("/**/elements/**/");
+    registry.addInterceptor(requestInterceptor).addPathPatterns("/**/elements/**/");
+    registry.addInterceptor(requestInterceptor).addPathPatterns("/**/users/**/");
   }
 
   @Override
@@ -57,7 +58,7 @@ public class ElementsMvcConfig extends WebMvcConfigurerAdapter {
         if (errorAttributes.get("message").toString().equals("No message available"))
           errorAttributes.remove("requestUrl");
         else
-          errorAttributes.put("requestUrl", ElementsRequestInterceptor.requestUrl);
+          errorAttributes.put("requestUrl", RequestInterceptor.requestUrl);
         return errorAttributes;
       }
 

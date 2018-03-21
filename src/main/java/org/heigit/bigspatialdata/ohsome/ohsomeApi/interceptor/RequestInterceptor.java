@@ -7,7 +7,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /** Interceptor class, which is used to get the request URL. */
 @Component
-public class ElementsRequestInterceptor extends HandlerInterceptorAdapter {
+public class RequestInterceptor extends HandlerInterceptorAdapter {
 
   public static String requestUrl;
 
@@ -19,6 +19,7 @@ public class ElementsRequestInterceptor extends HandlerInterceptorAdapter {
     requestUrl = request.getRequestURL() + "?" + request.getQueryString();
     // adding a 1 year cache option
     response.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
+    
     return true;
   }
 
