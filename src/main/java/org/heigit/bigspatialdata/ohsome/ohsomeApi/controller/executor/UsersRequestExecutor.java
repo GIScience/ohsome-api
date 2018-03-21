@@ -67,7 +67,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, "Number of different users.", requestURL);
+      metadata = new Metadata(duration, "Number of distinct users per time interval.", requestURL);
     }
     DefaultUsersResponse response = new DefaultUsersResponse(
         new Attribution(ElementsRequestExecutor.url, ElementsRequestExecutor.text),
