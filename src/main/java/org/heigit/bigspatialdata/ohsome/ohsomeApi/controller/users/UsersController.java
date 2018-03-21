@@ -34,8 +34,7 @@ public class UsersController {
    *         GroupByTypeResponseContent}
    */
   @ApiOperation(value = "Count of OSM users")
-  @RequestMapping(value = "/count", method = RequestMethod.GET,
-      produces = "application/json")
+  @RequestMapping(value = "/count", method = RequestMethod.GET, produces = "application/json")
   public DefaultUsersResponse getCountGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
@@ -57,8 +56,8 @@ public class UsersController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return UsersRequestExecutor.executeCount(false, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    return UsersRequestExecutor.executeCount(false, bboxes, bcircles, bpolys, types, keys, values,
+        userids, time, showMetadata);
   }
 
   /**
@@ -75,7 +74,8 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false, value = ParameterDescriptions.bboxesDescr),
+          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false,
+          value = ParameterDescriptions.bboxesDescr),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false, value = ParameterDescriptions.bcirclesDescr),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
@@ -85,13 +85,16 @@ public class UsersController {
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
           defaultValue = "building", required = false, value = ParameterDescriptions.keysDescr),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = "residential", required = false, value = ParameterDescriptions.valuesDescr),
+          defaultValue = "residential", required = false,
+          value = ParameterDescriptions.valuesDescr),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = ParameterDescriptions.useridsDescr),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false, value = ParameterDescriptions.timeDescr),
+          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
+          value = ParameterDescriptions.timeDescr),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false, value = ParameterDescriptions.showMetadataDescr)})
+          defaultValue = "true", required = false,
+          value = ParameterDescriptions.showMetadataDescr)})
   @RequestMapping(value = "/count", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public DefaultUsersResponse postCount(String bboxes, String bcircles, String bpolys,
