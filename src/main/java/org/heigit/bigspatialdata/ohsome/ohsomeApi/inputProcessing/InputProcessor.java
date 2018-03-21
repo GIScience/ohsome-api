@@ -102,33 +102,38 @@ public class InputProcessor {
       throw new BadRequestException(
           "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
     checkBoundaryParams(bboxes, bcircles, bpolys);
-    switch (boundary) {
-      case NOBOUNDARY:
-        if (Application.getDataPoly() == null)
-          throw new BadRequestException(
-              "You need to define one boundary parameter (bboxes, bcircles, bpolys).");
-        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) Application.getDataPoly());
-        break;
-      case BBOXES:
-        mapRed =
-            mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
-        break;
-      case BCIRCLES:
-        mapRed = mapRed.areaOfInterest(
-            (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
-        break;
-      case BPOLYS:
-        if (boundaryValues == null)
-          mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
-        else
+    try {
+      switch (boundary) {
+        case NOBOUNDARY:
+          if (Application.getDataPoly() == null)
+            throw new BadRequestException(
+                "You need to define one boundary parameter (bboxes, bcircles, or bpolys).");
+          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) Application.getDataPoly());
+          break;
+        case BBOXES:
           mapRed = mapRed
-              .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
-        break;
-      default:
-        throw new BadRequestException(
-            "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format. "
-                + "or you defined more than one boundary parameter.");
+              .areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
+          break;
+        case BCIRCLES:
+          mapRed = mapRed.areaOfInterest(
+              (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
+          break;
+        case BPOLYS:
+          if (boundaryValues == null)
+            mapRed = mapRed.areaOfInterest(
+                (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
+          else
+            mapRed = mapRed
+                .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
+          break;
+        default:
+          throw new BadRequestException(
+              "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
+                  + "or you defined more than one boundary parameter.");
+      }
+    } catch (ClassCastException e) {
+      throw new BadRequestException(
+          "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) cannot be processed.");
     }
     mapRed = mapRed.osmTypes(checkTypes(types));
     mapRed = extractTime(mapRed, time, isSnapshot);
@@ -150,7 +155,7 @@ public class InputProcessor {
 
   /**
    * Checks the given boundary parameter(s), sets a corresponding enum (NOBOUNDARY for no boundary,
-   * BBOXES for bboxes, bcircleS for bcircles, BPOLYS for bpolys) and saves the splitted coordinates
+   * BBOXES for bboxes, BCIRCLES for bcircles, BPOLYS for bpolys) and saves the splitted coordinates
    * into an array (in case of non-GeoJSON). Only one (or none) of the boundary parameters is
    * allowed to have content in it.
    * 

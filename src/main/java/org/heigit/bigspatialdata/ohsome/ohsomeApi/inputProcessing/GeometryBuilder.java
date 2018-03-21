@@ -137,7 +137,7 @@ public class GeometryBuilder {
             "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
       return unifiedBCircles;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
-        | TransformException e) {
+        | TransformException | ArrayIndexOutOfBoundsException e) {
       throw new BadRequestException(
           "Each bcircle must consist of a lon/lat coordinate pair plus a buffer in meters.");
     }
