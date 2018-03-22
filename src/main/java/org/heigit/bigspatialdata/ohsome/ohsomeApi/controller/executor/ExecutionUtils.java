@@ -3,18 +3,15 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -321,55 +318,6 @@ public class ExecutionUtils {
           }
         });
     return result;
-  }
-
-  /**
-   * Creates the content of the boundary object in the metadata of the JSON response.
-   * 
-   * @param boundaryIds
-   * @param iP
-   * @return <code>Map</code> object.
-   */
-  public Map<String, double[]> createBoundariesMetadata(String[] boundaryIds, InputProcessor iP) {
-
-    // current helper so geojson input also works for /groupBy/boundary
-    if (iP.getBoundaryValues() == null)
-      return null;
-
-    Map<String, double[]> boundaries = new HashMap<String, double[]>();
-    switch (iP.getBoundaryType()) {
-      case NOBOUNDARY:
-        double[] singleBboxValues = new double[4];
-        for (int i = 0; i < 4; i++)
-          singleBboxValues[i] = Double.parseDouble(iP.getBoundaryValues()[i]);
-        boundaries.put(boundaryIds[0], singleBboxValues);
-        break;
-      case BBOXES:
-        int bboxCount = 0;
-        for (int i = 0; i < iP.getBoundaryValues().length; i += 4) {
-          double[] bboxValues = new double[4];
-          for (int j = 0; j < 4; j++)
-            bboxValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-          boundaries.put(boundaryIds[bboxCount], bboxValues);
-          bboxCount++;
-        }
-        break;
-      case BCIRCLES:
-        int bcircleCount = 0;
-        for (int i = 0; i < iP.getBoundaryValues().length; i += 3) {
-          double[] bcircleValues = new double[3];
-          for (int j = 0; j < 3; j++)
-            bcircleValues[j] = Double.parseDouble(iP.getBoundaryValues()[i + j]);
-          boundaries.put(boundaryIds[bcircleCount], bcircleValues);
-          bcircleCount++;
-        }
-        break;
-      case BPOLYS:
-        // bpolys metadata only works for geojson input
-        boundaries = null;
-        break;
-    }
-    return boundaries;
   }
 
 }

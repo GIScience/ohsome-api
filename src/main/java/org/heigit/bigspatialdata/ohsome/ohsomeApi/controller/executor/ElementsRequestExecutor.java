@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -28,7 +27,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioGroupByResult;
@@ -234,15 +232,14 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    GroupByBoundaryMetadata gBBMetadata = null;
+    Metadata metadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
-      gBBMetadata = new GroupByBoundaryMetadata(duration, boundaries,
-          "Total number of items aggregated on the boundary object.", requestURL);
+      metadata = new Metadata(duration, "Total number of items aggregated on the boundary object.",
+          requestURL);
     }
     GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, gBBMetadata, resultSet);
+        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -712,16 +709,15 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    GroupByBoundaryMetadata gBBMetadata = null;
+    Metadata metadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
-      gBBMetadata = new GroupByBoundaryMetadata(duration, boundaries,
+      metadata = new Metadata(duration,
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
           requestURL);
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
-        new Attribution(url, text), apiVersion, gBBMetadata, groupByResultSet);
+        new Attribution(url, text), apiVersion, metadata, groupByResultSet);
     return response;
   }
 
@@ -935,17 +931,16 @@ public class ElementsRequestExecutor {
       ratioResultSet[count] = new RatioGroupByResult(groupByName, ratioResults);
       count++;
     }
-    GroupByBoundaryMetadata gBBMetadata = null;
+    Metadata metadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
-      gBBMetadata = new GroupByBoundaryMetadata(duration, boundaries,
+      metadata = new Metadata(duration,
           "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items "
               + "selected by types, keys, values parameters (= value output) and ratio of value2:value grouped on the boundary objects.",
           requestURL);
     }
     RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
-        new Attribution(url, text), apiVersion, gBBMetadata, ratioResultSet);
+        new Attribution(url, text), apiVersion, metadata, ratioResultSet);
     return response;
   }
 
@@ -1119,14 +1114,13 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    GroupByBoundaryMetadata gBBMetadata = null;
+    Metadata metadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
-      gBBMetadata = new GroupByBoundaryMetadata(duration, boundaries, description, requestURL);
+      metadata = new Metadata(duration, description, requestURL);
     }
     GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, gBBMetadata, resultSet);
+        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1867,16 +1861,15 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    GroupByBoundaryMetadata gBBMetadata = null;
+    Metadata metadata = null;
     if (iP.getShowMetadata()) {
-      Map<String, double[]> boundaries = exeUtils.createBoundariesMetadata(boundaryIds, iP);
       long duration = System.currentTimeMillis() - startTime;
-      gBBMetadata = new GroupByBoundaryMetadata(duration, boundaries,
+      metadata = new Metadata(duration,
           "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
           requestURL);
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
-        new Attribution(url, text), apiVersion, gBBMetadata, groupByResultSet);
+        new Attribution(url, text), apiVersion, metadata, groupByResultSet);
     return response;
   }
 
