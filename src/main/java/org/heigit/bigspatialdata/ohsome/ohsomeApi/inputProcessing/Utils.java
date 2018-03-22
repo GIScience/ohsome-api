@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
-import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -225,6 +224,15 @@ public class Utils {
     return boundaryParamValues;
   }
 
+  public String[] computeToTimestamps(String startTimestamp, String endTimestamp, String interval) {
+    
+    String[] toTimestamps = null;
+    
+    
+    return toTimestamps;
+    
+  }
+  
   /**
    * Extracts the time information out of the time parameter and checks the content on its format,
    * as well as <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> conformity. This
@@ -288,9 +296,9 @@ public class Utils {
       if (timeSplit.length == 3 && timeSplit[2].length() > 0) {
         // interval
         try {
-          Period.parse(timeSplit[2]);
+          ISODateTimeParser.parseISOPeriod(timeSplit[2]);
           timeVals[2] = timeSplit[2];
-        } catch (DateTimeParseException e) {
+        } catch (Exception e) {
           throw new BadRequestException(
               "The interval (period) of the provided time parameter is not ISO-8601 conform.");
         }
