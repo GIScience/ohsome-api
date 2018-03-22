@@ -237,6 +237,7 @@ public class GeometryBuilder {
    * and its features must be of type 'Polygon' or 'Multipolygon'.
    * 
    * @param geoJson
+   * @param iP
    * @return <code>Geometry</code>
    * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
    */
@@ -255,14 +256,22 @@ public class GeometryBuilder {
     int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
+      // id extraction/creation
       JsonObject properties = feature.getJsonObject("properties");
-      // custom ids extracted from properties
-      if (properties.containsKey("id")) {
-        boundaryIds[count] = properties.getString("id");
-        count++;
-      } else {
-        boundaryIds[count] = "feature" + String.valueOf(count+1);
-        count++;
+      try {
+        if (feature.containsKey("id")) {
+          boundaryIds[count] = feature.getString("id");
+          count++;
+        } else if (properties.containsKey("id")) {
+          boundaryIds[count] = properties.getString("id");
+          count++;
+        } else {
+          boundaryIds[count] = "feature" + String.valueOf(count + 1);
+          count++;
+        }
+      } catch (Exception e) {
+        throw new BadRequestException(
+            "The provided custom id(s) must be of the data type String and unique.");
       }
       JsonObject geomObj = feature.getJsonObject("geometry");
       if (!geomObj.getString("type").equals("Polygon")
@@ -273,8 +282,7 @@ public class GeometryBuilder {
         if (result == null) {
           result = reader.read(geomObj.toString());
           geometryCollection.add(result);
-        }
-        else {
+        } else {
           Geometry currentResult = reader.read(geomObj.toString());
           geometryCollection.add(currentResult);
           result = currentResult.union(result);
