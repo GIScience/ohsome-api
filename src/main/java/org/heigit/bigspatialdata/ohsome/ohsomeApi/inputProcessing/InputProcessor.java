@@ -1,10 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +11,6 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
@@ -281,10 +275,12 @@ public class InputProcessor {
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
       throws Exception {
 
+    String[] toTimestamps = null;
     if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
       if (timeData[2] != null) {
         // interval is given
+        toTimestamps = utils.defineToTimestamps(timeData);
         mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
       } else if (timeData[1] != null) {
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
@@ -294,10 +290,13 @@ public class InputProcessor {
               "You need to give at least two timestamps or a time interval for this resource.");
         mapRed = mapRed.timestamps(timeData[0]);
       }
-
     } else if (time.length == 0) {
-      // no time parameter --> return end time only
-      mapRed = mapRed.timestamps(Application.getToTstamp());
+      if (!isSnapshot) {
+        toTimestamps = new String[] {Application.getToTstamp()};
+        mapRed = mapRed.timestamps(Application.getFromTstamp(), Application.getToTstamp());
+      } else {
+        mapRed = mapRed.timestamps(Application.getToTstamp());
+      }
     } else {
       // list of timestamps
       int tCount = 1;
@@ -305,26 +304,13 @@ public class InputProcessor {
         utils.checkIsoConformity(timestamp, "timestamp number " + tCount);
         tCount++;
       }
+      if (!isSnapshot)
+        toTimestamps = utils.defineToTimestamps(time);
       String firstElem = time[0];
       time = ArrayUtils.remove(time, 0);
-      if (!isSnapshot) {
-        String[] toTimestamps = new String[time.length];
-        // computing toTimestamps for /users result
-        for (int i = 0; i < time.length; i++) {
-          ZonedDateTime zdtInput = ISODateTimeParser.parseISODateTime(time[i]);
-          long timestampLong = DateTimeFormatter.ISO_DATE_TIME
-              .parse(zdtInput.format(DateTimeFormatter.ISO_DATE_TIME))
-              .getLong(ChronoField.INSTANT_SECONDS);
-          timestampLong = timestampLong - 1;
-          ZonedDateTime zdtOutput =
-              ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestampLong), ZoneId.of("Z"));
-          toTimestamps[i] = zdtOutput.format(DateTimeFormatter.ISO_DATE_TIME);
-        }
-        utils.setToTimestamps(toTimestamps);
-      }
       mapRed = mapRed.timestamps(firstElem, firstElem, time);
     }
-
+    utils.setToTimestamps(toTimestamps);
     return mapRed;
   }
 

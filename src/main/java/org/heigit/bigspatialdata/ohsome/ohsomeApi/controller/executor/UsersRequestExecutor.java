@@ -56,14 +56,9 @@ public class UsersRequestExecutor {
     String[] toTimestamps = iP.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      if (toTimestamps == null)
-        resultSet[count] =
-            new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()), null,
-                entry.getValue().intValue());
-      else
-        resultSet[count] =
-            new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-                toTimestamps[count], entry.getValue().intValue());
+      resultSet[count] =
+          new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+              toTimestamps[count + 1], entry.getValue().intValue());
       count++;
     }
     Metadata metadata = null;

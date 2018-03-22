@@ -10,6 +10,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
+import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
+import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -224,15 +226,37 @@ public class Utils {
     return boundaryParamValues;
   }
 
-  public String[] computeToTimestamps(String startTimestamp, String endTimestamp, String interval) {
-    
-    String[] toTimestamps = null;
-    
-    
+  /**
+   * Defines the toTimestamps for the result json object for /users responses.
+   * 
+   * @param timeData
+   * @return String[]
+   */
+  public String[] defineToTimestamps(String[] timeData) {
+
+    String[] toTimestamps;
+    OSHDBTimestamps timestamps;
+    if (timeData.length == 3 && timeData[2].startsWith("P")) {
+      // to, from, interval given
+      timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
+      toTimestamps = timestamps.get().stream().map(oshdbTimestamp -> {
+        return TimestampFormatter.getInstance().isoDateTime(oshdbTimestamp);
+      }).toArray(String[]::new);
+    } else {
+      // list of timestamps
+      toTimestamps = new String[timeData.length];
+      for (int i = 0; i < timeData.length; i++) {
+        try {
+          toTimestamps[i] = ISODateTimeParser.parseISODateTime(timeData[i])
+              .format(DateTimeFormatter.ISO_DATE_TIME);
+        } catch (Exception e) {
+          // time gets checked earlier, so exception should never be thrown
+        }
+      }
+    }
     return toTimestamps;
-    
   }
-  
+
   /**
    * Extracts the time information out of the time parameter and checks the content on its format,
    * as well as <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> conformity. This
