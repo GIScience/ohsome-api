@@ -292,7 +292,7 @@ public class InputProcessor {
       }
     } else if (time.length == 0) {
       if (!isSnapshot) {
-        toTimestamps = new String[] {Application.getToTstamp()};
+        toTimestamps = new String[] {Application.getFromTstamp(), Application.getToTstamp()};
         mapRed = mapRed.timestamps(Application.getFromTstamp(), Application.getToTstamp());
       } else {
         mapRed = mapRed.timestamps(Application.getToTstamp());

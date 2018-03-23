@@ -72,13 +72,13 @@ public class ExecutionUtils {
     Geometry geom;
     switch (boundary) {
       case NOBOUNDARY:
-        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
+        geom = geomBuilder.getDataPoly();
         break;
       case BBOXES:
         geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
         break;
       case BCIRCLES:
-        geom = geomBuilder.getbcircleGeom();
+        geom = geomBuilder.getBcircleGeom();
         break;
       case BPOLYS:
         geom = geomBuilder.getBpoly();

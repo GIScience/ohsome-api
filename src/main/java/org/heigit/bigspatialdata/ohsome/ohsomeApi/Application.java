@@ -102,12 +102,12 @@ public class Application implements ApplicationRunner {
     // the here defined hard-coded values are only temporary available
     // in future an exception will be thrown, if these metadata infos are not retrieveable
 
-    if (db.metadata("extract") != null) {
+    if (db.metadata("extract.region") != null) {
       GeometryBuilder geomBuilder = new GeometryBuilder();
-      dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(db.metadata("extract"));
+      dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(db.metadata("extract.region"));
     }
-    if (db.metadata("data.timerange_str") != null) {
-      String[] timeranges = db.metadata("data.timerange_str").split(",");
+    if (db.metadata("extract.timerange") != null) {
+      String[] timeranges = db.metadata("extract.timerange").split(",");
       fromTstamp = timeranges[0];
       toTstamp = timeranges[1];
     } else {

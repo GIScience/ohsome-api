@@ -370,7 +370,7 @@ public class Utils {
     long end = 0;
     long timestampLong = 0;
 
-    start = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getFromTstamp() + "Z")
+    start = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getFromTstamp() + "T00:00:00Z")
         .getLong(ChronoField.INSTANT_SECONDS);
     end = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getToTstamp() + "Z")
         .getLong(ChronoField.INSTANT_SECONDS);

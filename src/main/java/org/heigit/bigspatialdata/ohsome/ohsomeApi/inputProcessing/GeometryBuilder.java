@@ -35,6 +35,7 @@ public class GeometryBuilder {
   private OSHDBBoundingBox bbox;
   private Geometry bcircleGeom;
   private Polygon bpoly;
+  private Geometry dataPoly;
   private Collection<Geometry> bboxColl;
   private Collection<Geometry> bcircleColl;
   private Collection<Geometry> bpolyColl;
@@ -226,7 +227,8 @@ public class GeometryBuilder {
 
     GeoJSONReader reader = new GeoJSONReader();
     try {
-      return reader.read(geoJson);
+      dataPoly = reader.read(geoJson);
+      return dataPoly;
     } catch (Exception e) {
       throw new BadRequestException("The provided GeoJSON cannot be converted.");
     }
@@ -327,7 +329,7 @@ public class GeometryBuilder {
     return bbox;
   }
 
-  public Geometry getbcircleGeom() {
+  public Geometry getBcircleGeom() {
     return bcircleGeom;
   }
 
@@ -335,4 +337,7 @@ public class GeometryBuilder {
     return bpoly;
   }
 
+  public Geometry getDataPoly() {
+    return dataPoly;
+  }
 }
