@@ -30,7 +30,9 @@ public class Application implements ApplicationRunner {
   private static String attributionShort = null;
   private static String attributionUrl = null;
   private static Geometry dataPoly = null;
+  private static String dataPolyString = null;
   private static TagTranslator tagTranslator = null;
+  public static final String apiVersion = "0.9";
 
   public static void main(String[] args) {
 
@@ -103,8 +105,9 @@ public class Application implements ApplicationRunner {
     // in future an exception will be thrown, if these metadata infos are not retrieveable
 
     if (db.metadata("extract.region") != null) {
+      dataPolyString = db.metadata("extract.region");
       GeometryBuilder geomBuilder = new GeometryBuilder();
-      dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(db.metadata("extract.region"));
+      dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(dataPolyString);
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");
@@ -138,6 +141,10 @@ public class Application implements ApplicationRunner {
 
   public static Geometry getDataPoly() {
     return dataPoly;
+  }
+  
+  public static String getDataPolyString() {
+    return dataPolyString;
   }
 
   public static TagTranslator getTagTranslator() {
