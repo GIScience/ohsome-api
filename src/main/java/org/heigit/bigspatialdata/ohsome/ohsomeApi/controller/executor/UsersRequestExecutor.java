@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
@@ -15,6 +16,9 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 
 public class UsersRequestExecutor {
+
+  private static final String url = Application.getAttributionUrl();
+  private static final String text = Application.getAttributionShort();
 
   /**
    * Performs a count calculation.
@@ -66,9 +70,8 @@ public class UsersRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Number of distinct users per time interval.", requestURL);
     }
-    DefaultUsersResponse response = new DefaultUsersResponse(
-        new Attribution(ElementsRequestExecutor.url, ElementsRequestExecutor.text),
-        ElementsRequestExecutor.apiVersion, metadata, resultSet);
+    DefaultUsersResponse response = new DefaultUsersResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
 
     return response;
   }
