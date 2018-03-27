@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
@@ -11,6 +12,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -30,7 +34,7 @@ public class Application implements ApplicationRunner {
   private static String attributionShort = null;
   private static String attributionUrl = null;
   private static Geometry dataPoly = null;
-  private static String dataPolyString = null;
+  private static JsonNode dataPolyJson = null;
   private static TagTranslator tagTranslator = null;
   public static final String apiVersion = "0.9";
 
@@ -98,14 +102,18 @@ public class Application implements ApplicationRunner {
    * Extracts some metadata from the given db object and adds it to the corresponding objects.
    * 
    * @param db
+   * @throws IOException 
+   * @throws JsonProcessingException 
    */
-  private void extractMetadata(OSHDBDatabase db) {
+  private void extractMetadata(OSHDBDatabase db) throws JsonProcessingException, IOException {
 
     // the here defined hard-coded values are only temporary available
     // in future an exception will be thrown, if these metadata infos are not retrieveable
 
     if (db.metadata("extract.region") != null) {
-      dataPolyString = db.metadata("extract.region");
+      String dataPolyString = db.metadata("extract.region");
+      ObjectMapper mapper = new ObjectMapper();
+      dataPolyJson = mapper.readTree(dataPolyString);
       GeometryBuilder geomBuilder = new GeometryBuilder();
       dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(dataPolyString);
     }
@@ -114,7 +122,7 @@ public class Application implements ApplicationRunner {
       fromTstamp = timeranges[0];
       toTstamp = timeranges[1];
     } else {
-      fromTstamp = "2007-11-01T00:00:00";
+      fromTstamp = "2007-11-01";
       toTstamp = "2018-03-01T00:00:00";
     }
     if (db.metadata("attribution.short") != null)
@@ -143,8 +151,8 @@ public class Application implements ApplicationRunner {
     return dataPoly;
   }
   
-  public static String getDataPolyString() {
-    return dataPolyString;
+  public static JsonNode getDataPolyJson() {
+    return dataPolyJson;
   }
 
   public static TagTranslator getTagTranslator() {

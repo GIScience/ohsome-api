@@ -19,7 +19,7 @@ public class MetadataRequestExecutor {
     return new MetadataResponse(Application.apiVersion,
         new ExtractRegion(
             new Attribution(Application.getAttributionUrl(), Application.getAttributionShort()),
-            Application.getDataPolyString(),
+            Application.getDataPolyJson(),
             new TemporalExtend(Application.getFromTstamp(), Application.getToTstamp())));
   }
 
