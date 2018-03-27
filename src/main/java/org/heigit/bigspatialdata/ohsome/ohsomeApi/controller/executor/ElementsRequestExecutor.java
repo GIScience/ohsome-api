@@ -51,9 +51,8 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  public static final String url = Application.getAttributionUrl();
-  public static final String text = Application.getAttributionShort();
-  public static final String apiVersion = "0.9";
+  private static final String url = Application.getAttributionUrl();
+  private static final String text = Application.getAttributionShort();
 
   /**
    * Performs a count calculation.
@@ -103,7 +102,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "Total number of items.", requestURL);
     }
     DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new DefaultAggregationResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
 
     return response;
   }
@@ -180,7 +179,7 @@ public class ElementsRequestExecutor {
             new Metadata(duration, "Total number of items aggregated on the type.", requestURL);
     }
     GroupByTypeResponse response =
-        new GroupByTypeResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByTypeResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -239,7 +238,7 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByBoundaryResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -325,7 +324,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "Total number of items aggregated on the key.", requestURL);
     }
     GroupByKeyResponse response =
-        new GroupByKeyResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByKeyResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -437,7 +436,7 @@ public class ElementsRequestExecutor {
             new Metadata(duration, "Total number of items aggregated on the tag.", requestURL);
     }
     GroupByTagResponse response =
-        new GroupByTagResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByTagResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -499,7 +498,7 @@ public class ElementsRequestExecutor {
           new Metadata(duration, "Total number of items aggregated on the userids.", requestURL);
     }
     GroupByUserResponse response =
-        new GroupByUserResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByUserResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -621,7 +620,7 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     ShareResponse response =
-        new ShareResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new ShareResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -717,7 +716,7 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
-        new Attribution(url, text), apiVersion, metadata, groupByResultSet);
+        new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
     return response;
   }
 
@@ -767,7 +766,7 @@ public class ElementsRequestExecutor {
           "Density of selected items (number of items per square kilometer).", requestURL);
     }
     DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new DefaultAggregationResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -839,7 +838,7 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     RatioResponse response =
-        new RatioResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -940,7 +939,7 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
-        new Attribution(url, text), apiVersion, metadata, ratioResultSet);
+        new Attribution(url, text), Application.apiVersion, metadata, ratioResultSet);
     return response;
   }
 
@@ -1040,7 +1039,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new DefaultAggregationResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1120,7 +1119,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByBoundaryResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1239,7 +1238,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByKeyResponse response =
-        new GroupByKeyResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByKeyResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1402,7 +1401,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByTagResponse response =
-        new GroupByTagResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByTagResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1498,7 +1497,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByUserResponse response =
-        new GroupByUserResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByUserResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1605,7 +1604,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByTypeResponse response =
-        new GroupByTypeResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new GroupByTypeResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1765,7 +1764,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     ShareResponse response =
-        new ShareResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new ShareResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1869,7 +1868,7 @@ public class ElementsRequestExecutor {
           requestURL);
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
-        new Attribution(url, text), apiVersion, metadata, groupByResultSet);
+        new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
     return response;
   }
 
@@ -1988,7 +1987,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     RatioResponse response =
-        new RatioResponse(new Attribution(url, text), apiVersion, metadata, resultSet);
+        new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 
