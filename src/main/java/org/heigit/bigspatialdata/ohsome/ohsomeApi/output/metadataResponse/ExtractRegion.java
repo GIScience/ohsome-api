@@ -13,27 +13,27 @@ public class ExtractRegion {
   @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
   private Attribution attribution;
   @ApiModelProperty(notes = "Spatial extend of this extract-region", required = true, position = 1)
-  private JsonNode spatialExtend;
+  private JsonNode spatialExtent;
   @ApiModelProperty(notes = "Temporal extend of this extract-region", position = 2)
-  private TemporalExtend temporalExtend;
+  private TemporalExtent temporalExtent;
 
-  public ExtractRegion(Attribution attribution, JsonNode spatialExtend,
-      TemporalExtend temporalExtend) {
+  public ExtractRegion(Attribution attribution, JsonNode spatialExtent,
+      TemporalExtent temporalExtent) {
     this.attribution = attribution;
-    this.spatialExtend = spatialExtend;
-    this.temporalExtend = temporalExtend;
+    this.spatialExtent = spatialExtent;
+    this.temporalExtent = temporalExtent;
   }
 
   public Attribution getAttribution() {
     return attribution;
   }
 
-  public JsonNode getSpatialExtend() {
-    return spatialExtend;
+  public JsonNode getSpatialExtent() {
+    return spatialExtent;
   }
 
-  public TemporalExtend getTemporalExtend() {
-    return temporalExtend;
+  public TemporalExtent getTemporalExtent() {
+    return temporalExtent;
   }
 
 }

@@ -4,7 +4,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.ExtractRegion;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.MetadataResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.TemporalExtend;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.TemporalExtent;
 
 public class MetadataRequestExecutor {
 
@@ -20,7 +20,7 @@ public class MetadataRequestExecutor {
         new ExtractRegion(
             new Attribution(Application.getAttributionUrl(), Application.getAttributionShort()),
             Application.getDataPolyJson(),
-            new TemporalExtend(Application.getFromTstamp(), Application.getToTstamp())));
+            new TemporalExtent(Application.getFromTstamp(), Application.getToTstamp())));
   }
 
 }
