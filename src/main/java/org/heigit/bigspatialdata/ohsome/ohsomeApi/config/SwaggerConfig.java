@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,8 +31,8 @@ public class SwaggerConfig {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("ohsome-api").select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi"))
-        .paths(PathSelectors.any()).build().apiInfo(apiInfo())
-        .useDefaultResponseMessages(false).globalOperationParameters(defineGOPs())
+        .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
+        .globalOperationParameters(defineGOPs())
         .tags(new Tag("/users", "Data Aggregation functions on users"),
             new Tag("/elements/area", "Area resources for polygonal objects"),
             new Tag("/elements/length", "Length resources for line objects"),
@@ -73,7 +74,7 @@ public class SwaggerConfig {
         "v_0.1", "Terms of service",
         new Contact("Heidelberg Institute for Geoinformation Technology", "http://www.heigit.org",
             "info@heigit.org"),
-        "License of API and used data", "http://ohsome.org", Collections.emptyList());
+        "License of API and used data", "https://ohsome.org/copyrights", Collections.emptyList());
   }
 
   /**
