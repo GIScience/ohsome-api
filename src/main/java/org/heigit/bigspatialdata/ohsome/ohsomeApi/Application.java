@@ -132,7 +132,7 @@ public class Application implements ApplicationRunner {
     if (db.metadata("attribution.url") != null)
       attributionUrl = db.metadata("attribution.url");
     else
-      attributionUrl = "http://ohsome.org";
+      attributionUrl = "https://ohsome.org/copyrights";
   }
 
   public static OSHDBH2 getH2Db() {
