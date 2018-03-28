@@ -11,9 +11,9 @@
 	<groupId>org.heigit.bigspatialdata.ohsome</groupId>
 	<artifactId>ohsome-api</artifactId>
 	<name>ohsome-api</name>
-	<description>A public Web-REST-API for the BigData-Cluster</description>
+	<description>A public Web-REST-API for "ohsome" OpenStreetMap history data.</description>
 	<packaging>jar</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.9</version>
 
 	<properties>
 		<springboot.version>1.5.8.RELEASE</springboot.version>
