@@ -1,6 +1,7 @@
 # OHSOME API
 
 This REST-API aims to leverage the tools of the [OSHDB-API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
+The current stable beta-version 0.9 can be downloaded [here](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/v0.9). 
 Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST-API.
 
 ## Getting Started
@@ -48,12 +49,12 @@ This section gives you some example request URLs and shows the returned JSON res
 ```json
 {
     "attribution": {
-        "url": "http://ohsome.org",
+        "url": "https://ohsome.org/copyrights",
         "text": "© OpenStreetMap contributors"
     },
     "apiVersion": "0.9",
     "metadata": {
-        "executionTime": 627,
+        "executionTime": 858,
         "description": "Total length of lines in meter.",
         "requestUrl": "http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true"
     },
@@ -84,12 +85,12 @@ This section gives you some example request URLs and shows the returned JSON res
 ```json
 {
     "attribution": {
-        "url": "http://ohsome.org",
+        "url": "https://ohsome.org/copyrights",
         "text": "© OpenStreetMap contributors"
     },
     "apiVersion": "0.9",
     "metadata": {
-        "executionTime": 6293,
+        "executionTime": 2593,
         "description": "Total number of items aggregated on the boundary object.",
         "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?bpolys=%7B%22type%22:%22FeatureCollection%22,%22features%22:[%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Heidelberg%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]%7D%7D,%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Weinheim%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]%7D%7D]%7D&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true"
     },
