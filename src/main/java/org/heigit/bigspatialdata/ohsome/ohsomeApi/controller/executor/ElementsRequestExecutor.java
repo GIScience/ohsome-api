@@ -58,7 +58,7 @@ public class ElementsRequestExecutor {
    * Performs a count calculation.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
@@ -111,7 +111,7 @@ public class ElementsRequestExecutor {
    * Performs a count or density calculation grouped by the type.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
@@ -187,7 +187,7 @@ public class ElementsRequestExecutor {
    * Performs a count calculation grouped by the boundary.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
@@ -246,7 +246,7 @@ public class ElementsRequestExecutor {
    * Performs a count calculation grouped by the key.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * getCountGroupByKey} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
@@ -332,7 +332,7 @@ public class ElementsRequestExecutor {
    * Performs a count or density calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
@@ -444,7 +444,7 @@ public class ElementsRequestExecutor {
    * Performs a count calculation grouped by the user.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
@@ -506,7 +506,7 @@ public class ElementsRequestExecutor {
    * Performs a count-share calculation.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
@@ -628,7 +628,7 @@ public class ElementsRequestExecutor {
    * Performs a count-share calculation grouped by the boundary.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
@@ -724,7 +724,7 @@ public class ElementsRequestExecutor {
    * Performs a count-density calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
@@ -774,7 +774,7 @@ public class ElementsRequestExecutor {
    * Performs a count-ratio calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
@@ -846,7 +846,7 @@ public class ElementsRequestExecutor {
    * Performs a count-ratio calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
@@ -947,7 +947,7 @@ public class ElementsRequestExecutor {
    * Performs a length or area calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1047,7 +1047,7 @@ public class ElementsRequestExecutor {
    * Performs a length, perimeter, or area calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1127,7 +1127,7 @@ public class ElementsRequestExecutor {
    * Performs a length, perimeter, or area calculation grouped by the key.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * groupByKey} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1246,7 +1246,7 @@ public class ElementsRequestExecutor {
    * Performs a length, perimeter, or area calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountGroupByTag} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1409,7 +1409,7 @@ public class ElementsRequestExecutor {
    * Performs a length, perimeter, or area calculation grouped by the user.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1505,7 +1505,7 @@ public class ElementsRequestExecutor {
    * Performs a perimeter, or area calculation grouped by the OSM type.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1612,7 +1612,7 @@ public class ElementsRequestExecutor {
    * Performs a length|perimeter|area-share calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1772,7 +1772,7 @@ public class ElementsRequestExecutor {
    * Performs a length|perimeter|area-share calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
@@ -1876,7 +1876,7 @@ public class ElementsRequestExecutor {
    * Performs a length|perimeter|area-ratio calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).

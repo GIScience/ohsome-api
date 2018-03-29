@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,8 +28,8 @@ public class SwaggerConfig {
   public Docket api() {
 
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("ohsome-api").select()
-        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi"))
+    return new Docket(DocumentationType.SWAGGER_2).groupName("data aggregation").select()
+        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
         .tags(new Tag("/users", "Data Aggregation functions on users"),
@@ -38,6 +37,18 @@ public class SwaggerConfig {
             new Tag("/elements/length", "Length resources for line objects"),
             new Tag("/elements/count", "Count resources for point/line/polygonal objects"),
             new Tag("/elements/perimeter", "Perimeter resources for polygonal objects"))
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
+        .globalResponseMessage(RequestMethod.POST, responseMessages);
+  }
+
+  @Bean
+  public Docket metadataDocket() {
+
+    ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
+    return new Docket(DocumentationType.SWAGGER_2).groupName("metadata").select()
+        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.metadata"))
+        .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
+        .tags(new Tag("/metadata", "Metadata of the underlying data-extract"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }

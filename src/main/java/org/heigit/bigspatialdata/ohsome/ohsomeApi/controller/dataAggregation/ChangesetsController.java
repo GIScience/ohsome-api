@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.changesets;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

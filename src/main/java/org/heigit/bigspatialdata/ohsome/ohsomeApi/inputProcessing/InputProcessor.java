@@ -38,7 +38,7 @@ public class InputProcessor {
    * Processes the input parameters from the given request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
@@ -223,7 +223,7 @@ public class InputProcessor {
    * where(key, value)} method.
    * <p>
    * The keys and values parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.elements.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer

@@ -23,8 +23,7 @@ public class MetadataController {
    *         MetadataResponse}
    */
   @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-  public MetadataResponse getMetadata()
-      throws UnsupportedOperationException, Exception {
+  public MetadataResponse getMetadata() throws UnsupportedOperationException, Exception {
 
     return MetadataRequestExecutor.executeGetMetadata();
   }
