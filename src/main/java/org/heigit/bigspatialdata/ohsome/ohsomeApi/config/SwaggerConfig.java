@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -102,7 +103,7 @@ public class SwaggerConfig {
         .description("WGS84 coordinates in the following formats: "
             + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; default: whole dataset (if all three boundary parameters are empty)")
         .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue("8.6128,49.3183,8.7294,49.4376").required(false).build());
+        .defaultValue(DefaultSwaggerParameters.BBOX).required(false).build());
     gOPs.add(new ParameterBuilder().name("bcircles")
         .description("WGS84 coordinates + radius in meters in the following formats: "
             + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; default: whole dataset (if all three boundary parameters are empty)")
@@ -116,7 +117,7 @@ public class SwaggerConfig {
     gOPs.add(new ParameterBuilder().name("types")
         .description("OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types")
         .modelRef(new ModelRef("string")).allowMultiple(true).parameterType("query")
-        .defaultValue("way").required(false).build());
+        .defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
     gOPs.add(new ParameterBuilder().name("keys")
         .description("OSM key(s) e.g.: 'highway', 'building'; default: no key")
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
@@ -131,10 +132,10 @@ public class SwaggerConfig {
     gOPs.add(new ParameterBuilder().name("time")
         .description("ISO-8601 conform timestring(s); default: today")
         .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue("2008-01-01/2017-01-01/P1Y").required(false).build());
+        .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
         .description("Boolean operator 'true' or 'false'; default: 'false'")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("true")
+        .modelRef(new ModelRef("string")).parameterType("query").defaultValue(DefaultSwaggerParameters.SHOW_METADATA)
         .required(false).build());
 
     return gOPs;

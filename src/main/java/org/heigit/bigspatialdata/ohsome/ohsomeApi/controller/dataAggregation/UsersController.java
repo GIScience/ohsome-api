@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.UsersRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultUsersResponse;
@@ -71,14 +72,15 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = "8.6128,49.3183,8.7294,49.4376", required = false,
+          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
           value = ParameterDescriptions.BBOXES_DESCR),
       @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
           required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
       @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
           value = ParameterDescriptions.BPOLYS_DESCR),
       @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way", required = false, value = ParameterDescriptions.TYPES_DESCR),
+          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
+          value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
           defaultValue = "building", required = false, value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
@@ -87,10 +89,10 @@ public class UsersController {
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
           value = ParameterDescriptions.USERIDS_DESCR),
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = "2010-01-01/2017-01-01/P1Y", required = false,
+          defaultValue = DefaultSwaggerParameters.TIME, required = false,
           value = ParameterDescriptions.TIME_DESCR),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = "true", required = false,
+          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/count", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
