@@ -973,8 +973,6 @@ public class ElementsRequestExecutor {
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
         values, userids, time, showMetadata);
-
-
     switch (requestResource) {
       case AREA:
         result = mapRed.aggregateByTimestamp()
