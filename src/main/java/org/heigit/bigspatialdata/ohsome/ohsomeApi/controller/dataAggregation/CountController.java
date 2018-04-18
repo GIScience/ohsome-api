@@ -985,8 +985,9 @@ public class CountController {
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = "building,addr:housenumber", required = true,
-          value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY
+              + DefaultSwaggerParameters.HOUSENUMBER_KEY,
+          required = true, value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
