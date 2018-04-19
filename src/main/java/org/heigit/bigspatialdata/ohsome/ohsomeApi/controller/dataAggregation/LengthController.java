@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ElementsRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
@@ -66,8 +67,9 @@ public class LengthController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH, false, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -105,7 +107,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByUser(RequestResource.LENGTH,
-        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -145,7 +148,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByBoundary(RequestResource.LENGTH,
-        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -161,9 +165,9 @@ public class LengthController {
    *         GroupByKeyResponseContent}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query", dataType = "string", required = true)})
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
+      value = ParameterDescriptions.KEYS_DESCR, defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY,
+      paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
   public GroupByKeyResponse getLengthGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -189,7 +193,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.LENGTH,
-        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
         groupByKeys);
   }
 
@@ -212,7 +217,8 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query", dataType = "string", required = true),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
+          dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
@@ -240,9 +246,11 @@ public class LengthController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
-        false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
-        groupByKey, groupByValues);
+    return ElementsRequestExecutor
+        .executeLengthPerimeterAreaGroupByTag(
+            RequestResource.LENGTH, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -291,8 +299,10 @@ public class LengthController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.LENGTH, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.LENGTH,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        keys2, values2);
   }
 
   /**
@@ -342,8 +352,9 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(
-        RequestResource.LENGTH, false, bboxes, bcircles, bpolys, types, keys, values, userids, time,
-        showMetadata, keys2, values2);
+        RequestResource.LENGTH, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
+        keys2, values2);
   }
 
   /**
@@ -379,8 +390,9 @@ public class LengthController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH, false, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH,
+        new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -404,7 +416,8 @@ public class LengthController {
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query", dataType = "string", required = true),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
+          dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.GET,
@@ -433,9 +446,11 @@ public class LengthController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
-        false, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
-        groupByKey, groupByValues);
+    return ElementsRequestExecutor
+        .executeLengthPerimeterAreaGroupByTag(
+            RequestResource.LENGTH, new RequestParameters(false, true, true, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -459,7 +474,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
           required = false),
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query", dataType = "string", required = false),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
+          dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "primary", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
@@ -487,9 +503,10 @@ public class LengthController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaRatio(RequestResource.LENGTH, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, types2, keys2,
-        values2);
+    return ElementsRequestExecutor.executeLengthPerimeterAreaRatio(RequestResource.LENGTH,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        types2, keys2, values2);
   }
 
   /**
@@ -516,7 +533,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
           value = ParameterDescriptions.VALUES_DESCR),
@@ -534,8 +552,9 @@ public class LengthController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -562,7 +581,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
           value = ParameterDescriptions.VALUES_DESCR),
@@ -581,7 +601,8 @@ public class LengthController {
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByUser(RequestResource.LENGTH,
-        true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -610,7 +631,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
           value = ParameterDescriptions.VALUES_DESCR),
@@ -630,7 +652,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByBoundary(RequestResource.LENGTH,
-        true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -672,7 +695,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
       @ApiImplicitParam(name = "groupByKeys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = true, value = ParameterDescriptions.KEYS_DESCR)})
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = true,
+          value = ParameterDescriptions.KEYS_DESCR)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByKeyResponse postLengthGroupByKey(String bboxes, String bcircles, String bpolys,
@@ -681,7 +705,8 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.LENGTH,
-        true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
         groupByKeys);
   }
 
@@ -715,7 +740,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false, value = ParameterDescriptions.VALUES_DESCR),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
@@ -737,9 +763,11 @@ public class LengthController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
-        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
-        groupByKey, groupByValues);
+    return ElementsRequestExecutor
+        .executeLengthPerimeterAreaGroupByTag(
+            RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -772,7 +800,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
           value = ParameterDescriptions.VALUES_DESCR),
@@ -785,7 +814,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = true, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = true,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
@@ -795,8 +825,10 @@ public class LengthController {
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.LENGTH, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, keys2, values2);
+    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.LENGTH,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        keys2, values2);
   }
 
   /**
@@ -828,7 +860,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false, value = ParameterDescriptions.VALUES_DESCR),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
@@ -840,7 +873,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = true, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = true,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
           value = ParameterDescriptions.VALUES_DESCR)})
@@ -852,8 +886,9 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(
-        RequestResource.LENGTH, true, bboxes, bcircles, bpolys, types, keys, values, userids, time,
-        showMetadata, keys2, values2);
+        RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
+        keys2, values2);
   }
 
   /**
@@ -880,7 +915,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false, value = ParameterDescriptions.VALUES_DESCR),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
@@ -897,8 +933,9 @@ public class LengthController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeLengthPerimeterArea(RequestResource.LENGTH,
+        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -933,7 +970,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false, value = ParameterDescriptions.VALUES_DESCR),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
@@ -955,9 +993,11 @@ public class LengthController {
       String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
-        true, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata,
-        groupByKey, groupByValues);
+    return ElementsRequestExecutor
+        .executeLengthPerimeterAreaGroupByTag(
+            RequestResource.LENGTH, new RequestParameters(true, true, true, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -989,7 +1029,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, required = false,
           value = ParameterDescriptions.TYPES_DESCR),
       @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
           required = false, value = ParameterDescriptions.VALUES_DESCR),
       @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
@@ -1004,7 +1045,8 @@ public class LengthController {
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
           required = false),
       @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false, value = ParameterDescriptions.KEYS_DESCR),
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
           value = ParameterDescriptions.VALUES_DESCR)})
@@ -1015,8 +1057,9 @@ public class LengthController {
       String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaRatio(RequestResource.LENGTH, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata, types2, keys2,
-        values2);
+    return ElementsRequestExecutor.executeLengthPerimeterAreaRatio(RequestResource.LENGTH,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        types2, keys2, values2);
   }
 }

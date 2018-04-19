@@ -38,9 +38,7 @@ public class UsersRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public static DefaultUsersResponse executeCount(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
+  public static DefaultUsersResponse executeCount(RequestParameters rPs)
       throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -48,10 +46,9 @@ public class UsersRequestExecutor {
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, false, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     // db result
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();

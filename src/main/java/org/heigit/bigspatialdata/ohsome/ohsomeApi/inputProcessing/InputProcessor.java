@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
@@ -48,9 +49,19 @@ public class InputProcessor {
    */
   @SuppressWarnings("unchecked") // intentionally unchecked
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
-      MapReducer<? extends OSHDBMapReducible> mapRed, boolean isSnapshot, boolean isPost,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata) throws Exception {
+      MapReducer<? extends OSHDBMapReducible> mapRed, RequestParameters rPs) throws Exception {
+
+    boolean isPost = rPs.isPost();
+    boolean isSnapshot = rPs.isSnapshot();
+    String bboxes = rPs.getBboxes();
+    String bcircles = rPs.getBcircles();
+    String bpolys = rPs.getBpolys();
+    String[] types = rPs.getTypes();
+    String[] keys = rPs.getKeys();
+    String[] values = rPs.getValues();
+    String[] time = rPs.getTime();
+    String[] userids = rPs.getUserids();
+    String showMetadata = rPs.getShowMetadata();
 
     geomBuilder = new GeometryBuilder();
     utils = new Utils();

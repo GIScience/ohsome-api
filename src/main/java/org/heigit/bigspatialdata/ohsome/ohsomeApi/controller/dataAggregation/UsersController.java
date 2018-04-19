@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.UsersRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultUsersResponse;
 import org.springframework.http.MediaType;
@@ -54,8 +55,8 @@ public class UsersController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return UsersRequestExecutor.executeCount(false, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return UsersRequestExecutor.executeCount(new RequestParameters(false, false, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -100,8 +101,8 @@ public class UsersController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return UsersRequestExecutor.executeCount(true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return UsersRequestExecutor.executeCount(new RequestParameters(true, false, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
 }

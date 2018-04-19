@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ElementsRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse;
@@ -92,8 +93,8 @@ public class CountController {
           required = false) String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCount(false, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCount(new RequestParameters(false, true, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -130,8 +131,8 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(false, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(false, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -168,8 +169,8 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByUser(false, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByUser(new RequestParameters(false, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -208,8 +209,8 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByBoundary(false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByBoundary(new RequestParameters(false, true,
+        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -253,8 +254,8 @@ public class CountController {
           required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByKey(false, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata, groupByKeys);
+    return ElementsRequestExecutor.executeCountGroupByKey(new RequestParameters(false, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKeys);
   }
 
   /**
@@ -305,8 +306,9 @@ public class CountController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(false, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(false, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
+        groupByValues);
   }
 
   /**
@@ -355,8 +357,9 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountShare(false, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata, keys2, values2);
+    return ElementsRequestExecutor.executeCountShare(new RequestParameters(false, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), keys2,
+        values2);
   }
 
   /**
@@ -405,8 +408,9 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountShareGroupByBoundary(false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, keys2, values2);
+    return ElementsRequestExecutor.executeCountShareGroupByBoundary(new RequestParameters(false,
+        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        keys2, values2);
   }
 
   /**
@@ -442,8 +446,8 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountDensity(false, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountDensity(new RequestParameters(false, true, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -480,8 +484,8 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(false, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(false, true, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -534,8 +538,9 @@ public class CountController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(false, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(false, true, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
+        groupByValues);
   }
 
   /**
@@ -587,8 +592,9 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatio(false, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata, types2, keys2, values2);
+    return ElementsRequestExecutor.executeCountRatio(new RequestParameters(false, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), types2, keys2,
+        values2);
   }
 
   /**
@@ -640,8 +646,9 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatioGroupByBoundary(false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, types2, keys2, values2);
+    return ElementsRequestExecutor.executeCountRatioGroupByBoundary(new RequestParameters(false,
+        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        types2, keys2, values2);
   }
 
   /**
@@ -687,8 +694,8 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCount(true, bboxes, bcircles, bpolys, types, keys, values,
-        userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCount(new RequestParameters(true, true, false, bboxes,
+        bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -733,8 +740,8 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(true, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(true, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -780,8 +787,8 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByUser(true, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByUser(new RequestParameters(true, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -830,8 +837,8 @@ public class CountController {
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByBoundary(true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByBoundary(new RequestParameters(true, true,
+        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -881,8 +888,8 @@ public class CountController {
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByKey(true, bboxes, bcircles, bpolys, types,
-        keys, values, userids, time, showMetadata, groupByKeys);
+    return ElementsRequestExecutor.executeCountGroupByKey(new RequestParameters(true, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKeys);
   }
 
   /**
@@ -938,8 +945,9 @@ public class CountController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(true, false, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(true, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
+        groupByValues);
   }
 
   /**
@@ -997,8 +1005,9 @@ public class CountController {
       String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountShare(true, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata, keys2, values2);
+    return ElementsRequestExecutor.executeCountShare(new RequestParameters(true, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), keys2,
+        values2);
   }
 
   /**
@@ -1053,8 +1062,9 @@ public class CountController {
       String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountShareGroupByBoundary(true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, keys2, values2);
+    return ElementsRequestExecutor.executeCountShareGroupByBoundary(new RequestParameters(true,
+        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        keys2, values2);
   }
 
   /**
@@ -1100,8 +1110,8 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountDensity(true, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountDensity(new RequestParameters(true, true, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -1146,8 +1156,8 @@ public class CountController {
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(true, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata);
+    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(true, true, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -1204,8 +1214,9 @@ public class CountController {
       String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(true, true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, groupByKey, groupByValues);
+    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(true, true, true,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
+        groupByValues);
   }
 
   /**
@@ -1263,8 +1274,9 @@ public class CountController {
       String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatio(true, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata, types2, keys2, values2);
+    return ElementsRequestExecutor.executeCountRatio(new RequestParameters(true, true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), types2, keys2,
+        values2);
   }
 
   /**
@@ -1321,8 +1333,9 @@ public class CountController {
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatioGroupByBoundary(true, bboxes, bcircles, bpolys,
-        types, keys, values, userids, time, showMetadata, types2, keys2, values2);
+    return ElementsRequestExecutor.executeCountRatioGroupByBoundary(new RequestParameters(true,
+        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        types2, keys2, values2);
   }
 
 }

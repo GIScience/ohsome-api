@@ -72,9 +72,7 @@ public class ElementsRequestExecutor {
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  public static DefaultAggregationResponse executeCount(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public static DefaultAggregationResponse executeCount(RequestParameters rPs)
       throws UnsupportedOperationException, BadRequestException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -82,15 +80,13 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     // db result
     result = mapRed.aggregateByTimestamp().count();
     Result[] resultSet = new Result[result.size()];
     int count = 0;
-
     for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
       resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           entry.getValue().intValue());
@@ -101,8 +97,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Total number of items.", requestURL);
     }
-    DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
 
     return response;
   }
@@ -119,9 +115,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse
    *         GroupByTypeResponseContent}
    */
-  public static GroupByTypeResponse executeCountGroupByType(boolean isPost, boolean isDensity,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public static GroupByTypeResponse executeCountGroupByType(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -131,10 +125,9 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     // db result
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -153,7 +146,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        if (isDensity)
+        if (rPs.isDensity())
           results[innerCount] =
               new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                   Double.parseDouble(densityDf
@@ -170,7 +163,7 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      if (isDensity)
+      if (rPs.isDensity())
         metadata = new Metadata(duration,
             "Density of selected items (number of items per square kilometer) aggregated on the type.",
             requestURL);
@@ -178,8 +171,8 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the type.", requestURL);
     }
-    GroupByTypeResponse response =
-        new GroupByTypeResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByTypeResponse response = new GroupByTypeResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -193,9 +186,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
    *         GroupByBoundaryResponseContent}
    */
-  public static GroupByBoundaryResponse executeCountGroupByBoundary(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public static GroupByBoundaryResponse executeCountGroupByBoundary(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -205,10 +196,9 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     result = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -237,8 +227,8 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "Total number of items aggregated on the boundary object.",
           requestURL);
     }
-    GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByBoundaryResponse response = new GroupByBoundaryResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -252,10 +242,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
    *         GroupByKeyResponseContent}
    */
-  public static GroupByKeyResponse executeCountGroupByKey(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
+  public static GroupByKeyResponse executeCountGroupByKey(RequestParameters rPs,
+      String[] groupByKeys) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -267,12 +255,11 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
@@ -323,8 +310,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Total number of items aggregated on the key.", requestURL);
     }
-    GroupByKeyResponse response =
-        new GroupByKeyResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByKeyResponse response = new GroupByKeyResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -340,10 +327,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
    *         GroupByTagResponseContent}
    */
-  public static GroupByTagResponse executeCountGroupByTag(boolean isPost, boolean isDensity,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
+  public static GroupByTagResponse executeCountGroupByTag(RequestParameters rPs,
+      String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKey.length != 1)
@@ -356,13 +341,12 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -410,7 +394,7 @@ public class ElementsRequestExecutor {
         groupByName = "remainder";
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        if (isDensity)
+        if (rPs.isDensity())
           results[innerCount] =
               new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                   Double.parseDouble(densityDf
@@ -427,7 +411,7 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      if (isDensity)
+      if (rPs.isDensity())
         metadata = new Metadata(duration,
             "Density of selected items (number of items per square kilometer) aggregated on the tag.",
             requestURL);
@@ -435,8 +419,8 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the tag.", requestURL);
     }
-    GroupByTagResponse response =
-        new GroupByTagResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByTagResponse response = new GroupByTagResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -450,9 +434,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
    *         GroupByUserResponseContent}
    */
-  public static GroupByUserResponse executeCountGroupByUser(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public static GroupByUserResponse executeCountGroupByUser(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
@@ -461,12 +443,11 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
-    if (userids != null)
-      for (String user : userids)
+    mapRed = iP.processParameters(mapRed, rPs);
+    if (rPs.getUserids() != null)
+      for (String user : rPs.getUserids())
         // converting userids to int for usage in zerofill
         useridsInt.add(Integer.parseInt(user));
     result = mapRed.aggregateByTimestamp()
@@ -497,8 +478,8 @@ public class ElementsRequestExecutor {
       metadata =
           new Metadata(duration, "Total number of items aggregated on the userids.", requestURL);
     }
-    GroupByUserResponse response =
-        new GroupByUserResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByUserResponse response = new GroupByUserResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -512,10 +493,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static ShareResponse executeCountShare(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+  public static ShareResponse executeCountShare(RequestParameters rPs, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -527,7 +506,7 @@ public class ElementsRequestExecutor {
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
@@ -535,8 +514,7 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
@@ -634,10 +612,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(boolean isPost,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+  public static ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(RequestParameters rPs,
+      String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -650,15 +626,14 @@ public class ElementsRequestExecutor {
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     result = exeUtils.computeCountShareGBBResult(iP.getBoundaryType(), mapRed, keysInt2, valuesInt2,
         iP.getGeomBuilder());
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -732,9 +707,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static DefaultAggregationResponse executeCountDensity(boolean isPost, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+  public static DefaultAggregationResponse executeCountDensity(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -743,10 +716,9 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     result = mapRed.aggregateByTimestamp().count();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
@@ -765,8 +737,8 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           "Density of selected items (number of items per square kilometer).", requestURL);
     }
-    DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -785,10 +757,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static RatioResponse executeCountRatio(boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+  public static RatioResponse executeCountRatio(RequestParameters rPs, String[] types2,
+      String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result1;
@@ -798,13 +768,11 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed1 = iP.processParameters(mapRed1, rPs);
     result1 = mapRed1.aggregateByTimestamp().count();
-    mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,
-        values2, userids, time, showMetadata);
+    mapRed2 = iP.processParameters(mapRed2, rPs);
     result2 = mapRed2.aggregateByTimestamp().count();
     Result[] resultSet1 = new Result[result1.size()];
     int count = 0;
@@ -857,10 +825,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
    *         GroupByBoundaryResponseContent}
    */
-  public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(boolean isPost,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] types2, String[] keys2,
-      String[] values2) throws UnsupportedOperationException, Exception {
+  public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(RequestParameters rPs,
+      String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result1;
@@ -872,15 +839,12 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed1 = iP.processParameters(mapRed1, rPs);
     result1 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
-    mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,
-        values2, userids, time, showMetadata);
+    mapRed2 = iP.processParameters(mapRed2, rPs);
     result2 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
-
     groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
     groupByResult2 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result2);
     GroupByResult[] resultSet = new GroupByResult[groupByResult1.size()];
@@ -957,9 +921,7 @@ public class ElementsRequestExecutor {
    *         DefaultAggregationResponse}
    */
   public static DefaultAggregationResponse executeLengthPerimeterArea(
-      RequestResource requestResource, boolean isPost, boolean isDensity, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata)
+      RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -969,17 +931,16 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
       case AREA:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
             });
-        if (isDensity) {
+        if (rPs.isDensity()) {
           description =
               "Density of selected items (area of items in square meter per square kilometer).";
         } else {
@@ -991,7 +952,7 @@ public class ElementsRequestExecutor {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.lengthOf(snapshot.getGeometry());
             });
-        if (isDensity) {
+        if (rPs.isDensity()) {
           description =
               "Density of selected items (length of items in meter per square kilometer).";
         } else {
@@ -1006,7 +967,7 @@ public class ElementsRequestExecutor {
               else
                 return 0.0;
             });
-        if (isDensity) {
+        if (rPs.isDensity()) {
 
           description =
               "Density of selected items (perimeter of items in meter per square kilometer).";
@@ -1022,7 +983,7 @@ public class ElementsRequestExecutor {
     Result[] resultSet = new Result[result.size()];
     DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      if (isDensity)
+      if (rPs.isDensity())
         resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
             Double.parseDouble(densityDf
                 .format((entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
@@ -1036,8 +997,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    DefaultAggregationResponse response =
-        new DefaultAggregationResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1055,9 +1016,8 @@ public class ElementsRequestExecutor {
    *         GroupByBoundaryResponseContent}
    */
   public static GroupByBoundaryResponse executeLengthPerimeterAreaGroupByBoundary(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+      RequestResource requestResource, RequestParameters rPs)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result = null;
@@ -1067,10 +1027,9 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
       case LENGTH:
         result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
@@ -1116,8 +1075,8 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByBoundaryResponse response =
-        new GroupByBoundaryResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByBoundaryResponse response = new GroupByBoundaryResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1135,9 +1094,7 @@ public class ElementsRequestExecutor {
    *         GroupByKeyResponseContent}
    */
   public static GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKeys)
+      RequestResource requestResource, RequestParameters rPs, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1151,14 +1108,11 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = "";
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
-
-
+    mapRed = iP.processParameters(mapRed, rPs);
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
@@ -1235,8 +1189,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByKeyResponse response =
-        new GroupByKeyResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByKeyResponse response = new GroupByKeyResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1256,9 +1210,7 @@ public class ElementsRequestExecutor {
    *         GroupByTagResponseContent}
    */
   public static GroupByTagResponse executeLengthPerimeterAreaGroupByTag(
-      RequestResource requestResource, boolean isPost, boolean isDensity, String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] groupByKey,
+      RequestResource requestResource, RequestParameters rPs, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1273,15 +1225,14 @@ public class ElementsRequestExecutor {
 
     String description = "";
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     if (groupByValues == null)
       groupByValues = new String[0];
     TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -1345,7 +1296,7 @@ public class ElementsRequestExecutor {
       }
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        if (isDensity)
+        if (rPs.isDensity())
           results[innerCount] = new Result(
               TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
               Double.parseDouble(lengthPerimeterAreaDf
@@ -1363,7 +1314,7 @@ public class ElementsRequestExecutor {
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     switch (requestResource) {
       case LENGTH:
-        if (isDensity) {
+        if (rPs.isDensity()) {
 
           description =
               "Density of selected items (length of items in meter per square kilometer).";
@@ -1373,7 +1324,7 @@ public class ElementsRequestExecutor {
         }
         break;
       case PERIMETER:
-        if (isDensity) {
+        if (rPs.isDensity()) {
 
           description =
               "Density of selected items (perimeter of items in meter per square kilometer).";
@@ -1383,7 +1334,7 @@ public class ElementsRequestExecutor {
         }
         break;
       case AREA:
-        if (isDensity) {
+        if (rPs.isDensity()) {
 
           description =
               "Density of selected items (area of items in square meter per square kilometer).";
@@ -1398,8 +1349,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByTagResponse response =
-        new GroupByTagResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByTagResponse response = new GroupByTagResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1417,9 +1368,8 @@ public class ElementsRequestExecutor {
    *         GroupByUserResponseContent}
    */
   public static GroupByUserResponse executeLengthPerimeterAreaGroupByUser(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) throws UnsupportedOperationException, Exception {
+      RequestResource requestResource, RequestParameters rPs)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
@@ -1430,14 +1380,11 @@ public class ElementsRequestExecutor {
     String description = "";
     String requestURL = null;
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
-
-
-    if (userids != null)
-      for (String user : userids)
+    mapRed = iP.processParameters(mapRed, rPs);
+    if (rPs.getUserids() != null)
+      for (String user : rPs.getUserids())
         // converting userids to int for usage in zerofill
         useridsInt.add(Integer.parseInt(user));
     result = mapRed.aggregateByTimestamp()
@@ -1494,8 +1441,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByUserResponse response =
-        new GroupByUserResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByUserResponse response = new GroupByUserResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1515,9 +1462,7 @@ public class ElementsRequestExecutor {
    *         GroupByTypeResponseContent}
    */
   public static GroupByTypeResponse executePerimeterAreaGroupByType(RequestResource requestResource,
-      boolean isPost, boolean isDensity, String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+      RequestParameters rPs) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result = null;
@@ -1527,10 +1472,9 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
       case AREA:
         result = mapRed.aggregateByTimestamp()
@@ -1540,7 +1484,7 @@ public class ElementsRequestExecutor {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
             });
-        if (isDensity) {
+        if (rPs.isDensity()) {
           description =
               "Density of selected items (area of items in square meter per square kilometer) aggregated on the type.";
         } else {
@@ -1558,7 +1502,7 @@ public class ElementsRequestExecutor {
               else
                 return 0.0;
             });
-        if (isDensity) {
+        if (rPs.isDensity()) {
           description =
               "Density of selected items (perimeter of items in meter per square kilometer) aggregated on the type.";
         } else {
@@ -1582,7 +1526,7 @@ public class ElementsRequestExecutor {
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        if (isDensity)
+        if (rPs.isDensity())
           results[innerCount] = new Result(
               TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
               Double.parseDouble(lengthPerimeterAreaDf
@@ -1601,8 +1545,8 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByTypeResponse response =
-        new GroupByTypeResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    GroupByTypeResponse response = new GroupByTypeResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
     return response;
   }
 
@@ -1620,9 +1564,8 @@ public class ElementsRequestExecutor {
    *         DefaultAggregationResponse}
    */
   public static ShareResponse executeLengthPerimeterAreaShare(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] keys2,
-      String[] values2) throws UnsupportedOperationException, Exception {
+      RequestParameters rPs, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -1635,17 +1578,14 @@ public class ElementsRequestExecutor {
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
-
-
+    mapRed = iP.processParameters(mapRed, rPs);
     result = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       // result aggregated on true (if obj contains all tags) and false (if not all are contained)
       boolean hasTags = false;
@@ -1780,9 +1720,7 @@ public class ElementsRequestExecutor {
    *         ShareGroupByBoundaryResponse}
    */
   public static ShareGroupByBoundaryResponse executeLengthPerimeterAreaShareGroupByBoundary(
-      RequestResource requestResource, boolean isPost, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] keys2, String[] values2)
+      RequestResource requestResource, RequestParameters rPs, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1796,15 +1734,14 @@ public class ElementsRequestExecutor {
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
       if (values2 != null && i < values2.length)
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
-    mapRed = iP.processParameters(mapRed, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
+    mapRed = iP.processParameters(mapRed, rPs);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Utils utils = iP.getUtils();
     result = exeUtils.computeLengthPerimeterAreaShareGBBResult(requestResource,
@@ -1887,9 +1824,8 @@ public class ElementsRequestExecutor {
    *         DefaultAggregationResponse}
    */
   public static RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
-      boolean isPost, String bboxes, String bcircles, String bpolys, String[] types, String[] keys,
-      String[] values, String[] userids, String[] time, String showMetadata, String[] types2,
-      String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
+      RequestParameters rPs, String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Number> result1 = null;
@@ -1898,15 +1834,12 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed2 = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
-
     String description = "";
     String requestURL = null;
-    if (!isPost)
+    if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(mapRed1, true, isPost, bboxes, bcircles, bpolys, types, keys,
-        values, userids, time, showMetadata);
-    mapRed2 = iP.processParameters(mapRed2, true, isPost, bboxes, bcircles, bpolys, types2, keys2,
-        values2, userids, time, showMetadata);
+    mapRed1 = iP.processParameters(mapRed1, rPs);
+    mapRed2 = iP.processParameters(mapRed2, rPs);
     switch (requestResource) {
       case AREA:
         result1 = mapRed1.aggregateByTimestamp()
