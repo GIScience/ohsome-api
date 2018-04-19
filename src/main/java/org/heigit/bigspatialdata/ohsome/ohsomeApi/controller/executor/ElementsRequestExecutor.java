@@ -18,11 +18,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse;
@@ -112,10 +108,10 @@ public class ElementsRequestExecutor {
    * 
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
    *        resource (true) or not (false).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse
-   *         GroupByTypeResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   *         GroupByResponseContent}
    */
-  public static GroupByTypeResponse executeCountGroupByType(RequestParameters rPs)
+  public static GroupByResponse executeCountGroupByType(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -171,7 +167,7 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the type.", requestURL);
     }
-    GroupByTypeResponse response = new GroupByTypeResponse(new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -184,9 +180,9 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
-   *         GroupByBoundaryResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByBoundaryResponse executeCountGroupByBoundary(RequestParameters rPs)
+  public static GroupByResponse  executeCountGroupByBoundary(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -227,7 +223,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "Total number of items aggregated on the boundary object.",
           requestURL);
     }
-    GroupByBoundaryResponse response = new GroupByBoundaryResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -240,9 +236,9 @@ public class ElementsRequestExecutor {
    * getCountGroupByKey} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
-   *         GroupByKeyResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByKeyResponse executeCountGroupByKey(RequestParameters rPs,
+  public static GroupByResponse  executeCountGroupByKey(RequestParameters rPs,
       String[] groupByKeys) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -310,7 +306,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Total number of items aggregated on the key.", requestURL);
     }
-    GroupByKeyResponse response = new GroupByKeyResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -325,9 +321,9 @@ public class ElementsRequestExecutor {
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
    *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
-   *         GroupByTagResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByTagResponse executeCountGroupByTag(RequestParameters rPs,
+  public static GroupByResponse  executeCountGroupByTag(RequestParameters rPs,
       String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -419,7 +415,7 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the tag.", requestURL);
     }
-    GroupByTagResponse response = new GroupByTagResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -432,9 +428,9 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
-   *         GroupByUserResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByUserResponse executeCountGroupByUser(RequestParameters rPs)
+  public static GroupByResponse  executeCountGroupByUser(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
@@ -478,7 +474,7 @@ public class ElementsRequestExecutor {
       metadata =
           new Metadata(duration, "Total number of items aggregated on the userids.", requestURL);
     }
-    GroupByUserResponse response = new GroupByUserResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -823,7 +819,7 @@ public class ElementsRequestExecutor {
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
-   *         GroupByBoundaryResponseContent}
+   *         GroupByResponse Content}
    */
   public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(RequestParameters rPs,
       String[] types2, String[] keys2, String[] values2)
@@ -1013,9 +1009,9 @@ public class ElementsRequestExecutor {
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
-   *         GroupByBoundaryResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByBoundaryResponse executeLengthPerimeterAreaGroupByBoundary(
+  public static GroupByResponse  executeLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
@@ -1075,7 +1071,7 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByBoundaryResponse response = new GroupByBoundaryResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1091,9 +1087,9 @@ public class ElementsRequestExecutor {
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
-   *         GroupByKeyResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByKeyResponse executeLengthPerimeterAreaGroupByKey(
+  public static GroupByResponse  executeLengthPerimeterAreaGroupByKey(
       RequestResource requestResource, RequestParameters rPs, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
@@ -1189,7 +1185,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByKeyResponse response = new GroupByKeyResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1207,9 +1203,9 @@ public class ElementsRequestExecutor {
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
    *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
-   *         GroupByTagResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByTagResponse executeLengthPerimeterAreaGroupByTag(
+  public static GroupByResponse  executeLengthPerimeterAreaGroupByTag(
       RequestResource requestResource, RequestParameters rPs, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
@@ -1349,7 +1345,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByTagResponse response = new GroupByTagResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1365,9 +1361,9 @@ public class ElementsRequestExecutor {
    * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
    *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
-   *         GroupByUserResponseContent}
+   *         GroupByResponse Content}
    */
-  public static GroupByUserResponse executeLengthPerimeterAreaGroupByUser(
+  public static GroupByResponse  executeLengthPerimeterAreaGroupByUser(
       RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
@@ -1441,7 +1437,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByUserResponse response = new GroupByUserResponse(new Attribution(url, text),
+    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1458,10 +1454,10 @@ public class ElementsRequestExecutor {
    *        GET (false) request.
    * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
    *        resource (true) or not (false).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTypeResponse
-   *         GroupByTypeResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   *         GroupByResponseContent}
    */
-  public static GroupByTypeResponse executePerimeterAreaGroupByType(RequestResource requestResource,
+  public static GroupByResponse executePerimeterAreaGroupByType(RequestResource requestResource,
       RequestParameters rPs) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -1545,7 +1541,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByTypeResponse response = new GroupByTypeResponse(new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }

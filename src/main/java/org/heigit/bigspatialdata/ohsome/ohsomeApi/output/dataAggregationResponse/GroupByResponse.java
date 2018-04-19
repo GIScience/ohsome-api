@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * /groupBy/tag resource. It contains an optional
+ * count|length|area|perimeter/groupBy/ resource. It contains an optional
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata
  * Metadata}, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.GroupByResult
@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Result} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class GroupByTagResponse {
+public class GroupByResponse {
 
   @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
   private Attribution attribution;
@@ -27,14 +27,14 @@ public class GroupByTagResponse {
   private Metadata metadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
-  private GroupByResult[] groupByTagResult;
+  private GroupByResult[] groupByResult;
 
-  public GroupByTagResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      GroupByResult[] groupByTagResult) {
+  public GroupByResponse(Attribution attribution, String apiVersion, Metadata metadata,
+      GroupByResult[] groupByUserResult) {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
     this.metadata = metadata;
-    this.groupByTagResult = groupByTagResult;
+    this.groupByResult = groupByUserResult;
   }
 
   public Attribution getAttribution() {
@@ -49,8 +49,8 @@ public class GroupByTagResponse {
     return metadata;
   }
 
-  public GroupByResult[] getGroupByTagResult() {
-    return groupByTagResult;
+  public GroupByResult[] getGroupByResult() {
+    return groupByResult;
   }
 
 }
