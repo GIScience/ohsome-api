@@ -115,7 +115,7 @@ public class Application implements ApplicationRunner {
       ObjectMapper mapper = new ObjectMapper();
       dataPolyJson = mapper.readTree(dataPolyString);
       GeometryBuilder geomBuilder = new GeometryBuilder();
-      dataPoly = geomBuilder.createPolygonFromMetadataGeoJson(dataPolyString);
+      dataPoly = geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");

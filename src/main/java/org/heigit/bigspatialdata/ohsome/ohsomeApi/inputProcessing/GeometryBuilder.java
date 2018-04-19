@@ -221,16 +221,16 @@ public class GeometryBuilder {
    * 
    * @param geoJson
    * @return <code>Geometry</code>
-   * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
+   * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public Geometry createPolygonFromMetadataGeoJson(String geoJson) throws BadRequestException {
+  public Geometry createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
 
     GeoJSONReader reader = new GeoJSONReader();
     try {
       dataPoly = reader.read(geoJson);
       return dataPoly;
     } catch (Exception e) {
-      throw new BadRequestException("The provided GeoJSON cannot be converted.");
+      throw new RuntimeException("The provided GeoJSON cannot be converted.");
     }
   }
 
