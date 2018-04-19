@@ -130,7 +130,7 @@ public class SwaggerConfig {
         .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
         .build());
     gOPs.add(new ParameterBuilder().name("time")
-        .description("ISO-8601 conform timestring(s); default: today")
+        .description("ISO-8601 conform timestring(s); default: latest timestamp within dataset")
         .modelRef(new ModelRef("string")).parameterType("query")
         .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
