@@ -57,7 +57,7 @@ public class CountController {
    *        which fits to one of the formats used by the method
    *        {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils#extractIsoTime(String)
    *        extractIsoTime(String time)}.
-   * @param showMetadata <code>String</code> containing the values "true" or "false".
+   * @param showMetadata <code>String</code> containing the value "true" or "false".
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    * @throws UnsupportedOperationException thrown by

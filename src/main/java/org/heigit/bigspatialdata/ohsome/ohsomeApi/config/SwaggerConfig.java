@@ -30,7 +30,8 @@ public class SwaggerConfig {
 
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("data aggregation").select()
-        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation"))
+        .apis(RequestHandlerSelectors
+            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
         .tags(new Tag("/users", "Data Aggregation functions on users"),
@@ -47,18 +48,15 @@ public class SwaggerConfig {
 
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("metadata").select()
-        .apis(RequestHandlerSelectors.basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.metadata"))
+        .apis(RequestHandlerSelectors
+            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .tags(new Tag("/metadata", "Metadata of the underlying data-extract"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
 
-  /**
-   * Defines custom response messages to define the possible response codes.
-   * 
-   * @return
-   */
+  /** Defines custom response messages to define the possible response codes. */
   private ArrayList<ResponseMessage> defineResponseMessages() {
 
     ArrayList<ResponseMessage> responseMessages = new ArrayList<ResponseMessage>();
@@ -74,12 +72,7 @@ public class SwaggerConfig {
     return responseMessages;
   }
 
-  /**
-   * Defines information about this API displayed on the Swagger2 documentation.
-   * 
-   * @return {@link springfox.documentation.service.ApiInfo ApiInfo} defining information about this
-   *         API.
-   */
+  /** Defines information about this API. */
   private ApiInfo apiInfo() {
     return new ApiInfo("OHSOME API",
         "This REST-API aims to leverage the tools of the OSHDB-API through allowing to access some of its functionalities via HTTP requests.",
@@ -90,7 +83,7 @@ public class SwaggerConfig {
   }
 
   /**
-   * Defines the description of each GET parameter, which is used in all resources for the Swagger2
+   * Defines the description of each GET parameter, which are used in all resources for the Swagger2
    * documentation.
    * 
    * @return <code>ArrayList</code> holding <code>Parameter</code> objects that describe those GET
@@ -135,8 +128,8 @@ public class SwaggerConfig {
         .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
     gOPs.add(new ParameterBuilder().name("showMetadata")
         .description("Boolean operator 'true' or 'false'; default: 'false'")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue(DefaultSwaggerParameters.SHOW_METADATA)
-        .required(false).build());
+        .modelRef(new ModelRef("string")).parameterType("query")
+        .defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false).build());
 
     return gOPs;
   }

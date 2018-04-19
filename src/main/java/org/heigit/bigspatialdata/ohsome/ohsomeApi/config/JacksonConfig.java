@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/**Used to apply auto-intend onto the json response.*/
 @Configuration
 public class JacksonConfig {
 

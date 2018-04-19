@@ -60,7 +60,6 @@ public class InputProcessor {
     String[] time = rPs.getTime();
     String[] userids = rPs.getUserids();
     String showMetadata = rPs.getShowMetadata();
-
     geomBuilder = new GeometryBuilder();
     utils = new Utils();
     if (isPost) {
@@ -73,7 +72,6 @@ public class InputProcessor {
       userids = createEmptyArrayIfNull(userids);
       time = createEmptyArrayIfNull(time);
     }
-
     // database
     if (isSnapshot) {
       if (Application.getKeytables() == null)

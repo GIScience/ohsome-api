@@ -15,8 +15,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
- * Configuration class, which adds the
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor
+ * Adds the {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor
  * RequestInterceptor} class into the spring MVC life cycle and modifies the error-JSON response.
  */
 @Configuration
@@ -36,12 +35,12 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     registry.addRedirectViewController("/", "/swagger-ui.html");
   }
 
-  @Bean
   /**
    * Modifies the error response to have a more meaningful content.
    * 
    * @return <code>Map</code> containing the error-attributes as key-value pairs.
    */
+  @Bean
   public ErrorAttributes modifyExceptionResponse() {
     return new DefaultErrorAttributes() {
       @Override
@@ -60,7 +59,6 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
           errorAttributes.put("requestUrl", RequestInterceptor.requestUrl);
         return errorAttributes;
       }
-
     };
   }
 }

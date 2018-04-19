@@ -22,6 +22,7 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
+/** Holds helper methods that are used in the executor-classes. */
 public class ExecutionUtils {
 
   /**
