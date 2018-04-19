@@ -76,7 +76,7 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the user")
@@ -116,7 +116,7 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(
@@ -158,7 +158,7 @@ public class LengthController {
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key")
@@ -208,7 +208,7 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
@@ -406,7 +406,7 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(
@@ -562,7 +562,7 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the user")
@@ -611,7 +611,7 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(
@@ -663,7 +663,7 @@ public class LengthController {
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. At the current implementation, there must be one key given (not more and not
    *        less).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
@@ -720,7 +720,7 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag")
@@ -949,7 +949,7 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   @ApiOperation(

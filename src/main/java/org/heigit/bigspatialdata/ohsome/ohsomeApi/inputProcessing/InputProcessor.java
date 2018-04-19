@@ -42,8 +42,6 @@ public class InputProcessor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isPost <code>Boolean</code> value defining if it is a POST (true) or GET (false)
-   *        request.
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    */

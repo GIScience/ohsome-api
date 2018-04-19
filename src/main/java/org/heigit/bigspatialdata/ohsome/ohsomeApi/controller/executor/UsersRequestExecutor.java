@@ -33,7 +33,7 @@ public class UsersRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimestamp()}
    * @throws BadRequestException by
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor#processParameters(boolean, String, String, String, String[], String[], String[], String[], String[], String)
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor#processParameters(MapReducer, RequestParameters)
    *         processParameters()}
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}

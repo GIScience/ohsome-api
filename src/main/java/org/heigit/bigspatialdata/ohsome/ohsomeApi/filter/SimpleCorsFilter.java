@@ -15,7 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-/** Filter class to add a filter, which allows Cross-Origin Resource Sharing (CORS). */
+/** Adds a filter to allow Cross-Origin Resource Sharing (CORS). */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SimpleCorsFilter implements Filter {
@@ -26,7 +26,7 @@ public class SimpleCorsFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) res;
     HttpServletRequest request = (HttpServletRequest) req;
     response.setHeader("Access-Control-Allow-Origin", "*");
-    response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+    response.setHeader("Access-Control-Allow-Methods", "POST, GET");
     response.setHeader("Access-Control-Max-Age", "3600");
     response.setHeader("Access-Control-Allow-Credentials", "true");
     response.setHeader("Access-Control-Allow-Headers",

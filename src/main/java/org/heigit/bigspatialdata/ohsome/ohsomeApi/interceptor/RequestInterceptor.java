@@ -19,7 +19,6 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
     requestUrl = request.getRequestURL() + "?" + request.getQueryString();
     // adding a 1 year cache option
     response.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
-    
     return true;
   }
 

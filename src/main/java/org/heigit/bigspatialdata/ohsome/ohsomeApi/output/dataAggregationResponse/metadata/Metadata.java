@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the meta data JSON object containing the execution time, the unit and a description of
+ * Represents the metadata JSON object containing the execution time, the unit and a description of
  * the values, which are in the
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.Result
  * Result} objects, as well as the request URL.

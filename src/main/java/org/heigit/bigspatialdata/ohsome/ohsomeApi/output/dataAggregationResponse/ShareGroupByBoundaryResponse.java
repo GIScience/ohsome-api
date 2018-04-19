@@ -9,8 +9,8 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Represents the whole JSON response object for the data aggregation response using the
  * share/groupBy/boundary resource. It contains an optional
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.GroupByBoundaryMetadata
- * GroupByBoundaryMetadata} object, the requested
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata
+ * Metadata} object, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.ShareGroupByResult
  * ShareGroupByResult}, which is named after the used /groupBy resource (e.g. groupByBoundaryResult
  * for using /groupBy/boundary) and an identifier of the object plus the corresponding

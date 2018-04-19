@@ -344,7 +344,7 @@ public class Utils {
    * 
    * @param time <code>String</code> containing a start-, end-, or single timestamp from the given
    *        time parameter.
-   * @param startEnd <code>String</code> containing either "start", "end", or "timestamp x", where x
+   * @param startEndTstamp <code>String</code> containing either "start", "end", or "timestamp x", where x
    *        refers to the number of the timestamp.
    * @throws Exception
    */

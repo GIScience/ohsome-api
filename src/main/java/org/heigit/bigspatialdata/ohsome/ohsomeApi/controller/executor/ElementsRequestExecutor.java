@@ -63,7 +63,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimestamp()}
    * @throws BadRequestException by
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor#processParameters(boolean, String, String, String, String[], String[], String[], String[], String[], String)
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor#processParameters(MapReducer, RequestParameters)
    *         processParameters()}
    * @throws Exception by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
@@ -106,8 +106,6 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
-   *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponseContent}
    */
@@ -179,10 +177,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeCountGroupByBoundary(RequestParameters rPs)
+  public static GroupByResponse executeCountGroupByBoundary(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -223,7 +221,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, "Total number of items aggregated on the boundary object.",
           requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -235,11 +233,11 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * getCountGroupByKey} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeCountGroupByKey(RequestParameters rPs,
-      String[] groupByKeys) throws UnsupportedOperationException, Exception {
+  public static GroupByResponse executeCountGroupByKey(RequestParameters rPs, String[] groupByKeys)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -306,7 +304,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, "Total number of items aggregated on the key.", requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -318,13 +316,11 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
-   *        resource (true) or not (false).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeCountGroupByTag(RequestParameters rPs,
-      String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
+  public static GroupByResponse executeCountGroupByTag(RequestParameters rPs, String[] groupByKey,
+      String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKey.length != 1)
@@ -415,7 +411,7 @@ public class ElementsRequestExecutor {
         metadata =
             new Metadata(duration, "Total number of items aggregated on the tag.", requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -427,10 +423,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeCountGroupByUser(RequestParameters rPs)
+  public static GroupByResponse executeCountGroupByUser(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
@@ -474,7 +470,7 @@ public class ElementsRequestExecutor {
       metadata =
           new Metadata(duration, "Total number of items aggregated on the userids.", requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -698,8 +694,6 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -745,8 +739,6 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
@@ -813,12 +805,10 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(RequestParameters rPs,
@@ -911,8 +901,6 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -1006,12 +994,10 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeLengthPerimeterAreaGroupByBoundary(
+  public static GroupByResponse executeLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
@@ -1071,7 +1057,7 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1084,12 +1070,10 @@ public class ElementsRequestExecutor {
    * groupByKey} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByKeyResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeLengthPerimeterAreaGroupByKey(
+  public static GroupByResponse executeLengthPerimeterAreaGroupByKey(
       RequestResource requestResource, RequestParameters rPs, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
@@ -1185,7 +1169,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1198,14 +1182,10 @@ public class ElementsRequestExecutor {
    * getCountGroupByTag} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
-   *        resource (true) or not (false).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByTagResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeLengthPerimeterAreaGroupByTag(
+  public static GroupByResponse executeLengthPerimeterAreaGroupByTag(
       RequestResource requestResource, RequestParameters rPs, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
@@ -1345,7 +1325,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1358,12 +1338,10 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByUserResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse  executeLengthPerimeterAreaGroupByUser(
+  public static GroupByResponse executeLengthPerimeterAreaGroupByUser(
       RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
@@ -1437,7 +1415,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse  response = new GroupByResponse (new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -1450,10 +1428,6 @@ public class ElementsRequestExecutor {
    * getCount} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
-   * @param isDensity <code>Boolean</code> parameter saying if this method was called from a density
-   *        resource (true) or not (false).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponseContent}
    */
@@ -1554,8 +1528,6 @@ public class ElementsRequestExecutor {
    * getCountShare} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -1710,8 +1682,6 @@ public class ElementsRequestExecutor {
    * getCountShare} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
@@ -1811,8 +1781,6 @@ public class ElementsRequestExecutor {
    * getCountRatio} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
-   * @param isPost <code>Boolean</code> defining if this method is called from a POST (true) or a
-   *        GET (false) request.
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
