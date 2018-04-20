@@ -113,10 +113,6 @@ pipeline {
           
           rtMaven.run pom: 'pom.xml', goals: 'clean site'
           sh "mkdir -p $report_dir && rm -Rf $report_dir* && find . -path '*/target/site' -exec cp -R --parents {} $report_dir \\; && find $report_dir -path '*/target/site' | while read line; do echo \$line; neu=\${line/target\\/site/} ;  mv \$line/* \$neu ; done && find $report_dir -type d -empty -delete"
-          report_dir="/srv/reports/" + reponame + "/" + projver + "/jacoco/"
-          
-          rtMaven.run pom: 'pom.xml', goals: 'clean install -Pjacoco'
-          sh "mkdir -p $report_dir && rm -Rf $report_dir* && find . -path '*/target/site/jacoco' -exec cp -R --parents {} $report_dir \\; && find $report_dir -path '*/target/site/jacoco' | while read line; do echo \$line; neu=\${line/target\\/site\\/jacoco/} ;  mv \$line/* \$neu ; done && find $report_dir -type d -empty -delete"
         }
       }   
       post {
