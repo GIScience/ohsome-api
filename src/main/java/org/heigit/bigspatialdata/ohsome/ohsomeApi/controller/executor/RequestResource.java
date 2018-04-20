@@ -3,7 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 /** Enumeration defining the request resource (LENGTH, PERIMETER, AREA, COUNT) */
 public enum RequestResource {
   LENGTH("length", "meters"), PERIMETER("perimeter", "meters"), AREA("area",
-      "square meters"), COUNT("count", "amount");
+      "square meters"), COUNT("count", "absolute values");
 
   private final String label;
   private final String unit;
