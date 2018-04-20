@@ -284,7 +284,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor
-        .executeLengthPerimeterAreaGroupByTag(
+        .executeCountLengthPerimeterAreaGroupByTag(
             RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles,
                 bpolys, types, keys, values, userids, time, showMetadata),
             groupByKey, groupByValues);
@@ -524,7 +524,7 @@ public class AreaController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
         new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         groupByKey, groupByValues);
@@ -885,7 +885,7 @@ public class AreaController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
         new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         groupByKey, groupByValues);
@@ -1164,7 +1164,7 @@ public class AreaController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByTag(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
         new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         groupByKey, groupByValues);

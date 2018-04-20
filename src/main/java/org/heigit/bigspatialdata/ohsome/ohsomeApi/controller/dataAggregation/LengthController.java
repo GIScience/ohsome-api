@@ -244,7 +244,7 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor
-        .executeLengthPerimeterAreaGroupByTag(
+        .executeCountLengthPerimeterAreaGroupByTag(
             RequestResource.LENGTH, new RequestParameters(false, true, false, bboxes, bcircles,
                 bpolys, types, keys, values, userids, time, showMetadata),
             groupByKey, groupByValues);
@@ -444,7 +444,7 @@ public class LengthController {
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor
-        .executeLengthPerimeterAreaGroupByTag(
+        .executeCountLengthPerimeterAreaGroupByTag(
             RequestResource.LENGTH, new RequestParameters(false, true, true, bboxes, bcircles,
                 bpolys, types, keys, values, userids, time, showMetadata),
             groupByKey, groupByValues);
@@ -760,7 +760,7 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
-        .executeLengthPerimeterAreaGroupByTag(
+        .executeCountLengthPerimeterAreaGroupByTag(
             RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles,
                 bpolys, types, keys, values, userids, time, showMetadata),
             groupByKey, groupByValues);
@@ -990,7 +990,7 @@ public class LengthController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
-        .executeLengthPerimeterAreaGroupByTag(
+        .executeCountLengthPerimeterAreaGroupByTag(
             RequestResource.LENGTH, new RequestParameters(true, true, true, bboxes, bcircles,
                 bpolys, types, keys, values, userids, time, showMetadata),
             groupByKey, groupByValues);

@@ -4,6 +4,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParam
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse;
@@ -302,9 +303,11 @@ public class CountController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(false, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
-        groupByValues);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaGroupByTag(
+            RequestResource.COUNT, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -534,9 +537,11 @@ public class CountController {
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(false, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
-        groupByValues);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaGroupByTag(
+            RequestResource.COUNT, new RequestParameters(false, true, true, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -940,9 +945,11 @@ public class CountController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(true, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
-        groupByValues);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaGroupByTag(
+            RequestResource.COUNT, new RequestParameters(true, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -1209,9 +1216,10 @@ public class CountController {
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByTag(new RequestParameters(true, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
-        groupByValues);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
+        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        groupByKey, groupByValues);
   }
 
   /**

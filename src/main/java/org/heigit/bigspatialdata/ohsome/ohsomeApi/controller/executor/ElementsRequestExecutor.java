@@ -32,6 +32,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.ShareResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
@@ -310,31 +311,37 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count or density calculation grouped by the tag.
+   * Performs a count, length, perimeter, or area calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * getCountGroupByTag} method.
    * 
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeCountGroupByTag(RequestParameters rPs, String[] groupByKey,
+  public static GroupByResponse executeCountLengthPerimeterAreaGroupByTag(
+      RequestResource requestResource, RequestParameters rPs, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    if (groupByKey.length != 1)
-      throw new BadRequestException("There has to be one groupByKey value given.");
-    if (groupByValues == null)
-      groupByValues = new String[0];
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result;
-    SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    if (groupByKey == null || groupByKey.length == 0)
+      throw new BadRequestException(
+          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, ? extends Number> result = null;
+    SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
+    String description = "";
     String requestURL = null;
+    DecimalFormat df = null;
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
+    if (groupByValues == null)
+      groupByValues = new String[0];
     TagTranslator tt = Application.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
@@ -346,70 +353,101 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-    // group by tag logic
-    result = mapRed.map(f -> {
-      int[] tags = f.getEntity().getRawTags();
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
-        int tagValueId = tags[i + 1];
-        if (tagKeyId == keysInt) {
-          if (valuesInt.length == 0) {
-            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                f);
+    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, OSMEntitySnapshot> preResult =
+        mapRed.map(f -> {
+          int[] tags = f.getEntity().getRawTags();
+          for (int i = 0; i < tags.length; i += 2) {
+            int tagKeyId = tags[i];
+            int tagValueId = tags[i + 1];
+            if (tagKeyId == keysInt) {
+              if (valuesInt.length == 0) {
+                return new ImmutablePair<>(
+                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+              }
+              for (int value : valuesInt) {
+                if (tagValueId == value)
+                  return new ImmutablePair<>(
+                      new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+              }
+            }
           }
-          for (int value : valuesInt) {
-            if (tagValueId == value)
-              return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                  f);
-          }
-        }
-      }
-      return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
-        .map(Pair::getValue).count();
+          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+        }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
+            .map(Pair::getValue);
+    switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        df = exeUtils.defineDecimalFormat("#.");
+        break;
+      case LENGTH:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.lengthOf(snapshot.getGeometry());
+        });
+        df = exeUtils.defineDecimalFormat("#.##");
+        break;
+      case PERIMETER:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else
+            return 0.0;
+        });
+        df = exeUtils.defineDecimalFormat("#.##");
+        break;
+      case AREA:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.areaOf(snapshot.getGeometry());
+        });
+        df = exeUtils.defineDecimalFormat("#.##");
+        break;
+    }
+
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    // +1 is needed in case the groupByKey is unresolved (not in keytables)
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    int count = 0;
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
+    int count = 0;
     // iterate over the entry objects aggregated by tags
-    for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
+    for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       int innerCount = 0;
       // check for non-remainder objects (which do have the defined key and value)
-      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1)
+      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
-      else
+      } else {
         groupByName = "remainder";
+      }
       // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         if (rPs.isDensity())
-          results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                  Double.parseDouble(densityDf
-                      .format((innerEntry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
+          results[innerCount] = new Result(
+              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double.parseDouble(
+                  df.format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
         else
           results[innerCount] =
               new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                  innerEntry.getValue().intValue());
+                  Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    // remove null objects in the resultSet
+    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
+    if (rPs.isDensity()) {
+      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " per square kilometer) aggregated on the tag.";
+    } else {
+      description = "Total " + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " aggregated on the tag.";
+    }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      if (rPs.isDensity())
-        metadata = new Metadata(duration,
-            "Density of selected items (number of items per square kilometer) aggregated on the tag.",
-            requestURL);
-      else
-        metadata =
-            new Metadata(duration, "Total number of items aggregated on the tag.", requestURL);
+      metadata = new Metadata(duration, description, requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -1144,138 +1182,6 @@ public class ElementsRequestExecutor {
     }
     description = "Total " + requestResource.getLabel() + " of items in "
         + requestResource.getUnit() + " aggregated on the key.";
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, description, requestURL);
-    }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
-   * Performs a length, perimeter, or area calculation grouped by the tag.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
-   * getCountGroupByTag} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
-  public static GroupByResponse executeLengthPerimeterAreaGroupByTag(
-      RequestResource requestResource, RequestParameters rPs, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    if (groupByKey == null || groupByKey.length == 0)
-      throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Number> result;
-    SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-
-    String description = "";
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    if (groupByValues == null)
-      groupByValues = new String[0];
-    TagTranslator tt = Application.getTagTranslator();
-    Integer[] valuesInt = new Integer[groupByValues.length];
-    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = iP.processParameters(mapRed, rPs);
-    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
-    if (groupByValues.length != 0) {
-      for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
-        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
-      }
-    }
-    // group by tag logic
-    result = mapRed.map(f -> {
-      int[] tags = f.getEntity().getRawTags();
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
-        int tagValueId = tags[i + 1];
-        if (tagKeyId == keysInt) {
-          if (valuesInt.length == 0) {
-            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                f);
-          }
-          for (int value : valuesInt) {
-            if (tagValueId == value)
-              return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                  f);
-          }
-        }
-      }
-      return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
-        .map(Pair::getValue).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestResource) {
-            case LENGTH:
-              return Geo.lengthOf(snapshot.getGeometry());
-            case PERIMETER:
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            case AREA:
-              return Geo.areaOf(snapshot.getGeometry());
-            default:
-              return 0.0;
-          }
-        });
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    // +1 is needed in case the groupByKey is unresolved (not in keytables)
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    String groupByName = "";
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    int count = 0;
-    // iterate over the entry objects aggregated by tags
-    for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
-        .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      int innerCount = 0;
-      // check for non-remainder objects (which do have the defined key and value)
-      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
-      } else {
-        groupByName = "remainder";
-      }
-      // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        if (rPs.isDensity())
-          results[innerCount] = new Result(
-              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-              Double.parseDouble(lengthPerimeterAreaDf
-                  .format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
-        else
-          results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
-                  .parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(groupByName, results);
-      count++;
-    }
-    // remove null objects in the resultSet
-    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-    if (rPs.isDensity()) {
-      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " per square kilometer) aggregated on the tag.";
-    } else {
-      description = "Total " + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " aggregated on the tag.";
-    }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
