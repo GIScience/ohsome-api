@@ -900,7 +900,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -924,24 +925,12 @@ public class ElementsRequestExecutor {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
             });
-        if (rPs.isDensity()) {
-          description =
-              "Density of selected items (area of items in square meter per square kilometer).";
-        } else {
-          description = "Total area of polygons in square meter.";
-        }
         break;
       case LENGTH:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.lengthOf(snapshot.getGeometry());
             });
-        if (rPs.isDensity()) {
-          description =
-              "Density of selected items (length of items in meter per square kilometer).";
-        } else {
-          description = "Total length of lines in meter.";
-        }
         break;
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
@@ -951,14 +940,6 @@ public class ElementsRequestExecutor {
               else
                 return 0.0;
             });
-        if (rPs.isDensity()) {
-
-          description =
-              "Density of selected items (perimeter of items in meter per square kilometer).";
-        } else {
-
-          description = "Total perimeter of polygonal items in meter.";
-        }
         break;
     }
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
@@ -967,14 +948,22 @@ public class ElementsRequestExecutor {
     Result[] resultSet = new Result[result.size()];
     DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSHDBTimestamp, Number> entry : result.entrySet()) {
-      if (rPs.isDensity())
+      if (rPs.isDensity()) {
         resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
             Double.parseDouble(densityDf
                 .format((entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
-      else
+      } else {
         resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
             Double.parseDouble(densityDf.format((entry.getValue().doubleValue()))));
+      }
       count++;
+    }
+    if (rPs.isDensity()) {
+      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " per square kilometer).";
+    } else {
+      description =
+          "Total " + requestResource.getLabel() + " of items in " + requestResource.getUnit();
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -993,7 +982,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -1016,18 +1006,14 @@ public class ElementsRequestExecutor {
       case LENGTH:
         result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
-        description = "Total length of lines in meter aggregated on the boundary object.";
         break;
       case PERIMETER:
         result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.PERIMETER,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
-        description =
-            "Total perimeter of polygonal items in meter aggregated on the boundary object.";
         break;
       case AREA:
         result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.AREA,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
-        description = "Total area of polygons in square meter aggregated on the boundary object.";
         break;
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -1052,6 +1038,8 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit() + " aggregated on the boundary.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
@@ -1069,7 +1057,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
    * groupByKey} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -1153,17 +1142,8 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    switch (requestResource) {
-      case LENGTH:
-        description = "Total length of items in meter aggregated on the key.";
-        break;
-      case PERIMETER:
-        description = "Total perimeter of polygonal items in meter aggregated on the key.";
-        break;
-      case AREA:
-        description = "Total area of items in square meter aggregated on the key.";
-        break;
-    }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit() + " aggregated on the key.";
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
@@ -1181,7 +1161,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountGroupByTag} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -1288,37 +1269,12 @@ public class ElementsRequestExecutor {
     }
     // remove null objects in the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-    switch (requestResource) {
-      case LENGTH:
-        if (rPs.isDensity()) {
-
-          description =
-              "Density of selected items (length of items in meter per square kilometer).";
-        } else {
-
-          description = "Total length of items in meter aggregated on the tag.";
-        }
-        break;
-      case PERIMETER:
-        if (rPs.isDensity()) {
-
-          description =
-              "Density of selected items (perimeter of items in meter per square kilometer).";
-        } else {
-
-          description = "Total perimeter of polygonal items in meter aggregated on the tag.";
-        }
-        break;
-      case AREA:
-        if (rPs.isDensity()) {
-
-          description =
-              "Density of selected items (area of items in square meter per square kilometer).";
-        } else {
-
-          description = "Total area of items in square meter aggregated on the tag.";
-        }
-        break;
+    if (rPs.isDensity()) {
+      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " per square kilometer) aggregated on the tag.";
+    } else {
+      description = "Total " + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " aggregated on the tag.";
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -1337,7 +1293,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -1399,17 +1356,8 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    switch (requestResource) {
-      case LENGTH:
-        description = "Total length of items in meter aggregated on the userid.";
-        break;
-      case PERIMETER:
-        description = "Total perimeter of polygonal items in meter aggregated on the userid.";
-        break;
-      case AREA:
-        description = "Total area of items in square meter aggregated on the userid.";
-        break;
-    }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit() + " aggregated on the user.";
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
@@ -1427,7 +1375,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponseContent}
    */
@@ -1454,12 +1403,6 @@ public class ElementsRequestExecutor {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
             });
-        if (rPs.isDensity()) {
-          description =
-              "Density of selected items (area of items in square meter per square kilometer) aggregated on the type.";
-        } else {
-          description = "Total area of items in square meter aggregated on the type.";
-        }
         break;
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
@@ -1472,12 +1415,6 @@ public class ElementsRequestExecutor {
               else
                 return 0.0;
             });
-        if (rPs.isDensity()) {
-          description =
-              "Density of selected items (perimeter of items in meter per square kilometer) aggregated on the type.";
-        } else {
-          description = "Total perimeter of items in meter aggregated on the type.";
-        }
         break;
       default:
         // do nothing.. should never reach this :D
@@ -1510,6 +1447,13 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
+    if (rPs.isDensity()) {
+      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " per square kilometer) aggregated on the type.";
+    } else {
+      description = "Total " + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " aggregated on the type.";
+    }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
@@ -1527,7 +1471,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -1650,20 +1595,9 @@ public class ElementsRequestExecutor {
         part[i] = 0.0;
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
-    switch (requestResource) {
-      case LENGTH:
-        description =
-            "Total length of the whole and of a share of items in meter satisfying keys2 and values2 within items selected by types, keys, values.";
-        break;
-      case PERIMETER:
-        description =
-            "Total perimeter of the whole and of a share of items in meter satisfying keys2 and values2 within items selected by types, keys, values.";
-        break;
-      case AREA:
-        description =
-            "Total area of the whole and of a share of items in square meter satisfying keys2 and values2 within items selected by types, keys, values.";
-        break;
-    }
+    description = "Total " + requestResource.getLabel()
+        + " of the whole and of a share of items in " + requestResource.getUnit()
+        + " satisfying keys2 and values2 within items selected by types, keys, values.";
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
@@ -1681,7 +1615,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
    * getCountShare} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
@@ -1696,6 +1631,7 @@ public class ElementsRequestExecutor {
     SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
+    String description = "";
     String requestURL = null;
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -1761,12 +1697,13 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
+    description = "Total " + requestResource.getLabel()
+        + " of the whole and of a share of items in " + requestResource.getUnit()
+        + " satisfying keys2 and values2 within items selected by types, keys, values, aggregated on the boundary.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
-          requestURL);
+      metadata = new Metadata(duration, description, requestURL);
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
         new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
@@ -1780,7 +1717,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @param requestResource <code>Enum</code> defining the request type (LENGTH, PERIMETER, AREA).
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
@@ -1814,9 +1752,6 @@ public class ElementsRequestExecutor {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
             });
-        description =
-            "Area of items in square meter satisfying types2, keys2, values2 parameters (= value2 output) "
-                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
         break;
       case LENGTH:
         result1 = mapRed1.aggregateByTimestamp()
@@ -1827,9 +1762,6 @@ public class ElementsRequestExecutor {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.lengthOf(snapshot.getGeometry());
             });
-        description =
-            "Length of items in meter satisfying types2, keys2, values2 parameters (= value2 output) "
-                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
         break;
       case PERIMETER:
         result1 = mapRed1.aggregateByTimestamp()
@@ -1846,9 +1778,6 @@ public class ElementsRequestExecutor {
               else
                 return 0.0;
             });
-        description =
-            "Perimeter of items in meter satisfying types2, keys2, values2 parameters (= value2 output) "
-                + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
         break;
     }
     Result[] resultSet1 = new Result[result1.size()];
@@ -1876,6 +1805,10 @@ public class ElementsRequestExecutor {
           Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())), ratio);
       count++;
     }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit()
+        + " satisfying types2, keys2, values2 parameters (= value2 output) "
+        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
