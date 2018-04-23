@@ -1,8 +1,8 @@
 # OHSOME API
 
-This REST-API aims to leverage the tools of the [OSHDB-API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
-The current stable beta-version 0.9 can be downloaded [here](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/v0.9). 
-Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST-API.
+This REST-based API aims to leverage the tools of the [OSHDB-API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
+The current stable beta-version can be downloaded [here](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/v0.9.1). 
+Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST-based API.
 
 ## Getting Started
 
@@ -23,7 +23,7 @@ These instructions will get you a copy of the project up and running on your loc
     * keytables included (v_0.3.1): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb*
     * keytables not included (v_0.3): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
 
-Now you should have a running local REST-API, which is ready for receiving requests under *http://localhost:8080/*.
+Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
 
 Note:
 * additionally you can add optional run-parameters:
