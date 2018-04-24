@@ -221,6 +221,98 @@ public class ElementsRequestExecutor {
   }
 
   /**
+   * Performs a count, length, perimeter, or area calculation grouped by the user.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   *         GroupByResponse Content}
+   */
+  public static GroupByResponse executeCountLengthPerimeterAreaGroupByUser(
+      RequestResource requestResource, RequestParameters rPs)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    MapAggregatorByTimestampAndIndex<Integer, OSMEntitySnapshot> preResult;
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String description = "";
+    String requestURL = null;
+    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
+    if (!rPs.isPost())
+      requestURL = RequestInterceptor.requestUrl;
+    mapRed = iP.processParameters(mapRed, rPs);
+    if (rPs.getUserids() != null)
+      for (String user : rPs.getUserids())
+        // converting userids to int for usage in zerofill
+        useridsInt.add(Integer.parseInt(user));
+    preResult = mapRed.aggregateByTimestamp()
+        .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
+          return f.getEntity().getUserId();
+        }).zerofillIndices(useridsInt);
+    switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        break;
+      case LENGTH:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.lengthOf(snapshot.getGeometry());
+        });
+        break;
+      case PERIMETER:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else
+            return 0.0;
+        });
+        break;
+      case AREA:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.areaOf(snapshot.getGeometry());
+        });
+        break;
+    }
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects aggregated by type
+    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
+      Result[] results = new Result[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      // iterate over the timestamp-value pairs
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+      count++;
+    }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit() + " aggregated on the user.";
+    Metadata metadata = null;
+    long duration = System.currentTimeMillis() - startTime;
+    if (iP.getShowMetadata()) {
+      metadata = new Metadata(duration, description, requestURL);
+    }
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
+    return response;
+  }
+
+  /**
    * Performs a count calculation grouped by the key.
    * <p>
    * The parameters are described in the
@@ -448,58 +540,103 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count calculation grouped by the user.
+   * Performs a count, perimeter, or area calculation grouped by the OSM type.
    * <p>
-   * The parameters are described in the
+   * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         GroupByResponseContent}
    */
-  public static GroupByResponse executeCountGroupByUser(RequestParameters rPs)
+  public static GroupByResponse executeCountPerimeterAreaGroupByType(
+      RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
+
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
+    SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    String description = null;
     String requestURL = null;
-    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
-    if (rPs.getUserids() != null)
-      for (String user : rPs.getUserids())
-        // converting userids to int for usage in zerofill
-        useridsInt.add(Integer.parseInt(user));
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-          return f.getEntity().getUserId();
-        }).zerofillIndices(useridsInt).count();
+    switch (requestResource) {
+      case COUNT:
+        result = mapRed.aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+              return f.getEntity().getType();
+            }).zerofillIndices(iP.getOsmTypes()).count();
+        break;
+      case AREA:
+        result = mapRed.aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+              return f.getEntity().getType();
+            }).zerofillIndices(iP.getOsmTypes())
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.areaOf(snapshot.getGeometry());
+            });
+        break;
+      case PERIMETER:
+        result = mapRed.aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+              return f.getEntity().getType();
+            }).zerofillIndices(iP.getOsmTypes())
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            });
+        break;
+      default:
+        // do nothing.. should never reach this :D
+        break;
+    }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
     int innerCount = 0;
-    // iterate over the entry objects aggregated by user
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+    // iterate over the entry objects aggregated by type
+    for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().intValue());
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+        if (rPs.isDensity())
+          results[innerCount] = new Result(
+              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+              Double.parseDouble(lengthPerimeterAreaDf
+                  .format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+        else
+          results[innerCount] =
+              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
+                  .parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
+    if (rPs.isDensity()) {
+      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " per square kilometer) aggregated on the type.";
+    } else {
+      description = "Total " + requestResource.getLabel() + " of items in "
+          + requestResource.getUnit() + " aggregated on the type.";
+    }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      metadata =
-          new Metadata(duration, "Total number of items aggregated on the userids.", requestURL);
+      metadata = new Metadata(duration, description, requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -1072,192 +1209,6 @@ public class ElementsRequestExecutor {
     }
     description = "Total " + requestResource.getLabel() + " of items in "
         + requestResource.getUnit() + " aggregated on the key.";
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, description, requestURL);
-    }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
-   * Performs a length, perimeter, or area calculation grouped by the user.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
-  public static GroupByResponse executeLengthPerimeterAreaGroupByUser(
-      RequestResource requestResource, RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String description = "";
-    String requestURL = null;
-    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
-    if (rPs.getUserids() != null)
-      for (String user : rPs.getUserids())
-        // converting userids to int for usage in zerofill
-        useridsInt.add(Integer.parseInt(user));
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-          return f.getEntity().getUserId();
-        }).zerofillIndices(useridsInt)
-        .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestResource) {
-            case LENGTH:
-              return Geo.lengthOf(snapshot.getGeometry());
-            case PERIMETER:
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            case AREA:
-              return Geo.areaOf(snapshot.getGeometry());
-            default:
-              return 0.0;
-          }
-        });
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by type
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(
-            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-      count++;
-    }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit() + " aggregated on the user.";
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, description, requestURL);
-    }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
-   * Performs a count, perimeter, or area calculation grouped by the OSM type.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponseContent}
-   */
-  public static GroupByResponse executeCountPerimeterAreaGroupByType(
-      RequestResource requestResource, RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
-    SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String description = null;
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
-    switch (requestResource) {
-      case COUNT:
-        result = mapRed.aggregateByTimestamp()
-            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-              return f.getEntity().getType();
-            }).zerofillIndices(iP.getOsmTypes()).count();
-        break;
-      case AREA:
-        result = mapRed.aggregateByTimestamp()
-            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-              return f.getEntity().getType();
-            }).zerofillIndices(iP.getOsmTypes())
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
-        break;
-      case PERIMETER:
-        result = mapRed.aggregateByTimestamp()
-            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-              return f.getEntity().getType();
-            }).zerofillIndices(iP.getOsmTypes())
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
-        break;
-      default:
-        // do nothing.. should never reach this :D
-        break;
-    }
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by type
-    for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
-        .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        if (rPs.isDensity())
-          results[innerCount] = new Result(
-              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-              Double.parseDouble(lengthPerimeterAreaDf
-                  .format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
-        else
-          results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
-                  .parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-      count++;
-    }
-    if (rPs.isDensity()) {
-      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " per square kilometer) aggregated on the type.";
-    } else {
-      description = "Total " + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " aggregated on the type.";
-    }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
