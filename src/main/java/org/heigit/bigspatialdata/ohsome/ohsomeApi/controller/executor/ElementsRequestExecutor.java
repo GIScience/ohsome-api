@@ -835,46 +835,94 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count-ratio calculation.
+   * Performs a count|length|perimeter|area-ratio calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static RatioResponse executeCountRatio(RequestParameters rPs, String[] types2,
-      String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
+  public static RatioResponse executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
+      RequestParameters rPs, String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Integer> result1;
-    SortedMap<OSHDBTimestamp, Integer> result2;
+    SortedMap<OSHDBTimestamp, ? extends Number> result1 = null;
+    SortedMap<OSHDBTimestamp, ? extends Number> result2 = null;
     MapReducer<OSMEntitySnapshot> mapRed1 = null;
     MapReducer<OSMEntitySnapshot> mapRed2 = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
+    String description = "";
     String requestURL = null;
+    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
+        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types2, keys2, values2,
+        rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, rPs);
-    result1 = mapRed1.aggregateByTimestamp().count();
-    mapRed2 = iP.processParameters(mapRed2, rPs);
-    result2 = mapRed2.aggregateByTimestamp().count();
+    mapRed2 = iP.processParameters(mapRed2, rPs2);
+    switch (requestResource) {
+      case COUNT:
+        result1 = mapRed1.aggregateByTimestamp().count();
+        result2 = mapRed2.aggregateByTimestamp().count();
+        break;
+      case AREA:
+        result1 = mapRed1.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.areaOf(snapshot.getGeometry());
+            });
+        result2 = mapRed2.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.areaOf(snapshot.getGeometry());
+            });
+        break;
+      case LENGTH:
+        result1 = mapRed1.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.lengthOf(snapshot.getGeometry());
+            });
+        result2 = mapRed2.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.lengthOf(snapshot.getGeometry());
+            });
+        break;
+      case PERIMETER:
+        result1 = mapRed1.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            });
+        result2 = mapRed2.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            });
+        break;
+    }
     Result[] resultSet1 = new Result[result1.size()];
     int count = 0;
-    for (Entry<OSHDBTimestamp, Integer> entry : result1.entrySet()) {
+    for (Entry<OSHDBTimestamp, ? extends Number> entry : result1.entrySet()) {
       resultSet1[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-          entry.getValue().intValue());
+          entry.getValue().doubleValue());
       count++;
     }
     RatioResult[] resultSet = new RatioResult[result1.size()];
     DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     count = 0;
-    for (Entry<OSHDBTimestamp, Integer> entry : result2.entrySet()) {
+    for (Entry<OSHDBTimestamp, ? extends Number> entry : result2.entrySet()) {
       String date = resultSet1[count].getTimestamp();
       double ratio = (entry.getValue().doubleValue() / resultSet1[count].getValue());
       // in case ratio has the value "NaN", "Infinity", etc.
@@ -883,17 +931,19 @@ public class ElementsRequestExecutor {
       } catch (Exception e) {
         // do nothing --> just return ratio without rounding (trimming)
       }
-      resultSet[count] =
-          new RatioResult(date, resultSet1[count].getValue(), entry.getValue().intValue(), ratio);
+      resultSet[count] = new RatioResult(date,
+          Double.parseDouble(lengthPerimeterAreaDf.format(resultSet1[count].getValue())),
+          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())), ratio);
       count++;
     }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit()
+        + " satisfying types2, keys2, values2 parameters (= value2 output) "
+        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration,
-          "Total number of items satisfying types2, keys2, values2 parameters (= value2 output) "
-              + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.",
-          requestURL);
+      metadata = new Metadata(duration, description, requestURL);
     }
     RatioResponse response =
         new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
@@ -1524,115 +1574,6 @@ public class ElementsRequestExecutor {
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
         new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
-    return response;
-  }
-
-  /**
-   * Performs a length|perimeter|area-ratio calculation.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
-  public static RatioResponse executeLengthPerimeterAreaRatio(RequestResource requestResource,
-      RequestParameters rPs, String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Number> result1 = null;
-    SortedMap<OSHDBTimestamp, Number> result2 = null;
-    MapReducer<OSMEntitySnapshot> mapRed1 = null;
-    MapReducer<OSMEntitySnapshot> mapRed2 = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String description = "";
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(mapRed1, rPs);
-    mapRed2 = iP.processParameters(mapRed2, rPs);
-    switch (requestResource) {
-      case AREA:
-        result1 = mapRed1.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
-        result2 = mapRed2.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
-        break;
-      case LENGTH:
-        result1 = mapRed1.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
-            });
-        result2 = mapRed2.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
-            });
-        break;
-      case PERIMETER:
-        result1 = mapRed1.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
-        result2 = mapRed2.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
-        break;
-    }
-    Result[] resultSet1 = new Result[result1.size()];
-    int count = 0;
-    for (Entry<OSHDBTimestamp, Number> entry : result1.entrySet()) {
-      resultSet1[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-          entry.getValue().doubleValue());
-      count++;
-    }
-    RatioResult[] resultSet = new RatioResult[result1.size()];
-    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    count = 0;
-    for (Entry<OSHDBTimestamp, Number> entry : result2.entrySet()) {
-      String date = resultSet1[count].getTimestamp();
-      double ratio = (entry.getValue().doubleValue() / resultSet1[count].getValue());
-      // in case ratio has the value "NaN", "Infinity", etc.
-      try {
-        ratio = Double.parseDouble(ratioDF.format(ratio));
-      } catch (Exception e) {
-        // do nothing --> just return ratio without rounding (trimming)
-      }
-      resultSet[count] = new RatioResult(date,
-          Double.parseDouble(lengthPerimeterAreaDf.format(resultSet1[count].getValue())),
-          Double.parseDouble(lengthPerimeterAreaDf.format(entry.getValue().doubleValue())), ratio);
-      count++;
-    }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit()
-        + " satisfying types2, keys2, values2 parameters (= value2 output) "
-        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, description, requestURL);
-    }
-    RatioResponse response =
-        new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 

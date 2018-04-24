@@ -595,7 +595,7 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatio(new RequestParameters(false, true, false,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT, new RequestParameters(false, true, false,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), types2, keys2,
         values2);
   }
@@ -1281,7 +1281,7 @@ public class CountController {
       String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatio(new RequestParameters(true, true, false,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT, new RequestParameters(true, true, false,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), types2, keys2,
         values2);
   }
