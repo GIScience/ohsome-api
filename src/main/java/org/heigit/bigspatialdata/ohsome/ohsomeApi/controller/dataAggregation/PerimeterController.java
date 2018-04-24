@@ -103,7 +103,7 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata));
   }
@@ -468,7 +468,7 @@ public class PerimeterController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata));
   }
@@ -678,7 +678,7 @@ public class PerimeterController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata));
   }
@@ -1108,7 +1108,7 @@ public class PerimeterController {
       String[] time, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executePerimeterAreaGroupByType(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata));
   }

@@ -141,77 +141,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count or density calculation grouped by the type.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponseContent}
-   */
-  public static GroupByResponse executeCountGroupByType(RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result;
-    SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
-    // db result
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-          return f.getEntity().getType();
-        }).zerofillIndices(iP.getOsmTypes()).count();
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by user
-    for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        if (rPs.isDensity())
-          results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                  Double.parseDouble(densityDf
-                      .format((innerEntry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
-        else
-          results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                  innerEntry.getValue().intValue());
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-      count++;
-    }
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      if (rPs.isDensity())
-        metadata = new Metadata(duration,
-            "Density of selected items (number of items per square kilometer) aggregated on the type.",
-            requestURL);
-      else
-        metadata =
-            new Metadata(duration, "Total number of items aggregated on the type.", requestURL);
-    }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
    * Performs a count, length, perimeter, or area calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
@@ -1236,7 +1165,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a perimeter, or area calculation grouped by the OSM type.
+   * Performs a count, perimeter, or area calculation grouped by the OSM type.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -1247,12 +1176,13 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  public static GroupByResponse executePerimeterAreaGroupByType(RequestResource requestResource,
-      RequestParameters rPs) throws UnsupportedOperationException, Exception {
+  public static GroupByResponse executeCountPerimeterAreaGroupByType(
+      RequestResource requestResource, RequestParameters rPs)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, Number> result = null;
-    SortedMap<OSMType, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
+    SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -1262,6 +1192,12 @@ public class ElementsRequestExecutor {
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
+      case COUNT:
+        result = mapRed.aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+              return f.getEntity().getType();
+            }).zerofillIndices(iP.getOsmTypes()).count();
+        break;
       case AREA:
         result = mapRed.aggregateByTimestamp()
             .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -1295,11 +1231,12 @@ public class ElementsRequestExecutor {
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by type
-    for (Entry<OSMType, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+    for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         if (rPs.isDensity())
           results[innerCount] = new Result(
               TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),

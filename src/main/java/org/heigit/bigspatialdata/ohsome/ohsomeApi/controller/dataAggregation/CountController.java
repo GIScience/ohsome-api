@@ -129,8 +129,9 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(false, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -485,8 +486,9 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(false, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
+        new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -595,9 +597,10 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT, new RequestParameters(false, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), types2, keys2,
-        values2);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        types2, keys2, values2);
   }
 
   /**
@@ -744,8 +747,9 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(true, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -1162,8 +1166,9 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByType(new RequestParameters(true, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
+        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -1281,9 +1286,10 @@ public class CountController {
       String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT, new RequestParameters(true, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), types2, keys2,
-        values2);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        types2, keys2, values2);
   }
 
   /**
