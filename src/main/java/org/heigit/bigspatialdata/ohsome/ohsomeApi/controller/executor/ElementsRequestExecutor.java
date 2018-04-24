@@ -313,89 +313,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count calculation grouped by the key.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
-   * getCountGroupByKey} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
-  public static GroupByResponse executeCountGroupByKey(RequestParameters rPs, String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    if (groupByKeys == null || groupByKeys.length == 0) {
-      throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/key");
-    }
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    TagTranslator tt = Application.getTagTranslator();
-    Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = iP.processParameters(mapRed, rPs);
-    for (int i = 0; i < groupByKeys.length; i++) {
-      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
-    }
-    // group by key logic
-    result = mapRed.flatMap(f -> {
-      List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
-      Iterable<OSHDBTag> tags = f.getEntity().getTags();
-      for (OSHDBTag tag : tags) {
-        int tagKeyId = tag.getKey();
-        for (int key : keysInt) {
-          if (tagKeyId == key) {
-            res.add(new ImmutablePair<>(tagKeyId, f));
-          }
-        }
-      }
-      if (res.size() == 0)
-        res.add(new ImmutablePair<>(-1, f));
-      return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
-        .map(Pair::getValue).count();
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    String groupByName = "";
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by keys
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      // check for non-remainder objects and not existing keys
-      if (entry.getKey() != -1) {
-        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
-      } else {
-        groupByName = "remainder";
-      }
-      // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().intValue());
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(groupByName, results);
-      count++;
-    }
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration, "Total number of items aggregated on the key.", requestURL);
-    }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
    * Performs a count, length, perimeter, or area calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
@@ -1116,7 +1033,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a length, perimeter, or area calculation grouped by the key.
+   * Performs a count, length, perimeter, or area calculation grouped by the key.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
@@ -1127,7 +1044,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeLengthPerimeterAreaGroupByKey(
+  public static GroupByResponse executeCountLengthPerimeterAreaGroupByKey(
       RequestResource requestResource, RequestParameters rPs, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
@@ -1135,8 +1052,8 @@ public class ElementsRequestExecutor {
     if (groupByKeys == null || groupByKeys.length == 0)
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/tag");
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -1151,36 +1068,46 @@ public class ElementsRequestExecutor {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
     // group by key logic
-    result = mapRed.flatMap(f -> {
-      List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
-      Iterable<OSHDBTag> tags = f.getEntity().getTags();
-      for (OSHDBTag tag : tags) {
-        int tagKeyId = tag.getKey();
-        for (int key : keysInt) {
-          if (tagKeyId == key) {
-            res.add(new ImmutablePair<>(tagKeyId, f));
+    MapAggregator<OSHDBTimestampAndIndex<Integer>, OSMEntitySnapshot> preResult =
+        mapRed.flatMap(f -> {
+          List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
+          Iterable<OSHDBTag> tags = f.getEntity().getTags();
+          for (OSHDBTag tag : tags) {
+            int tagKeyId = tag.getKey();
+            for (int key : keysInt) {
+              if (tagKeyId == key) {
+                res.add(new ImmutablePair<>(tagKeyId, f));
+              }
+            }
           }
-        }
-      }
-      if (res.size() == 0)
-        res.add(new ImmutablePair<>(-1, f));
-      return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
-        .map(Pair::getValue).sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          switch (requestResource) {
-            case LENGTH:
-              return Geo.lengthOf(snapshot.getGeometry());
-            case PERIMETER:
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            case AREA:
-              return Geo.areaOf(snapshot.getGeometry());
-            default:
-              return 0.0;
-          }
+          if (res.size() == 0)
+            res.add(new ImmutablePair<>(-1, f));
+          return res;
+        }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
+            .map(Pair::getValue);
+    switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        break;
+      case LENGTH:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.lengthOf(snapshot.getGeometry());
         });
+        break;
+      case PERIMETER:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else
+            return 0.0;
+        });
+        break;
+      case AREA:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.areaOf(snapshot.getGeometry());
+        });
+        break;
+    }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
@@ -1188,7 +1115,8 @@ public class ElementsRequestExecutor {
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by keys
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
+    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       // check for non-remainder objects (which do have the defined key)
@@ -1198,7 +1126,7 @@ public class ElementsRequestExecutor {
         groupByName = "remainder";
       }
       // iterate over the timestamp-value pairs
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] = new Result(
             TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));

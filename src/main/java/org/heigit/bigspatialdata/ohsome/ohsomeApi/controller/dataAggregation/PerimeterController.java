@@ -229,9 +229,9 @@ public class PerimeterController {
           required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(
+        RequestResource.PERIMETER, new RequestParameters(false, true, false, bboxes, bcircles,
+            bpolys, types, keys, values, userids, time, showMetadata),
         groupByKeys);
   }
 
@@ -828,9 +828,9 @@ public class PerimeterController {
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.PERIMETER,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(
+        RequestResource.PERIMETER, new RequestParameters(true, true, false, bboxes, bcircles,
+            bpolys, types, keys, values, userids, time, showMetadata),
         groupByKeys);
   }
 

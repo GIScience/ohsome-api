@@ -229,7 +229,7 @@ public class AreaController {
           required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.AREA,
         new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         groupByKeys);
@@ -825,7 +825,7 @@ public class AreaController {
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByKey(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.AREA,
         new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         groupByKeys);

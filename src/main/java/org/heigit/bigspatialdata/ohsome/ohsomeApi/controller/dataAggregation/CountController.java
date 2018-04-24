@@ -255,8 +255,10 @@ public class CountController {
           required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountGroupByKey(new RequestParameters(false, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKeys);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.COUNT,
+        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        groupByKeys);
   }
 
   /**
@@ -898,8 +900,10 @@ public class CountController {
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountGroupByKey(new RequestParameters(true, true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKeys);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.COUNT,
+        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata),
+        groupByKeys);
   }
 
   /**
