@@ -388,7 +388,7 @@ public class PerimeterController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
         RequestResource.PERIMETER, new RequestParameters(false, true, false, bboxes, bcircles,
             bpolys, types, keys, values, userids, time, showMetadata),
         keys2, values2);
@@ -1009,7 +1009,7 @@ public class PerimeterController {
       String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaShareGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
         RequestResource.PERIMETER, new RequestParameters(true, true, false, bboxes, bcircles,
             bpolys, types, keys, values, userids, time, showMetadata),
         keys2, values2);

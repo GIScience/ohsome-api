@@ -561,99 +561,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count-share calculation grouped by the boundary.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
-   * getCountShare} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
-  public static ShareGroupByBoundaryResponse executeCountShareGroupByBoundary(RequestParameters rPs,
-      String[] keys2, String[] values2) throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    values2 = exeUtils.shareParamEvaluation(keys2, values2);
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result = null;
-    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    TagTranslator tt = Application.getTagTranslator();
-    Integer[] keysInt2 = new Integer[keys2.length];
-    Integer[] valuesInt2 = new Integer[values2.length];
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (values2 != null && i < values2.length)
-        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
-    }
-    mapRed = iP.processParameters(mapRed, rPs);
-    result = exeUtils.computeCountShareGBBResult(iP.getBoundaryType(), mapRed, keysInt2, valuesInt2,
-        iP.getGeomBuilder());
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
-    String groupByName = "";
-    Utils utils = iP.getUtils();
-    String[] boundaryIds = utils.getBoundaryIds();
-    Integer[] whole = null;
-    Integer[] part = null;
-    String[] timeArray = null;
-    int count = 1;
-    int gBNCount = 0;
-    for (Entry<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
-        .entrySet()) {
-      // on boundary param aggregated values (2x the same param)
-      if (count == 1)
-        timeArray = new String[entry.getValue().entrySet().size()];
-      if (entry.getKey().getRight()) {
-        // on true aggregated values
-        part = new Integer[entry.getValue().entrySet().size()];
-        int partCount = 0;
-        for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-          part[partCount] = innerEntry.getValue();
-          partCount++;
-        }
-      } else {
-        // on false aggregated values
-        whole = new Integer[entry.getValue().entrySet().size()];
-        int wholeCount = 0;
-        for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-          whole[wholeCount] = innerEntry.getValue();
-          if (count == 1)
-            timeArray[wholeCount] = innerEntry.getKey().toString();
-          wholeCount++;
-        }
-      }
-      if (count % 2 == 0) {
-        // is only executed every second run
-        groupByName = boundaryIds[gBNCount];
-        ShareResult[] resultSet = new ShareResult[timeArray.length];
-        for (int i = 0; i < timeArray.length; i++) {
-          whole[i] = whole[i] + part[i];
-          resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
-        }
-        groupByResultSet[gBNCount] = new ShareGroupByResult(groupByName, resultSet);
-        gBNCount++;
-      }
-      count++;
-    }
-    Metadata metadata = null;
-    if (iP.getShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          "Share of items satisfying keys2 and values2 within items selected by types, keys, values, grouped on the boundary parameter.",
-          requestURL);
-    }
-    ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
-        new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
-    return response;
-  }
-
-  /**
    * Performs a count-density calculation.
    * <p>
    * The other parameters are described in the
@@ -1194,15 +1101,15 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
-  public static ShareGroupByBoundaryResponse executeLengthPerimeterAreaShareGroupByBoundary(
+  public static ShareGroupByBoundaryResponse executeCountLengthPerimeterAreaShareGroupByBoundary(
       RequestResource requestResource, RequestParameters rPs, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     values2 = exeUtils.shareParamEvaluation(keys2, values2);
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result = null;
-    SortedMap<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> result = null;
+    SortedMap<Pair<Integer, Boolean>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     String description = "";
@@ -1220,11 +1127,13 @@ public class ElementsRequestExecutor {
     mapRed = iP.processParameters(mapRed, rPs);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Utils utils = iP.getUtils();
-    result = exeUtils.computeLengthPerimeterAreaShareGBBResult(requestResource,
+    result = exeUtils.computeCountLengthPerimeterAreaShareGBBResult(requestResource,
         iP.getBoundaryType(), mapRed, keysInt2, valuesInt2, geomBuilder);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    if (requestResource == RequestResource.COUNT)
+      df = exeUtils.defineDecimalFormat("#.");
     String groupByName = "";
     String[] boundaryIds = utils.getBoundaryIds();
     Double[] whole = null;
@@ -1232,7 +1141,7 @@ public class ElementsRequestExecutor {
     String[] timeArray = null;
     int count = 1;
     int gBNCount = 0;
-    for (Entry<Pair<Integer, Boolean>, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult
+    for (Entry<Pair<Integer, Boolean>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       // on boundary param aggregated values (2x the same param)
       if (count == 1)
@@ -1241,18 +1150,16 @@ public class ElementsRequestExecutor {
         // on true aggregated values
         part = new Double[entry.getValue().entrySet().size()];
         int partCount = 0;
-        for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-          part[partCount] =
-              Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
+        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+          part[partCount] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           partCount++;
         }
       } else {
         // on false aggregated values
         whole = new Double[entry.getValue().entrySet().size()];
         int wholeCount = 0;
-        for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-          whole[wholeCount] =
-              Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue()));
+        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+          whole[wholeCount] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           if (count == 1)
             timeArray[wholeCount] = innerEntry.getKey().toString();
           wholeCount++;

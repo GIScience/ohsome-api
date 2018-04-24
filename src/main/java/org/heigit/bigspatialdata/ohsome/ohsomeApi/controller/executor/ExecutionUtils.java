@@ -224,7 +224,7 @@ public class ExecutionUtils {
    * @throws UnsupportedOperationException
    * @throws Exception
    */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> computeLengthPerimeterAreaShareGBBResult(
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGBBResult(
       RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
       Integer[] keysInt2, Integer[] valuesInt2, GeometryBuilder geomBuilder)
       throws UnsupportedOperationException, Exception {
@@ -238,56 +238,64 @@ public class ExecutionUtils {
       zeroFill.add(new ImmutablePair<>(j, true));
       zeroFill.add(new ImmutablePair<>(j, false));
     }
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Number> result =
-        mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
-          Geometry entityGeom = f.getGeometry();
-          if (requestResource.equals(RequestResource.PERIMETER)) {
-            entityGeom = entityGeom.getBoundary();
+    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Geometry> preResult = null;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> result = null;
+    preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
+      List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
+      Geometry entityGeom = f.getGeometry();
+      if (requestResource.equals(RequestResource.PERIMETER)) {
+        entityGeom = entityGeom.getBoundary();
+      }
+      for (int i = 0; i < geoms.size(); i++) {
+        if (entityGeom.intersects(geoms.get(i))) {
+          if (entityGeom.within(geoms.get(i)))
+            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
+          else
+            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
+                Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+        }
+      }
+      return res;
+    }).aggregateBy(f -> {
+      // result aggregated on true (if obj contains all tags) and false (if not)
+      boolean hasTags = false;
+      for (int i = 0; i < keysInt2.length; i++) {
+        if (f.getLeft().getRight().hasTagKey(keysInt2[i])) {
+          if (i >= valuesInt2.length) {
+            // if more keys2 than values2 are given
+            hasTags = true;
+            continue;
           }
-          for (int i = 0; i < geoms.size(); i++) {
-            if (entityGeom.intersects(geoms.get(i))) {
-              if (entityGeom.within(geoms.get(i)))
-                res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
-              else
-                res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
-                    Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
-            }
+          if (f.getLeft().getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
+            hasTags = true;
+          } else {
+            hasTags = false;
+            break;
           }
-          return res;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getLeft().getRight().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getLeft().getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft().getLeft(), hasTags);
-        }).zerofillIndices(zeroFill).map(Pair::getValue).sum(geom -> {
-          switch (requestResource) {
-            case LENGTH:
-            case PERIMETER:
-              return Geo.lengthOf(geom);
-            case AREA:
-              return Geo.areaOf(geom);
-            default:
-              return 0.0;
-          }
+        } else {
+          hasTags = false;
+          break;
+        }
+      }
+      return new ImmutablePair<>(f.getLeft().getLeft(), hasTags);
+    }).zerofillIndices(zeroFill).map(Pair::getValue);
+
+    switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        break;
+      case LENGTH:
+      case PERIMETER:
+        result = preResult.sum(geom -> {
+          return Geo.lengthOf(geom);
         });
+        break;
+      case AREA:
+        result = preResult.sum(geom -> {
+          return Geo.areaOf(geom);
+        });
+        break;
+    }
     return result;
   }
 

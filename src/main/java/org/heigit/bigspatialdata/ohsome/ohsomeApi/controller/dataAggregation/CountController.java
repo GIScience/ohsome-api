@@ -414,8 +414,9 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountShareGroupByBoundary(new RequestParameters(false,
-        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
+        RequestResource.COUNT, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
         keys2, values2);
   }
 
@@ -1080,8 +1081,9 @@ public class CountController {
       String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountShareGroupByBoundary(new RequestParameters(true,
-        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
+        RequestResource.COUNT, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
         keys2, values2);
   }
 
