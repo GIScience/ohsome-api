@@ -127,8 +127,8 @@ public class ElementsRequestExecutor {
       description = "Density of selected items (" + requestResource.getLabel() + " of items in "
           + requestResource.getUnit() + " per square kilometer).";
     } else {
-      description = "Total " + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + ".";
+      description =
+          "Total " + requestResource.getLabel() + " of items in " + requestResource.getUnit() + ".";
     }
     Metadata metadata = null;
     long duration = System.currentTimeMillis() - startTime;
@@ -212,55 +212,79 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count calculation grouped by the boundary.
+   * Performs a count, length, perimeter, or area calculation grouped by the boundary.
    * <p>
-   * The parameters are described in the
+   * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeCountGroupByBoundary(RequestParameters rPs)
+  public static GroupByResponse executeCountLengthPerimeterAreaGroupByBoundary(
+      RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result = null;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
+    String description = null;
     String requestURL = null;
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
-    result = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+    switch (requestResource) {
+      case COUNT:
+        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        break;
+      case LENGTH:
+        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        break;
+      case PERIMETER:
+        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.PERIMETER,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        break;
+      case AREA:
+        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.AREA,
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+        break;
+    }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     Utils utils = iP.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
+    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects aggregated by the boundary
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().intValue());
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+        results[innerCount] = new Result(
+            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit() + " aggregated on the boundary.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, "Total number of items aggregated on the boundary object.",
-          requestURL);
+      metadata = new Metadata(duration, description, requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -894,21 +918,23 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result1;
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result2;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result1;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result2;
     MapReducer<OSMEntitySnapshot> mapRed1 = null;
     MapReducer<OSMEntitySnapshot> mapRed2 = null;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult1;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult2;
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult1;
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult2;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, rPs);
-    result1 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
+    result1 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
+        iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
     mapRed2 = iP.processParameters(mapRed2, rPs);
-    result2 = exeUtils.computeCountGBBResult(iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
+    result2 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
+        iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
     groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
     groupByResult2 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result2);
     GroupByResult[] resultSet = new GroupByResult[groupByResult1.size()];
@@ -919,11 +945,12 @@ public class ElementsRequestExecutor {
     int count = 0;
     int innerCount = 0;
     // iterate over the entry objects of result1
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult1.entrySet()) {
+    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult1
+        .entrySet()) {
       Result[] results = new Result[entry.getValue().entrySet().size()];
       innerCount = 0;
       groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                 innerEntry.getValue().intValue());
@@ -936,11 +963,12 @@ public class ElementsRequestExecutor {
     innerCount = 0;
     DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
     // iterate over the entry objects of result2
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult2.entrySet()) {
+    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult2
+        .entrySet()) {
       RatioResult[] ratioResults = new RatioResult[entry.getValue().entrySet().size()];
       innerCount = 0;
       groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, Integer> innerEntry : entry.getValue().entrySet()) {
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         double value = resultSet[count].getResult()[innerCount].getValue();
         double value2 = innerEntry.getValue().doubleValue();
         double ratio = value2 / value;
@@ -968,81 +996,6 @@ public class ElementsRequestExecutor {
     }
     RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
         new Attribution(url, text), Application.apiVersion, metadata, ratioResultSet);
-    return response;
-  }
-
-  /**
-   * Performs a length, perimeter, or area calculation grouped by the boundary.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
-  public static GroupByResponse executeLengthPerimeterAreaGroupByBoundary(
-      RequestResource requestResource, RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result = null;
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String description = null;
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
-    switch (requestResource) {
-      case LENGTH:
-        result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
-        break;
-      case PERIMETER:
-        result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.PERIMETER,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
-        break;
-      case AREA:
-        result = exeUtils.computeLengthPerimeterAreaGBBResult(RequestResource.AREA,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
-        break;
-    }
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    String groupByName = "";
-    Utils utils = iP.getUtils();
-    String[] boundaryIds = utils.getBoundaryIds();
-    DecimalFormat lengthPerimeterAreaDf = exeUtils.defineDecimalFormat("#.##");
-    int count = 0;
-    int innerCount = 0;
-    // iterate over the entry objects aggregated by the boundary
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Number>> entry : groupByResult.entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(
-            TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-            Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(groupByName, results);
-      count++;
-    }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit() + " aggregated on the boundary.";
-    Metadata metadata = null;
-    if (iP.getShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
-    }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
     return response;
   }
 

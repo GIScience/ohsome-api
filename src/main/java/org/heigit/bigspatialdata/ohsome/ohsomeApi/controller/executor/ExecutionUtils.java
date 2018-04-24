@@ -92,40 +92,7 @@ public class ExecutionUtils {
   }
 
   /**
-   * Computes the result for the /count/groupBy/boundary resource using the map-reduce functions
-   * from the OSHDB.
-   * 
-   * @param bType
-   * @param mapRed
-   * @param geomBuilder
-   * @return <code>SortedMap</code> result object.
-   * @throws Exception
-   */
-  public SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> computeCountGBBResult(
-      BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder)
-      throws Exception {
-
-    if (bType == BoundaryType.NOBOUNDARY)
-      throw new BadRequestException(
-          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
-    ArrayList<Integer> zeroFill = new ArrayList<Integer>();
-    for (int j = 0; j < geoms.size(); j++)
-      zeroFill.add(j);
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result =
-        mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Integer> boundaryList = new LinkedList<>();
-          for (int i = 0; i < geoms.size(); i++)
-            if (f.getGeometry().intersects(geoms.get(i)))
-              boundaryList.add(i);
-          return boundaryList;
-        }).aggregateBy(f -> f).zerofillIndices(zeroFill).count();
-
-    return result;
-  }
-
-  /**
-   * Computes the result for the /length|perimeter|area/groupBy/boundary resources using the
+   * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources using the
    * map-reduce functions from the OSHDB.
    * 
    * @param requestResource
@@ -135,14 +102,14 @@ public class ExecutionUtils {
    * @return <code>SortedMap</code> result object.
    * @throws Exception
    */
-  public SortedMap<OSHDBTimestampAndIndex<Integer>, Number> computeLengthPerimeterAreaGBBResult(
+  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGBBResult(
       RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
       GeometryBuilder geomBuilder) throws Exception {
 
     if (bType == BoundaryType.NOBOUNDARY)
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Number> result = null;
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBTimestampAndIndex<Integer>, Geometry> preResult;
     ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
     List<Integer> zeroFill = new LinkedList<>();
@@ -167,6 +134,9 @@ public class ExecutionUtils {
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
         .map(Pair::getValue);
     switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        break;
       case LENGTH:
       case PERIMETER:
         result = preResult.sum(Geo::lengthOf);

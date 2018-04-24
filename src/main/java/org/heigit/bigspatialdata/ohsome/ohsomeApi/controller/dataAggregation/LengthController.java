@@ -144,9 +144,9 @@ public class LengthController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByBoundary(RequestResource.LENGTH,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
+        RequestResource.LENGTH, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata));
   }
 
   /**
@@ -647,9 +647,9 @@ public class LengthController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaGroupByBoundary(RequestResource.LENGTH,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
+        RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata));
   }
 
   /**
