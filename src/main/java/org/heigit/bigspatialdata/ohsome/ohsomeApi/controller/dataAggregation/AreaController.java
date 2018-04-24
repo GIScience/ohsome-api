@@ -336,7 +336,7 @@ public class AreaController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShare(RequestResource.AREA,
         new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         keys2, values2);
@@ -946,7 +946,7 @@ public class AreaController {
       String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeLengthPerimeterAreaShare(RequestResource.AREA,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShare(RequestResource.AREA,
         new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
         keys2, values2);
