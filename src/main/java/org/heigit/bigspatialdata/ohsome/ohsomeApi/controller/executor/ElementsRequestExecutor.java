@@ -52,7 +52,7 @@ public class ElementsRequestExecutor {
   private static final String text = Application.getAttributionShort();
 
   /**
-   * Performs a count, length, perimeter or area calculation.
+   * Performs a count|length|perimeter|area calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -141,7 +141,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count, length, perimeter, or area calculation grouped by the boundary.
+   * Performs a count|length|perimeter|area grouped by the boundary.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -221,7 +221,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count, length, perimeter, or area calculation grouped by the user.
+   * Performs a count|length|perimeter|area grouped by the user.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -313,7 +313,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count, length, perimeter, or area calculation grouped by the tag.
+   * Performs a count|length|perimeter|area grouped by the tag.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -457,7 +457,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count, perimeter, or area calculation grouped by the OSM type.
+   * Performs a count|perimeter|area calculation grouped by the OSM type.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -561,52 +561,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count-density calculation.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
-  public static DefaultAggregationResponse executeCountDensity(RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    String requestURL = null;
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    result = mapRed.aggregateByTimestamp().count();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    int count = 0;
-    Result[] resultSet = new Result[result.size()];
-    DecimalFormat densityDf = exeUtils.defineDecimalFormat("#.##");
-    for (Entry<OSHDBTimestamp, Integer> entry : result.entrySet()) {
-      resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-          Double.parseDouble(
-              densityDf.format((entry.getValue().intValue() / (Geo.areaOf(geom) / 1000000)))));
-      count++;
-    }
-    Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
-    if (iP.getShowMetadata()) {
-      metadata = new Metadata(duration,
-          "Density of selected items (number of items per square kilometer).", requestURL);
-    }
-    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
-   * Performs a count|length|perimeter|area-ratio calculation.
+   * Performs a count|length|perimeter|area calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
@@ -821,7 +776,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count, length, perimeter, or area calculation grouped by the key.
+   * Performs a count|length|perimeter|area grouped by the key.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])

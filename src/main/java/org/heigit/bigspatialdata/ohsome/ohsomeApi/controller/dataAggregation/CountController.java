@@ -453,8 +453,9 @@ public class CountController {
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountDensity(new RequestParameters(false, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
+        new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
@@ -1130,8 +1131,9 @@ public class CountController {
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountDensity(new RequestParameters(true, true, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
+        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
+            userids, time, showMetadata));
   }
 
   /**
