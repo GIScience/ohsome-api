@@ -141,7 +141,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area grouped by the boundary.
+   * Performs a count|length|perimeter|area calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -221,7 +221,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area grouped by the user.
+   * Performs a count|length|perimeter|area calculation grouped by the user.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -313,7 +313,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area grouped by the tag.
+   * Performs a count|length|perimeter|area calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
@@ -561,7 +561,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area calculation.
+   * Performs a count|length|perimeter|area-ratio calculation.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
@@ -776,7 +776,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area grouped by the key.
+   * Performs a count|length|perimeter|area calculation grouped by the key.
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
