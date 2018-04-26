@@ -1,14 +1,12 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the metadata JSON object containing the execution time, the unit and a description of
- * the values, which are in the
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.Result
- * Result} objects, as well as the request URL.
+ * Represents the metadata JSON object containing the execution time, the unit, a description of the
+ * result values, as well as the request URL.
  */
 @JsonInclude(Include.NON_NULL)
 public class Metadata {

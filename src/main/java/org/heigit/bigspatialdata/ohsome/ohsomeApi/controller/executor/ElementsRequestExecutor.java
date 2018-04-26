@@ -17,19 +17,19 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.GroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioGroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.Result;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.ShareGroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.ShareResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.Result;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -62,7 +62,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static DefaultAggregationResponse executeCountLengthPerimeterArea(
@@ -153,7 +153,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse
    *         GroupByResponse Content}
    */
   public static GroupByResponse executeCountLengthPerimeterAreaGroupByBoundary(
@@ -235,7 +235,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse
    *         GroupByResponse Content}
    */
   public static GroupByResponse executeCountLengthPerimeterAreaGroupByUser(
@@ -329,7 +329,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse
    *         GroupByResponse Content}
    */
   public static GroupByResponse executeCountLengthPerimeterAreaGroupByTag(
@@ -475,7 +475,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse
    *         GroupByResponseContent}
    */
   public static GroupByResponse executeCountPerimeterAreaGroupByType(
@@ -584,7 +584,7 @@ public class ElementsRequestExecutor {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static RatioResponse executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
@@ -700,7 +700,7 @@ public class ElementsRequestExecutor {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse
    *         GroupByResponse Content}
    */
   public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(RequestParameters rPs,
@@ -800,7 +800,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResponse
    *         GroupByResponse Content}
    */
   public static GroupByResponse executeCountLengthPerimeterAreaGroupByKey(
@@ -917,7 +917,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static ShareResponse executeCountLengthPerimeterAreaShare(RequestResource requestResource,
@@ -1073,7 +1073,7 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
   public static ShareGroupByBoundaryResponse executeCountLengthPerimeterAreaShareGroupByBoundary(

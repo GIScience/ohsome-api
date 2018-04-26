@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

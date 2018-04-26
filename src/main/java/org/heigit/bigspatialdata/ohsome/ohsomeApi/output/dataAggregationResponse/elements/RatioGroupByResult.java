@@ -1,10 +1,10 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements;
 
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the ratio-groupBy result JSON object containing the groupBy value and the respective
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioResult
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioResult
  * RatioResult} objects. The RatioGroupByResult is only used in responses for /ratio/groupBy requests.
  */
 public class RatioGroupByResult {

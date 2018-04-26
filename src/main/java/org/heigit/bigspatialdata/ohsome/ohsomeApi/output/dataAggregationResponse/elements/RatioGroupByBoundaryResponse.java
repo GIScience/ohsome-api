@@ -1,18 +1,18 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
  * ratio/groupBy/boundary resource. It contains an optional
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.metadata.Metadata
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata
  * Metadata} object, the requested
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioGroupByResult
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioGroupByResult
  * RatioGroupByResult}, which is named after the used /groupBy resource (e.g. groupByBoundaryResult
  * for using /groupBy/boundary) and an identifier of the object plus the corresponding
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.RatioResult
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioResult
  * RatioResult} objects.
  */
 public class RatioGroupByBoundaryResponse {

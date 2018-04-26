@@ -1,10 +1,10 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements;
 
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the groupBy result JSON object containing the groupBy value and the respective
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.result.Result
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.Result
  * Result} objects. The GroupByResult is only used in responses for groupBy requests.
  */
 public class GroupByResult {
