@@ -6,6 +6,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.Extrac
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.MetadataResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.TemporalExtent;
 
+/** Includes the execute method for requests mapped to /metadata. */
 public class MetadataRequestExecutor {
 
   /**

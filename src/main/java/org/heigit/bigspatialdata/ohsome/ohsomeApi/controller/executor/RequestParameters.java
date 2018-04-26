@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 
-/** Holds those objects, which are relevant for every request. */
+/** Holds those parameters, which are relevant for every request. */
 public class RequestParameters {
 
   private boolean isPost;

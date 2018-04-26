@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
@@ -15,6 +14,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 
+/** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
 
   private static final String url = Application.getAttributionUrl();
@@ -23,23 +23,15 @@ public class UsersRequestExecutor {
   /**
    * Performs a count calculation.
    * <p>
-   * The parameters are described in the
+   * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
-   * @throws UnsupportedOperationException by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
-   *         aggregateByTimestamp()}
-   * @throws BadRequestException by
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor#processParameters(MapReducer, RequestParameters)
-   *         processParameters()}
-   * @throws Exception by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
   public static DefaultUsersResponse executeCount(RequestParameters rPs)
-      throws UnsupportedOperationException, BadRequestException, Exception {
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
@@ -69,7 +61,6 @@ public class UsersRequestExecutor {
     }
     DefaultUsersResponse response = new DefaultUsersResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
-
     return response;
   }
 

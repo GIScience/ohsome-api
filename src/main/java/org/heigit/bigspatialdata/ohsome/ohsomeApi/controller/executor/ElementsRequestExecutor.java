@@ -60,6 +60,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -149,6 +151,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -229,6 +233,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -321,6 +327,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -465,6 +473,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponseContent}
    */
@@ -569,6 +579,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
@@ -683,6 +695,8 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
@@ -784,6 +798,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -899,6 +915,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -1053,6 +1071,8 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.ShareGroupByBoundaryResponse
    *         ShareGroupByBoundaryResponse}
    */
