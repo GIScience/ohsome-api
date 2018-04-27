@@ -1,7 +1,6 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,14 +23,14 @@ public class DefaultAggregationResponse {
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
-  private ElementsResult[] elementsResult;
+  private Result[] result;
 
   public DefaultAggregationResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      ElementsResult[] result) {
+      Result[] result) {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
     this.metadata = metadata;
-    this.elementsResult = result;
+    this.result = result;
   }
 
   public Attribution getAttribution() {
@@ -46,8 +45,8 @@ public class DefaultAggregationResponse {
     return metadata;
   }
 
-  public ElementsResult[] getResult() {
-    return elementsResult;
+  public Result[] getResult() {
+    return result;
   }
 
 }

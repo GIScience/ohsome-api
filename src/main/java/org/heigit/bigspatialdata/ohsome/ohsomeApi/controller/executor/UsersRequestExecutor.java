@@ -8,8 +8,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilde
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users.DefaultUsersResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users.UsersResult;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
@@ -31,10 +31,10 @@ public class UsersRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.DefaultAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static DefaultUsersResponse executeCount(RequestParameters rPs)
+  public static DefaultAggregationResponse executeCount(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -81,7 +81,7 @@ public class UsersRequestExecutor {
     if (iP.getShowMetadata()) {
       metadata = new Metadata(duration, description, requestURL);
     }
-    DefaultUsersResponse response = new DefaultUsersResponse(new Attribution(url, text),
+    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }

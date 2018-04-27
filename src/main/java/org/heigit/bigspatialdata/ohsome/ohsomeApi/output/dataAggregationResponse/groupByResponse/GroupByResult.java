@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse;
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Result;
 import io.swagger.annotations.ApiModelProperty;
