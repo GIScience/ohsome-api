@@ -13,8 +13,8 @@ import io.swagger.annotations.ApiModelProperty;
  * Metadata}, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.GroupByResult
  * GroupByResult} and an identifier of the object plus the corresponding
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.Result
- * Result} objects.
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult
+ * ElementsResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
 public class GroupByResponse {

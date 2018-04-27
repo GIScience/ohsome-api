@@ -25,7 +25,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.Result;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
@@ -113,14 +113,14 @@ public class ElementsRequestExecutor {
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
-    Result[] resultSet = new Result[result.size()];
+    ElementsResult[] resultSet = new ElementsResult[result.size()];
     for (Entry<OSHDBTimestamp, ? extends Number> entry : result.entrySet()) {
       if (rPs.isDensity()) {
-        resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+        resultSet[count] = new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
             Double.parseDouble(
                 df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
       } else {
-        resultSet[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+        resultSet[count] = new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
             Double.parseDouble(df.format((entry.getValue().doubleValue()))));
       }
       count++;
@@ -200,11 +200,11 @@ public class ElementsRequestExecutor {
     // iterate over the entry objects aggregated by the boundary
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
+      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
       innerCount = 0;
       groupByName = boundaryIds[count];
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(
+        results[innerCount] = new ElementsResult(
             TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
@@ -294,11 +294,11 @@ public class ElementsRequestExecutor {
     // iterate over the entry objects aggregated by type
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
+      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(
+        results[innerCount] = new ElementsResult(
             TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
@@ -422,7 +422,7 @@ public class ElementsRequestExecutor {
     // iterate over the entry objects aggregated by tags
     for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
+      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
       int innerCount = 0;
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
@@ -433,12 +433,12 @@ public class ElementsRequestExecutor {
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         if (rPs.isDensity())
-          results[innerCount] = new Result(
+          results[innerCount] = new ElementsResult(
               TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double.parseDouble(
                   df.format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
         else
           results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+              new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                   Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -535,18 +535,18 @@ public class ElementsRequestExecutor {
     // iterate over the entry objects aggregated by type
     for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
+      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
       innerCount = 0;
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         if (rPs.isDensity())
-          results[innerCount] = new Result(
+          results[innerCount] = new ElementsResult(
               TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
               Double.parseDouble(lengthPerimeterAreaDf
                   .format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
         else
           results[innerCount] =
-              new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
+              new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double
                   .parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;
       }
@@ -649,10 +649,10 @@ public class ElementsRequestExecutor {
             });
         break;
     }
-    Result[] resultSet1 = new Result[result1.size()];
+    ElementsResult[] resultSet1 = new ElementsResult[result1.size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, ? extends Number> entry : result1.entrySet()) {
-      resultSet1[count] = new Result(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+      resultSet1[count] = new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
           entry.getValue().doubleValue());
       count++;
     }
@@ -737,12 +737,12 @@ public class ElementsRequestExecutor {
     // iterate over the entry objects of result1
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult1
         .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
+      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
       innerCount = 0;
       groupByName = boundaryIds[count];
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
-            new Result(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
                 innerEntry.getValue().intValue());
         innerCount++;
       }
@@ -876,7 +876,7 @@ public class ElementsRequestExecutor {
     // iterate over the entry objects aggregated by keys
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      Result[] results = new Result[entry.getValue().entrySet().size()];
+      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
       innerCount = 0;
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
@@ -886,7 +886,7 @@ public class ElementsRequestExecutor {
       }
       // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] = new Result(
+        results[innerCount] = new ElementsResult(
             TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
             Double.parseDouble(lengthPerimeterAreaDf.format(innerEntry.getValue().doubleValue())));
         innerCount++;

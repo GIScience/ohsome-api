@@ -23,7 +23,7 @@ public class RatioResponse {
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result for /ratio requests", required = true)
+  @ApiModelProperty(notes = "ElementsResult for /ratio requests", required = true)
   private RatioResult[] ratioResult;
 
   public RatioResponse(Attribution attribution, String apiVersion, Metadata metadata,

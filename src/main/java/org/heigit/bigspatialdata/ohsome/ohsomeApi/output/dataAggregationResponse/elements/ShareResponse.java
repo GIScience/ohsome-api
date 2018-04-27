@@ -23,7 +23,7 @@ public class ShareResponse {
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result for /share requests", position = 3, required = true)
+  @ApiModelProperty(notes = "ElementsResult for /share requests", position = 3, required = true)
   private ShareResult[] shareResult;
 
   public ShareResponse(Attribution attribution, String apiVersion, Metadata metadata,

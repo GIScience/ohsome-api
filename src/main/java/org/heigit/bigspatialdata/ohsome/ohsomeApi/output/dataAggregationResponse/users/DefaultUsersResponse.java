@@ -15,7 +15,7 @@ public class DefaultUsersResponse {
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result holding from- and to timestamps plus the corresponding value",
+  @ApiModelProperty(notes = "ElementsResult holding from- and to timestamps plus the corresponding value",
       required = true)
   private UsersResult[] result;
 

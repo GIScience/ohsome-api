@@ -11,8 +11,8 @@ import io.swagger.annotations.ApiModelProperty;
  * /groupBy resource. It contains attribution info, the version of the api, optional
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata
  * Metadata} and the
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.Result
- * Result} objects.
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult
+ * ElementsResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
 public class DefaultAggregationResponse {
@@ -23,15 +23,15 @@ public class DefaultAggregationResponse {
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output", position = 2)
   private Metadata metadata;
-  @ApiModelProperty(notes = "Result holding timestamp-value pairs", required = true)
-  private Result[] result;
+  @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
+  private ElementsResult[] elementsResult;
 
   public DefaultAggregationResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      Result[] result) {
+      ElementsResult[] result) {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
     this.metadata = metadata;
-    this.result = result;
+    this.elementsResult = result;
   }
 
   public Attribution getAttribution() {
@@ -46,8 +46,8 @@ public class DefaultAggregationResponse {
     return metadata;
   }
 
-  public Result[] getResult() {
-    return result;
+  public ElementsResult[] getResult() {
+    return elementsResult;
   }
 
 }
