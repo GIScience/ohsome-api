@@ -10,9 +10,15 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users.UsersResult;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
+import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
@@ -42,9 +48,9 @@ public class UsersRequestExecutor {
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor iP = new InputProcessor();
     ExecutionUtils exeUtils = new ExecutionUtils();
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     String description = null;
     String requestURL = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
@@ -82,6 +88,81 @@ public class UsersRequestExecutor {
       metadata = new Metadata(duration, description, requestURL);
     }
     DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
+    return response;
+  }
+
+  /**
+   * Performs a count calculation grouped by the OSM type.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   *         GroupByResponseContent}
+   */
+  public static GroupByResponse executeCountGroupByType(RequestParameters rPs)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result = null;
+    SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    MapReducer<OSMContribution> mapRed = null;
+    InputProcessor iP = new InputProcessor();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    String description = null;
+    String requestURL = null;
+    if (!rPs.isPost())
+      requestURL = RequestInterceptor.requestUrl;
+    mapRed = iP.processParameters(mapRed, rPs);
+    result = mapRed.aggregateByTimestamp()
+        .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
+          return f.getEntityAfter().getType();
+        }).zerofillIndices(iP.getOsmTypes()).count();
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
+    String[] toTimestamps = iP.getUtils().getToTimestamps();
+    int count = 0;
+    int innerCount = 0;
+    // iterate over the entry objects aggregated by type
+    for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+      UsersResult[] results = new UsersResult[entry.getValue().entrySet().size()];
+      innerCount = 0;
+      // iterate over the timestamp-value pairs
+      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+        if (rPs.isDensity())
+          results[innerCount] = new UsersResult(
+              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+              toTimestamps[innerCount + 1], Double.parseDouble(
+                  df.format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+        else
+          results[innerCount] =
+              new UsersResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
+                  toTimestamps[innerCount + 1],
+                  Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
+        innerCount++;
+      }
+      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
+      count++;
+    }
+    if (rPs.isDensity()) {
+      description =
+          "Density of distinct users per time interval (number of users per square-kilometer) aggregated on the type.";
+    } else {
+      description = "Number of distinct users per time interval aggregated on the type.";
+    }
+    Metadata metadata = null;
+    long duration = System.currentTimeMillis() - startTime;
+    if (iP.getShowMetadata()) {
+      metadata = new Metadata(duration, description, requestURL);
+    }
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
