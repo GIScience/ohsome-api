@@ -6,6 +6,7 @@ import java.util.List;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -24,12 +25,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 /** Swagger configuration class */
 @Configuration
 @EnableSwagger2
+@PropertySource("classpath:application.properties")
 public class SwaggerConfig {
   @Bean
   public Docket api() {
 
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("data aggregation").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("dataAggregation").select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
