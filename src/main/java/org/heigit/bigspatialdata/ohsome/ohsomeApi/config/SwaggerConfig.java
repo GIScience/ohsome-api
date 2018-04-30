@@ -27,6 +27,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @PropertySource("classpath:application.properties")
 public class SwaggerConfig {
+
   @Bean
   public Docket api() {
 
@@ -54,8 +55,7 @@ public class SwaggerConfig {
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .tags(new Tag("/metadata", "Metadata of the underlying data-extract"))
-        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
-        .globalResponseMessage(RequestMethod.POST, responseMessages);
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
   /** Defines custom response messages to define the possible response codes. */
