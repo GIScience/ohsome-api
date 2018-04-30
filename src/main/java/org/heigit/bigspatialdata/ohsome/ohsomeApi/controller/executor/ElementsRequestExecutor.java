@@ -70,10 +70,10 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     DecimalFormat df = null;
@@ -162,11 +162,11 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -243,12 +243,12 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     MapAggregatorByTimestampAndIndex<Integer, OSMEntitySnapshot> preResult;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -336,12 +336,12 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length != 1)
       throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
+          "You need to give one groupByKey parameter, if you want to use groupBy/tag.");
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, ? extends Number> result = null;
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     DecimalFormat df = null;
@@ -448,8 +448,8 @@ public class ElementsRequestExecutor {
           + requestResource.getUnit() + " aggregated on the tag.";
     }
     Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
@@ -476,11 +476,11 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -579,12 +579,12 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestamp, ? extends Number> result1 = null;
     SortedMap<OSHDBTimestamp, ? extends Number> result2 = null;
     MapReducer<OSMEntitySnapshot> mapRed1 = null;
     MapReducer<OSMEntitySnapshot> mapRed2 = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
@@ -680,14 +680,11 @@ public class ElementsRequestExecutor {
    * Performs a count-ratio calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
@@ -696,6 +693,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result1;
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result2;
     MapReducer<OSMEntitySnapshot> mapRed1 = null;
@@ -703,8 +701,8 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult1;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult2;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String requestURL = null;
+    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, rPs);
@@ -722,7 +720,6 @@ public class ElementsRequestExecutor {
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     int innerCount = 0;
-    // iterate over the entry objects of result1
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult1
         .entrySet()) {
       ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
@@ -739,8 +736,6 @@ public class ElementsRequestExecutor {
     }
     count = 0;
     innerCount = 0;
-    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
-    // iterate over the entry objects of result2
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult2
         .entrySet()) {
       RatioResult[] ratioResults = new RatioResult[entry.getValue().entrySet().size()];
@@ -798,15 +793,15 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0)
       throw new BadRequestException(
-          "You need to give one groupByKey parameters, if you want to use groupBy/tag");
+          "You need to give at least one groupByKey parameter, if you want to use groupBy/key");
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     String description = null;
     String requestURL = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    DecimalFormat df = null;
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
@@ -836,11 +831,13 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
+        df = exeUtils.defineDecimalFormat("#.");
         break;
       case LENGTH:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.lengthOf(snapshot.getGeometry());
         });
+        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case PERIMETER:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -849,11 +846,13 @@ public class ElementsRequestExecutor {
           else
             return 0.0;
         });
+        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case AREA:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.areaOf(snapshot.getGeometry());
         });
+        df = exeUtils.defineDecimalFormat("#.##");
         break;
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -861,7 +860,6 @@ public class ElementsRequestExecutor {
     String groupByName = "";
     int count = 0;
     int innerCount = 0;
-    // iterate over the entry objects aggregated by keys
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
@@ -872,7 +870,6 @@ public class ElementsRequestExecutor {
       } else {
         groupByName = "remainder";
       }
-      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         results[innerCount] =
             new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
