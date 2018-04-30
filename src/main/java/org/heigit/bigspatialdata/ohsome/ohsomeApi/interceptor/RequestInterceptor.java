@@ -17,7 +17,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 
     // builds the initial url, which was sent as request
     if (request.getHeader("X-REQUEST-URI") != null)
-      requestUrl = request.getHeader("X-REQUEST-URI");
+      requestUrl = request.getHeader("X-REQUEST-URI") + "?" + request.getQueryString();
     else
       requestUrl = request.getRequestURL() + "?" + request.getQueryString();
     // adding a 1 year cache option
