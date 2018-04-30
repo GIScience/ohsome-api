@@ -334,7 +334,7 @@ public class ElementsRequestExecutor {
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
-    if (groupByKey == null || groupByKey.length == 0)
+    if (groupByKey == null || groupByKey.length != 1)
       throw new BadRequestException(
           "You need to give one groupByKey parameters, if you want to use groupBy/tag.");
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, ? extends Number> result = null;
