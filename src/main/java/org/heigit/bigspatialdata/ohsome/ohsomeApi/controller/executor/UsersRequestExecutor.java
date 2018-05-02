@@ -37,6 +37,8 @@ public class UsersRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
@@ -44,17 +46,16 @@ public class UsersRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     String description = null;
     String requestURL = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
-    // db result
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();
     }).countUniq();
@@ -83,8 +84,8 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval.";
     }
     Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
     DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
@@ -108,14 +109,14 @@ public class UsersRequestExecutor {
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result = null;
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     String description = null;
     String requestURL = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
@@ -130,11 +131,9 @@ public class UsersRequestExecutor {
     String[] toTimestamps = iP.getUtils().getToTimestamps();
     int count = 0;
     int innerCount = 0;
-    // iterate over the entry objects aggregated by type
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = new UsersResult[entry.getValue().entrySet().size()];
       innerCount = 0;
-      // iterate over the timestamp-value pairs
       for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
         if (rPs.isDensity())
           results[innerCount] = new UsersResult(
@@ -158,8 +157,8 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the type.";
     }
     Metadata metadata = null;
-    long duration = System.currentTimeMillis() - startTime;
     if (iP.getShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
