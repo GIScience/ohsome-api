@@ -48,10 +48,11 @@ public class GeometryBuilder {
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
    * @return <code>Geometry</code> object representing the unified bounding boxes.
-   * @throws BadRequestException if coordinates are invalid, or boundary does not intersect with
-   *         underlying data polygon
+   * @throws BadRequestException if coordinates are invalid
+   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
+   *         underlying data-extract polygon
    */
-  public Geometry createBboxes(String[] bboxes) throws BadRequestException, NumberFormatException {
+  public Geometry createBboxes(String[] bboxes) throws BadRequestException, NotFoundException {
 
     Utils utils = new Utils();
     try {
@@ -65,7 +66,6 @@ public class GeometryBuilder {
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(this.bbox));
       bboxColl = new LinkedHashSet<Geometry>();;
       bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
-
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
@@ -93,9 +93,11 @@ public class GeometryBuilder {
    *        [0] and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
    * @throws BadRequestException if coordinates or radius are invalid
+   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
+   *         underlying data-extract polygon
    */
   public Geometry createCircularPolygons(String[] bcircles)
-      throws BadRequestException, NumberFormatException {
+      throws BadRequestException, NotFoundException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     Geometry geom;
@@ -114,11 +116,9 @@ public class GeometryBuilder {
         Point p = geomFact.createPoint(
             new Coordinate(Double.parseDouble(bcircles[i]), Double.parseDouble(bcircles[i + 1])));
         buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bcircles[i + 2]));
-        // transform back again
         transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
         geom = JTS.transform(buffer, transform);
         bcircleGeom = geom;
-        // returns this geometry if there was only one bcircle given
         if (bcircles.length == 3) {
           if (utils.isWithin(geom) == false)
             throw new NotFoundException(
@@ -129,7 +129,6 @@ public class GeometryBuilder {
         }
         geometryCollection.add(geom);
       }
-      // set the geometryCollection to be accessible for /groupBy/boundary
       bcircleColl = geometryCollection;
       Geometry unifiedBCircles =
           geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
@@ -153,12 +152,13 @@ public class GeometryBuilder {
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
    * @throws BadRequestException if coordinates are invalid
+   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
+   *         underlying data-extract polygon
    */
-  public Geometry createBpolys(String[] bpolys) throws BadRequestException, NumberFormatException {
+  public Geometry createBpolys(String[] bpolys) throws BadRequestException, NotFoundException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
     Utils utils = new Utils();
-    // checks if the first and last coordinate pairs are the same (= only 1 polygon)
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -170,7 +170,6 @@ public class GeometryBuilder {
         throw new BadRequestException(
             "The bpolys parameter must contain double-parseable values in form of lon/lat coordinate pairs.");
       }
-      // creates a polygon from the coordinates
       this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
       if (utils.isWithin(this.bpoly) == false)
         throw new NotFoundException(
@@ -191,7 +190,6 @@ public class GeometryBuilder {
             poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
             geometryCollection.add(poly);
             coords.removeAll(coords);
-            // if the end is reached
             if (i + 2 >= bpolys.length)
               break;
             firstPoint = new Coordinate(Double.parseDouble(bpolys[i + 2]),
@@ -230,7 +228,7 @@ public class GeometryBuilder {
       dataPoly = reader.read(geoJson);
       return dataPoly;
     } catch (Exception e) {
-      throw new RuntimeException("The provided GeoJSON cannot be converted.");
+      throw new RuntimeException("The GeoJSON, derived out of the metadata, cannot be converted.");
     }
   }
 
@@ -258,7 +256,6 @@ public class GeometryBuilder {
     int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
-      // id extraction/creation
       JsonObject properties = feature.getJsonObject("properties");
       try {
         if (feature.containsKey("id")) {
@@ -299,11 +296,12 @@ public class GeometryBuilder {
   }
 
   /**
-   * Gets the <code>Geometry</code> for each boundary object in the given <code>String</code> array.
+   * Gets the <code>Geometry</code> for each boundary object depending on the given
+   * <code>BoundaryType</code>.
    * 
-   * @param type <code>String</code> defining the boundary type (bbox, bcircle, bpoly)
+   * @param type <code>BoundaryType</code> defining the boundary type (bbox, bcircle, bpoly)
    * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
-   *         boundary object sorted by the given order of the array.
+   *         boundary object.
    */
   public ArrayList<Geometry> getGeometry(BoundaryType type) {
 
