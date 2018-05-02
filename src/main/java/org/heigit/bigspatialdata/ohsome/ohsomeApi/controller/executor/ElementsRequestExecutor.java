@@ -76,28 +76,25 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String description = null;
     String requestURL = null;
-    DecimalFormat df = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
-        df = exeUtils.defineDecimalFormat("#.");
         break;
       case AREA:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.areaOf(snapshot.getGeometry());
             });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case LENGTH:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return Geo.lengthOf(snapshot.getGeometry());
             });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
@@ -107,7 +104,6 @@ public class ElementsRequestExecutor {
               else
                 return 0.0;
             });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
     }
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
@@ -344,7 +340,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String description = null;
     String requestURL = null;
-    DecimalFormat df = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     if (groupByValues == null)
@@ -384,13 +380,11 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
-        df = exeUtils.defineDecimalFormat("#.");
         break;
       case LENGTH:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.lengthOf(snapshot.getGeometry());
         });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case PERIMETER:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -399,13 +393,11 @@ public class ElementsRequestExecutor {
           else
             return 0.0;
         });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case AREA:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.areaOf(snapshot.getGeometry());
         });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -801,7 +793,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String description = null;
     String requestURL = null;
-    DecimalFormat df = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = Application.getTagTranslator();
@@ -831,13 +823,11 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
-        df = exeUtils.defineDecimalFormat("#.");
         break;
       case LENGTH:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.lengthOf(snapshot.getGeometry());
         });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case PERIMETER:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -846,13 +836,11 @@ public class ElementsRequestExecutor {
           else
             return 0.0;
         });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
       case AREA:
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.areaOf(snapshot.getGeometry());
         });
-        df = exeUtils.defineDecimalFormat("#.##");
         break;
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -918,7 +906,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String description = null;
     String requestURL = null;
-    DecimalFormat df = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = Application.getTagTranslator();
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
@@ -956,16 +944,13 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
-        df = exeUtils.defineDecimalFormat("#.");
         break;
       case LENGTH:
-        df = exeUtils.defineDecimalFormat("#.");
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.lengthOf(snapshot.getGeometry());
         });
         break;
       case PERIMETER:
-        df = exeUtils.defineDecimalFormat("#.");
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           if (snapshot.getGeometry() instanceof Polygonal)
             return Geo.lengthOf(snapshot.getGeometry().getBoundary());
@@ -974,7 +959,6 @@ public class ElementsRequestExecutor {
         });
         break;
       case AREA:
-        df = exeUtils.defineDecimalFormat("#.");
         result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
           return Geo.areaOf(snapshot.getGeometry());
         });
@@ -1092,8 +1076,6 @@ public class ElementsRequestExecutor {
         iP.getBoundaryType(), mapRed, keysInt2, valuesInt2, geomBuilder);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
-    if (requestResource == RequestResource.COUNT)
-      df = exeUtils.defineDecimalFormat("#.");
     String groupByName = "";
     String[] boundaryIds = utils.getBoundaryIds();
     Double[] whole = null;
@@ -1126,7 +1108,6 @@ public class ElementsRequestExecutor {
         }
       }
       if (count % 2 == 0) {
-        // is only executed every second run
         groupByName = boundaryIds[gBNCount];
         ShareResult[] resultSet = new ShareResult[timeArray.length];
         for (int i = 0; i < timeArray.length; i++) {
