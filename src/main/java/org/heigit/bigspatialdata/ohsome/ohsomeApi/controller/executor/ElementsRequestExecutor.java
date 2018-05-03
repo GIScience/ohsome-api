@@ -695,12 +695,15 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
+    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
+        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types2, keys2, values2,
+        rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, rPs);
     result1 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
         iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
-    mapRed2 = iP.processParameters(mapRed2, rPs);
+    mapRed2 = iP.processParameters(mapRed2, rPs2);
     result2 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
         iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
     groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
