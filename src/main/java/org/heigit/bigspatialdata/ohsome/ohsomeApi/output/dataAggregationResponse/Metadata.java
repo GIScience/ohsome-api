@@ -11,14 +11,12 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class Metadata {
 
-  @ApiModelProperty(notes = "Time the server needed to execute the request", required = true,
-      position = 0)
+  @ApiModelProperty(notes = "Time the server needed to execute the request", required = true)
   private long executionTime;
-  @ApiModelProperty(notes = "Text describing the result in a sentence", required = true,
-      position = 1)
+  @ApiModelProperty(notes = "Text describing the result in a sentence", required = true)
   private String description;
   @ApiModelProperty(notes = "Request URL to which this whole output JSON was generated",
-      required = true, position = 2)
+      required = true)
   private String requestUrl;
 
   public Metadata(long executionTime, String description, String requestUrl) {

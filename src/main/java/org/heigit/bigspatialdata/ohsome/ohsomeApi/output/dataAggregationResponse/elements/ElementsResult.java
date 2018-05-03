@@ -4,9 +4,10 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the result JSON object containing the timestamp together with the corresponding value.
+ * Represents the result JSON object for the /elements resource containing the timestamp together
+ * with the corresponding value.
  */
-public class ElementsResult implements Result{
+public class ElementsResult implements Result {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
   private String timestamp;

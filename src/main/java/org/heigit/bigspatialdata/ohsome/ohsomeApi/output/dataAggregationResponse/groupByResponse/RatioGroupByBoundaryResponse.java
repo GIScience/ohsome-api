@@ -2,27 +2,25 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationRespons
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * ratio/groupBy/boundary resource. It contains an optional
+ * /ratio/groupBy/boundary resource. It contains an optional
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata
  * Metadata} object, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByResult
- * RatioGroupByResult}, which is named after the used /groupBy resource (e.g. groupByBoundaryResult
- * for using /groupBy/boundary) and an identifier of the object plus the corresponding
+ * RatioGroupByResult} and an identifier of the object plus the corresponding
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult
  * RatioResult} objects.
  */
 public class RatioGroupByBoundaryResponse {
 
-  @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
+  @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
-  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  @ApiModelProperty(notes = "Version of this api", required = true)
   private String apiVersion;
-  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
+  @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "RatioGroupByResult array holding the respective objects "
       + "with their timestamp-value-value2-ratio values", required = true)

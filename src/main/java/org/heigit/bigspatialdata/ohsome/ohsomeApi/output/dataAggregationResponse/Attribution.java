@@ -8,9 +8,9 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class Attribution {
 
-  @ApiModelProperty(notes = "URL to the copyright and license info", required = true, position = 0)
+  @ApiModelProperty(notes = "URL to the copyright and license info", required = true)
   private String url;
-  @ApiModelProperty(notes = "Copyright info about the used data", required = true, position = 1)
+  @ApiModelProperty(notes = "Copyright info about the used data", required = true)
   private String text;
 
   public Attribution(String url, String text) {

@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,11 +15,11 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class DefaultAggregationResponse {
 
-  @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
+  @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
-  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  @ApiModelProperty(notes = "Version of this api", required = true)
   private String apiVersion;
-  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
+  @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
   private Result[] result;

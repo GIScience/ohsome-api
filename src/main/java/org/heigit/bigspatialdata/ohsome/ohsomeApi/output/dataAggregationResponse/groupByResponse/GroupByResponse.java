@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * count|length|area|perimeter/groupBy/ resource. It contains an optional
+ * count|length|area|perimeter/groupBy resource. It contains an optional
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata
  * Metadata}, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult
@@ -19,11 +19,11 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonInclude(Include.NON_NULL)
 public class GroupByResponse {
 
-  @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
+  @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
-  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  @ApiModelProperty(notes = "Version of this api", required = true)
   private String apiVersion;
-  @ApiModelProperty(notes = "Metadata describing the output", position = 2)
+  @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)

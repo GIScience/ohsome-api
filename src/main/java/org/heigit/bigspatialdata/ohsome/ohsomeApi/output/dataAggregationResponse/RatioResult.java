@@ -3,7 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationRespons
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the result JSON object for the ratio request containing the timestamp together with
+ * Represents the result JSON object for the /ratio resource containing the timestamp together with
  * two values and their resulting ratio.
  */
 public class RatioResult implements Result{
