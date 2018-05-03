@@ -51,11 +51,9 @@ public class Application implements ApplicationRunner {
 
     boolean multithreading = true;
     boolean caching = false;
-
     // only used when tests are executed
     if (System.getProperty("database.db") != null)
       h2Db = new OSHDBH2(System.getProperty("database.db"));
-
     try {
       for (String paramName : args.getOptionNames()) {
         switch (paramName) {
