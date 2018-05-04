@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vividsolutions.jts.geom.Geometry;
 
+/** Holds the metadata that is derived from the data-extract. */
 public class ExtractMetadata {
 
   public static String fromTstamp = null;

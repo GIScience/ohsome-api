@@ -41,7 +41,7 @@ public class Application implements ApplicationRunner {
 
     boolean multithreading = true;
     boolean caching = false;
-    // only used when tests are executed
+    // only used when tests are executed directly in Eclipse
     if (System.getProperty("database.db") != null)
       DbConnData.h2Db = new OSHDBH2(System.getProperty("database.db"));
     try {
@@ -90,9 +90,7 @@ public class Application implements ApplicationRunner {
   /**
    * Extracts some metadata from the given db object and adds it to the corresponding objects.
    * 
-   * @param db
-   * @throws IOException
-   * @throws JsonProcessingException
+   * @param db <code>OSHDBDatabase</code> object to the OSHDB-file of either H2, or Ignite type.
    */
   private void extractMetadata(OSHDBDatabase db) throws JsonProcessingException, IOException {
 
