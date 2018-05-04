@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.ExtractRegion;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.MetadataResponse;
@@ -18,9 +19,9 @@ public class MetadataRequestExecutor {
   public static MetadataResponse executeGetMetadata() {
 
     return new MetadataResponse(
-        new Attribution(Application.getAttributionUrl(), Application.getAttributionShort()),
-        Application.apiVersion, new ExtractRegion(Application.getDataPolyJson(),
-            new TemporalExtent(Application.getFromTstamp(), Application.getToTstamp())));
+        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
+        Application.apiVersion, new ExtractRegion(ExtractMetadata.dataPolyJson,
+            new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp)));
   }
 
 }

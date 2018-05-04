@@ -16,6 +16,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilde
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
@@ -48,8 +50,8 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  private static final String url = Application.getAttributionUrl();
-  private static final String text = Application.getAttributionShort();
+  private static final String url = ExtractMetadata.attributionUrl;
+  private static final String text = ExtractMetadata.attributionShort;
 
   /**
    * Performs a count|length|perimeter|area calculation.
@@ -345,7 +347,7 @@ public class ElementsRequestExecutor {
       requestURL = RequestInterceptor.requestUrl;
     if (groupByValues == null)
       groupByValues = new String[0];
-    TagTranslator tt = Application.getTagTranslator();
+    TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
     mapRed = iP.processParameters(mapRed, rPs);
@@ -799,7 +801,7 @@ public class ElementsRequestExecutor {
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
-    TagTranslator tt = Application.getTagTranslator();
+    TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     mapRed = iP.processParameters(mapRed, rPs);
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -910,7 +912,7 @@ public class ElementsRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    TagTranslator tt = Application.getTagTranslator();
+    TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!rPs.isPost())
@@ -1062,7 +1064,7 @@ public class ElementsRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    TagTranslator tt = Application.getTagTranslator();
+    TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!rPs.isPost())

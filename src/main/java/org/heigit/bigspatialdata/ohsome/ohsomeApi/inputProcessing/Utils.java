@@ -6,9 +6,9 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.Objects;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotFoundException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
@@ -291,8 +291,8 @@ public class Utils {
     if (time.contains("/")) {
       if (time.length() == 1) {
         // only "/" is given
-        timeVals[0] = Application.getFromTstamp();
-        timeVals[1] = Application.getToTstamp();
+        timeVals[0] = ExtractMetadata.fromTstamp;
+        timeVals[1] = ExtractMetadata.toTstamp;
         return timeVals;
       }
       String[] timeSplit = time.split("/");
@@ -302,12 +302,12 @@ public class Utils {
         timeVals[0] = timeSplit[0];
         if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
           // latest timestamp
-          timeVals[1] = Application.getToTstamp();
+          timeVals[1] = ExtractMetadata.toTstamp;
           return timeVals;
         }
       } else {
         // earliest timestamp
-        timeVals[0] = Application.getFromTstamp();
+        timeVals[0] = ExtractMetadata.fromTstamp;
       }
       if (timeSplit[1].length() > 0) {
         // end timestamp
@@ -315,7 +315,7 @@ public class Utils {
         timeVals[1] = timeSplit[1];
       } else {
         // latest timestamp
-        timeVals[1] = Application.getToTstamp();
+        timeVals[1] = ExtractMetadata.toTstamp;
       }
       if (timeSplit.length == 3 && timeSplit[2].length() > 0) {
         // interval
@@ -344,8 +344,8 @@ public class Utils {
    * 
    * @param time <code>String</code> containing a start-, end-, or single timestamp from the given
    *        time parameter.
-   * @param startEndTstamp <code>String</code> containing either "start", "end", or "timestamp x", where x
-   *        refers to the number of the timestamp.
+   * @param startEndTstamp <code>String</code> containing either "start", "end", or "timestamp x",
+   *        where x refers to the number of the timestamp.
    * @throws Exception
    */
   public void checkIsoConformity(String time, String startEndTstamp) throws Exception {
@@ -370,9 +370,9 @@ public class Utils {
     long end = 0;
     long timestampLong = 0;
 
-    start = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getFromTstamp() + "T00:00:00Z")
+    start = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.fromTstamp + "T00:00:00Z")
         .getLong(ChronoField.INSTANT_SECONDS);
-    end = DateTimeFormatter.ISO_DATE_TIME.parse(Application.getToTstamp() + "Z")
+    end = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.toTstamp + "Z")
         .getLong(ChronoField.INSTANT_SECONDS);
     for (String timestamp : timeInfo) {
       timestampLong =
@@ -380,7 +380,7 @@ public class Utils {
       if (timestampLong < start || timestampLong > end)
         throw new NotFoundException(
             "The given time parameter is not completely within the timeframe ("
-                + Application.getFromTstamp() + " to " + Application.getToTstamp()
+                + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
                 + ") of the underlying osh-data.");
     }
   }
@@ -395,8 +395,8 @@ public class Utils {
    */
   public boolean isWithin(Geometry geom) {
 
-    if (Application.getDataPoly() != null)
-      return geom.within(Application.getDataPoly());
+    if (ExtractMetadata.dataPoly != null)
+      return geom.within(ExtractMetadata.dataPoly);
 
     return true;
   }

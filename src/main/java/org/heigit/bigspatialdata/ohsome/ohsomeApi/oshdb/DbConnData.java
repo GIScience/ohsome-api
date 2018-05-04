@@ -1,0 +1,14 @@
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb;
+
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+
+public class DbConnData {
+
+  public static OSHDBH2 h2Db = null;
+  public static OSHDBIgnite igniteDb = null;
+  public static OSHDBH2 keytables = null;
+  public static TagTranslator tagTranslator = null;
+
+}

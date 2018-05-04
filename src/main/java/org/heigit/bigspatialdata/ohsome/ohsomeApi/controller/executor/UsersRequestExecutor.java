@@ -7,6 +7,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
@@ -27,8 +28,8 @@ import com.vividsolutions.jts.geom.Geometry;
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
 
-  private static final String url = Application.getAttributionUrl();
-  private static final String text = Application.getAttributionShort();
+  private static final String url = ExtractMetadata.attributionUrl;
+  private static final String text = ExtractMetadata.attributionShort;
 
   /**
    * Performs a count calculation.

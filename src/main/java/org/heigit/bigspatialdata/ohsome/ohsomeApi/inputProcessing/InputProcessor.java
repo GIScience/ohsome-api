@@ -4,9 +4,10 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -74,23 +75,19 @@ public class InputProcessor {
     }
     // database
     if (isSnapshot) {
-      if (Application.getKeytables() == null)
-        mapRed = OSMEntitySnapshotView.on(Application.getH2Db());
-      else if (Application.getIgniteDb() == null)
-        mapRed =
-            OSMEntitySnapshotView.on(Application.getH2Db()).keytables(Application.getKeytables());
+      if (DbConnData.keytables == null)
+        mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db);
+      else if (DbConnData.igniteDb == null)
+        mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db).keytables(DbConnData.keytables);
       else
-        mapRed = OSMEntitySnapshotView.on(Application.getIgniteDb())
-            .keytables(Application.getKeytables());
+        mapRed = OSMEntitySnapshotView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
     } else {
-      if (Application.getKeytables() == null)
-        mapRed = OSMContributionView.on(Application.getH2Db());
-      else if (Application.getIgniteDb() == null)
-        mapRed =
-            OSMContributionView.on(Application.getH2Db()).keytables(Application.getKeytables());
+      if (DbConnData.keytables == null)
+        mapRed = OSMContributionView.on(DbConnData.h2Db);
+      else if (DbConnData.igniteDb == null)
+        mapRed = OSMContributionView.on(DbConnData.h2Db).keytables(DbConnData.keytables);
       else
-        mapRed =
-            OSMContributionView.on(Application.getIgniteDb()).keytables(Application.getKeytables());
+        mapRed = OSMContributionView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
     }
     // metadata
     if (showMetadata == null)
@@ -106,10 +103,10 @@ public class InputProcessor {
     try {
       switch (boundary) {
         case NOBOUNDARY:
-          if (Application.getDataPoly() == null)
+          if (ExtractMetadata.dataPoly == null)
             throw new BadRequestException(
                 "You need to define one boundary parameter (bboxes, bcircles, or bpolys).");
-          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) Application.getDataPoly());
+          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
           mapRed = mapRed
@@ -299,10 +296,10 @@ public class InputProcessor {
       }
     } else if (time.length == 0) {
       if (!isSnapshot) {
-        toTimestamps = new String[] {Application.getFromTstamp(), Application.getToTstamp()};
-        mapRed = mapRed.timestamps(Application.getFromTstamp(), Application.getToTstamp());
+        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
+        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
       } else {
-        mapRed = mapRed.timestamps(Application.getToTstamp());
+        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
       }
     } else {
       // list of timestamps
