@@ -15,6 +15,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilde
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
@@ -103,8 +105,8 @@ public class ExecutionUtils {
    * @throws Exception
    */
   public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGBBResult(
-      RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
-      GeometryBuilder geomBuilder) throws Exception {
+      RequestResource requestResource, BoundaryType bType, MapReducer<? extends OSHDBMapReducible> mapRed,
+      GeometryBuilder geomBuilder, boolean isSnapshot) throws Exception {
 
     if (bType == BoundaryType.NOBOUNDARY)
       throw new BadRequestException(
@@ -117,7 +119,11 @@ public class ExecutionUtils {
       zeroFill.add(j);
     preResult = mapRed.flatMap(f -> {
       List<Pair<Integer, Geometry>> res = new LinkedList<>();
-      Geometry entityGeom = f.getGeometry();
+      Geometry entityGeom; 
+      if (isSnapshot)
+        entityGeom = getSnapshotGeom(f);
+      else
+        entityGeom = getContributionGeom(f);
       if (requestResource.equals(RequestResource.PERIMETER)) {
         entityGeom = entityGeom.getBoundary();
       }
@@ -297,6 +303,20 @@ public class ExecutionUtils {
         break;
     }
     return result;
+  }
+  
+  /**
+   * Internal helper method to get the geometry from an OSMEntitySnapshot object.
+   */
+  private Geometry getSnapshotGeom(OSHDBMapReducible f) {
+    return ((OSMEntitySnapshot) f).getGeometry();
+  }
+  
+  /**
+   * Internal helper method to get the geometry from an OSMContribution object.
+   */
+  private Geometry getContributionGeom(OSHDBMapReducible f) {
+    return ((OSMContribution) f).getGeometryAfter();
   }
 
 }

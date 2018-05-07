@@ -174,19 +174,19 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.PERIMETER,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.AREA,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder());
+            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
@@ -704,10 +704,10 @@ public class ElementsRequestExecutor {
       requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, rPs);
     result1 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
-        iP.getBoundaryType(), mapRed1, iP.getGeomBuilder());
+        iP.getBoundaryType(), mapRed1, iP.getGeomBuilder(), rPs.isSnapshot());
     mapRed2 = iP.processParameters(mapRed2, rPs2);
     result2 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
-        iP.getBoundaryType(), mapRed2, iP.getGeomBuilder());
+        iP.getBoundaryType(), mapRed2, iP.getGeomBuilder(), rPs.isSnapshot());
     groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
     groupByResult2 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result2);
     GroupByResult[] resultSet = new GroupByResult[groupByResult1.size()];
