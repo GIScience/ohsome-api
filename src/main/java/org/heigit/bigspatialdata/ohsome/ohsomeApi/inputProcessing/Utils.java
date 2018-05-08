@@ -14,12 +14,7 @@ import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 
-/**
- * Holds additional utility methods needed for classes
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder
- * GeometryBuilder} and
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor InputProcessor}.
- */
+/** Holds additional utility methods. */
 public class Utils {
 
   private String[] boundaryIds;

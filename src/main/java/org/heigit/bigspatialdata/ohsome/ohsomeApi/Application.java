@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.HeigitLogo;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
@@ -29,7 +30,8 @@ public class Application implements ApplicationRunner {
   public static final String apiVersion = "0.9";
 
   public static void main(String[] args) {
-
+    
+    HeigitLogo.printHeiGITLogoSmall();
     if (args == null || args.length == 0)
       throw new RuntimeException(
           "You need to define at least the '--database.db' or the '--database.ignite' + '--database.keytables' parameter(s).");
