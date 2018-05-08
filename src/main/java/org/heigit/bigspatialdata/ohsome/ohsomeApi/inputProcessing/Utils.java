@@ -228,31 +228,25 @@ public class Utils {
 
   /**
    * Defines the toTimestamps for the result json object for /users responses.
-   * 
-   * @param timeData
-   * @return String[]
    */
   public String[] defineToTimestamps(String[] timeData) {
 
     String[] toTimestamps;
     OSHDBTimestamps timestamps;
-    if (timeData.length == 3 && timeData[2].startsWith("P")) {
-      // to, from, interval given
-      timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
-      toTimestamps = timestamps.get().stream().map(oshdbTimestamp -> {
-        return TimestampFormatter.getInstance().isoDateTime(oshdbTimestamp);
-      }).toArray(String[]::new);
+    if (timeData.length == 3 && timeData[2] != null) {
+      // nasty nested if needed to check for interval
+      if (timeData[2].startsWith("P")) {
+        timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
+        toTimestamps = timestamps.get().stream().map(oshdbTimestamp -> {
+          return TimestampFormatter.getInstance().isoDateTime(oshdbTimestamp);
+        }).toArray(String[]::new);
+      } else {
+        // list of timestamps
+        toTimestamps = getToTimestampsFromTimestamplist(timeData);
+      }
     } else {
       // list of timestamps
-      toTimestamps = new String[timeData.length];
-      for (int i = 0; i < timeData.length; i++) {
-        try {
-          toTimestamps[i] = ISODateTimeParser.parseISODateTime(timeData[i])
-              .format(DateTimeFormatter.ISO_DATE_TIME);
-        } catch (Exception e) {
-          // time gets checked earlier, so exception should never be thrown
-        }
-      }
+      toTimestamps = getToTimestampsFromTimestamplist(timeData);
     }
     return toTimestamps;
   }
@@ -399,6 +393,21 @@ public class Utils {
       return geom.within(ExtractMetadata.dataPoly);
 
     return true;
+  }
+
+  /** Internal helper method to get the toTimestamps from a timestampList. */
+  private String[] getToTimestampsFromTimestamplist(String[] timeData) {
+
+    String[] toTimestamps = new String[timeData.length];
+    for (int i = 0; i < timeData.length; i++) {
+      try {
+        toTimestamps[i] =
+            ISODateTimeParser.parseISODateTime(timeData[i]).format(DateTimeFormatter.ISO_DATE_TIME);
+      } catch (Exception e) {
+        // time gets checked earlier, so exception should never be thrown
+      }
+    }
+    return toTimestamps;
   }
 
   public String[] getBoundaryIds() {

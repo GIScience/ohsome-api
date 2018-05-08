@@ -73,7 +73,6 @@ public class InputProcessor {
       userids = createEmptyArrayIfNull(userids);
       time = createEmptyArrayIfNull(time);
     }
-    // database
     if (isSnapshot) {
       if (DbConnData.keytables == null)
         mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db);
@@ -89,7 +88,6 @@ public class InputProcessor {
       else
         mapRed = OSMContributionView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
     }
-    // metadata
     if (showMetadata == null)
       this.showMetadata = false;
     else if (showMetadata.equals("true"))
@@ -159,8 +157,8 @@ public class InputProcessor {
    * 
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
-   * @param bcircles <code>String</code> containing the bounding points separated via a pipe (|) and
-   *        optional custom names at each first coordinate appended with a colon (:).
+   * @param bcircles <code>String</code> containing the bounding circles separated via a pipe (|)
+   *        and optional custom names at each first coordinate appended with a colon (:).
    * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
    */
@@ -268,12 +266,6 @@ public class InputProcessor {
   /**
    * Extracts the information from the given time array and fills the toTimestamps[] with content
    * (in case of isSnapshot=false).
-   * 
-   * @param mapRed
-   * @param time
-   * @param isSnapshot
-   * @return
-   * @throws Exception
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
@@ -282,9 +274,10 @@ public class InputProcessor {
     String[] toTimestamps = null;
     if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
+      if (!isSnapshot)
+        toTimestamps = utils.defineToTimestamps(timeData);
       if (timeData[2] != null) {
         // interval is given
-        toTimestamps = utils.defineToTimestamps(timeData);
         mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
       } else if (timeData[1] != null) {
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
