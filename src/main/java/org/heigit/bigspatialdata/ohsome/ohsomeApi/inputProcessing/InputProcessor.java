@@ -90,13 +90,13 @@ public class InputProcessor {
     }
     if (showMetadata == null)
       this.showMetadata = false;
-    else if (showMetadata.equals("true"))
+    else if (showMetadata.equalsIgnoreCase("true") || showMetadata.equalsIgnoreCase("yes"))
       this.showMetadata = true;
-    else if (showMetadata.equals("false") || showMetadata.equals(""))
+    else if (showMetadata.equalsIgnoreCase("false") || showMetadata.equals("") || showMetadata.equalsIgnoreCase("no"))
       this.showMetadata = false;
     else
       throw new BadRequestException(
-          "The showMetadata parameter can only contain the values 'true' or 'false' written as text(String).");
+          "The showMetadata parameter can only contain the values 'true', 'yes', 'false' or 'no' written as text(String).");
     checkBoundaryParams(bboxes, bcircles, bpolys);
     try {
       switch (boundary) {
@@ -194,7 +194,7 @@ public class InputProcessor {
    * @throws BadRequestException if the content of the parameter does not represent one, two, or all
    *         three OSM types
    */
-  private EnumSet<OSMType> checkTypes(String[] types) throws BadRequestException {
+  public EnumSet<OSMType> checkTypes(String[] types) throws BadRequestException {
     if (types.length > 3) {
       throw new BadRequestException(
           "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
@@ -204,11 +204,11 @@ public class InputProcessor {
     } else {
       this.osmTypes = EnumSet.noneOf(OSMType.class);
       for (String type : types) {
-        if (type.equals("node"))
+        if (type.equalsIgnoreCase("node"))
           this.osmTypes.add(OSMType.NODE);
-        else if (type.equals("way"))
+        else if (type.equalsIgnoreCase("way"))
           this.osmTypes.add(OSMType.WAY);
-        else if (type.equals("relation"))
+        else if (type.equalsIgnoreCase("relation"))
           this.osmTypes.add(OSMType.RELATION);
         else
           throw new BadRequestException(
