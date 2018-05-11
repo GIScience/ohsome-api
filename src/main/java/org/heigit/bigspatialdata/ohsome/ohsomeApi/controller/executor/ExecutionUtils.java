@@ -104,9 +104,10 @@ public class ExecutionUtils {
    * @return <code>SortedMap</code> result object.
    * @throws Exception
    */
-  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGBBResult(
-      RequestResource requestResource, BoundaryType bType, MapReducer<? extends OSHDBMapReducible> mapRed,
-      GeometryBuilder geomBuilder, boolean isSnapshot) throws Exception {
+  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGBB(
+      RequestResource requestResource, BoundaryType bType,
+      MapReducer<? extends OSHDBMapReducible> mapRed, GeometryBuilder geomBuilder,
+      boolean isSnapshot) throws Exception {
 
     if (bType == BoundaryType.NOBOUNDARY)
       throw new BadRequestException(
@@ -119,13 +120,13 @@ public class ExecutionUtils {
       zeroFill.add(j);
     preResult = mapRed.flatMap(f -> {
       List<Pair<Integer, Geometry>> res = new LinkedList<>();
-      Geometry entityGeom; 
-      if (isSnapshot)
+      Geometry entityGeom;
+      if (isSnapshot) {
         entityGeom = getSnapshotGeom(f);
-      else
+        if (requestResource.equals(RequestResource.PERIMETER))
+          entityGeom = entityGeom.getBoundary();
+      } else {
         entityGeom = getContributionGeom(f);
-      if (requestResource.equals(RequestResource.PERIMETER)) {
-        entityGeom = entityGeom.getBoundary();
       }
       for (int i = 0; i < geoms.size(); i++) {
         if (entityGeom.intersects(geoms.get(i))) {
@@ -167,7 +168,7 @@ public class ExecutionUtils {
    * @throws UnsupportedOperationException
    * @throws Exception
    */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGBBResult(
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGBB(
       BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
       Integer[] valuesInt2, GeometryBuilder geomBuilder)
       throws UnsupportedOperationException, Exception {
@@ -230,7 +231,7 @@ public class ExecutionUtils {
    * @throws UnsupportedOperationException
    * @throws Exception
    */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGBBResult(
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGBB(
       RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
       Integer[] keysInt2, Integer[] valuesInt2, GeometryBuilder geomBuilder)
       throws UnsupportedOperationException, Exception {
@@ -311,12 +312,15 @@ public class ExecutionUtils {
   private Geometry getSnapshotGeom(OSHDBMapReducible f) {
     return ((OSMEntitySnapshot) f).getGeometry();
   }
-  
+
   /**
    * Internal helper method to get the geometry from an OSMContribution object.
    */
   private Geometry getContributionGeom(OSHDBMapReducible f) {
-    return ((OSMContribution) f).getGeometryAfter();
+    Geometry geom = ((OSMContribution) f).getGeometryAfter();
+    if (geom == null)
+      geom = ((OSMContribution) f).getGeometryBefore();
+    return geom;
   }
 
 }
