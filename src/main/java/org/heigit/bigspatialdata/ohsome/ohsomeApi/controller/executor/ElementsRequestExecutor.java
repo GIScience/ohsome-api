@@ -173,19 +173,19 @@ public class ElementsRequestExecutor {
     mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
       case COUNT:
-        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
+        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
       case LENGTH:
-        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.LENGTH,
+        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.LENGTH,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
       case PERIMETER:
-        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.PERIMETER,
+        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.PERIMETER,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
       case AREA:
-        result = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.AREA,
+        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.AREA,
             iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
         break;
     }
@@ -696,17 +696,17 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult2;
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
-    DecimalFormat ratioDF = exeUtils.defineDecimalFormat("#.######");
+    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
         rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types2, keys2, values2,
         rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed1 = iP.processParameters(mapRed1, rPs);
-    result1 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
+    result1 = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
         iP.getBoundaryType(), mapRed1, iP.getGeomBuilder(), rPs.isSnapshot());
     mapRed2 = iP.processParameters(mapRed2, rPs2);
-    result2 = exeUtils.computeCountLengthPerimeterAreaGBBResult(RequestResource.COUNT,
+    result2 = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
         iP.getBoundaryType(), mapRed2, iP.getGeomBuilder(), rPs.isSnapshot());
     groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
     groupByResult2 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result2);
@@ -744,7 +744,7 @@ public class ElementsRequestExecutor {
         double ratio = value2 / value;
         // in case ratio has the values "NaN", "Infinity", etc.
         try {
-          ratio = Double.parseDouble(ratioDF.format(ratio));
+          ratio = Double.parseDouble(ratioDf.format(ratio));
         } catch (Exception e) {
           // do nothing --> just return ratio without rounding (trimming)
         }
@@ -1077,8 +1077,8 @@ public class ElementsRequestExecutor {
     mapRed = iP.processParameters(mapRed, rPs);
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Utils utils = iP.getUtils();
-    result = exeUtils.computeCountLengthPerimeterAreaShareGBBResult(requestResource,
-        iP.getBoundaryType(), mapRed, keysInt2, valuesInt2, geomBuilder);
+    result = exeUtils.computeCountLengthPerimeterAreaShareGBB(requestResource, iP.getBoundaryType(),
+        mapRed, keysInt2, valuesInt2, geomBuilder);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResult.size() / 2];
     String groupByName = "";
