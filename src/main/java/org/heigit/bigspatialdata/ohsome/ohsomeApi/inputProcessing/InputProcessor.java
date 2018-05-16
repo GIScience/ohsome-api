@@ -92,7 +92,8 @@ public class InputProcessor {
       this.showMetadata = false;
     else if (showMetadata.equalsIgnoreCase("true") || showMetadata.equalsIgnoreCase("yes"))
       this.showMetadata = true;
-    else if (showMetadata.equalsIgnoreCase("false") || showMetadata.equals("") || showMetadata.equalsIgnoreCase("no"))
+    else if (showMetadata.equalsIgnoreCase("false") || showMetadata.equals("")
+        || showMetadata.equalsIgnoreCase("no"))
       this.showMetadata = false;
     else
       throw new BadRequestException(
@@ -351,6 +352,29 @@ public class InputProcessor {
     if (toCheck == null)
       toCheck = "";
     return toCheck;
+  }
+
+  /**
+   * Looks at specific objects within the RequestParameters object and makes them empty, if they are
+   * null. Needed for the /ratio computation using POST requests.
+   */
+  public RequestParameters fillWithEmptyIfNull(RequestParameters rPs) {
+
+    String[] types = rPs.getTypes();
+    if (types == null)
+      types = new String[0];
+    String[] keys = rPs.getKeys();
+    if (keys == null)
+      keys = new String[0];
+    String[] values = rPs.getValues();
+    if (values == null)
+      values = new String[0];
+
+    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
+        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values,
+        rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
+
+    return rPs2;
   }
 
   /*
