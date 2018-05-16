@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,6 +12,7 @@ import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
@@ -38,6 +40,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
@@ -555,122 +558,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area-ratio calculation.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
-  public static RatioResponse executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
-      RequestParameters rPs, String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestamp, ? extends Number> result1 = null;
-    SortedMap<OSHDBTimestamp, ? extends Number> result2 = null;
-    MapReducer<OSMEntitySnapshot> mapRed1 = null;
-    MapReducer<OSMEntitySnapshot> mapRed2 = null;
-    InputProcessor iP = new InputProcessor();
-    String description = null;
-    String requestURL = null;
-    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
-        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types2, keys2, values2,
-        rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(mapRed1, rPs);
-    mapRed2 = iP.processParameters(mapRed2, rPs2);
-    switch (requestResource) {
-      case COUNT:
-        result1 = mapRed1.aggregateByTimestamp().count();
-        result2 = mapRed2.aggregateByTimestamp().count();
-        break;
-      case AREA:
-        result1 = mapRed1.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
-        result2 = mapRed2.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
-        break;
-      case LENGTH:
-        result1 = mapRed1.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
-            });
-        result2 = mapRed2.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
-            });
-        break;
-      case PERIMETER:
-        result1 = mapRed1.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
-        result2 = mapRed2.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
-        break;
-    }
-    ElementsResult[] resultSet1 = new ElementsResult[result1.size()];
-    int count = 0;
-    for (Entry<OSHDBTimestamp, ? extends Number> entry : result1.entrySet()) {
-      resultSet1[count] =
-          new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-              entry.getValue().doubleValue());
-      count++;
-    }
-    RatioResult[] resultSet = new RatioResult[result1.size()];
-    count = 0;
-    for (Entry<OSHDBTimestamp, ? extends Number> entry : result2.entrySet()) {
-      String date = resultSet1[count].getTimestamp();
-      double ratio = (entry.getValue().doubleValue() / resultSet1[count].getValue());
-      // in case ratio has the value "NaN", "Infinity", etc.
-      try {
-        ratio = Double.parseDouble(ratioDf.format(ratio));
-      } catch (Exception e) {
-        // do nothing --> just return ratio without rounding (trimming)
-      }
-      resultSet[count] =
-          new RatioResult(date, Double.parseDouble(df.format(resultSet1[count].getValue())),
-              Double.parseDouble(df.format(entry.getValue().doubleValue())), ratio);
-      count++;
-    }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit()
-        + " satisfying types2, keys2, values2 parameters (= value2 output) "
-        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
-    Metadata metadata = null;
-    if (iP.getShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
-    }
-    RatioResponse response =
-        new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
    * Performs a count-ratio calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
@@ -1134,6 +1021,160 @@ public class ElementsRequestExecutor {
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
         new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
+    return response;
+  }
+
+  /**
+   * Performs a count|length|perimeter|area-share|ratio calculation.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
+   * 
+   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
+   *        AREA).
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
+   */
+  public static RatioResponse executeCountLengthPerimeterAreaRatio(
+      RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    values2 = exeUtils.ratioParamEvaluation(keys2, values2);
+    SortedMap<OSHDBTimestampAndIndex<MatchType>, ? extends Number> result = null;
+    MapAggregatorByTimestampAndIndex<MatchType, OSMEntitySnapshot> preResult;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor iP = new InputProcessor();
+    String description = null;
+    String requestURL = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
+    TagTranslator tt = DbConnData.tagTranslator;
+    rPs = iP.fillWithEmptyIfNull(rPs);
+    iP.processParameters(mapRed, rPs);
+    Integer[] keysInt1 = new Integer[rPs.getKeys().length];
+    Integer[] valuesInt1 = new Integer[rPs.getValues().length];
+    Integer[] keysInt2 = new Integer[keys2.length];
+    Integer[] valuesInt2 = new Integer[values2.length];
+    if (!rPs.isPost())
+      requestURL = RequestInterceptor.requestUrl;
+    for (int i = 0; i < rPs.getKeys().length; i++) {
+      keysInt1[i] = tt.getOSHDBTagKeyOf(rPs.getKeys()[i]).toInt();
+      if (rPs.getValues() != null && i < rPs.getValues().length)
+        valuesInt1[i] = tt.getOSHDBTagOf(rPs.getKeys()[i], rPs.getValues()[i]).getValue();
+    }
+    for (int i = 0; i < keys2.length; i++) {
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
+      if (values2 != null && i < values2.length)
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
+    }
+    EnumSet<OSMType> osmTypes1 = iP.getOsmTypes();
+    EnumSet<OSMType> osmTypes2 = iP.checkTypes(types2);
+    EnumSet<OSMType> osmTypes = osmTypes1.clone();
+    osmTypes.addAll(osmTypes2);
+    String[] osmTypesString =
+        osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
+    mapRed = iP.processParameters(mapRed,
+        new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
+            rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
+            rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+    mapRed = mapRed.where(entity -> {
+      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+      return matches1 || matches2;
+    });
+    preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
+      OSMEntity entity = f.getEntity();
+      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+      if (matches1 && matches2)
+        return MatchType.MATCHESBOTH;
+      else if (matches1)
+        return MatchType.MATCHES1;
+      else if (matches2)
+        return MatchType.MATCHES2;
+      else
+        assert false : "MatchType matches none.";
+      // this should never be reached
+      return null;
+    }).zerofillIndices(
+        Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2));
+    switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        break;
+      case LENGTH:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.lengthOf(snapshot.getGeometry());
+        });
+        break;
+      case PERIMETER:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else
+            return 0.0;
+        });
+        break;
+      case AREA:
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.areaOf(snapshot.getGeometry());
+        });
+        break;
+    }
+    int resultSize = result.size();
+    Double[] value1 = new Double[resultSize / 3];
+    Double[] value2 = new Double[resultSize / 3];
+    String[] timeArray = new String[resultSize / 3];
+    int value1Count = 0;
+    int value2Count = 0;
+    int matchesBothCount = 0;
+    // time and value extraction
+    for (Entry<OSHDBTimestampAndIndex<MatchType>, ? extends Number> entry : result.entrySet()) {
+      if (entry.getKey().getOtherIndex() == MatchType.MATCHES2) {
+        timeArray[value2Count] =
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
+        value2[value2Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
+        value2Count++;
+      }
+      if (entry.getKey().getOtherIndex() == MatchType.MATCHES1) {
+        value1[value1Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
+        value1Count++;
+      }
+      if (entry.getKey().getOtherIndex() == MatchType.MATCHESBOTH) {
+        value1[matchesBothCount] = value1[matchesBothCount]
+            + Double.parseDouble(df.format(entry.getValue().doubleValue()));
+        value2[matchesBothCount] = value2[matchesBothCount]
+            + Double.parseDouble(df.format(entry.getValue().doubleValue()));
+        matchesBothCount++;
+      }
+    }
+    RatioResult[] resultSet = new RatioResult[timeArray.length];
+    for (int i = 0; i < timeArray.length; i++) {
+      double ratio = value2[i] / value1[i];
+      // in case ratio has the values "NaN", "Infinity", etc.
+      try {
+        ratio = Double.parseDouble(ratioDf.format(ratio));
+      } catch (Exception e) {
+        // do nothing --> just return ratio without rounding (trimming)
+      }
+      resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
+    }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit()
+        + " satisfying types2, keys2, values2 parameters (= value2 output) "
+        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
+    Metadata metadata = null;
+    if (iP.getShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, description, requestURL);
+    }
+    RatioResponse response =
+        new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
     return response;
   }
 

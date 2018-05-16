@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +20,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
+import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import com.vividsolutions.jts.geom.Geometry;
@@ -53,7 +55,26 @@ public class ExecutionUtils {
 
     if (keys2 == null || keys2.length < 1)
       throw new BadRequestException(
-          "You need to define at least one key if you want to use /share.");
+          "You need to define at least one key if you want to use this resource.");
+    if (values2 == null)
+      values2 = new String[0];
+    if (keys2.length < values2.length)
+      throw new BadRequestException(
+          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
+
+    return values2;
+  }
+
+  /**
+   * Evaluates the keys2 and values2 <code>String</code> arrays from /ratio requests.
+   * 
+   * @param keys2 <code>String</code> array containing the provided keys2 parameters.
+   * @param values2 <code>String</code> array containing the provided values2 parameters.
+   * @return <code>String</code> array containing the given (or an empty) values2 array, which is
+   *         not null.
+   */
+  public String[] ratioParamEvaluation(String[] keys2, String[] values2) {
+
     if (values2 == null)
       values2 = new String[0];
     if (keys2.length < values2.length)
@@ -93,17 +114,7 @@ public class ExecutionUtils {
     return geom;
   }
 
-  /**
-   * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources using the
-   * map-reduce functions from the OSHDB.
-   * 
-   * @param requestResource
-   * @param bType
-   * @param mapRed
-   * @param geomBuilder
-   * @return <code>SortedMap</code> result object.
-   * @throws Exception
-   */
+  /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
   public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGBB(
       RequestResource requestResource, BoundaryType bType,
       MapReducer<? extends OSHDBMapReducible> mapRed, GeometryBuilder geomBuilder,
@@ -155,19 +166,7 @@ public class ExecutionUtils {
     return result;
   }
 
-  /**
-   * Computes the result for the /count/share/groupBy/boundary resource using the map-reduce
-   * functions from the OSHDB.
-   * 
-   * @param bType
-   * @param mapRed
-   * @param keysInt2
-   * @param valuesInt2
-   * @param geomBuilder
-   * @return <code>SortedMap</code> result object.
-   * @throws UnsupportedOperationException
-   * @throws Exception
-   */
+  /** Computes the result for the /count/share/groupBy/boundary resources. */
   public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGBB(
       BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
       Integer[] valuesInt2, GeometryBuilder geomBuilder)
@@ -217,20 +216,7 @@ public class ExecutionUtils {
     return result;
   }
 
-  /**
-   * Computes the result for the /length|perimeter|area/share/groupBy/boundary resources using the
-   * map-reduce functions from the OSHDB.
-   * 
-   * @param requestResource
-   * @param bType
-   * @param mapRed
-   * @param keysInt2
-   * @param valuesInt2
-   * @param geomBuilder
-   * @return <code>SortedMap</code> result object.
-   * @throws UnsupportedOperationException
-   * @throws Exception
-   */
+  /** Computes the result for the /count|length|perimeter|area/share/groupBy/boundary resources. */
   public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGBB(
       RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
       Integer[] keysInt2, Integer[] valuesInt2, GeometryBuilder geomBuilder)
@@ -305,17 +291,51 @@ public class ExecutionUtils {
     }
     return result;
   }
-  
-  /**
-   * Internal helper method to get the geometry from an OSMEntitySnapshot object.
-   */
+
+  /** Compares an OSMType with an EnumSet of OSMTypes. */
+  public boolean isOSMType(EnumSet<OSMType> types, OSMType currentElementType) {
+
+    for (OSMType type : types)
+      if (currentElementType.equals(type)) {
+        return true;
+      }
+    return false;
+  }
+
+  /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
+  public boolean entityMatches(OSMEntity entity, EnumSet<OSMType> osmTypes, Integer[] keysInt,
+      Integer[] valuesInt) {
+
+    boolean matches = true;
+    if (osmTypes.contains(entity.getType())) {
+      for (int i = 0; i < keysInt.length; i++) {
+        boolean matchesTag;
+        if (i < valuesInt.length)
+          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
+        else
+          matchesTag = entity.hasTagKey(keysInt[i]);
+        if (!matchesTag) {
+          matches = false;
+          break;
+        }
+      }
+    } else {
+      matches = false;
+    }
+    return matches;
+  }
+
+  /** Enum type used in /ratio computation. */
+  public enum MatchType {
+    MATCHES1, MATCHES2, MATCHESBOTH
+  }
+
+  /** Internal helper method to get the geometry from an OSMEntitySnapshot object. */
   private Geometry getSnapshotGeom(OSHDBMapReducible f) {
     return ((OSMEntitySnapshot) f).getGeometry();
   }
 
-  /**
-   * Internal helper method to get the geometry from an OSMContribution object.
-   */
+  /** Internal helper method to get the geometry from an OSMContribution object. */
   private Geometry getContributionGeom(OSHDBMapReducible f) {
     Geometry geom = ((OSMContribution) f).getGeometryAfter();
     if (geom == null)
