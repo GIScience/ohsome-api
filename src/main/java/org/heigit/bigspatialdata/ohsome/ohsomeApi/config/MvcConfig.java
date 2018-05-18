@@ -47,10 +47,13 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         errorAttributes.remove("exception");
         errorAttributes.put("timestamp",
             LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        if (errorAttributes.get("message").toString().equals("No message available"))
+        if (errorAttributes.get("message").toString().equals("No message available")) {
           errorAttributes.remove("requestUrl");
-        else
-          errorAttributes.put("requestUrl", RequestInterceptor.requestUrl);
+        } else {
+          // ensures to include the requestUrl in the error-response only if a GET request was sent
+          if (!RequestInterceptor.requestUrl.split("\\?")[1].equals("null"))
+            errorAttributes.put("requestUrl", RequestInterceptor.requestUrl);
+        }
         return errorAttributes;
       }
     };
