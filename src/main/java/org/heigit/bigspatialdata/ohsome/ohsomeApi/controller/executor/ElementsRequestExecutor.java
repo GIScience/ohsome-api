@@ -791,7 +791,7 @@ public class ElementsRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    values2 = exeUtils.shareParamEvaluation(keys2, values2);
+
     SortedMap<OSHDBTimestampAndIndex<Boolean>, ? extends Number> result = null;
     MapAggregatorByTimestampAndIndex<Boolean, OSMEntitySnapshot> preResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -800,6 +800,8 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
+    iP.checkKeysValues(keys2, values2, true);
+    values2 = iP.createEmptyArrayIfNull(values2);
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!rPs.isPost())
@@ -943,7 +945,6 @@ public class ElementsRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    values2 = exeUtils.shareParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> result = null;
     SortedMap<Pair<Integer, Boolean>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -952,6 +953,8 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
+    iP.checkKeysValues(keys2, values2, true);
+    values2 = iP.createEmptyArrayIfNull(values2);
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     if (!rPs.isPost())
@@ -1038,13 +1041,12 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static RatioResponse executeCountLengthPerimeterAreaRatio(
-      RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
-      String[] values2) throws UnsupportedOperationException, Exception {
+  public static RatioResponse executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
+      RequestParameters rPs, String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    values2 = exeUtils.ratioParamEvaluation(keys2, values2);
     SortedMap<OSHDBTimestampAndIndex<MatchType>, ? extends Number> result = null;
     MapAggregatorByTimestampAndIndex<MatchType, OSMEntitySnapshot> preResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -1056,6 +1058,8 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     rPs = iP.fillWithEmptyIfNull(rPs);
     iP.processParameters(mapRed, rPs);
+    iP.checkKeysValues(keys2, values2, false);
+    values2 = iP.createEmptyArrayIfNull(values2);
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -1073,7 +1077,7 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
     }
     EnumSet<OSMType> osmTypes1 = iP.getOsmTypes();
-    EnumSet<OSMType> osmTypes2 = iP.checkTypes(types2);
+    EnumSet<OSMType> osmTypes2 = iP.extractOSMTypes(types2);
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =

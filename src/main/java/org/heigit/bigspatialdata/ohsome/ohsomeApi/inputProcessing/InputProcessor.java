@@ -132,9 +132,9 @@ public class InputProcessor {
       throw new BadRequestException(
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) cannot be processed.");
     }
-    mapRed = mapRed.osmTypes(checkTypes(types));
+    mapRed = mapRed.osmTypes(extractOSMTypes(types));
     mapRed = extractTime(mapRed, time, isSnapshot);
-    mapRed = checkKeysValues(mapRed, keys, values);
+    mapRed = extractKeysValues(mapRed, keys, values);
     if (userids.length != 0) {
       checkUserids(userids);
       Set<Integer> useridSet = new HashSet<>();
@@ -151,43 +151,7 @@ public class InputProcessor {
   }
 
   /**
-   * Checks the given boundary parameter(s), sets a corresponding enum (NOBOUNDARY for no boundary,
-   * BBOXES for bboxes, BCIRCLES for bcircles, BPOLYS for bpolys) and saves the splitted coordinates
-   * into an array (in case of non-GeoJSON). Only one (or none) of the boundary parameters is
-   * allowed to have content in it.
-   * 
-   * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
-   *        optional custom names at each first coordinate appended with a colon (:).
-   * @param bcircles <code>String</code> containing the bounding circles separated via a pipe (|)
-   *        and optional custom names at each first coordinate appended with a colon (:).
-   * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
-   *        optional custom names at each first coordinate appended with a colon (:).
-   */
-  private void checkBoundaryParams(String bboxes, String bcircles, String bpolys) {
-    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.NOBOUNDARY;
-    } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.BBOXES;
-      boundaryValues = utils.splitBoundaryParam(bboxes, boundary);
-    } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.BCIRCLES;
-      boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
-    } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
-      boundary = BoundaryType.BPOLYS;
-      if (bpolys.startsWith("{")) {
-        // geoJson expected
-        boundaryValues = null;
-      } else {
-        boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
-      }
-    } else
-      throw new BadRequestException(
-          "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
-              + "or you defined more than one boundary parameter.");
-  }
-
-  /**
-   * Checks and extracts the content of the types parameter.
+   * Extracts the OSMType(s) out of the given String[].
    * 
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation). If the array is empty, all three types are used.
@@ -195,13 +159,11 @@ public class InputProcessor {
    * @throws BadRequestException if the content of the parameter does not represent one, two, or all
    *         three OSM types
    */
-  public EnumSet<OSMType> checkTypes(String[] types) throws BadRequestException {
-    if (types.length > 3) {
-      throw new BadRequestException(
-          "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
-    } else if (types.length == 0) {
+  public EnumSet<OSMType> extractOSMTypes(String[] types) throws BadRequestException {
+
+    checkOSMTypes(types);
+    if (types.length == 0) {
       this.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
-      return this.osmTypes;
     } else {
       this.osmTypes = EnumSet.noneOf(OSMType.class);
       for (String type : types) {
@@ -209,14 +171,73 @@ public class InputProcessor {
           this.osmTypes.add(OSMType.NODE);
         else if (type.equalsIgnoreCase("way"))
           this.osmTypes.add(OSMType.WAY);
-        else if (type.equalsIgnoreCase("relation"))
-          this.osmTypes.add(OSMType.RELATION);
         else
-          throw new BadRequestException(
-              "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' as its content.");
+          this.osmTypes.add(OSMType.RELATION);
       }
-      return this.osmTypes;
     }
+    return this.osmTypes;
+  }
+
+  /**
+   * Creates an empty array if an input parameter of a POST request is null.
+   * 
+   * @param toCheck <code>String</code> array, which is checked.
+   * @return <code>String</code> array, which is empty.
+   */
+  public String[] createEmptyArrayIfNull(String[] toCheck) {
+    if (toCheck == null)
+      toCheck = new String[0];
+    return toCheck;
+  }
+
+  /**
+   * Creates an empty <code>String</code>, if a given boundary input parameter of a POST request is
+   * null.
+   * 
+   * @param toCheck <code>String</code>, which is checked.
+   * @return <code>String</code>, which is empty, but not null.
+   */
+  public String createEmptyStringIfNull(String toCheck) {
+    if (toCheck == null)
+      toCheck = "";
+    return toCheck;
+  }
+
+  /**
+   * Looks at specific objects within the RequestParameters object and makes them empty, if they are
+   * null. Needed for the /ratio computation using POST requests.
+   */
+  public RequestParameters fillWithEmptyIfNull(RequestParameters rPs) {
+
+    String[] types = rPs.getTypes();
+    if (types == null)
+      types = new String[0];
+    String[] keys = rPs.getKeys();
+    if (keys == null)
+      keys = new String[0];
+    String[] values = rPs.getValues();
+    if (values == null)
+      values = new String[0];
+
+    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
+        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values, rPs.getUserids(),
+        rPs.getTime(), rPs.getShowMetadata());
+
+    return rPs2;
+  }
+
+  /** Checks the given keys and values String[] on their length. */
+  public void checkKeysValues(String[] keys, String[] values, boolean isShare)
+      throws BadRequestException {
+
+    if (isShare)
+      if (keys == null || keys.length < 1)
+        throw new BadRequestException(
+            "You need to define at least one keys2 parameter if you want to use this resource.");
+    if (values != null)
+      if (keys.length < values.length)
+        throw new BadRequestException(
+            "There cannot be more input values in the values|values2 than in the keys|keys2 parameter, as values_n must fit to keys_n.");
   }
 
   /**
@@ -235,19 +256,16 @@ public class InputProcessor {
    *         including the filters derived from the given parameters.
    * @throws BadRequestException if there are more values than keys given
    */
-  private MapReducer<? extends OSHDBMapReducible> checkKeysValues(
+  private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values)
       throws BadRequestException {
-    if (keys.length < values.length) {
-      throw new BadRequestException(
-          "There cannot be more values than keys. For each value in the values parameter, the respective key has to be provided at the same index in the keys parameter.");
-    }
+
+    checkKeysValues(keys, values, false);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
       for (int a = 0; a < values.length; a++) {
         tempVal[a] = values[a];
       }
-      // adds empty entries in the tempVal array
       for (int i = values.length; i < keys.length; i++) {
         tempVal[i] = "";
       }
@@ -312,6 +330,11 @@ public class InputProcessor {
     return mapRed;
   }
 
+  /** Checks the given String[] containing the time parameter on its validity. */
+  private void checkTime(String[] time, boolean isSnapshot) {
+
+  }
+
   /**
    * Checks the content of the userids <code>String</code> array.
    * 
@@ -329,52 +352,58 @@ public class InputProcessor {
     }
   }
 
-  /**
-   * Creates an empty array if an input parameter of a POST request is null.
-   * 
-   * @param toCheck <code>String</code> array, which is checked.
-   * @return <code>String</code> array, which is empty.
-   */
-  private String[] createEmptyArrayIfNull(String[] toCheck) {
-    if (toCheck == null)
-      toCheck = new String[0];
-    return toCheck;
+  /** Checks the given OSMType(s) String[] on its length and content. */
+  private void checkOSMTypes(String[] types) throws BadRequestException {
+
+    if (types.length > 3) {
+      throw new BadRequestException(
+          "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
+    } else if (types.length == 0) {
+      // do nothing
+    } else {
+      for (String type : types) {
+        if (!type.equalsIgnoreCase("node") && !type.equalsIgnoreCase("way")
+            && !type.equalsIgnoreCase("relation"))
+          throw new BadRequestException(
+              "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' as its content.");
+      }
+    }
   }
 
   /**
-   * Creates an empty <code>String</code>, if a given boundary input parameter of a POST request is
-   * null.
+   * Checks the given boundary parameter(s), sets a corresponding enum (NOBOUNDARY for no boundary,
+   * BBOXES for bboxes, BCIRCLES for bcircles, BPOLYS for bpolys) and saves the splitted coordinates
+   * into an array (in case of non-GeoJSON). Only one (or none) of the boundary parameters is
+   * allowed to have content in it.
    * 
-   * @param toCheck <code>String</code>, which is checked.
-   * @return <code>String</code>, which is empty, but not null.
+   * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
+   *        optional custom names at each first coordinate appended with a colon (:).
+   * @param bcircles <code>String</code> containing the bounding circles separated via a pipe (|)
+   *        and optional custom names at each first coordinate appended with a colon (:).
+   * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
+   *        optional custom names at each first coordinate appended with a colon (:).
    */
-  private String createEmptyStringIfNull(String toCheck) {
-    if (toCheck == null)
-      toCheck = "";
-    return toCheck;
-  }
-
-  /**
-   * Looks at specific objects within the RequestParameters object and makes them empty, if they are
-   * null. Needed for the /ratio computation using POST requests.
-   */
-  public RequestParameters fillWithEmptyIfNull(RequestParameters rPs) {
-
-    String[] types = rPs.getTypes();
-    if (types == null)
-      types = new String[0];
-    String[] keys = rPs.getKeys();
-    if (keys == null)
-      keys = new String[0];
-    String[] values = rPs.getValues();
-    if (values == null)
-      values = new String[0];
-
-    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
-        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values,
-        rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
-
-    return rPs2;
+  private void checkBoundaryParams(String bboxes, String bcircles, String bpolys) {
+    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
+      boundary = BoundaryType.NOBOUNDARY;
+    } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
+      boundary = BoundaryType.BBOXES;
+      boundaryValues = utils.splitBoundaryParam(bboxes, boundary);
+    } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {
+      boundary = BoundaryType.BCIRCLES;
+      boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
+    } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
+      boundary = BoundaryType.BPOLYS;
+      if (bpolys.startsWith("{")) {
+        // geoJson expected
+        boundaryValues = null;
+      } else {
+        boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
+      }
+    } else
+      throw new BadRequestException(
+          "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
+              + "or you defined more than one boundary parameter.");
   }
 
   /*

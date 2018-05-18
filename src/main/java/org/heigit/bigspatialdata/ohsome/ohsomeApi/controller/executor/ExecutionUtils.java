@@ -44,47 +44,6 @@ public class ExecutionUtils {
   }
 
   /**
-   * Evaluates the keys2 and values2 <code>String</code> arrays from /share requests.
-   * 
-   * @param keys2 <code>String</code> array containing the provided keys2 parameters.
-   * @param values2 <code>String</code> array containing the provided values2 parameters.
-   * @return <code>String</code> array containing the given (or an empty) values2 array, which is
-   *         not null.
-   */
-  public String[] shareParamEvaluation(String[] keys2, String[] values2) {
-
-    if (keys2 == null || keys2.length < 1)
-      throw new BadRequestException(
-          "You need to define at least one key if you want to use this resource.");
-    if (values2 == null)
-      values2 = new String[0];
-    if (keys2.length < values2.length)
-      throw new BadRequestException(
-          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
-
-    return values2;
-  }
-
-  /**
-   * Evaluates the keys2 and values2 <code>String</code> arrays from /ratio requests.
-   * 
-   * @param keys2 <code>String</code> array containing the provided keys2 parameters.
-   * @param values2 <code>String</code> array containing the provided values2 parameters.
-   * @return <code>String</code> array containing the given (or an empty) values2 array, which is
-   *         not null.
-   */
-  public String[] ratioParamEvaluation(String[] keys2, String[] values2) {
-
-    if (values2 == null)
-      values2 = new String[0];
-    if (keys2.length < values2.length)
-      throw new BadRequestException(
-          "There cannot be more input values in values2 than in keys2 as values2n must fit to keys2n.");
-
-    return values2;
-  }
-
-  /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 
    * @param boundary <code>BoundaryType</code> object (NOBOUNDARY, BBOXES, BCIRCLES, BPOLYS).
