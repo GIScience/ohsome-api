@@ -330,11 +330,6 @@ public class InputProcessor {
     return mapRed;
   }
 
-  /** Checks the given String[] containing the time parameter on its validity. */
-  private void checkTime(String[] time, boolean isSnapshot) {
-
-  }
-
   /**
    * Checks the content of the userids <code>String</code> array.
    * 
