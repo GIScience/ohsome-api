@@ -10,6 +10,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -582,6 +583,59 @@ public class AreaController {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.AREA,
         new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata),
+        types2, keys2, values2);
+  }
+
+  /**
+   * GET request giving the ratio of the area of selected items satisfying types2, keys2 and values2
+   * within items selected by types, keys and values grouped by the boundary.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
+   *         RatioResponse}
+   */
+  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
+          defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
+          required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
+  public RatioGroupByBoundaryResponse getAreaRatioGroupByBoundary(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
+      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
+      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
         types2, keys2, values2);
   }
 
@@ -1230,4 +1284,62 @@ public class AreaController {
             userids, time, showMetadata),
         types2, keys2, values2);
   }
+
+  /**
+   * POST request giving the ratio of the area of selected items satisfying types2, keys2 and
+   * values2 within items selected by types, keys and values grouped by the boundary. POST requests
+   * should only be used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
+   *         RatioResponse}
+   */
+  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
+          value = ParameterDescriptions.BBOXES_DESCR),
+      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
+          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
+      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.BPOLYS_DESCR),
+      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
+          value = ParameterDescriptions.TYPES_DESCR),
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = ParameterDescriptions.VALUES_DESCR),
+      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.USERIDS_DESCR),
+      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.TIME, required = false,
+          value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
+          value = ParameterDescriptions.SHOW_METADATA_DESCR),
+      @ApiImplicitParam(name = "types2", paramType = "form", dataType = "string",
+          defaultValue = "relation", required = true, value = ParameterDescriptions.TYPES_DESCR),
+      @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = true,
+          value = ParameterDescriptions.KEYS_DESCR),
+      @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
+          defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
+  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public RatioGroupByBoundaryResponse postAreaRatioGroupByBoundary(String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
+
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.AREA, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
+        types2, keys2, values2);
+  }
+
 }

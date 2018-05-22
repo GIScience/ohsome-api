@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
@@ -566,8 +567,8 @@ public class ElementsRequestExecutor {
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
+   *         RatioGroupByBoundaryResponse Content}
    */
   public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(RequestParameters rPs,
       String[] types2, String[] keys2, String[] values2)
@@ -1179,6 +1180,203 @@ public class ElementsRequestExecutor {
     }
     RatioResponse response =
         new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
+    return response;
+  }
+
+  /**
+   * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
+   * 
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
+   *         RatioGroupByBoundaryResponse Content}
+   */
+  public static RatioGroupByBoundaryResponse executeCountLengthPerimeterAreaRatioGroupByBoundary(
+      RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, Geometry> preResult = null;
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, ? extends Number> result = null;
+    SortedMap<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor iP = new InputProcessor();
+    String description = null;
+    String requestURL = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
+    TagTranslator tt = DbConnData.tagTranslator;
+    rPs = iP.fillWithEmptyIfNull(rPs);
+    iP.processParameters(mapRed, rPs);
+    if (iP.getBoundaryType() == BoundaryType.NOBOUNDARY)
+      throw new BadRequestException(
+          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    iP.checkKeysValues(keys2, values2, false);
+    values2 = iP.createEmptyArrayIfNull(values2);
+    Integer[] keysInt1 = new Integer[rPs.getKeys().length];
+    Integer[] valuesInt1 = new Integer[rPs.getValues().length];
+    Integer[] keysInt2 = new Integer[keys2.length];
+    Integer[] valuesInt2 = new Integer[values2.length];
+    if (!rPs.isPost())
+      requestURL = RequestInterceptor.requestUrl;
+    for (int i = 0; i < rPs.getKeys().length; i++) {
+      keysInt1[i] = tt.getOSHDBTagKeyOf(rPs.getKeys()[i]).toInt();
+      if (rPs.getValues() != null && i < rPs.getValues().length)
+        valuesInt1[i] = tt.getOSHDBTagOf(rPs.getKeys()[i], rPs.getValues()[i]).getValue();
+    }
+    for (int i = 0; i < keys2.length; i++) {
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
+      if (values2 != null && i < values2.length)
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
+    }
+    EnumSet<OSMType> osmTypes1 = iP.getOsmTypes();
+    EnumSet<OSMType> osmTypes2 = iP.extractOSMTypes(types2);
+    EnumSet<OSMType> osmTypes = osmTypes1.clone();
+    osmTypes.addAll(osmTypes2);
+    String[] osmTypesString =
+        osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
+    mapRed = iP.processParameters(mapRed,
+        new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
+            rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
+            rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+    mapRed = mapRed.where(entity -> {
+      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+      return matches1 || matches2;
+    });
+    Utils utils = iP.getUtils();
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry(iP.getBoundaryType());
+    List<Pair<Integer, MatchType>> zeroFill = new LinkedList<>();
+    for (int j = 0; j < geoms.size(); j++) {
+      zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHESBOTH));
+      zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES1));
+      zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES2));
+    }
+    preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
+      List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
+      Geometry entityGeom = f.getGeometry();
+      if (requestResource.equals(RequestResource.PERIMETER)) {
+        entityGeom = entityGeom.getBoundary();
+      }
+      for (int i = 0; i < geoms.size(); i++) {
+        if (entityGeom.intersects(geoms.get(i))) {
+          if (entityGeom.within(geoms.get(i)))
+            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
+          else
+            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
+                Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+        }
+      }
+      return res;
+    }).aggregateBy(f -> {
+      OSMEntity entity = f.getLeft().getRight();
+      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+      if (matches1 && matches2)
+        return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESBOTH);
+      else if (matches1)
+        return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHES1);
+      else if (matches2)
+        return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHES2);
+      else
+        assert false : "MatchType matches none.";
+      return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESNONE);
+    }).zerofillIndices(zeroFill).map(Pair::getValue);
+    switch (requestResource) {
+      case COUNT:
+        result = preResult.count();
+        break;
+      case LENGTH:
+      case PERIMETER:
+        result = preResult.sum(geom -> {
+          return Geo.lengthOf(geom);
+        });
+        break;
+      case AREA:
+        result = preResult.sum(geom -> {
+          return Geo.areaOf(geom);
+        });
+        break;
+    }
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[groupByResult.size() / 3];
+    String groupByName = "";
+    String[] boundaryIds = utils.getBoundaryIds();
+    Double[] value1 = null;
+    Double[] value2 = null;
+    String[] timeArray = null;
+    boolean timeArrayFilled = false;
+    int count = 1;
+    int gBNCount = 0;
+    for (Entry<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
+      if (!timeArrayFilled)
+        timeArray = new String[entry.getValue().entrySet().size()];
+      if (entry.getKey().getRight() == MatchType.MATCHES2) {
+        value2 = new Double[entry.getValue().entrySet().size()];
+        int value2Count = 0;
+        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+          value2[value2Count] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+          value2Count++;
+        }
+      } else if (entry.getKey().getRight() == MatchType.MATCHES1) {
+        value1 = new Double[entry.getValue().entrySet().size()];
+        int value1Count = 0;
+        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+          value1[value1Count] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+          value1Count++;
+        }
+      } else if (entry.getKey().getRight() == MatchType.MATCHESBOTH) {
+        int matchesBothCount = 0;
+        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
+          value1[matchesBothCount] = value1[matchesBothCount]
+              + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+          value2[matchesBothCount] = value2[matchesBothCount]
+              + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+          if (!timeArrayFilled)
+            timeArray[matchesBothCount] = innerEntry.getKey().toString();
+          matchesBothCount++;
+        }
+        timeArrayFilled = true;
+      } else {
+        // on MatchType.MATCHESNONE aggregated values are not needed
+      }
+      if (count % 3 == 0) {
+        groupByName = boundaryIds[gBNCount];
+        RatioResult[] resultSet = new RatioResult[timeArray.length];
+        for (int i = 0; i < timeArray.length; i++) {
+          double ratio = value2[i] / value1[i];
+          // in case ratio has the values "NaN", "Infinity", etc.
+          try {
+            ratio = Double.parseDouble(ratioDf.format(ratio));
+          } catch (Exception e) {
+            // do nothing --> just return ratio without rounding (trimming)
+          }
+          resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
+        }
+        groupByResultSet[gBNCount] = new RatioGroupByResult(groupByName, resultSet);
+        gBNCount++;
+      }
+      count++;
+    }
+    description = "Total " + requestResource.getLabel() + " of items in "
+        + requestResource.getUnit()
+        + " satisfying types2, keys2, values2 parameters (= value2 output) within items"
+        + " selected by types, keys, values parameters (= value output) and ratio of value2:value grouped on the boundary objects.";
+
+    Metadata metadata = null;
+    if (iP.getShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, description, requestURL);
+    }
+    RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
+        new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
     return response;
   }
 

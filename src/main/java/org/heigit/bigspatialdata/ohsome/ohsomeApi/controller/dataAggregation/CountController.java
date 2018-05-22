@@ -614,12 +614,9 @@ public class CountController {
    * items selected by types, keys and values grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
    * 
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
    *         RatioResponse}
    */
@@ -658,8 +655,9 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatioGroupByBoundary(new RequestParameters(false,
-        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.COUNT, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
         types2, keys2, values2);
   }
 
@@ -1249,12 +1247,9 @@ public class CountController {
    * would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
    * 
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
    *         RatioResponse}
    */
@@ -1310,12 +1305,9 @@ public class CountController {
    * used if the request URL would be too long for a GET request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
+   * getCountRatio} method.
    * 
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
    *         RatioResponse}
    */
@@ -1358,8 +1350,9 @@ public class CountController {
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountRatioGroupByBoundary(new RequestParameters(true,
-        true, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.COUNT, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, showMetadata),
         types2, keys2, values2);
   }
 

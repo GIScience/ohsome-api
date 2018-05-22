@@ -286,7 +286,7 @@ public class ExecutionUtils {
 
   /** Enum type used in /ratio computation. */
   public enum MatchType {
-    MATCHES1, MATCHES2, MATCHESBOTH
+    MATCHES1, MATCHES2, MATCHESBOTH, MATCHESNONE
   }
 
   /** Internal helper method to get the geometry from an OSMEntitySnapshot object. */
