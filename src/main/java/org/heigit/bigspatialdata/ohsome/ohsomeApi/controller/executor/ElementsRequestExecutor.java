@@ -21,6 +21,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
@@ -80,7 +81,6 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
@@ -128,17 +128,11 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    if (rPs.isDensity()) {
-      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " per square kilometer).";
-    } else {
-      description =
-          "Total " + requestResource.getLabel() + " of items in " + requestResource.getUnit() + ".";
-    }
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterArea(rPs.isDensity(),
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -169,7 +163,6 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
@@ -214,12 +207,11 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit() + " aggregated on the boundary.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByBoundary(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -251,7 +243,6 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
@@ -305,12 +296,11 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit() + " aggregated on the user.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -344,7 +334,6 @@ public class ElementsRequestExecutor {
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
@@ -438,17 +427,12 @@ public class ElementsRequestExecutor {
     }
     // used to remove null objects from the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-    if (rPs.isDensity()) {
-      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " per square kilometer) aggregated on the tag.";
-    } else {
-      description = "Total " + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " aggregated on the tag.";
-    }
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata =
+          new Metadata(duration, Description.countLengthPerimeterAreaGroupByTag(rPs.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -479,7 +463,6 @@ public class ElementsRequestExecutor {
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
@@ -541,17 +524,11 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    if (rPs.isDensity()) {
-      description = "Density of selected items (" + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " per square kilometer) aggregated on the type.";
-    } else {
-      description = "Total " + requestResource.getLabel() + " of items in "
-          + requestResource.getUnit() + " aggregated on the type.";
-    }
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countPerimeterAreaGroupByType(rPs.isDensity(),
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -585,7 +562,6 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!rPs.isPost())
@@ -661,12 +637,11 @@ public class ElementsRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit() + " aggregated on the key.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -698,7 +673,6 @@ public class ElementsRequestExecutor {
     MapAggregatorByTimestampAndIndex<Boolean, OSMEntitySnapshot> preResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
@@ -814,13 +788,11 @@ public class ElementsRequestExecutor {
         part[i] = 0.0;
       resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
     }
-    description = "Total " + requestResource.getLabel()
-        + " of the whole and of a share of items in " + requestResource.getUnit()
-        + " satisfying keys2 and values2 within items selected by types, keys, values.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaShare(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     ShareResponse response =
         new ShareResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
@@ -851,7 +823,6 @@ public class ElementsRequestExecutor {
     SortedMap<Pair<Integer, Boolean>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
@@ -916,13 +887,11 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    description = "Total " + requestResource.getLabel()
-        + " of the whole and of a share of items in " + requestResource.getUnit()
-        + " satisfying keys2 and values2 within items selected by types, keys, values, aggregated on the boundary.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse(
         new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
@@ -953,7 +922,6 @@ public class ElementsRequestExecutor {
     MapAggregatorByTimestampAndIndex<MatchType, OSMEntitySnapshot> preResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
@@ -1077,14 +1045,11 @@ public class ElementsRequestExecutor {
       }
       resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
     }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit()
-        + " satisfying types2, keys2, values2 parameters (= value2 output) "
-        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatio(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     RatioResponse response =
         new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
@@ -1114,7 +1079,6 @@ public class ElementsRequestExecutor {
     SortedMap<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
-    String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
@@ -1279,15 +1243,12 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    description = "Total " + requestResource.getLabel() + " of items in "
-        + requestResource.getUnit()
-        + " satisfying types2, keys2, values2 parameters (= value2 output) within items"
-        + " selected by types, keys, values parameters (= value output) and ratio of value2:value grouped on the boundary objects.";
 
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestURL);
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+          requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
         new Attribution(url, text), Application.apiVersion, metadata, groupByResultSet);
