@@ -13,7 +13,6 @@ public class Description {
     } else {
       return "Total " + label + " of items in " + unit + ".";
     }
-
   }
 
   public static String countLengthPerimeterAreaGroupByBoundary(String label, String unit) {
@@ -67,14 +66,14 @@ public class Description {
   public static String countLengthPerimeterAreaRatio(String label, String unit) {
 
     return "Total " + label + " of items in " + unit
-        + " satisfying types2, keys2, values2 parameters (= value2 output) "
-        + "within items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
+        + " satisfying types2, keys2, values2 parameters (= value2 output),"
+        + " as well as items selected by types, keys, values parameters (= value output) and ratio of value2:value.";
   }
 
   public static String countLengthPerimeterAreaRatioGroupByBoundary(String label, String unit) {
 
     return "Total " + label + " of items in " + unit
-        + " satisfying types2, keys2, values2 parameters (= value2 output) within items"
+        + " satisfying types2, keys2, values2 parameters (= value2 output), as well as items"
         + " selected by types, keys, values parameters (= value output) and ratio of value2:value, aggregated on the boundary objects.";
   }
 }
