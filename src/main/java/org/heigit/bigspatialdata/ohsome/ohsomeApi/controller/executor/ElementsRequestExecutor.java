@@ -559,105 +559,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count-ratio calculation grouped by the boundary.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
-   * 
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
-   *         RatioGroupByBoundaryResponse Content}
-   */
-  public static RatioGroupByBoundaryResponse executeCountRatioGroupByBoundary(RequestParameters rPs,
-      String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result1;
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result2;
-    MapReducer<OSMEntitySnapshot> mapRed1 = null;
-    MapReducer<OSMEntitySnapshot> mapRed2 = null;
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult1;
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult2;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
-    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
-        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types2, keys2, values2,
-        rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata());
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed1 = iP.processParameters(mapRed1, rPs);
-    result1 = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
-        iP.getBoundaryType(), mapRed1, iP.getGeomBuilder(), rPs.isSnapshot());
-    mapRed2 = iP.processParameters(mapRed2, rPs2);
-    result2 = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
-        iP.getBoundaryType(), mapRed2, iP.getGeomBuilder(), rPs.isSnapshot());
-    groupByResult1 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result1);
-    groupByResult2 = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result2);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult1.size()];
-    RatioGroupByResult[] ratioResultSet = new RatioGroupByResult[groupByResult1.size()];
-    String groupByName = "";
-    Utils utils = iP.getUtils();
-    String[] boundaryIds = utils.getBoundaryIds();
-    int count = 0;
-    int innerCount = 0;
-    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult1
-        .entrySet()) {
-      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                innerEntry.getValue().intValue());
-        innerCount++;
-      }
-      resultSet[count] = new GroupByResult(groupByName, results);
-      count++;
-    }
-    count = 0;
-    innerCount = 0;
-    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult2
-        .entrySet()) {
-      RatioResult[] ratioResults = new RatioResult[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        double value = resultSet[count].getResult()[innerCount].getValue();
-        double value2 = innerEntry.getValue().doubleValue();
-        double ratio = value2 / value;
-        // in case ratio has the values "NaN", "Infinity", etc.
-        try {
-          ratio = Double.parseDouble(ratioDf.format(ratio));
-        } catch (Exception e) {
-          // do nothing --> just return ratio without rounding (trimming)
-        }
-        ratioResults[innerCount] =
-            new RatioResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                value, value2, ratio);
-        innerCount++;
-      }
-      ratioResultSet[count] = new RatioGroupByResult(groupByName, ratioResults);
-      count++;
-    }
-    Metadata metadata = null;
-    if (iP.getShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          "Amount of items satisfying types2, keys2, values2 parameters (= value2 output) within items "
-              + "selected by types, keys, values parameters (= value output) and ratio of value2:value grouped on the boundary objects.",
-          requestURL);
-    }
-    RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse(
-        new Attribution(url, text), Application.apiVersion, metadata, ratioResultSet);
-    return response;
-  }
-
-  /**
    * Performs a count|length|perimeter|area calculation grouped by the key.
    * <p>
    * The other parameters are described in the
@@ -1058,9 +959,11 @@ public class ElementsRequestExecutor {
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     TagTranslator tt = DbConnData.tagTranslator;
     rPs = iP.fillWithEmptyIfNull(rPs);
+    // for input processing/checking only
     iP.processParameters(mapRed, rPs);
     iP.checkKeysValues(keys2, values2, false);
     values2 = iP.createEmptyArrayIfNull(values2);
+    keys2 = iP.createEmptyArrayIfNull(keys2);
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -1083,15 +986,20 @@ public class ElementsRequestExecutor {
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    mapRed = iP.processParameters(mapRed,
-        new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
-            rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
-            rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
-    mapRed = mapRed.where(entity -> {
-      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
-      return matches1 || matches2;
-    });
+    if (!iP.compareKeysValues(rPs.getKeys(), keys2, rPs.getValues(), values2)) {
+      mapRed = iP.processParameters(mapRed,
+          new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
+              rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
+              rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+      mapRed = mapRed.where(entity -> {
+        boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+        boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        return matches1 || matches2;
+      });
+    } else {
+      mapRed = iP.processParameters(mapRed, rPs);
+      mapRed = mapRed.osmTypes(osmTypes);
+    }
     preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       OSMEntity entity = f.getEntity();
       boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
@@ -1219,6 +1127,7 @@ public class ElementsRequestExecutor {
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     iP.checkKeysValues(keys2, values2, false);
     values2 = iP.createEmptyArrayIfNull(values2);
+    keys2 = iP.createEmptyArrayIfNull(keys2);
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -1241,15 +1150,20 @@ public class ElementsRequestExecutor {
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    mapRed = iP.processParameters(mapRed,
-        new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
-            rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
-            rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
-    mapRed = mapRed.where(entity -> {
-      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
-      return matches1 || matches2;
-    });
+    if (!iP.compareKeysValues(rPs.getKeys(), keys2, rPs.getValues(), values2)) {
+      mapRed = iP.processParameters(mapRed,
+          new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
+              rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
+              rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+      mapRed = mapRed.where(entity -> {
+        boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+        boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        return matches1 || matches2;
+      });
+    } else {
+      mapRed = iP.processParameters(mapRed, rPs);
+      mapRed = mapRed.osmTypes(osmTypes);
+    }
     Utils utils = iP.getUtils();
     ArrayList<Geometry> geoms = geomBuilder.getGeometry(iP.getBoundaryType());
     List<Pair<Integer, MatchType>> zeroFill = new LinkedList<>();
@@ -1345,7 +1259,7 @@ public class ElementsRequestExecutor {
         }
         timeArrayFilled = true;
       } else {
-        // on MatchType.MATCHESNONE aggregated values are not needed
+        // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
       if (count % 3 == 0) {
         groupByName = boundaryIds[gBNCount];

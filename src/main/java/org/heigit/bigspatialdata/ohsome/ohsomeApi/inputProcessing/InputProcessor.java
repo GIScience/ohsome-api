@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -238,6 +239,20 @@ public class InputProcessor {
       if (keys.length < values.length)
         throw new BadRequestException(
             "There cannot be more input values in the values|values2 than in the keys|keys2 parameter, as values_n must fit to keys_n.");
+  }
+
+  /**
+   * Compares the keys and values arrays with each other. Returns true only if
+   * keys==keys2&&values==values2.
+   */
+  public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
+      String[] values2) {
+
+    if (keys.length == keys2.length && values.length == values2.length) {
+      if (Arrays.equals(keys, keys2) && Arrays.equals(values, values2))
+        return true;
+    }
+    return false;
   }
 
   /**
