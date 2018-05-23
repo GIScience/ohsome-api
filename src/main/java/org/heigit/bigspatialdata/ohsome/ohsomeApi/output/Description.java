@@ -7,14 +7,13 @@ public class Description {
 
   public static String countLengthPerimeterArea(boolean isDensity, String label, String unit) {
 
-    String description;
     if (isDensity) {
-      description = "Density of selected items (" + label + " of items in " + unit
+      return "Density of selected items (" + label + " of items in " + unit
           + " per square kilometer).";
     } else {
-      description = "Total " + label + " of items in " + unit + ".";
+      return "Total " + label + " of items in " + unit + ".";
     }
-    return description;
+
   }
 
   public static String countLengthPerimeterAreaGroupByBoundary(String label, String unit) {
@@ -30,26 +29,22 @@ public class Description {
   public static String countLengthPerimeterAreaGroupByTag(boolean isDensity, String label,
       String unit) {
 
-    String description;
     if (isDensity) {
-      description = "Density of selected items (" + label + " of items in " + unit
+      return "Density of selected items (" + label + " of items in " + unit
           + " per square kilometer), aggregated on the tag.";
     } else {
-      description = "Total " + label + " of items in " + unit + ", aggregated on the tag.";
+      return "Total " + label + " of items in " + unit + ", aggregated on the tag.";
     }
-    return description;
   }
 
   public static String countPerimeterAreaGroupByType(boolean isDensity, String label, String unit) {
 
-    String description;
     if (isDensity) {
-      description = "Density of selected items (" + label + " of items in " + unit
+      return "Density of selected items (" + label + " of items in " + unit
           + " per square kilometer), aggregated on the type.";
     } else {
-      description = "Total " + label + " of items in " + unit + ", aggregated on the type.";
+      return "Total " + label + " of items in " + unit + ", aggregated on the type.";
     }
-    return description;
   }
 
   public static String countLengthPerimeterAreaGroupByKey(String label, String unit) {
