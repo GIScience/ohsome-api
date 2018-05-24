@@ -7,11 +7,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestPar
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -303,8 +300,8 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
-   *         ShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -314,7 +311,7 @@ public class PerimeterController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public ShareResponse getPerimeterShare(
+  public RatioShareResponse getPerimeterShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -337,10 +334,11 @@ public class PerimeterController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShare(RequestResource.PERIMETER,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatio(
+            RequestResource.PERIMETER, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types, keys2, values2, true);
   }
 
   /**
@@ -355,8 +353,8 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse
-   *         ShareGroupByBoundaryResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
@@ -366,7 +364,7 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public ShareGroupByBoundaryResponse getPerimeterShareGroupByBoundary(
+  public RatioShareResponse getPerimeterShareGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -543,8 +541,8 @@ public class PerimeterController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -559,7 +557,7 @@ public class PerimeterController {
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, paramType = "query",
           dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
-  public RatioResponse getAreaRatio(
+  public RatioShareResponse getPerimeterRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -583,10 +581,10 @@ public class PerimeterController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.PERIMETER,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        types2, keys2, values2);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
+        RequestResource.PERIMETER, new RequestParameters(false, true, false, bboxes, bcircles,
+            bpolys, types, keys, values, userids, time, showMetadata),
+        types2, keys2, values2, false);
   }
 
   /**
@@ -597,8 +595,8 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary")
   @ApiImplicitParams({
@@ -612,7 +610,7 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public RatioGroupByBoundaryResponse getPerimeterRatioGroupByBoundary(
+  public RatioShareResponse getPerimeterRatioGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -961,8 +959,8 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
-   *         ShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -998,15 +996,16 @@ public class PerimeterController {
           value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareResponse postPerimeterShare(String bboxes, String bcircles, String bpolys,
+  public RatioShareResponse postPerimeterShare(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShare(RequestResource.PERIMETER,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatio(
+            RequestResource.PERIMETER, new RequestParameters(true, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types, keys2, values2, true);
   }
 
   /**
@@ -1022,8 +1021,8 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse
-   *         ShareGroupByBoundaryResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
@@ -1058,9 +1057,9 @@ public class PerimeterController {
           value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareGroupByBoundaryResponse postPerimeterShareGroupByBoundary(String bboxes,
-      String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata, String[] keys2, String[] values2)
+  public RatioShareResponse postPerimeterShareGroupByBoundary(String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
@@ -1242,8 +1241,8 @@ public class PerimeterController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -1281,15 +1280,15 @@ public class PerimeterController {
           defaultValue = "yes", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioResponse postPerimeterRatio(String bboxes, String bcircles, String bpolys,
+  public RatioShareResponse postPerimeterRatio(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.PERIMETER,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        types2, keys2, values2);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
+        RequestResource.PERIMETER, new RequestParameters(true, true, false, bboxes, bcircles,
+            bpolys, types, keys, values, userids, time, showMetadata),
+        types2, keys2, values2, false);
   }
 
   /**
@@ -1301,8 +1300,8 @@ public class PerimeterController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary")
   @ApiImplicitParams({
@@ -1338,14 +1337,14 @@ public class PerimeterController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioGroupByBoundaryResponse postPerimeterRatioGroupByBoundary(String bboxes, String bcircles,
+  public RatioShareResponse postPerimeterRatioGroupByBoundary(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
-        RequestResource.PERIMETER, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata),
+        RequestResource.PERIMETER, new RequestParameters(true, true, false, bboxes, bcircles,
+            bpolys, types, keys, values, userids, time, showMetadata),
         types2, keys2, values2);
   }
 

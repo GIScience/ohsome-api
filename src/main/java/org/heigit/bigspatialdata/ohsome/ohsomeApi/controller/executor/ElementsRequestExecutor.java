@@ -25,10 +25,9 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
@@ -595,157 +594,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area-share calculation.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountShare(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
-   * getCountShare} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
-  public static ShareResponse executeCountLengthPerimeterAreaShare(RequestResource requestResource,
-      RequestParameters rPs, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-
-    SortedMap<OSHDBTimestampAndIndex<Boolean>, ? extends Number> result = null;
-    MapAggregatorByTimestampAndIndex<Boolean, OSMEntitySnapshot> preResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    TagTranslator tt = DbConnData.tagTranslator;
-    iP.checkKeysValues(keys2, values2, true);
-    values2 = iP.createEmptyArrayIfNull(values2);
-    Integer[] keysInt2 = new Integer[keys2.length];
-    Integer[] valuesInt2 = new Integer[values2.length];
-    if (!rPs.isPost())
-      requestURL = RequestInterceptor.requestUrl;
-    for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (values2 != null && i < values2.length)
-        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
-    }
-    mapRed = iP.processParameters(mapRed, rPs);
-    preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
-      // result aggregated on true (if obj contains all tags) and false (if not all are contained)
-      boolean hasTags = false;
-      for (int i = 0; i < keysInt2.length; i++) {
-        if (f.getEntity().hasTagKey(keysInt2[i])) {
-          if (i >= valuesInt2.length) {
-            // if more keys2 than values2 are given
-            hasTags = true;
-            continue;
-          }
-          if (f.getEntity().hasTagValue(keysInt2[i], valuesInt2[i])) {
-            hasTags = true;
-          } else {
-            hasTags = false;
-            break;
-          }
-        } else {
-          hasTags = false;
-          break;
-        }
-      }
-      return hasTags;
-    }).zerofillIndices(Arrays.asList(true, false));
-    switch (requestResource) {
-      case COUNT:
-        result = preResult.count();
-        break;
-      case LENGTH:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.lengthOf(snapshot.getGeometry());
-        });
-        break;
-      case PERIMETER:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        });
-        break;
-      case AREA:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.areaOf(snapshot.getGeometry());
-        });
-        break;
-    }
-    Double[] whole = new Double[result.size()];
-    Double[] part = new Double[result.size()];
-    String[] timeArray = new String[result.size()];
-    // needed time array in case no key can be found
-    String[] noPartTimeArray = new String[result.size()];
-    int partCount = 0;
-    int wholeCount = 0;
-    int timeCount = 0;
-    // fill whole and part arrays with -1 values to indicate "no value"
-    for (int i = 0; i < result.size(); i++) {
-      whole[i] = -1.0;
-      part[i] = -1.0;
-    }
-    // time and value extraction
-    for (Entry<OSHDBTimestampAndIndex<Boolean>, ? extends Number> entry : result.entrySet()) {
-      // this time array counts for each entry in the entrySet
-      noPartTimeArray[timeCount] =
-          TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
-      if (entry.getKey().getOtherIndex()) {
-        timeArray[partCount] =
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
-        part[partCount] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        if (whole[partCount] == null || whole[partCount] == -1)
-          whole[partCount] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        else
-          whole[partCount] =
-              whole[partCount] + Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        partCount++;
-      } else {
-        // else - set/increase only whole
-        if (whole[wholeCount] == null || whole[wholeCount] == -1)
-          whole[wholeCount] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        else
-          whole[wholeCount] =
-              whole[partCount] + Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        wholeCount++;
-      }
-      timeCount++;
-    }
-    // remove the possible null values in the array
-    timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-    // overwrite in case the given key for part is not existent in the whole for no timestamp
-    if (timeArray.length < 1) {
-      timeArray = noPartTimeArray;
-    }
-    ShareResult[] resultSet = new ShareResult[timeArray.length];
-    for (int i = 0; i < timeArray.length; i++) {
-      // set whole or part to 0 if they have -1 (== no value)
-      if (whole[i] == -1)
-        whole[i] = 0.0;
-      if (part[i] == -1)
-        part[i] = 0.0;
-      resultSet[i] = new ShareResult(timeArray[i], whole[i], part[i]);
-    }
-    Metadata metadata = null;
-    if (iP.getShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaShare(
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
-    }
-    ShareResponse response =
-        new ShareResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
-    return response;
-  }
-
-  /**
    * Performs a count|length|perimeter|area-share calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
@@ -772,7 +620,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
-    iP.checkKeysValues(keys2, values2, true);
+    iP.checkKeysValues(keys2, values2);
     values2 = iP.createEmptyArrayIfNull(values2);
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
@@ -858,9 +706,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static RatioResponse executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
-      RequestParameters rPs, String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+  public static RatioShareResponse executeCountLengthPerimeterAreaRatio(
+      RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
+      String[] values2, boolean isShare) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -875,7 +723,7 @@ public class ElementsRequestExecutor {
     rPs = iP.fillWithEmptyIfNull(rPs);
     // for input processing/checking only
     iP.processParameters(mapRed, rPs);
-    iP.checkKeysValues(keys2, values2, false);
+    iP.checkKeysValues(keys2, values2);
     values2 = iP.createEmptyArrayIfNull(values2);
     keys2 = iP.createEmptyArrayIfNull(keys2);
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];
@@ -980,26 +828,9 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
-    RatioResult[] resultSet = new RatioResult[timeArray.length];
-    for (int i = 0; i < timeArray.length; i++) {
-      double ratio = value2[i] / value1[i];
-      // in case ratio has the values "NaN", "Infinity", etc.
-      try {
-        ratio = Double.parseDouble(ratioDf.format(ratio));
-      } catch (Exception e) {
-        // do nothing --> just return ratio without rounding (trimming)
-      }
-      resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
-    }
-    Metadata metadata = null;
-    if (iP.getShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatio(
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
-    }
-    RatioResponse response =
-        new RatioResponse(new Attribution(url, text), Application.apiVersion, metadata, resultSet);
-    return response;
+
+    return exeUtils.createRatioShareResponse(isShare, timeArray, value1, value2, ratioDf, iP,
+        startTime, requestResource, requestURL, new Attribution(url, text), Application.apiVersion);
   }
 
   /**
@@ -1035,7 +866,7 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    iP.checkKeysValues(keys2, values2, false);
+    iP.checkKeysValues(keys2, values2);
     values2 = iP.createEmptyArrayIfNull(values2);
     keys2 = iP.createEmptyArrayIfNull(keys2);
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];

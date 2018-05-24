@@ -228,13 +228,8 @@ public class InputProcessor {
   }
 
   /** Checks the given keys and values String[] on their length. */
-  public void checkKeysValues(String[] keys, String[] values, boolean isShare)
-      throws BadRequestException {
+  public void checkKeysValues(String[] keys, String[] values) throws BadRequestException {
 
-    if (isShare)
-      if (keys == null || keys.length < 1)
-        throw new BadRequestException(
-            "You need to define at least one keys2 parameter if you want to use this resource.");
     if (values != null)
       if (keys.length < values.length)
         throw new BadRequestException(
@@ -275,7 +270,7 @@ public class InputProcessor {
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values)
       throws BadRequestException {
 
-    checkKeysValues(keys, values, false);
+    checkKeysValues(keys, values);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
       for (int a = 0; a < values.length; a++) {

@@ -11,10 +11,20 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.Description;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -288,6 +298,7 @@ public class ExecutionUtils {
     return matches;
   }
 
+  /** Fills the ElementsResult array with respective ElementsResult objects. */
   public ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, DecimalFormat df, Geometry geom) {
 
@@ -305,8 +316,50 @@ public class ExecutionUtils {
       }
       count++;
     }
-
     return results;
+  }
+
+  /** asdf */
+  public RatioShareResponse createRatioShareResponse(boolean isShare, String[] timeArray,
+      Double[] value1, Double[] value2, DecimalFormat df, InputProcessor iP, long startTime,
+      RequestResource reqRes, String requestURL, Attribution attribution, String apiVersion) {
+
+    RatioShareResponse response;
+    if (!isShare) {
+      RatioResult[] resultSet = new RatioResult[timeArray.length];
+      for (int i = 0; i < timeArray.length; i++) {
+        double ratio = value2[i] / value1[i];
+        // in case ratio has the values "NaN", "Infinity", etc.
+        try {
+          ratio = Double.parseDouble(df.format(ratio));
+        } catch (Exception e) {
+          // do nothing --> just return ratio without rounding (trimming)
+        }
+        resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
+      }
+      Metadata metadata = null;
+      if (iP.getShowMetadata()) {
+        long duration = System.currentTimeMillis() - startTime;
+        metadata = new Metadata(duration,
+            Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
+            requestURL);
+      }
+      response = new RatioResponse(attribution, Application.apiVersion, metadata, resultSet);
+    } else {
+      ShareResult[] resultSet = new ShareResult[timeArray.length];
+      for (int i = 0; i < timeArray.length; i++) {
+        resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
+      }
+      Metadata metadata = null;
+      if (iP.getShowMetadata()) {
+        long duration = System.currentTimeMillis() - startTime;
+        metadata = new Metadata(duration,
+            Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
+            requestURL);
+      }
+      response = new ShareResponse(attribution, Application.apiVersion, metadata, resultSet);
+    }
+    return response;
   }
 
   /** Enum type used in /ratio computation. */

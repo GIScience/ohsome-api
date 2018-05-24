@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationRespons
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
  * ShareResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class ShareGroupByBoundaryResponse {
+public class ShareGroupByBoundaryResponse implements RatioShareResponse{
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;

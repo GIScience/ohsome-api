@@ -7,11 +7,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestPar
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -328,8 +325,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
-   *         ShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -339,7 +336,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public ShareResponse getCountShare(
+  public RatioShareResponse getCountShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -362,10 +359,11 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShare(RequestResource.COUNT,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatio(
+            RequestResource.COUNT, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types, keys2, values2, true);
   }
 
   /**
@@ -380,8 +378,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse
-   *         ShareGroupByBoundaryResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
@@ -391,7 +389,7 @@ public class CountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public ShareGroupByBoundaryResponse getCountShareGroupByBoundary(
+  public RatioShareResponse getCountShareGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -565,8 +563,8 @@ public class CountController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -579,7 +577,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
-  public RatioResponse getCountRatio(
+  public RatioShareResponse getCountRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -603,10 +601,11 @@ public class CountController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        types2, keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatio(
+            RequestResource.COUNT, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types2, keys2, values2, false);
   }
 
   /**
@@ -617,8 +616,8 @@ public class CountController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Ratio of selected items grouped by the boundary")
   @ApiImplicitParams({
@@ -631,7 +630,7 @@ public class CountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public RatioGroupByBoundaryResponse getCountRatioGroupByBoundary(
+  public RatioShareResponse getCountRatioGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -980,8 +979,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
-   *         ShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -1017,15 +1016,16 @@ public class CountController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareResponse postCountShare(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] keys2, String[] values2)
+  public RatioShareResponse postCountShare(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShare(RequestResource.COUNT,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatio(
+            RequestResource.COUNT, new RequestParameters(true, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types, keys2, values2, true);
   }
 
   /**
@@ -1041,8 +1041,8 @@ public class CountController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse
-   *         ShareGroupByBoundaryResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
   @ApiImplicitParams({
@@ -1075,7 +1075,7 @@ public class CountController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ShareGroupByBoundaryResponse postCountShareGroupByBoundary(String bboxes, String bcircles,
+  public RatioShareResponse postCountShareGroupByBoundary(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -1250,8 +1250,8 @@ public class CountController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
@@ -1288,15 +1288,16 @@ public class CountController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioResponse postCountRatio(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] types2, String[] keys2, String[] values2)
+  public RatioShareResponse postCountRatio(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        types2, keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatio(
+            RequestResource.COUNT, new RequestParameters(true, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types2, keys2, values2, false);
   }
 
   /**
@@ -1308,8 +1309,8 @@ public class CountController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
-   *         RatioResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
+   *         RatioShareResponse}
    */
   @ApiOperation(value = "Ratio of selected items grouped by the boundary")
   @ApiImplicitParams({
@@ -1345,7 +1346,7 @@ public class CountController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioGroupByBoundaryResponse postCountRatioGroupByBoundary(String bboxes, String bcircles,
+  public RatioShareResponse postCountRatioGroupByBoundary(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception {
