@@ -114,20 +114,7 @@ public class ElementsRequestExecutor {
     }
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    int count = 0;
-    ElementsResult[] resultSet = new ElementsResult[result.size()];
-    for (Entry<OSHDBTimestamp, ? extends Number> entry : result.entrySet()) {
-      if (rPs.isDensity()) {
-        resultSet[count] = new ElementsResult(
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey()), Double.parseDouble(
-                df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
-      } else {
-        resultSet[count] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-                Double.parseDouble(df.format((entry.getValue().doubleValue()))));
-      }
-      count++;
-    }
+    ElementsResult[] resultSet = exeUtils.fillElementsResult(result, rPs.isDensity(), df, geom);
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
@@ -192,18 +179,11 @@ public class ElementsRequestExecutor {
     Utils utils = iP.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    int innerCount = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
-      innerCount = 0;
+      ElementsResult[] results =
+          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, null);
       groupByName = boundaryIds[count];
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
@@ -281,21 +261,17 @@ public class ElementsRequestExecutor {
     }
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+
     int count = 0;
-    int innerCount = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
+
+      ElementsResult[] results =
+          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, null);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
+
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
@@ -403,24 +379,13 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
-      int innerCount = 0;
+      ElementsResult[] results =
+          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
       } else {
         groupByName = "remainder";
-      }
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        if (rPs.isDensity())
-          results[innerCount] = new ElementsResult(
-              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double.parseDouble(
-                  df.format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
-        else
-          results[innerCount] =
-              new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                  Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -505,22 +470,10 @@ public class ElementsRequestExecutor {
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
     int count = 0;
-    int innerCount = 0;
     for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
-      innerCount = 0;
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        if (rPs.isDensity())
-          results[innerCount] = new ElementsResult(
-              TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()), Double.parseDouble(
-                  df.format((innerEntry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
-        else
-          results[innerCount] =
-              new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                  Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
-      }
+      ElementsResult[] results =
+          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
@@ -617,22 +570,15 @@ public class ElementsRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    int innerCount = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = new ElementsResult[entry.getValue().entrySet().size()];
-      innerCount = 0;
+      ElementsResult[] results =
+          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
       } else {
         groupByName = "remainder";
-      }
-      for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-        results[innerCount] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(innerEntry.getKey()),
-                Double.parseDouble(df.format(innerEntry.getValue().doubleValue())));
-        innerCount++;
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;

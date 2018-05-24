@@ -7,12 +7,14 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -21,8 +23,10 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -282,6 +286,27 @@ public class ExecutionUtils {
       matches = false;
     }
     return matches;
+  }
+
+  public ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
+      boolean isDensity, DecimalFormat df, Geometry geom) {
+
+    ElementsResult[] results = new ElementsResult[entryVal.entrySet().size()];
+    int count = 0;
+    for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
+      if (isDensity) {
+        results[count] = new ElementsResult(
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey()), Double.parseDouble(
+                df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
+      } else {
+        results[count] =
+            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+                Double.parseDouble(df.format((entry.getValue().doubleValue()))));
+      }
+      count++;
+    }
+
+    return results;
   }
 
   /** Enum type used in /ratio computation. */
