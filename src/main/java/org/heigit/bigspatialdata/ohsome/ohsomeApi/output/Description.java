@@ -9,7 +9,7 @@ public class Description {
 
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit
-          + " per square kilometer).";
+          + " divided by the area in square kilometers).";
     } else {
       return "Total " + label + " of items in " + unit + ".";
     }
@@ -30,7 +30,7 @@ public class Description {
 
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit
-          + " per square kilometer), aggregated on the tag.";
+          + " divided by the area in square kilometers), aggregated on the tag.";
     } else {
       return "Total " + label + " of items in " + unit + ", aggregated on the tag.";
     }
@@ -40,7 +40,7 @@ public class Description {
 
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit
-          + " per square kilometer), aggregated on the type.";
+          + " divided by the area in square kilometers), aggregated on the type.";
     } else {
       return "Total " + label + " of items in " + unit + ", aggregated on the type.";
     }
