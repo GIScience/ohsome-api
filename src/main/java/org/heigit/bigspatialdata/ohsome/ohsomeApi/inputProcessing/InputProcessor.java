@@ -1,8 +1,10 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
@@ -248,6 +250,45 @@ public class InputProcessor {
         return true;
     }
     return false;
+  }
+
+  /**
+   * Compares the given keys arrays and adds those of the first to the second, if it has
+   * some, which the second one has not. Only used for /share requests.
+   */
+  public String[] addFilterKeys(String[] keys, String[] keys2) {
+
+    if (keys == null || keys.length == 0)
+      return keys2;
+    if (Arrays.equals(keys, keys2))
+      return keys2;
+    List<String> keysList = new ArrayList<>(Arrays.asList(keys2));
+    for (String s : keys) {
+      if (!keysList.contains(s)) {
+        keysList.add(s);
+      }
+    }
+    return keysList.toArray(new String[keysList.size()]);
+  }
+  
+  /**
+   * Compares the given values arrays and adds those of the first to the second, if it has
+   * some, which the second one has not. Only used for /share requests.
+   */
+  public String[] addFilterValues(String[] keys, String[] keys2, String[] values, String[] values2) {
+
+    if (keys == null || keys.length == 0 || values == null || values.length == 0)
+      return values2;
+    if (Arrays.equals(values, values2))
+      return values2;
+    ArrayList<String> valuesList = (ArrayList<String>) Arrays.asList(values);
+    
+    for (String s : keys) {
+      if (!valuesList.contains(s)) {
+        valuesList.add(s);
+      }
+    }
+    return (String[]) valuesList.toArray();
   }
 
   /**

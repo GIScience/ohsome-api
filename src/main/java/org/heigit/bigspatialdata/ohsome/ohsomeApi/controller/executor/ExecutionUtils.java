@@ -25,6 +25,10 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -319,10 +323,10 @@ public class ExecutionUtils {
     return results;
   }
 
-  /** asdf */
+  /** Creates either a RatioResponse or a ShareResponse depending on the request. */
   public RatioShareResponse createRatioShareResponse(boolean isShare, String[] timeArray,
       Double[] value1, Double[] value2, DecimalFormat df, InputProcessor iP, long startTime,
-      RequestResource reqRes, String requestURL, Attribution attribution, String apiVersion) {
+      RequestResource reqRes, String requestURL, Attribution attribution) {
 
     RatioShareResponse response;
     if (!isShare) {
@@ -359,6 +363,71 @@ public class ExecutionUtils {
       }
       response = new ShareResponse(attribution, Application.apiVersion, metadata, resultSet);
     }
+    return response;
+  }
+
+  /**
+   * Creates either a RatioGroupByBoundaryResponse or a ShareGroupByBoundaryResponse depending on
+   * the request.
+   */
+  public RatioShareResponse createRatioShareGroupByBoundaryResponse(boolean isShare,
+      int groupByResultSize, String[] boundaryIds, String[] timeArray,
+      ArrayList<Double[]> value1Arrays, ArrayList<Double[]> value2Arrays, DecimalFormat ratioDf,
+      InputProcessor iP, long startTime, RequestResource reqRes, String requestURL,
+      Attribution attribution) {
+
+    RatioShareResponse response = null;
+    Metadata metadata = null;
+    int count = 0;
+    if (!isShare) {
+      RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[groupByResultSize / 3];
+      for (int i = 0; i < groupByResultSize; i += 3) {
+        Double[] value1 = value1Arrays.get(count);
+        Double[] value2 = value2Arrays.get(count);
+        String groupByName = boundaryIds[count];
+        RatioResult[] resultSet = new RatioResult[timeArray.length];
+        for (int j = 0; j < timeArray.length; j++) {
+          double ratio = value2[j] / value1[j];
+          // in case ratio has the values "NaN", "Infinity", etc.
+          try {
+            ratio = Double.parseDouble(ratioDf.format(ratio));
+          } catch (Exception e) {
+            // do nothing --> just return ratio without rounding (trimming)
+          }
+          resultSet[j] = new RatioResult(timeArray[j], value1[j], value2[j], ratio);
+        }
+        groupByResultSet[count] = new RatioGroupByResult(groupByName, resultSet);
+        count++;
+      }
+      if (iP.getShowMetadata()) {
+        long duration = System.currentTimeMillis() - startTime;
+        metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+            reqRes.getLabel(), reqRes.getUnit()), requestURL);
+      }
+      response = new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+          groupByResultSet);
+    } else {
+      ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResultSize / 3];
+      for (int i = 0; i < groupByResultSize; i += 3) {
+        Double[] value1 = value1Arrays.get(count);
+        Double[] value2 = value2Arrays.get(count);
+        String groupByName = boundaryIds[count];
+        ShareResult[] resultSet = new ShareResult[timeArray.length];
+        for (int j = 0; j < timeArray.length; j++) {
+          resultSet[j] = new ShareResult(timeArray[j], value1[j], value2[j]);
+        }
+        groupByResultSet[count] = new ShareGroupByResult(groupByName, resultSet);
+        count++;
+      }
+      if (iP.getShowMetadata()) {
+        long duration = System.currentTimeMillis() - startTime;
+        metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+            reqRes.getLabel(), reqRes.getUnit()), requestURL);
+      }
+      response = new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+          groupByResultSet);
+    }
+
     return response;
   }
 

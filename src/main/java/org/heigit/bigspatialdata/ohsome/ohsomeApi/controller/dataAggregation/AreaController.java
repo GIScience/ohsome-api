@@ -387,10 +387,11 @@ public class AreaController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
-        RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata),
-        keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatioGroupByBoundary(
+            RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types, keys2, values2, true);
   }
 
   /**
@@ -632,10 +633,11 @@ public class AreaController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
-        RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata),
-        types2, keys2, values2);
+    return ElementsRequestExecutor
+        .executeCountLengthPerimeterAreaRatioGroupByBoundary(
+            RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, showMetadata),
+            types2, keys2, values2, false);
   }
 
   /**
@@ -1059,10 +1061,10 @@ public class AreaController {
       String[] time, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.AREA, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
             types, keys, values, userids, time, showMetadata),
-        keys2, values2);
+        types, keys2, values2, true);
   }
 
   /**
@@ -1338,7 +1340,7 @@ public class AreaController {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.AREA, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
             types, keys, values, userids, time, showMetadata),
-        types2, keys2, values2);
+        types2, keys2, values2, false);
   }
 
 }
