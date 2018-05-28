@@ -2,11 +2,15 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
@@ -253,12 +257,55 @@ public class InputProcessor {
   }
 
   /**
-   * Compares the given keys arrays and adds those of the first to the second, if it has
-   * some, which the second one has not. Only used for /share requests.
+   * Adds the filter parameters from keys and values to a list as tags. Only used in the processing
+   * of /share requests.
+   */
+  public List<Pair<String, String>> addFilterKeysVals(String[] keys, String[] values,
+      String[] keys2, String[] values2) {
+
+    ArrayList<Pair<String, String>> tags = new ArrayList<Pair<String, String>>();
+    for (int i = 0; i < keys.length; i++) {
+      String key = keys[i];
+      Pair<String, String> tag;
+      if (i >= values.length)
+        tag = new ImmutablePair<>(key, "");
+      else
+        tag = new ImmutablePair<>(key, values[i]);
+      tags.add(tag);
+    }
+    for (int i = 0; i < keys2.length; i++) {
+      String key = keys2[i];
+      Pair<String, String> tag;
+      if (i >= values2.length)
+        tag = new ImmutablePair<>(key, "");
+      else
+        tag = new ImmutablePair<>(key, values2[i]);
+      tags.add(tag);
+    }
+    // sorting to have all Pair<key,""> at the end of the list
+    Collections.sort(tags, new Comparator<Pair<String, String>>() {
+      @Override
+      public int compare(Pair<String, String> p1, Pair<String, String> p2) {
+        if (p1.getValue().equals("") && p2.getValue().equals(""))
+          return 0;
+        else if (p1.getValue().equals("") && !p2.getValue().equals(""))
+          return 1;
+        else if (!p1.getValue().equals("") && p2.getValue().equals(""))
+          return -1;
+        else
+          return 0;
+      }
+    });
+    return tags;
+  }
+
+  /**
+   * Compares the given keys arrays and adds those of the first to the second, if it has some, which
+   * the second one has not. Only used in the processing of /share requests.
    */
   public String[] addFilterKeys(String[] keys, String[] keys2) {
 
-    if (keys == null || keys.length == 0)
+    if (keys.length == 0)
       return keys2;
     if (Arrays.equals(keys, keys2))
       return keys2;
@@ -269,26 +316,6 @@ public class InputProcessor {
       }
     }
     return keysList.toArray(new String[keysList.size()]);
-  }
-  
-  /**
-   * Compares the given values arrays and adds those of the first to the second, if it has
-   * some, which the second one has not. Only used for /share requests.
-   */
-  public String[] addFilterValues(String[] keys, String[] keys2, String[] values, String[] values2) {
-
-    if (keys == null || keys.length == 0 || values == null || values.length == 0)
-      return values2;
-    if (Arrays.equals(values, values2))
-      return values2;
-    ArrayList<String> valuesList = (ArrayList<String>) Arrays.asList(values);
-    
-    for (String s : keys) {
-      if (!valuesList.contains(s)) {
-        valuesList.add(s);
-      }
-    }
-    return (String[]) valuesList.toArray();
   }
 
   /**

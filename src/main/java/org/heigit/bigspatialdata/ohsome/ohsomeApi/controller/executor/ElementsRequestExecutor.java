@@ -621,12 +621,27 @@ public class ElementsRequestExecutor {
     iP.checkKeysValues(keys2, values2);
     values2 = iP.createEmptyArrayIfNull(values2);
     keys2 = iP.createEmptyArrayIfNull(keys2);
-
     if (isShare) {
-      keys2 = iP.addFilterKeys(rPs.getKeys(), keys2);
-      // values2 = iP.addFilterValues(rPs.getKeys(), keys2, rPs.getValues(), values2);
+      List<Pair<String, String>> keys2Vals2;
+      if (rPs.getValues().length == 0) {
+        keys2 = iP.addFilterKeys(rPs.getKeys(), keys2);
+      } else if (keys2.length == 0) {
+        keys2 = rPs.getKeys();
+        values2 = rPs.getValues();
+      } else {
+        keys2Vals2 = iP.addFilterKeysVals(rPs.getKeys(), rPs.getValues(), keys2, values2);
+        String[] newKeys2 = new String[keys2Vals2.size()];
+        String[] newValues2 = new String[keys2Vals2.size()];
+        for (int i = 0; i < keys2Vals2.size(); i++) {
+          Pair<String, String> tag = keys2Vals2.get(i);
+          newKeys2[i] = tag.getKey();
+          newValues2[i] = tag.getValue();
+        }
+        keys2 = newKeys2;
+        values2 =
+            Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
+      }
     }
-
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -770,12 +785,27 @@ public class ElementsRequestExecutor {
     iP.checkKeysValues(keys2, values2);
     values2 = iP.createEmptyArrayIfNull(values2);
     keys2 = iP.createEmptyArrayIfNull(keys2);
-
     if (isShare) {
-      keys2 = iP.addFilterKeys(rPs.getKeys(), keys2);
-      // values2 = iP.addFilterValues(rPs.getKeys(), keys2, rPs.getValues(), values2);
+      List<Pair<String, String>> keys2Vals2;
+      if (rPs.getValues().length == 0) {
+        keys2 = iP.addFilterKeys(rPs.getKeys(), keys2);
+      } else if (keys2.length == 0) {
+        keys2 = rPs.getKeys();
+        values2 = rPs.getValues();
+      } else {
+        keys2Vals2 = iP.addFilterKeysVals(rPs.getKeys(), rPs.getValues(), keys2, values2);
+        String[] newKeys2 = new String[keys2Vals2.size()];
+        String[] newValues2 = new String[keys2Vals2.size()];
+        for (int i = 0; i < keys2Vals2.size(); i++) {
+          Pair<String, String> tag = keys2Vals2.get(i);
+          newKeys2[i] = tag.getKey();
+          newValues2[i] = tag.getValue();
+        }
+        keys2 = newKeys2;
+        values2 =
+            Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
+      }
     }
-
     Integer[] keysInt1 = new Integer[rPs.getKeys().length];
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
