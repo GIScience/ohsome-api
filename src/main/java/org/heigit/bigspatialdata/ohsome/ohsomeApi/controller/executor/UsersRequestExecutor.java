@@ -216,7 +216,12 @@ public class UsersRequestExecutor {
     }
     mapRed = iP.processParameters(mapRed, rPs);
     result = mapRed.map(f -> {
-      int[] tags = f.getEntityAfter().getRawTags();
+      
+      int[] tags;
+      if (!f.getEntityAfter().isVisible())
+        tags = f.getEntityBefore().getRawTags();
+      else
+        tags = f.getEntityAfter().getRawTags();
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
@@ -235,7 +240,6 @@ public class UsersRequestExecutor {
       return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
         .map(Pair::getValue).countUniq();
-
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
@@ -284,6 +288,5 @@ public class UsersRequestExecutor {
         Application.apiVersion, metadata, resultSet);
     return response;
   }
-
 
 }
