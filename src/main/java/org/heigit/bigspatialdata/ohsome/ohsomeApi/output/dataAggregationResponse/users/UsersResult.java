@@ -25,12 +25,12 @@ public class UsersResult implements Result {
     this.value = value;
   }
 
-  public String getToTimestamp() {
-    return toTimestamp;
-  }
-
   public String getFromTimestamp() {
     return fromTimestamp;
+  }
+
+  public String getToTimestamp() {
+    return toTimestamp;
   }
 
   public double getValue() {
