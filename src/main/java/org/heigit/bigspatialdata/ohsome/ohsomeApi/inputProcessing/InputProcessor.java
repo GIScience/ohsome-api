@@ -97,10 +97,10 @@ public class InputProcessor {
     }
     if (showMetadata == null)
       this.showMetadata = false;
-    else if (showMetadata.equalsIgnoreCase("true") || showMetadata.equalsIgnoreCase("yes"))
+    else if (showMetadata.replaceAll("\\s","").equalsIgnoreCase("true") || showMetadata.replaceAll("\\s","").equalsIgnoreCase("yes"))
       this.showMetadata = true;
-    else if (showMetadata.equalsIgnoreCase("false") || showMetadata.equals("")
-        || showMetadata.equalsIgnoreCase("no"))
+    else if (showMetadata.replaceAll("\\s","").equalsIgnoreCase("false") || showMetadata.replaceAll("\\s","").equals("")
+        || showMetadata.replaceAll("\\s","").equalsIgnoreCase("no"))
       this.showMetadata = false;
     else
       throw new BadRequestException(
@@ -467,7 +467,7 @@ public class InputProcessor {
       boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
     } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       boundary = BoundaryType.BPOLYS;
-      if (bpolys.startsWith("{")) {
+      if (bpolys.replaceAll("\\s","").startsWith("{")) {
         // geoJson expected
         boundaryValues = null;
       } else {
