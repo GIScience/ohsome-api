@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Result;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
  * the whole and the part(ial) value.
  */
 @JsonInclude(Include.NON_NULL)
-public class ShareResult implements Result {
+public class ShareResult {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
   private String timestamp;

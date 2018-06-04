@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Represents the result JSON object for the /ratio resource containing the timestamp together with
  * two values and their resulting ratio.
  */
-public class RatioResult implements Result {
+public class RatioResult {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
   private String timestamp;
