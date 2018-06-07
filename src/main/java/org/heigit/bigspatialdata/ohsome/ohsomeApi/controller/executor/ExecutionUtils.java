@@ -31,6 +31,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users.UsersResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
@@ -270,6 +271,34 @@ public class ExecutionUtils {
     return result;
   }
 
+  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeKeyTagResult(
+      RequestResource requestResource,
+      MapAggregator<OSHDBTimestampAndIndex<Integer>, OSMEntitySnapshot> preResult)
+      throws Exception {
+
+    switch (requestResource) {
+      case COUNT:
+        return preResult.count();
+      case LENGTH:
+        return preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.lengthOf(snapshot.getGeometry());
+        });
+      case PERIMETER:
+        return preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else
+            return 0.0;
+        });
+      case AREA:
+        return preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.areaOf(snapshot.getGeometry());
+        });
+      default:
+        return null;
+    }
+  }
+
   /** Compares an OSMType with an EnumSet of OSMTypes. */
   public boolean isOSMType(EnumSet<OSMType> types, OSMType currentElementType) {
 
@@ -323,7 +352,7 @@ public class ExecutionUtils {
     }
     return results;
   }
-  
+
   /** Fills the UsersResult array with respective UsersResult objects. */
   public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, String[] toTimestamps, DecimalFormat df, Geometry geom) {
@@ -332,15 +361,14 @@ public class ExecutionUtils {
     int count = 0;
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
-        results[count] = new UsersResult(
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-            toTimestamps[count + 1], Double.parseDouble(
-                df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
-      } else {
         results[count] =
             new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-                toTimestamps[count + 1],
-                Double.parseDouble(df.format(entry.getValue().doubleValue())));
+                toTimestamps[count + 1], Double.parseDouble(
+                    df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+      } else {
+        results[count] = new UsersResult(
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey()), toTimestamps[count + 1],
+            Double.parseDouble(df.format(entry.getValue().doubleValue())));
       }
       count++;
     }
