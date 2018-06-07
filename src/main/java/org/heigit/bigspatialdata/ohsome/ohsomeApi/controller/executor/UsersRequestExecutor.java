@@ -2,6 +2,8 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -190,7 +192,8 @@ public class UsersRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-    result = mapRed.map(f -> {
+    result = mapRed.flatMap(f -> {
+      List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
       int[] tags;
       if (f.getContributionTypes().contains(ContributionType.DELETION)) {
         tags = f.getEntityBefore().getRawTags();
@@ -208,17 +211,19 @@ public class UsersRequestExecutor {
         int tagValueId = tags[i + 1];
         if (tagKeyId == keysInt) {
           if (valuesInt.length == 0) {
-            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                f);
+            res.add(
+                new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f));
           }
           for (int value : valuesInt) {
             if (tagValueId == value)
-              return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                  f);
+              res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
+                  f));
           }
         }
       }
-      return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+      if (res.isEmpty())
+        res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f));
+      return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
         .map(Pair::getValue).map(contrib -> {
           return contrib.getContributorUserId();
