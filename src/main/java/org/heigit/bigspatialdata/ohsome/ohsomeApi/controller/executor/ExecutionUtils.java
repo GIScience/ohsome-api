@@ -29,6 +29,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users.UsersResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -317,6 +318,29 @@ public class ExecutionUtils {
         results[count] =
             new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 Double.parseDouble(df.format((entry.getValue().doubleValue()))));
+      }
+      count++;
+    }
+    return results;
+  }
+  
+  /** Fills the UsersResult array with respective UsersResult objects. */
+  public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
+      boolean isDensity, String[] toTimestamps, DecimalFormat df, Geometry geom) {
+
+    UsersResult[] results = new UsersResult[entryVal.entrySet().size()];
+    int count = 0;
+    for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
+      if (isDensity) {
+        results[count] = new UsersResult(
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+            toTimestamps[count + 1], Double.parseDouble(
+                df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+      } else {
+        results[count] =
+            new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+                toTimestamps[count + 1],
+                Double.parseDouble(df.format(entry.getValue().doubleValue())));
       }
       count++;
     }
