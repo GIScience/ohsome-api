@@ -396,6 +396,7 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
+    MapAggregatorByTimestampAndIndex<OSMType, OSMEntitySnapshot> preResult = null;
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor iP = new InputProcessor();
@@ -404,33 +405,26 @@ public class ElementsRequestExecutor {
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
+    preResult = mapRed.aggregateByTimestamp()
+        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
+          return f.getEntity().getType();
+        }).zerofillIndices(iP.getOsmTypes());
     switch (requestResource) {
       case COUNT:
-        result = mapRed.aggregateByTimestamp()
-            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-              return f.getEntity().getType();
-            }).zerofillIndices(iP.getOsmTypes()).count();
+        result = preResult.count();
         break;
       case AREA:
-        result = mapRed.aggregateByTimestamp()
-            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-              return f.getEntity().getType();
-            }).zerofillIndices(iP.getOsmTypes())
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
-            });
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          return Geo.areaOf(snapshot.getGeometry());
+        });
         break;
       case PERIMETER:
-        result = mapRed.aggregateByTimestamp()
-            .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-              return f.getEntity().getType();
-            }).zerofillIndices(iP.getOsmTypes())
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
-                return 0.0;
-            });
+        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+          if (snapshot.getGeometry() instanceof Polygonal)
+            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+          else
+            return 0.0;
+        });
         break;
       default:
         // should never reach this as requestResource is hard-coded in method call
