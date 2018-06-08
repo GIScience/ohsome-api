@@ -229,7 +229,7 @@ public class ElementsRequestExecutor {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
         }).zerofillIndices(useridsInt);
-    result = exeUtils.computeKeyTagResult(requestResource, preResult);
+    result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
 
@@ -319,29 +319,7 @@ public class ElementsRequestExecutor {
           return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
         }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
             .map(Pair::getValue);
-    switch (requestResource) {
-      case COUNT:
-        result = preResult.count();
-        break;
-      case LENGTH:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.lengthOf(snapshot.getGeometry());
-        });
-        break;
-      case PERIMETER:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        });
-        break;
-      case AREA:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.areaOf(snapshot.getGeometry());
-        });
-        break;
-    }
+    result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
@@ -409,27 +387,7 @@ public class ElementsRequestExecutor {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
         }).zerofillIndices(iP.getOsmTypes());
-    switch (requestResource) {
-      case COUNT:
-        result = preResult.count();
-        break;
-      case AREA:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.areaOf(snapshot.getGeometry());
-        });
-        break;
-      case PERIMETER:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        });
-        break;
-      default:
-        // should never reach this as requestResource is hard-coded in method call
-        break;
-    }
+    result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
@@ -508,7 +466,7 @@ public class ElementsRequestExecutor {
           return res;
         }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
             .map(Pair::getValue);
-    result = exeUtils.computeKeyTagResult(requestResource, preResult);
+    result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
@@ -644,29 +602,7 @@ public class ElementsRequestExecutor {
       return null;
     }).zerofillIndices(
         Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2));
-    switch (requestResource) {
-      case COUNT:
-        result = preResult.count();
-        break;
-      case LENGTH:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.lengthOf(snapshot.getGeometry());
-        });
-        break;
-      case PERIMETER:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        });
-        break;
-      case AREA:
-        result = preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.areaOf(snapshot.getGeometry());
-        });
-        break;
-    }
+    result = exeUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     Double[] value1 = new Double[resultSize / 3];
     Double[] value2 = new Double[resultSize / 3];

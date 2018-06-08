@@ -271,29 +271,37 @@ public class ExecutionUtils {
     return result;
   }
 
-  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeKeyTagResult(
+  /**
+   * Computes the result depending on the <code>RequestResource</code> using a
+   * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
+   */
+  @SuppressWarnings({"unchecked"}) // intentionally suppressed
+  public <K extends OSHDBTimestampAndIndex<?>, V extends Number> SortedMap<K, V> computeResult(
       RequestResource requestResource,
-      MapAggregator<OSHDBTimestampAndIndex<Integer>, OSMEntitySnapshot> preResult)
+      MapAggregator<?, OSMEntitySnapshot> preResult)
       throws Exception {
 
     switch (requestResource) {
       case COUNT:
-        return preResult.count();
+        return (SortedMap<K, V>) preResult.count();
       case LENGTH:
-        return preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.lengthOf(snapshot.getGeometry());
-        });
+        return (SortedMap<K, V>) preResult
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.lengthOf(snapshot.getGeometry());
+            });
       case PERIMETER:
-        return preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          if (snapshot.getGeometry() instanceof Polygonal)
-            return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-          else
-            return 0.0;
-        });
+        return (SortedMap<K, V>) preResult
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal)
+                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+              else
+                return 0.0;
+            });
       case AREA:
-        return preResult.sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-          return Geo.areaOf(snapshot.getGeometry());
-        });
+        return (SortedMap<K, V>) preResult
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return Geo.areaOf(snapshot.getGeometry());
+            });
       default:
         return null;
     }
