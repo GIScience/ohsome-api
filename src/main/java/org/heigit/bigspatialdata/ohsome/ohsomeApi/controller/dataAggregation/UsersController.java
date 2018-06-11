@@ -148,6 +148,49 @@ public class UsersController {
   }
 
   /**
+   * GET request giving the count of OSM users grouped by the key.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   *         GroupByResponseContent}
+   */
+  @ApiOperation(value = "Count of OSM users grouped by the tag")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true)})
+  @RequestMapping(value = "count/groupBy/key", method = RequestMethod.GET,
+      produces = "application/json")
+  public GroupByResponse getCountGroupByKey(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @RequestParam(value = "groupByKeys", defaultValue = "", required = false) String[] groupByKey)
+      throws UnsupportedOperationException, Exception {
+
+    return UsersRequestExecutor.executeCountGroupByKey(new RequestParameters(false, false, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey);
+  }
+
+  /**
    * GET request giving the density of OSM users (number of users per square-kilometers).
    * <p>
    * The parameters are described in the
@@ -270,7 +313,7 @@ public class UsersController {
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,
         groupByValues);
   }
-  
+
   /**
    * POST request giving the count of OSM users. POST requests should only be used if the request
    * URL would be too long for a GET request.
@@ -422,6 +465,56 @@ public class UsersController {
   }
 
   /**
+   * POST request giving the count of OSM users grouped by the key. POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @param groupByKeys <code>String</code> array containing the keys used for the grouping.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   *         GroupByResponse Content}
+   */
+  @ApiOperation(value = "Count of OSM users grouped by the key")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
+          value = ParameterDescriptions.BBOXES_DESCR),
+      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
+          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
+      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.BPOLYS_DESCR),
+      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
+          value = ParameterDescriptions.TYPES_DESCR),
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
+          required = false, value = ParameterDescriptions.VALUES_DESCR),
+      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.USERIDS_DESCR),
+      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.TIME, required = false,
+          value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
+          value = ParameterDescriptions.SHOW_METADATA_DESCR),
+      @ApiImplicitParam(name = "groupByKeys", paramType = "form", dataType = "string",
+          defaultValue = "height", required = true, value = ParameterDescriptions.KEYS_DESCR)})
+  @RequestMapping(value = "/count/groupBy/key", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public GroupByResponse postCountGroupByKey(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKeys)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return UsersRequestExecutor.executeCountGroupByKey(new RequestParameters(true, false, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKeys);
+  }
+
+  /**
    * POST request giving the density of OSM users (number of users per square-kilometers). POST
    * requests should only be used if the request URL would be too long for a GET request.
    * <p>
@@ -515,8 +608,8 @@ public class UsersController {
   }
 
   /**
-   * POST request giving the density of OSM users grouped by the tag. POST requests should only
-   * be used if the request URL would be too long for a GET request.
+   * POST request giving the density of OSM users grouped by the tag. POST requests should only be
+   * used if the request URL would be too long for a GET request.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
@@ -550,7 +643,7 @@ public class UsersController {
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
-          @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
+      @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
           defaultValue = "height", required = true, value = ParameterDescriptions.KEYS_DESCR),
       @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
@@ -558,7 +651,8 @@ public class UsersController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponse postCountDensityGroupByTag(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
+      String showMetadata, String[] groupByKey, String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
 
     return UsersRequestExecutor.executeCountGroupByTag(new RequestParameters(true, false, true,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKey,

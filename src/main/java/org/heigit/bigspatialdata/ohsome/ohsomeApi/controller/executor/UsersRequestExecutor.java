@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -253,6 +254,105 @@ public class UsersRequestExecutor {
           "Density of distinct users per time interval (number of users per square-kilometer) aggregated on the tag.";
     } else {
       description = "Number of distinct users per time interval aggregated on the tag.";
+    }
+    Metadata metadata = null;
+    if (iP.getShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, description, requestURL);
+    }
+    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+        Application.apiVersion, metadata, resultSet);
+    return response;
+  }
+
+  /**
+   * Performs a count calculation grouped by the key.
+   * <p>
+   * The other parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
+   * getCountGroupByKey} method.
+   * 
+   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
+   *        every request.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   *         GroupByResponseContent}
+   */
+  public static GroupByResponse executeCountGroupByKey(RequestParameters rPs, String[] groupByKeys)
+      throws UnsupportedOperationException, Exception {
+
+    long startTime = System.currentTimeMillis();
+    if (groupByKeys == null || groupByKeys.length == 0)
+      throw new BadRequestException(
+          "You need to give at least one groupByKey parameter, if you want to use groupBy/key");
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result = null;
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    MapReducer<OSMContribution> mapRed = null;
+    InputProcessor iP = new InputProcessor();
+    String description = null;
+    String requestURL = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    if (!rPs.isPost())
+      requestURL = RequestInterceptor.requestUrl;
+    TagTranslator tt = DbConnData.tagTranslator;
+    mapRed = iP.processParameters(mapRed, rPs);
+    Integer[] keysInt = new Integer[groupByKeys.length];
+    for (int i = 0; i < groupByKeys.length; i++) {
+      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
+    }
+    result = mapRed.flatMap(f -> {
+      List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
+      int[] tags;
+      // next 10 lines should be put into distinct method
+      if (f.getContributionTypes().contains(ContributionType.DELETION)) {
+        tags = f.getEntityBefore().getRawTags();
+      } else if (f.getContributionTypes().contains(ContributionType.CREATION)) {
+        tags = f.getEntityAfter().getRawTags();
+      } else {
+        int[] tagsBefore = f.getEntityBefore().getRawTags();
+        int[] tagsAfter = f.getEntityAfter().getRawTags();
+        tags = new int[tagsBefore.length + tagsAfter.length];
+        System.arraycopy(tagsBefore, 0, tags, 0, tagsBefore.length);
+        System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
+      }
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        for (int key : keysInt) {
+          if (tagKeyId == key) {
+             res.add(new ImmutablePair<>(tagKeyId, f));
+          }
+        }
+      }
+      if (res.isEmpty())
+        res.add(new ImmutablePair<>(-1, f));
+      return res;
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
+        .map(Pair::getValue).map(contrib -> {
+          return contrib.getContributorUserId();
+        }).countUniq();
+    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    String groupByName = "";
+    String[] toTimestamps = iP.getUtils().getToTimestamps();
+    int count = 0;
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
+        .entrySet()) {
+      UsersResult[] results =
+          exeUtils.fillUsersResult(entry.getValue(), rPs.isDensity(), toTimestamps, df, null);
+      // check for non-remainder objects (which do have the defined key)
+      if (entry.getKey() != -1) {
+        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
+      } else {
+        groupByName = "remainder";
+      }
+      resultSet[count] = new GroupByResult(groupByName, results);
+      count++;
+    }
+    if (rPs.isDensity()) {
+      description =
+          "Density of distinct users per time interval (number of users per square-kilometer) aggregated on the key.";
+    } else {
+      description = "Number of distinct users per time interval aggregated on the key.";
     }
     Metadata metadata = null;
     if (iP.getShowMetadata()) {
