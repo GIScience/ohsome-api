@@ -448,7 +448,6 @@ public class ElementsRequestExecutor {
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
-    // group by key logic
     MapAggregator<OSHDBTimestampAndIndex<Integer>, OSMEntitySnapshot> preResult =
         mapRed.flatMap(f -> {
           List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
