@@ -244,7 +244,7 @@ public class InputProcessor {
 
   /**
    * Compares the keys and values arrays with each other. Returns true only if
-   * keys==keys2&&values==values2.
+   * keys=keys2 and values=values2.
    */
   public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
       String[] values2) {

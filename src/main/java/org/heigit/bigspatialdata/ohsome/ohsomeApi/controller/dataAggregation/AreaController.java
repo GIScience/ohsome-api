@@ -300,8 +300,8 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -353,7 +353,7 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioShareResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
@@ -959,8 +959,8 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
+   *         ShareResponse}
    */
   @ApiOperation(
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
@@ -1020,7 +1020,7 @@ public class AreaController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioShareResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
