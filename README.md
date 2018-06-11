@@ -1,7 +1,7 @@
 # OHSOME API
 
 This REST-based API aims to leverage the tools of the [OSHDB-API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
-The current stable beta-version can be downloaded [here](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/v0.9.1). 
+The current stable beta-version can be downloaded [here](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/0.9.6). 
 Click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) to read information about the whole planning process behind this REST-based API.
 
 ## Getting Started
