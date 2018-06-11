@@ -30,7 +30,6 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -195,18 +194,7 @@ public class UsersRequestExecutor {
     }
     result = mapRed.flatMap(f -> {
       List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
-      int[] tags;
-      if (f.getContributionTypes().contains(ContributionType.DELETION)) {
-        tags = f.getEntityBefore().getRawTags();
-      } else if (f.getContributionTypes().contains(ContributionType.CREATION)) {
-        tags = f.getEntityAfter().getRawTags();
-      } else {
-        int[] tagsBefore = f.getEntityBefore().getRawTags();
-        int[] tagsAfter = f.getEntityAfter().getRawTags();
-        tags = new int[tagsBefore.length + tagsAfter.length];
-        System.arraycopy(tagsBefore, 0, tags, 0, tagsBefore.length);
-        System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
-      }
+      int[] tags = exeUtils.extractContributionTags(f);
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
@@ -302,24 +290,12 @@ public class UsersRequestExecutor {
     }
     result = mapRed.flatMap(f -> {
       List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
-      int[] tags;
-      // next 10 lines should be put into distinct method
-      if (f.getContributionTypes().contains(ContributionType.DELETION)) {
-        tags = f.getEntityBefore().getRawTags();
-      } else if (f.getContributionTypes().contains(ContributionType.CREATION)) {
-        tags = f.getEntityAfter().getRawTags();
-      } else {
-        int[] tagsBefore = f.getEntityBefore().getRawTags();
-        int[] tagsAfter = f.getEntityAfter().getRawTags();
-        tags = new int[tagsBefore.length + tagsAfter.length];
-        System.arraycopy(tagsBefore, 0, tags, 0, tagsBefore.length);
-        System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
-      }
+      int[] tags = exeUtils.extractContributionTags(f);
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         for (int key : keysInt) {
           if (tagKeyId == key) {
-             res.add(new ImmutablePair<>(tagKeyId, f));
+            res.add(new ImmutablePair<>(tagKeyId, f));
           }
         }
       }
@@ -335,8 +311,7 @@ public class UsersRequestExecutor {
     String groupByName = "";
     String[] toTimestamps = iP.getUtils().getToTimestamps();
     int count = 0;
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
-        .entrySet()) {
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results =
           exeUtils.fillUsersResult(entry.getValue(), rPs.isDensity(), toTimestamps, df, null);
       // check for non-remainder objects (which do have the defined key)

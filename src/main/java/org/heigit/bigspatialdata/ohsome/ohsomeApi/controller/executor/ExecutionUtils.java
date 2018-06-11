@@ -40,6 +40,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
@@ -277,8 +278,7 @@ public class ExecutionUtils {
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed
   public <K extends OSHDBTimestampAndIndex<?>, V extends Number> SortedMap<K, V> computeResult(
-      RequestResource requestResource,
-      MapAggregator<?, OSMEntitySnapshot> preResult)
+      RequestResource requestResource, MapAggregator<?, OSMEntitySnapshot> preResult)
       throws Exception {
 
     switch (requestResource) {
@@ -338,6 +338,27 @@ public class ExecutionUtils {
       matches = false;
     }
     return matches;
+  }
+
+  /**
+   * Extracts the tags from the given <code>OSMContribution</code> depending on the
+   * <code>ContributionType</code>
+   */
+  public int[] extractContributionTags(OSMContribution contrib) {
+
+    int[] tags;
+    if (contrib.getContributionTypes().contains(ContributionType.DELETION)) {
+      tags = contrib.getEntityBefore().getRawTags();
+    } else if (contrib.getContributionTypes().contains(ContributionType.CREATION)) {
+      tags = contrib.getEntityAfter().getRawTags();
+    } else {
+      int[] tagsBefore = contrib.getEntityBefore().getRawTags();
+      int[] tagsAfter = contrib.getEntityAfter().getRawTags();
+      tags = new int[tagsBefore.length + tagsAfter.length];
+      System.arraycopy(tagsBefore, 0, tags, 0, tagsBefore.length);
+      System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
+    }
+    return tags;
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
