@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

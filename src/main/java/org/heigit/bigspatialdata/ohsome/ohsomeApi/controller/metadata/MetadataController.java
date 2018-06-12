@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.metadata;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.MetadataRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.MetadataRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.MetadataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

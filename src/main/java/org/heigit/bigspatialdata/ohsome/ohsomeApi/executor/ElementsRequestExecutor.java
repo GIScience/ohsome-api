@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -12,12 +12,12 @@ import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessingUtils;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;

@@ -2,9 +2,9 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.RequestParameters;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor.UsersRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestParameters;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.UsersRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.springframework.http.MediaType;

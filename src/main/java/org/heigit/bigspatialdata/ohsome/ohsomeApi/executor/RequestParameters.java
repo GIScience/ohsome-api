@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
 /** Holds those parameters, which are relevant for every request. */
 public class RequestParameters {

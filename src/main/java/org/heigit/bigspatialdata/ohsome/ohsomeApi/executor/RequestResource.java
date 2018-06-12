@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.executor;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
 /** Enumeration defining the request resource (LENGTH, PERIMETER, AREA, COUNT) */
 public enum RequestResource {
