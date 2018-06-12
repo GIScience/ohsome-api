@@ -28,9 +28,9 @@ import com.vividsolutions.jts.geom.Polygonal;
  * Holds general input processing and validation methods and validates specific parameters given by
  * the request. Uses geometry methods from
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder
- * GeometryBuilder} and utils from
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils Utils}. Throws exceptions
- * depending on their validity.
+ * GeometryBuilder} and inputProcessingUtils from
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessingUtils
+ * InputProcessingUtils}. Throws exceptions depending on their validity.
  */
 public class InputProcessor {
 
@@ -41,7 +41,7 @@ public class InputProcessor {
   private String[] timeData;
   private boolean showMetadata;
   private GeometryBuilder geomBuilder;
-  private Utils utils;
+  private InputProcessingUtils utils;
 
   /**
    * Processes the input parameters from the given request.
@@ -69,7 +69,7 @@ public class InputProcessor {
     String[] userids = rPs.getUserids();
     String showMetadata = rPs.getShowMetadata();
     geomBuilder = new GeometryBuilder();
-    utils = new Utils();
+    utils = new InputProcessingUtils();
     if (isPost) {
       bboxes = createEmptyStringIfNull(bboxes);
       bcircles = createEmptyStringIfNull(bcircles);
@@ -97,10 +97,12 @@ public class InputProcessor {
     }
     if (showMetadata == null)
       this.showMetadata = false;
-    else if (showMetadata.replaceAll("\\s","").equalsIgnoreCase("true") || showMetadata.replaceAll("\\s","").equalsIgnoreCase("yes"))
+    else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
+        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes"))
       this.showMetadata = true;
-    else if (showMetadata.replaceAll("\\s","").equalsIgnoreCase("false") || showMetadata.replaceAll("\\s","").equals("")
-        || showMetadata.replaceAll("\\s","").equalsIgnoreCase("no"))
+    else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
+        || showMetadata.replaceAll("\\s", "").equals("")
+        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no"))
       this.showMetadata = false;
     else
       throw new BadRequestException(
@@ -243,8 +245,8 @@ public class InputProcessor {
   }
 
   /**
-   * Compares the keys and values arrays with each other. Returns true only if
-   * keys=keys2 and values=values2.
+   * Compares the keys and values arrays with each other. Returns true only if keys=keys2 and
+   * values=values2.
    */
   public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
       String[] values2) {
@@ -467,7 +469,7 @@ public class InputProcessor {
       boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
     } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       boundary = BoundaryType.BPOLYS;
-      if (bpolys.replaceAll("\\s","").startsWith("{")) {
+      if (bpolys.replaceAll("\\s", "").startsWith("{")) {
         // geoJson expected
         boundaryValues = null;
       } else {
@@ -506,11 +508,11 @@ public class InputProcessor {
     return geomBuilder;
   }
 
-  public Utils getUtils() {
+  public InputProcessingUtils getUtils() {
     return utils;
   }
 
-  public void setUtils(Utils utils) {
+  public void setUtils(InputProcessingUtils utils) {
     this.utils = utils;
   }
 }

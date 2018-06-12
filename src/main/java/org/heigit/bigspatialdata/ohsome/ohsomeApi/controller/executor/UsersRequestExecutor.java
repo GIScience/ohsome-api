@@ -13,7 +13,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
@@ -372,7 +372,7 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     String[] toTimestamps = iP.getUtils().getToTimestamps();
-    Utils utils = iP.getUtils();
+    InputProcessingUtils utils = iP.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult

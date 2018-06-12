@@ -136,7 +136,7 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{\"id\":\"Pokhara\"},\"geometry\":{\"type\":\"Polygon\","
             + "\"coordinates\":[[[83.913574,28.343065],[83.78723,28.17856],[84.0564,27.974998],[84.28162,28.246328],[83.913574,28.343065]]]}}]}";
     InputProcessor iP = new InputProcessor();
-    iP.setUtils(new Utils());
+    iP.setUtils(new InputProcessingUtils());
     Geometry geom = geomBuilder.createGeometryFromGeoJson(geoJson, iP);
     assertTrue(geom instanceof MultiPolygon);
   }
@@ -150,7 +150,7 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\","
             + "\"coordinates\":[[[84.89685,28.130127],[85.02869,27.152033],[86.484375,27.01509],[84.89685,28.130127]]]}}]}";
     InputProcessor iP = new InputProcessor();
-    iP.setUtils(new Utils());
+    iP.setUtils(new InputProcessingUtils());
     Geometry geom = geomBuilder.createGeometryFromGeoJson(geoJson, iP);
     assertTrue(geom instanceof Polygon);
   }

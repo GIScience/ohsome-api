@@ -15,7 +15,7 @@ import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 
 /** Holds additional utility methods. */
-public class Utils {
+public class InputProcessingUtils {
 
   private String[] boundaryIds;
   private String[] toTimestamps = null;
@@ -61,7 +61,7 @@ public class Utils {
    * Splits the given boundary parameter (bboxes, bcircles, or bpolys) two times. The first split is
    * on '|' and to seperate the bounding objects; The second is on ':' to seperate the custom ids
    * from each first coordinate; Returns the coordinates after the second split (and the radius in
-   * case of bounding points).
+   * case of bounding circles).
    * 
    * @param boundaryParam <code>String</code> containing the given boundary parameter.
    * @param boundaryType <code>Byte</code> containing the value 1 (bboxes), 2 (bcircles) or 3
@@ -126,13 +126,11 @@ public class Utils {
           break;
         case BCIRCLES:
           if (boundaryObjects[0].contains(":")) {
-            // custom ids are given
             boundaryParamValues = new String[boundaryObjects.length * 3];
             for (String bObject : boundaryObjects) {
               coords = bObject.split("\\,");
               if (coords[0].contains(":")) {
                 String[] idAndCoordinate = coords[0].split(":");
-                // extract the id
                 boundaryIds[idCount] = idAndCoordinate[0];
                 // extract the coordinate
                 boundaryParamValues[paramCount] = idAndCoordinate[1];
@@ -148,17 +146,14 @@ public class Utils {
               }
             }
           } else {
-            // no custom ids are given
             boundaryParamValues = new String[boundaryObjects.length * 3];
             idCount = 1;
             for (String bObject : boundaryObjects) {
               coords = bObject.split("\\,");
-              // walks through the coordinates + radius
               for (String coord : coords) {
                 boundaryParamValues[paramCount] = coord;
                 paramCount++;
               }
-              // adding of ids
               boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
               idCount++;
             }
@@ -166,7 +161,6 @@ public class Utils {
           break;
         case BPOLYS:
           if (boundaryObjects[0].contains(":")) {
-            // custom ids are given
             boundaryParamValues = new String[boundaryParam.length()];
             for (String bObject : boundaryObjects) {
               coords = bObject.split("\\,");
@@ -189,31 +183,27 @@ public class Utils {
               }
             }
           } else {
-            // no custom ids are given
             boundaryParamValues = new String[boundaryParam.length()];
             idCount = 1;
             for (String bObject : boundaryObjects) {
               coords = bObject.split("\\,");
-              // walks through the coordinates
               for (String coord : coords) {
                 boundaryParamValues[paramCount] = coord;
                 paramCount++;
               }
-              // adding of ids
               boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
               idCount++;
             }
           }
           break;
-        default: // do nothing as it should never be reached
+        default: // do nothing (should never be reached)
           break;
       }
-
     } catch (Exception e) {
       throw new BadRequestException(
           "The processing of the boundary parameter gave an error. Please use the predefined format "
               + "where you delimit different objects with the pipe-sign '|' "
-              + "and optionally add custom ids with the colon ':' at the first coordinate of each object.");
+              + "and optionally add custom ids with the colon ':' at the first coordinate of each boundary object.");
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues =
@@ -229,7 +219,7 @@ public class Utils {
     String[] toTimestamps;
     OSHDBTimestamps timestamps;
     if (timeData.length == 3 && timeData[2] != null) {
-      // nasty nested if needed to check for interval
+      // nasty nested 'if' needed to check for interval
       if (timeData[2].startsWith("P")) {
         timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
         toTimestamps = timestamps.get().stream().map(oshdbTimestamp -> {
@@ -398,7 +388,7 @@ public class Utils {
         toTimestamps[i] =
             ISODateTimeParser.parseISODateTime(timeData[i]).format(DateTimeFormatter.ISO_DATE_TIME);
       } catch (Exception e) {
-        // time gets checked earlier, so exception should never be thrown
+        // time gets checked earlier already, so no exception should appear here
       }
     }
     return toTimestamps;

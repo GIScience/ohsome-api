@@ -17,7 +17,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessor;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
@@ -169,7 +169,7 @@ public class ElementsRequestExecutor {
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    Utils utils = iP.getUtils();
+    InputProcessingUtils utils = iP.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
@@ -727,7 +727,7 @@ public class ElementsRequestExecutor {
       mapRed = iP.processParameters(mapRed, rPs);
       mapRed = mapRed.osmTypes(osmTypes);
     }
-    Utils utils = iP.getUtils();
+    InputProcessingUtils utils = iP.getUtils();
     ArrayList<Geometry> geoms = geomBuilder.getGeometry(iP.getBoundaryType());
     List<Pair<Integer, MatchType>> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++) {

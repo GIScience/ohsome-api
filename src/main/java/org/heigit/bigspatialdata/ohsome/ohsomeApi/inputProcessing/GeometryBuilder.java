@@ -54,7 +54,7 @@ public class GeometryBuilder {
    */
   public Geometry createBboxes(String[] bboxes) throws BadRequestException, NotFoundException {
 
-    Utils utils = new Utils();
+    InputProcessingUtils utils = new InputProcessingUtils();
     try {
       Geometry unifiedBbox;
       GeometryFactory gf = new GeometryFactory();
@@ -105,7 +105,7 @@ public class GeometryBuilder {
     CoordinateReferenceSystem targetCRS;
     MathTransform transform = null;
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
-    Utils utils = new Utils();
+    InputProcessingUtils utils = new InputProcessingUtils();
     try {
       for (int i = 0; i < bcircles.length; i += 3) {
         sourceCRS = CRS.decode("EPSG:4326", true);
@@ -158,7 +158,7 @@ public class GeometryBuilder {
   public Geometry createBpolys(String[] bpolys) throws BadRequestException, NotFoundException {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
-    Utils utils = new Utils();
+    InputProcessingUtils utils = new InputProcessingUtils();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -244,7 +244,7 @@ public class GeometryBuilder {
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor iP) {
 
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
-    Utils util = iP.getUtils();
+    InputProcessingUtils util = iP.getUtils();
     Geometry result = null;
     GeoJSONReader reader = new GeoJSONReader();
     JsonReader jsonReader = Json.createReader(new StringReader(geoJson));

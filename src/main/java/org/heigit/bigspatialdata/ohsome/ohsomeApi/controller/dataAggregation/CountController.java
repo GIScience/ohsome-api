@@ -53,7 +53,7 @@ public class CountController {
    * @param userids <code>String</code> array containing one or more user-IDs.
    * @param time <code>String</code> array that holds a list of timestamps or a datetimestring,
    *        which fits to one of the formats used by the method
-   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.Utils#extractIsoTime(String)
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.InputProcessingUtils#extractIsoTime(String)
    *        extractIsoTime(String time)}.
    * @param showMetadata <code>String</code> containing the value "true" or "false".
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
