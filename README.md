@@ -20,8 +20,8 @@ These instructions will get you a copy of the project up and running on your loc
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 3. enter the command *mvn package* to build the project
 4. to run the jar file enter the following (changes depending on your data):
-    * keytables included (v_0.3.1): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb*
-    * keytables not included (v_0.3): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:\\path-to-your-data\\ba-wue.oshdb --database.keytables=C:\\path-to-your-keytablesFile\\keytables*
+    * keytables included (v_0.3.1): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb*
+    * keytables not included (v_0.3): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables*
 
 Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
 
