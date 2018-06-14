@@ -36,7 +36,7 @@ Note:
 ## Testing
 
 To be able to test this API with your own requests, you will also need a description of the parameters and available resources. 
-Both are given in the [Swagger2](http://localhost:8080/) documentation, which can be accessed while your local copy is running.
+Both are given in the [Swagger2](http://localhost:8080/swagger-ui.html) documentation, which can be accessed while your local copy is running.
 It lists all available resources and gives detailled information about the individual input parameters and JSON responses.
 
 ## Examples
