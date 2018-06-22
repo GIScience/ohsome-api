@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse;
 
+import org.geojson.Feature;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,9 +26,17 @@ public class GroupByResponse {
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
+  @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
+  private String type;
+  @ApiModelProperty(notes = "GeoJSON Features", required = true)
+  private Feature[] features;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
   private GroupByResult[] groupByResult;
+
+  private GroupByResponse() {
+
+  }
 
   public GroupByResponse(Attribution attribution, String apiVersion, Metadata metadata,
       GroupByResult[] groupByUserResult) {
@@ -35,6 +44,18 @@ public class GroupByResponse {
     this.apiVersion = apiVersion;
     this.metadata = metadata;
     this.groupByResult = groupByUserResult;
+  }
+
+  /** Static factory method returning the whole GeoJSON response. */
+  public static GroupByResponse of(Attribution attribution, String apiVersion, Metadata metadata,
+      String type, Feature[] features) {
+    GroupByResponse response = new GroupByResponse();
+    response.attribution = attribution;
+    response.apiVersion = apiVersion;
+    response.metadata = metadata;
+    response.type = type;
+    response.features = features;
+    return response;
   }
 
   public Attribution getAttribution() {
@@ -47,6 +68,14 @@ public class GroupByResponse {
 
   public Metadata getMetadata() {
     return metadata;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public Feature[] getFeatures() {
+    return features;
   }
 
   public GroupByResult[] getGroupByResult() {
