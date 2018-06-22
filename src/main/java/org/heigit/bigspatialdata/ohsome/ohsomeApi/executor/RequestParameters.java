@@ -14,8 +14,13 @@ public class RequestParameters {
   private String[] values;
   private String[] userids;
   private String[] time;
+  private String format;
   private String showMetadata;
 
+  private RequestParameters() {
+    
+  }
+  
   public RequestParameters(boolean isPost, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata) {
@@ -32,6 +37,28 @@ public class RequestParameters {
     this.userids = userids;
     this.time = time;
     this.showMetadata = showMetadata;
+  }
+  
+  public static RequestParameters of(boolean isPost, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
+      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
+      String[] time, String format, String showMetadata) {
+
+    RequestParameters rPs = new RequestParameters();
+    rPs.isPost = isPost;
+    rPs.isSnapshot = isSnapshot;
+    rPs.isDensity = isDensity;
+    rPs.bboxes = bboxes;
+    rPs.bcircles = bcircles;
+    rPs.bpolys = bpolys;
+    rPs.types = types;
+    rPs.keys = keys;
+    rPs.values = values;
+    rPs.userids = userids;
+    rPs.time = time;
+    rPs.format = format;
+    rPs.showMetadata = showMetadata;
+    
+    return rPs;
   }
 
   public boolean isPost() {
@@ -76,6 +103,10 @@ public class RequestParameters {
 
   public String[] getTime() {
     return time;
+  }
+  
+  public String getFormat() {
+    return format;
   }
 
   public String getShowMetadata() {

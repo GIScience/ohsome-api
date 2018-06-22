@@ -699,7 +699,8 @@ public class LengthController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponse postLengthGroupByBoundary(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
+      String format, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,

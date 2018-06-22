@@ -31,8 +31,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByTypeResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
    */
   @ApiOperation(value = "Count of OSM users")
   @RequestMapping(value = "/count", method = RequestMethod.GET, produces = "application/json")

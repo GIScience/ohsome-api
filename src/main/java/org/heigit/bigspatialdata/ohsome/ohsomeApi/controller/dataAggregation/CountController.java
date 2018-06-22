@@ -202,13 +202,15 @@ public class CountController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
+          required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.COUNT, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata));
+        RequestResource.COUNT, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata));
   }
 
   /**
