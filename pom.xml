@@ -82,7 +82,12 @@
 			<artifactId>jackson-datatype-jsr310</artifactId>
 			<version>${jacksondatatype.version}</version>
 		</dependency>
-
+		<!-- needed for creating the GeoJSON response -->
+		<dependency>
+			<groupId>de.grundid.opendatalab</groupId>
+			<artifactId>geojson-jackson</artifactId>
+			<version>1.8</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
 		<dependency>
 			<groupId>org.geotools</groupId>
