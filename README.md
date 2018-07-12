@@ -12,23 +12,23 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* data: e.g. baden-wuerttemberg.oshdb.mv.db (available at *veeam.geog.uni-heidelberg.de\gis2\oshdb-data* or click [here](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/How+to+set+up+the+database+locally) to see a guide how to download new data yourself)
+* data: can be downloaded [here](http://downloads.ohsome.org/) or click [here](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb/blob/master/oshdb-tool/etl/README.md) to see a guide how to preparate a new oshdb extract yourself
 
 ### Setting-up/Running
 
 1. checkout/download the repository
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 3. enter the command *mvn package* to build the project
-4. to run the jar file enter the following (changes depending on your data):
-    * keytables included (v_0.3.1): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb*
-    * keytables not included (v_0.3): *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables*
+4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
+    * keytables included: *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb*
+    * keytables not included: *java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables*
 
 Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
 
 Note:
 * additionally you can add optional run-parameters:
     * to disable multithreading: *--database.multithreading=false*
-    * to enable in-memory-caching: *--database.caching=true* (caution.. enabling this option requires quite some memory)
+    * to enable in-memory-caching: *--database.caching=true* (caution.. enabling this option requires quite some memory, but makes processing much faster)
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
     * in Eclipse: Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'
 * if you want to get information about the code directly, you can access the [Javadoc](http://129.206.7.121:8044/master/ohsome-api/target/site/apidocs/index.html), which gets updated daily.
