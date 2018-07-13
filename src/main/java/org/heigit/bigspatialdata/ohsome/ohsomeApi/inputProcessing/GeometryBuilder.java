@@ -39,6 +39,7 @@ public class GeometryBuilder {
   private Collection<Geometry> bboxColl;
   private Collection<Geometry> bcircleColl;
   private Collection<Geometry> bpolyColl;
+  private JsonObject[] geoJsonGeoms;
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
@@ -253,6 +254,7 @@ public class GeometryBuilder {
       throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
     JsonArray features = root.getJsonArray("features");
     String[] boundaryIds = new String[features.size()];
+    geoJsonGeoms = new JsonObject[features.size()];
     int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
@@ -281,14 +283,17 @@ public class GeometryBuilder {
         if (result == null) {
           result = reader.read(geomObj.toString());
           geometryCollection.add(result);
+          geoJsonGeoms[count - 1] = geomObj;
         } else {
           Geometry currentResult = reader.read(geomObj.toString());
           geometryCollection.add(currentResult);
+          geoJsonGeoms[count - 1] = geomObj;
           result = currentResult.union(result);
         }
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
+
     }
     bpolyColl = geometryCollection;
     util.setBoundaryIds(boundaryIds);
@@ -337,5 +342,9 @@ public class GeometryBuilder {
 
   public Geometry getDataPoly() {
     return dataPoly;
+  }
+
+  public JsonObject[] getGeoJsonGeoms() {
+    return geoJsonGeoms;
   }
 }

@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -9,8 +10,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import javax.json.JsonObject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.geojson.Feature;
+import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
@@ -25,6 +29,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
@@ -44,6 +49,7 @@ import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -359,6 +365,45 @@ public class ExecutionUtils {
       System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
     }
     return tags;
+  }
+
+  /**
+   * Creates the GeoJSON features used in the GeoJSON response for the /groupBy/boundary request.
+   */
+  public Feature[] createGeoJSONFeatures(GroupByResult[] gBResults, JsonObject[] geoJsonGeoms) {
+
+    int gBRLength = gBResults.length;
+    int resultLength = gBResults[0].getResult().length;
+    int featuresLength = gBRLength + resultLength;
+    Feature[] features = new Feature[featuresLength];
+    int gBRCount = 0;
+    int resultCount = 0;
+    int tstampCount = 0;
+    for (int i = 0; i < featuresLength; i++) {
+      ElementsResult result = (ElementsResult) gBResults[resultCount].getResult()[tstampCount];
+      String gBBId = gBResults[gBRCount].getGroupByObject();
+      String tstamp = result.getTimestamp();
+      Feature feature = new Feature();
+      feature.setId(gBBId + "@" + tstamp);
+      feature.setProperty("groupByBoundaryId", gBBId);
+      feature.setProperty("timestamp", tstamp);
+      feature.setProperty("value", result.getValue());
+      GeoJsonObject geom = null;
+      try {
+        geom = new ObjectMapper().readValue(geoJsonGeoms[gBRCount].toString(), GeoJsonObject.class);
+      } catch (IOException e) {
+        throw new BadRequestException(
+            "The geometry of your given GeoJSON input could not be parsed for the creation of the response GeoJSON.");
+      }
+      feature.setGeometry(geom);
+      tstampCount++;
+      if (tstampCount == resultLength) {
+        tstampCount = 0;
+        gBRCount++;
+      }
+      features[i] = feature;
+    }
+    return features;
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */

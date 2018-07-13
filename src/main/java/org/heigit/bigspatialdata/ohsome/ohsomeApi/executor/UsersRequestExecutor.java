@@ -84,7 +84,7 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
+    DefaultAggregationResponse response = DefaultAggregationResponse.of(new Attribution(url, text),
         Application.apiVersion, metadata, results);
     return response;
   }

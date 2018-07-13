@@ -114,7 +114,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterArea(rPs.isDensity(),
           requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
-    DefaultAggregationResponse response = new DefaultAggregationResponse(new Attribution(url, text),
+    DefaultAggregationResponse response = DefaultAggregationResponse.of(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -186,9 +186,17 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByBoundary(
           requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
-    return response;
+
+    if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson")) {
+      GroupByResponse response = GroupByResponse.of(new Attribution(url, text),
+          Application.apiVersion, metadata, "FeatureCollection",
+          exeUtils.createGeoJSONFeatures(resultSet, iP.getGeomBuilder().getGeoJsonGeoms()));
+      return response;
+    } else {
+      GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+          Application.apiVersion, metadata, resultSet);
+      return response;
+    }
   }
 
   /**
