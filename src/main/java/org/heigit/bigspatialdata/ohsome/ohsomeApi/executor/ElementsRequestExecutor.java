@@ -186,7 +186,6 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByBoundary(
           requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
-
     if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson")) {
       GroupByResponse response = GroupByResponse.of(new Attribution(url, text),
           Application.apiVersion, metadata, "FeatureCollection",

@@ -18,6 +18,7 @@ public class ParameterDescriptions {
       "OSM value(s) e.g.: 'primary', 'residential'; default: no value";
   public static final String USERIDS_DESCR = "OSM userids; default: no userid";
   public static final String TIME_DESCR = "ISO-8601 conform timestring(s); default: today";
+  public static final String FORMAT_DESCR = "Output format, e.g.: geojson; default: json";
   public static final String SHOW_METADATA_DESCR =
       "'Boolean' operator 'true' or 'false'; default: 'false'";
 

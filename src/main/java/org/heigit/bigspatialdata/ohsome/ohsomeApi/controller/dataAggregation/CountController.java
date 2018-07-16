@@ -843,6 +843,8 @@ public class CountController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.TIME, required = false,
           value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.FORMAT_DESCR),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
@@ -850,11 +852,12 @@ public class CountController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public GroupByResponse postCountGroupByBoundary(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
+      String format, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.COUNT, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata));
+        RequestResource.COUNT, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata));
   }
 
   /**

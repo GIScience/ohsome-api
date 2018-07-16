@@ -177,13 +177,15 @@ public class AreaController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
+          required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata));
+        RequestResource.AREA, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata));
   }
 
   /**
@@ -819,6 +821,8 @@ public class AreaController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.TIME, required = false,
           value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.FORMAT_DESCR),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
@@ -830,8 +834,8 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, new RequestParameters(true, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, showMetadata));
+        RequestResource.AREA, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata));
   }
 
   /**
