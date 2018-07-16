@@ -374,7 +374,7 @@ public class ExecutionUtils {
 
     int gBRLength = gBResults.length;
     int resultLength = gBResults[0].getResult().length;
-    int featuresLength = gBRLength + resultLength;
+    int featuresLength = gBRLength * resultLength;
     Feature[] features = new Feature[featuresLength];
     int gBRCount = 0;
     int resultCount = 0;
