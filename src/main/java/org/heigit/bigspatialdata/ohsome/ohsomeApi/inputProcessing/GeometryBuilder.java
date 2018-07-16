@@ -160,6 +160,7 @@ public class GeometryBuilder {
     GeometryFactory geomFact = new GeometryFactory();
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
     InputProcessingUtils utils = new InputProcessingUtils();
+    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -175,9 +176,10 @@ public class GeometryBuilder {
       if (utils.isWithin(this.bpoly) == false)
         throw new NotFoundException(
             "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
+      geometryCollection.add(this.bpoly);
+      bpolyColl = geometryCollection;
       return this.bpoly;
     } else {
-      Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
       Coordinate firstPoint;
       try {
         firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
