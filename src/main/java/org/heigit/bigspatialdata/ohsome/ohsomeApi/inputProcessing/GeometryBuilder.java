@@ -9,6 +9,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+import org.geojson.GeoJsonObject;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
@@ -21,6 +22,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.wololo.jts2geojson.GeoJSONReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -36,10 +38,8 @@ public class GeometryBuilder {
   private Geometry bcircleGeom;
   private Polygon bpoly;
   private Geometry dataPoly;
-  private Collection<Geometry> bboxColl;
-  private Collection<Geometry> bcircleColl;
-  private Collection<Geometry> bpolyColl;
-  private JsonObject[] geoJsonGeoms;
+  private Collection<Geometry> boundaryColl;
+  private GeoJsonObject[] geoJsonGeoms;
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
@@ -65,15 +65,15 @@ public class GeometryBuilder {
       double maxLat = Double.parseDouble(bboxes[3]);
       this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(this.bbox));
-      bboxColl = new LinkedHashSet<Geometry>();;
-      bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
+      boundaryColl = new LinkedHashSet<Geometry>();
+      boundaryColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
         this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-        bboxColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
+        boundaryColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(this.bbox));
       }
       if (utils.isWithin(unifiedBbox) == false)
@@ -125,12 +125,12 @@ public class GeometryBuilder {
             throw new NotFoundException(
                 "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
           geometryCollection.add(geom);
-          bcircleColl = geometryCollection;
+          boundaryColl = geometryCollection;
           return geom;
         }
         geometryCollection.add(geom);
       }
-      bcircleColl = geometryCollection;
+      boundaryColl = geometryCollection;
       Geometry unifiedBCircles =
           geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
       if (utils.isWithin(unifiedBCircles) == false)
@@ -177,7 +177,7 @@ public class GeometryBuilder {
         throw new NotFoundException(
             "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");
       geometryCollection.add(this.bpoly);
-      bpolyColl = geometryCollection;
+      boundaryColl = geometryCollection;
       return this.bpoly;
     } else {
       Coordinate firstPoint;
@@ -203,7 +203,7 @@ public class GeometryBuilder {
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
-        bpolyColl = geometryCollection;
+        boundaryColl = geometryCollection;
         Geometry unifiedBPolys = geomFact
             .createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
         if (utils.isWithin(unifiedBPolys) == false)
@@ -256,7 +256,7 @@ public class GeometryBuilder {
       throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
     JsonArray features = root.getJsonArray("features");
     String[] boundaryIds = new String[features.size()];
-    geoJsonGeoms = new JsonObject[features.size()];
+    geoJsonGeoms = new GeoJsonObject[features.size()];
     int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
@@ -285,19 +285,20 @@ public class GeometryBuilder {
         if (result == null) {
           result = reader.read(geomObj.toString());
           geometryCollection.add(result);
-          geoJsonGeoms[count - 1] = geomObj;
+          geoJsonGeoms[count - 1] =
+              new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
         } else {
           Geometry currentResult = reader.read(geomObj.toString());
           geometryCollection.add(currentResult);
-          geoJsonGeoms[count - 1] = geomObj;
+          geoJsonGeoms[count - 1] =
+              new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
           result = currentResult.union(result);
         }
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
-
     }
-    bpolyColl = geometryCollection;
+    boundaryColl = geometryCollection;
     util.setBoundaryIds(boundaryIds);
     return result;
   }
@@ -310,24 +311,8 @@ public class GeometryBuilder {
    * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
    *         boundary object.
    */
-  public ArrayList<Geometry> getGeometry(BoundaryType type) {
-
-    ArrayList<Geometry> geoms = new ArrayList<>();
-    switch (type) {
-      case BBOXES:
-        geoms.addAll(bboxColl);
-        break;
-      case BCIRCLES:
-        geoms.addAll(bcircleColl);
-        break;
-      case BPOLYS:
-        geoms.addAll(bpolyColl);
-        break;
-      default:
-        geoms = null;
-        break;
-    }
-    return geoms;
+  public ArrayList<Geometry> getGeometry() {
+    return new ArrayList<>(boundaryColl);
   }
 
   public OSHDBBoundingBox getBbox() {
@@ -346,7 +331,15 @@ public class GeometryBuilder {
     return dataPoly;
   }
 
-  public JsonObject[] getGeoJsonGeoms() {
+  public Collection<Geometry> getBoundaryColl() {
+    return boundaryColl;
+  }
+
+  public GeoJsonObject[] getGeoJsonGeoms() {
     return geoJsonGeoms;
+  }
+  
+  public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
+    this.geoJsonGeoms = geoJsonGeoms;
   }
 }

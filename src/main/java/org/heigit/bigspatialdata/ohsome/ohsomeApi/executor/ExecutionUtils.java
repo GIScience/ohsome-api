@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.SortedMap;
-import javax.json.JsonObject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.Feature;
@@ -49,7 +47,6 @@ import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -111,7 +108,7 @@ public class ExecutionUtils {
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBTimestampAndIndex<Integer>, Geometry> preResult;
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Integer> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++)
       zeroFill.add(j);
@@ -161,7 +158,7 @@ public class ExecutionUtils {
     if (bType == BoundaryType.NOBOUNDARY)
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     ArrayList<Pair<Integer, Boolean>> zeroFill = new ArrayList<>();
     for (int j = 0; j < geoms.size(); j++) {
       zeroFill.add(new ImmutablePair<>(j, true));
@@ -211,7 +208,7 @@ public class ExecutionUtils {
     if (bType == BoundaryType.NOBOUNDARY)
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry(bType);
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Pair<Integer, Boolean>> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++) {
       zeroFill.add(new ImmutablePair<>(j, true));
@@ -370,7 +367,7 @@ public class ExecutionUtils {
   /**
    * Creates the GeoJSON features used in the GeoJSON response for the /groupBy/boundary request.
    */
-  public Feature[] createGeoJSONFeatures(GroupByResult[] gBResults, JsonObject[] geoJsonGeoms) {
+  public Feature[] createGeoJSONFeatures(GroupByResult[] gBResults, GeoJsonObject[] geoJsonGeoms) {
 
     int gBRLength = gBResults.length;
     int resultLength = gBResults[0].getResult().length;
@@ -388,13 +385,7 @@ public class ExecutionUtils {
       feature.setProperty("groupByBoundaryId", gBBId);
       feature.setProperty("timestamp", tstamp);
       feature.setProperty("value", result.getValue());
-      GeoJsonObject geom = null;
-      try {
-        geom = new ObjectMapper().readValue(geoJsonGeoms[gBRCount].toString(), GeoJsonObject.class);
-      } catch (IOException e) {
-        throw new BadRequestException(
-            "The geometry of your given GeoJSON input could not be parsed for the creation of the response GeoJSON.");
-      }
+      GeoJsonObject geom = geoJsonGeoms[gBRCount];
       feature.setGeometry(geom);
       tstampCount++;
       if (tstampCount == resultLength) {

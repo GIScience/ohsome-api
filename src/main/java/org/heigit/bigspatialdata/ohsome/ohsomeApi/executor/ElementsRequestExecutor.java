@@ -151,7 +151,7 @@ public class ElementsRequestExecutor {
     mapRed = iP.processParameters(mapRed, rPs);
     // temporary check on geojson input for geojson output format
     if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson")
-        && iP.getBoundaryValues() != null)
+        && iP.getBoundaryType() != BoundaryType.BPOLYS)
       throw new NotAllowedException(
           "At the moment, GeoJSON as a response format is only available for GeoJSON input in the bpolys parameter.");
     switch (requestResource) {
@@ -741,7 +741,7 @@ public class ElementsRequestExecutor {
       mapRed = mapRed.osmTypes(osmTypes);
     }
     InputProcessingUtils utils = iP.getUtils();
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry(iP.getBoundaryType());
+    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Pair<Integer, MatchType>> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++) {
       zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHESBOTH));

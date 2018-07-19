@@ -1,7 +1,9 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -11,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.DbConnData;
@@ -21,6 +24,8 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
+import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -42,7 +47,8 @@ public class InputProcessor {
   private boolean showMetadata;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
-
+  private String format;
+  
   /**
    * Processes the input parameters from the given request.
    * <p>
@@ -68,6 +74,7 @@ public class InputProcessor {
     String[] time = rPs.getTime();
     String[] userids = rPs.getUserids();
     String showMetadata = rPs.getShowMetadata();
+    format = rPs.getFormat();
     geomBuilder = new GeometryBuilder();
     utils = new InputProcessingUtils();
     if (isPost) {
@@ -145,6 +152,20 @@ public class InputProcessor {
     } catch (ClassCastException e) {
       throw new BadRequestException(
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) cannot be processed.");
+    }
+    if (format.equalsIgnoreCase("geojson")) {
+      GeoJSONWriter writer = new GeoJSONWriter();
+      Collection<Geometry> boundaryColl = geomBuilder.getBoundaryColl();
+      GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
+      for (int i = 0; i < geoJsonGeoms.length; i++) {
+        try {
+          geoJsonGeoms[i] = new ObjectMapper().readValue(writer.write(boundaryColl.iterator().next()).toString(), GeoJsonObject.class);
+        } catch (IOException e) {
+          throw new BadRequestException(
+              "The geometry of your given boundary input could not be parsed for the creation of the response GeoJSON.");
+        }
+      }
+      geomBuilder.setGeoJsonGeoms(geoJsonGeoms);
     }
     mapRed = mapRed.osmTypes(extractOSMTypes(types));
     mapRed = extractTime(mapRed, time, isSnapshot);
@@ -510,5 +531,9 @@ public class InputProcessor {
 
   public void setUtils(InputProcessingUtils utils) {
     this.utils = utils;
+  }
+  
+  public String getFormat() {
+    return format;
   }
 }
