@@ -107,7 +107,7 @@ public class InputProcessor {
     else
       throw new BadRequestException(
           "The showMetadata parameter can only contain the values 'true', 'yes', 'false' or 'no' written as text(String).");
-    checkBoundaryParams(bboxes, bcircles, bpolys);
+    boundary = setBoundaryType(bboxes, bcircles, bpolys);
     try {
       switch (boundary) {
         case NOBOUNDARY:
@@ -117,20 +117,25 @@ public class InputProcessor {
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
+          boundaryValues = utils.splitBoundaryParam(bboxes, boundary);
           mapRed = mapRed
               .areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
           break;
         case BCIRCLES:
+          boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
           mapRed = mapRed.areaOfInterest(
               (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
           break;
         case BPOLYS:
-          if (boundaryValues == null)
+          if (bpolys.replaceAll("\\s", "").startsWith("{")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
-          else
+          }
+          else {
+            boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
             mapRed = mapRed
                 .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
+          }
           break;
         default:
           throw new BadRequestException(
@@ -446,10 +451,9 @@ public class InputProcessor {
   }
 
   /**
-   * Checks the given boundary parameter(s), sets a corresponding enum (NOBOUNDARY for no boundary,
-   * BBOXES for bboxes, BCIRCLES for bcircles, BPOLYS for bpolys) and saves the splitted coordinates
-   * into an array (in case of non-GeoJSON). Only one (or none) of the boundary parameters is
-   * allowed to have content in it.
+   * Sets a corresponding enum (NOBOUNDARY for no boundary, BBOXES for bboxes, BCIRCLES for
+   * bcircles, BPOLYS for bpolys) based on the given boundary parameter(s). Only one (or none) of
+   * them is allowed to have content in it.
    * 
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
@@ -458,24 +462,16 @@ public class InputProcessor {
    * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
    */
-  private void checkBoundaryParams(String bboxes, String bcircles, String bpolys) {
-    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.NOBOUNDARY;
-    } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.BBOXES;
-      boundaryValues = utils.splitBoundaryParam(bboxes, boundary);
-    } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {
-      boundary = BoundaryType.BCIRCLES;
-      boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
-    } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
-      boundary = BoundaryType.BPOLYS;
-      if (bpolys.replaceAll("\\s", "").startsWith("{")) {
-        // geoJson expected
-        boundaryValues = null;
-      } else {
-        boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
-      }
-    } else
+  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys) {
+    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty())
+      return BoundaryType.NOBOUNDARY;
+    else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty())
+      return BoundaryType.BBOXES;
+    else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty())
+      return BoundaryType.BCIRCLES;
+    else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty())
+      return BoundaryType.BPOLYS;
+    else
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
               + "or you defined more than one boundary parameter.");
