@@ -159,7 +159,7 @@ public class InputProcessor {
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
       for (int i = 0; i < geoJsonGeoms.length; i++) {
         try {
-          geoJsonGeoms[i] = new ObjectMapper().readValue(writer.write(boundaryColl.iterator().next()).toString(), GeoJsonObject.class);
+          geoJsonGeoms[i] = new ObjectMapper().readValue(writer.write((Geometry) boundaryColl.toArray()[i]).toString(), GeoJsonObject.class);
         } catch (IOException e) {
           throw new BadRequestException(
               "The geometry of your given boundary input could not be parsed for the creation of the response GeoJSON.");

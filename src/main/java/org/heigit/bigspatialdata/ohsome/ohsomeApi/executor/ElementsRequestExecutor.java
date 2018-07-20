@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.NotAllowedException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder;
@@ -149,11 +148,6 @@ public class ElementsRequestExecutor {
     if (!rPs.isPost())
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
-    // temporary check on geojson input for geojson output format
-    if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson")
-        && iP.getBoundaryType() != BoundaryType.BPOLYS)
-      throw new NotAllowedException(
-          "At the moment, GeoJSON as a response format is only available for GeoJSON input in the bpolys parameter.");
     switch (requestResource) {
       case COUNT:
         result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,

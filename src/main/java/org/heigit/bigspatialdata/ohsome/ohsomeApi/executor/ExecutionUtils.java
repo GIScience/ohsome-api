@@ -374,10 +374,9 @@ public class ExecutionUtils {
     int featuresLength = gBRLength * resultLength;
     Feature[] features = new Feature[featuresLength];
     int gBRCount = 0;
-    int resultCount = 0;
     int tstampCount = 0;
     for (int i = 0; i < featuresLength; i++) {
-      ElementsResult result = (ElementsResult) gBResults[resultCount].getResult()[tstampCount];
+      ElementsResult result = (ElementsResult) gBResults[gBRCount].getResult()[tstampCount];
       String gBBId = gBResults[gBRCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
