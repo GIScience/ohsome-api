@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse;
 
+import org.geojson.Feature;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
@@ -15,7 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult
  * RatioResult} objects.
  */
-public class RatioGroupByBoundaryResponse implements RatioShareResponse{
+public class RatioGroupByBoundaryResponse implements RatioShareResponse {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
@@ -23,9 +24,17 @@ public class RatioGroupByBoundaryResponse implements RatioShareResponse{
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
+  @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
+  private String type;
+  @ApiModelProperty(notes = "GeoJSON Features", required = true)
+  private Feature[] features;
   @ApiModelProperty(notes = "RatioGroupByResult array holding the respective objects "
       + "with their timestamp-value-value2-ratio values", required = true)
   private RatioGroupByResult[] groupByBoundaryResult;
+
+  private RatioGroupByBoundaryResponse() {
+
+  }
 
   public RatioGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
       RatioGroupByResult[] groupByBoundaryResult) {
@@ -33,6 +42,18 @@ public class RatioGroupByBoundaryResponse implements RatioShareResponse{
     this.apiVersion = apiVersion;
     this.metadata = metadata;
     this.groupByBoundaryResult = groupByBoundaryResult;
+  }
+
+  /** Static factory method returning the whole GeoJSON response. */
+  public static RatioGroupByBoundaryResponse of(Attribution attribution, String apiVersion,
+      Metadata metadata, String type, Feature[] features) {
+    RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse();
+    response.attribution = attribution;
+    response.apiVersion = apiVersion;
+    response.metadata = metadata;
+    response.type = type;
+    response.features = features;
+    return response;
   }
 
   public Attribution getAttribution() {
@@ -45,6 +66,14 @@ public class RatioGroupByBoundaryResponse implements RatioShareResponse{
 
   public Metadata getMetadata() {
     return metadata;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public Feature[] getFeatures() {
+    return features;
   }
 
   public RatioGroupByResult[] getGroupByBoundaryResult() {
