@@ -153,7 +153,7 @@ public class InputProcessor {
       throw new BadRequestException(
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) cannot be processed.");
     }
-    if (format.equalsIgnoreCase("geojson")) {
+    if (format != null && format.equalsIgnoreCase("geojson")) {
       GeoJSONWriter writer = new GeoJSONWriter();
       Collection<Geometry> boundaryColl = geomBuilder.getBoundaryColl();
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
