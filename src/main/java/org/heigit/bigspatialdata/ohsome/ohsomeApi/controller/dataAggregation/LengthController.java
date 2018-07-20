@@ -343,6 +343,8 @@ public class LengthController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
+          required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
@@ -351,8 +353,8 @@ public class LengthController {
 
     return ElementsRequestExecutor
         .executeCountLengthPerimeterAreaRatioGroupByBoundary(
-            RequestResource.LENGTH, new RequestParameters(false, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
+            RequestResource.LENGTH, RequestParameters.of(false, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, format, showMetadata),
             types, keys2, values2, true);
   }
 
@@ -548,6 +550,8 @@ public class LengthController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
+          required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
@@ -555,11 +559,10 @@ public class LengthController {
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaRatioGroupByBoundary(
-            RequestResource.LENGTH, new RequestParameters(false, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
-            types2, keys2, values2, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.LENGTH, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata),
+        types2, keys2, values2, false);
   }
 
   /**
@@ -925,6 +928,8 @@ public class LengthController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.TIME, required = false,
           value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.FORMAT_DESCR),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
@@ -938,13 +943,13 @@ public class LengthController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public RatioShareResponse postLengthShareGroupByBoundary(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] keys2, String[] values2)
+      String[] time, String format, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
         .executeCountLengthPerimeterAreaRatioGroupByBoundary(
-            RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
+            RequestResource.LENGTH, RequestParameters.of(true, true, false, bboxes, bcircles,
+                bpolys, types, keys, values, userids, time, format, showMetadata),
             types, keys2, values2, true);
   }
 
@@ -1155,6 +1160,8 @@ public class LengthController {
       @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.TIME, required = false,
           value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.FORMAT_DESCR),
       @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
           value = ParameterDescriptions.SHOW_METADATA_DESCR),
@@ -1169,14 +1176,13 @@ public class LengthController {
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public RatioShareResponse postLengthRatioGroupByBoundary(String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
+      String[] time, String format, String showMetadata, String[] types2, String[] keys2,
+      String[] values2) throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaRatioGroupByBoundary(
-            RequestResource.LENGTH, new RequestParameters(true, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
-            types2, keys2, values2, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.LENGTH, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata),
+        types2, keys2, values2, false);
   }
 
 }
