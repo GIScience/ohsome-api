@@ -834,7 +834,7 @@ public class AreaController {
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
+        RequestResource.AREA, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,
             types, keys, values, userids, time, format, showMetadata));
   }
 
