@@ -4,6 +4,8 @@ import org.geojson.Feature;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -16,6 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult
  * RatioResult} objects.
  */
+@JsonInclude(Include.NON_NULL)
 public class RatioGroupByBoundaryResponse implements RatioShareResponse {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
