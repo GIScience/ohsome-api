@@ -152,6 +152,7 @@ public class InputProcessor {
       throw new BadRequestException(
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) cannot be processed.");
     }
+    checkFormat(format);
     if (format != null && format.equalsIgnoreCase("geojson")) {
       GeoJSONWriter writer = new GeoJSONWriter();
       Collection<Geometry> boundaryColl = geomBuilder.getBoundaryColl();
@@ -470,6 +471,18 @@ public class InputProcessor {
               "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' as its content.");
       }
     }
+  }
+
+  /**
+   * Checks the content of the given format parameter.
+   */
+  private void checkFormat(String format) throws BadRequestException {
+
+    if (format != null && !format.isEmpty() && !format.equalsIgnoreCase("geojson")
+        && !format.equalsIgnoreCase("json"))
+      throw new BadRequestException(
+          "The given 'format' parameter is invalid. Please choose between "
+              + "'geojson'(only available for /groupBy/boundary requests) or 'json'.");
   }
 
   /**
