@@ -48,7 +48,7 @@ public class InputProcessor {
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private String format;
-  
+
   /**
    * Processes the input parameters from the given request.
    * <p>
@@ -137,8 +137,7 @@ public class InputProcessor {
           if (bpolys.replaceAll("\\s", "").startsWith("{")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
-          }
-          else {
+          } else {
             boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
             mapRed = mapRed
                 .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
@@ -159,7 +158,8 @@ public class InputProcessor {
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
       for (int i = 0; i < geoJsonGeoms.length; i++) {
         try {
-          geoJsonGeoms[i] = new ObjectMapper().readValue(writer.write((Geometry) boundaryColl.toArray()[i]).toString(), GeoJsonObject.class);
+          geoJsonGeoms[i] = new ObjectMapper().readValue(
+              writer.write((Geometry) boundaryColl.toArray()[i]).toString(), GeoJsonObject.class);
         } catch (IOException e) {
           throw new BadRequestException(
               "The geometry of your given boundary input could not be parsed for the creation of the response GeoJSON.");
@@ -196,6 +196,7 @@ public class InputProcessor {
    */
   public EnumSet<OSMType> extractOSMTypes(String[] types) throws BadRequestException {
 
+    types = createEmptyArrayIfNull(types);
     checkOSMTypes(types);
     if (types.length == 0) {
       this.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
@@ -254,9 +255,9 @@ public class InputProcessor {
     if (values == null)
       values = new String[0];
 
-    RequestParameters rPs2 = new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
+    RequestParameters rPs2 = RequestParameters.of(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
         rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values, rPs.getUserids(),
-        rPs.getTime(), rPs.getShowMetadata());
+        rPs.getTime(), rPs.getFormat(), rPs.getShowMetadata());
 
     return rPs2;
   }
@@ -532,7 +533,7 @@ public class InputProcessor {
   public void setUtils(InputProcessingUtils utils) {
     this.utils = utils;
   }
-  
+
   public String getFormat() {
     return format;
   }
