@@ -365,7 +365,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * Creates the GeoJSON features used in the GeoJSON response for the /groupBy/boundary request.
+   * Creates the GeoJSON features used in the GeoJSON response for a
+   * count|length|perimeter|area/groupBy/boundary request.
    */
   public Feature[] createGeoJSONFeatures(GroupByResult[] gBResults, GeoJsonObject[] geoJsonGeoms) {
 
@@ -384,6 +385,77 @@ public class ExecutionUtils {
       feature.setProperty("groupByBoundaryId", gBBId);
       feature.setProperty("timestamp", tstamp);
       feature.setProperty("value", result.getValue());
+      GeoJsonObject geom = geoJsonGeoms[gBRCount];
+      feature.setGeometry(geom);
+      tstampCount++;
+      if (tstampCount == resultLength) {
+        tstampCount = 0;
+        gBRCount++;
+      }
+      features[i] = feature;
+    }
+    return features;
+  }
+
+  /**
+   * Creates the GeoJSON features used in the GeoJSON response for a
+   * count|length|perimeter|area/ratio/groupBy/boundary request.
+   */
+  public Feature[] createGeoJSONFeatures(RatioGroupByResult[] gBResults,
+      GeoJsonObject[] geoJsonGeoms) {
+
+    int gBRLength = gBResults.length;
+    int resultLength = gBResults[0].getRatioResult().length;
+    int featuresLength = gBRLength * resultLength;
+    Feature[] features = new Feature[featuresLength];
+    int gBRCount = 0;
+    int tstampCount = 0;
+    for (int i = 0; i < featuresLength; i++) {
+      RatioResult result = (RatioResult) gBResults[gBRCount].getRatioResult()[tstampCount];
+      String gBBId = gBResults[gBRCount].getGroupByObject();
+      String tstamp = result.getTimestamp();
+      Feature feature = new Feature();
+      feature.setId(gBBId + "@" + tstamp);
+      feature.setProperty("groupByBoundaryId", gBBId);
+      feature.setProperty("timestamp", tstamp);
+      feature.setProperty("value", result.getValue());
+      feature.setProperty("value2", result.getValue2());
+      feature.setProperty("ratio", result.getRatio());
+      GeoJsonObject geom = geoJsonGeoms[gBRCount];
+      feature.setGeometry(geom);
+      tstampCount++;
+      if (tstampCount == resultLength) {
+        tstampCount = 0;
+        gBRCount++;
+      }
+      features[i] = feature;
+    }
+    return features;
+  }
+
+  /**
+   * Creates the GeoJSON features used in the GeoJSON response for a
+   * count|length|perimeter|area/share/groupBy/boundary request.
+   */
+  public Feature[] createGeoJSONFeatures(ShareGroupByResult[] gBResults,
+      GeoJsonObject[] geoJsonGeoms) {
+
+    int gBRLength = gBResults.length;
+    int resultLength = gBResults[0].getShareResult().length;
+    int featuresLength = gBRLength * resultLength;
+    Feature[] features = new Feature[featuresLength];
+    int gBRCount = 0;
+    int tstampCount = 0;
+    for (int i = 0; i < featuresLength; i++) {
+      ShareResult result = (ShareResult) gBResults[gBRCount].getShareResult()[tstampCount];
+      String gBBId = gBResults[gBRCount].getGroupByObject();
+      String tstamp = result.getTimestamp();
+      Feature feature = new Feature();
+      feature.setId(gBBId + "@" + tstamp);
+      feature.setProperty("groupByBoundaryId", gBBId);
+      feature.setProperty("timestamp", tstamp);
+      feature.setProperty("whole", result.getWhole());
+      feature.setProperty("part", result.getPart());
       GeoJsonObject geom = geoJsonGeoms[gBRCount];
       feature.setGeometry(geom);
       tstampCount++;
@@ -484,15 +556,14 @@ public class ExecutionUtils {
 
   /**
    * Creates either a RatioGroupByBoundaryResponse or a ShareGroupByBoundaryResponse depending on
-   * the request.
+   * the <code>isShare</code> parameter.
    */
   public RatioShareResponse createRatioShareGroupByBoundaryResponse(boolean isShare,
-      int groupByResultSize, String[] boundaryIds, String[] timeArray,
+      RequestParameters rPs, int groupByResultSize, String[] boundaryIds, String[] timeArray,
       ArrayList<Double[]> value1Arrays, ArrayList<Double[]> value2Arrays, DecimalFormat ratioDf,
       InputProcessor iP, long startTime, RequestResource reqRes, String requestURL,
-      Attribution attribution) {
+      Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
 
-    RatioShareResponse response = null;
     Metadata metadata = null;
     int count = 0;
     if (!isShare) {
@@ -520,8 +591,13 @@ public class ExecutionUtils {
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestURL);
       }
-      response = new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
-          groupByResultSet);
+      if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
+        return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+            "FeatureCollection", createGeoJSONFeatures(groupByResultSet, geoJsonGeoms));
+      else
+        return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+            groupByResultSet);
+
     } else {
       ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResultSize / 3];
       for (int i = 0; i < groupByResultSize; i += 3) {
@@ -540,11 +616,14 @@ public class ExecutionUtils {
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestURL);
       }
-      response = new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
-          groupByResultSet);
+      if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
+        return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+            "FeatureCollection",
+            createGeoJSONFeatures(groupByResultSet, geoJsonGeoms));
+      else
+        return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+            groupByResultSet);
     }
-
-    return response;
   }
 
   /** Enum type used in /ratio computation. */

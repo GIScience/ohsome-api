@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.SortedMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.ExecutionUtils.MatchType;
@@ -186,16 +187,13 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByBoundary(
           requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
-    if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson")) {
-      GroupByResponse response = GroupByResponse.of(new Attribution(url, text),
-          Application.apiVersion, metadata, "FeatureCollection",
+    if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
+      return GroupByResponse.of(new Attribution(url, text), Application.apiVersion, metadata,
+          "FeatureCollection",
           exeUtils.createGeoJSONFeatures(resultSet, iP.getGeomBuilder().getGeoJsonGeoms()));
-      return response;
-    } else {
-      GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-          Application.apiVersion, metadata, resultSet);
-      return response;
-    }
+    else
+      return new GroupByResponse(new Attribution(url, text), Application.apiVersion, metadata,
+          resultSet);
   }
 
   /**
@@ -674,6 +672,7 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     GeometryBuilder geomBuilder = iP.getGeomBuilder();
+    GeoJsonObject[] geoJsonGeoms = geomBuilder.getGeoJsonGeoms();
     iP.checkKeysValues(keys2, values2);
     values2 = iP.createEmptyArrayIfNull(values2);
     keys2 = iP.createEmptyArrayIfNull(keys2);
@@ -836,9 +835,9 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, groupByResult.size(),
+    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, rPs, groupByResult.size(),
         boundaryIds, timeArray, value1Arrays, value2Arrays, ratioDf, iP, startTime, requestResource,
-        requestURL, new Attribution(url, text));
+        requestURL, new Attribution(url, text), geoJsonGeoms);
   }
 
 }
