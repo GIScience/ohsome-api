@@ -307,7 +307,6 @@ public class GeometryBuilder {
    * Gets the <code>Geometry</code> for each boundary object depending on the given
    * <code>BoundaryType</code>.
    * 
-   * @param type <code>BoundaryType</code> defining the boundary type (bbox, bcircle, bpoly)
    * @return <code>ArrayList</code> containing the <code>Geometry</code> objects for each input
    *         boundary object.
    */
@@ -338,7 +337,7 @@ public class GeometryBuilder {
   public GeoJsonObject[] getGeoJsonGeoms() {
     return geoJsonGeoms;
   }
-  
+
   public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
     this.geoJsonGeoms = geoJsonGeoms;
   }
