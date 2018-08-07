@@ -10,7 +10,7 @@ import io.swagger.annotations.Api;
 /**
  * REST controller containing the GET request, which enter through "/metadata".
  */
-@Api(tags = "/metadata")
+@Api(tags = "metadata")
 @RestController
 @RequestMapping("/metadata")
 public class MetadataController {

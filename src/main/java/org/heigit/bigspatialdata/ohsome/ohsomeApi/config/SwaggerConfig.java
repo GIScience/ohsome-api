@@ -37,11 +37,11 @@ public class SwaggerConfig {
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
-        .tags(new Tag("/users", "Data Aggregation functions on users"),
-            new Tag("/elements/area", "Area resources for polygonal objects"),
-            new Tag("/elements/length", "Length resources for line objects"),
-            new Tag("/elements/count", "Count resources for point/line/polygonal objects"),
-            new Tag("/elements/perimeter", "Perimeter resources for polygonal objects"))
+        .tags(new Tag("users", "Data Aggregation functions on users"),
+            new Tag("elements/area", "Area resources for polygonal objects"),
+            new Tag("elements/length", "Length resources for line objects"),
+            new Tag("elements/count", "Count resources for point/line/polygonal objects"),
+            new Tag("elements/perimeter", "Perimeter resources for polygonal objects"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
@@ -54,7 +54,7 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .tags(new Tag("/metadata", "Metadata of the underlying data-extract"))
+        .tags(new Tag("metadata", "Metadata of the underlying data-extract"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
@@ -76,10 +76,10 @@ public class SwaggerConfig {
 
   /** Defines information about this API. */
   private ApiInfo apiInfo() {
-    return new ApiInfo("OHSOME API",
+    return new ApiInfo("ohsome API",
         "This REST-API aims to leverage the tools of the OSHDB-API through allowing to access some of its functionalities via HTTP requests.",
         "0.9", "Terms of service",
-        new Contact("Heidelberg Institute for Geoinformation Technology", "http://www.heigit.org",
+        new Contact("GIScience Research Group - Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
             "info@heigit.org"),
         "License of API and used data", "https://ohsome.org/copyrights", Collections.emptyList());
   }
