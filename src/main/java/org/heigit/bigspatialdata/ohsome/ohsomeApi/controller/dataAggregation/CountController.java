@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
  */
-@Api(tags = "elements/count")
+@Api(tags = "elementsCount")
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {
@@ -64,7 +64,7 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @ApiOperation(value = "Count of OSM elements")
+  @ApiOperation(value = "Count of OSM elements", nickname = "getElementsCount")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getCount(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -102,7 +102,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the type")
+  @ApiOperation(value = "Count of OSM elements grouped by the type",
+      nickname = "getElementsCountGroupByType")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getCountGroupByType(
@@ -141,7 +142,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the user")
+  @ApiOperation(value = "Count of OSM elements grouped by the user",
+      nickname = "getElementsCountGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getCountGroupByUser(
@@ -182,7 +184,8 @@ public class CountController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "getElementsCountGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getCountGroupByBoundary(
@@ -225,7 +228,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiOperation(value = "Count of OSM elements grouped by the key",
+      nickname = "getElementsCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -276,7 +280,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the tag")
+  @ApiOperation(value = "Count of OSM elements grouped by the tag",
+      nickname = "getElementsCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -331,7 +336,8 @@ public class CountController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "getElementsCountShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -383,7 +389,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "getElementsCountShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR, defaultValue = "",
           paramType = "query", dataType = "string", required = true),
@@ -433,7 +440,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)",
+      nickname = "getElementsCountDensity")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getCountDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -471,7 +479,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the type")
+  @ApiOperation(value = "Density of OSM elements grouped by the type",
+      nickname = "getElementsCountDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getCountDensityGroupByType(
@@ -517,7 +526,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the tag")
+  @ApiOperation(value = "Density of OSM elements grouped by the tag",
+      nickname = "getElementsCountDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -572,7 +582,8 @@ public class CountController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "getElementsCountRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "node", paramType = "query", dataType = "string", required = false),
@@ -624,7 +635,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of selected items grouped by the boundary",
+      nickname = "getElementsCountRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "node", paramType = "query", dataType = "string", required = false),
@@ -678,7 +690,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Count of OSM elements")
+  @ApiOperation(value = "Count of OSM elements", nickname = "postElementsCount")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -726,7 +738,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the type")
+  @ApiOperation(value = "Count of OSM elements grouped by the type",
+      nickname = "postElementsCountGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -773,7 +786,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the user")
+  @ApiOperation(value = "Count of OSM elements grouped by the user",
+      nickname = "postElementsCountGroupByUser")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -823,7 +837,8 @@ public class CountController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "postElementsCountGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -876,7 +891,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiOperation(value = "Count of OSM elements grouped by the key",
+      nickname = "postElementsCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -933,7 +949,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the tag")
+  @ApiOperation(value = "Count of OSM elements grouped by the tag",
+      nickname = "postElementsCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -993,7 +1010,8 @@ public class CountController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "postElementsCountShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1054,7 +1072,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "postElementsCountShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1110,7 +1129,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)",
+      nickname = "postElementsCountDensity")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1158,7 +1178,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the type")
+  @ApiOperation(value = "Density of OSM elements grouped by the type",
+      nickname = "postElementsCountDensityGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1212,7 +1233,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the tag")
+  @ApiOperation(value = "Density of OSM elements grouped by the tag",
+      nickname = "postElementsCountDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1267,7 +1289,8 @@ public class CountController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "postElementsCountRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1325,7 +1348,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of selected items grouped by the boundary",
+      nickname = "postElementsCountRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,

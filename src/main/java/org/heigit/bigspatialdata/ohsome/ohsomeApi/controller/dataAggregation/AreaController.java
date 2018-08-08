@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/area".
  */
-@Api(tags = "elements/area")
+@Api(tags = "elementsArea")
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {
@@ -39,7 +39,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Area of OSM elements")
+  @ApiOperation(value = "Area of OSM elements", nickname = "getElementsArea")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getArea(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -77,7 +77,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the type")
+  @ApiOperation(value = "Area of OSM elements grouped by the type",
+      nickname = "getElementsAreaGroupByType")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getAreaGroupByType(
@@ -116,7 +117,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse }
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the user")
+  @ApiOperation(value = "Area of OSM elements grouped by the user",
+      nickname = "getElementsAreaGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getAreaGroupByUser(
@@ -157,7 +159,8 @@ public class AreaController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Area of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Area of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "getElementsAreaGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getAreaGroupByBoundary(
@@ -200,7 +203,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiOperation(value = "Count of OSM elements grouped by the key",
+      nickname = "getElementsAreaGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -251,7 +255,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse }
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the tag")
+  @ApiOperation(value = "Area of OSM elements grouped by the tag",
+      nickname = "getElementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -306,7 +311,8 @@ public class AreaController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "getElementsAreaShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -358,7 +364,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "getElementsAreaShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -408,7 +415,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)",
+      nickname = "getElementsAreaDensity")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getAreaDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -448,7 +456,8 @@ public class AreaController {
    *         GroupByResponseContent}
    */
   @ApiOperation(
-      value = "Density of OSM elements (area of items per square-kilometers) grouped by the type")
+      value = "Density of OSM elements (area of items per square-kilometers) grouped by the type",
+      nickname = "getElementsAreaDensityGroupByType")
   @RequestMapping(value = "/density/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getAreaDensityGroupByType(
@@ -495,7 +504,8 @@ public class AreaController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Density of selected items (area of items per square-kilometers) grouped by the tag")
+      value = "Density of selected items (area of items per square-kilometers) grouped by the tag",
+      nickname = "getElementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -549,7 +559,8 @@ public class AreaController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "getElementsAreaRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "relation", paramType = "query", dataType = "string", required = false),
@@ -601,7 +612,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary",
+      nickname = "getElementsAreaRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -656,7 +668,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Area of OSM elements")
+  @ApiOperation(value = "Area of OSM elements", nickname = "postElementsArea")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -704,7 +716,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the type")
+  @ApiOperation(value = "Area of OSM elements grouped by the type",
+      nickname = "postElementsAreaGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -751,7 +764,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the user")
+  @ApiOperation(value = "Area of OSM elements grouped by the user",
+      nickname = "postElementsAreaGroupByUser")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -801,7 +815,8 @@ public class AreaController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "postElementsAreaGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -855,7 +870,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the key")
+  @ApiOperation(value = "Area of OSM elements grouped by the key",
+      nickname = "postElementsAreaGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -911,7 +927,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the tag")
+  @ApiOperation(value = "Area of OSM elements grouped by the tag",
+      nickname = "postElementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -971,7 +988,8 @@ public class AreaController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "postElementsAreaShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1031,7 +1049,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "postElementsAreaShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1089,7 +1108,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)",
+      nickname = "postElementsAreaDensity")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1138,7 +1158,8 @@ public class AreaController {
    *         GroupByResponseContent}
    */
   @ApiOperation(
-      value = "Density of OSM elements (area of items per square-kilometers) grouped by the type")
+      value = "Density of OSM elements (area of items per square-kilometers) grouped by the type",
+      nickname = "postElementsAreaDensityGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1193,7 +1214,8 @@ public class AreaController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Density of selected items (area of items per square-kilometers) grouped by the tag")
+      value = "Density of selected items (area of items per square-kilometers) grouped by the tag",
+      nickname = "postElementsAreaDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1252,7 +1274,8 @@ public class AreaController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "postElementsAreaRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1309,7 +1332,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary",
+      nickname = "postElementsAreaRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,

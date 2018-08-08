@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/perimeter".
  */
-@Api(tags = "elements/perimeter")
+@Api(tags = "elementsPerimeter")
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
@@ -39,7 +39,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Perimeter of OSM elements")
+  @ApiOperation(value = "Perimeter of OSM elements", nickname = "getElementsPerimeter")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getPerimeter(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -77,7 +77,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the type")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
+      nickname = "getElementsPerimeterGroupByType")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getPerimeterGroupByType(
@@ -116,7 +117,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the user")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the user",
+      nickname = "getElementsPerimeterGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getPerimeterGroupByUser(
@@ -157,7 +159,8 @@ public class PerimeterController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Perimeter of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Perimeter of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "getElementsPerimeterGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getPerimeterGroupByBoundary(
@@ -200,7 +203,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiOperation(value = "Count of OSM elements grouped by the key",
+      nickname = "getElementsPerimeterGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -251,7 +255,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
+      nickname = "getElementsPerimeterGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -306,7 +311,8 @@ public class PerimeterController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "getElementsPerimeterShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -358,7 +364,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "getElementsPerimeterShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -407,7 +414,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)",
+      nickname = "getElementsPerimeterDensity")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getPerimeterDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -447,7 +455,8 @@ public class PerimeterController {
    *         GroupByResponseContent}
    */
   @ApiOperation(
-      value = "Density of OSM elements (perimeter of items per square-kilometers) grouped by the type")
+      value = "Density of OSM elements (perimeter of items per square-kilometers) grouped by the type",
+      nickname = "getElementsPerimeterDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getPerimeterDensityGroupByType(
@@ -494,7 +503,8 @@ public class PerimeterController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag")
+      value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag",
+      nickname = "getElementsPerimeterDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -549,7 +559,8 @@ public class PerimeterController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "getElementsPerimeterRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -602,7 +613,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
+      nickname = "getElementsPerimeterRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -657,7 +669,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Perimeter of OSM elements")
+  @ApiOperation(value = "Perimeter of OSM elements", nickname = "postElementsPerimeter")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -705,7 +717,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the type")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
+      nickname = "postElementsPerimeterGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -752,7 +765,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the user")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the user",
+      nickname = "postElementsPerimeterGroupByUser")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -802,7 +816,8 @@ public class PerimeterController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Perimeter of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Perimeter of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "postElementsPerimeterGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -856,7 +871,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the key")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
+      nickname = "postElementsPerimeterGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -912,7 +928,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
+      nickname = "postElementsPerimeterGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -972,7 +989,8 @@ public class PerimeterController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "postElementsPerimeterShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1033,7 +1051,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "postElementsPerimeterShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1091,7 +1110,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)",
+      nickname = "postElementsPerimeterDensity")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1141,7 +1161,8 @@ public class PerimeterController {
    *         GroupByResponseContent}
    */
   @ApiOperation(
-      value = "Density of OSM elements (perimeter of items per square-kilometers) grouped by the type")
+      value = "Density of OSM elements (perimeter of items per square-kilometers) grouped by the type",
+      nickname = "postElementsPerimeterDensityGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1197,7 +1218,8 @@ public class PerimeterController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag")
+      value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag",
+      nickname = "postElementsPerimeterDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1257,7 +1279,8 @@ public class PerimeterController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "postElementsPerimeterRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1315,7 +1338,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
+      nickname = "postElementsPerimeterRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,

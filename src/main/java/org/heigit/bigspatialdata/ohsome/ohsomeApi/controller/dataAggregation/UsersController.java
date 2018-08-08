@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 /** REST controller containing the GET and POST requests, which enter through "/users". */
-@Api(tags = "/users")
+@Api(tags = "users")
 @RestController
 @RequestMapping("/users")
 public class UsersController {
@@ -34,7 +34,7 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Count of OSM users")
+  @ApiOperation(value = "Count of OSM users", nickname = "getUsersCount")
   @RequestMapping(value = "/count", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getCount(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -71,7 +71,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the type")
+  @ApiOperation(value = "Count of OSM users grouped by the type",
+      nickname = "getUsersCountGroupByType")
   @RequestMapping(value = "/count/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getCountGroupByType(
@@ -109,7 +110,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag")
+  @ApiOperation(value = "Count of OSM users grouped by the tag",
+      nickname = "getUsersCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -157,7 +159,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag")
+  @ApiOperation(value = "Count of OSM users grouped by the tag",
+      nickname = "getUsersCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -200,7 +203,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)")
+  @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
+      nickname = "getUsersCountDensity")
   @RequestMapping(value = "/count/density", method = RequestMethod.GET,
       produces = "application/json")
   public DefaultAggregationResponse getCountDensity(
@@ -238,7 +242,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Density of OSM users grouped by the type")
+  @ApiOperation(value = "Density of OSM users grouped by the type",
+      nickname = "getUsersCountDensityGroupByType")
   @RequestMapping(value = "/count/density/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getCountDensityGroupByType(
@@ -276,7 +281,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Density of OSM users grouped by the tag")
+  @ApiOperation(value = "Density of OSM users grouped by the tag",
+      nickname = "getUsersCountDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -325,7 +331,7 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Count of OSM users")
+  @ApiOperation(value = "Count of OSM users", nickname = "postUsersCount")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -371,7 +377,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the type")
+  @ApiOperation(value = "Count of OSM users grouped by the type",
+      nickname = "postUsersCountGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -423,7 +430,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag")
+  @ApiOperation(value = "Count of OSM users grouped by the tag",
+      nickname = "postUsersCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -476,7 +484,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the key")
+  @ApiOperation(value = "Count of OSM users grouped by the key",
+      nickname = "postUsersCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -525,7 +534,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)")
+  @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
+      nickname = "postUsersCountDensity")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -572,7 +582,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Density of OSM users grouped by the type")
+  @ApiOperation(value = "Density of OSM users grouped by the type",
+      nickname = "postUsersCountDensityGroupByType")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -618,7 +629,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  @ApiOperation(value = "Density of OSM users grouped by the tag")
+  @ApiOperation(value = "Density of OSM users grouped by the tag",
+      nickname = "postUsersCountDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,

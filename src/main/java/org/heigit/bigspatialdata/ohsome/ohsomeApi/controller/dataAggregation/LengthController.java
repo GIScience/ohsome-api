@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
  * REST controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/length".
  */
-@Api(tags = "elements/length")
+@Api(tags = "elementsLength")
 @RestController
 @RequestMapping("/elements/length")
 public class LengthController {
@@ -39,7 +39,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Length of OSM elements")
+  @ApiOperation(value = "Length of OSM elements", nickname = "getElementsLength")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getLength(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -77,7 +77,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the user")
+  @ApiOperation(value = "Length of OSM elements grouped by the user",
+      nickname = "getElementsLengthGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getLengthGroupByUser(
@@ -118,7 +119,8 @@ public class LengthController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Length of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Length of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "getElementsLengthGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
   public GroupByResponse getLengthGroupByBoundary(
@@ -161,7 +163,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key")
+  @ApiOperation(value = "Count of OSM elements grouped by the key",
+      nickname = "getElementsLengthGroupByKey")
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
       value = ParameterDescriptions.KEYS_DESCR, defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY,
       paramType = "query", dataType = "string", required = true)})
@@ -211,7 +214,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the tag")
+  @ApiOperation(value = "Length of OSM elements grouped by the tag",
+      nickname = "getElementsLengthGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
@@ -266,7 +270,8 @@ public class LengthController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "getElementsLengthShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -318,7 +323,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "getElementsLengthShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -368,7 +374,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
+      nickname = "getElementsLengthDensity")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
   public DefaultAggregationResponse getLengthDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -414,7 +421,8 @@ public class LengthController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Density of selected items (length of items per square-kilometers) grouped by the tag")
+      value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
+      nickname = "getElementsLengthDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
@@ -468,7 +476,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the length of selected items")
+  @ApiOperation(value = "Ratio of the length of selected items",
+      nickname = "getElementsLengthRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -521,7 +530,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary",
+      nickname = "getElementsLengthRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -576,7 +586,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Length of OSM elements")
+  @ApiOperation(value = "Length of OSM elements", nickname = "postElementsLength")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -624,7 +634,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the user")
+  @ApiOperation(value = "Length of OSM elements grouped by the user",
+      nickname = "postElementsLengthGroupByUser")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -674,7 +685,8 @@ public class LengthController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)")
+      value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "postElementsLengthGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -728,7 +740,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the tag")
+  @ApiOperation(value = "Length of OSM elements grouped by the key",
+      nickname = "postElementsLengthGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -785,7 +798,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the tag")
+  @ApiOperation(value = "Length of OSM elements grouped by the tag",
+      nickname = "postElementsLengthGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -845,7 +859,8 @@ public class LengthController {
    *         ShareResponse}
    */
   @ApiOperation(
-      value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values")
+      value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values",
+      nickname = "postElementsLengthShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -906,7 +921,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary")
+  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
+      nickname = "postElementsLengthShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -964,7 +980,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)")
+  @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
+      nickname = "postElementsLengthDensity")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1019,7 +1036,8 @@ public class LengthController {
    *         GroupByResponse Content}
    */
   @ApiOperation(
-      value = "Density of selected items (length of items per square-kilometers) grouped by the tag")
+      value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
+      nickname = "postElementsLengthDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1078,7 +1096,8 @@ public class LengthController {
    *         RatioShareResponse}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values")
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
+      nickname = "postElementsLengthRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,
@@ -1138,7 +1157,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
    *         RatioShareResponse}
    */
-  @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary")
+  @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary",
+      nickname = "postElementsLengthRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
           defaultValue = DefaultSwaggerParameters.BBOX, required = false,

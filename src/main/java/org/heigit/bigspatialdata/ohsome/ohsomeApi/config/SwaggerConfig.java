@@ -38,10 +38,10 @@ public class SwaggerConfig {
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGOPs())
         .tags(new Tag("users", "Data Aggregation functions on users"),
-            new Tag("elements/area", "Area resources for polygonal objects"),
-            new Tag("elements/length", "Length resources for line objects"),
-            new Tag("elements/count", "Count resources for point/line/polygonal objects"),
-            new Tag("elements/perimeter", "Perimeter resources for polygonal objects"))
+            new Tag("elementsArea", "Area resources for polygonal objects"),
+            new Tag("elementsLength", "Length resources for line objects"),
+            new Tag("elementsCount", "Count resources for point/line/polygonal objects"),
+            new Tag("elementsPerimeter", "Perimeter resources for polygonal objects"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
