@@ -581,14 +581,14 @@ public class ElementsRequestExecutor {
           new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
               rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
               rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
-      mapRed = mapRed.where(entity -> {
+      mapRed = mapRed.osmEntityFilter(entity -> {
         if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1))
           return exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         return true;
       });
     } else {
       mapRed = iP.processParameters(mapRed, rPs);
-      mapRed = mapRed.osmTypes(osmTypes);
+      mapRed = mapRed.osmType(osmTypes);
     }
     preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       OSMEntity entity = f.getEntity();
@@ -724,14 +724,14 @@ public class ElementsRequestExecutor {
           new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
               rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
               rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
-      mapRed = mapRed.where(entity -> {
+      mapRed = mapRed.osmEntityFilter(entity -> {
         boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
         boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         return matches1 || matches2;
       });
     } else {
       mapRed = iP.processParameters(mapRed, rPs);
-      mapRed = mapRed.osmTypes(osmTypes);
+      mapRed = mapRed.osmType(osmTypes);
     }
     InputProcessingUtils utils = iP.getUtils();
     ArrayList<Geometry> geoms = geomBuilder.getGeometry();
