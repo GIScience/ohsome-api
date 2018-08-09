@@ -3,4 +3,5 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationRespons
 /** Interface used for the Result objects. */
 public interface Result {
 
+  public double getValue();
 }

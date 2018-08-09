@@ -23,6 +23,7 @@ public class ElementsResult implements Result {
     return timestamp;
   }
 
+  @Override
   public double getValue() {
     return value;
   }

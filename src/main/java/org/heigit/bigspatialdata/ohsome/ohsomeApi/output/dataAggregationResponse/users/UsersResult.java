@@ -33,6 +33,7 @@ public class UsersResult implements Result {
     return toTimestamp;
   }
 
+  @Override
   public double getValue() {
     return value;
   }
