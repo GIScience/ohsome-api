@@ -23,7 +23,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResult;
@@ -48,7 +48,9 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygonal;
+import com.vividsolutions.jts.geom.TopologyException;
 
 /** Holds helper methods that are used in the executor-classes. */
 public class ExecutionUtils {
@@ -123,8 +125,8 @@ public class ExecutionUtils {
         entityGeom = getContributionGeom(f);
       }
       for (int i = 0; i < geoms.size(); i++) {
-        if (entityGeom.intersects(geoms.get(i))) {
-          if (entityGeom.within(geoms.get(i)))
+        if (myIntersects(entityGeom, geoms.get(i))) {
+          if (myWithin(entityGeom, geoms.get(i)))
             res.add(new ImmutablePair<>(i, entityGeom));
           else
             res.add(
@@ -168,7 +170,7 @@ public class ExecutionUtils {
         mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Pair<Integer, OSMEntity>> boundaryList = new LinkedList<>();
           for (int i = 0; i < geoms.size(); i++)
-            if (f.getGeometry().intersects(geoms.get(i)))
+            if (myIntersects(f.getGeometry(), geoms.get(i)))
               boundaryList.add(new ImmutablePair<>(i, f.getEntity()));
           return boundaryList;
         }).aggregateBy(f -> {
@@ -223,8 +225,8 @@ public class ExecutionUtils {
         entityGeom = entityGeom.getBoundary();
       }
       for (int i = 0; i < geoms.size(); i++) {
-        if (entityGeom.intersects(geoms.get(i))) {
-          if (entityGeom.within(geoms.get(i)))
+        if (myIntersects(entityGeom, geoms.get(i))) {
+          if (myWithin(entityGeom, geoms.get(i)))
             res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
           else
             res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
@@ -512,11 +514,11 @@ public class ExecutionUtils {
   }
 
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
-  public RatioShareResponse createRatioShareResponse(boolean isShare, String[] timeArray,
-      Double[] value1, Double[] value2, DecimalFormat df, InputProcessor iP, long startTime,
-      RequestResource reqRes, String requestURL, Attribution attribution) {
+  public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
+      Double[] value2, DecimalFormat df, InputProcessor iP, long startTime, RequestResource reqRes,
+      String requestURL, Attribution attribution) {
 
-    RatioShareResponse response;
+    Response response;
     if (!isShare) {
       RatioResult[] resultSet = new RatioResult[timeArray.length];
       for (int i = 0; i < timeArray.length; i++) {
@@ -558,8 +560,8 @@ public class ExecutionUtils {
    * Creates either a RatioGroupByBoundaryResponse or a ShareGroupByBoundaryResponse depending on
    * the <code>isShare</code> parameter.
    */
-  public RatioShareResponse createRatioShareGroupByBoundaryResponse(boolean isShare,
-      RequestParameters rPs, int groupByResultSize, String[] boundaryIds, String[] timeArray,
+  public Response createRatioShareGroupByBoundaryResponse(boolean isShare, RequestParameters rPs,
+      int groupByResultSize, String[] boundaryIds, String[] timeArray,
       ArrayList<Double[]> value1Arrays, ArrayList<Double[]> value2Arrays, DecimalFormat ratioDf,
       InputProcessor iP, long startTime, RequestResource reqRes, String requestURL,
       Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
@@ -618,8 +620,7 @@ public class ExecutionUtils {
       }
       if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
         return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-            "FeatureCollection",
-            createGeoJSONFeatures(groupByResultSet, geoJsonGeoms));
+            "FeatureCollection", createGeoJSONFeatures(groupByResultSet, geoJsonGeoms));
       else
         return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
             groupByResultSet);
@@ -629,6 +630,48 @@ public class ExecutionUtils {
   /** Enum type used in /ratio computation. */
   public enum MatchType {
     MATCHES1, MATCHES2, MATCHESBOTH, MATCHESNONE
+  }
+
+  /**
+   * Checks if a Geometry is intersecting with another Geometry. Can also handle
+   * GeometryCollections.
+   */
+  private boolean myIntersects(Geometry geomA, Geometry geomB) {
+
+    if (geomA.getClass().equals(GeometryCollection.class)) {
+      GeometryCollection geomColl = (GeometryCollection) geomA;
+      int count = geomColl.getNumGeometries();
+      for (int i = 0; i < count; i++) {
+        Geometry childGeometry = geomColl.getGeometryN(i);
+        if (myIntersects(childGeometry, geomB))
+          return true;
+      }
+      return false;
+    }
+    try {
+      return geomA.intersects(geomB);
+    } catch (TopologyException te) {
+      // incorrect geometries get ignored in the computation
+      return false;
+    }
+  }
+
+  /**
+   * Checks if a Geometry is within another Geometry. Can also handle GeometryCollections.
+   */
+  private boolean myWithin(Geometry geomA, Geometry geomB) {
+
+    if (geomA.getClass().equals(GeometryCollection.class)) {
+      GeometryCollection geomColl = (GeometryCollection) geomA;
+      int count = geomColl.getNumGeometries();
+      for (int i = 0; i < count; i++) {
+        Geometry childGeometry = geomColl.getGeometryN(i);
+        if (!myWithin(childGeometry, geomB))
+          return false;
+      }
+      return true;
+    }
+    return geomA.within(geomB);
   }
 
   /** Internal helper method to get the geometry from an OSMEntitySnapshot object. */
