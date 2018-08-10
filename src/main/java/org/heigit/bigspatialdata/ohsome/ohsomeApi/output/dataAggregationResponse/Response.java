@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse;
 
-public interface RatioShareResponse {
+public interface Response {
   
   public Attribution getAttribution();
   public String getApiVersion();

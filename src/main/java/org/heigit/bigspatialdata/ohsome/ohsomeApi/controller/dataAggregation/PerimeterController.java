@@ -6,9 +6,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestResource;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +39,7 @@ public class PerimeterController {
    */
   @ApiOperation(value = "Perimeter of OSM elements", nickname = "getElementsPerimeter")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponse getPerimeter(
+  public Response getPerimeter(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -81,7 +79,7 @@ public class PerimeterController {
       nickname = "getElementsPerimeterGroupByType")
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getPerimeterGroupByType(
+  public Response getPerimeterGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -115,13 +113,13 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the user",
       nickname = "getElementsPerimeterGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getPerimeterGroupByUser(
+  public Response getPerimeterGroupByUser(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -156,14 +154,14 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Perimeter of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "getElementsPerimeterGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getPerimeterGroupByBoundary(
+  public Response getPerimeterGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -201,7 +199,7 @@ public class PerimeterController {
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
       nickname = "getElementsPerimeterGroupByKey")
@@ -210,7 +208,7 @@ public class PerimeterController {
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
-  public GroupByResponse getPerimeterGroupByKey(
+  public Response getPerimeterGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -253,7 +251,7 @@ public class PerimeterController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
       nickname = "getElementsPerimeterGroupByTag")
@@ -264,7 +262,7 @@ public class PerimeterController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
-  public GroupByResponse getPerimeterGroupByTag(
+  public Response getPerimeterGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -319,7 +317,7 @@ public class PerimeterController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public RatioShareResponse getPerimeterShare(
+  public Response getPerimeterShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -373,7 +371,7 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public RatioShareResponse getPerimeterShareGroupByBoundary(
+  public Response getPerimeterShareGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -417,7 +415,7 @@ public class PerimeterController {
   @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)",
       nickname = "getElementsPerimeterDensity")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponse getPerimeterDensity(
+  public Response getPerimeterDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -459,7 +457,7 @@ public class PerimeterController {
       nickname = "getElementsPerimeterDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getPerimeterDensityGroupByType(
+  public Response getPerimeterDensityGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -500,7 +498,7 @@ public class PerimeterController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag",
@@ -513,7 +511,7 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getPerimeterDensityGroupByTag(
+  public Response getPerimeterDensityGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -572,7 +570,7 @@ public class PerimeterController {
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, paramType = "query",
           dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
-  public RatioShareResponse getPerimeterRatio(
+  public Response getPerimeterRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -626,7 +624,7 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public RatioShareResponse getPerimeterRatioGroupByBoundary(
+  public Response getPerimeterRatioGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -697,9 +695,9 @@ public class PerimeterController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postPerimeter(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public Response postPerimeter(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
         new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
@@ -745,7 +743,7 @@ public class PerimeterController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterGroupByType(String bboxes, String bcircles, String bpolys,
+  public Response postPerimeterGroupByType(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -763,7 +761,7 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the user",
       nickname = "postElementsPerimeterGroupByUser")
@@ -794,7 +792,7 @@ public class PerimeterController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterGroupByUser(String bboxes, String bcircles, String bpolys,
+  public Response postPerimeterGroupByUser(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -813,7 +811,7 @@ public class PerimeterController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Perimeter of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -847,7 +845,7 @@ public class PerimeterController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterGroupByBoundary(String bboxes, String bcircles, String bpolys,
+  public Response postPerimeterGroupByBoundary(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String format, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -869,7 +867,7 @@ public class PerimeterController {
    *        grouping. At the current implementation, there must be one key given (not more and not
    *        less).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
       nickname = "postElementsPerimeterGroupByKey")
@@ -900,7 +898,7 @@ public class PerimeterController {
           defaultValue = "addr:street", required = true, value = ParameterDescriptions.KEYS_DESCR)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterGroupByKey(String bboxes, String bcircles, String bpolys,
+  public Response postPerimeterGroupByKey(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -926,7 +924,7 @@ public class PerimeterController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
       nickname = "postElementsPerimeterGroupByTag")
@@ -960,7 +958,7 @@ public class PerimeterController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterGroupByTag(String bboxes, String bcircles, String bpolys,
+  public Response postPerimeterGroupByTag(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -1023,9 +1021,9 @@ public class PerimeterController {
           value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postPerimeterShare(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] keys2, String[] values2)
+  public Response postPerimeterShare(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
@@ -1087,9 +1085,9 @@ public class PerimeterController {
           value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postPerimeterShareGroupByBoundary(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String format, String showMetadata, String[] keys2, String[] values2)
+  public Response postPerimeterShareGroupByBoundary(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String format, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
@@ -1138,10 +1136,9 @@ public class PerimeterController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/density", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postPerimeterDensity(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public Response postPerimeterDensity(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
         new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
@@ -1189,10 +1186,9 @@ public class PerimeterController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/density/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterDensityGroupByType(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public Response postPerimeterDensityGroupByType(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
@@ -1215,7 +1211,7 @@ public class PerimeterController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag",
@@ -1251,9 +1247,9 @@ public class PerimeterController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postPerimeterDensityGroupByTag(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata, String[] groupByKey, String[] groupByValues)
+  public Response postPerimeterDensityGroupByTag(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
@@ -1315,9 +1311,9 @@ public class PerimeterController {
           defaultValue = "yes", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postPerimeterRatio(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] types2, String[] keys2, String[] values2)
+  public Response postPerimeterRatio(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
@@ -1375,10 +1371,10 @@ public class PerimeterController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postPerimeterRatioGroupByBoundary(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String format, String showMetadata, String[] types2, String[] keys2,
-      String[] values2) throws UnsupportedOperationException, Exception {
+  public Response postPerimeterRatioGroupByBoundary(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String format, String showMetadata, String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.PERIMETER, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,

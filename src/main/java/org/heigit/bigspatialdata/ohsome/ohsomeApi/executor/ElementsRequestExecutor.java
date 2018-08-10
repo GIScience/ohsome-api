@@ -26,7 +26,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
@@ -66,9 +66,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static DefaultAggregationResponse executeCountLengthPerimeterArea(
-      RequestResource requestResource, RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
+  public static Response executeCountLengthPerimeterArea(RequestResource requestResource,
+      RequestParameters rPs) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -134,7 +133,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeCountLengthPerimeterAreaGroupByBoundary(
+  public static Response executeCountLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
@@ -210,9 +209,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeCountLengthPerimeterAreaGroupByUser(
-      RequestResource requestResource, RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
+  public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
+      RequestParameters rPs) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -273,9 +271,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeCountLengthPerimeterAreaGroupByTag(
-      RequestResource requestResource, RequestParameters rPs, String[] groupByKey,
-      String[] groupByValues) throws UnsupportedOperationException, Exception {
+  public static Response executeCountLengthPerimeterAreaGroupByTag(RequestResource requestResource,
+      RequestParameters rPs, String[] groupByKey, String[] groupByValues)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length != 1)
@@ -372,9 +370,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
-  public static GroupByResponse executeCountPerimeterAreaGroupByType(
-      RequestResource requestResource, RequestParameters rPs)
-      throws UnsupportedOperationException, Exception {
+  public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
+      RequestParameters rPs) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -430,9 +427,8 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
-  public static GroupByResponse executeCountLengthPerimeterAreaGroupByKey(
-      RequestResource requestResource, RequestParameters rPs, String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
+  public static Response executeCountLengthPerimeterAreaGroupByKey(RequestResource requestResource,
+      RequestParameters rPs, String[] groupByKeys) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0)
@@ -513,9 +509,9 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static RatioShareResponse executeCountLengthPerimeterAreaRatio(
-      RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
-      String[] values2, boolean isShare) throws UnsupportedOperationException, Exception {
+  public static Response executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
+      RequestParameters rPs, String[] types2, String[] keys2, String[] values2, boolean isShare)
+      throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
@@ -651,7 +647,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
    *         RatioGroupByBoundaryResponse Content}
    */
-  public static RatioShareResponse executeCountLengthPerimeterAreaRatioGroupByBoundary(
+  public static Response executeCountLengthPerimeterAreaRatioGroupByBoundary(
       RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
       String[] values2, boolean isShare) throws UnsupportedOperationException, Exception {
 

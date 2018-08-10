@@ -6,9 +6,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestResource;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +39,7 @@ public class LengthController {
    */
   @ApiOperation(value = "Length of OSM elements", nickname = "getElementsLength")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponse getLength(
+  public Response getLength(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -75,13 +73,13 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the user",
       nickname = "getElementsLengthGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getLengthGroupByUser(
+  public Response getLengthGroupByUser(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -116,14 +114,14 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Length of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "getElementsLengthGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getLengthGroupByBoundary(
+  public Response getLengthGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -161,7 +159,7 @@ public class LengthController {
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
       nickname = "getElementsLengthGroupByKey")
@@ -169,7 +167,7 @@ public class LengthController {
       value = ParameterDescriptions.KEYS_DESCR, defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY,
       paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
-  public GroupByResponse getLengthGroupByKey(
+  public Response getLengthGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -212,7 +210,7 @@ public class LengthController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag",
       nickname = "getElementsLengthGroupByTag")
@@ -223,7 +221,7 @@ public class LengthController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
-  public GroupByResponse getLengthGroupByTag(
+  public Response getLengthGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -278,7 +276,7 @@ public class LengthController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public RatioShareResponse getLengthShare(
+  public Response getLengthShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -332,7 +330,7 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public RatioShareResponse getLengthShareGroupByBoundary(
+  public Response getLengthShareGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -377,7 +375,7 @@ public class LengthController {
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
       nickname = "getElementsLengthDensity")
   @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponse getLengthDensity(
+  public Response getLengthDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -418,7 +416,7 @@ public class LengthController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
@@ -431,7 +429,7 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getLengthDensityGroupByTag(
+  public Response getLengthDensityGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -488,7 +486,7 @@ public class LengthController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "primary", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
-  public RatioShareResponse getLengthRatio(
+  public Response getLengthRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -543,7 +541,7 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
       produces = "application/json")
-  public RatioShareResponse getLengthRatioGroupByBoundary(
+  public Response getLengthRatioGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -614,9 +612,9 @@ public class LengthController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postLength(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public Response postLength(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.LENGTH,
         new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
@@ -632,7 +630,7 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the user",
       nickname = "postElementsLengthGroupByUser")
@@ -663,7 +661,7 @@ public class LengthController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postLengthGroupByUser(String bboxes, String bcircles, String bpolys,
+  public Response postLengthGroupByUser(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
 
@@ -682,7 +680,7 @@ public class LengthController {
    * getCount} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -716,7 +714,7 @@ public class LengthController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postLengthGroupByBoundary(String bboxes, String bcircles, String bpolys,
+  public Response postLengthGroupByBoundary(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String format, String showMetadata)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -738,7 +736,7 @@ public class LengthController {
    *        grouping. At the current implementation, there must be one key given (not more and not
    *        less).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the key",
       nickname = "postElementsLengthGroupByKey")
@@ -770,7 +768,7 @@ public class LengthController {
           value = ParameterDescriptions.KEYS_DESCR)})
   @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postLengthGroupByKey(String bboxes, String bcircles, String bpolys,
+  public Response postLengthGroupByKey(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKeys)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -796,7 +794,7 @@ public class LengthController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag",
       nickname = "postElementsLengthGroupByTag")
@@ -830,7 +828,7 @@ public class LengthController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postLengthGroupByTag(String bboxes, String bcircles, String bpolys,
+  public Response postLengthGroupByTag(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -893,9 +891,9 @@ public class LengthController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postLengthShare(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] keys2, String[] values2)
+  public Response postLengthShare(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
@@ -957,9 +955,9 @@ public class LengthController {
           value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postLengthShareGroupByBoundary(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String format, String showMetadata, String[] keys2, String[] values2)
+  public Response postLengthShareGroupByBoundary(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String format, String showMetadata, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
@@ -1008,9 +1006,9 @@ public class LengthController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/density", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postLengthDensity(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
+  public Response postLengthDensity(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.LENGTH,
         new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
@@ -1033,7 +1031,7 @@ public class LengthController {
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   *         Response Content}
    */
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
@@ -1068,7 +1066,7 @@ public class LengthController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postLengthDensityGroupByTag(String bboxes, String bcircles, String bpolys,
+  public Response postLengthDensityGroupByTag(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
@@ -1133,9 +1131,9 @@ public class LengthController {
           value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postLengthRatio(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] types2, String[] keys2, String[] values2)
+  public Response postLengthRatio(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] types2, String[] keys2, String[] values2)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return ElementsRequestExecutor
@@ -1194,10 +1192,10 @@ public class LengthController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public RatioShareResponse postLengthRatioGroupByBoundary(String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String format, String showMetadata, String[] types2, String[] keys2,
-      String[] values2) throws UnsupportedOperationException, Exception {
+  public Response postLengthRatioGroupByBoundary(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String format, String showMetadata, String[] types2, String[] keys2, String[] values2)
+      throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.LENGTH, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,

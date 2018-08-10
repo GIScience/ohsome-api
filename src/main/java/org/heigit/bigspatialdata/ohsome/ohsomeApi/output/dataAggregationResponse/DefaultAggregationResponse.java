@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
  * ElementsResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class DefaultAggregationResponse {
+public class DefaultAggregationResponse implements Response{
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
