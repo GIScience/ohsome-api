@@ -52,7 +52,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygonal;
 import com.vividsolutions.jts.geom.TopologyException;
 
-/** Holds helper methods that are used by the executor-classes. */
+/** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
 
   /**

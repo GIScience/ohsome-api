@@ -90,14 +90,15 @@ public class GeometryBuilder {
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
    * array.
    * 
-   * @param bcircles <code>String</code> array containing the lon/lat coordinates of the point at
-   *        [0] and [1] and the size of the buffer at [2].
-   * @return <code>Geometry</code> object representing a circular polygon around the bounding point.
+   * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
+   *        and [1] and the size of the buffer at [2].
+   * @return <code>Geometry</code> object representing (a) circular polygon(s) around the given
+   *         bounding point(s).
    * @throws BadRequestException if coordinates or radius are invalid
    * @throws NotFoundException if the provided boundary parameter does not lie completely within the
    *         underlying data-extract polygon
    */
-  public Geometry createCircularPolygons(String[] bcircles)
+  public Geometry createCircularPolygons(String[] bpoints)
       throws BadRequestException, NotFoundException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
@@ -108,19 +109,19 @@ public class GeometryBuilder {
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     InputProcessingUtils utils = new InputProcessingUtils();
     try {
-      for (int i = 0; i < bcircles.length; i += 3) {
+      for (int i = 0; i < bpoints.length; i += 3) {
         sourceCRS = CRS.decode("EPSG:4326", true);
         targetCRS = CRS.decode(
-            utils.findEPSG(Double.parseDouble(bcircles[i]), Double.parseDouble(bcircles[i + 1])),
+            utils.findEPSG(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])),
             true);
         transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
         Point p = geomFact.createPoint(
-            new Coordinate(Double.parseDouble(bcircles[i]), Double.parseDouble(bcircles[i + 1])));
-        buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bcircles[i + 2]));
+            new Coordinate(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])));
+        buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[i + 2]));
         transform = CRS.findMathTransform(targetCRS, sourceCRS, false);
         geom = JTS.transform(buffer, transform);
         bcircleGeom = geom;
-        if (bcircles.length == 3) {
+        if (bpoints.length == 3) {
           if (utils.isWithin(geom) == false)
             throw new NotFoundException(
                 "The provided boundary parameter does not lie completely within the underlying data-extract polygon.");

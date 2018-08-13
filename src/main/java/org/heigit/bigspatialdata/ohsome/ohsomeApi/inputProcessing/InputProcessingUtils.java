@@ -14,7 +14,7 @@ import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 
-/** Holds additional utility methods. */
+/** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
 
   private String[] boundaryIds;
@@ -64,8 +64,9 @@ public class InputProcessingUtils {
    * case of bounding circles).
    * 
    * @param boundaryParam <code>String</code> containing the given boundary parameter.
-   * @param boundaryType <code>Byte</code> containing the value 1 (bboxes), 2 (bcircles) or 3
-   *        (bpolys).
+   * @param boundaryType
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.BoundaryType
+   *        BoundaryType} defining the boundary type.
    * @return <code>String</code> array holding only coordinates (plus the radius in case of bounding
    *         points).
    */
