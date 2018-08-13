@@ -15,7 +15,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 /**
  * Adds the {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor
- * RequestInterceptor} class into the spring MVC life cycle and modifies the error-JSON response.
+ * RequestInterceptor} class into the spring MVC life cycle and modifies the JSON exception
+ * response.
  */
 @Configuration
 public class MvcConfig extends WebMvcConfigurerAdapter {
