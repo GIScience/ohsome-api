@@ -20,6 +20,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.users.UsersResult;
@@ -98,10 +99,10 @@ public class UsersRequestExecutor {
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
-  public static GroupByResponse executeCountGroupByType(RequestParameters rPs)
+  public static Response executeCountGroupByType(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -145,8 +146,8 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
+    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+        metadata, resultSet);
     return response;
   }
 
@@ -159,10 +160,10 @@ public class UsersRequestExecutor {
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
-  public static GroupByResponse executeCountGroupByTag(RequestParameters rPs, String[] groupByKey,
+  public static Response executeCountGroupByTag(RequestParameters rPs, String[] groupByKey,
       String[] groupByValues) throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -248,8 +249,8 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
+    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+        metadata, resultSet);
     return response;
   }
 
@@ -262,10 +263,10 @@ public class UsersRequestExecutor {
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response.Response
+   *         ResponseContent}
    */
-  public static GroupByResponse executeCountGroupByKey(RequestParameters rPs, String[] groupByKeys)
+  public static Response executeCountGroupByKey(RequestParameters rPs, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -334,8 +335,8 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
+    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+        metadata, resultSet);
     return response;
   }
 
@@ -348,10 +349,10 @@ public class UsersRequestExecutor {
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
-  public static GroupByResponse executeCountGroupByBoundary(RequestParameters rPs)
+  public static Response executeCountGroupByBoundary(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -389,8 +390,8 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
-        Application.apiVersion, metadata, resultSet);
+    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+        metadata, resultSet);
     return response;
   }
 

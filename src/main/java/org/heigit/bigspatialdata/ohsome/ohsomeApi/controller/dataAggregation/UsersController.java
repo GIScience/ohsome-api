@@ -5,8 +5,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptio
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.UsersRequestExecutor;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,12 +30,12 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM users", nickname = "getUsersCount")
   @RequestMapping(value = "/count", method = RequestMethod.GET, produces = "application/json")
-  public DefaultAggregationResponse getCount(
+  public Response getCount(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -68,14 +67,14 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the type",
       nickname = "getUsersCountGroupByType")
   @RequestMapping(value = "/count/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getCountGroupByType(
+  public Response getCountGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -107,8 +106,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag",
       nickname = "getUsersCountGroupByTag")
@@ -120,7 +119,7 @@ public class UsersController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/tag", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getCountGroupByTag(
+  public Response getCountGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -156,8 +155,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag",
       nickname = "getUsersCountGroupByKey")
@@ -167,7 +166,7 @@ public class UsersController {
           dataType = "string", required = true)})
   @RequestMapping(value = "count/groupBy/key", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getCountGroupByKey(
+  public Response getCountGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -200,14 +199,14 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
       nickname = "getUsersCountDensity")
   @RequestMapping(value = "/count/density", method = RequestMethod.GET,
       produces = "application/json")
-  public DefaultAggregationResponse getCountDensity(
+  public Response getCountDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -239,14 +238,14 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the type",
       nickname = "getUsersCountDensityGroupByType")
   @RequestMapping(value = "/count/density/groupBy/type", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getCountDensityGroupByType(
+  public Response getCountDensityGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -278,8 +277,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the tag",
       nickname = "getUsersCountDensityGroupByTag")
@@ -291,7 +290,7 @@ public class UsersController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/tag", method = RequestMethod.GET,
       produces = "application/json")
-  public GroupByResponse getCountDensityGroupByTag(
+  public Response getCountDensityGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -328,8 +327,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM users", nickname = "postUsersCount")
   @ApiImplicitParams({
@@ -358,9 +357,9 @@ public class UsersController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/count", method = RequestMethod.POST, produces = "application/json",
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postCount(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public Response postCount(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     return UsersRequestExecutor.executeCount(new RequestParameters(true, false, false, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata));
@@ -374,8 +373,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the type",
       nickname = "postUsersCountGroupByType")
@@ -405,7 +404,7 @@ public class UsersController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/count/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postCountGroupByType(String bboxes, String bcircles, String bpolys,
+  public Response postCountGroupByType(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
@@ -427,8 +426,8 @@ public class UsersController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response Content}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag",
       nickname = "postUsersCountGroupByTag")
@@ -462,9 +461,9 @@ public class UsersController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/count/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postCountGroupByTag(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKey, String[] groupByValues)
+  public Response postCountGroupByTag(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception, BadRequestException {
 
     return UsersRequestExecutor.executeCountGroupByTag(new RequestParameters(true, false, false,
@@ -481,8 +480,8 @@ public class UsersController {
    * getCount} method.
    * 
    * @param groupByKeys <code>String</code> array containing the keys used for the grouping.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponse Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response Content}
    */
   @ApiOperation(value = "Count of OSM users grouped by the key",
       nickname = "postUsersCountGroupByKey")
@@ -514,10 +513,9 @@ public class UsersController {
           defaultValue = "height", required = true, value = ParameterDescriptions.KEYS_DESCR)})
   @RequestMapping(value = "/count/groupBy/key", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postCountGroupByKey(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKeys)
-      throws UnsupportedOperationException, Exception, BadRequestException {
+  public Response postCountGroupByKey(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
+      String[] groupByKeys) throws UnsupportedOperationException, Exception, BadRequestException {
 
     return UsersRequestExecutor.executeCountGroupByKey(new RequestParameters(true, false, false,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), groupByKeys);
@@ -531,8 +529,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
       nickname = "postUsersCountDensity")
@@ -563,9 +561,9 @@ public class UsersController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/count/density", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public DefaultAggregationResponse postCountDensity(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception {
+  public Response postCountDensity(String bboxes, String bcircles, String bpolys, String[] types,
+      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
+      throws UnsupportedOperationException, Exception {
 
     return UsersRequestExecutor.executeCount(new RequestParameters(true, false, true, bboxes,
         bcircles, bpolys, types, keys, values, userids, time, showMetadata));
@@ -579,8 +577,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the type",
       nickname = "postUsersCountDensityGroupByType")
@@ -610,7 +608,7 @@ public class UsersController {
           value = ParameterDescriptions.SHOW_METADATA_DESCR)})
   @RequestMapping(value = "/count/density/groupBy/type", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postCountDensityGroupByType(String bboxes, String bcircles, String bpolys,
+  public Response postCountDensityGroupByType(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata) throws UnsupportedOperationException, Exception {
 
@@ -626,8 +624,8 @@ public class UsersController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         GroupByResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the tag",
       nickname = "postUsersCountDensityGroupByTag")
@@ -661,7 +659,7 @@ public class UsersController {
           defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
   @RequestMapping(value = "/count/density/groupBy/tag", method = RequestMethod.POST,
       produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public GroupByResponse postCountDensityGroupByTag(String bboxes, String bcircles, String bpolys,
+  public Response postCountDensityGroupByTag(String bboxes, String bcircles, String bpolys,
       String[] types, String[] keys, String[] values, String[] userids, String[] time,
       String showMetadata, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception {
