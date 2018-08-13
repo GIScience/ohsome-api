@@ -4,8 +4,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the result JSON object for the /elements resource containing the timestamp together
- * with the corresponding value.
+ * Represents the result JSON object for most of the /elements resources containing the timestamp
+ * together with the corresponding value.
  */
 public class ElementsResult implements Result {
 

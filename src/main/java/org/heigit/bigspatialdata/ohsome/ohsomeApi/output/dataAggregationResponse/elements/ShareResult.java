@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the result JSON object for the share request containing the timestamp together with
- * the whole and the part(ial) value.
+ * the whole and the part(ial) values.
  */
 @JsonInclude(Include.NON_NULL)
 public class ShareResult {
