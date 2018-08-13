@@ -263,8 +263,8 @@ public class UsersRequestExecutor {
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response.Response
-   *         ResponseContent}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   public static Response executeCountGroupByKey(RequestParameters rPs, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {

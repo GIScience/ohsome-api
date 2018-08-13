@@ -2,11 +2,12 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationRespons
 
 /**
  * Interface for two Result objects.
- * 
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult
- *      ElementsResult}
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult
- *      RatioResult}
+ * <ul>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult
+ * ElementsResult}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult
+ * RatioResult}</li>
+ * </ul>
  */
 public interface Result {
 

@@ -1,21 +1,21 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse;
 
 /**
- * Interface for most Response classes.
- * 
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
- *      DefaultAggregationResponse}
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
- *      ShareResponse}
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
- *      GroupByResponse}
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
- *      RatioGroupByBoundaryResponse}
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse
- *      ShareGroupByBoundaryResponse}
- * @see {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
- *      RatioResponse}
- * 
+ * Interface for all Response classes.
+ * <ul>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
+ * DefaultAggregationResponse}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
+ * ShareResponse}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+ * GroupByResponse}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
+ * RatioGroupByBoundaryResponse}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse
+ * ShareGroupByBoundaryResponse}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResponse
+ * RatioResponse}</li>
+ * </ul>
  */
 public interface Response {
 
