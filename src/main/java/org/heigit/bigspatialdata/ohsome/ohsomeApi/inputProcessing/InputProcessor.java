@@ -168,7 +168,7 @@ public class InputProcessor {
       }
       geomBuilder.setGeoJsonGeoms(geoJsonGeoms);
     }
-    mapRed = mapRed.osmTypes(extractOSMTypes(types));
+    mapRed = mapRed.osmType(extractOSMTypes(types));
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
     if (userids.length != 0) {
@@ -177,7 +177,7 @@ public class InputProcessor {
       for (String user : userids) {
         useridSet.add(Integer.valueOf(user));
       }
-      mapRed = mapRed.where(entity -> {
+      mapRed = mapRed.osmEntityFilter(entity -> {
         return useridSet.contains(entity.getUserId());
       });
     } else {
@@ -383,9 +383,9 @@ public class InputProcessor {
     // and key-value pairs need to be at the same index in both arrays
     for (int i = 0; i < keys.length; i++) {
       if (values[i].equals(""))
-        mapRed = mapRed.where(keys[i]);
+        mapRed = mapRed.osmTag(keys[i]);
       else
-        mapRed = mapRed.where(keys[i], values[i]);
+        mapRed = mapRed.osmTag(keys[i], values[i]);
     }
     return mapRed;
   }
