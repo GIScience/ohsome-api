@@ -34,8 +34,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements", nickname = "getElementsLength")
   @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
@@ -72,8 +72,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the user",
       nickname = "getElementsLengthGroupByUser")
@@ -113,8 +113,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Length of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -158,8 +158,8 @@ public class LengthController {
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
       nickname = "getElementsLengthGroupByKey")
@@ -209,8 +209,8 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag",
       nickname = "getElementsLengthGroupByTag")
@@ -264,8 +264,8 @@ public class LengthController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
-   *         ShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values",
@@ -318,8 +318,8 @@ public class LengthController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
       nickname = "getElementsLengthShareGroupByBoundary")
@@ -369,8 +369,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
       nickname = "getElementsLengthDensity")
@@ -415,8 +415,8 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
@@ -471,8 +471,8 @@ public class LengthController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Ratio of the length of selected items",
       nickname = "getElementsLengthRatio")
@@ -525,8 +525,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary",
       nickname = "getElementsLengthRatioGroupByBoundary")
@@ -581,8 +581,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements", nickname = "postElementsLength")
   @ApiImplicitParams({
@@ -629,8 +629,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the user",
       nickname = "postElementsLengthGroupByUser")
@@ -679,8 +679,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -735,8 +735,8 @@ public class LengthController {
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. At the current implementation, there must be one key given (not more and not
    *        less).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the key",
       nickname = "postElementsLengthGroupByKey")
@@ -793,8 +793,8 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag",
       nickname = "postElementsLengthGroupByTag")
@@ -853,8 +853,8 @@ public class LengthController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ShareResponse
-   *         ShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values",
@@ -916,8 +916,8 @@ public class LengthController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
       nickname = "postElementsLengthShareGroupByBoundary")
@@ -975,8 +975,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
    * getCount} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
       nickname = "postElementsLengthDensity")
@@ -1030,8 +1030,8 @@ public class LengthController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
-   *         Response Content}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
@@ -1090,8 +1090,8 @@ public class LengthController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
@@ -1152,8 +1152,8 @@ public class LengthController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
    * getCountRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioShareResponse
-   *         RatioShareResponse}
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
    */
   @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary",
       nickname = "postElementsLengthRatioGroupByBoundary")

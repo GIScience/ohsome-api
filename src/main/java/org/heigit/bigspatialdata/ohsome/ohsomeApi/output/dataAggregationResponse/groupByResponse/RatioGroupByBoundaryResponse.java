@@ -14,9 +14,9 @@ import io.swagger.annotations.ApiModelProperty;
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata
  * Metadata} object, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByResult
- * RatioGroupByResult} and an identifier of the object plus the corresponding
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.RatioResult
- * RatioResult} objects.
+ * RatioGroupByResult} for a JSON response and an identifier of the object. If the output format is
+ * GeoJSON, the response includes a {@link org.geojson.Feature Feature} array, which holds the
+ * respective objects with their timestamp-value pairs.
  */
 @JsonInclude(Include.NON_NULL)
 public class RatioGroupByBoundaryResponse implements Response {

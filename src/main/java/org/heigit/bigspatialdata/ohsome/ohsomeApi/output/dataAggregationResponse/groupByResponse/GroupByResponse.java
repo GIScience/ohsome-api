@@ -14,9 +14,9 @@ import io.swagger.annotations.ApiModelProperty;
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Metadata
  * Metadata}, the requested
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResult
- * GroupByResult} and an identifier of the object plus the corresponding
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.elements.ElementsResult
- * ElementsResult} objects.
+ * GroupByResult} for a JSON response and an identifier of the object. If the output format is GeoJSON, the response
+ * includes a {@link org.geojson.Feature Feature} array, which holds the respective objects with
+ * their timestamp-value pairs.
  */
 @JsonInclude(Include.NON_NULL)
 public class GroupByResponse implements Response {
