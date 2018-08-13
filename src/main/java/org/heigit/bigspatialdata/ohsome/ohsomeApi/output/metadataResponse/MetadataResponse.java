@@ -7,7 +7,9 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents the JSON response object for the /metadata request. It contains information about the
- * attribution, the extract region and version of the API.
+ * attribution, the version of the API and the
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.ExtractRegion
+ * ExtractRegion}.
  */
 @JsonInclude(Include.NON_NULL)
 public class MetadataResponse {

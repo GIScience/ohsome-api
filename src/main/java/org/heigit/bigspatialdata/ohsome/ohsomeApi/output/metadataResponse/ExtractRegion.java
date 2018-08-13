@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the result JSON object containing the spatial and the temporal extend
- * of the data-extract.
+ * Represents the result JSON object containing the spatial as GeoJSON and the
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.TemporalExtent
+ * TemporalExtent} of the data-extract.
  */
 public class ExtractRegion {
 
