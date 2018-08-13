@@ -52,7 +52,7 @@ public class UsersRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static DefaultAggregationResponse executeCount(RequestParameters rPs)
+  public static Response executeCount(RequestParameters rPs)
       throws UnsupportedOperationException, Exception {
 
     long startTime = System.currentTimeMillis();
@@ -85,7 +85,7 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestURL);
     }
-    DefaultAggregationResponse response = DefaultAggregationResponse.of(new Attribution(url, text),
+    Response response = DefaultAggregationResponse.of(new Attribution(url, text),
         Application.apiVersion, metadata, results);
     return response;
   }
