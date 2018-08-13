@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 
 /**
- * REST controller containing the GET request, which enter through "/metadata".
+ * REST controller containing the GET request, which enters through "/metadata".
  */
 @Api(tags = "metadata")
 @RestController
