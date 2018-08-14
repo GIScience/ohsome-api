@@ -1,25 +1,19 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.config;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
-import org.springframework.boot.autoconfigure.web.ErrorAttributes;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Adds the {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.interceptor.RequestInterceptor
- * RequestInterceptor} class into the spring MVC life cycle and modifies the JSON exception
- * response.
+ * RequestInterceptor} class into the spring MVC life cycle.
  */
 @Configuration
-public class MvcConfig extends WebMvcConfigurerAdapter {
+@EnableWebMvc
+public class MvcConfig implements WebMvcConfigurer {
 
   @Autowired
   private RequestInterceptor requestInterceptor;
@@ -28,35 +22,5 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(requestInterceptor).addPathPatterns("/**/elements/**/");
     registry.addInterceptor(requestInterceptor).addPathPatterns("/**/users/**/");
-  }
-
-  /**
-   * Modifies the error response to have a more meaningful content.
-   * 
-   * @return <code>Map</code> containing the error-attributes as key-value pairs.
-   */
-  @Bean
-  public ErrorAttributes modifyExceptionResponse() {
-    return new DefaultErrorAttributes() {
-      @Override
-      public Map<String, Object> getErrorAttributes(RequestAttributes requestAttributes,
-          boolean includeStackTrace) {
-
-        Map<String, Object> errorAttributes =
-            super.getErrorAttributes(requestAttributes, includeStackTrace);
-        errorAttributes.remove("path");
-        errorAttributes.remove("exception");
-        errorAttributes.put("timestamp",
-            LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        if (errorAttributes.get("message").toString().equals("No message available")) {
-          errorAttributes.remove("requestUrl");
-        } else {
-          // ensures to include the requestUrl in the error-response only if a GET request was sent
-          if (!RequestInterceptor.requestUrl.split("\\?")[1].equals("null"))
-            errorAttributes.put("requestUrl", RequestInterceptor.requestUrl);
-        }
-        return errorAttributes;
-      }
-    };
   }
 }
