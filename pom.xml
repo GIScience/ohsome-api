@@ -16,10 +16,10 @@
 	<version>0.9.6</version>
 
 	<properties>
-		<springboot.version>1.5.8.RELEASE</springboot.version>
+		<springboot.version>2.0.3.RELEASE</springboot.version>
 		<jsonpath.version>2.2.0</jsonpath.version>
 		<oshdb.version>0.4.0</oshdb.version>
-		<jacksondatatype.version>2.8.10</jacksondatatype.version>
+		<jacksondatatype.version>2.9.6</jacksondatatype.version>
 		<geotools.version>17.2</geotools.version>
 		<springfox.version>2.7.0</springfox.version>
 		<apachecommons.version>3.7</apachecommons.version>
@@ -35,7 +35,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<version>1.5.3.RELEASE</version>
+			<version>2.0.3.RELEASE</version>
 		</dependency>
 		<!-- to have a basic auth with a user+key security on first request <dependency> 
 			<groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId> 
