@@ -128,9 +128,15 @@ public class ExecutionUtils {
         if (myIntersects(entityGeom, geoms.get(i))) {
           if (myWithin(entityGeom, geoms.get(i)))
             res.add(new ImmutablePair<>(i, entityGeom));
-          else
-            res.add(
-                new ImmutablePair<>(i, Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+          else {
+            try {
+              res.add(new ImmutablePair<>(i,
+                  Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+            } catch (Exception e) {
+              // do nothing
+            }
+          }
+
         }
       }
       return res;
@@ -228,9 +234,14 @@ public class ExecutionUtils {
         if (myIntersects(entityGeom, geoms.get(i))) {
           if (myWithin(entityGeom, geoms.get(i)))
             res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
-          else
-            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
-                Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+          else {
+            try {
+              res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
+                  Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+            } catch (Exception e) {
+              // do nothing
+            }
+          }
         }
       }
       return res;
