@@ -21,7 +21,7 @@
 		<oshdb.version>0.4.0</oshdb.version>
 		<jacksondatatype.version>2.9.6</jacksondatatype.version>
 		<geotools.version>17.2</geotools.version>
-		<springfox.version>2.7.0</springfox.version>
+		<springfox.version>2.9.2</springfox.version>
 		<apachecommons.version>3.7</apachecommons.version>
 	</properties>
 
