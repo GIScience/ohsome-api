@@ -174,8 +174,8 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, null);
+      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df,
+          iP.getGeomBuilder().getGeometry().get(count));
       groupByName = boundaryIds[count];
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -184,7 +184,7 @@ public class ElementsRequestExecutor {
     if (iP.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByBoundary(
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
+          rPs.isDensity(), requestResource.getLabel(), requestResource.getUnit()), requestURL);
     }
     if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
       return GroupByResponse.of(new Attribution(url, text), Application.apiVersion, metadata,

@@ -485,6 +485,50 @@ public class PerimeterController {
 
   /**
    * GET request giving the density of selected items (perimeter of items per square-kilometers)
+   * grouped by the boundary parameter (bounding box/circle/polygon).
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
+   */
+  @ApiOperation(
+      value = "Density of selected items (perimeter of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "getElementsPerimeterDensityGroupByBoundary")
+  @RequestMapping(value = "/density/groupBy/boundary", method = RequestMethod.GET,
+      produces = "application/json")
+  public Response getPerimeterDensityGroupByBoundary(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
+          required = false) String format,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata)
+      throws UnsupportedOperationException, Exception {
+
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
+        RequestResource.PERIMETER, RequestParameters.of(false, true, true, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata));
+  }
+
+  /**
+   * GET request giving the density of selected items (perimeter of items per square-kilometers)
    * grouped by the tag.
    * <p>
    * The other parameters are described in the
@@ -1193,6 +1237,60 @@ public class PerimeterController {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
             userids, time, showMetadata));
+  }
+
+  /**
+   * POST request giving the density of OSM elements (perimeter of items per square-kilometers)
+   * grouped by the boundary parameter (bounding box/circle/polygon). POST requests should only be
+   * used if the request URL would be too long for a GET request.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
+   * getCount} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
+   */
+  @ApiOperation(
+      value = "Density of OSM elements (perimeter of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "postElementsPerimeterDensityGroupByBoundary")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
+          value = ParameterDescriptions.BBOXES_DESCR),
+      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
+          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
+      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.BPOLYS_DESCR),
+      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
+          value = ParameterDescriptions.TYPES_DESCR),
+      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
+          value = ParameterDescriptions.KEYS_DESCR),
+      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
+          value = ParameterDescriptions.VALUES_DESCR),
+      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.USERIDS_DESCR),
+      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.TIME, required = false,
+          value = ParameterDescriptions.TIME_DESCR),
+      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
+          value = ParameterDescriptions.FORMAT_DESCR),
+      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
+          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
+          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
+  @RequestMapping(value = "/density/groupBy/boundary", method = RequestMethod.POST,
+      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public Response postPerimeterDensityGroupByBoundary(String bboxes, String bcircles, String bpolys,
+      String[] types, String[] keys, String[] values, String[] userids, String[] time,
+      String format, String showMetadata)
+      throws UnsupportedOperationException, Exception, BadRequestException {
+
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
+        RequestResource.PERIMETER, RequestParameters.of(true, true, true, bboxes, bcircles, bpolys,
+            types, keys, values, userids, time, format, showMetadata));
   }
 
   /**

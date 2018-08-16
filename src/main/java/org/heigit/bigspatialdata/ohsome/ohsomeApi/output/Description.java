@@ -15,9 +15,14 @@ public class Description {
     }
   }
 
-  public static String countLengthPerimeterAreaGroupByBoundary(String label, String unit) {
+  public static String countLengthPerimeterAreaGroupByBoundary(boolean isDensity, String label, String unit) {
 
-    return "Total " + label + " of items in " + unit + ", aggregated on the boundary.";
+    if (isDensity) {
+      return "Density of selected items (" + label + " of items in " + unit
+          + " divided by the area in square kilometers), aggregated on the boundary.";
+    } else {
+      return "Total " + label + " of items in " + unit + ", aggregated on the boundary.";
+    }
   }
 
   public static String countLengthPerimeterAreaGroupByUser(String label, String unit) {
