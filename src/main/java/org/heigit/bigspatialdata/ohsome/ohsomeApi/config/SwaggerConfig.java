@@ -78,10 +78,10 @@ public class SwaggerConfig {
   private ApiInfo apiInfo() {
     return new ApiInfo("ohsome API",
         "This REST-API aims to leverage the tools of the OSHDB-API through allowing to access some of its functionalities via HTTP requests.",
-        "0.9", "Terms of service",
-        new Contact("GIScience Research Group - Heidelberg Institute for Geoinformation Technology",
+        "0.9", "",
+        new Contact("Heidelberg Institute for Geoinformation Technology",
             "https://www.heigit.org", "info@heigit.org"),
-        "License of API and used data", "https://ohsome.org/copyrights", Collections.emptyList());
+        "License of the used data", "https://ohsome.org/copyrights", Collections.emptyList());
   }
 
   /**
