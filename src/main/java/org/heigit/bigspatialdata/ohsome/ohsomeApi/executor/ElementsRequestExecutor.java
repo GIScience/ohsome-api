@@ -56,8 +56,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -76,7 +76,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
@@ -123,8 +123,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -145,7 +145,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     switch (requestResource) {
@@ -199,8 +199,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area calculation grouped by the user.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -222,7 +222,7 @@ public class ElementsRequestExecutor {
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     if (rPs.getUserids() != null)
@@ -261,8 +261,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
-   * getCountGroupByTag} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
+   * countGroupByTag} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -286,7 +286,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     if (groupByValues == null)
       groupByValues = new String[0];
@@ -360,8 +360,8 @@ public class ElementsRequestExecutor {
    * Performs a count|perimeter|area calculation grouped by the OSM type.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -382,7 +382,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     preResult = mapRed.aggregateByTimestamp()
@@ -417,8 +417,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area calculation grouped by the key.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, String[])
-   * groupByKey} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
+   * countGroupByKey} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -441,7 +441,7 @@ public class ElementsRequestExecutor {
     InputProcessor iP = new InputProcessor();
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
@@ -499,8 +499,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area-share|ratio calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
+   * countRatio} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
@@ -554,7 +554,7 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < rPs.getKeys().length; i++) {
       keysInt1[i] = tt.getOSHDBTagKeyOf(rPs.getKeys()[i]).toInt();
@@ -574,9 +574,9 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!iP.compareKeysValues(rPs.getKeys(), keys2, rPs.getValues(), values2)) {
       mapRed = iP.processParameters(mapRed,
-          new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
-              rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
-              rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+          new RequestParameters(rPs.getRequestMethod(), rPs.isSnapshot(), rPs.isDensity(),
+              rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {},
+              new String[] {}, rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
       mapRed = mapRed.osmEntityFilter(entity -> {
         if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1))
           return exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
@@ -639,8 +639,8 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
+   * countRatio} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
@@ -697,7 +697,7 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[rPs.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     for (int i = 0; i < rPs.getKeys().length; i++) {
       keysInt1[i] = tt.getOSHDBTagKeyOf(rPs.getKeys()[i]).toInt();
@@ -717,9 +717,9 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!iP.compareKeysValues(rPs.getKeys(), keys2, rPs.getValues(), values2)) {
       mapRed = iP.processParameters(mapRed,
-          new RequestParameters(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(), rPs.getBboxes(),
-              rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {}, new String[] {},
-              rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+          new RequestParameters(rPs.getRequestMethod(), rPs.isSnapshot(), rPs.isDensity(),
+              rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {},
+              new String[] {}, rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
       mapRed = mapRed.osmEntityFilter(entity -> {
         boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
         boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);

@@ -3,7 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 /** Holds those parameters, which are relevant for every request. */
 public class RequestParameters {
 
-  private boolean isPost;
+  private String requestMethod;
   private boolean isSnapshot;
   private boolean isDensity;
   private String bboxes;
@@ -21,11 +21,11 @@ public class RequestParameters {
     
   }
   
-  public RequestParameters(boolean isPost, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
+  public RequestParameters(String requestMethod, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String showMetadata) {
 
-    this.isPost = isPost;
+    this.requestMethod = requestMethod;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
     this.bboxes = bboxes;
@@ -39,12 +39,12 @@ public class RequestParameters {
     this.showMetadata = showMetadata;
   }
   
-  public static RequestParameters of(boolean isPost, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
+  public static RequestParameters of(String requestMethod, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
       String bpolys, String[] types, String[] keys, String[] values, String[] userids,
       String[] time, String format, String showMetadata) {
 
     RequestParameters rPs = new RequestParameters();
-    rPs.isPost = isPost;
+    rPs.requestMethod = requestMethod;
     rPs.isSnapshot = isSnapshot;
     rPs.isDensity = isDensity;
     rPs.bboxes = bboxes;
@@ -61,8 +61,8 @@ public class RequestParameters {
     return rPs;
   }
 
-  public boolean isPost() {
-    return isPost;
+  public String getRequestMethod() {
+    return requestMethod;
   }
 
   public boolean isSnapshot() {

@@ -44,8 +44,8 @@ public class UsersRequestExecutor {
    * Performs a count calculation.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
@@ -63,7 +63,7 @@ public class UsersRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     result = mapRed.aggregateByTimestamp().map(contrib -> {
@@ -94,8 +94,8 @@ public class UsersRequestExecutor {
    * Performs a count calculation grouped by the OSM type.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
@@ -114,7 +114,7 @@ public class UsersRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     result = mapRed.aggregateByTimestamp()
@@ -155,8 +155,8 @@ public class UsersRequestExecutor {
    * Performs a count calculation grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
-   * getCountGroupByTag} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
+   * countGroupByTag} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
@@ -178,7 +178,7 @@ public class UsersRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     if (groupByValues == null)
       groupByValues = new String[0];
@@ -258,8 +258,8 @@ public class UsersRequestExecutor {
    * Performs a count calculation grouped by the key.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, String[], String[])
-   * getCountGroupByKey} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
+   * countGroupByKey} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
@@ -281,7 +281,7 @@ public class UsersRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     TagTranslator tt = DbConnData.tagTranslator;
     mapRed = iP.processParameters(mapRed, rPs);
@@ -344,8 +344,8 @@ public class UsersRequestExecutor {
    * NOT IN USE YET Performs a count calculation grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
    *        every request.
@@ -364,7 +364,7 @@ public class UsersRequestExecutor {
     String description = null;
     String requestURL = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.isPost())
+    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
       requestURL = RequestInterceptor.requestUrl;
     mapRed = iP.processParameters(mapRed, rPs);
     result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,

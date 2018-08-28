@@ -53,8 +53,8 @@ public class InputProcessor {
    * Processes the input parameters from the given request.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
@@ -63,7 +63,7 @@ public class InputProcessor {
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
       MapReducer<? extends OSHDBMapReducible> mapRed, RequestParameters rPs) throws Exception {
 
-    boolean isPost = rPs.isPost();
+    String requestMethod = rPs.getRequestMethod();
     boolean isSnapshot = rPs.isSnapshot();
     String bboxes = rPs.getBboxes();
     String bcircles = rPs.getBcircles();
@@ -77,7 +77,7 @@ public class InputProcessor {
     format = rPs.getFormat();
     geomBuilder = new GeometryBuilder();
     utils = new InputProcessingUtils();
-    if (isPost) {
+    if (requestMethod.equalsIgnoreCase("post")) {
       bboxes = createEmptyStringIfNull(bboxes);
       bcircles = createEmptyStringIfNull(bcircles);
       bpolys = createEmptyStringIfNull(bpolys);
@@ -256,9 +256,9 @@ public class InputProcessor {
     if (values == null)
       values = new String[0];
 
-    RequestParameters rPs2 = RequestParameters.of(rPs.isPost(), rPs.isSnapshot(), rPs.isDensity(),
-        rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values, rPs.getUserids(),
-        rPs.getTime(), rPs.getFormat(), rPs.getShowMetadata());
+    RequestParameters rPs2 = RequestParameters.of(rPs.getRequestMethod(), rPs.isSnapshot(),
+        rPs.isDensity(), rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values,
+        rPs.getUserids(), rPs.getTime(), rPs.getFormat(), rPs.getShowMetadata());
 
     return rPs2;
   }
@@ -355,8 +355,8 @@ public class InputProcessor {
    * where(key, value)} method.
    * <p>
    * The keys and values parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
    *        MapReducer} object

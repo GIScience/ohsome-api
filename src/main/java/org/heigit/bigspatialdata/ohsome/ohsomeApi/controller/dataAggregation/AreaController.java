@@ -1,13 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 
+import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.ParameterDescriptions;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,18 +27,19 @@ import io.swagger.annotations.ApiParam;
 public class AreaController {
 
   /**
-   * GET request giving the area of OSM objects.
+   * Gives the area of OSM objects.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
   @ApiOperation(value = "Area of OSM elements", nickname = "getElementsArea")
-  @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
-  public Response getArea(
+  @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response area(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -57,29 +57,30 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
   }
 
   /**
-   * GET request giving the area of OSM objects grouped by the OSM type.
+   * Gives the area of OSM objects grouped by the OSM type.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the type",
       nickname = "getElementsAreaGroupByType")
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.GET,
+  @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response getAreaGroupByType(
+  public Response areaGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -97,29 +98,30 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
   }
 
   /**
-   * GET request giving the area of OSM objects grouped by the userId.
+   * Gives the area of OSM objects grouped by the userId.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response }
    */
   @ApiOperation(value = "Area of OSM elements grouped by the user",
       nickname = "getElementsAreaGroupByUser")
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.GET,
+  @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response getAreaGroupByUser(
+  public Response areaGroupByUser(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -137,21 +139,21 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(RequestResource.AREA,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
   }
 
   /**
-   * GET request giving the area OSM objects grouped by the boundary parameter (bounding
-   * box/circle/polygon).
+   * Gives the area OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
@@ -159,9 +161,9 @@ public class AreaController {
   @ApiOperation(
       value = "Area of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "getElementsAreaGroupByBoundary")
-  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.GET,
+  @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response getAreaGroupByBoundary(
+  public Response areaGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -181,20 +183,21 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
           required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, format, showMetadata));
+        RequestResource.AREA, RequestParameters.of(request.getMethod(), true, false, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, format, showMetadata));
   }
 
   /**
-   * GET request giving the area of OSM objects grouped by the key.
+   * Gives the area of OSM objects grouped by the key.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
@@ -207,8 +210,9 @@ public class AreaController {
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true)})
-  @RequestMapping(value = "/groupBy/key", method = RequestMethod.GET, produces = "application/json")
-  public Response getAreaGroupByKey(
+  @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response areaGroupByKey(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -227,22 +231,22 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
-      @RequestParam(value = "groupByKeys", defaultValue = "",
-          required = false) String[] groupByKeys)
+      @ApiParam(hidden = true) HttpServletRequest request, @RequestParam(value = "groupByKeys",
+          defaultValue = "", required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.AREA,
-        new RequestParameters(false, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata),
         groupByKeys);
   }
 
   /**
-   * GET request giving the area of OSM objects grouped by the tag.
+   * Gives the area of OSM objects grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
    *        grouping. At the current implementation, there must be one key given (not more and not
@@ -261,8 +265,9 @@ public class AreaController {
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.GET, produces = "application/json")
-  public Response getAreaGroupByTag(
+  @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response areaGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -281,25 +286,25 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaGroupByTag(
-            RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
-            groupByKey, groupByValues);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
+        RequestResource.AREA, new RequestParameters(request.getMethod(), true, false, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        groupByKey, groupByValues);
   }
 
   /**
-   * GET request giving the area of items satisfying keys, values (plus other parameters) and part
-   * of items satisfying keys2, values2 (plus other parameters).
+   * Gives the area of items satisfying keys, values (plus other parameters) and part of items
+   * satisfying keys2, values2 (plus other parameters).
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param keys2 <code>String</code> array having the same format as keys and used to define the
    *        subgroup(share).
@@ -316,8 +321,9 @@ public class AreaController {
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/share", method = RequestMethod.GET, produces = "application/json")
-  public Response getAreaShare(
+  @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response areaShare(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -336,24 +342,24 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaRatio(
-            RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
-            types, keys2, values2, true);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
+        RequestResource.AREA, new RequestParameters(request.getMethod(), true, false, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        types, keys2, values2, true);
   }
 
   /**
-   * GET request giving the area of items satisfying keys, values (plus other parameters) and part
-   * of items satisfying keys2, values2 (plus other parameters), grouped by the boundary.
+   * Gives the area of items satisfying keys, values (plus other parameters) and part of items
+   * satisfying keys2, values2 (plus other parameters), grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param keys2 <code>String</code> array having the same format as keys and used to define the
    *        subgroup(share).
@@ -369,9 +375,9 @@ public class AreaController {
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.GET,
-      produces = "application/json")
-  public Response getAreaShareGroupByBoundary(
+  @RequestMapping(value = "/share/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+  public Response areaShareGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -392,31 +398,32 @@ public class AreaController {
           required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaRatioGroupByBoundary(
-            RequestResource.AREA, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
-                types, keys, values, userids, time, format, showMetadata),
-            types, keys2, values2, true);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.AREA, RequestParameters.of(request.getMethod(), true, false, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, format, showMetadata),
+        types, keys2, values2, true);
   }
 
   /**
-   * GET request giving the density of selected items (area of items per square-kilometers).
+   * Gives the density of selected items (area of items per square-kilometers).
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)",
       nickname = "getElementsAreaDensity")
-  @RequestMapping(value = "/density", method = RequestMethod.GET, produces = "application/json")
-  public Response getAreaDensity(
+  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response areaDensity(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -434,21 +441,22 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
-        new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+        new RequestParameters(request.getMethod(), true, true, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
   }
 
   /**
-   * GET request giving the density of selected items (area of items per square-kilometers) grouped
-   * by the OSM type.
+   * Gives the density of selected items (area of items per square-kilometers) grouped by the OSM
+   * type.
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
@@ -456,9 +464,9 @@ public class AreaController {
   @ApiOperation(
       value = "Density of OSM elements (area of items per square-kilometers) grouped by the type",
       nickname = "getElementsAreaDensityGroupByType")
-  @RequestMapping(value = "/density/groupBy/type", method = RequestMethod.GET,
+  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response getAreaDensityGroupByType(
+  public Response areaDensityGroupByType(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -476,21 +484,22 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
-        new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
+        new RequestParameters(request.getMethod(), true, true, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
   }
 
   /**
-   * GET request giving the density of selected items (area of items per square-kilometers) grouped
-   * by the boundary parameter (bounding box/circle/polygon).
+   * Gives the density of selected items (area of items per square-kilometers) grouped by the
+   * boundary parameter (bounding box/circle/polygon).
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
@@ -498,9 +507,9 @@ public class AreaController {
   @ApiOperation(
       value = "Density of selected items (area of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "getElementsAreaGroupByBoundary")
-  @RequestMapping(value = "/density/groupBy/boundary", method = RequestMethod.GET,
-      produces = "application/json")
-  public Response getAreaDensityGroupByBoundary(
+  @RequestMapping(value = "/density/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+  public Response areaDensityGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -520,21 +529,21 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(value = "format", defaultValue = "",
           required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata)
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(false, true, true, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, format, showMetadata));
+        RequestResource.AREA, RequestParameters.of(request.getMethod(), true, true, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, format, showMetadata));
   }
 
   /**
-   * GET request giving the density of selected items (area of items per square-kilometers) grouped
-   * by the tag.
+   * Gives the density of selected items (area of items per square-kilometers) grouped by the tag.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
    *        grouping. At the current implementation, there must be one key given (not more and not
@@ -554,9 +563,9 @@ public class AreaController {
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.GET,
+  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response getAreaDensityGroupByTag(
+  public Response areaDensityGroupByTag(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -575,24 +584,25 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
-        new RequestParameters(false, true, true, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
+        RequestResource.AREA, new RequestParameters(request.getMethod(), true, true, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, showMetadata),
         groupByKey, groupByValues);
   }
 
   /**
-   * GET request giving the ratio of selected items satisfying types2, keys2 and values2 within
-   * items selected by types, keys and values.
+   * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
+   * types, keys and values.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
    * 
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
@@ -611,8 +621,9 @@ public class AreaController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/ratio", method = RequestMethod.GET, produces = "application/json")
-  public Response getAreaRatio(
+  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response areaRatio(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -631,25 +642,25 @@ public class AreaController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaRatio(
-            RequestResource.AREA, new RequestParameters(false, true, false, bboxes, bcircles,
-                bpolys, types, keys, values, userids, time, showMetadata),
-            types2, keys2, values2, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
+        RequestResource.AREA, new RequestParameters(request.getMethod(), true, false, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+        types2, keys2, values2, false);
   }
 
   /**
-   * GET request giving the ratio of the area of selected items satisfying types2, keys2 and values2
-   * within items selected by types, keys and values grouped by the boundary.
+   * Gives the ratio of the area of selected items satisfying types2, keys2 and values2 within items
+   * selected by types, keys and values grouped by the boundary.
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
+   * countRatio} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
@@ -665,9 +676,9 @@ public class AreaController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.GET,
-      produces = "application/json")
-  public Response getAreaRatioGroupByBoundary(
+  @RequestMapping(value = "/ratio/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+  public Response areaRatioGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
       @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
@@ -688,790 +699,15 @@ public class AreaController {
           required = false) String format,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(false, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, format, showMetadata),
-        types2, keys2, values2, false);
-  }
-
-  /**
-   * POST request giving the area of OSM objects. POST requests should only be used if the request
-   * URL would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Area of OSM elements", nickname = "postElementsArea")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
-          value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postArea(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
-  }
-
-  /**
-   * POST request giving the area of OSM objects grouped by the OSM type. POST requests should only
-   * be used if the request URL would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Area of OSM elements grouped by the type",
-      nickname = "postElementsAreaGroupByType")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way, relation", required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "/groupBy/type", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaGroupByType(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
-  }
-
-  /**
-   * POST request giving the area of OSM objects grouped by the userID. POST requests should only be
-   * used if the request URL would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Area of OSM elements grouped by the user",
-      nickname = "postElementsAreaGroupByUser")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
-          value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "/groupBy/user", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaGroupByUser(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
-  }
-
-  /**
-   * POST request giving the area of OSM objects grouped by the boundary parameter (bounding
-   * box/circle/polygon). POST requests should only be used if the request URL would be too long for
-   * a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "postElementsAreaGroupByBoundary")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
-          value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.FORMAT_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "/groupBy/boundary", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaGroupByBoundary(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String format, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, format, showMetadata));
-  }
-
-  /**
-   * POST request giving the area of OSM objects grouped by the key. POST requests should only be
-   * used if the request URL would be too long for a GET request.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Area of OSM elements grouped by the key",
-      nickname = "postElementsAreaGroupByKey")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "groupByKeys", paramType = "form", dataType = "string",
-          defaultValue = "addr:street", required = true, value = ParameterDescriptions.KEYS_DESCR)})
-  @RequestMapping(value = "/groupBy/key", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaGroupByKey(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] groupByKeys) throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        groupByKeys);
-  }
-
-  /**
-   * POST request giving the area of OSM objects grouped by the tag. POST requests should only be
-   * used if the request URL would be too long for a GET request.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @param groupByValues <code>String</code> array containing the values used to create the tags
-   *        for grouping. If a given value does not appear in the output, then there are no objects
-   *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Area of OSM elements grouped by the tag",
-      nickname = "postElementsAreaGroupByTag")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = "addr:postcode", required = true,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
-  @RequestMapping(value = "/groupBy/tag", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaGroupByTag(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] groupByKey, String[] groupByValues)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        groupByKey, groupByValues);
-  }
-
-  /**
-   * POST request giving the share of selected items satisfying keys2 and values2 within items
-   * selected by types, keys and values. POST requests should only be used if the request URL would
-   * be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param keys2 <code>String</code> array having the same format as keys and used to define the
-   *        subgroup(share).
-   * @param values2 <code>String</code> array having the same format as values and used to define
-   *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values",
-      nickname = "postElementsAreaShare")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = true,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
-          value = ParameterDescriptions.VALUES_DESCR)})
-  @RequestMapping(value = "/share", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaShare(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        types, keys2, values2, true);
-  }
-
-  /**
-   * POST request giving the share of selected items satisfying keys2 and values2 within items
-   * selected by types, keys and values, grouped by the boundary. POST requests should only be used
-   * if the request URL would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param keys2 <code>String</code> array having the same format as keys and used to define the
-   *        subgroup(share).
-   * @param values2 <code>String</code> array having the same format as values and used to define
-   *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "postElementsAreaShareGroupByBoundary")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.FORMAT_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = true,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
-          value = ParameterDescriptions.VALUES_DESCR)})
-  @RequestMapping(value = "/share/groupBy/boundary", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaShareGroupByBoundary(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String format, String showMetadata, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor
-        .executeCountLengthPerimeterAreaRatioGroupByBoundary(
-            RequestResource.AREA, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,
-                types, keys, values, userids, time, format, showMetadata),
-            types, keys2, values2, true);
-  }
-
-  /**
-   * POST request giving the density of OSM elements (area of elements per square-kilometers). POST
-   * requests should only be used if the request URL would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)",
-      nickname = "postElementsAreaDensity")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "/density", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaDensity(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
-        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
-  }
-
-  /**
-   * POST request giving the density of OSM elements (area of items per square-kilometers) grouped
-   * by the type. POST requests should only be used if the request URL would be too long for a GET
-   * request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Density of OSM elements (area of items per square-kilometers) grouped by the type",
-      nickname = "postElementsAreaDensityGroupByType")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = "way, relation", required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "/density/groupBy/type", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaDensityGroupByType(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata) throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
-        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata));
-  }
-
-  /**
-   * POST request giving the density of OSM elements (area of items per square-kilometers) grouped
-   * by the boundary parameter (bounding box/circle/polygon). POST requests should only be used if
-   * the request URL would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Density of OSM elements (area of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "postElementsAreaGroupByBoundary")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, required = false,
-          value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.FORMAT_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR)})
-  @RequestMapping(value = "/density/groupBy/boundary", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaDensityGroupByBoundary(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String format, String showMetadata)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(true, true, true, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, format, showMetadata));
-  }
-
-  /**
-   * POST request giving the density of selected items (area of items per square-kilometers) grouped
-   * by the tag. POST requests should only be used if the request URL would be too long for a GET
-   * request.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @param groupByValues <code>String</code> array containing the values used to create the tags
-   *        for grouping. If a given value does not appear in the output, then there are no objects
-   *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Density of selected items (area of items per square-kilometers) grouped by the tag",
-      nickname = "postElementsAreaDensityGroupByTag")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "groupByKey", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = true,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "groupByValues", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
-  @RequestMapping(value = "/density/groupBy/tag", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaDensityGroupByTag(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String showMetadata, String[] groupByKey, String[] groupByValues)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
-        new RequestParameters(true, true, true, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        groupByKey, groupByValues);
-  }
-
-  /**
-   * POST request giving the ratio of selected items satisfying types2, keys2 and values2 within
-   * items selected by types, keys and values. POST requests should only be used if the request URL
-   * would be too long for a GET request.
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCount(String, String, String, String[], String[], String[], String[], String[], String)
-   * getCount} method.
-   * 
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
-      nickname = "postElementsAreaRatio")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
-          defaultValue = "relation", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
-  @RequestMapping(value = "/ratio", method = RequestMethod.POST, produces = "application/json",
-      consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaRatio(String bboxes, String bcircles, String bpolys, String[] types,
-      String[] keys, String[] values, String[] userids, String[] time, String showMetadata,
-      String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception, BadRequestException {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.AREA,
-        new RequestParameters(true, true, false, bboxes, bcircles, bpolys, types, keys, values,
-            userids, time, showMetadata),
-        types2, keys2, values2, false);
-  }
-
-  /**
-   * POST request giving the ratio of the area of selected items satisfying types2, keys2 and
-   * values2 within items selected by types, keys and values grouped by the boundary. POST requests
-   * should only be used if the request URL would be too long for a GET request.
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#getCountRatio(String, String, String, String[], String[], String[], String[], String[], String, String[], String[], String[])
-   * getCountRatio} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary",
-      nickname = "postElementsAreaRatioGroupByBoundary")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "bboxes", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BBOX, required = false,
-          value = ParameterDescriptions.BBOXES_DESCR),
-      @ApiImplicitParam(name = "bcircles", paramType = "form", dataType = "string",
-          required = false, value = ParameterDescriptions.BCIRCLES_DESCR),
-      @ApiImplicitParam(name = "bpolys", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.BPOLYS_DESCR),
-      @ApiImplicitParam(name = "types", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TYPE, required = false,
-          value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = false,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values", paramType = "form", dataType = "string", defaultValue = "",
-          required = false, value = ParameterDescriptions.VALUES_DESCR),
-      @ApiImplicitParam(name = "userids", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.USERIDS_DESCR),
-      @ApiImplicitParam(name = "time", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.TIME, required = false,
-          value = ParameterDescriptions.TIME_DESCR),
-      @ApiImplicitParam(name = "format", paramType = "form", dataType = "string", required = false,
-          value = ParameterDescriptions.FORMAT_DESCR),
-      @ApiImplicitParam(name = "showMetadata", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.SHOW_METADATA, required = false,
-          value = ParameterDescriptions.SHOW_METADATA_DESCR),
-      @ApiImplicitParam(name = "types2", paramType = "form", dataType = "string",
-          defaultValue = "relation", required = true, value = ParameterDescriptions.TYPES_DESCR),
-      @ApiImplicitParam(name = "keys2", paramType = "form", dataType = "string",
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, required = true,
-          value = ParameterDescriptions.KEYS_DESCR),
-      @ApiImplicitParam(name = "values2", paramType = "form", dataType = "string",
-          defaultValue = "", required = false, value = ParameterDescriptions.VALUES_DESCR)})
-  @RequestMapping(value = "/ratio/groupBy/boundary", method = RequestMethod.POST,
-      produces = "application/json", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public Response postAreaRatioGroupByBoundary(String bboxes, String bcircles, String bpolys,
-      String[] types, String[] keys, String[] values, String[] userids, String[] time,
-      String format, String showMetadata, String[] types2, String[] keys2, String[] values2)
-      throws UnsupportedOperationException, Exception {
-
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
-        RequestResource.AREA, RequestParameters.of(true, true, false, bboxes, bcircles, bpolys,
-            types, keys, values, userids, time, format, showMetadata),
+        RequestResource.AREA, RequestParameters.of(request.getMethod(), true, false, bboxes,
+            bcircles, bpolys, types, keys, values, userids, time, format, showMetadata),
         types2, keys2, values2, false);
   }
 
