@@ -36,7 +36,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Length of OSM elements", nickname = "getElementsLength")
+  @ApiOperation(value = "Length of OSM elements", nickname = "elementsLength")
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response length(
@@ -67,7 +67,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the userId.
+   * Gives the length of OSM objects grouped by the user who was the last editor of the requested elementsId.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -76,8 +76,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the user",
-      nickname = "getElementsLengthGroupByUser")
+  @ApiOperation(value = "Length of OSM elements grouped by the user who was the last editor of the requested elements",
+      nickname = "elementsLengthGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthGroupByUser(
@@ -120,7 +120,7 @@ public class LengthController {
    */
   @ApiOperation(
       value = "Length of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsLengthGroupByBoundary")
+      nickname = "elementsLengthGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthGroupByBoundary(
@@ -165,7 +165,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "getElementsLengthGroupByKey")
+      nickname = "elementsLengthGroupByKey")
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
       value = ParameterDescriptions.KEYS_DESCR, defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY,
       paramType = "query", dataType = "string", required = true)})
@@ -217,7 +217,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag",
-      nickname = "getElementsLengthGroupByTag")
+      nickname = "elementsLengthGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
@@ -274,7 +274,7 @@ public class LengthController {
    */
   @ApiOperation(
       value = "Share of length of elements satisfying keys2 and values2 within elements selected by types, keys and values",
-      nickname = "getElementsLengthShare")
+      nickname = "elementsLengthShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -328,7 +328,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "getElementsLengthShareGroupByBoundary")
+      nickname = "elementsLengthShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -379,7 +379,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
-      nickname = "getElementsLengthDensity")
+      nickname = "elementsLengthDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthDensity(
@@ -422,7 +422,7 @@ public class LengthController {
    */
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsLengthDensityGroupByBoundary")
+      nickname = "elementsLengthDensityGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response lengthDensityGroupByBoundary(
@@ -472,7 +472,7 @@ public class LengthController {
    */
   @ApiOperation(
       value = "Density of selected items (length of items per square-kilometers) grouped by the tag",
-      nickname = "getElementsLengthDensityGroupByTag")
+      nickname = "elementsLengthDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
@@ -527,7 +527,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of the length of selected items",
-      nickname = "getElementsLengthRatio")
+      nickname = "elementsLengthRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -582,7 +582,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary",
-      nickname = "getElementsLengthRatioGroupByBoundary")
+      nickname = "elementsLengthRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",

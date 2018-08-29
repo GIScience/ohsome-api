@@ -85,7 +85,7 @@ public class SwaggerConfig {
   }
 
   /**
-   * Defines the description of each GET parameter, which are used in all resources for the Swagger2
+   * Defines the description of each parameter, which are used in all resources for the Swagger2
    * documentation.
    * 
    * @return <code>ArrayList</code> holding <code>Parameter</code> objects that describe those GET

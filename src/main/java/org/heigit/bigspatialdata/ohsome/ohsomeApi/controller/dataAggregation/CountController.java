@@ -61,7 +61,7 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @ApiOperation(value = "Count of OSM elements", nickname = "getElementsCount")
+  @ApiOperation(value = "Count of OSM elements", nickname = "elementsCount")
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response count(
@@ -102,7 +102,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the type",
-      nickname = "getElementsCountGroupByType")
+      nickname = "elementsCountGroupByType")
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByType(
@@ -142,8 +142,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the user",
-      nickname = "getElementsCountGroupByUser")
+  @ApiOperation(value = "Count of OSM elements grouped by the user who was the last editor of the requested elements",
+      nickname = "elementsCountGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByUser(
@@ -185,7 +185,7 @@ public class CountController {
    */
   @ApiOperation(
       value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsCountGroupByBoundary")
+      nickname = "elementsCountGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByBoundary(
@@ -230,7 +230,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "getElementsCountGroupByKey")
+      nickname = "elementsCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -283,7 +283,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the tag",
-      nickname = "getElementsCountGroupByTag")
+      nickname = "elementsCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -340,7 +340,7 @@ public class CountController {
    */
   @ApiOperation(
       value = "Share of count of elements satisfying keys2 and values2 within elements selected by types, keys and values",
-      nickname = "getElementsCountShare")
+      nickname = "elementsCountShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -394,7 +394,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "getElementsCountShareGroupByBoundary")
+      nickname = "elementsCountShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR, defaultValue = "",
           paramType = "query", dataType = "string", required = true),
@@ -445,7 +445,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)",
-      nickname = "getElementsCountDensity")
+      nickname = "elementsCountDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensity(
@@ -486,7 +486,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
-      nickname = "getElementsCountDensityGroupByType")
+      nickname = "elementsCountDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensityGroupByType(
@@ -529,7 +529,7 @@ public class CountController {
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsCountDensityGroupByBoundary")
+      nickname = "elementsCountDensityGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countDensityGroupByBoundary(
@@ -578,7 +578,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
-      nickname = "getElementsCountDensityGroupByTag")
+      nickname = "elementsCountDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -634,7 +634,7 @@ public class CountController {
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
-      nickname = "getElementsCountRatio")
+      nickname = "elementsCountRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "node", paramType = "query", dataType = "string", required = false),
@@ -688,7 +688,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of selected items grouped by the boundary",
-      nickname = "getElementsCountRatioGroupByBoundary")
+      nickname = "elementsCountRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "node", paramType = "query", dataType = "string", required = false),

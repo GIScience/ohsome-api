@@ -32,7 +32,7 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users", nickname = "getUsersCount")
+  @ApiOperation(value = "Count of OSM users", nickname = "usersCount")
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response count(
@@ -72,7 +72,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the type",
-      nickname = "getUsersCountGroupByType")
+      nickname = "usersCountGroupByType")
   @RequestMapping(value = "/count/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByType(
@@ -112,7 +112,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag",
-      nickname = "getUsersCountGroupByTag")
+      nickname = "usersCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -162,7 +162,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag",
-      nickname = "getUsersCountGroupByKey")
+      nickname = "usersCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -208,7 +208,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
-      nickname = "getUsersCountDensity")
+      nickname = "usersCountDensity")
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensity(
@@ -248,7 +248,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the type",
-      nickname = "getUsersCountDensityGroupByType")
+      nickname = "usersCountDensityGroupByType")
   @RequestMapping(value = "/count/density/groupBy/type",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countDensityGroupByType(
@@ -288,7 +288,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the tag",
-      nickname = "getUsersCountDensityGroupByTag")
+      nickname = "usersCountDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",

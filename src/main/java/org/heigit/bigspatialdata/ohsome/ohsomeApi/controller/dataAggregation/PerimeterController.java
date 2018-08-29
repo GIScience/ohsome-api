@@ -36,7 +36,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Perimeter of OSM elements", nickname = "getElementsPerimeter")
+  @ApiOperation(value = "Perimeter of OSM elements", nickname = "elementsPerimeter")
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeter(
@@ -77,7 +77,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
-      nickname = "getElementsPerimeterGroupByType")
+      nickname = "elementsPerimeterGroupByType")
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterGroupByType(
@@ -108,7 +108,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the userId.
+   * Gives the perimeter of polygonal OSM objects grouped by the user who was the last editor of the requested elementsId.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -117,8 +117,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the user",
-      nickname = "getElementsPerimeterGroupByUser")
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the user who was the last editor of the requested elements",
+      nickname = "elementsPerimeterGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterGroupByUser(
@@ -161,7 +161,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Perimeter of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsPerimeterGroupByBoundary")
+      nickname = "elementsPerimeterGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterGroupByBoundary(
@@ -206,7 +206,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "getElementsPerimeterGroupByKey")
+      nickname = "elementsPerimeterGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -260,7 +260,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
-      nickname = "getElementsPerimeterGroupByTag")
+      nickname = "elementsPerimeterGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -317,7 +317,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Share of perimeter of elements satisfying keys2 and values2 within elements selected by types, keys and values",
-      nickname = "getElementsPerimeterShare")
+      nickname = "elementsPerimeterShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -371,7 +371,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "getElementsPerimeterShareGroupByBoundary")
+      nickname = "elementsPerimeterShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -422,7 +422,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)",
-      nickname = "getElementsPerimeterDensity")
+      nickname = "elementsPerimeterDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterDensity(
@@ -465,7 +465,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Density of OSM elements (perimeter of items per square-kilometers) grouped by the type",
-      nickname = "getElementsPerimeterDensityGroupByType")
+      nickname = "elementsPerimeterDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterDensityGroupByType(
@@ -508,7 +508,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Density of selected items (perimeter of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsPerimeterDensityGroupByBoundary")
+      nickname = "elementsPerimeterDensityGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response perimeterDensityGroupByBoundary(
@@ -559,7 +559,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Density of selected items (perimeter of items per square-kilometers) grouped by the tag",
-      nickname = "getElementsPerimeterDensityGroupByTag")
+      nickname = "elementsPerimeterDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -615,7 +615,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
-      nickname = "getElementsPerimeterRatio")
+      nickname = "elementsPerimeterRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -671,7 +671,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
-      nickname = "getElementsPerimeterRatioGroupByBoundary")
+      nickname = "elementsPerimeterRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",

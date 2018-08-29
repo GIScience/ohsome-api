@@ -36,7 +36,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Area of OSM elements", nickname = "getElementsArea")
+  @ApiOperation(value = "Area of OSM elements", nickname = "elementsArea")
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response area(
@@ -77,7 +77,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the type",
-      nickname = "getElementsAreaGroupByType")
+      nickname = "elementsAreaGroupByType")
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response areaGroupByType(
@@ -108,7 +108,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the area of OSM objects grouped by the userId.
+   * Gives the area of OSM objects grouped by the user who was the last editor of the requested elementsId.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -117,8 +117,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response }
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the user",
-      nickname = "getElementsAreaGroupByUser")
+  @ApiOperation(value = "Area of OSM elements grouped by the user who was the last editor of the requested elements",
+      nickname = "elementsAreaGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response areaGroupByUser(
@@ -160,7 +160,7 @@ public class AreaController {
    */
   @ApiOperation(
       value = "Area of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsAreaGroupByBoundary")
+      nickname = "elementsAreaGroupByBoundary")
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response areaGroupByBoundary(
@@ -205,7 +205,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "getElementsAreaGroupByKey")
+      nickname = "elementsAreaGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -258,7 +258,7 @@ public class AreaController {
    *         Response }
    */
   @ApiOperation(value = "Area of OSM elements grouped by the tag",
-      nickname = "getElementsAreaGroupByTag")
+      nickname = "elementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -315,7 +315,7 @@ public class AreaController {
    */
   @ApiOperation(
       value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values",
-      nickname = "getElementsAreaShare")
+      nickname = "elementsAreaShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -369,7 +369,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "getElementsAreaShareGroupByBoundary")
+      nickname = "elementsAreaShareGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -420,7 +420,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)",
-      nickname = "getElementsAreaDensity")
+      nickname = "elementsAreaDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response areaDensity(
@@ -463,7 +463,7 @@ public class AreaController {
    */
   @ApiOperation(
       value = "Density of OSM elements (area of items per square-kilometers) grouped by the type",
-      nickname = "getElementsAreaDensityGroupByType")
+      nickname = "elementsAreaDensityGroupByType")
   @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response areaDensityGroupByType(
@@ -506,7 +506,7 @@ public class AreaController {
    */
   @ApiOperation(
       value = "Density of selected items (area of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "getElementsAreaGroupByBoundary")
+      nickname = "elementsAreaGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response areaDensityGroupByBoundary(
@@ -556,7 +556,7 @@ public class AreaController {
    */
   @ApiOperation(
       value = "Density of selected items (area of items per square-kilometers) grouped by the tag",
-      nickname = "getElementsAreaGroupByTag")
+      nickname = "elementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -612,7 +612,7 @@ public class AreaController {
    */
   @ApiOperation(
       value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
-      nickname = "getElementsAreaRatio")
+      nickname = "elementsAreaRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "relation", paramType = "query", dataType = "string", required = false),
@@ -666,7 +666,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary",
-      nickname = "getElementsAreaRatioGroupByBoundary")
+      nickname = "elementsAreaRatioGroupByBoundary")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
