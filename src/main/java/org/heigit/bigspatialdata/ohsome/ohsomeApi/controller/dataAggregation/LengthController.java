@@ -67,7 +67,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the user who was the last editor of the requested elementsId.
+   * Gives the length of OSM objects grouped by the user who was the last editor of the requested elements.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
