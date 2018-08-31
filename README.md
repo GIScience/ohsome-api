@@ -1,8 +1,7 @@
 # OHSOME API
 
-This REST-based API aims to leverage the tools of the [OSHDB-API](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb) through allowing to access some of its functionalities via HTTP requests.
-The current stable beta-version is [v0.9.6](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/0.9.6). 
-You can also read [further information](https://confluence.gistools.geog.uni-heidelberg.de/display/oshdb/Web+Rest+API) about the whole planning process behind this REST-based API.
+This REST-based API aims to leverage the tools of the [OSHDB-API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests.
+The current stable beta-version is [v0.9.6](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/0.9.6).
 
 ## Getting Started
 
@@ -12,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* data: [download](http://downloads.ohsome.org/) it directly, or work through a guide on [how to prepare a new oshdb extract](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/oshdb/blob/master/oshdb-tool/etl/README.md)
+* data: [download](http://downloads.ohsome.org/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-tool/etl/README.md)
 
 ### Setting-up/Running
 
