@@ -77,19 +77,16 @@ public class SwaggerConfig {
   /** Defines information about this API. */
   private ApiInfo apiInfo() {
     return new ApiInfo("ohsome API",
-        "This REST-API aims to leverage the tools of the OSHDB-API through allowing to access some of its functionalities via HTTP requests.",
+        "This REST-based API aims to leverage the tools of the <a href=\"https://github.com/GIScience/oshdb\" target=\"_blank\">OSHDB</a> through allowing to access some of its functionalities via HTTP requests.",
         "0.9", "",
-        new Contact("Heidelberg Institute for Geoinformation Technology",
-            "https://www.heigit.org", "info@heigit.org"),
+        new Contact("Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
+            "info@heigit.org"),
         "License of the used data", "https://ohsome.org/copyrights", Collections.emptyList());
   }
 
   /**
    * Defines the description of each parameter, which are used in all resources for the Swagger2
    * documentation.
-   * 
-   * @return <code>ArrayList</code> holding <code>Parameter</code> objects that describe those GET
-   *         parameters that are used in all resources.
    */
   private List<Parameter> defineGOPs() {
 
