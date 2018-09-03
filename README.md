@@ -17,7 +17,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1. checkout/download the repository
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
-3. enter the command `mvn package` to build the project
+3. enter the command `mvn -DskipTests=true package` to build the project without running tests (won't work otherwise atm)
 4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
     * keytables included: `java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
     * keytables not included: `java -jar target/ohsome-api-0.0.1-SNAPSHOT.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
