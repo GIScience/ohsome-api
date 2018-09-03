@@ -29,7 +29,7 @@ public class Application implements ApplicationRunner {
   public static final String apiVersion = "0.9";
 
   public static void main(String[] args) {
-    
+
     if (args == null || args.length == 0)
       throw new RuntimeException(
           "You need to define at least the '--database.db' or the '--database.ignite' + '--database.keytables' parameter(s).");
@@ -42,8 +42,10 @@ public class Application implements ApplicationRunner {
     boolean multithreading = true;
     boolean caching = false;
     // only used when tests are executed directly in Eclipse
-    if (System.getProperty("database.db") != null)
+    if (System.getProperty("database.db") != null) {
       DbConnData.h2Db = new OSHDBH2(System.getProperty("database.db"));
+      extractMetadata(DbConnData.h2Db);
+    }
     try {
       for (String paramName : args.getOptionNames()) {
         switch (paramName) {
