@@ -67,6 +67,47 @@ public class LengthController {
   }
 
   /**
+   * Gives the length of OSM objects grouped by the OSM type.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Length of OSM elements grouped by the type",
+      nickname = "elementsLengthGroupByType")
+  @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response lengthGroupByType(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
+      throws UnsupportedOperationException, Exception {
+
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.LENGTH,
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
+  }
+
+  /**
    * Gives the length of OSM objects grouped by the user who was the last editor of the requested elements.
    * <p>
    * The parameters are described in the
@@ -409,6 +450,47 @@ public class LengthController {
             keys, values, userids, time, showMetadata));
   }
 
+  /**
+   * Gives the density of selected items (length of items per square-kilometers) grouped by the OSM type.
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
+   * 
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Density of selected items (length of items per square-kilometers) grouped by the OSM type",
+      nickname = "elementsLengthDensityGroupByType")
+  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response lengthDensityGroupByType(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request)
+      throws UnsupportedOperationException, Exception {
+
+    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.LENGTH,
+        new RequestParameters(request.getMethod(), true, true, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata));
+  }
+  
   /**
    * Gives density of selected items (length of items per square-kilometers) grouped by the boundary
    * parameter (bounding box/circle/polygon).
