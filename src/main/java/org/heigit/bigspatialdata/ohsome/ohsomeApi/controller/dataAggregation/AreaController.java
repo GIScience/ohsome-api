@@ -60,7 +60,6 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
             keys, values, userids, time, showMetadata));
@@ -101,14 +100,14 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
             keys, values, userids, time, showMetadata));
   }
 
   /**
-   * Gives the area of OSM objects grouped by the user who was the last editor of the requested elements.
+   * Gives the area of OSM objects grouped by the user who was the last editor of the requested
+   * elements.
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -117,7 +116,9 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response }
    */
-  @ApiOperation(value = "Area of OSM elements grouped by the user who was the last editor of the requested elements",
+  @ApiOperation(
+      value = "Area of OSM elements grouped by the user "
+          + "who was the last editor of the requested elements",
       nickname = "elementsAreaGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
@@ -142,7 +143,6 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
             keys, values, userids, time, showMetadata));
@@ -186,7 +186,6 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.AREA, RequestParameters.of(request.getMethod(), true, false, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, format, showMetadata));
@@ -234,7 +233,6 @@ public class AreaController {
       @ApiParam(hidden = true) HttpServletRequest request, @RequestParam(value = "groupByKeys",
           defaultValue = "", required = false) String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
             keys, values, userids, time, showMetadata),
@@ -291,7 +289,6 @@ public class AreaController {
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
         RequestResource.AREA, new RequestParameters(request.getMethod(), true, false, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, showMetadata),
@@ -313,9 +310,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 within elements selected by types, keys and values",
-      nickname = "elementsAreaShare")
+  @ApiOperation(value = "Share of area of elements satisfying keys2 and values2 "
+      + "within elements selected by types, keys and values", nickname = "elementsAreaShare")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
@@ -346,7 +342,6 @@ public class AreaController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
         RequestResource.AREA, new RequestParameters(request.getMethod(), true, false, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, showMetadata),
@@ -402,7 +397,6 @@ public class AreaController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.AREA, RequestParameters.of(request.getMethod(), true, false, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, format, showMetadata),
@@ -444,7 +438,6 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, true, bboxes, bcircles, bpolys, types,
             keys, values, userids, time, showMetadata));
@@ -487,7 +480,6 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, true, bboxes, bcircles, bpolys, types,
             keys, values, userids, time, showMetadata));
@@ -505,7 +497,8 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items (area of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of selected items (area of items per square-kilometers) "
+          + "grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsAreaGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
@@ -532,7 +525,6 @@ public class AreaController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.AREA, RequestParameters.of(request.getMethod(), true, true, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, format, showMetadata));
@@ -589,7 +581,6 @@ public class AreaController {
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
         RequestResource.AREA, new RequestParameters(request.getMethod(), true, true, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, showMetadata),
@@ -610,9 +601,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items selected by types, keys and values",
-      nickname = "elementsAreaRatio")
+  @ApiOperation(value = "Ratio of selected items satisfying types2, keys2 and values2 "
+      + "within items selected by types, keys and values", nickname = "elementsAreaRatio")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "relation", paramType = "query", dataType = "string", required = false),
@@ -647,7 +637,6 @@ public class AreaController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(
         RequestResource.AREA, new RequestParameters(request.getMethod(), true, false, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, showMetadata),
@@ -704,7 +693,6 @@ public class AreaController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.AREA, RequestParameters.of(request.getMethod(), true, false, bboxes,
             bcircles, bpolys, types, keys, values, userids, time, format, showMetadata),

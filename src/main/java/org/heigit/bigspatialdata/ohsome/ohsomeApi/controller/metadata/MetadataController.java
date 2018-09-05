@@ -17,6 +17,7 @@ public class MetadataController {
 
   /**
    * GET request giving the metadata of the underlying extract-region(s).
+   * 
    * <p>
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.metadataResponse.MetadataResponse

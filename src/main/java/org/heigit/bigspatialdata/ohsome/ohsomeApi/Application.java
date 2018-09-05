@@ -28,11 +28,14 @@ public class Application implements ApplicationRunner {
 
   public static final String apiVersion = "0.9";
 
+  /** Main method to run this SpringBootApplication. */
   public static void main(String[] args) {
 
-    if (args == null || args.length == 0)
+    if (args == null || args.length == 0) {
       throw new RuntimeException(
-          "You need to define at least the '--database.db' or the '--database.ignite' + '--database.keytables' parameter(s).");
+          "You need to define at least the '--database.db' or the '--database.ignite'"
+              + " + '--database.keytables' parameter(s).");
+    }
     SpringApplication.run(Application.class, args);
   }
 
@@ -61,21 +64,24 @@ public class Application implements ApplicationRunner {
             DbConnData.keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
             break;
           case "database.multithreading":
-            if (args.getOptionValues(paramName).get(0).equals("false"))
+            if (args.getOptionValues(paramName).get(0).equals("false")) {
               multithreading = false;
+            }
             break;
           case "database.caching":
-            if (args.getOptionValues(paramName).get(0).equals("true"))
+            if (args.getOptionValues(paramName).get(0).equals("true")) {
               caching = true;
+            }
             break;
           default:
             break;
         }
       }
       if ((DbConnData.h2Db == null && DbConnData.igniteDb == null)
-          || (DbConnData.h2Db != null && DbConnData.igniteDb != null))
+          || (DbConnData.h2Db != null && DbConnData.igniteDb != null)) {
         throw new RuntimeException(
             "You have to define either the '--database.db' or the '--database.ignite' parameter.");
+      }
       if (DbConnData.h2Db != null) {
         DbConnData.h2Db.multithreading(multithreading);
         DbConnData.h2Db.inMemory(caching);
@@ -113,13 +119,15 @@ public class Application implements ApplicationRunner {
       ExtractMetadata.fromTstamp = "2007-11-01";
       ExtractMetadata.toTstamp = "2018-01-01T00:00:00";
     }
-    if (db.metadata("attribution.short") != null)
+    if (db.metadata("attribution.short") != null) {
       ExtractMetadata.attributionShort = db.metadata("attribution.short");
-    else
+    } else {
       ExtractMetadata.attributionShort = "© OpenStreetMap contributors";
-    if (db.metadata("attribution.url") != null)
+    }
+    if (db.metadata("attribution.url") != null) {
       ExtractMetadata.attributionUrl = db.metadata("attribution.url");
-    else
+    } else {
       ExtractMetadata.attributionUrl = "https://ohsome.org/copyrights";
+    }
   }
 }

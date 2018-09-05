@@ -56,7 +56,6 @@ public class UsersController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCount(new RequestParameters(request.getMethod(), false,
         false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
@@ -96,7 +95,6 @@ public class UsersController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCountGroupByType(new RequestParameters(request.getMethod(),
         false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
@@ -111,8 +109,7 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag",
-      nickname = "usersCountGroupByTag")
+  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "usersCountGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -145,7 +142,6 @@ public class UsersController {
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCountGroupByTag(new RequestParameters(request.getMethod(),
         false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
         groupByKey, groupByValues);
@@ -161,8 +157,7 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag",
-      nickname = "usersCountGroupByKey")
+  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "usersCountGroupByKey")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -191,7 +186,6 @@ public class UsersController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKeys", defaultValue = "", required = false) String[] groupByKey)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCountGroupByKey(new RequestParameters(request.getMethod(),
         false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
         groupByKey);
@@ -232,7 +226,6 @@ public class UsersController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCount(new RequestParameters(request.getMethod(), false, true,
         bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
@@ -272,7 +265,6 @@ public class UsersController {
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCountGroupByType(new RequestParameters(request.getMethod(),
         false, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
   }
@@ -321,7 +313,6 @@ public class UsersController {
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-
     return UsersRequestExecutor.executeCountGroupByTag(new RequestParameters(request.getMethod(),
         false, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
         groupByKey, groupByValues);

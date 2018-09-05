@@ -61,24 +61,22 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static Response executeCountLengthPerimeterArea(RequestResource requestResource,
-      RequestParameters rPs) throws UnsupportedOperationException, Exception {
-
+      RequestParameters requestParams) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -98,21 +96,28 @@ public class ElementsRequestExecutor {
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
+              if (snapshot.getGeometry() instanceof Polygonal) {
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
+              } else {
                 return 0.0;
+              }
             });
         break;
+      default:
+        break;
     }
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
-    ElementsResult[] resultSet = exeUtils.fillElementsResult(result, rPs.isDensity(), df, geom);
+    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    ElementsResult[] resultSet =
+        exeUtils.fillElementsResult(result, requestParams.isDensity(), df, geom);
     Metadata metadata = null;
-    if (iP.getShowMetadata()) {
+    if (inputProcessor.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterArea(rPs.isDensity(),
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
+      metadata =
+          new Metadata(duration, Description.countLengthPerimeterArea(requestParams.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
     DefaultAggregationResponse response = DefaultAggregationResponse.of(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -128,71 +133,81 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
-      RequestResource requestResource, RequestParameters rPs)
+      RequestResource requestResource, RequestParameters requestParams)
       throws UnsupportedOperationException, Exception {
-
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
     switch (requestResource) {
       case COUNT:
         result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
+            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            requestParams.isSnapshot());
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.LENGTH,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
+            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            requestParams.isSnapshot());
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.PERIMETER,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
+            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            requestParams.isSnapshot());
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.AREA,
-            iP.getBoundaryType(), mapRed, iP.getGeomBuilder(), rPs.isSnapshot());
+            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            requestParams.isSnapshot());
+        break;
+      default:
         break;
     }
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    InputProcessingUtils utils = iP.getUtils();
+    InputProcessingUtils utils = inputProcessor.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df,
-          iP.getGeomBuilder().getGeometry().get(count));
+      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
+          requestParams.isDensity(), df, inputProcessor.getGeomBuilder().getGeometry().get(count));
       groupByName = boundaryIds[count];
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
     Metadata metadata = null;
-    if (iP.getShowMetadata()) {
+    if (inputProcessor.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByBoundary(
-          rPs.isDensity(), requestResource.getLabel(), requestResource.getUnit()), requestURL);
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterAreaGroupByBoundary(requestParams.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()),
+          requestUrl);
     }
-    if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
+    if (requestParams.getFormat() != null
+        && requestParams.getFormat().equalsIgnoreCase("geojson")) {
       return GroupByResponse.of(new Attribution(url, text), Application.apiVersion, metadata,
-          "FeatureCollection",
-          exeUtils.createGeoJSONFeatures(resultSet, iP.getGeomBuilder().getGeoJsonGeoms()));
-    else
+          "FeatureCollection", exeUtils.createGeoJSONFeatures(resultSet,
+              inputProcessor.getGeomBuilder().getGeoJsonGeoms()));
+    } else {
       return new GroupByResponse(new Attribution(url, text), Application.apiVersion, metadata,
           resultSet);
+    }
   }
 
   /**
@@ -204,30 +219,32 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
-      RequestParameters rPs) throws UnsupportedOperationException, Exception {
-
+      RequestParameters requestParams) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    if (requestParams.getUserids() != null) {
+      for (String user : requestParams.getUserids()) {
+        useridsInt.add(Integer.parseInt(user));
+      }
+    }
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     MapAggregatorByTimestampAndIndex<Integer, OSMEntitySnapshot> preResult;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
-    if (rPs.getUserids() != null)
-      for (String user : rPs.getUserids())
-        useridsInt.add(Integer.parseInt(user));
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
@@ -241,16 +258,16 @@ public class ElementsRequestExecutor {
         .entrySet()) {
 
       ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, null);
+          exeUtils.fillElementsResult(entry.getValue(), requestParams.isDensity(), df, null);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
 
     Metadata metadata = null;
-    if (iP.getShowMetadata()) {
+    if (inputProcessor.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
+          requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -266,34 +283,34 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByTag(RequestResource requestResource,
-      RequestParameters rPs, String[] groupByKey, String[] groupByValues)
+      RequestParameters requestParams, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-
     long startTime = System.currentTimeMillis();
-    if (groupByKey == null || groupByKey.length != 1)
+    if (groupByKey == null || groupByKey.length != 1) {
       throw new BadRequestException(
           "You need to give one groupByKey parameter, if you want to use groupBy/tag.");
+    }
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, ? extends Number> result = null;
-    SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    if (groupByValues == null)
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    if (groupByValues == null) {
       groupByValues = new String[0];
+    }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = iP.processParameters(mapRed, rPs);
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -313,26 +330,29 @@ public class ElementsRequestExecutor {
                     new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
               }
               for (int value : valuesInt) {
-                if (tagValueId == value)
+                if (tagValueId == value) {
                   return new ImmutablePair<>(
                       new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+                }
               }
             }
           }
           return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
         }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
             .map(Pair::getValue);
+    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, ? extends Number> result = null;
+    SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
+    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
     int count = 0;
     for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, geom);
+          exeUtils.fillElementsResult(entry.getValue(), requestParams.isDensity(), df, geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -345,11 +365,12 @@ public class ElementsRequestExecutor {
     // used to remove null objects from the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     Metadata metadata = null;
-    if (iP.getShowMetadata()) {
+    if (inputProcessor.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata =
-          new Metadata(duration, Description.countLengthPerimeterAreaGroupByTag(rPs.isDensity(),
-              requestResource.getLabel(), requestResource.getUnit()), requestURL);
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterAreaGroupByTag(requestParams.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()),
+          requestUrl);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -365,48 +386,50 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponseContent}
    */
   public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
-      RequestParameters rPs) throws UnsupportedOperationException, Exception {
-
+      RequestParameters requestParams) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
-    MapAggregatorByTimestampAndIndex<OSMType, OSMEntitySnapshot> preResult = null;
-    SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    mapRed = iP.processParameters(mapRed, rPs);
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    MapAggregatorByTimestampAndIndex<OSMType, OSMEntitySnapshot> preResult = null;
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).zerofillIndices(iP.getOsmTypes());
+        }).zerofillIndices(inputProcessor.getOsmTypes());
+    SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
     result = exeUtils.computeResult(requestResource, preResult);
+    SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(iP.getBoundaryType(), geomBuilder);
+    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
+    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
     int count = 0;
     for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, geom);
+          exeUtils.fillElementsResult(entry.getValue(), requestParams.isDensity(), df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
     Metadata metadata = null;
-    if (iP.getShowMetadata()) {
+    if (inputProcessor.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countPerimeterAreaGroupByType(rPs.isDensity(),
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
+      metadata = new Metadata(duration,
+          Description.countPerimeterAreaGroupByType(requestParams.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()),
+          requestUrl);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -422,30 +445,30 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByKey(RequestResource requestResource,
-      RequestParameters rPs, String[] groupByKeys) throws UnsupportedOperationException, Exception {
-
+      RequestParameters requestParams, String[] groupByKeys)
+      throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    if (groupByKeys == null || groupByKeys.length == 0)
+    if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
           "You need to give at least one groupByKey parameter, if you want to use groupBy/key");
+    }
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = iP.processParameters(mapRed, rPs);
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
@@ -461,11 +484,14 @@ public class ElementsRequestExecutor {
               }
             }
           }
-          if (res.size() == 0)
+          if (res.size() == 0) {
             res.add(new ImmutablePair<>(-1, f));
+          }
           return res;
         }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
             .map(Pair::getValue);
+    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -474,7 +500,7 @@ public class ElementsRequestExecutor {
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), rPs.isDensity(), df, null);
+          exeUtils.fillElementsResult(entry.getValue(), requestParams.isDensity(), df, null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -485,10 +511,10 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (iP.getShowMetadata()) {
+    if (inputProcessor.getShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
-          requestResource.getLabel(), requestResource.getUnit()), requestURL);
+          requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
     GroupByResponse response = new GroupByResponse(new Attribution(url, text),
         Application.apiVersion, metadata, resultSet);
@@ -504,40 +530,38 @@ public class ElementsRequestExecutor {
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
    *        AREA).
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static Response executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
-      RequestParameters rPs, String[] types2, String[] keys2, String[] values2, boolean isShare)
-      throws UnsupportedOperationException, Exception {
-
+      RequestParameters requestParams, String[] types2, String[] keys2, String[] values2,
+      boolean isShare) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<MatchType>, ? extends Number> result = null;
-    MapAggregatorByTimestampAndIndex<MatchType, OSMEntitySnapshot> preResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     TagTranslator tt = DbConnData.tagTranslator;
-    rPs = iP.fillWithEmptyIfNull(rPs);
+    requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
     // for input processing/checking only
-    iP.processParameters(mapRed, rPs);
-    iP.checkKeysValues(keys2, values2);
-    values2 = iP.createEmptyArrayIfNull(values2);
-    keys2 = iP.createEmptyArrayIfNull(keys2);
+    inputProcessor.processParameters(mapRed, requestParams);
+    inputProcessor.checkKeysValues(keys2, values2);
+    values2 = inputProcessor.createEmptyArrayIfNull(values2);
+    keys2 = inputProcessor.createEmptyArrayIfNull(keys2);
     if (isShare) {
       List<Pair<String, String>> keys2Vals2;
-      if (rPs.getValues().length == 0) {
-        keys2 = iP.addFilterKeys(rPs.getKeys(), keys2);
+      if (requestParams.getValues().length == 0) {
+        keys2 = inputProcessor.addFilterKeys(requestParams.getKeys(), keys2);
       } else if (keys2.length == 0) {
-        keys2 = rPs.getKeys();
-        values2 = rPs.getValues();
+        keys2 = requestParams.getKeys();
+        values2 = requestParams.getValues();
       } else {
-        keys2Vals2 = iP.addFilterKeysVals(rPs.getKeys(), rPs.getValues(), keys2, values2);
+        keys2Vals2 = inputProcessor.addFilterKeysVals(requestParams.getKeys(),
+            requestParams.getValues(), keys2, values2);
         String[] newKeys2 = new String[keys2Vals2.size()];
         String[] newValues2 = new String[keys2Vals2.size()];
         for (int i = 0; i < keys2Vals2.size(); i++) {
@@ -550,58 +574,69 @@ public class ElementsRequestExecutor {
             Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
       }
     }
-    Integer[] keysInt1 = new Integer[rPs.getKeys().length];
-    Integer[] valuesInt1 = new Integer[rPs.getValues().length];
+    Integer[] keysInt1 = new Integer[requestParams.getKeys().length];
+    Integer[] valuesInt1 = new Integer[requestParams.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    for (int i = 0; i < rPs.getKeys().length; i++) {
-      keysInt1[i] = tt.getOSHDBTagKeyOf(rPs.getKeys()[i]).toInt();
-      if (rPs.getValues() != null && i < rPs.getValues().length)
-        valuesInt1[i] = tt.getOSHDBTagOf(rPs.getKeys()[i], rPs.getValues()[i]).getValue();
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    for (int i = 0; i < requestParams.getKeys().length; i++) {
+      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParams.getKeys()[i]).toInt();
+      if (requestParams.getValues() != null && i < requestParams.getValues().length) {
+        valuesInt1[i] =
+            tt.getOSHDBTagOf(requestParams.getKeys()[i], requestParams.getValues()[i]).getValue();
+      }
     }
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (values2 != null && i < values2.length)
+      if (values2 != null && i < values2.length) {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
+      }
     }
-    EnumSet<OSMType> osmTypes1 = iP.getOsmTypes();
-    EnumSet<OSMType> osmTypes2 = iP.extractOSMTypes(types2);
+    EnumSet<OSMType> osmTypes1 = inputProcessor.getOsmTypes();
+    EnumSet<OSMType> osmTypes2 = inputProcessor.extractOSMTypes(types2);
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    if (!iP.compareKeysValues(rPs.getKeys(), keys2, rPs.getValues(), values2)) {
-      mapRed = iP.processParameters(mapRed,
-          new RequestParameters(rPs.getRequestMethod(), rPs.isSnapshot(), rPs.isDensity(),
-              rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {},
-              new String[] {}, rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+    if (!inputProcessor.compareKeysValues(requestParams.getKeys(), keys2, requestParams.getValues(),
+        values2)) {
+      mapRed = inputProcessor.processParameters(mapRed,
+          new RequestParameters(requestParams.getRequestMethod(), requestParams.isSnapshot(),
+              requestParams.isDensity(), requestParams.getBboxes(), requestParams.getBcircles(),
+              requestParams.getBpolys(), osmTypesString, new String[] {}, new String[] {},
+              requestParams.getUserids(), requestParams.getTime(),
+              requestParams.getShowMetadata()));
       mapRed = mapRed.osmEntityFilter(entity -> {
-        if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1))
+        if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1)) {
           return exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        }
         return true;
       });
     } else {
-      mapRed = iP.processParameters(mapRed, rPs);
+      mapRed = inputProcessor.processParameters(mapRed, requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
+    MapAggregatorByTimestampAndIndex<MatchType, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       OSMEntity entity = f.getEntity();
       boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
       boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
-      if (matches1 && matches2)
+      if (matches1 && matches2) {
         return MatchType.MATCHESBOTH;
-      else if (matches1)
+      } else if (matches1) {
         return MatchType.MATCHES1;
-      else if (matches2)
+      } else if (matches2) {
         return MatchType.MATCHES2;
-      else
+      } else {
+        // this should never be reached
         assert false : "MatchType matches none.";
-      // this should never be reached
+      }
       return null;
     }).zerofillIndices(
         Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2));
+    SortedMap<OSHDBTimestampAndIndex<MatchType>, ? extends Number> result = null;
     result = exeUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     Double[] value1 = new Double[resultSize / 3];
@@ -630,9 +665,8 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
-
-    return exeUtils.createRatioShareResponse(isShare, timeArray, value1, value2, ratioDf, iP,
-        startTime, requestResource, requestURL, new Attribution(url, text));
+    return exeUtils.createRatioShareResponse(isShare, timeArray, value1, value2, ratioDf,
+        inputProcessor, startTime, requestResource, requestUrl, new Attribution(url, text));
   }
 
   /**
@@ -642,45 +676,44 @@ public class ElementsRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
    * countRatio} method.
    * 
-   * @param rPs <code>RequestParameters</code> object, which holds those parameters that are used in
-   *        every request.
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
    *         RatioGroupByBoundaryResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaRatioGroupByBoundary(
-      RequestResource requestResource, RequestParameters rPs, String[] types2, String[] keys2,
-      String[] values2, boolean isShare) throws UnsupportedOperationException, Exception {
-
+      RequestResource requestResource, RequestParameters requestParams, String[] types2,
+      String[] keys2, String[] values2, boolean isShare)
+      throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, Geometry> preResult = null;
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, ? extends Number> result = null;
-    SortedMap<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor iP = new InputProcessor();
-    String requestURL = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     TagTranslator tt = DbConnData.tagTranslator;
-    rPs = iP.fillWithEmptyIfNull(rPs);
-    iP.processParameters(mapRed, rPs);
-    if (iP.getBoundaryType() == BoundaryType.NOBOUNDARY)
+    requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
+    inputProcessor.processParameters(mapRed, requestParams);
+    if (inputProcessor.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    GeometryBuilder geomBuilder = iP.getGeomBuilder();
-    GeoJsonObject[] geoJsonGeoms = geomBuilder.getGeoJsonGeoms();
-    iP.checkKeysValues(keys2, values2);
-    values2 = iP.createEmptyArrayIfNull(values2);
-    keys2 = iP.createEmptyArrayIfNull(keys2);
+    }
+    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
+    final GeoJsonObject[] geoJsonGeoms = geomBuilder.getGeoJsonGeoms();
+    inputProcessor.checkKeysValues(keys2, values2);
+    values2 = inputProcessor.createEmptyArrayIfNull(values2);
+    keys2 = inputProcessor.createEmptyArrayIfNull(keys2);
     if (isShare) {
       List<Pair<String, String>> keys2Vals2;
-      if (rPs.getValues().length == 0) {
-        keys2 = iP.addFilterKeys(rPs.getKeys(), keys2);
+      if (requestParams.getValues().length == 0) {
+        keys2 = inputProcessor.addFilterKeys(requestParams.getKeys(), keys2);
       } else if (keys2.length == 0) {
-        keys2 = rPs.getKeys();
-        values2 = rPs.getValues();
+        keys2 = requestParams.getKeys();
+        values2 = requestParams.getValues();
       } else {
-        keys2Vals2 = iP.addFilterKeysVals(rPs.getKeys(), rPs.getValues(), keys2, values2);
+        keys2Vals2 = inputProcessor.addFilterKeysVals(requestParams.getKeys(),
+            requestParams.getValues(), keys2, values2);
         String[] newKeys2 = new String[keys2Vals2.size()];
         String[] newValues2 = new String[keys2Vals2.size()];
         for (int i = 0; i < keys2Vals2.size(); i++) {
@@ -693,43 +726,49 @@ public class ElementsRequestExecutor {
             Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
       }
     }
-    Integer[] keysInt1 = new Integer[rPs.getKeys().length];
-    Integer[] valuesInt1 = new Integer[rPs.getValues().length];
+    Integer[] keysInt1 = new Integer[requestParams.getKeys().length];
+    Integer[] valuesInt1 = new Integer[requestParams.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!rPs.getRequestMethod().equalsIgnoreCase("post"))
-      requestURL = RequestInterceptor.requestUrl;
-    for (int i = 0; i < rPs.getKeys().length; i++) {
-      keysInt1[i] = tt.getOSHDBTagKeyOf(rPs.getKeys()[i]).toInt();
-      if (rPs.getValues() != null && i < rPs.getValues().length)
-        valuesInt1[i] = tt.getOSHDBTagOf(rPs.getKeys()[i], rPs.getValues()[i]).getValue();
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    for (int i = 0; i < requestParams.getKeys().length; i++) {
+      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParams.getKeys()[i]).toInt();
+      if (requestParams.getValues() != null && i < requestParams.getValues().length) {
+        valuesInt1[i] =
+            tt.getOSHDBTagOf(requestParams.getKeys()[i], requestParams.getValues()[i]).getValue();
+      }
     }
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (values2 != null && i < values2.length)
+      if (values2 != null && i < values2.length) {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
+      }
     }
-    EnumSet<OSMType> osmTypes1 = iP.getOsmTypes();
-    EnumSet<OSMType> osmTypes2 = iP.extractOSMTypes(types2);
+    EnumSet<OSMType> osmTypes1 = inputProcessor.getOsmTypes();
+    EnumSet<OSMType> osmTypes2 = inputProcessor.extractOSMTypes(types2);
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    if (!iP.compareKeysValues(rPs.getKeys(), keys2, rPs.getValues(), values2)) {
-      mapRed = iP.processParameters(mapRed,
-          new RequestParameters(rPs.getRequestMethod(), rPs.isSnapshot(), rPs.isDensity(),
-              rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), osmTypesString, new String[] {},
-              new String[] {}, rPs.getUserids(), rPs.getTime(), rPs.getShowMetadata()));
+    if (!inputProcessor.compareKeysValues(requestParams.getKeys(), keys2, requestParams.getValues(),
+        values2)) {
+      mapRed = inputProcessor.processParameters(mapRed,
+          new RequestParameters(requestParams.getRequestMethod(), requestParams.isSnapshot(),
+              requestParams.isDensity(), requestParams.getBboxes(), requestParams.getBcircles(),
+              requestParams.getBpolys(), osmTypesString, new String[] {}, new String[] {},
+              requestParams.getUserids(), requestParams.getTime(),
+              requestParams.getShowMetadata()));
       mapRed = mapRed.osmEntityFilter(entity -> {
         boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
         boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         return matches1 || matches2;
       });
     } else {
-      mapRed = iP.processParameters(mapRed, rPs);
+      mapRed = inputProcessor.processParameters(mapRed, requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
-    InputProcessingUtils utils = iP.getUtils();
     ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Pair<Integer, MatchType>> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++) {
@@ -737,6 +776,7 @@ public class ElementsRequestExecutor {
       zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES1));
       zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES2));
     }
+    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, Geometry> preResult = null;
     preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
       List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
       Geometry entityGeom = f.getGeometry();
@@ -745,11 +785,12 @@ public class ElementsRequestExecutor {
       }
       for (int i = 0; i < geoms.size(); i++) {
         if (entityGeom.intersects(geoms.get(i))) {
-          if (entityGeom.within(geoms.get(i)))
+          if (entityGeom.within(geoms.get(i))) {
             res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
-          else
+          } else {
             res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
                 Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+          }
         }
       }
       return res;
@@ -757,14 +798,15 @@ public class ElementsRequestExecutor {
       OSMEntity entity = f.getLeft().getRight();
       boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
       boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
-      if (matches1 && matches2)
+      if (matches1 && matches2) {
         return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESBOTH);
-      else if (matches1)
+      } else if (matches1) {
         return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHES1);
-      else if (matches2)
+      } else if (matches2) {
         return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHES2);
-      else
+      } else {
         assert false : "MatchType matches none.";
+      }
       return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESNONE);
     }).zerofillIndices(zeroFill).map(Pair::getValue);
     switch (requestResource) {
@@ -782,7 +824,11 @@ public class ElementsRequestExecutor {
           return Geo.areaOf(geom);
         });
         break;
+      default:
+        break;
     }
+    SortedMap<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
+    InputProcessingUtils utils = inputProcessor.getUtils();
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     ArrayList<Double[]> value1Arrays = new ArrayList<Double[]>();
     ArrayList<Double[]> value2Arrays = new ArrayList<Double[]>();
@@ -794,8 +840,9 @@ public class ElementsRequestExecutor {
     int count = 1;
     for (Entry<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      if (!timeArrayFilled)
+      if (!timeArrayFilled) {
         timeArray = new String[entry.getValue().entrySet().size()];
+      }
       if (entry.getKey().getRight() == MatchType.MATCHES2) {
         value2 = new Double[entry.getValue().entrySet().size()];
         int value2Count = 0;
@@ -817,8 +864,9 @@ public class ElementsRequestExecutor {
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           value2[matchesBothCount] = value2[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          if (!timeArrayFilled)
+          if (!timeArrayFilled) {
             timeArray[matchesBothCount] = innerEntry.getKey().toString();
+          }
           matchesBothCount++;
         }
         timeArrayFilled = true;
@@ -831,9 +879,10 @@ public class ElementsRequestExecutor {
       }
       count++;
     }
-    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, rPs, groupByResult.size(),
-        boundaryIds, timeArray, value1Arrays, value2Arrays, ratioDf, iP, startTime, requestResource,
-        requestURL, new Attribution(url, text), geoJsonGeoms);
+    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
+    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, requestParams,
+        groupByResult.size(), boundaryIds, timeArray, value1Arrays, value2Arrays, ratioDf,
+        inputProcessor, startTime, requestResource, requestUrl, new Attribution(url, text),
+        geoJsonGeoms);
   }
-
 }
