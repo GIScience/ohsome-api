@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SpringBootTest(classes = Application.class)
 public class ControllerTest {
-  public static final String dbPropertyPathJenkins = "--database.db=heidelberg.oshdb";
+  public static final String dbPropertyPathJenkins = "--database.db=/opt/data/heidelberg";
   // for local testing
   public static final String dbPropertyPathLocal =
       "--database.db=C:\\Users\\kowatsch\\Desktop\\HeiGIT\\oshdb\\data\\withKeytables\\heidelberg.oshdb";
@@ -30,7 +30,7 @@ public class ControllerTest {
   public void aGetMetadataTest() {
 
     // this instance gets reused by all of the following @Test methods
-    Application.main(new String[] {dbPropertyPathJenkins});
+    Application.main(new String[] {dbPropertyPathLocal});
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity("http://localhost:8080" + "/metadata", JsonNode.class);
@@ -282,9 +282,10 @@ public class ControllerTest {
   @Test
   public void getElementsLengthRatioTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity("http://localhost:8080/elements"
-        + "/length/ratio?bboxes=8.67567,49.40695,8.69434,49.40882"
-        + "&types=way&time=2011-12-13&keys=highway&keys2=railway", JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        "http://localhost:8080/elements" + "/length/ratio?bboxes=8.67567,49.40695,8.69434,49.40882"
+            + "&types=way&time=2011-12-13&keys=highway&keys2=railway",
+        JsonNode.class);
     assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.135225);
   }
 
@@ -331,9 +332,11 @@ public class ControllerTest {
   @Test
   public void getElementsLengthDensityGroupByBoundaryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity("http://localhost:8080"
-        + "/elements/length/density/groupBy/boundary?bboxes=8.69079,49.40129,8.69238,49.40341|"
-        + "8.67504,49.4119,8.67813,49.41668&types=way&time=2017-05-30&key=highway", JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        "http://localhost:8080"
+            + "/elements/length/density/groupBy/boundary?bboxes=8.69079,49.40129,8.69238,49.40341|"
+            + "8.67504,49.4119,8.67813,49.41668&types=way&time=2017-05-30&key=highway",
+        JsonNode.class);
     assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
         .asDouble() == 74036.22);
   }
