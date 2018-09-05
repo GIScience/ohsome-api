@@ -30,7 +30,7 @@ public class ControllerTest {
   public void aGetMetadataTest() {
 
     // this instance gets reused by all of the following @Test methods
-    Application.main(new String[] {dbPropertyPathLocal});
+    Application.main(new String[] {dbPropertyPathJenkins});
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity("http://localhost:8080" + "/metadata", JsonNode.class);
