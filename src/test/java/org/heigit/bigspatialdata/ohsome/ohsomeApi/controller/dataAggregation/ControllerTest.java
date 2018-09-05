@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SpringBootTest(classes = Application.class)
 public class ControllerTest {
-  public static final String dbPropertyPathJenkins = "--database.db=/opt/data/heidelberg";
+  public static final String dbPropertyPathJenkins = "--database.db=/opt/data/heidelberg.oshdb";
   // for local testing
   public static final String dbPropertyPathLocal =
       "--database.db=C:\\Users\\kowatsch\\Desktop\\HeiGIT\\oshdb\\data\\withKeytables\\heidelberg.oshdb";
