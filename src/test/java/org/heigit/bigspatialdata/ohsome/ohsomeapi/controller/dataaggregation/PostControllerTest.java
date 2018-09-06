@@ -1,19 +1,27 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
 import static org.junit.Assert.assertTrue;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import com.fasterxml.jackson.databind.JsonNode;
 
 
 /** Test class for all of the controller classes sending POST requests. */
-@SpringBootTest(classes = Application.class)
 public class PostControllerTest {
+
+  public static String port = "8082";
+
+  /** Method to start this application context. */
+  @BeforeClass
+  public static void applicationMainStartup() {
+    // this instance gets reused by all of the following @Test methods
+    Application.main(new String[] {GetControllerTest.dbPropertyPathJenkins, "--port=" + port});
+  }
 
   /*
    * /elements/count tests

@@ -4,13 +4,11 @@ import static org.junit.Assert.assertTrue;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /** Test class for all of the controller classes sending GET requests. */
-@SpringBootTest(classes = Application.class)
 public class GetControllerTest {
 
   // for local testing
