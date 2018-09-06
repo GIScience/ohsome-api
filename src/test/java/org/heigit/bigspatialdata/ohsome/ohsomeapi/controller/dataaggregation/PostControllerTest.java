@@ -36,9 +36,8 @@ public class PostControllerTest {
     map.add("time", "2015-01-01");
     map.add("keys", "building");
     map.add("values", "residential");
-    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-        GetControllerTest.localhost + GetControllerTest.port + "/elements/count", map,
-        JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(GetControllerTest.localhost + port + "/elements/count", map, JsonNode.class);
     assertTrue(response.getBody().get("result").get(0).get("value").asInt() == 40);
   }
 
@@ -57,8 +56,8 @@ public class PostControllerTest {
     map.add("keys", "building");
     map.add("format", "geojson");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-        GetControllerTest.localhost + GetControllerTest.port + "/elements/count/groupBy/boundary",
-        map, JsonNode.class);
+        GetControllerTest.localhost + port + "/elements/count/groupBy/boundary", map,
+        JsonNode.class);
     assertTrue(
         response.getBody().get("features").get(0).get("properties").get("value").asInt() == 367);
   }
