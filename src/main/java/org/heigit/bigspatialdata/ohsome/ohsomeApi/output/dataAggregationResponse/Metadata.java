@@ -36,5 +36,4 @@ public class Metadata {
   public String getRequestUrl() {
     return requestUrl;
   }
-
 }

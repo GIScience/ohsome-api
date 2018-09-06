@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeApi.executor;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,8 +45,6 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
@@ -54,6 +54,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -126,6 +127,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -154,22 +156,22 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters(mapRed, requestParams);
     switch (requestResource) {
       case COUNT:
-        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.COUNT,
+        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
             inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       case LENGTH:
-        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.LENGTH,
+        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
             inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       case PERIMETER:
-        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.PERIMETER,
+        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
             inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       case AREA:
-        result = exeUtils.computeCountLengthPerimeterAreaGBB(RequestResource.AREA,
+        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
             inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
@@ -202,7 +204,7 @@ public class ElementsRequestExecutor {
     if (requestParams.getFormat() != null
         && requestParams.getFormat().equalsIgnoreCase("geojson")) {
       return GroupByResponse.of(new Attribution(url, text), Application.apiVersion, metadata,
-          "FeatureCollection", exeUtils.createGeoJSONFeatures(resultSet,
+          "FeatureCollection", exeUtils.createGeoJsonFeatures(resultSet,
               inputProcessor.getGeomBuilder().getGeoJsonGeoms()));
     } else {
       return new GroupByResponse(new Attribution(url, text), Application.apiVersion, metadata,
@@ -212,6 +214,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the user.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -276,6 +279,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the tag.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
@@ -379,6 +383,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|perimeter|area calculation grouped by the OSM type.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -438,6 +443,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the key.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
@@ -523,6 +529,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area-share|ratio calculation.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
@@ -543,8 +550,6 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     TagTranslator tt = DbConnData.tagTranslator;
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
     // for input processing/checking only
@@ -645,6 +650,8 @@ public class ElementsRequestExecutor {
     int value1Count = 0;
     int value2Count = 0;
     int matchesBothCount = 0;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     // time and value extraction
     for (Entry<OSHDBTimestampAndIndex<MatchType>, ? extends Number> entry : result.entrySet()) {
       if (entry.getKey().getOtherIndex() == MatchType.MATCHES2) {
@@ -671,6 +678,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])

@@ -30,7 +30,6 @@ public class Application implements ApplicationRunner {
 
   /** Main method to run this SpringBootApplication. */
   public static void main(String[] args) {
-
     if (args == null || args.length == 0) {
       throw new RuntimeException(
           "You need to define at least the '--database.db' or the '--database.ignite'"
@@ -41,7 +40,6 @@ public class Application implements ApplicationRunner {
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
-
     boolean multithreading = true;
     boolean caching = false;
     // only used when tests are executed directly in Eclipse
@@ -101,7 +99,6 @@ public class Application implements ApplicationRunner {
    * @param db <code>OSHDBDatabase</code> object to the OSHDB-file of either H2, or Ignite type.
    */
   private void extractMetadata(OSHDBDatabase db) throws JsonProcessingException, IOException {
-
     if (db.metadata("extract.region") != null) {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();

@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
  * ElementsResult} objects.
  */
 @JsonInclude(Include.NON_NULL)
-public class DefaultAggregationResponse implements Response{
+public class DefaultAggregationResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
@@ -29,9 +29,7 @@ public class DefaultAggregationResponse implements Response{
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
   private Result[] result;
 
-  private DefaultAggregationResponse() {
-
-  }
+  private DefaultAggregationResponse() {}
 
   /** Static factory method returning the whole JSON response. */
   public static DefaultAggregationResponse of(Attribution attribution, String apiVersion,
@@ -87,5 +85,4 @@ public class DefaultAggregationResponse implements Response{
   public Result[] getResult() {
     return result;
   }
-
 }

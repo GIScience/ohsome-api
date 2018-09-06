@@ -51,6 +51,7 @@ public class InputProcessor {
 
   /**
    * Processes the input parameters from the given request.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -61,22 +62,20 @@ public class InputProcessor {
    */
   @SuppressWarnings("unchecked") // intentionally unchecked
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
-      MapReducer<? extends OSHDBMapReducible> mapRed, RequestParameters rPs) throws Exception {
-
-    String requestMethod = rPs.getRequestMethod();
-    boolean isSnapshot = rPs.isSnapshot();
-    String bboxes = rPs.getBboxes();
-    String bcircles = rPs.getBcircles();
-    String bpolys = rPs.getBpolys();
-    String[] types = rPs.getTypes();
-    String[] keys = rPs.getKeys();
-    String[] values = rPs.getValues();
-    String[] time = rPs.getTime();
-    String[] userids = rPs.getUserids();
-    String showMetadata = rPs.getShowMetadata();
-    format = rPs.getFormat();
+      MapReducer<? extends OSHDBMapReducible> mapRed, RequestParameters requestParameters)
+      throws Exception {
+    String bboxes = requestParameters.getBboxes();
+    String bcircles = requestParameters.getBcircles();
+    String bpolys = requestParameters.getBpolys();
+    String[] types = requestParameters.getTypes();
+    String[] keys = requestParameters.getKeys();
+    String[] values = requestParameters.getValues();
+    String[] time = requestParameters.getTime();
+    String[] userids = requestParameters.getUserids();
+    format = requestParameters.getFormat();
     geomBuilder = new GeometryBuilder();
     utils = new InputProcessingUtils();
+    String requestMethod = requestParameters.getRequestMethod();
     if (requestMethod.equalsIgnoreCase("post")) {
       bboxes = createEmptyStringIfNull(bboxes);
       bcircles = createEmptyStringIfNull(bcircles);
@@ -87,40 +86,47 @@ public class InputProcessor {
       userids = createEmptyArrayIfNull(userids);
       time = createEmptyArrayIfNull(time);
     }
+    boolean isSnapshot = requestParameters.isSnapshot();
     if (isSnapshot) {
-      if (DbConnData.keytables == null)
+      if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db);
-      else if (DbConnData.igniteDb == null)
+      } else if (DbConnData.igniteDb == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db).keytables(DbConnData.keytables);
-      else
+      } else {
         mapRed = OSMEntitySnapshotView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
+      }
     } else {
-      if (DbConnData.keytables == null)
+      if (DbConnData.keytables == null) {
         mapRed = OSMContributionView.on(DbConnData.h2Db);
-      else if (DbConnData.igniteDb == null)
+      } else if (DbConnData.igniteDb == null) {
         mapRed = OSMContributionView.on(DbConnData.h2Db).keytables(DbConnData.keytables);
-      else
+      } else {
         mapRed = OSMContributionView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
+      }
     }
-    if (showMetadata == null)
+    String showMetadata = requestParameters.getShowMetadata();
+    if (showMetadata == null) {
       this.showMetadata = false;
-    else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
-        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes"))
+    } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
+        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes")) {
       this.showMetadata = true;
-    else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
+    } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
         || showMetadata.replaceAll("\\s", "").equals("")
-        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no"))
+        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no")) {
       this.showMetadata = false;
-    else
+    } else {
       throw new BadRequestException(
-          "The showMetadata parameter can only contain the values 'true', 'yes', 'false' or 'no' written as text(String).");
+          "The showMetadata parameter can only contain the values 'true', 'yes', 'false', "
+              + "or 'no' written as text(String).");
+    }
     boundary = setBoundaryType(bboxes, bcircles, bpolys);
     try {
       switch (boundary) {
         case NOBOUNDARY:
-          if (ExtractMetadata.dataPoly == null)
+          if (ExtractMetadata.dataPoly == null) {
             throw new BadRequestException(
                 "You need to define one boundary parameter (bboxes, bcircles, or bpolys).");
+          }
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
@@ -145,12 +151,13 @@ public class InputProcessor {
           break;
         default:
           throw new BadRequestException(
-              "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
-                  + "or you defined more than one boundary parameter.");
+              "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its "
+                  + "format, or you defined more than one boundary parameter.");
       }
     } catch (ClassCastException e) {
       throw new BadRequestException(
-          "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) cannot be processed.");
+          "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) "
+              + "cannot be processed.");
     }
     checkFormat(format);
     if (format != null && format.equalsIgnoreCase("geojson")) {
@@ -163,7 +170,8 @@ public class InputProcessor {
               writer.write((Geometry) boundaryColl.toArray()[i]).toString(), GeoJsonObject.class);
         } catch (IOException e) {
           throw new BadRequestException(
-              "The geometry of your given boundary input could not be parsed for the creation of the response GeoJSON.");
+              "The geometry of your given boundary input could not be parsed "
+                  + "for the creation of the response GeoJSON.");
         }
       }
       geomBuilder.setGeoJsonGeoms(geoJsonGeoms);
@@ -196,7 +204,6 @@ public class InputProcessor {
    *         three OSM types
    */
   public EnumSet<OSMType> extractOSMTypes(String[] types) throws BadRequestException {
-
     types = createEmptyArrayIfNull(types);
     checkOSMTypes(types);
     if (types.length == 0) {
@@ -204,12 +211,13 @@ public class InputProcessor {
     } else {
       this.osmTypes = EnumSet.noneOf(OSMType.class);
       for (String type : types) {
-        if (type.equalsIgnoreCase("node"))
+        if (type.equalsIgnoreCase("node")) {
           this.osmTypes.add(OSMType.NODE);
-        else if (type.equalsIgnoreCase("way"))
+        } else if (type.equalsIgnoreCase("way")) {
           this.osmTypes.add(OSMType.WAY);
-        else
+        } else {
           this.osmTypes.add(OSMType.RELATION);
+        }
       }
     }
     return this.osmTypes;
@@ -222,8 +230,9 @@ public class InputProcessor {
    * @return <code>String</code> array, which is empty.
    */
   public String[] createEmptyArrayIfNull(String[] toCheck) {
-    if (toCheck == null)
+    if (toCheck == null) {
       toCheck = new String[0];
+    }
     return toCheck;
   }
 
@@ -235,8 +244,9 @@ public class InputProcessor {
    * @return <code>String</code>, which is empty, but not null.
    */
   public String createEmptyStringIfNull(String toCheck) {
-    if (toCheck == null)
+    if (toCheck == null) {
       toCheck = "";
+    }
     return toCheck;
   }
 
@@ -244,32 +254,37 @@ public class InputProcessor {
    * Looks at specific objects within the RequestParameters object and makes them empty, if they are
    * null. Needed for the /ratio computation using POST requests.
    */
-  public RequestParameters fillWithEmptyIfNull(RequestParameters rPs) {
-
-    String[] types = rPs.getTypes();
-    if (types == null)
+  public RequestParameters fillWithEmptyIfNull(RequestParameters requestParameters) {
+    String[] types = requestParameters.getTypes();
+    if (types == null) {
       types = new String[0];
-    String[] keys = rPs.getKeys();
-    if (keys == null)
+    }
+    String[] keys = requestParameters.getKeys();
+    if (keys == null) {
       keys = new String[0];
-    String[] values = rPs.getValues();
-    if (values == null)
+    }
+    String[] values = requestParameters.getValues();
+    if (values == null) {
       values = new String[0];
+    }
+    RequestParameters requestParameters2 =
+        RequestParameters.of(requestParameters.getRequestMethod(), requestParameters.isSnapshot(),
+            requestParameters.isDensity(), requestParameters.getBboxes(),
+            requestParameters.getBcircles(), requestParameters.getBpolys(), types, keys, values,
+            requestParameters.getUserids(), requestParameters.getTime(),
+            requestParameters.getFormat(), requestParameters.getShowMetadata());
 
-    RequestParameters rPs2 = RequestParameters.of(rPs.getRequestMethod(), rPs.isSnapshot(),
-        rPs.isDensity(), rPs.getBboxes(), rPs.getBcircles(), rPs.getBpolys(), types, keys, values,
-        rPs.getUserids(), rPs.getTime(), rPs.getFormat(), rPs.getShowMetadata());
-
-    return rPs2;
+    return requestParameters2;
   }
 
   /** Checks the given keys and values String[] on their length. */
   public void checkKeysValues(String[] keys, String[] values) throws BadRequestException {
-
-    if (values != null)
-      if (keys.length < values.length)
-        throw new BadRequestException(
-            "There cannot be more input values in the values|values2 than in the keys|keys2 parameter, as values_n must fit to keys_n.");
+    if (values != null) {
+      if (keys.length < values.length) {
+        throw new BadRequestException("There cannot be more input values in the values|values2 "
+            + "than in the keys|keys2 parameter, as values_n must fit to keys_n.");
+      }
+    }
   }
 
   /**
@@ -278,10 +293,10 @@ public class InputProcessor {
    */
   public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
       String[] values2) {
-
     if (keys.length == keys2.length && values.length == values2.length) {
-      if (Arrays.equals(keys, keys2) && Arrays.equals(values, values2))
+      if (Arrays.equals(keys, keys2) && Arrays.equals(values, values2)) {
         return true;
+      }
     }
     return false;
   }
@@ -292,38 +307,40 @@ public class InputProcessor {
    */
   public List<Pair<String, String>> addFilterKeysVals(String[] keys, String[] values,
       String[] keys2, String[] values2) {
-
     ArrayList<Pair<String, String>> tags = new ArrayList<Pair<String, String>>();
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
       Pair<String, String> tag;
-      if (i >= values.length)
+      if (i >= values.length) {
         tag = new ImmutablePair<>(key, "");
-      else
+      } else {
         tag = new ImmutablePair<>(key, values[i]);
+      }
       tags.add(tag);
     }
     for (int i = 0; i < keys2.length; i++) {
       String key = keys2[i];
       Pair<String, String> tag;
-      if (i >= values2.length)
+      if (i >= values2.length) {
         tag = new ImmutablePair<>(key, "");
-      else
+      } else {
         tag = new ImmutablePair<>(key, values2[i]);
+      }
       tags.add(tag);
     }
     // sorting to have all Pair<key,""> at the end of the list
     Collections.sort(tags, new Comparator<Pair<String, String>>() {
       @Override
       public int compare(Pair<String, String> p1, Pair<String, String> p2) {
-        if (p1.getValue().equals("") && p2.getValue().equals(""))
+        if (p1.getValue().equals("") && p2.getValue().equals("")) {
           return 0;
-        else if (p1.getValue().equals("") && !p2.getValue().equals(""))
+        } else if (p1.getValue().equals("") && !p2.getValue().equals("")) {
           return 1;
-        else if (!p1.getValue().equals("") && p2.getValue().equals(""))
+        } else if (!p1.getValue().equals("") && p2.getValue().equals("")) {
           return -1;
-        else
+        } else {
           return 0;
+        }
       }
     });
     return tags;
@@ -334,11 +351,12 @@ public class InputProcessor {
    * the second one has not. Only used in the processing of /share requests.
    */
   public String[] addFilterKeys(String[] keys, String[] keys2) {
-
-    if (keys.length == 0)
+    if (keys.length == 0) {
       return keys2;
-    if (Arrays.equals(keys, keys2))
+    }
+    if (Arrays.equals(keys, keys2)) {
       return keys2;
+    }
     List<String> keysList = new ArrayList<>(Arrays.asList(keys2));
     for (String s : keys) {
       if (!keysList.contains(s)) {
@@ -353,6 +371,7 @@ public class InputProcessor {
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String) where(key)}, or
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String, String)
    * where(key, value)} method.
+   * 
    * <p>
    * The keys and values parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -367,7 +386,6 @@ public class InputProcessor {
   private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values)
       throws BadRequestException {
-
     checkKeysValues(keys, values);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
@@ -382,10 +400,11 @@ public class InputProcessor {
     // prerequisites: both arrays (keys and values) must be of the same length
     // and key-value pairs need to be at the same index in both arrays
     for (int i = 0; i < keys.length; i++) {
-      if (values[i].equals(""))
+      if (values[i].equals("")) {
         mapRed = mapRed.osmTag(keys[i]);
-      else
+      } else {
         mapRed = mapRed.osmTag(keys[i], values[i]);
+      }
     }
     return mapRed;
   }
@@ -397,21 +416,22 @@ public class InputProcessor {
   private MapReducer<? extends OSHDBMapReducible> extractTime(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
       throws Exception {
-
     String[] toTimestamps = null;
     if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
-      if (!isSnapshot)
+      if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(timeData);
+      }
       if (timeData[2] != null) {
         // interval is given
         mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
       } else if (timeData[1] != null) {
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
       } else {
-        if (!isSnapshot)
+        if (!isSnapshot) {
           throw new BadRequestException(
               "You need to give at least two timestamps or a time interval for this resource.");
+        }
         mapRed = mapRed.timestamps(timeData[0]);
       }
     } else if (time.length == 0) {
@@ -423,13 +443,14 @@ public class InputProcessor {
       }
     } else {
       // list of timestamps
-      int tCount = 1;
+      int timeCount = 1;
       for (String timestamp : time) {
-        utils.checkIsoConformity(timestamp, "timestamp number " + tCount);
-        tCount++;
+        utils.checkIsoConformity(timestamp, "timestamp number " + timeCount);
+        timeCount++;
       }
-      if (!isSnapshot)
+      if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(time);
+      }
       String firstElem = time[0];
       time = ArrayUtils.remove(time, 0);
       mapRed = mapRed.timestamps(firstElem, firstElem, time);
@@ -449,15 +470,14 @@ public class InputProcessor {
       try {
         Long.valueOf(user);
       } catch (NumberFormatException e) {
-        throw new BadRequestException(
-            "The userids parameter can only contain valid OSM userids, which are always a positive whole number");
+        throw new BadRequestException("The userids parameter can only contain valid OSM userids, "
+            + "which are always a positive whole number");
       }
     }
   }
 
   /** Checks the given OSMType(s) String[] on its length and content. */
   private void checkOSMTypes(String[] types) throws BadRequestException {
-
     if (types.length > 3) {
       throw new BadRequestException(
           "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
@@ -466,9 +486,11 @@ public class InputProcessor {
     } else {
       for (String type : types) {
         if (!type.equalsIgnoreCase("node") && !type.equalsIgnoreCase("way")
-            && !type.equalsIgnoreCase("relation"))
+            && !type.equalsIgnoreCase("relation")) {
           throw new BadRequestException(
-              "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' as its content.");
+              "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' "
+                  + "as its content.");
+        }
       }
     }
   }
@@ -479,10 +501,11 @@ public class InputProcessor {
   private void checkFormat(String format) throws BadRequestException {
 
     if (format != null && !format.isEmpty() && !format.equalsIgnoreCase("geojson")
-        && !format.equalsIgnoreCase("json"))
+        && !format.equalsIgnoreCase("json")) {
       throw new BadRequestException(
           "The given 'format' parameter is invalid. Please choose between "
               + "'geojson'(only available for /groupBy/boundary requests) or 'json'.");
+    }
   }
 
   /**
@@ -498,18 +521,19 @@ public class InputProcessor {
    *        optional custom names at each first coordinate appended with a colon (:).
    */
   private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys) {
-    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty())
+    if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       return BoundaryType.NOBOUNDARY;
-    else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty())
+    } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       return BoundaryType.BBOXES;
-    else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty())
+    } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {
       return BoundaryType.BCIRCLES;
-    else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty())
+    } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       return BoundaryType.BPOLYS;
-    else
+    } else {
       throw new BadRequestException(
           "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
               + "or you defined more than one boundary parameter.");
+    }
   }
 
   /*

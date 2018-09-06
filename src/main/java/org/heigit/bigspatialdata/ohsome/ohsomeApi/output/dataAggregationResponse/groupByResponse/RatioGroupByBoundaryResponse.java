@@ -35,9 +35,7 @@ public class RatioGroupByBoundaryResponse implements Response {
       + "with their timestamp-value-value2-ratio values", required = true)
   private RatioGroupByResult[] groupByBoundaryResult;
 
-  private RatioGroupByBoundaryResponse() {
-
-  }
+  private RatioGroupByBoundaryResponse() {}
 
   public RatioGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
       RatioGroupByResult[] groupByBoundaryResult) {

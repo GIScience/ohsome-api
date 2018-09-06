@@ -25,5 +25,4 @@ public class Attribution {
   public String getText() {
     return text;
   }
-
 }

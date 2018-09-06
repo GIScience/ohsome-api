@@ -77,7 +77,6 @@ public class ExecutionUtils {
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
   public Geometry getGeometry(BoundaryType boundary, GeometryBuilder geomBuilder) {
-
     Geometry geom;
     switch (boundary) {
       case NOBOUNDARY:
@@ -95,40 +94,41 @@ public class ExecutionUtils {
       default:
         geom = null;
     }
-
     return geom;
   }
 
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
-  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGBB(
-      RequestResource requestResource, BoundaryType bType,
+  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
+      RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<? extends OSHDBMapReducible> mapRed, GeometryBuilder geomBuilder,
       boolean isSnapshot) throws Exception {
-
-    if (bType == BoundaryType.NOBOUNDARY)
+    if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    }
     SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBTimestampAndIndex<Integer>, Geometry> preResult;
     ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Integer> zeroFill = new LinkedList<>();
-    for (int j = 0; j < geoms.size(); j++)
+    for (int j = 0; j < geoms.size(); j++) {
       zeroFill.add(j);
+    }
     preResult = mapRed.flatMap(f -> {
       List<Pair<Integer, Geometry>> res = new LinkedList<>();
       Geometry entityGeom;
       if (isSnapshot) {
         entityGeom = getSnapshotGeom(f);
-        if (requestResource.equals(RequestResource.PERIMETER))
+        if (requestResource.equals(RequestResource.PERIMETER)) {
           entityGeom = entityGeom.getBoundary();
+        }
       } else {
         entityGeom = getContributionGeom(f);
       }
       for (int i = 0; i < geoms.size(); i++) {
         if (myIntersects(entityGeom, geoms.get(i))) {
-          if (myWithin(entityGeom, geoms.get(i)))
+          if (myWithin(entityGeom, geoms.get(i))) {
             res.add(new ImmutablePair<>(i, entityGeom));
-          else {
+          } else {
             try {
               res.add(new ImmutablePair<>(i,
                   Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
@@ -152,19 +152,21 @@ public class ExecutionUtils {
       case AREA:
         result = preResult.sum(Geo::areaOf);
         break;
+      default:
+        break;
     }
     return result;
   }
 
   /** Computes the result for the /count/share/groupBy/boundary resources. */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGBB(
-      BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGbB(
+      BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
       Integer[] valuesInt2, GeometryBuilder geomBuilder)
       throws UnsupportedOperationException, Exception {
-
-    if (bType == BoundaryType.NOBOUNDARY)
+    if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    }
     ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     ArrayList<Pair<Integer, Boolean>> zeroFill = new ArrayList<>();
     for (int j = 0; j < geoms.size(); j++) {
@@ -174,9 +176,11 @@ public class ExecutionUtils {
     SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result =
         mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Pair<Integer, OSMEntity>> boundaryList = new LinkedList<>();
-          for (int i = 0; i < geoms.size(); i++)
-            if (myIntersects(f.getGeometry(), geoms.get(i)))
+          for (int i = 0; i < geoms.size(); i++) {
+            if (myIntersects(f.getGeometry(), geoms.get(i))) {
               boundaryList.add(new ImmutablePair<>(i, f.getEntity()));
+            }
+          }
           return boundaryList;
         }).aggregateBy(f -> {
           // result aggregated on true (if obj contains all tags) and false (if not all are
@@ -207,14 +211,14 @@ public class ExecutionUtils {
   }
 
   /** Computes the result for the /count|length|perimeter|area/share/groupBy/boundary resources. */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGBB(
-      RequestResource requestResource, BoundaryType bType, MapReducer<OSMEntitySnapshot> mapRed,
-      Integer[] keysInt2, Integer[] valuesInt2, GeometryBuilder geomBuilder)
-      throws UnsupportedOperationException, Exception {
-
-    if (bType == BoundaryType.NOBOUNDARY)
+  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGbB(
+      RequestResource requestResource, BoundaryType boundaryType,
+      MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2, Integer[] valuesInt2,
+      GeometryBuilder geomBuilder) throws UnsupportedOperationException, Exception {
+    if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+    }
     ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Pair<Integer, Boolean>> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++) {
@@ -231,9 +235,9 @@ public class ExecutionUtils {
       }
       for (int i = 0; i < geoms.size(); i++) {
         if (myIntersects(entityGeom, geoms.get(i))) {
-          if (myWithin(entityGeom, geoms.get(i)))
+          if (myWithin(entityGeom, geoms.get(i))) {
             res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
-          else {
+          } else {
             try {
               res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
                   Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
@@ -283,6 +287,8 @@ public class ExecutionUtils {
           return Geo.areaOf(geom);
         });
         break;
+      default:
+        break;
     }
     return result;
   }
@@ -295,7 +301,6 @@ public class ExecutionUtils {
   public <K extends OSHDBTimestampAndIndex<?>, V extends Number> SortedMap<K, V> computeResult(
       RequestResource requestResource, MapAggregator<?, OSMEntitySnapshot> preResult)
       throws Exception {
-
     switch (requestResource) {
       case COUNT:
         return (SortedMap<K, V>) preResult.count();
@@ -307,10 +312,11 @@ public class ExecutionUtils {
       case PERIMETER:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal)
+              if (snapshot.getGeometry() instanceof Polygonal) {
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              else
+              } else {
                 return 0.0;
+              }
             });
       case AREA:
         return (SortedMap<K, V>) preResult
@@ -325,10 +331,11 @@ public class ExecutionUtils {
   /** Compares an OSMType with an EnumSet of OSMTypes. */
   public boolean isOSMType(EnumSet<OSMType> types, OSMType currentElementType) {
 
-    for (OSMType type : types)
+    for (OSMType type : types) {
       if (currentElementType.equals(type)) {
         return true;
       }
+    }
     return false;
   }
 
@@ -340,10 +347,11 @@ public class ExecutionUtils {
     if (osmTypes.contains(entity.getType())) {
       for (int i = 0; i < keysInt.length; i++) {
         boolean matchesTag;
-        if (i < valuesInt.length)
+        if (i < valuesInt.length) {
           matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
-        else
+        } else {
           matchesTag = entity.hasTagKey(keysInt[i]);
+        }
         if (!matchesTag) {
           matches = false;
           break;
@@ -357,7 +365,7 @@ public class ExecutionUtils {
 
   /**
    * Extracts the tags from the given <code>OSMContribution</code> depending on the
-   * <code>ContributionType</code>
+   * <code>ContributionType</code>.
    */
   public int[] extractContributionTags(OSMContribution contrib) {
 
@@ -377,32 +385,33 @@ public class ExecutionUtils {
   }
 
   /**
-   * Creates the GeoJSON features used in the GeoJSON response for a
+   * Creates the GeoJson features used in the GeoJson response for a
    * count|length|perimeter|area/groupBy/boundary request.
    */
-  public Feature[] createGeoJSONFeatures(GroupByResult[] gBResults, GeoJsonObject[] geoJsonGeoms) {
-
-    int gBRLength = gBResults.length;
-    int resultLength = gBResults[0].getResult().length;
-    int featuresLength = gBRLength * resultLength;
+  public Feature[] createGeoJsonFeatures(GroupByResult[] groupByResults,
+      GeoJsonObject[] geoJsonGeoms) {
+    int groupByResultsLength = groupByResults.length;
+    int resultLength = groupByResults[0].getResult().length;
+    int featuresLength = groupByResultsLength * resultLength;
     Feature[] features = new Feature[featuresLength];
-    int gBRCount = 0;
+    int groupByResultCount = 0;
     int tstampCount = 0;
     for (int i = 0; i < featuresLength; i++) {
-      ElementsResult result = (ElementsResult) gBResults[gBRCount].getResult()[tstampCount];
-      String gBBId = gBResults[gBRCount].getGroupByObject();
+      ElementsResult result =
+          (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
+      String groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
-      feature.setId(gBBId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", gBBId);
+      feature.setId(groupByBoundaryId + "@" + tstamp);
+      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
       feature.setProperty("timestamp", tstamp);
       feature.setProperty("value", result.getValue());
-      GeoJsonObject geom = geoJsonGeoms[gBRCount];
+      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
       feature.setGeometry(geom);
       tstampCount++;
       if (tstampCount == resultLength) {
         tstampCount = 0;
-        gBRCount++;
+        groupByResultCount++;
       }
       features[i] = feature;
     }
@@ -410,35 +419,35 @@ public class ExecutionUtils {
   }
 
   /**
-   * Creates the GeoJSON features used in the GeoJSON response for a
+   * Creates the GeoJson features used in the GeoJson response for a
    * count|length|perimeter|area/ratio/groupBy/boundary request.
    */
-  public Feature[] createGeoJSONFeatures(RatioGroupByResult[] gBResults,
+  public Feature[] createGeoJsonFeatures(RatioGroupByResult[] groupByResults,
       GeoJsonObject[] geoJsonGeoms) {
-
-    int gBRLength = gBResults.length;
-    int resultLength = gBResults[0].getRatioResult().length;
-    int featuresLength = gBRLength * resultLength;
+    int groupByResultsLength = groupByResults.length;
+    int resultLength = groupByResults[0].getRatioResult().length;
+    int featuresLength = groupByResultsLength * resultLength;
     Feature[] features = new Feature[featuresLength];
-    int gBRCount = 0;
+    int groupByResultCount = 0;
     int tstampCount = 0;
     for (int i = 0; i < featuresLength; i++) {
-      RatioResult result = (RatioResult) gBResults[gBRCount].getRatioResult()[tstampCount];
-      String gBBId = gBResults[gBRCount].getGroupByObject();
+      RatioResult result =
+          (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
+      String groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
-      feature.setId(gBBId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", gBBId);
+      feature.setId(groupByBoundaryId + "@" + tstamp);
+      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
       feature.setProperty("timestamp", tstamp);
       feature.setProperty("value", result.getValue());
       feature.setProperty("value2", result.getValue2());
       feature.setProperty("ratio", result.getRatio());
-      GeoJsonObject geom = geoJsonGeoms[gBRCount];
+      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
       feature.setGeometry(geom);
       tstampCount++;
       if (tstampCount == resultLength) {
         tstampCount = 0;
-        gBRCount++;
+        groupByResultCount++;
       }
       features[i] = feature;
     }
@@ -446,34 +455,34 @@ public class ExecutionUtils {
   }
 
   /**
-   * Creates the GeoJSON features used in the GeoJSON response for a
+   * Creates the GeoJson features used in the GeoJson response for a
    * count|length|perimeter|area/share/groupBy/boundary request.
    */
-  public Feature[] createGeoJSONFeatures(ShareGroupByResult[] gBResults,
+  public Feature[] createGeoJsonFeatures(ShareGroupByResult[] groupByResults,
       GeoJsonObject[] geoJsonGeoms) {
-
-    int gBRLength = gBResults.length;
-    int resultLength = gBResults[0].getShareResult().length;
-    int featuresLength = gBRLength * resultLength;
+    int groupByResultsLength = groupByResults.length;
+    int resultLength = groupByResults[0].getShareResult().length;
+    int featuresLength = groupByResultsLength * resultLength;
     Feature[] features = new Feature[featuresLength];
-    int gBRCount = 0;
+    int groupByResultCount = 0;
     int tstampCount = 0;
     for (int i = 0; i < featuresLength; i++) {
-      ShareResult result = (ShareResult) gBResults[gBRCount].getShareResult()[tstampCount];
-      String gBBId = gBResults[gBRCount].getGroupByObject();
+      ShareResult result =
+          (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
+      String groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
-      feature.setId(gBBId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", gBBId);
+      feature.setId(groupByBoundaryId + "@" + tstamp);
+      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
       feature.setProperty("timestamp", tstamp);
       feature.setProperty("whole", result.getWhole());
       feature.setProperty("part", result.getPart());
-      GeoJsonObject geom = geoJsonGeoms[gBRCount];
+      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
       feature.setGeometry(geom);
       tstampCount++;
       if (tstampCount == resultLength) {
         tstampCount = 0;
-        gBRCount++;
+        groupByResultCount++;
       }
       features[i] = feature;
     }
@@ -483,7 +492,6 @@ public class ExecutionUtils {
   /** Fills the ElementsResult array with respective ElementsResult objects. */
   public ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, DecimalFormat df, Geometry geom) {
-
     ElementsResult[] results = new ElementsResult[entryVal.entrySet().size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
@@ -504,7 +512,6 @@ public class ExecutionUtils {
   /** Fills the UsersResult array with respective UsersResult objects. */
   public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, String[] toTimestamps, DecimalFormat df, Geometry geom) {
-
     UsersResult[] results = new UsersResult[entryVal.entrySet().size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
@@ -525,9 +532,8 @@ public class ExecutionUtils {
 
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
   public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
-      Double[] value2, DecimalFormat df, InputProcessor iP, long startTime, RequestResource reqRes,
-      String requestURL, Attribution attribution) {
-
+      Double[] value2, DecimalFormat df, InputProcessor inputProcessor, long startTime,
+      RequestResource reqRes, String requestUrl, Attribution attribution) {
     Response response;
     if (!isShare) {
       RatioResult[] resultSet = new RatioResult[timeArray.length];
@@ -542,11 +548,11 @@ public class ExecutionUtils {
         resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
       }
       Metadata metadata = null;
-      if (iP.getShowMetadata()) {
+      if (inputProcessor.getShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
-            requestURL);
+            requestUrl);
       }
       response = new RatioResponse(attribution, Application.apiVersion, metadata, resultSet);
     } else {
@@ -555,11 +561,11 @@ public class ExecutionUtils {
         resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
       }
       Metadata metadata = null;
-      if (iP.getShowMetadata()) {
+      if (inputProcessor.getShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
-            requestURL);
+            requestUrl);
       }
       response = new ShareResponse(attribution, Application.apiVersion, metadata, resultSet);
     }
@@ -570,12 +576,11 @@ public class ExecutionUtils {
    * Creates either a RatioGroupByBoundaryResponse or a ShareGroupByBoundaryResponse depending on
    * the <code>isShare</code> parameter.
    */
-  public Response createRatioShareGroupByBoundaryResponse(boolean isShare, RequestParameters rPs,
-      int groupByResultSize, String[] boundaryIds, String[] timeArray,
-      ArrayList<Double[]> value1Arrays, ArrayList<Double[]> value2Arrays, DecimalFormat ratioDf,
-      InputProcessor iP, long startTime, RequestResource reqRes, String requestURL,
-      Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
-
+  public Response createRatioShareGroupByBoundaryResponse(boolean isShare,
+      RequestParameters requestParameters, int groupByResultSize, String[] boundaryIds,
+      String[] timeArray, ArrayList<Double[]> value1Arrays, ArrayList<Double[]> value2Arrays,
+      DecimalFormat ratioDf, InputProcessor inputProcessor, long startTime, RequestResource reqRes,
+      String requestUrl, Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
     Metadata metadata = null;
     int count = 0;
     if (!isShare) {
@@ -598,17 +603,19 @@ public class ExecutionUtils {
         groupByResultSet[count] = new RatioGroupByResult(groupByName, resultSet);
         count++;
       }
-      if (iP.getShowMetadata()) {
+      if (inputProcessor.getShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
-            reqRes.getLabel(), reqRes.getUnit()), requestURL);
+            reqRes.getLabel(), reqRes.getUnit()), requestUrl);
       }
-      if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
+      if (requestParameters.getFormat() != null
+          && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
         return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-            "FeatureCollection", createGeoJSONFeatures(groupByResultSet, geoJsonGeoms));
-      else
+            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+      } else {
         return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
             groupByResultSet);
+      }
 
     } else {
       ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResultSize / 3];
@@ -623,17 +630,19 @@ public class ExecutionUtils {
         groupByResultSet[count] = new ShareGroupByResult(groupByName, resultSet);
         count++;
       }
-      if (iP.getShowMetadata()) {
+      if (inputProcessor.getShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
-            reqRes.getLabel(), reqRes.getUnit()), requestURL);
+            reqRes.getLabel(), reqRes.getUnit()), requestUrl);
       }
-      if (rPs.getFormat() != null && rPs.getFormat().equalsIgnoreCase("geojson"))
+      if (requestParameters.getFormat() != null
+          && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
         return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-            "FeatureCollection", createGeoJSONFeatures(groupByResultSet, geoJsonGeoms));
-      else
+            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+      } else {
         return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
             groupByResultSet);
+      }
     }
   }
 
@@ -647,14 +656,14 @@ public class ExecutionUtils {
    * GeometryCollections.
    */
   private boolean myIntersects(Geometry geomA, Geometry geomB) {
-
     if (geomA.getClass().equals(GeometryCollection.class)) {
       GeometryCollection geomColl = (GeometryCollection) geomA;
       int count = geomColl.getNumGeometries();
       for (int i = 0; i < count; i++) {
         Geometry childGeometry = geomColl.getGeometryN(i);
-        if (myIntersects(childGeometry, geomB))
+        if (myIntersects(childGeometry, geomB)) {
           return true;
+        }
       }
       return false;
     }
@@ -670,14 +679,14 @@ public class ExecutionUtils {
    * Checks if a Geometry is within another Geometry. Can also handle GeometryCollections.
    */
   private boolean myWithin(Geometry geomA, Geometry geomB) {
-
     if (geomA.getClass().equals(GeometryCollection.class)) {
       GeometryCollection geomColl = (GeometryCollection) geomA;
       int count = geomColl.getNumGeometries();
       for (int i = 0; i < count; i++) {
         Geometry childGeometry = geomColl.getGeometryN(i);
-        if (!myWithin(childGeometry, geomB))
+        if (!myWithin(childGeometry, geomB)) {
           return false;
+        }
       }
       return true;
     }
@@ -692,9 +701,9 @@ public class ExecutionUtils {
   /** Internal helper method to get the geometry from an OSMContribution object. */
   private Geometry getContributionGeom(OSHDBMapReducible f) {
     Geometry geom = ((OSMContribution) f).getGeometryAfter();
-    if (geom == null)
+    if (geom == null) {
       geom = ((OSMContribution) f).getGeometryBefore();
+    }
     return geom;
   }
-
 }

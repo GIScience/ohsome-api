@@ -35,9 +35,7 @@ public class ShareGroupByBoundaryResponse implements Response {
       + "with their timestamp-whole-part values", required = true)
   private ShareGroupByResult[] shareGroupByBoundaryResult;
 
-  private ShareGroupByBoundaryResponse() {
-
-  }
+  private ShareGroupByBoundaryResponse() {}
 
   public ShareGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
       ShareGroupByResult[] shareGroupByBoundaryResult) {
@@ -82,5 +80,5 @@ public class ShareGroupByBoundaryResponse implements Response {
   public ShareGroupByResult[] getShareGroupByBoundaryResult() {
     return shareGroupByBoundaryResult;
   }
-
 }
+

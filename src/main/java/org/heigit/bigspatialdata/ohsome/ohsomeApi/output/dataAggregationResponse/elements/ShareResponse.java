@@ -50,5 +50,4 @@ public class ShareResponse implements Response {
   public ShareResult[] getShareResult() {
     return shareResult;
   }
-
 }

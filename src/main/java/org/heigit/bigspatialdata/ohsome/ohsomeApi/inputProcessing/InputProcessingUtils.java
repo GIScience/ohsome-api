@@ -24,6 +24,7 @@ public class InputProcessingUtils {
    * Finds and returns the EPSG code of the given point, which is needed for
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeApi.inputProcessing.GeometryBuilder#createCircularPolygons(String[] bcircles)
    * createCircularPolygons}.
+   * 
    * <p>
    * Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
    * 
@@ -31,26 +32,30 @@ public class InputProcessingUtils {
    * @param lat Latitude coordinate of the point.
    * @return <code>String</code> representing the corresponding EPSG code.
    */
-  public String findEPSG(double lon, double lat) {
+  public String findEpsg(double lon, double lat) {
 
-    if (lat >= 84)
+    if (lat >= 84) {
       return "EPSG:32661"; // UPS North
-    if (lat < -80)
+    }
+    if (lat < -80) {
       return "EPSG:32761"; // UPS South
+    }
 
     int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
-    if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0)
+    if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0) {
       zoneNumber = 32;
+    }
     // Special zones for Svalbard
     if (lat >= 72.0 && lat < 84.0) {
-      if (lon >= 0.0 && lon < 9.0)
+      if (lon >= 0.0 && lon < 9.0) {
         zoneNumber = 31;
-      else if (lon >= 9.0 && lon < 21.0)
+      } else if (lon >= 9.0 && lon < 21.0) {
         zoneNumber = 33;
-      else if (lon >= 21.0 && lon < 33.0)
+      } else if (lon >= 21.0 && lon < 33.0) {
         zoneNumber = 35;
-      else if (lon >= 33.0 && lon < 42.0)
+      } else if (lon >= 33.0 && lon < 42.0) {
         zoneNumber = 37;
+      }
     }
     String isNorth = (lat > 0) ? "6" : "7";
     String zone = (zoneNumber < 10) ? "0" + zoneNumber : "" + zoneNumber;
@@ -77,10 +82,11 @@ public class InputProcessingUtils {
     String[] boundaryIds = null;
     String[] coords;
     // to check if there is more than one boundary object given
-    if (boundaryParam.contains("|"))
+    if (boundaryParam.contains("|")) {
       boundaryObjects = boundaryParam.split("\\|");
-    else
+    } else {
       boundaryObjects = new String[] {boundaryParam};
+    }
     boundaryIds = new String[boundaryObjects.length];
     int idCount = 0;
     int paramCount = 0;
@@ -90,8 +96,8 @@ public class InputProcessingUtils {
           if (boundaryObjects[0].contains(":")) {
             // custom ids are given
             boundaryParamValues = new String[boundaryObjects.length * 4];
-            for (String bObject : boundaryObjects) {
-              coords = bObject.split("\\,");
+            for (String boundaryObject : boundaryObjects) {
+              coords = boundaryObject.split("\\,");
               if (coords[0].contains(":")) {
                 String[] idAndCoordinate = coords[0].split(":");
                 // extract the id
@@ -105,16 +111,17 @@ public class InputProcessingUtils {
                 paramCount += 4;
               } else {
                 throw new BadRequestException(
-                    "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
-                        + "You can either set custom ids for all your boundary objects, or for none.");
+                    "One or more boundary object(s) have a custom id (or at least a colon), "
+                        + "whereas other(s) don't. You can either set custom ids for all your "
+                        + "boundary objects, or for none.");
               }
             }
           } else {
             // no custom ids are given
             boundaryParamValues = new String[boundaryObjects.length * 4];
             idCount = 1;
-            for (String bObject : boundaryObjects) {
-              coords = bObject.split("\\,");
+            for (String boundaryObject : boundaryObjects) {
+              coords = boundaryObject.split("\\,");
               for (String coord : coords) {
                 boundaryParamValues[paramCount] = coord;
                 paramCount++;
@@ -128,8 +135,8 @@ public class InputProcessingUtils {
         case BCIRCLES:
           if (boundaryObjects[0].contains(":")) {
             boundaryParamValues = new String[boundaryObjects.length * 3];
-            for (String bObject : boundaryObjects) {
-              coords = bObject.split("\\,");
+            for (String boundaryObject : boundaryObjects) {
+              coords = boundaryObject.split("\\,");
               if (coords[0].contains(":")) {
                 String[] idAndCoordinate = coords[0].split(":");
                 boundaryIds[idCount] = idAndCoordinate[0];
@@ -142,15 +149,16 @@ public class InputProcessingUtils {
                 paramCount += 3;
               } else {
                 throw new BadRequestException(
-                    "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
-                        + "You can either set custom ids for all your boundary objects, or for none.");
+                    "One or more boundary object(s) have a custom id (or at least a colon), "
+                        + "whereas other(s) don't. You can either set custom ids for all your "
+                        + "boundary objects, or for none.");
               }
             }
           } else {
             boundaryParamValues = new String[boundaryObjects.length * 3];
             idCount = 1;
-            for (String bObject : boundaryObjects) {
-              coords = bObject.split("\\,");
+            for (String boundaryObject : boundaryObjects) {
+              coords = boundaryObject.split("\\,");
               for (String coord : coords) {
                 boundaryParamValues[paramCount] = coord;
                 paramCount++;
@@ -163,8 +171,8 @@ public class InputProcessingUtils {
         case BPOLYS:
           if (boundaryObjects[0].contains(":")) {
             boundaryParamValues = new String[boundaryParam.length()];
-            for (String bObject : boundaryObjects) {
-              coords = bObject.split("\\,");
+            for (String boundaryObject : boundaryObjects) {
+              coords = boundaryObject.split("\\,");
               if (coords[0].contains(":")) {
                 String[] idAndCoordinate = coords[0].split(":");
                 // extract the id and the first coordinate
@@ -179,15 +187,16 @@ public class InputProcessingUtils {
                 idCount++;
               } else {
                 throw new BadRequestException(
-                    "One or more boundary object(s) have a custom id (or at least a colon), whereas other(s) don't. "
-                        + "You can either set custom ids for all your boundary objects, or for none.");
+                    "One or more boundary object(s) have a custom id (or at least a colon), "
+                        + "whereas other(s) don't. You can either set custom ids for all your "
+                        + "boundary objects, or for none.");
               }
             }
           } else {
             boundaryParamValues = new String[boundaryParam.length()];
             idCount = 1;
-            for (String bObject : boundaryObjects) {
-              coords = bObject.split("\\,");
+            for (String boundaryObject : boundaryObjects) {
+              coords = boundaryObject.split("\\,");
               for (String coord : coords) {
                 boundaryParamValues[paramCount] = coord;
                 paramCount++;
@@ -201,10 +210,10 @@ public class InputProcessingUtils {
           break;
       }
     } catch (Exception e) {
-      throw new BadRequestException(
-          "The processing of the boundary parameter gave an error. Please use the predefined format "
-              + "where you delimit different objects with the pipe-sign '|' "
-              + "and optionally add custom ids with the colon ':' at the first coordinate of each boundary object.");
+      throw new BadRequestException("The processing of the boundary parameter gave an error. "
+          + "Please use the predefined format where you delimit different objects "
+          + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
+          + "at the first coordinate of each boundary object.");
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues =
@@ -256,6 +265,7 @@ public class InputProcessingUtils {
    * <li><strong>//PnYnMnD</strong>: #/#/period</li>
    * <li><strong>invalid</strong>: throws BadRequestException</li>
    * </ul>
+   * 
    * <p>
    * For clarification: the format YYYY-MM-DDThh:mm:ss can be applied to any format, where a
    * timestamp is used and # is a replacement holder for "no value". Note that the positioning and
@@ -266,7 +276,6 @@ public class InputProcessingUtils {
    *         the period at [2].
    */
   public String[] extractIsoTime(String time) throws Exception {
-
     String[] timeVals = new String[3];
     if (time.contains("/")) {
       if (time.length() == 1) {
@@ -326,10 +335,8 @@ public class InputProcessingUtils {
    *        time parameter.
    * @param startEndTstamp <code>String</code> containing either "start", "end", or "timestamp x",
    *        where x refers to the number of the timestamp.
-   * @throws Exception
    */
   public void checkIsoConformity(String time, String startEndTstamp) throws Exception {
-
     try {
       ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(time);
       checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
@@ -342,10 +349,8 @@ public class InputProcessingUtils {
    * Checks the provided time info on its temporal extent. Throws a 404 exception if it is not
    * completely within the timerange of the underlying data.
    * 
-   * @param timeInfo
    */
   private void checkTemporalExtend(String... timeInfo) throws NotFoundException {
-
     long start = 0;
     long end = 0;
     long timestampLong = 0;
@@ -356,11 +361,12 @@ public class InputProcessingUtils {
     for (String timestamp : timeInfo) {
       timestampLong =
           DateTimeFormatter.ISO_DATE_TIME.parse(timestamp).getLong(ChronoField.INSTANT_SECONDS);
-      if (timestampLong < start || timestampLong > end)
+      if (timestampLong < start || timestampLong > end) {
         throw new NotFoundException(
             "The given time parameter is not completely within the timeframe ("
                 + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
                 + ") of the underlying osh-data.");
+      }
     }
   }
 
@@ -373,16 +379,15 @@ public class InputProcessingUtils {
    *         <code>false</code> - if not inside
    */
   public boolean isWithin(Geometry geom) {
-
-    if (ExtractMetadata.dataPoly != null)
+    if (ExtractMetadata.dataPoly != null) {
       return geom.within(ExtractMetadata.dataPoly);
+    }
 
     return true;
   }
 
   /** Internal helper method to get the toTimestamps from a timestampList. */
   private String[] getToTimestampsFromTimestamplist(String[] timeData) {
-
     String[] toTimestamps = new String[timeData.length];
     for (int i = 0; i < timeData.length; i++) {
       try {
@@ -410,5 +415,4 @@ public class InputProcessingUtils {
   public void setToTimestamps(String[] toTimestamps) {
     this.toTimestamps = toTimestamps;
   }
-
 }

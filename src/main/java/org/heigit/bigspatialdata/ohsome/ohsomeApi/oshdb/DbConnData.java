@@ -11,5 +11,4 @@ public class DbConnData {
   public static OSHDBIgnite igniteDb = null;
   public static OSHDBH2 keytables = null;
   public static TagTranslator tagTranslator = null;
-
 }

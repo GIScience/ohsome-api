@@ -14,15 +14,14 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
       Object handler) {
-
     // builds the initial url, which was sent as request
-    if (request.getHeader("X-REQUEST-URI") != null)
+    if (request.getHeader("X-REQUEST-URI") != null) {
       requestUrl = request.getHeader("X-REQUEST-URI") + "?" + request.getQueryString();
-    else
+    } else {
       requestUrl = request.getRequestURL() + "?" + request.getQueryString();
+    }
     // adding a 1 year cache option
     response.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     return true;
   }
-
 }

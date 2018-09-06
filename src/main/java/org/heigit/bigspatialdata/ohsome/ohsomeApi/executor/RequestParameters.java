@@ -17,14 +17,12 @@ public class RequestParameters {
   private String format;
   private String showMetadata;
 
-  private RequestParameters() {
-    
-  }
-  
-  public RequestParameters(String requestMethod, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String showMetadata) {
+  private RequestParameters() {}
 
+  /** Overloaded constructor, which gets used by all but the /groupBy/boundary resources. */
+  public RequestParameters(String requestMethod, boolean isSnapshot, boolean isDensity,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String showMetadata) {
     this.requestMethod = requestMethod;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
@@ -38,27 +36,27 @@ public class RequestParameters {
     this.time = time;
     this.showMetadata = showMetadata;
   }
-  
-  public static RequestParameters of(String requestMethod, boolean isSnapshot, boolean isDensity, String bboxes, String bcircles,
-      String bpolys, String[] types, String[] keys, String[] values, String[] userids,
-      String[] time, String format, String showMetadata) {
 
-    RequestParameters rPs = new RequestParameters();
-    rPs.requestMethod = requestMethod;
-    rPs.isSnapshot = isSnapshot;
-    rPs.isDensity = isDensity;
-    rPs.bboxes = bboxes;
-    rPs.bcircles = bcircles;
-    rPs.bpolys = bpolys;
-    rPs.types = types;
-    rPs.keys = keys;
-    rPs.values = values;
-    rPs.userids = userids;
-    rPs.time = time;
-    rPs.format = format;
-    rPs.showMetadata = showMetadata;
-    
-    return rPs;
+  /** Static factory method, which includes the <code>format</code> parameter. */
+  public static RequestParameters of(String requestMethod, boolean isSnapshot, boolean isDensity,
+      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
+      String[] userids, String[] time, String format, String showMetadata) {
+    RequestParameters requestParameters = new RequestParameters();
+    requestParameters.requestMethod = requestMethod;
+    requestParameters.isSnapshot = isSnapshot;
+    requestParameters.isDensity = isDensity;
+    requestParameters.bboxes = bboxes;
+    requestParameters.bcircles = bcircles;
+    requestParameters.bpolys = bpolys;
+    requestParameters.types = types;
+    requestParameters.keys = keys;
+    requestParameters.values = values;
+    requestParameters.userids = userids;
+    requestParameters.time = time;
+    requestParameters.format = format;
+    requestParameters.showMetadata = showMetadata;
+
+    return requestParameters;
   }
 
   public String getRequestMethod() {
@@ -68,7 +66,7 @@ public class RequestParameters {
   public boolean isSnapshot() {
     return isSnapshot;
   }
-  
+
   public boolean isDensity() {
     return isDensity;
   }
@@ -104,7 +102,7 @@ public class RequestParameters {
   public String[] getTime() {
     return time;
   }
-  
+
   public String getFormat() {
     return format;
   }
@@ -112,5 +110,4 @@ public class RequestParameters {
   public String getShowMetadata() {
     return showMetadata;
   }
-
 }

@@ -17,11 +17,9 @@ public class MetadataRequestExecutor {
    *         MetadataResponse}
    */
   public static MetadataResponse executeGetMetadata() {
-
     return new MetadataResponse(
         new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
         Application.apiVersion, new ExtractRegion(ExtractMetadata.dataPolyJson,
             new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp)));
   }
-
 }
