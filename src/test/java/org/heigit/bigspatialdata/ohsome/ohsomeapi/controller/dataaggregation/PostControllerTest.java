@@ -1,16 +1,15 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataaggregation;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
 import static org.junit.Assert.assertTrue;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import com.fasterxml.jackson.databind.JsonNode;
+
 
 /** Test class for all of the controller classes sending POST requests. */
 @SpringBootTest(classes = Application.class)
