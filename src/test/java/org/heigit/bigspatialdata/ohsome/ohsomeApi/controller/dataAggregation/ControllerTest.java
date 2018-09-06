@@ -2,9 +2,8 @@ package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
 
 import static org.junit.Assert.assertTrue;
 import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
-import org.junit.FixMethodOrder;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Test class for all of the controller classes.
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SpringBootTest(classes = Application.class)
 public class ControllerTest {
   // for local testing
@@ -24,15 +22,19 @@ public class ControllerTest {
   public static String localhost = "http://localhost:";
   public static String port = "8081";
 
+  /** Method to start this application context. */
+  @BeforeClass
+  public static void applicationMainStartup() {
+    // this instance gets reused by all of the following @Test methods
+    Application.main(new String[] {dbPropertyPathJenkins, "--port=" + port});
+  }
+
   /*
    * GET /metadata test
    */
 
-  /** Written with an "a" at the beginning to be the first test to get executed. */
   @Test
-  public void aGetMetadataTest() {
-    // this instance gets reused by all of the following @Test methods
-    Application.main(new String[] {dbPropertyPathJenkins, "--port=" + port});
+  public void getMetadataTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(localhost + port + "/metadata", JsonNode.class);
