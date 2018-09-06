@@ -1,7 +1,7 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataAggregation;
+package org.heigit.bigspatialdata.ohsome.ohsomeApi.controller.dataaggregation;
 
 import static org.junit.Assert.assertTrue;
-import org.heigit.bigspatialdata.ohsome.ohsomeApi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,11 +9,10 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 
-/**
- * Test class for all of the controller classes.
- */
+/** Test class for all of the controller classes sending GET requests. */
 @SpringBootTest(classes = Application.class)
-public class ControllerTest {
+public class GetControllerTest {
+
   // for local testing
   public static String dbPropertyPathLocal =
       "--database.db=C:\\Users\\kowatsch\\Desktop\\HeiGIT\\oshdb\\data"
@@ -30,7 +29,7 @@ public class ControllerTest {
   }
 
   /*
-   * GET /metadata test
+   * /metadata test
    */
 
   @Test
@@ -43,7 +42,7 @@ public class ControllerTest {
   }
 
   /*
-   * GET /elements/count tests
+   * /elements/count tests
    */
 
   @Test
@@ -204,7 +203,7 @@ public class ControllerTest {
   }
 
   /*
-   * GET /elements/length tests
+   * /elements/length tests
    */
 
   @Test
@@ -355,7 +354,7 @@ public class ControllerTest {
   }
 
   /*
-   * GET /elements/perimeter tests
+   * /elements/perimeter tests
    */
 
   @Test
@@ -369,7 +368,7 @@ public class ControllerTest {
   }
 
   /*
-   * GET /elements/area tests
+   * /elements/area tests
    */
 
   @Test
@@ -383,7 +382,7 @@ public class ControllerTest {
   }
 
   /*
-   * GET /users tests
+   * /users tests
    */
 
   @Test
