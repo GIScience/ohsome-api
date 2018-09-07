@@ -287,7 +287,7 @@ public class InputProcessingUtils {
       String[] timeSplit = time.split("/");
       if (timeSplit[0].length() > 0) {
         // start timestamp
-        checkIsoConformity(timeSplit[0], "start-timestamp");
+        checkIsoConformity(timeSplit[0]);
         timeVals[0] = timeSplit[0];
         if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
           // latest timestamp
@@ -300,7 +300,7 @@ public class InputProcessingUtils {
       }
       if (timeSplit[1].length() > 0) {
         // end timestamp
-        checkIsoConformity(timeSplit[1], "end-timestamp");
+        checkIsoConformity(timeSplit[1]);
         timeVals[1] = timeSplit[1];
       } else {
         // latest timestamp
@@ -319,7 +319,7 @@ public class InputProcessingUtils {
     } else {
       // just one timestamp
       try {
-        checkIsoConformity(time, "given timestamp");
+        checkIsoConformity(time);
         timeVals[0] = time;
       } catch (DateTimeParseException e) {
         throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
@@ -333,10 +333,8 @@ public class InputProcessingUtils {
    * 
    * @param time <code>String</code> containing a start-, end-, or single timestamp from the given
    *        time parameter.
-   * @param startEndTstamp <code>String</code> containing either "start", "end", or "timestamp x",
-   *        where x refers to the number of the timestamp.
    */
-  public void checkIsoConformity(String time, String startEndTstamp) throws Exception {
+  public void checkIsoConformity(String time) throws Exception {
     try {
       ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(time);
       checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));

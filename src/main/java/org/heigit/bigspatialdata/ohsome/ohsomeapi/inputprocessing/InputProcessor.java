@@ -442,11 +442,8 @@ public class InputProcessor {
         mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
       }
     } else {
-      // list of timestamps
-      int timeCount = 1;
       for (String timestamp : time) {
-        utils.checkIsoConformity(timestamp, "timestamp number " + timeCount);
-        timeCount++;
+        utils.checkIsoConformity(timestamp);
       }
       if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(time);
