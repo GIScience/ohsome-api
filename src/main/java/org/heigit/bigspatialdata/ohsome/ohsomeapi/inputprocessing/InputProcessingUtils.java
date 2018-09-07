@@ -287,7 +287,8 @@ public class InputProcessingUtils {
       String[] timeSplit = time.split("/");
       if (timeSplit[0].length() > 0) {
         // start timestamp
-        checkIsoConformity(timeSplit[0]);
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timeSplit[0]);
+        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
         timeVals[0] = timeSplit[0];
         if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
           // latest timestamp
@@ -300,7 +301,8 @@ public class InputProcessingUtils {
       }
       if (timeSplit[1].length() > 0) {
         // end timestamp
-        checkIsoConformity(timeSplit[1]);
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timeSplit[1]);
+        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
         timeVals[1] = timeSplit[1];
       } else {
         // latest timestamp
@@ -319,7 +321,8 @@ public class InputProcessingUtils {
     } else {
       // just one timestamp
       try {
-        checkIsoConformity(time);
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(time);
+        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
         timeVals[0] = time;
       } catch (DateTimeParseException e) {
         throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
@@ -329,26 +332,11 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Checks the given time-<code>String</code> on its content and if it is ISO-8601 conform.
-   * 
-   * @param time <code>String</code> containing a start-, end-, or single timestamp from the given
-   *        time parameter.
-   */
-  public void checkIsoConformity(String time) throws Exception {
-    try {
-      ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(time);
-      checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-    } catch (Exception e) {
-      throw e;
-    }
-  }
-
-  /**
    * Checks the provided time info on its temporal extent. Throws a 404 exception if it is not
    * completely within the timerange of the underlying data.
    * 
    */
-  private void checkTemporalExtend(String... timeInfo) throws NotFoundException {
+  public void checkTemporalExtend(String... timeInfo) throws NotFoundException {
     long start = 0;
     long end = 0;
     long timestampLong = 0;

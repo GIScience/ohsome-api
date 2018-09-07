@@ -1,6 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +25,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.wololo.jts2geojson.GeoJSONWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -443,7 +446,8 @@ public class InputProcessor {
       }
     } else {
       for (String timestamp : time) {
-        utils.checkIsoConformity(timestamp);
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       }
       if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(time);
