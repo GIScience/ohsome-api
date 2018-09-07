@@ -10,17 +10,17 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.JsonNode;
 
-
 /** Test class for all of the controller classes sending POST requests. */
 public class PostControllerTest {
 
-  public static String port = "8082";
+  private static String port = TestProperties.PORT2;
+  private String server = TestProperties.SERVER;
 
   /** Method to start this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
     // this instance gets reused by all of the following @Test methods
-    Application.main(new String[] {GetControllerTest.dbPropertyPathJenkins, "--port=" + port});
+    Application.main(new String[] {TestProperties.DB_FILE_PATH_PROPERTY, "--port=" + port});
   }
 
   /*
@@ -36,8 +36,8 @@ public class PostControllerTest {
     map.add("time", "2015-01-01");
     map.add("keys", "building");
     map.add("values", "residential");
-    ResponseEntity<JsonNode> response = restTemplate
-        .postForEntity(GetControllerTest.localhost + port + "/elements/count", map, JsonNode.class);
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertTrue(response.getBody().get("result").get(0).get("value").asInt() == 40);
   }
 
@@ -55,9 +55,8 @@ public class PostControllerTest {
     map.add("time", "2016-01-01");
     map.add("keys", "building");
     map.add("format", "geojson");
-    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-        GetControllerTest.localhost + port + "/elements/count/groupBy/boundary", map,
-        JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/count/groupBy/boundary", map, JsonNode.class);
     assertTrue(
         response.getBody().get("features").get(0).get("properties").get("value").asInt() == 367);
   }
