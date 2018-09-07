@@ -31,7 +31,7 @@ pipeline {
           env.MAVEN_HOME = '/usr/share/maven'
         }
         script {
-          buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -Dmaven.repo.local=.m2'
+          buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -Dmaven.repo.local=.m2 -Dport1=8081 -Dport2=8082 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
         } 
       }
       post{
