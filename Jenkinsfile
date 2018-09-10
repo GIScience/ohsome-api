@@ -21,9 +21,6 @@ pipeline {
           echo env.BRANCH_NAME
           echo env.BUILD_NUMBER
         }
-        script {
-          buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -Dmaven.repo.local=.m2 -Dport1=8081 -Dport2=8082 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
-        } 
       }
       post{
         failure {
