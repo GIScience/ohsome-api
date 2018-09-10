@@ -22,6 +22,18 @@ pipeline {
           echo env.BUILD_NUMBER
         }
       }
+        script {
+          server = Artifactory.server 'HeiGIT Repo'
+          rtMaven = Artifactory.newMavenBuild()
+          rtMaven.resolver server: server, releaseRepo: 'main', snapshotRepo: 'main'
+          rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
+          rtMaven.deployer.addProperty("deployer", "jenkinsOhsome")
+          rtMaven.deployer.deployArtifacts = false
+          env.MAVEN_HOME = '/usr/share/maven'
+        }
+        script {
+          buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -Dmaven.repo.local=.m2 -Dport1=8081 -Dport2=8082 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
+        } 
       post{
         failure {
           rocketSend channel: 'jenkinsohsome', emoji: ':sob:' , message: "ohsome-api-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${author}. Review the code!" , rawMessage: true
