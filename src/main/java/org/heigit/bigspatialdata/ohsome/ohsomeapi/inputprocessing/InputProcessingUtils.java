@@ -63,151 +63,175 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Splits the given boundary parameter (bboxes, bcircles, or bpolys) two times. The first split is
-   * on '|' and to seperate the bounding objects; The second is on ':' to seperate the custom ids
-   * from each first coordinate; Returns the coordinates after the second split (and the radius in
-   * case of bounding circles).
-   * 
-   * @param boundaryParam <code>String</code> containing the given boundary parameter.
-   * @param boundaryType
-   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType
-   *        BoundaryType} defining the boundary type.
-   * @return <code>String</code> array holding only coordinates (plus the radius in case of bounding
-   *         points).
+   * Splits the given boundary parameter (bboxes, bcircles, or bpolys) on '|' to seperate the
+   * different bounding objects.
    */
-  public String[] splitBoundaryParam(String boundaryParam, BoundaryType boundaryType) {
-
-    String[] boundaryObjects;
-    String[] boundaryParamValues = null;
-    String[] boundaryIds = null;
-    String[] coords;
-    // to check if there is more than one boundary object given
+  public String[] splitOnHyphen(String boundaryParam) {
     if (boundaryParam.contains("|")) {
-      boundaryObjects = boundaryParam.split("\\|");
+      return boundaryParam.split("\\|");
     } else {
-      boundaryObjects = new String[] {boundaryParam};
+      return new String[] {boundaryParam};
     }
-    boundaryIds = new String[boundaryObjects.length];
+  }
+
+  /** Splits the given bboxes String and returns its content as a String array. */
+  public String[] splitBboxes(String bboxes) {
+    String[] bboxesArray = splitOnHyphen(bboxes);
+    String[] boundaryParamValues = null;
+    String[] boundaryIds = new String[bboxesArray.length];
+    String[] coords;
     int idCount = 0;
     int paramCount = 0;
     try {
-      switch (boundaryType) {
-        case BBOXES:
-          if (boundaryObjects[0].contains(":")) {
-            // custom ids are given
-            boundaryParamValues = new String[boundaryObjects.length * 4];
-            for (String boundaryObject : boundaryObjects) {
-              coords = boundaryObject.split("\\,");
-              if (coords[0].contains(":")) {
-                String[] idAndCoordinate = coords[0].split(":");
-                // extract the id
-                boundaryIds[idCount] = idAndCoordinate[0];
-                // extract the coordinates
-                boundaryParamValues[paramCount] = idAndCoordinate[1];
-                boundaryParamValues[paramCount + 1] = coords[1];
-                boundaryParamValues[paramCount + 2] = coords[2];
-                boundaryParamValues[paramCount + 3] = coords[3];
-                idCount++;
-                paramCount += 4;
-              } else {
-                throw new BadRequestException(
-                    "One or more boundary object(s) have a custom id (or at least a colon), "
-                        + "whereas other(s) don't. You can either set custom ids for all your "
-                        + "boundary objects, or for none.");
-              }
-            }
+      if (bboxesArray[0].contains(":")) {
+        // custom ids are given
+        boundaryParamValues = new String[bboxesArray.length * 4];
+        for (String boundaryObject : bboxesArray) {
+          coords = boundaryObject.split("\\,");
+          if (coords[0].contains(":")) {
+            String[] idAndCoordinate = coords[0].split(":");
+            // extract the id
+            boundaryIds[idCount] = idAndCoordinate[0];
+            // extract the coordinates
+            boundaryParamValues[paramCount] = idAndCoordinate[1];
+            boundaryParamValues[paramCount + 1] = coords[1];
+            boundaryParamValues[paramCount + 2] = coords[2];
+            boundaryParamValues[paramCount + 3] = coords[3];
+            idCount++;
+            paramCount += 4;
           } else {
-            // no custom ids are given
-            boundaryParamValues = new String[boundaryObjects.length * 4];
-            idCount = 1;
-            for (String boundaryObject : boundaryObjects) {
-              coords = boundaryObject.split("\\,");
-              for (String coord : coords) {
-                boundaryParamValues[paramCount] = coord;
-                paramCount++;
-              }
-              // adding of ids
-              boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
-              idCount++;
-            }
+            throw new BadRequestException(
+                "One or more boundary object(s) have a custom id (or at least a colon), "
+                    + "whereas other(s) don't. You can either set custom ids for all your "
+                    + "boundary objects, or for none.");
           }
-          break;
-        case BCIRCLES:
-          if (boundaryObjects[0].contains(":")) {
-            boundaryParamValues = new String[boundaryObjects.length * 3];
-            for (String boundaryObject : boundaryObjects) {
-              coords = boundaryObject.split("\\,");
-              if (coords[0].contains(":")) {
-                String[] idAndCoordinate = coords[0].split(":");
-                boundaryIds[idCount] = idAndCoordinate[0];
-                // extract the coordinate
-                boundaryParamValues[paramCount] = idAndCoordinate[1];
-                boundaryParamValues[paramCount + 1] = coords[1];
-                // extract the radius
-                boundaryParamValues[paramCount + 2] = coords[2];
-                idCount++;
-                paramCount += 3;
-              } else {
-                throw new BadRequestException(
-                    "One or more boundary object(s) have a custom id (or at least a colon), "
-                        + "whereas other(s) don't. You can either set custom ids for all your "
-                        + "boundary objects, or for none.");
-              }
-            }
+        }
+      } else {
+        // no custom ids are given
+        boundaryParamValues = new String[bboxesArray.length * 4];
+        idCount = 1;
+        for (String boundaryObject : bboxesArray) {
+          coords = boundaryObject.split("\\,");
+          for (String coord : coords) {
+            boundaryParamValues[paramCount] = coord;
+            paramCount++;
+          }
+          // adding of ids
+          boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
+          idCount++;
+        }
+      }
+    } catch (Exception e) {
+      throw new BadRequestException("The processing of the boundary parameter gave an error. "
+          + "Please use the predefined format where you delimit different objects "
+          + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
+          + "at the first coordinate of each boundary object.");
+    }
+    this.boundaryIds = boundaryIds;
+    boundaryParamValues =
+        Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
+    return boundaryParamValues;
+  }
+
+  /** Splits the given bcircles String and returns its content as a String array. */
+  public String[] splitBcircles(String bcircles) {
+    String[] bcirclesArray = splitOnHyphen(bcircles);
+    String[] boundaryParamValues = null;
+    String[] boundaryIds = new String[bcirclesArray.length];
+    String[] coords;
+    int idCount = 0;
+    int paramCount = 0;
+    try {
+      if (bcirclesArray[0].contains(":")) {
+        boundaryParamValues = new String[bcirclesArray.length * 3];
+        for (String boundaryObject : bcirclesArray) {
+          coords = boundaryObject.split("\\,");
+          if (coords[0].contains(":")) {
+            String[] idAndCoordinate = coords[0].split(":");
+            boundaryIds[idCount] = idAndCoordinate[0];
+            // extract the coordinate
+            boundaryParamValues[paramCount] = idAndCoordinate[1];
+            boundaryParamValues[paramCount + 1] = coords[1];
+            // extract the radius
+            boundaryParamValues[paramCount + 2] = coords[2];
+            idCount++;
+            paramCount += 3;
           } else {
-            boundaryParamValues = new String[boundaryObjects.length * 3];
-            idCount = 1;
-            for (String boundaryObject : boundaryObjects) {
-              coords = boundaryObject.split("\\,");
-              for (String coord : coords) {
-                boundaryParamValues[paramCount] = coord;
-                paramCount++;
-              }
-              boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
-              idCount++;
-            }
+            throw new BadRequestException(
+                "One or more boundary object(s) have a custom id (or at least a colon), "
+                    + "whereas other(s) don't. You can either set custom ids for all your "
+                    + "boundary objects, or for none.");
           }
-          break;
-        case BPOLYS:
-          if (boundaryObjects[0].contains(":")) {
-            boundaryParamValues = new String[boundaryParam.length()];
-            for (String boundaryObject : boundaryObjects) {
-              coords = boundaryObject.split("\\,");
-              if (coords[0].contains(":")) {
-                String[] idAndCoordinate = coords[0].split(":");
-                // extract the id and the first coordinate
-                boundaryIds[idCount] = idAndCoordinate[0];
-                boundaryParamValues[paramCount] = idAndCoordinate[1];
-                paramCount++;
-                // extract the other coordinates
-                for (int i = 1; i < coords.length; i++) {
-                  boundaryParamValues[paramCount] = coords[i];
-                  paramCount++;
-                }
-                idCount++;
-              } else {
-                throw new BadRequestException(
-                    "One or more boundary object(s) have a custom id (or at least a colon), "
-                        + "whereas other(s) don't. You can either set custom ids for all your "
-                        + "boundary objects, or for none.");
-              }
+        }
+      } else {
+        boundaryParamValues = new String[bcirclesArray.length * 3];
+        idCount = 1;
+        for (String boundaryObject : bcirclesArray) {
+          coords = boundaryObject.split("\\,");
+          for (String coord : coords) {
+            boundaryParamValues[paramCount] = coord;
+            paramCount++;
+          }
+          boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
+          idCount++;
+        }
+      }
+    } catch (Exception e) {
+      throw new BadRequestException("The processing of the boundary parameter gave an error. "
+          + "Please use the predefined format where you delimit different objects "
+          + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
+          + "at the first coordinate of each boundary object.");
+    }
+    this.boundaryIds = boundaryIds;
+    boundaryParamValues =
+        Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
+    return boundaryParamValues;
+  }
+
+  /** Splits the given bpolys String and returns its content as a String array. */
+  public String[] splitBpolys(String bpolys) {
+    String[] bpolysArray = splitOnHyphen(bpolys);
+    String[] boundaryParamValues = null;
+    String[] boundaryIds = new String[bpolysArray.length];
+    String[] coords;
+    int idCount = 0;
+    int paramCount = 0;
+    try {
+      if (bpolysArray[0].contains(":")) {
+        boundaryParamValues = new String[bpolys.length()];
+        for (String boundaryObject : bpolysArray) {
+          coords = boundaryObject.split("\\,");
+          if (coords[0].contains(":")) {
+            String[] idAndCoordinate = coords[0].split(":");
+            // extract the id and the first coordinate
+            boundaryIds[idCount] = idAndCoordinate[0];
+            boundaryParamValues[paramCount] = idAndCoordinate[1];
+            paramCount++;
+            // extract the other coordinates
+            for (int i = 1; i < coords.length; i++) {
+              boundaryParamValues[paramCount] = coords[i];
+              paramCount++;
             }
+            idCount++;
           } else {
-            boundaryParamValues = new String[boundaryParam.length()];
-            idCount = 1;
-            for (String boundaryObject : boundaryObjects) {
-              coords = boundaryObject.split("\\,");
-              for (String coord : coords) {
-                boundaryParamValues[paramCount] = coord;
-                paramCount++;
-              }
-              boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
-              idCount++;
-            }
+            throw new BadRequestException(
+                "One or more boundary object(s) have a custom id (or at least a colon), "
+                    + "whereas other(s) don't. You can either set custom ids for all your "
+                    + "boundary objects, or for none.");
           }
-          break;
-        default: // do nothing (should never be reached)
-          break;
+        }
+      } else {
+        boundaryParamValues = new String[bpolys.length()];
+        idCount = 1;
+        for (String boundaryObject : bpolysArray) {
+          coords = boundaryObject.split("\\,");
+          for (String coord : coords) {
+            boundaryParamValues[paramCount] = coord;
+            paramCount++;
+          }
+          boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
+          idCount++;
+        }
       }
     } catch (Exception e) {
       throw new BadRequestException("The processing of the boundary parameter gave an error. "

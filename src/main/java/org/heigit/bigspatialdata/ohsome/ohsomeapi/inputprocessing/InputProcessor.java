@@ -12,6 +12,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -133,12 +134,12 @@ public class InputProcessor {
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
-          boundaryValues = utils.splitBoundaryParam(bboxes, boundary);
+          boundaryValues = utils.splitBboxes(bboxes);
           mapRed = mapRed
               .areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
           break;
         case BCIRCLES:
-          boundaryValues = utils.splitBoundaryParam(bcircles, boundary);
+          boundaryValues = utils.splitBcircles(bcircles);
           mapRed = mapRed.areaOfInterest(
               (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
           break;
@@ -147,7 +148,7 @@ public class InputProcessor {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
           } else {
-            boundaryValues = utils.splitBoundaryParam(bpolys, boundary);
+            boundaryValues = utils.splitBpolys(bpolys);
             mapRed = mapRed
                 .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
           }
