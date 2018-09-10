@@ -17,7 +17,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1. checkout/download the repository
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
-3. enter the command `mvn -DskipTests=true package` to build the project without running tests (won't work otherwise atm)
+3. enter the command `mvn -DskipTests=true package` to build the project without running tests (if you want to run the integrated tests locally, look at the section [Testing](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api#testing))
 4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
     * keytables included: `java -jar target/ohsome-api-0.9.6.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
     * keytables not included: `java -jar target/ohsome-api-0.9.6.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
@@ -34,8 +34,12 @@ Now you should have a running local API, which is ready for receiving requests u
 
 ## Testing
 
-To be able to test this API with your own requests, you will also need a description of the parameters and available resources. 
-Both are given in the [Swagger2](http://localhost:8080/swagger-ui.html) documentation, which can be accessed while your local copy is running.
+To run the tests locally, you need the following:
+1. two free ports (8081 and 8082 for example), which the API will use to start two instances and run different integration tests on
+2. [heidelberg.oshb](http://downloads.ohsome.org/v0.4/heidelberg.oshdb.mv.db) file
+3. maven command: `mvn -Dport1=8081 -Dport2=8082 -DdbFilePathProperty="--database.db=C:\\path-to-your-heidelberg-file\\heidelberg.oshdb" package`
+
+To be able to test this API with your own requests, you can take a look at the description of the parameters and available resources given in the [Swagger2](http://localhost:8080/swagger-ui.html) documentation, which can be accessed while your local copy is running.
 It lists all available resources and gives detailled information about the individual input parameters and JSON responses.
 
 ## Examples
