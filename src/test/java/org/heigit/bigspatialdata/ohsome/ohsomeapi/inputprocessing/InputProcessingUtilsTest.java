@@ -1,9 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.TestProperties;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -14,6 +17,12 @@ import org.junit.Test;
 public class InputProcessingUtilsTest {
 
   private InputProcessingUtils inProUtils;
+
+  /** Checks the value of the junit property. */
+  @BeforeClass
+  public static void checkJunitProperty() {
+    assumeTrue(TestProperties.JUNIT == null || !TestProperties.JUNIT.equalsIgnoreCase("no"));
+  }
 
   @Before
   public void setup() {

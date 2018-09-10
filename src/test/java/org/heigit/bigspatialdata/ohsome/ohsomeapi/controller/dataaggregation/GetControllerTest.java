@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,6 +18,8 @@ public class GetControllerTest {
   /** Method to start this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
+    assumeTrue(
+        TestProperties.INTEGRATION == null || !TestProperties.INTEGRATION.equalsIgnoreCase("no"));
     // this instance gets reused by all of the following @Test methods
     Application.main(new String[] {TestProperties.DB_FILE_PATH_PROPERTY, "--port=" + port});
   }

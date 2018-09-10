@@ -2,8 +2,11 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.TestProperties;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -17,6 +20,12 @@ import com.vividsolutions.jts.geom.Polygon;
 public class GeometryBuilderTest {
 
   private GeometryBuilder geomBuilder;
+
+  /** Checks the value of the junit property. */
+  @BeforeClass
+  public static void checkJunitProperty() {
+    assumeTrue(TestProperties.JUNIT == null || !TestProperties.JUNIT.equalsIgnoreCase("no"));
+  }
 
   @Before
   public void setup() {
