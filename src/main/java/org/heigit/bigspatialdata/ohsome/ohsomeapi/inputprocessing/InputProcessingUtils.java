@@ -4,8 +4,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -75,30 +75,33 @@ public class InputProcessingUtils {
   }
 
   /** Splits the given bboxes String and returns its content as a String array. */
-  public String[] splitBboxes(String bboxes) {
+  public ArrayList<String> splitBboxes(String bboxes) {
     String[] bboxesArray = splitOnHyphen(bboxes);
-    String[] boundaryParamValues = null;
+    ArrayList<String> boundaryParamValues = new ArrayList<String>();
     String[] boundaryIds = new String[bboxesArray.length];
     String[] coords;
     int idCount = 0;
-    int paramCount = 0;
     try {
       if (bboxesArray[0].contains(":")) {
         // custom ids are given
-        boundaryParamValues = new String[bboxesArray.length * 4];
         for (String boundaryObject : bboxesArray) {
           coords = boundaryObject.split("\\,");
+          if (coords.length != 4) {
+            throw new BadRequestException("Error in processing the boundary parameter. Please "
+                + "remember to follow the format, where you separate each boundary object with a "
+                + "pipe-sign '|' and add optional custom ids to every first coordinate with a "
+                + "colon ':'.");
+          }
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
             // extract the id
             boundaryIds[idCount] = idAndCoordinate[0];
             // extract the coordinates
-            boundaryParamValues[paramCount] = idAndCoordinate[1];
-            boundaryParamValues[paramCount + 1] = coords[1];
-            boundaryParamValues[paramCount + 2] = coords[2];
-            boundaryParamValues[paramCount + 3] = coords[3];
+            boundaryParamValues.add(idAndCoordinate[1]);
+            boundaryParamValues.add(coords[1]);
+            boundaryParamValues.add(coords[2]);
+            boundaryParamValues.add(coords[3]);
             idCount++;
-            paramCount += 4;
           } else {
             throw new BadRequestException(
                 "One or more boundary object(s) have a custom id (or at least a colon), "
@@ -108,13 +111,11 @@ public class InputProcessingUtils {
         }
       } else {
         // no custom ids are given
-        boundaryParamValues = new String[bboxesArray.length * 4];
         idCount = 1;
         for (String boundaryObject : bboxesArray) {
           coords = boundaryObject.split("\\,");
           for (String coord : coords) {
-            boundaryParamValues[paramCount] = coord;
-            paramCount++;
+            boundaryParamValues.add(coord);
           }
           // adding of ids
           boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
@@ -122,40 +123,46 @@ public class InputProcessingUtils {
         }
       }
     } catch (Exception e) {
-      throw new BadRequestException("The processing of the boundary parameter gave an error. "
-          + "Please use the predefined format where you delimit different objects "
-          + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
-          + "at the first coordinate of each boundary object.");
+      if (e.getClass() == BadRequestException.class) {
+        throw e;
+      } else {
+        throw new BadRequestException("The processing of the boundary parameter gave an error. "
+            + "Please use the predefined format where you delimit different objects "
+            + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
+            + "at the first coordinate of each boundary object.");
+      }
     }
     this.boundaryIds = boundaryIds;
-    boundaryParamValues =
-        Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
+    boundaryParamValues.removeAll(Collections.singleton(null));
     return boundaryParamValues;
   }
 
   /** Splits the given bcircles String and returns its content as a String array. */
-  public String[] splitBcircles(String bcircles) {
+  public ArrayList<String> splitBcircles(String bcircles) {
     String[] bcirclesArray = splitOnHyphen(bcircles);
-    String[] boundaryParamValues = null;
+    ArrayList<String> boundaryParamValues = new ArrayList<String>();
     String[] boundaryIds = new String[bcirclesArray.length];
     String[] coords;
     int idCount = 0;
-    int paramCount = 0;
     try {
       if (bcirclesArray[0].contains(":")) {
-        boundaryParamValues = new String[bcirclesArray.length * 3];
         for (String boundaryObject : bcirclesArray) {
           coords = boundaryObject.split("\\,");
+          if (coords.length != 3) {
+            throw new BadRequestException("Error in processing the boundary parameter. Please "
+                + "remember to follow the format, where you separate each boundary object with a "
+                + "pipe-sign '|' and add optional custom ids to every first coordinate with a "
+                + "colon ':'.");
+          }
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
             boundaryIds[idCount] = idAndCoordinate[0];
             // extract the coordinate
-            boundaryParamValues[paramCount] = idAndCoordinate[1];
-            boundaryParamValues[paramCount + 1] = coords[1];
+            boundaryParamValues.add(idAndCoordinate[1]);
+            boundaryParamValues.add(coords[1]);
             // extract the radius
-            boundaryParamValues[paramCount + 2] = coords[2];
+            boundaryParamValues.add(coords[2]);
             idCount++;
-            paramCount += 3;
           } else {
             throw new BadRequestException(
                 "One or more boundary object(s) have a custom id (or at least a colon), "
@@ -164,53 +171,56 @@ public class InputProcessingUtils {
           }
         }
       } else {
-        boundaryParamValues = new String[bcirclesArray.length * 3];
         idCount = 1;
         for (String boundaryObject : bcirclesArray) {
           coords = boundaryObject.split("\\,");
           for (String coord : coords) {
-            boundaryParamValues[paramCount] = coord;
-            paramCount++;
+            boundaryParamValues.add(coord);
           }
           boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
           idCount++;
         }
       }
     } catch (Exception e) {
-      throw new BadRequestException("The processing of the boundary parameter gave an error. "
-          + "Please use the predefined format where you delimit different objects "
-          + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
-          + "at the first coordinate of each boundary object.");
+      if (e.getClass() == BadRequestException.class) {
+        throw e;
+      } else {
+        throw new BadRequestException("The processing of the boundary parameter gave an error. "
+            + "Please use the predefined format where you delimit different objects "
+            + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
+            + "at the first coordinate of each boundary object.");
+      }
     }
     this.boundaryIds = boundaryIds;
-    boundaryParamValues =
-        Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
+    boundaryParamValues.removeAll(Collections.singleton(null));
     return boundaryParamValues;
   }
 
-  /** Splits the given bpolys String and returns its content as a String array. */
-  public String[] splitBpolys(String bpolys) {
+  /** Splits the given bpolys String and returns its content as an ArrayList. */
+  public ArrayList<String> splitBpolys(String bpolys) {
     String[] bpolysArray = splitOnHyphen(bpolys);
-    String[] boundaryParamValues = null;
+    ArrayList<String> boundaryParamValues = new ArrayList<String>();
     String[] boundaryIds = new String[bpolysArray.length];
     String[] coords;
     int idCount = 0;
-    int paramCount = 0;
     try {
       if (bpolysArray[0].contains(":")) {
-        boundaryParamValues = new String[bpolys.length()];
         for (String boundaryObject : bpolysArray) {
           coords = boundaryObject.split("\\,");
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
             // extract the id and the first coordinate
             boundaryIds[idCount] = idAndCoordinate[0];
-            boundaryParamValues[paramCount] = idAndCoordinate[1];
-            paramCount++;
+            boundaryParamValues.add(idAndCoordinate[1]);
             // extract the other coordinates
             for (int i = 1; i < coords.length; i++) {
-              boundaryParamValues[paramCount] = coords[i];
-              paramCount++;
+              if (coords[i].contains(":")) {
+                throw new BadRequestException("Error in processing the boundary parameter. Please "
+                    + "remember to follow the format, where you separate each boundary object "
+                    + "with a pipe-sign '|' and add optional custom ids to every first coordinate "
+                    + "with a colon ':'.");
+              }
+              boundaryParamValues.add(coords[i]);
             }
             idCount++;
           } else {
@@ -221,27 +231,28 @@ public class InputProcessingUtils {
           }
         }
       } else {
-        boundaryParamValues = new String[bpolys.length()];
         idCount = 1;
         for (String boundaryObject : bpolysArray) {
           coords = boundaryObject.split("\\,");
           for (String coord : coords) {
-            boundaryParamValues[paramCount] = coord;
-            paramCount++;
+            boundaryParamValues.add(coord);
           }
           boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
           idCount++;
         }
       }
     } catch (Exception e) {
-      throw new BadRequestException("The processing of the boundary parameter gave an error. "
-          + "Please use the predefined format where you delimit different objects "
-          + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
-          + "at the first coordinate of each boundary object.");
+      if (e.getClass() == BadRequestException.class) {
+        throw e;
+      } else {
+        throw new BadRequestException("The processing of the boundary parameter gave an error. "
+            + "Please use the predefined format where you delimit different objects "
+            + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
+            + "at the first coordinate of each boundary object.");
+      }
     }
     this.boundaryIds = boundaryIds;
-    boundaryParamValues =
-        Arrays.stream(boundaryParamValues).filter(Objects::nonNull).toArray(String[]::new);
+    boundaryParamValues.removeAll(Collections.singleton(null));
     return boundaryParamValues;
   }
 
