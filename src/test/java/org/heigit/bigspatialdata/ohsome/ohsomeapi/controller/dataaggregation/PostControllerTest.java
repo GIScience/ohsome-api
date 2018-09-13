@@ -63,4 +63,142 @@ public class PostControllerTest {
     assertTrue(
         response.getBody().get("features").get(0).get("properties").get("value").asInt() == 367);
   }
+
+  /*
+   * /elements/perimeter tests
+   */
+
+  @Test
+  public void elementsPerimeterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
+    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 571.84);
+  }
+
+  @Test
+  public void elementsPerimeterGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
+        + "49.41256,8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asDouble() == 2476.29);
+  }
+
+  @Test
+  public void elementsPerimeterGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way,relation");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/type", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 999.13);
+  }
+
+  @Test
+  public void elementsPerimeterGroupByKeyTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("groupByKeys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 64127.88);
+  }
+
+  @Test
+  public void elementsPerimeterGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("groupByKey", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/tag", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 59012.08);
+  }
+
+  @Test
+  public void elementsPerimeterGroupByUserTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/user", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 4.86);
+  }
+
+  @Test
+  public void elementsPerimeterShareTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/share", map, JsonNode.class);
+    assertTrue(response.getBody().get("shareResult").get(0).get("part").asDouble() == 64127.88);
+  }
+
+  @Test
+  public void elementsPerimeterShareGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
+        + "49.41256,8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/share/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("shareGroupByBoundaryResult").get(1).get("shareResult").get(0)
+        .get("part").asDouble() == 108415.17);
+  }
+
+  @Test
+  public void elementsPerimeterRatioTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("keys", "building");
+    map.add("time", "2015-01-01");
+    map.add("types2", "relation");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/ratio", map, JsonNode.class);
+    assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.01558);
+  }
+
+  /*
+   * /elements/area tests
+   */
+
 }
