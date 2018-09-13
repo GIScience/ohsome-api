@@ -353,34 +353,6 @@ public class GetControllerTest {
   }
 
   /*
-   * /elements/perimeter tests
-   */
-
-  @Test
-  public void getElementsPerimeterTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/perimeter?bboxes=8.67452,49.40961,8.70392,49.41823"
-            + "&types=way&time=2015-01-01&keys=building&values=residential&showMetadata=true",
-        JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 2552.21);
-  }
-
-  /*
-   * /elements/area tests
-   */
-
-  @Test
-  public void getElementsAreaTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/area?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
-            + "&time=2015-01-01&keys=building&values=residential&showMetadata=true",
-        JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 8923.4);
-  }
-
-  /*
    * /users tests
    */
 
@@ -392,5 +364,69 @@ public class GetControllerTest {
             + "&time=2014-01-01,2015-01-01&keys=building&values=residential&showMetadata=true",
         JsonNode.class);
     assertTrue(response.getBody().get("result").get(0).get("value").asInt() == 5);
+  }
+
+  @Test
+  public void getUsersCountGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/users/count/groupBy/type?bboxes=8.67,49.39941,8.69545,49.4096&types=way,relation"
+        + "&time=2014-01-01,2015-01-01&keys=building&showMetadata=true", JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asInt() == 31);
+  }
+
+  @Test
+  public void getUsersCountGroupByKeyTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/users/count/groupBy/key?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
+            + "&time=2014-01-01,2015-01-01&groupByKeys=building&showMetadata=true",
+        JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asInt() == 31);
+  }
+
+  @Test
+  public void getUsersCountGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/users/count/groupBy/tag?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
+            + "&time=2014-01-01,2015-01-01&groupByKey=building&showMetadata=true",
+        JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asInt() == 54);
+  }
+
+  @Test
+  public void getUsersCountDensityTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/users/count/density?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
+            + "&time=2014-01-01,2015-01-01&keys=building&showMetadata=true",
+        JsonNode.class);
+    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 14.86);
+  }
+
+  @Test
+  public void getUsersCountDensityGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/users/count/density/groupBy/type?bboxes=8.67,49.39941,8.69545,49.4096&types=way,"
+            + "relation&time=2014-01-01,2015-01-01&keys=building&showMetadata=true",
+        JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 3.83);
+  }
+
+  @Test
+  public void getUsersCountDensityGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/users/count/density/groupBy/tag?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
+        + "&time=2014-01-01,2015-01-01&groupByKey=building&showMetadata=true", JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asDouble() == 25.88);
   }
 }
