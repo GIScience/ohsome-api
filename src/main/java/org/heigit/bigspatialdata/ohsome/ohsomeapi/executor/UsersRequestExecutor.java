@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -14,6 +15,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -71,7 +73,7 @@ public class UsersRequestExecutor {
     }).countUniq();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     UsersResult[] results =
         exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
@@ -82,7 +84,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval.";
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -121,14 +123,14 @@ public class UsersRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
-        }).zerofillIndices(inputProcessor.getOsmTypes()).map(contrib -> {
+        }).zerofillIndices(ProcessingData.osmTypes).map(contrib -> {
           return contrib.getContributorUserId();
         }).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
@@ -145,7 +147,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the type.";
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -230,7 +232,7 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
@@ -254,7 +256,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the tag.";
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -344,7 +346,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the key.";
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -380,9 +382,9 @@ public class UsersRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     mapRed = inputProcessor.processParameters(mapRed, requestParameters);
-    result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-        inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
-        requestParameters.isSnapshot());
+    result =
+        exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT, ProcessingData.boundary,
+            mapRed, inputProcessor.getGeomBuilder(), requestParameters.isSnapshot());
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -401,7 +403,7 @@ public class UsersRequestExecutor {
     }
     String description = "Total count of items in absolute values aggregated on the boundary.";
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }

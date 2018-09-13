@@ -1,7 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SortedMap;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
@@ -21,6 +20,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -45,6 +45,8 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
@@ -109,12 +111,12 @@ public class ElementsRequestExecutor {
     }
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ElementsResult[] resultSet =
         exeUtils.fillElementsResult(result, requestParams.isDensity(), df, geom);
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata =
           new Metadata(duration, Description.countLengthPerimeterArea(requestParams.isDensity(),
@@ -157,22 +159,22 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            inputProcessor.getBoundaryType(), mapRed, inputProcessor.getGeomBuilder(),
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
             requestParams.isSnapshot());
         break;
       default:
@@ -194,7 +196,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByBoundary(requestParams.isDensity(),
@@ -267,7 +269,7 @@ public class ElementsRequestExecutor {
     }
 
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
@@ -351,7 +353,7 @@ public class ElementsRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     int count = 0;
     for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -369,7 +371,7 @@ public class ElementsRequestExecutor {
     // used to remove null objects from the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByTag(requestParams.isDensity(),
@@ -412,14 +414,14 @@ public class ElementsRequestExecutor {
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).zerofillIndices(inputProcessor.getOsmTypes());
+        }).zerofillIndices(ProcessingData.osmTypes);
     SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
     result = exeUtils.computeResult(requestResource, preResult);
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(inputProcessor.getBoundaryType(), geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     int count = 0;
     for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -429,7 +431,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(requestParams.isDensity(),
@@ -517,7 +519,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (inputProcessor.getShowMetadata()) {
+    if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
@@ -599,8 +601,9 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = inputProcessor.getOsmTypes();
-    EnumSet<OSMType> osmTypes2 = inputProcessor.extractOSMTypes(types2);
+    EnumSet<OSMType> osmTypes1 = ProcessingData.osmTypes;
+    inputProcessor.defineOSMTypes(types2);
+    EnumSet<OSMType> osmTypes2 = ProcessingData.osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
@@ -703,7 +706,7 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
     inputProcessor.processParameters(mapRed, requestParams);
-    if (inputProcessor.getBoundaryType() == BoundaryType.NOBOUNDARY) {
+    if (ProcessingData.boundary == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     }
@@ -754,8 +757,9 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = inputProcessor.getOsmTypes();
-    EnumSet<OSMType> osmTypes2 = inputProcessor.extractOSMTypes(types2);
+    EnumSet<OSMType> osmTypes1 = ProcessingData.osmTypes;
+    inputProcessor.defineOSMTypes(types2);
+    EnumSet<OSMType> osmTypes2 = ProcessingData.osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =

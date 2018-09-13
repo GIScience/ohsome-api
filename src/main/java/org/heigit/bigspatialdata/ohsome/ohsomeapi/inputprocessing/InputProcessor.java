@@ -43,15 +43,8 @@ import com.vividsolutions.jts.geom.Polygonal;
  */
 public class InputProcessor {
 
-  private BoundaryType boundary;
-  private String[] boundaryValues;
-  private String boundaryValuesGeoJson;
-  private EnumSet<OSMType> osmTypes;
-  private String[] timeData;
-  private boolean showMetadata;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
-  private String format;
 
   /**
    * Processes the input parameters from the given request.
@@ -76,7 +69,7 @@ public class InputProcessor {
     String[] values = requestParameters.getValues();
     String[] time = requestParameters.getTime();
     String[] userids = requestParameters.getUserids();
-    format = requestParameters.getFormat();
+    ProcessingData.format = requestParameters.getFormat();
     geomBuilder = new GeometryBuilder();
     utils = new InputProcessingUtils();
     String requestMethod = requestParameters.getRequestMethod();
@@ -110,22 +103,22 @@ public class InputProcessor {
     }
     String showMetadata = requestParameters.getShowMetadata();
     if (showMetadata == null) {
-      this.showMetadata = false;
+      ProcessingData.showMetadata = false;
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
         || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes")) {
-      this.showMetadata = true;
+      ProcessingData.showMetadata = true;
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
         || showMetadata.replaceAll("\\s", "").equals("")
         || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no")) {
-      this.showMetadata = false;
+      ProcessingData.showMetadata = false;
     } else {
       throw new BadRequestException(
-          "The showMetadata parameter can only contain the values 'true', 'yes', 'false', "
-              + "or 'no' written as text(String).");
+          "The showMetadata parameter can only contain the values 'true', 'yes', 'false', or "
+              + "'no'.");
     }
-    boundary = setBoundaryType(bboxes, bcircles, bpolys);
+    ProcessingData.boundary = setBoundaryType(bboxes, bcircles, bpolys);
     try {
-      switch (boundary) {
+      switch (ProcessingData.boundary) {
         case NOBOUNDARY:
           if (ExtractMetadata.dataPoly == null) {
             throw new BadRequestException(
@@ -134,23 +127,23 @@ public class InputProcessor {
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
-          boundaryValues = utils.splitBboxes(bboxes).toArray(new String[1]);
-          mapRed = mapRed
-              .areaOfInterest((Geometry & Polygonal) geomBuilder.createBboxes(boundaryValues));
+          ProcessingData.boundaryValues = utils.splitBboxes(bboxes).toArray(new String[1]);
+          mapRed = mapRed.areaOfInterest(
+              (Geometry & Polygonal) geomBuilder.createBboxes(ProcessingData.boundaryValues));
           break;
         case BCIRCLES:
-          boundaryValues = utils.splitBcircles(bcircles).toArray(new String[1]);
-          mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createCircularPolygons(boundaryValues));
+          ProcessingData.boundaryValues = utils.splitBcircles(bcircles).toArray(new String[1]);
+          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
+              .createCircularPolygons(ProcessingData.boundaryValues));
           break;
         case BPOLYS:
           if (bpolys.replaceAll("\\s", "").startsWith("{")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
           } else {
-            boundaryValues = utils.splitBpolys(bpolys).toArray(new String[1]);
-            mapRed = mapRed
-                .areaOfInterest((Geometry & Polygonal) geomBuilder.createBpolys(boundaryValues));
+            ProcessingData.boundaryValues = utils.splitBpolys(bpolys).toArray(new String[1]);
+            mapRed = mapRed.areaOfInterest(
+                (Geometry & Polygonal) geomBuilder.createBpolys(ProcessingData.boundaryValues));
           }
           break;
         default:
@@ -163,8 +156,8 @@ public class InputProcessor {
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) "
               + "cannot be processed.");
     }
-    checkFormat(format);
-    if (format != null && format.equalsIgnoreCase("geojson")) {
+    checkFormat(ProcessingData.format);
+    if (ProcessingData.format != null && ProcessingData.format.equalsIgnoreCase("geojson")) {
       GeoJSONWriter writer = new GeoJSONWriter();
       Collection<Geometry> boundaryColl = geomBuilder.getBoundaryColl();
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
@@ -180,7 +173,8 @@ public class InputProcessor {
       }
       geomBuilder.setGeoJsonGeoms(geoJsonGeoms);
     }
-    mapRed = mapRed.osmType(extractOSMTypes(types));
+    defineOSMTypes(types);
+    mapRed = mapRed.osmType(ProcessingData.osmTypes);
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
     if (userids.length != 0) {
@@ -199,7 +193,7 @@ public class InputProcessor {
   }
 
   /**
-   * Extracts the OSMType(s) out of the given String[].
+   * Defines the OSMType(s) out of the given String[].
    * 
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation). If the array is empty, all three types are used.
@@ -207,24 +201,23 @@ public class InputProcessor {
    * @throws BadRequestException if the content of the parameter does not represent one, two, or all
    *         three OSM types
    */
-  public EnumSet<OSMType> extractOSMTypes(String[] types) throws BadRequestException {
+  public void defineOSMTypes(String[] types) throws BadRequestException {
     types = createEmptyArrayIfNull(types);
     checkOSMTypes(types);
     if (types.length == 0) {
-      this.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
+      ProcessingData.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
     } else {
-      this.osmTypes = EnumSet.noneOf(OSMType.class);
+      ProcessingData.osmTypes = EnumSet.noneOf(OSMType.class);
       for (String type : types) {
         if (type.equalsIgnoreCase("node")) {
-          this.osmTypes.add(OSMType.NODE);
+          ProcessingData.osmTypes.add(OSMType.NODE);
         } else if (type.equalsIgnoreCase("way")) {
-          this.osmTypes.add(OSMType.WAY);
+          ProcessingData.osmTypes.add(OSMType.WAY);
         } else {
-          this.osmTypes.add(OSMType.RELATION);
+          ProcessingData.osmTypes.add(OSMType.RELATION);
         }
       }
     }
-    return this.osmTypes;
   }
 
   /**
@@ -421,6 +414,7 @@ public class InputProcessor {
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
       throws Exception {
     String[] toTimestamps = null;
+    String[] timeData;
     if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
       if (!isSnapshot) {
@@ -501,7 +495,6 @@ public class InputProcessor {
    * Checks the content of the given format parameter.
    */
   private void checkFormat(String format) throws BadRequestException {
-
     if (format != null && !format.isEmpty() && !format.equalsIgnoreCase("geojson")
         && !format.equalsIgnoreCase("json")) {
       throw new BadRequestException(
@@ -541,25 +534,6 @@ public class InputProcessor {
   /*
    * Getters start here
    */
-  public BoundaryType getBoundaryType() {
-    return boundary;
-  }
-
-  public String[] getBoundaryValues() {
-    return boundaryValues;
-  }
-
-  public String getBoundaryValuesGeoJson() {
-    return boundaryValuesGeoJson;
-  }
-
-  public boolean getShowMetadata() {
-    return this.showMetadata;
-  }
-
-  public EnumSet<OSMType> getOsmTypes() {
-    return osmTypes;
-  }
 
   public GeometryBuilder getGeomBuilder() {
     return geomBuilder;
@@ -571,9 +545,5 @@ public class InputProcessor {
 
   public void setUtils(InputProcessingUtils utils) {
     this.utils = utils;
-  }
-
-  public String getFormat() {
-    return format;
   }
 }

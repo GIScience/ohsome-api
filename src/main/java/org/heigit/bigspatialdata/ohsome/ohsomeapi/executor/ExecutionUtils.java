@@ -18,6 +18,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata;
@@ -548,7 +549,7 @@ public class ExecutionUtils {
         resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
       }
       Metadata metadata = null;
-      if (inputProcessor.getShowMetadata()) {
+      if (ProcessingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
@@ -561,7 +562,7 @@ public class ExecutionUtils {
         resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
       }
       Metadata metadata = null;
-      if (inputProcessor.getShowMetadata()) {
+      if (ProcessingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
@@ -603,7 +604,7 @@ public class ExecutionUtils {
         groupByResultSet[count] = new RatioGroupByResult(groupByName, resultSet);
         count++;
       }
-      if (inputProcessor.getShowMetadata()) {
+      if (ProcessingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
@@ -630,7 +631,7 @@ public class ExecutionUtils {
         groupByResultSet[count] = new ShareGroupByResult(groupByName, resultSet);
         count++;
       }
-      if (inputProcessor.getShowMetadata()) {
+      if (ProcessingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
