@@ -46,7 +46,6 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -84,7 +83,7 @@ public class ExecutionUtils {
         geom = geomBuilder.getDataPoly();
         break;
       case BBOXES:
-        geom = OSHDBGeometryBuilder.getGeometry(geomBuilder.getBbox());
+        geom = geomBuilder.getBbox();
         break;
       case BCIRCLES:
         geom = geomBuilder.getBcircleGeom();

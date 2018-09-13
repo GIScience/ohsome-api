@@ -34,7 +34,7 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class GeometryBuilder {
 
-  private OSHDBBoundingBox bbox;
+  private Geometry bbox;
   private Geometry bcircleGeom;
   private Polygon bpoly;
   private Geometry dataPoly;
@@ -57,28 +57,30 @@ public class GeometryBuilder {
     InputProcessingUtils utils = new InputProcessingUtils();
     try {
       Geometry unifiedBbox;
+      OSHDBBoundingBox bbox;
       GeometryFactory gf = new GeometryFactory();
       double minLon = Double.parseDouble(bboxes[0]);
       double minLat = Double.parseDouble(bboxes[1]);
       double maxLon = Double.parseDouble(bboxes[2]);
       double maxLat = Double.parseDouble(bboxes[3]);
-      this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-      unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(this.bbox));
+      bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
+      unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
       boundaryColl = new LinkedHashSet<Geometry>();
-      boundaryColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
+      boundaryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
-        this.bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-        boundaryColl.add(OSHDBGeometryBuilder.getGeometry(this.bbox));
-        unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(this.bbox));
+        bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
+        boundaryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
+        unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       if (utils.isWithin(unifiedBbox) == false) {
         throw new NotFoundException("The provided boundary parameter does not lie completely "
             + "within the underlying data-extract polygon.");
       }
+      this.bbox = unifiedBbox;
       return unifiedBbox;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
@@ -236,7 +238,8 @@ public class GeometryBuilder {
       dataPoly = reader.read(geoJson);
       return dataPoly;
     } catch (Exception e) {
-      throw new RuntimeException("The GeoJSON, derived out of the metadata, cannot be converted.");
+      throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
+          + "converted. Please use a different data file and contact an admin about this issue.");
     }
   }
 
@@ -312,7 +315,7 @@ public class GeometryBuilder {
     return new ArrayList<>(boundaryColl);
   }
 
-  public OSHDBBoundingBox getBbox() {
+  public Geometry getBbox() {
     return bbox;
   }
 
