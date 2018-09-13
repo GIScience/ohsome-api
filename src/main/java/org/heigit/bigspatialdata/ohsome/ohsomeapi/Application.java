@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
@@ -104,7 +105,8 @@ public class Application implements ApplicationRunner {
       ObjectMapper mapper = new ObjectMapper();
       ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
       GeometryBuilder geomBuilder = new GeometryBuilder();
-      ExtractMetadata.dataPoly = geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
+      geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
+      ExtractMetadata.dataPoly = ProcessingData.dataPolyGeom;
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");

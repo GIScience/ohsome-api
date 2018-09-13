@@ -80,16 +80,16 @@ public class ExecutionUtils {
     Geometry geom;
     switch (boundary) {
       case NOBOUNDARY:
-        geom = geomBuilder.getDataPoly();
+        geom = ProcessingData.dataPolyGeom;
         break;
       case BBOXES:
-        geom = geomBuilder.getBbox();
+        geom = ProcessingData.bboxesGeom;
         break;
       case BCIRCLES:
-        geom = geomBuilder.getBcircleGeom();
+        geom = ProcessingData.bcirclesGeom;
         break;
       case BPOLYS:
-        geom = geomBuilder.getBpoly();
+        geom = ProcessingData.bpolysGeom;
         break;
       default:
         geom = null;

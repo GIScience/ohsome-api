@@ -159,7 +159,7 @@ public class InputProcessor {
     checkFormat(ProcessingData.format);
     if (ProcessingData.format != null && ProcessingData.format.equalsIgnoreCase("geojson")) {
       GeoJSONWriter writer = new GeoJSONWriter();
-      Collection<Geometry> boundaryColl = geomBuilder.getBoundaryColl();
+      Collection<Geometry> boundaryColl = ProcessingData.boundaryColl;
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
       for (int i = 0; i < geoJsonGeoms.length; i++) {
         try {
@@ -171,7 +171,7 @@ public class InputProcessor {
                   + "for the creation of the response GeoJSON.");
         }
       }
-      geomBuilder.setGeoJsonGeoms(geoJsonGeoms);
+      ProcessingData.geoJsonGeoms = geoJsonGeoms;
     }
     defineOSMTypes(types);
     mapRed = mapRed.osmType(ProcessingData.osmTypes);

@@ -206,8 +206,8 @@ public class ElementsRequestExecutor {
     if (requestParams.getFormat() != null
         && requestParams.getFormat().equalsIgnoreCase("geojson")) {
       return GroupByResponse.of(new Attribution(url, text), Application.apiVersion, metadata,
-          "FeatureCollection", exeUtils.createGeoJsonFeatures(resultSet,
-              inputProcessor.getGeomBuilder().getGeoJsonGeoms()));
+          "FeatureCollection",
+          exeUtils.createGeoJsonFeatures(resultSet, ProcessingData.geoJsonGeoms));
     } else {
       return new GroupByResponse(new Attribution(url, text), Application.apiVersion, metadata,
           resultSet);
@@ -711,7 +711,7 @@ public class ElementsRequestExecutor {
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     }
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    final GeoJsonObject[] geoJsonGeoms = geomBuilder.getGeoJsonGeoms();
+    final GeoJsonObject[] geoJsonGeoms = ProcessingData.geoJsonGeoms;
     inputProcessor.checkKeysValues(keys2, values2);
     values2 = inputProcessor.createEmptyArrayIfNull(values2);
     keys2 = inputProcessor.createEmptyArrayIfNull(keys2);

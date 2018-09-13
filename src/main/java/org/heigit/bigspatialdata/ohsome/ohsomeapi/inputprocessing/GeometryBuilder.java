@@ -33,13 +33,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.
  */
 public class GeometryBuilder {
-
-  private Geometry bbox;
-  private Geometry bcircleGeom;
-  private Polygon bpoly;
-  private Geometry dataPoly;
-  private Collection<Geometry> boundaryColl;
-  private GeoJsonObject[] geoJsonGeoms;
+  
+  GeometryFactory gf;
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
@@ -58,29 +53,30 @@ public class GeometryBuilder {
     try {
       Geometry unifiedBbox;
       OSHDBBoundingBox bbox;
-      GeometryFactory gf = new GeometryFactory();
+      gf = new GeometryFactory();
       double minLon = Double.parseDouble(bboxes[0]);
       double minLat = Double.parseDouble(bboxes[1]);
       double maxLon = Double.parseDouble(bboxes[2]);
       double maxLat = Double.parseDouble(bboxes[3]);
       bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
-      boundaryColl = new LinkedHashSet<Geometry>();
-      boundaryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
+      Collection<Geometry> geometryColl = new LinkedHashSet<Geometry>();
+      geometryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
         bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-        boundaryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
+        geometryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       if (utils.isWithin(unifiedBbox) == false) {
         throw new NotFoundException("The provided boundary parameter does not lie completely "
             + "within the underlying data-extract polygon.");
       }
-      this.bbox = unifiedBbox;
+      ProcessingData.boundaryColl = geometryColl;
+      ProcessingData.bboxesGeom = unifiedBbox;
       return unifiedBbox;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
@@ -123,25 +119,26 @@ public class GeometryBuilder {
         buffer = JTS.transform(p, transform).buffer(Double.parseDouble(bpoints[i + 2]));
         transform = CRS.findMathTransform(targetCrs, sourceCrs, false);
         geom = JTS.transform(buffer, transform);
-        bcircleGeom = geom;
         if (bpoints.length == 3) {
           if (utils.isWithin(geom) == false) {
             throw new NotFoundException("The provided boundary parameter does not lie completely "
                 + "within the underlying data-extract polygon.");
           }
           geometryCollection.add(geom);
-          boundaryColl = geometryCollection;
+          ProcessingData.boundaryColl = geometryCollection;
+          ProcessingData.bcirclesGeom = geom;
           return geom;
         }
         geometryCollection.add(geom);
       }
-      boundaryColl = geometryCollection;
       Geometry unifiedBCircles =
           geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
       if (utils.isWithin(unifiedBCircles) == false) {
         throw new NotFoundException("The provided boundary parameter does not lie completely "
             + "within the underlying data-extract polygon.");
       }
+      ProcessingData.boundaryColl = geometryCollection;
+      ProcessingData.bcirclesGeom = unifiedBCircles;
       return unifiedBCircles;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {
@@ -164,6 +161,7 @@ public class GeometryBuilder {
    */
   public Geometry createBpolys(String[] bpolys) throws BadRequestException, NotFoundException {
     GeometryFactory geomFact = new GeometryFactory();
+    Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
     InputProcessingUtils utils = new InputProcessingUtils();
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
@@ -178,14 +176,15 @@ public class GeometryBuilder {
         throw new BadRequestException("The bpolys parameter must contain double-parseable values "
             + "in form of lon/lat coordinate pairs.");
       }
-      this.bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
-      if (utils.isWithin(this.bpoly) == false) {
+      bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+      if (utils.isWithin(bpoly) == false) {
         throw new NotFoundException("The provided boundary parameter does not lie completely "
             + "within the underlying data-extract polygon.");
       }
-      geometryCollection.add(this.bpoly);
-      boundaryColl = geometryCollection;
-      return this.bpoly;
+      geometryCollection.add(bpoly);
+      ProcessingData.boundaryColl = geometryCollection;
+      ProcessingData.bpolysGeom = bpoly;
+      return bpoly;
     } else {
       Coordinate firstPoint;
       try {
@@ -212,13 +211,14 @@ public class GeometryBuilder {
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
           }
         }
-        boundaryColl = geometryCollection;
         Geometry unifiedBPolys = geomFact
             .createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
         if (utils.isWithin(unifiedBPolys) == false) {
           throw new NotFoundException("The provided boundary parameter does not lie completely "
               + "within the underlying data-extract polygon.");
         }
+        ProcessingData.boundaryColl = geometryCollection;
+        ProcessingData.bpolysGeom = unifiedBPolys;
         return unifiedBPolys;
       } catch (NumberFormatException | MismatchedDimensionException e) {
         throw new BadRequestException("The bpolys parameter must contain double-parseable values "
@@ -232,11 +232,10 @@ public class GeometryBuilder {
    * 
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public Geometry createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
+  public void createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
     GeoJSONReader reader = new GeoJSONReader();
     try {
-      dataPoly = reader.read(geoJson);
-      return dataPoly;
+      ProcessingData.dataPolyGeom = reader.read(geoJson);
     } catch (Exception e) {
       throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
           + "converted. Please use a different data file and contact an admin about this issue.");
@@ -260,7 +259,7 @@ public class GeometryBuilder {
     }
     JsonArray features = root.getJsonArray("features");
     String[] boundaryIds = new String[features.size()];
-    geoJsonGeoms = new GeoJsonObject[features.size()];
+    GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[features.size()];
     int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
@@ -304,7 +303,8 @@ public class GeometryBuilder {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
     }
-    boundaryColl = geometryCollection;
+    ProcessingData.geoJsonGeoms = geoJsonGeoms;
+    ProcessingData.boundaryColl = geometryCollection;
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
     return result;
@@ -312,34 +312,6 @@ public class GeometryBuilder {
 
   /** Gets all the <code>Geometry</code> representations of each boundary object. */
   public ArrayList<Geometry> getGeometry() {
-    return new ArrayList<>(boundaryColl);
-  }
-
-  public Geometry getBbox() {
-    return bbox;
-  }
-
-  public Geometry getBcircleGeom() {
-    return bcircleGeom;
-  }
-
-  public Polygon getBpoly() {
-    return bpoly;
-  }
-
-  public Geometry getDataPoly() {
-    return dataPoly;
-  }
-
-  public Collection<Geometry> getBoundaryColl() {
-    return boundaryColl;
-  }
-
-  public GeoJsonObject[] getGeoJsonGeoms() {
-    return geoJsonGeoms;
-  }
-
-  public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
-    this.geoJsonGeoms = geoJsonGeoms;
+    return new ArrayList<>(ProcessingData.boundaryColl);
   }
 }
