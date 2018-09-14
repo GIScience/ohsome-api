@@ -46,6 +46,7 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
@@ -464,7 +465,7 @@ public class ElementsRequestExecutor {
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
-          "You need to give at least one groupByKey parameter, if you want to use groupBy/key");
+          "You need to give at least one groupByKeys parameter, if you want to use groupBy/key");
     }
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -793,6 +794,9 @@ public class ElementsRequestExecutor {
       List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
       Geometry entityGeom = f.getGeometry();
       if (requestResource.equals(RequestResource.PERIMETER)) {
+        if (entityGeom instanceof GeometryCollection) {
+          return res;
+        }
         entityGeom = entityGeom.getBoundary();
       }
       for (int i = 0; i < geoms.size(); i++) {
