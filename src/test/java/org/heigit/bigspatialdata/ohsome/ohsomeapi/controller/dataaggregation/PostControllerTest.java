@@ -197,8 +197,287 @@ public class PostControllerTest {
     assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.01558);
   }
 
+  @Test
+  public void elementsPerimeterRatioGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
+        + "8.69304,49.42331");
+    map.add("types", "way");
+    map.add("keys", "building");
+    map.add("time", "2015-01-01");
+    map.add("values", "yes");
+    map.add("types2", "relation");
+    map.add("keys2", "building");
+    map.add("values2", "yes");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/ratio/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult").get(0)
+        .get("ratio").asDouble() == 0.008612);
+  }
+
+  @Test
+  public void elementsPerimeterDensityTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/density", map, JsonNode.class);
+    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 2130.19);
+  }
+
+  @Test
+  public void elementsPerimeterDensityGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way,relation");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/density/groupBy/type", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 990.96);
+  }
+
+  @Test
+  public void elementsPerimeterDensityGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("groupByKey", "building");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/density/groupBy/tag", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asDouble() == 20345.95);
+  }
+
+  @Test
+  public void elementsPerimeterDensityGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
+        + "8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/density/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 455);
+  }
+
   /*
    * /elements/area tests
    */
 
+  @Test
+  public void elementsAreaTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
+    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 1845.85);
+  }
+
+  @Test
+  public void elementsAreaGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
+        + "8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2015-01-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 1861.71);
+  }
+
+  @Test
+  public void elementsAreaGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way,relation");
+    map.add("time", "2017-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/groupBy/type", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 22216.19);
+  }
+
+  @Test
+  public void elementsAreaGroupByKeyTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("groupByKeys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/groupBy/key", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 263901.91);
+  }
+
+  @Test
+  public void elementsAreaGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("groupByKey", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/groupBy/tag", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 244077.2);
+  }
+
+  @Test
+  public void elementsAreaGroupByUserTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/groupBy/user", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asDouble() == 168);
+  }
+
+  @Test
+  public void elementsAreaShareTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area/share", map, JsonNode.class);
+    assertTrue(response.getBody().get("shareResult").get(0).get("part").asDouble() == 263901.91);
+  }
+
+  @Test
+  public void elementsAreaShareGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
+        + "49.41256,8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/area/share/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("shareGroupByBoundaryResult").get(1).get("shareResult").get(0)
+        .get("part").asDouble() == 356090.4);
+  }
+
+  @Test
+  public void elementsAreaRatioTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("keys", "building");
+    map.add("time", "2017-01-01");
+    map.add("types2", "relation");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
+    assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.084184);
+  }
+
+  @Test
+  public void elementsAreaRatioGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
+        + "8.69304,49.42331");
+    map.add("types", "way");
+    map.add("keys", "building");
+    map.add("time", "2017-01-01");
+    map.add("types2", "relation");
+    map.add("keys2", "building");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult").get(0)
+        .get("ratio").asDouble() == 0.023699);
+  }
+
+  @Test
+  public void elementsAreaDensityTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys", "building");
+    map.add("values", "yes");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area/density", map, JsonNode.class);
+    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 404281.84);
+  }
+
+  @Test
+  public void elementsAreaDensityGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
+    map.add("types", "way,relation");
+    map.add("time", "2017-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/density/groupBy/type", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 26198.91);
+  }
+
+  @Test
+  public void elementsAreaDensityGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("groupByKey", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/density/groupBy/tag", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
+        .asDouble() == 404281.84);
+  }
+
+  @Test
+  public void elementsAreaDensityGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
+        + "8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+        server + port + "/elements/area/density/groupBy/boundary", map, JsonNode.class);
+    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asDouble() == 261743.13);
+  }
 }
