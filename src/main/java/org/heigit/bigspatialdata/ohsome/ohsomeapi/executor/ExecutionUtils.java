@@ -7,8 +7,10 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.Feature;
@@ -34,7 +36,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.users.UsersResult;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -98,7 +100,7 @@ public class ExecutionUtils {
   }
 
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
-  public SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
+  public SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<? extends OSHDBMapReducible> mapRed, GeometryBuilder geomBuilder,
       boolean isSnapshot) throws Exception {
@@ -106,8 +108,8 @@ public class ExecutionUtils {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     }
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
-    MapAggregator<OSHDBTimestampAndIndex<Integer>, Geometry> preResult;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> geoms = geomBuilder.getGeometry();
     List<Integer> zeroFill = new LinkedList<>();
     for (int j = 0; j < geoms.size(); j++) {
@@ -139,8 +141,7 @@ public class ExecutionUtils {
         }
       }
       return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
-        .map(Pair::getValue);
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue);
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
@@ -159,7 +160,7 @@ public class ExecutionUtils {
   }
 
   /** Computes the result for the /count/share/groupBy/boundary resources. */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> computeCountShareGbB(
+  public SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, Integer> computeCountShareGbB(
       BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
       Integer[] valuesInt2, GeometryBuilder geomBuilder)
       throws UnsupportedOperationException, Exception {
@@ -173,7 +174,7 @@ public class ExecutionUtils {
       zeroFill.add(new ImmutablePair<>(j, true));
       zeroFill.add(new ImmutablePair<>(j, false));
     }
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Integer> result =
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, Integer> result =
         mapRed.aggregateByTimestamp().flatMap(f -> {
           List<Pair<Integer, OSMEntity>> boundaryList = new LinkedList<>();
           for (int i = 0; i < geoms.size(); i++) {
@@ -205,13 +206,13 @@ public class ExecutionUtils {
             }
           }
           return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).zerofillIndices(zeroFill).count();
+        }).count();
 
     return result;
   }
 
   /** Computes the result for the /count|length|perimeter|area/share/groupBy/boundary resources. */
-  public SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGbB(
+  public SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGbB(
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2, Integer[] valuesInt2,
       GeometryBuilder geomBuilder) throws UnsupportedOperationException, Exception {
@@ -225,8 +226,10 @@ public class ExecutionUtils {
       zeroFill.add(new ImmutablePair<>(j, true));
       zeroFill.add(new ImmutablePair<>(j, false));
     }
-    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, Geometry> preResult = null;
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Boolean>>, ? extends Number> result = null;
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, Geometry> preResult =
+        null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, ? extends Number> result =
+        null;
     preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
       List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
       Geometry entityGeom = f.getGeometry();
@@ -270,7 +273,7 @@ public class ExecutionUtils {
         }
       }
       return new ImmutablePair<>(f.getLeft().getLeft(), hasTags);
-    }).zerofillIndices(zeroFill).map(Pair::getValue);
+    }).map(Pair::getValue);
 
     switch (requestResource) {
       case COUNT:
@@ -294,11 +297,34 @@ public class ExecutionUtils {
   }
 
   /**
+   * Adapted helper function, which works like
+   * {@link OSHBCombinedIndex#nest() nest} but has switched &lt;U&gt; and
+   * &lt;V&gt; parameters.
+   *
+   * @param result the "flat" result data structure that should be converted to a nested structure
+   * @param <A> an arbitrary data type, used for the data value items
+   * @param <U> an arbitrary data type, used for the index'es key items
+   * @param <V> an arbitrary data type, used for the index'es key items
+   * @return a nested data structure: for each index part there is a separate level of nested maps
+   * 
+   */
+  public static <A, U, V> SortedMap<V, SortedMap<U, A>> nest(
+      Map<OSHDBCombinedIndex<U, V>, A> result) {
+    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
+    result.forEach((index, data) -> {
+      if (!ret.containsKey(index.getSecondIndex()))
+        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
+      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
+    });
+    return ret;
+  }
+
+  /**
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed
-  public <K extends OSHDBTimestampAndIndex<?>, V extends Number> SortedMap<K, V> computeResult(
+  public <K extends OSHDBCombinedIndex<OSHDBTimestamp, ?>, V extends Number> SortedMap<K, V> computeResult(
       RequestResource requestResource, MapAggregator<?, OSMEntitySnapshot> preResult)
       throws Exception {
     switch (requestResource) {

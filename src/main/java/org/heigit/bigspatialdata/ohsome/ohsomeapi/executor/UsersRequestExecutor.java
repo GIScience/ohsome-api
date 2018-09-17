@@ -26,9 +26,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.users.UsersResult;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -110,7 +109,7 @@ public class UsersRequestExecutor {
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, Integer> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String description = null;
@@ -123,11 +122,11 @@ public class UsersRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
-        }).zerofillIndices(ProcessingData.osmTypes).map(contrib -> {
+        }, ProcessingData.osmTypes).map(contrib -> {
           return contrib.getContributorUserId();
         }).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
@@ -199,7 +198,7 @@ public class UsersRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, Integer> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
     result = mapRed.flatMap(f -> {
       List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
       int[] tags = exeUtils.extractContributionTags(f);
@@ -223,12 +222,12 @@ public class UsersRequestExecutor {
         res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f));
       }
       return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
-        .map(Pair::getValue).map(contrib -> {
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
+        .map(contrib -> {
           return contrib.getContributorUserId();
         }).countUniq();
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
@@ -300,7 +299,7 @@ public class UsersRequestExecutor {
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
-    SortedMap<OSHDBTimestampAndIndex<Integer>, Integer> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     result = mapRed.flatMap(f -> {
       List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
       int[] tags = exeUtils.extractContributionTags(f);
@@ -316,12 +315,12 @@ public class UsersRequestExecutor {
         res.add(new ImmutablePair<>(-1, f));
       }
       return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
-        .map(Pair::getValue).map(contrib -> {
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt)).map(Pair::getValue)
+        .map(contrib -> {
           return contrib.getContributorUserId();
         }).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
@@ -373,7 +372,7 @@ public class UsersRequestExecutor {
 
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -386,7 +385,7 @@ public class UsersRequestExecutor {
         exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT, ProcessingData.boundary,
             mapRed, inputProcessor.getGeomBuilder(), requestParameters.isSnapshot());
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();

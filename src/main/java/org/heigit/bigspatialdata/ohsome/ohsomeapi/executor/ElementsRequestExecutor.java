@@ -32,10 +32,9 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResult;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBTimestampAndIndex;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregatorByTimestampAndIndex;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -148,7 +147,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -182,7 +181,7 @@ public class ElementsRequestExecutor {
         break;
     }
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -248,15 +247,15 @@ public class ElementsRequestExecutor {
         useridsInt.add(Integer.parseInt(user));
       }
     }
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
-    MapAggregatorByTimestampAndIndex<Integer, OSMEntitySnapshot> preResult;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> preResult;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
           return f.getEntity().getUserId();
-        }).zerofillIndices(useridsInt);
+        }, useridsInt);
     result = exeUtils.computeResult(requestResource, preResult);
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
 
     int count = 0;
@@ -325,7 +324,7 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, OSMEntitySnapshot> preResult =
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> preResult =
         mapRed.map(f -> {
           int[] tags = f.getEntity().getRawTags();
           for (int i = 0; i < tags.length; i += 2) {
@@ -345,12 +344,12 @@ public class ElementsRequestExecutor {
             }
           }
           return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-        }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(zeroFill)
-            .map(Pair::getValue);
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, Integer>>, ? extends Number> result = null;
+        }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> result =
+        null;
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
@@ -411,15 +410,15 @@ public class ElementsRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     mapRed = inputProcessor.processParameters(mapRed, requestParams);
-    MapAggregatorByTimestampAndIndex<OSMType, OSMEntitySnapshot> preResult = null;
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }).zerofillIndices(ProcessingData.osmTypes);
-    SortedMap<OSHDBTimestampAndIndex<OSMType>, ? extends Number> result = null;
+        }, ProcessingData.osmTypes);
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, ? extends Number> result = null;
     result = exeUtils.computeResult(requestResource, preResult);
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
     Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
@@ -481,7 +480,7 @@ public class ElementsRequestExecutor {
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
-    MapAggregator<OSHDBTimestampAndIndex<Integer>, OSMEntitySnapshot> preResult =
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> preResult =
         mapRed.flatMap(f -> {
           List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
           Iterable<OSHDBTag> tags = f.getEntity().getTags();
@@ -497,12 +496,12 @@ public class ElementsRequestExecutor {
             res.add(new ImmutablePair<>(-1, f));
           }
           return res;
-        }).aggregateByTimestamp().aggregateBy(Pair::getKey).zerofillIndices(Arrays.asList(keysInt))
+        }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
             .map(Pair::getValue);
-    SortedMap<OSHDBTimestampAndIndex<Integer>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
@@ -627,7 +626,7 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters(mapRed, requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
-    MapAggregatorByTimestampAndIndex<MatchType, OSMEntitySnapshot> preResult;
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       OSMEntity entity = f.getEntity();
       boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
@@ -643,9 +642,8 @@ public class ElementsRequestExecutor {
         assert false : "MatchType matches none.";
       }
       return null;
-    }).zerofillIndices(
-        Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2));
-    SortedMap<OSHDBTimestampAndIndex<MatchType>, ? extends Number> result = null;
+    }, Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2));
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> result = null;
     result = exeUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     Double[] value1 = new Double[resultSize / 3];
@@ -657,18 +655,19 @@ public class ElementsRequestExecutor {
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     // time and value extraction
-    for (Entry<OSHDBTimestampAndIndex<MatchType>, ? extends Number> entry : result.entrySet()) {
-      if (entry.getKey().getOtherIndex() == MatchType.MATCHES2) {
+    for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> entry : result
+        .entrySet()) {
+      if (entry.getKey().getSecondIndex() == MatchType.MATCHES2) {
         timeArray[value2Count] =
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getTimeIndex());
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getFirstIndex());
         value2[value2Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
         value2Count++;
       }
-      if (entry.getKey().getOtherIndex() == MatchType.MATCHES1) {
+      if (entry.getKey().getSecondIndex() == MatchType.MATCHES1) {
         value1[value1Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
         value1Count++;
       }
-      if (entry.getKey().getOtherIndex() == MatchType.MATCHESBOTH) {
+      if (entry.getKey().getSecondIndex() == MatchType.MATCHESBOTH) {
         value1[matchesBothCount] = value1[matchesBothCount]
             + Double.parseDouble(df.format(entry.getValue().doubleValue()));
         value2[matchesBothCount] = value2[matchesBothCount]
@@ -699,7 +698,8 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, MatchType>>, ? extends Number> result =
+        null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -789,7 +789,8 @@ public class ElementsRequestExecutor {
       zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES1));
       zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES2));
     }
-    MapAggregator<OSHDBTimestampAndIndex<Pair<Integer, MatchType>>, Geometry> preResult = null;
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, MatchType>>, Geometry> preResult =
+        null;
     preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
       List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
       Geometry entityGeom = f.getGeometry();
@@ -824,7 +825,7 @@ public class ElementsRequestExecutor {
         assert false : "MatchType matches none.";
       }
       return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESNONE);
-    }).zerofillIndices(zeroFill).map(Pair::getValue);
+    }, zeroFill).map(Pair::getValue);
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
@@ -845,7 +846,7 @@ public class ElementsRequestExecutor {
     }
     SortedMap<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     InputProcessingUtils utils = inputProcessor.getUtils();
-    groupByResult = MapAggregatorByTimestampAndIndex.nest_IndexThenTime(result);
+    groupByResult = ExecutionUtils.nest(result);
     ArrayList<Double[]> value1Arrays = new ArrayList<Double[]>();
     ArrayList<Double[]> value2Arrays = new ArrayList<Double[]>();
     String[] boundaryIds = utils.getBoundaryIds();
