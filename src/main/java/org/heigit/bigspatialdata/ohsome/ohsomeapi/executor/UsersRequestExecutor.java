@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
@@ -353,62 +352,4 @@ public class UsersRequestExecutor {
         metadata, resultSet);
     return response;
   }
-
-  /**
-   * NOT IN USE YET Performs a count calculation grouped by the boundary.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
-   *         Response}
-   */
-  public static Response executeCountGroupByBoundary(RequestParameters requestParameters)
-      throws UnsupportedOperationException, Exception {
-
-    long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
-    MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
-      requestUrl = RequestInterceptor.requestUrl;
-    }
-    mapRed = inputProcessor.processParameters(mapRed, requestParameters);
-    result =
-        exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT, ProcessingData.boundary,
-            mapRed, inputProcessor.getGeomBuilder(), requestParameters.isSnapshot());
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = ExecutionUtils.nest(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    String groupByName = "";
-    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
-    InputProcessingUtils utils = inputProcessor.getUtils();
-    String[] boundaryIds = utils.getBoundaryIds();
-    int count = 0;
-    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
-        .entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, null);
-      groupByName = boundaryIds[count];
-      resultSet[count] = new GroupByResult(groupByName, results);
-      count++;
-    }
-    String description = "Total count of items in absolute values aggregated on the boundary.";
-    Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestUrl);
-    }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
-        metadata, resultSet);
-    return response;
-  }
-
 }
