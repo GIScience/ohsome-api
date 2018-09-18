@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.Feature;
@@ -40,7 +41,6 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -100,54 +100,35 @@ public class ExecutionUtils {
   }
 
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
-  public SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
+  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
+  public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<? extends OSHDBMapReducible> mapRed, GeometryBuilder geomBuilder,
-      boolean isSnapshot) throws Exception {
+      MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder, boolean isSnapshot)
+      throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(
           "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
-    List<Integer> zeroFill = new LinkedList<>();
-    for (int j = 0; j < geoms.size(); j++) {
-      zeroFill.add(j);
-    }
-    preResult = mapRed.flatMap(f -> {
-      List<Pair<Integer, Geometry>> res = new LinkedList<>();
-      Geometry entityGeom;
-      if (isSnapshot) {
-        entityGeom = getSnapshotGeom(f);
-        if (requestResource.equals(RequestResource.PERIMETER)) {
-          entityGeom = entityGeom.getBoundary();
-        }
-      } else {
-        entityGeom = getContributionGeom(f);
-      }
-      for (int i = 0; i < geoms.size(); i++) {
-        if (myIntersects(entityGeom, geoms.get(i))) {
-          if (myWithin(entityGeom, geoms.get(i))) {
-            res.add(new ImmutablePair<>(i, entityGeom));
-          } else {
-            try {
-              res.add(new ImmutablePair<>(i,
-                  Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
-            } catch (Exception e) {
-              // do nothing
-            }
-          }
-        }
-      }
-      return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey).map(Pair::getValue);
+    ArrayList<Geometry> arrGeoms = geomBuilder.getGeometry();
+    Map<Integer, P> geoms = arrGeoms.stream()
+        .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
+    preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
         break;
-      case LENGTH:
       case PERIMETER:
+        result = preResult.sum(geom -> {
+          if (!(geom instanceof Polygonal)) {
+            return 0.0;
+          } else {
+            return Geo.lengthOf(geom.getBoundary());
+          }
+        });
+        break;
+      case LENGTH:
         result = preResult.sum(Geo::lengthOf);
         break;
       case AREA:
@@ -159,60 +140,8 @@ public class ExecutionUtils {
     return result;
   }
 
-  /** Computes the result for the /count/share/groupBy/boundary resources. */
-  public SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, Integer> computeCountShareGbB(
-      BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2,
-      Integer[] valuesInt2, GeometryBuilder geomBuilder)
-      throws UnsupportedOperationException, Exception {
-    if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(
-          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    }
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
-    ArrayList<Pair<Integer, Boolean>> zeroFill = new ArrayList<>();
-    for (int j = 0; j < geoms.size(); j++) {
-      zeroFill.add(new ImmutablePair<>(j, true));
-      zeroFill.add(new ImmutablePair<>(j, false));
-    }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, Integer> result =
-        mapRed.aggregateByTimestamp().flatMap(f -> {
-          List<Pair<Integer, OSMEntity>> boundaryList = new LinkedList<>();
-          for (int i = 0; i < geoms.size(); i++) {
-            if (myIntersects(f.getGeometry(), geoms.get(i))) {
-              boundaryList.add(new ImmutablePair<>(i, f.getEntity()));
-            }
-          }
-          return boundaryList;
-        }).aggregateBy(f -> {
-          // result aggregated on true (if obj contains all tags) and false (if not all are
-          // contained)
-          boolean hasTags = false;
-          for (int i = 0; i < keysInt2.length; i++) {
-            if (f.getRight().hasTagKey(keysInt2[i])) {
-              if (i >= valuesInt2.length) {
-                // if more keys2 than values2 are given
-                hasTags = true;
-                continue;
-              }
-              if (f.getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
-                hasTags = true;
-              } else {
-                hasTags = false;
-                break;
-              }
-            } else {
-              hasTags = false;
-              break;
-            }
-          }
-          return new ImmutablePair<>(f.getLeft(), hasTags);
-        }).count();
-
-    return result;
-  }
-
   /** Computes the result for the /count|length|perimeter|area/share/groupBy/boundary resources. */
-  public SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGbB(
+  public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGbB(
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2, Integer[] valuesInt2,
       GeometryBuilder geomBuilder) throws UnsupportedOperationException, Exception {
@@ -273,7 +202,7 @@ public class ExecutionUtils {
         }
       }
       return new ImmutablePair<>(f.getLeft().getLeft(), hasTags);
-    }).map(Pair::getValue);
+    }, zeroFill).map(Pair::getValue);
 
     switch (requestResource) {
       case COUNT:
@@ -297,9 +226,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * Adapted helper function, which works like
-   * {@link OSHBCombinedIndex#nest() nest} but has switched &lt;U&gt; and
-   * &lt;V&gt; parameters.
+   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest() nest} but has
+   * switched &lt;U&gt; and &lt;V&gt; parameters.
    *
    * @param result the "flat" result data structure that should be converted to a nested structure
    * @param <A> an arbitrary data type, used for the data value items
@@ -717,19 +645,5 @@ public class ExecutionUtils {
       return true;
     }
     return geomA.within(geomB);
-  }
-
-  /** Internal helper method to get the geometry from an OSMEntitySnapshot object. */
-  private Geometry getSnapshotGeom(OSHDBMapReducible f) {
-    return ((OSMEntitySnapshot) f).getGeometry();
-  }
-
-  /** Internal helper method to get the geometry from an OSMContribution object. */
-  private Geometry getContributionGeom(OSHDBMapReducible f) {
-    Geometry geom = ((OSMContribution) f).getGeometryAfter();
-    if (geom == null) {
-      geom = ((OSMContribution) f).getGeometryBefore();
-    }
-    return geom;
   }
 }
