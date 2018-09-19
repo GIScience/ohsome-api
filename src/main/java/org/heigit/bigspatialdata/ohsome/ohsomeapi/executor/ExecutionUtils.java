@@ -4,16 +4,12 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -50,9 +46,7 @@ import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygonal;
-import com.vividsolutions.jts.geom.TopologyException;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
@@ -133,91 +127,6 @@ public class ExecutionUtils {
         break;
       case AREA:
         result = preResult.sum(Geo::areaOf);
-        break;
-      default:
-        break;
-    }
-    return result;
-  }
-
-  /** Computes the result for the /count|length|perimeter|area/share/groupBy/boundary resources. */
-  public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, ? extends Number> computeCountLengthPerimeterAreaShareGbB(
-      RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, Integer[] keysInt2, Integer[] valuesInt2,
-      GeometryBuilder geomBuilder) throws UnsupportedOperationException, Exception {
-    if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(
-          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
-    }
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
-    List<Pair<Integer, Boolean>> zeroFill = new LinkedList<>();
-    for (int j = 0; j < geoms.size(); j++) {
-      zeroFill.add(new ImmutablePair<>(j, true));
-      zeroFill.add(new ImmutablePair<>(j, false));
-    }
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, Geometry> preResult =
-        null;
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Boolean>>, ? extends Number> result =
-        null;
-    preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
-      List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
-      Geometry entityGeom = f.getGeometry();
-      if (requestResource.equals(RequestResource.PERIMETER)) {
-        entityGeom = entityGeom.getBoundary();
-      }
-      for (int i = 0; i < geoms.size(); i++) {
-        if (myIntersects(entityGeom, geoms.get(i))) {
-          if (myWithin(entityGeom, geoms.get(i))) {
-            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
-          } else {
-            try {
-              res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
-                  Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
-            } catch (Exception e) {
-              // do nothing
-            }
-          }
-        }
-      }
-      return res;
-    }).aggregateBy(f -> {
-      // result aggregated on true (if obj contains all tags) and false (if not)
-      boolean hasTags = false;
-      for (int i = 0; i < keysInt2.length; i++) {
-        if (f.getLeft().getRight().hasTagKey(keysInt2[i])) {
-          if (i >= valuesInt2.length) {
-            // if more keys2 than values2 are given
-            hasTags = true;
-            continue;
-          }
-          if (f.getLeft().getRight().hasTagValue(keysInt2[i], valuesInt2[i])) {
-            hasTags = true;
-          } else {
-            hasTags = false;
-            break;
-          }
-        } else {
-          hasTags = false;
-          break;
-        }
-      }
-      return new ImmutablePair<>(f.getLeft().getLeft(), hasTags);
-    }, zeroFill).map(Pair::getValue);
-
-    switch (requestResource) {
-      case COUNT:
-        result = preResult.count();
-        break;
-      case LENGTH:
-      case PERIMETER:
-        result = preResult.sum(geom -> {
-          return Geo.lengthOf(geom);
-        });
-        break;
-      case AREA:
-        result = preResult.sum(geom -> {
-          return Geo.areaOf(geom);
-        });
         break;
       default:
         break;
@@ -603,47 +512,5 @@ public class ExecutionUtils {
   /** Enum type used in /ratio computation. */
   public enum MatchType {
     MATCHES1, MATCHES2, MATCHESBOTH, MATCHESNONE
-  }
-
-  /**
-   * Checks if a Geometry is intersecting with another Geometry. Can also handle
-   * GeometryCollections.
-   */
-  private boolean myIntersects(Geometry geomA, Geometry geomB) {
-    if (geomA.getClass().equals(GeometryCollection.class)) {
-      GeometryCollection geomColl = (GeometryCollection) geomA;
-      int count = geomColl.getNumGeometries();
-      for (int i = 0; i < count; i++) {
-        Geometry childGeometry = geomColl.getGeometryN(i);
-        if (myIntersects(childGeometry, geomB)) {
-          return true;
-        }
-      }
-      return false;
-    }
-    try {
-      return geomA.intersects(geomB);
-    } catch (TopologyException te) {
-      // incorrect geometries get ignored in the computation
-      return false;
-    }
-  }
-
-  /**
-   * Checks if a Geometry is within another Geometry. Can also handle GeometryCollections.
-   */
-  private boolean myWithin(Geometry geomA, Geometry geomB) {
-    if (geomA.getClass().equals(GeometryCollection.class)) {
-      GeometryCollection geomColl = (GeometryCollection) geomA;
-      int count = geomColl.getNumGeometries();
-      for (int i = 0; i < count; i++) {
-        Geometry childGeometry = geomColl.getGeometryN(i);
-        if (!myWithin(childGeometry, geomB)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return geomA.within(geomB);
   }
 }
