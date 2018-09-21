@@ -251,11 +251,13 @@ public class PostControllerTest {
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
     map.add("types", "way");
     map.add("time", "2015-01-01");
+    map.add("keys", "building");
     map.add("groupByKey", "building");
+    map.add("groupByValues", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/tag", map, JsonNode.class);
     assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asDouble() == 20345.95);
+        .asDouble() == 5073.94);
   }
 
   @Test
