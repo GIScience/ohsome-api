@@ -70,17 +70,18 @@ public class UsersRequestExecutor {
       return contrib.getContributorUserId();
     }).countUniq();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
+    Geometry geom = null;
     if (requestParameters.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer).";
+      GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
+      geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
     } else {
       description = "Number of distinct users per time interval.";
     }
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    UsersResult[] results =
+        exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;

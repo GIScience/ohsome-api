@@ -193,7 +193,6 @@ public class ExecutionUtils {
 
   /** Compares an OSMType with an EnumSet of OSMTypes. */
   public boolean isOSMType(EnumSet<OSMType> types, OSMType currentElementType) {
-
     for (OSMType type : types) {
       if (currentElementType.equals(type)) {
         return true;
@@ -205,7 +204,6 @@ public class ExecutionUtils {
   /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
   public boolean entityMatches(OSMEntity entity, EnumSet<OSMType> osmTypes, Integer[] keysInt,
       Integer[] valuesInt) {
-
     boolean matches = true;
     if (osmTypes.contains(entity.getType())) {
       for (int i = 0; i < keysInt.length; i++) {
@@ -231,7 +229,6 @@ public class ExecutionUtils {
    * <code>ContributionType</code>.
    */
   public int[] extractContributionTags(OSMContribution contrib) {
-
     int[] tags;
     if (contrib.getContributionTypes().contains(ContributionType.DELETION)) {
       tags = contrib.getEntityBefore().getRawTags();
@@ -440,31 +437,32 @@ public class ExecutionUtils {
    * the <code>isShare</code> parameter.
    */
   public Response createRatioShareGroupByBoundaryResponse(boolean isShare,
-      RequestParameters requestParameters, int groupByResultSize, String[] boundaryIds,
-      String[] timeArray, ArrayList<Double[]> value1Arrays, ArrayList<Double[]> value2Arrays,
-      DecimalFormat ratioDf, InputProcessor inputProcessor, long startTime, RequestResource reqRes,
-      String requestUrl, Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
+      RequestParameters requestParameters, String[] boundaryIds, String[] timeArray,
+      Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf,
+      InputProcessor inputProcessor, long startTime, RequestResource reqRes, String requestUrl,
+      Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
     Metadata metadata = null;
-    int count = 0;
+    int boundaryIdsLength = boundaryIds.length;
+    int timeArrayLenth = timeArray.length;
     if (!isShare) {
-      RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[groupByResultSize / 3];
-      for (int i = 0; i < groupByResultSize; i += 3) {
-        Double[] value1 = value1Arrays.get(count);
-        Double[] value2 = value2Arrays.get(count);
-        String groupByName = boundaryIds[count];
-        RatioResult[] resultSet = new RatioResult[timeArray.length];
-        for (int j = 0; j < timeArray.length; j++) {
-          double ratio = value2[j] / value1[j];
+      RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
+      for (int i = 0; i < boundaryIdsLength; i++) {
+        String groupByName = boundaryIds[i];
+        RatioResult[] resultSet = new RatioResult[timeArrayLenth];
+        int innerCount = 0;
+        for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+          double ratio = resultValues2[j] / resultValues1[j];
           // in case ratio has the values "NaN", "Infinity", etc.
           try {
             ratio = Double.parseDouble(ratioDf.format(ratio));
           } catch (Exception e) {
             // do nothing --> just return ratio without rounding (trimming)
           }
-          resultSet[j] = new RatioResult(timeArray[j], value1[j], value2[j], ratio);
+          resultSet[innerCount] =
+              new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
+          innerCount++;
         }
-        groupByResultSet[count] = new RatioGroupByResult(groupByName, resultSet);
-        count++;
+        groupByResultSet[i] = new RatioGroupByResult(groupByName, resultSet);
       }
       if (ProcessingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
@@ -481,17 +479,17 @@ public class ExecutionUtils {
       }
 
     } else {
-      ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[groupByResultSize / 3];
-      for (int i = 0; i < groupByResultSize; i += 3) {
-        Double[] value1 = value1Arrays.get(count);
-        Double[] value2 = value2Arrays.get(count);
-        String groupByName = boundaryIds[count];
-        ShareResult[] resultSet = new ShareResult[timeArray.length];
-        for (int j = 0; j < timeArray.length; j++) {
-          resultSet[j] = new ShareResult(timeArray[j], value1[j], value2[j]);
+      ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
+      for (int i = 0; i < boundaryIdsLength; i++) {
+        String groupByName = boundaryIds[i];
+        ShareResult[] resultSet = new ShareResult[timeArrayLenth];
+        int innerCount = 0;
+        for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+          resultSet[innerCount] =
+              new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
+          innerCount++;
         }
-        groupByResultSet[count] = new ShareGroupByResult(groupByName, resultSet);
-        count++;
+        groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
       }
       if (ProcessingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;

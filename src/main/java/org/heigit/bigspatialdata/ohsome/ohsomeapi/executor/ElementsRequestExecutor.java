@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,7 +47,6 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
@@ -692,13 +693,14 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
    *         RatioGroupByBoundaryResponse Content}
    */
-  public static Response executeCountLengthPerimeterAreaRatioGroupByBoundary(
+  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
+  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaRatioGroupByBoundary(
       RequestResource requestResource, RequestParameters requestParams, String[] types2,
       String[] keys2, String[] values2, boolean isShare)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, MatchType>>, ? extends Number> result =
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
@@ -782,58 +784,49 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters(mapRed, requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
-    ArrayList<Geometry> geoms = geomBuilder.getGeometry();
-    List<Pair<Integer, MatchType>> zeroFill = new LinkedList<>();
-    for (int j = 0; j < geoms.size(); j++) {
-      zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHESBOTH));
-      zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES1));
-      zeroFill.add(new ImmutablePair<>(j, MatchType.MATCHES2));
+    ArrayList<Geometry> arrGeoms = geomBuilder.getGeometry();
+    ArrayList<MatchType> zeroFill = new ArrayList<>();
+    for (int j = 0; j < arrGeoms.size(); j++) {
+      zeroFill.add(MatchType.MATCHESBOTH);
+      zeroFill.add(MatchType.MATCHES1);
+      zeroFill.add(MatchType.MATCHES2);
     }
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, MatchType>>, Geometry> preResult =
+    MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, Geometry> preResult =
         null;
-    preResult = mapRed.aggregateByTimestamp().flatMap(f -> {
-      List<Pair<Pair<Integer, OSMEntity>, Geometry>> res = new LinkedList<>();
-      Geometry entityGeom = f.getGeometry();
-      if (requestResource.equals(RequestResource.PERIMETER)) {
-        if (entityGeom instanceof GeometryCollection) {
-          return res;
-        }
-        entityGeom = entityGeom.getBoundary();
-      }
-      for (int i = 0; i < geoms.size(); i++) {
-        if (entityGeom.intersects(geoms.get(i))) {
-          if (entityGeom.within(geoms.get(i))) {
-            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()), entityGeom));
+    Map<Integer, P> geoms = arrGeoms.stream()
+        .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
+    preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms)
+        .aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) f -> {
+          OSMEntity entity = f.getEntity();
+          boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+          boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+          if (matches1 && matches2) {
+            return MatchType.MATCHESBOTH;
+          } else if (matches1) {
+            return MatchType.MATCHES1;
+          } else if (matches2) {
+            return MatchType.MATCHES2;
           } else {
-            res.add(new ImmutablePair<>(new ImmutablePair<>(i, f.getEntity()),
-                Geo.clip(entityGeom, (Geometry & Polygonal) geoms.get(i))));
+            assert false : "MatchType matches none.";
           }
-        }
-      }
-      return res;
-    }).aggregateBy(f -> {
-      OSMEntity entity = f.getLeft().getRight();
-      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
-      if (matches1 && matches2) {
-        return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESBOTH);
-      } else if (matches1) {
-        return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHES1);
-      } else if (matches2) {
-        return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHES2);
-      } else {
-        assert false : "MatchType matches none.";
-      }
-      return new ImmutablePair<>(f.getLeft().getLeft(), MatchType.MATCHESNONE);
-    }, zeroFill).map(Pair::getValue);
+          return MatchType.MATCHESNONE;
+        }, zeroFill).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
         break;
       case LENGTH:
-      case PERIMETER:
         result = preResult.sum(geom -> {
           return Geo.lengthOf(geom);
+        });
+        break;
+      case PERIMETER:
+        result = preResult.sum(geom -> {
+          if (!(geom instanceof Polygonal)) {
+            return 0.0;
+          } else {
+            return Geo.lengthOf(geom.getBoundary());
+          }
         });
         break;
       case AREA:
@@ -844,62 +837,64 @@ public class ElementsRequestExecutor {
       default:
         break;
     }
-    SortedMap<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
+    SortedMap<MatchType, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> groupByResult;
     InputProcessingUtils utils = inputProcessor.getUtils();
     groupByResult = ExecutionUtils.nest(result);
-    ArrayList<Double[]> value1Arrays = new ArrayList<Double[]>();
-    ArrayList<Double[]> value2Arrays = new ArrayList<Double[]>();
     String[] boundaryIds = utils.getBoundaryIds();
-    Double[] value1 = null;
-    Double[] value2 = null;
+    Double[] resultValues1 = null;
+    Double[] resultValues2 = null;
     String[] timeArray = null;
     boolean timeArrayFilled = false;
-    int count = 1;
-    for (Entry<Pair<Integer, MatchType>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+    for (Entry<MatchType, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> entry : groupByResult
         .entrySet()) {
       if (!timeArrayFilled) {
         timeArray = new String[entry.getValue().entrySet().size()];
       }
-      if (entry.getKey().getRight() == MatchType.MATCHES2) {
-        value2 = new Double[entry.getValue().entrySet().size()];
+      if (entry.getKey() == MatchType.MATCHES2) {
+        resultValues2 = new Double[entry.getValue().entrySet().size()];
         int value2Count = 0;
-        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-          value2[value2Count] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
+            .getValue().entrySet()) {
+          resultValues2[value2Count] =
+              Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           value2Count++;
         }
-      } else if (entry.getKey().getRight() == MatchType.MATCHES1) {
-        value1 = new Double[entry.getValue().entrySet().size()];
+      } else if (entry.getKey() == MatchType.MATCHES1) {
+        resultValues1 = new Double[entry.getValue().entrySet().size()];
         int value1Count = 0;
-        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-          value1[value1Count] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
+            .getValue().entrySet()) {
+          resultValues1[value1Count] =
+              Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           value1Count++;
         }
-      } else if (entry.getKey().getRight() == MatchType.MATCHESBOTH) {
+      } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
-        for (Entry<OSHDBTimestamp, ? extends Number> innerEntry : entry.getValue().entrySet()) {
-          value1[matchesBothCount] = value1[matchesBothCount]
+        int timeArrayCount = 0;
+        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
+            .getValue().entrySet()) {
+          resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          value2[matchesBothCount] = value2[matchesBothCount]
+          resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           if (!timeArrayFilled) {
-            timeArray[matchesBothCount] = innerEntry.getKey().toString();
+            String time = innerEntry.getKey().getFirstIndex().toString();
+            if (matchesBothCount == 0 || !timeArray[timeArrayCount - 1].equals(time)) {
+              timeArray[timeArrayCount] = innerEntry.getKey().getFirstIndex().toString();
+              timeArrayCount++;
+            }
           }
           matchesBothCount++;
         }
+        timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
         timeArrayFilled = true;
       } else {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
-      if (count % 3 == 0) {
-        value1Arrays.add(value1);
-        value2Arrays.add(value2);
-      }
-      count++;
     }
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
-    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, requestParams,
-        groupByResult.size(), boundaryIds, timeArray, value1Arrays, value2Arrays, ratioDf,
-        inputProcessor, startTime, requestResource, requestUrl, new Attribution(url, text),
-        geoJsonGeoms);
+    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, requestParams, boundaryIds,
+        timeArray, resultValues1, resultValues2, ratioDf, inputProcessor, startTime,
+        requestResource, requestUrl, new Attribution(url, text), geoJsonGeoms);
   }
 }
