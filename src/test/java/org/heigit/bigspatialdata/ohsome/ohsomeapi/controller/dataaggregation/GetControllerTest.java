@@ -128,7 +128,7 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/share/groupBy/boundary?bboxes=8.68242,49.4127,8.68702,49.41566|"
-        + "8.69716,49.41071,8.70534,49.41277&types=way&time=2016-08-11&key=building"
+        + "8.69716,49.41071,8.70534,49.41277&types=way&time=2016-08-11&keys=building"
         + "&keys2=building&values2=residential&showMetadata=true", JsonNode.class);
     assertTrue(response.getBody().get("shareGroupByBoundaryResult").get(1).get("shareResult").get(0)
         .get("part").asInt() == 11);
@@ -139,9 +139,9 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/ratio?bboxes=8.66004,49.41184,8.68481,49.42094&types=way"
-            + "&time=2017-09-20&key=building&showMetadata=true&types2=node&keys2=addr:housenumber",
+            + "&time=2017-09-20&keys=building&showMetadata=true&types2=node&keys2=addr:housenumber",
         JsonNode.class);
-    assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.062339);
+    assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.236186);
   }
 
   @Test
@@ -149,11 +149,11 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/ratio/groupBy/boundary?bcircles=8.66906,49.4167,100|"
-            + "8.69013,49.40223,100&types=way&time=2017-09-20&key=building&showMetadata=true"
+            + "8.69013,49.40223,100&types=way&time=2017-09-20&keys=building&showMetadata=true"
             + "&types2=node&keys2=addr:housenumber",
         JsonNode.class);
     assertTrue(response.getBody().get("groupByBoundaryResult").get(0).get("ratioResult").get(0)
-        .get("ratio").asDouble() == 0.210526);
+        .get("ratio").asDouble() == 0.526316);
   }
 
   @Test
@@ -161,9 +161,9 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/density?bboxes=8.68794,49.41434,8.69021,49.41585"
-            + "&types=way&time=2017-08-11&key=building&showMetadata=true",
+            + "&types=way&time=2017-08-11&keys=building&showMetadata=true",
         JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 4279.69);
+    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 3880.74);
   }
 
   @Test
@@ -172,9 +172,9 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/boundary?bboxes=8.68794,49.41434,8.69021,49.41585|"
         + "8.67933,49.40505,8.6824,49.40638&types=way&time=2017-08-19"
-        + "&key=building&showMetadata=true", JsonNode.class);
+        + "&keys=building&showMetadata=true", JsonNode.class);
     assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 1065.44);
+        .asDouble() == 334.85);
   }
 
   @Test
