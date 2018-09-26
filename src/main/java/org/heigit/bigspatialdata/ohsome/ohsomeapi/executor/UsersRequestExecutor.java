@@ -45,7 +45,7 @@ public class UsersRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
@@ -97,7 +97,7 @@ public class UsersRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
@@ -160,7 +160,7 @@ public class UsersRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
    * countGroupByTag} method.
    * 
    * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
@@ -269,7 +269,7 @@ public class UsersRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
    * countGroupByKey} method.
    * 
    * @param requestParameters <code>RequestParameters</code> object, which holds those parameters

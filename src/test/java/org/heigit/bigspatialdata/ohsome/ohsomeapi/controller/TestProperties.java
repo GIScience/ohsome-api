@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 /** Holds the test properties, which are provided as system properties. */
 public class TestProperties {

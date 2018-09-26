@@ -2,7 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.TestProperties;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.TestProperties;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.junit.Before;

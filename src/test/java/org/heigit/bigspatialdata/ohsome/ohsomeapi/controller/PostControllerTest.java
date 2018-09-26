@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertTrue;

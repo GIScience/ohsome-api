@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
@@ -36,6 +36,10 @@ public class GetControllerTest {
     assertTrue(!response.getBody().get("extractRegion").get("temporalExtent").get("toTimestamp")
         .asText().equals("2018-01-01T00:00:00"));
   }
+  
+  /*
+   * /elements tests
+   */
 
   /*
    * /elements/count tests
