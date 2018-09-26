@@ -58,6 +58,19 @@ public class SwaggerConfig {
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
+  /** Creates the Swagger2 documentation for the data extraction resources. */
+  @Bean
+  public Docket rawDataDocket() {
+    ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
+    return new Docket(DocumentationType.SWAGGER_2).groupName("rawData").select()
+        .apis(RequestHandlerSelectors
+            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawData"))
+        .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
+        .globalOperationParameters(defineGlobalOperationParams())
+        .tags(new Tag("dataExtraction", "Direct access to OSM data")).forCodeGeneration(true)
+        .globalResponseMessage(RequestMethod.GET, responseMessages);
+  }
+
   /** Defines custom response messages for the used response codes. */
   private ArrayList<ResponseMessage> defineResponseMessages() {
     ArrayList<ResponseMessage> responseMessages = new ArrayList<ResponseMessage>();
