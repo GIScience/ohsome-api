@@ -18,8 +18,8 @@ public class GetControllerTest {
   /** Method to start this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
-    assumeTrue(
-        TestProperties.INTEGRATION == null || !TestProperties.INTEGRATION.equalsIgnoreCase("no"));
+    assumeTrue(TestProperties.PORT1 != null && (TestProperties.INTEGRATION == null
+        || !TestProperties.INTEGRATION.equalsIgnoreCase("no")));
     // this instance gets reused by all of the following @Test methods
     Application.main(new String[] {TestProperties.DB_FILE_PATH_PROPERTY, "--port=" + port});
   }
@@ -36,10 +36,6 @@ public class GetControllerTest {
     assertTrue(!response.getBody().get("extractRegion").get("temporalExtent").get("toTimestamp")
         .asText().equals("2018-01-01T00:00:00"));
   }
-  
-  /*
-   * /elements tests
-   */
 
   /*
    * /elements/count tests

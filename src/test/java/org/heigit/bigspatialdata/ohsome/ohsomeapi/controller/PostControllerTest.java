@@ -20,8 +20,8 @@ public class PostControllerTest {
   /** Method to start this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
-    assumeTrue(
-        TestProperties.INTEGRATION == null || !TestProperties.INTEGRATION.equalsIgnoreCase("no"));
+    assumeTrue(TestProperties.PORT2 != null && (TestProperties.INTEGRATION == null
+        || !TestProperties.INTEGRATION.equalsIgnoreCase("no")));
     // this instance gets reused by all of the following @Test methods
     Application.main(new String[] {TestProperties.DB_FILE_PATH_PROPERTY, "--port=" + port});
   }
