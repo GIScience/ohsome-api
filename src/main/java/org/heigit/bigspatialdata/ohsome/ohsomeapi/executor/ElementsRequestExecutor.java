@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
@@ -34,6 +37,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawDataResponse.DataResponse;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -44,8 +48,15 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.wololo.geojson.Feature;
+import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -54,6 +65,94 @@ public class ElementsRequestExecutor {
 
   private static final String url = ExtractMetadata.attributionUrl;
   private static final String text = ExtractMetadata.attributionShort;
+
+  /**
+   * Performs an OSM data extraction.
+   * 
+   * <p>
+   * 
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
+   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
+   *        a stream.
+   */
+  public static void executeRetrieveRawData(RequestParameters requestParams,
+      HttpServletResponse response) throws UnsupportedOperationException, Exception {
+    long startTime = System.currentTimeMillis();
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    TagTranslator tt = DbConnData.tagTranslator;
+    String[] keys = requestParams.getKeys();
+    String[] values = requestParams.getValues();
+    int[] keysInt = new int[keys.length];
+    int[] valuesInt = new int[values.length];
+    if (keys.length != 0) {
+      for (int i = 0; i < keys.length; i++) {
+        keysInt[i] = tt.getOSHDBTagKeyOf(keys[0]).toInt();
+        if (values.length != 0 && i < values.length) {
+          // works as the relation between keys:values must be n:(m<=n)
+          valuesInt[i] = tt.getOSHDBTagOf(keys[i], values[i]).getValue();
+        }
+      }
+    }
+    List<Feature> result = null;
+    GeoJSONWriter gjw = new GeoJSONWriter();
+    result = mapRed.map(snapshot -> {
+      Map<String, Object> properties = new TreeMap<>();
+      properties.put("timestamp", snapshot.getTimestamp().toString());
+      properties.put("osm-id", snapshot.getEntity().getType().toString().toLowerCase() + "/"
+          + snapshot.getEntity().getId());
+      if (keys.equals(null) || keys.length == 0) {
+        for (OSHDBTag OSHDBTag : snapshot.getEntity().getTags()) {
+          OSMTag tag = tt.getOSMTagOf(OSHDBTag.getKey(), OSHDBTag.getValue());
+          properties.put(tag.getKey(), tag.getValue());
+        }
+      } else {
+        int[] tags = snapshot.getEntity().getRawTags();
+        for (int i = 0; i < tags.length; i += 2) {
+          int tagKeyId = tags[i];
+          int tagValueId = tags[i + 1];
+          for (int key : keysInt) {
+            if (tagKeyId == key) {
+              if (valuesInt.length == 0) {
+                OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+                properties.put(tag.getKey(), tag.getValue());
+              } else {
+                for (int value : valuesInt) {
+                  if (tagValueId == value) {
+                    OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+                    properties.put(tag.getKey(), tag.getValue());
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return new Feature(gjw.write(snapshot.getGeometry()), properties);
+    }).collect();
+    Metadata metadata = null;
+    if (ProcessingData.showMetadata) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, "Raw OSM data.", requestUrl);
+    }
+    DataResponse OSMData = new DataResponse(new Attribution(url, text), Application.apiVersion,
+        metadata, "FeatureCollection", result);
+
+    JsonFactory jsonFactory = new JsonFactory();
+    ServletOutputStream stream = response.getOutputStream();
+    response.addHeader("Content-disposition", "attachment;filename=ohsomeApiResponse.json");
+    response.setContentType("application/json");
+    JsonGenerator jsonGen = jsonFactory.createGenerator(stream, JsonEncoding.UTF8);
+    jsonGen.setCodec(new ObjectMapper());
+    jsonGen.writeObject(OSMData);
+    response.flushBuffer();
+  }
 
   /**
    * Performs a count|length|perimeter|area calculation.

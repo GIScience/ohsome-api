@@ -15,6 +15,8 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationRespons
  * ShareGroupByBoundaryResponse}</li>
  * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.RatioResponse
  * RatioResponse}</li>
+ * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawDataResponse.DataResponse
+ * DataResponse}</li>
  * </ul>
  */
 public interface Response {
@@ -24,5 +26,4 @@ public interface Response {
   public String getApiVersion();
 
   public Metadata getMetadata();
-
 }
