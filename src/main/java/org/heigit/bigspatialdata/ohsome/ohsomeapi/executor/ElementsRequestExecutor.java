@@ -57,6 +57,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -149,7 +150,9 @@ public class ElementsRequestExecutor {
     response.addHeader("Content-disposition", "attachment;filename=ohsomeApiResponse.json");
     response.setContentType("application/json");
     JsonGenerator jsonGen = jsonFactory.createGenerator(stream, JsonEncoding.UTF8);
-    jsonGen.setCodec(new ObjectMapper());
+    ObjectMapper objMapper = new ObjectMapper();
+    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    jsonGen.setCodec(objMapper);
     jsonGen.writeObject(OSMData);
     response.flushBuffer();
   }
@@ -159,7 +162,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -232,7 +235,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -319,7 +322,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -384,7 +387,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
    * countGroupByTag} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -488,7 +491,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -548,7 +551,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
    * countGroupByKey} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -634,7 +637,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
    * countRatio} method.
    * 
    * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
@@ -784,7 +787,7 @@ public class ElementsRequestExecutor {
    * 
    * <p>
    * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
    * countRatio} method.
    * 
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
