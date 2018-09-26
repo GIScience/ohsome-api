@@ -86,19 +86,15 @@ public class InputProcessor {
     boolean isSnapshot = requestParameters.isSnapshot();
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db);
-      } else if (DbConnData.igniteDb == null) {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.h2Db).keytables(DbConnData.keytables);
+        mapRed = OSMEntitySnapshotView.on(DbConnData.db);
       } else {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
+        mapRed = OSMEntitySnapshotView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     } else {
       if (DbConnData.keytables == null) {
-        mapRed = OSMContributionView.on(DbConnData.h2Db);
-      } else if (DbConnData.igniteDb == null) {
-        mapRed = OSMContributionView.on(DbConnData.h2Db).keytables(DbConnData.keytables);
+        mapRed = OSMContributionView.on(DbConnData.db);
       } else {
-        mapRed = OSMContributionView.on(DbConnData.igniteDb).keytables(DbConnData.keytables);
+        mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
     String showMetadata = requestParameters.getShowMetadata();

@@ -9,6 +9,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -43,24 +44,31 @@ public class Application implements ApplicationRunner {
   public void run(ApplicationArguments args) throws Exception {
     boolean multithreading = true;
     boolean caching = false;
+    String dbPrefix = null;
     // only used when tests are executed directly in Eclipse
     if (System.getProperty("database.db") != null) {
-      DbConnData.h2Db = new OSHDBH2(System.getProperty("database.db"));
-      extractMetadata(DbConnData.h2Db);
+      DbConnData.db = new OSHDBH2(System.getProperty("database.db"));
     }
     try {
       for (String paramName : args.getOptionNames()) {
         switch (paramName) {
           case "database.db":
-            DbConnData.h2Db = new OSHDBH2(args.getOptionValues(paramName).get(0));
-            extractMetadata(DbConnData.h2Db);
+            DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
+            break;
+          case "database.jdbc":
+            String[] jdbcParam = args.getOptionValues(paramName).get(0).split(";");
+            DbConnData.db = new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
             break;
           case "database.ignite":
-            DbConnData.igniteDb = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
-            extractMetadata(DbConnData.igniteDb);
+            DbConnData.db = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
             break;
           case "database.keytables":
             DbConnData.keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
+            break;
+          case "database.keytables.jdbc":
+            jdbcParam = args.getOptionValues(paramName).get(0).split(";");
+            DbConnData.keytables =
+                new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
             break;
           case "database.multithreading":
             if (args.getOptionValues(paramName).get(0).equals("false")) {
@@ -72,25 +80,38 @@ public class Application implements ApplicationRunner {
               caching = true;
             }
             break;
+          case "database.prefix":
+            dbPrefix = args.getOptionValues(paramName).get(0);
+            break;
           default:
             break;
         }
       }
-      if ((DbConnData.h2Db == null && DbConnData.igniteDb == null)
-          || (DbConnData.h2Db != null && DbConnData.igniteDb != null)) {
+      if (DbConnData.db == null) {
         throw new RuntimeException(
             "You have to define either the '--database.db' or the '--database.ignite' parameter.");
       }
-      if (DbConnData.h2Db != null) {
-        DbConnData.h2Db.multithreading(multithreading);
-        DbConnData.h2Db.inMemory(caching);
-        DbConnData.tagTranslator = new TagTranslator(DbConnData.h2Db.getConnection());
-      } else {
-        DbConnData.keytables.multithreading(multithreading);
+      if (DbConnData.db instanceof OSHDBJdbc) {
+        DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
+      }
+      if (DbConnData.db instanceof OSHDBH2) {
+        DbConnData.db = ((OSHDBH2) DbConnData.db).inMemory(caching);
+      }
+      if (DbConnData.keytables != null) {
         DbConnData.tagTranslator = new TagTranslator(DbConnData.keytables.getConnection());
+        extractMetadata(DbConnData.keytables);
+      } else {
+        if (!(DbConnData.db instanceof OSHDBJdbc)) {
+          throw new RuntimeException("Missing keytables.");
+        }
+        DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
+        extractMetadata(DbConnData.db);
+      }
+      if (dbPrefix != null ){
+        DbConnData.db = DbConnData.db.prefix(dbPrefix);
       }
     } catch (ClassNotFoundException | SQLException e) {
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e);
     }
   }
 
