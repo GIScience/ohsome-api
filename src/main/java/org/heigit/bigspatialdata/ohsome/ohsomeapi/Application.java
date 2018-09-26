@@ -48,23 +48,19 @@ public class Application implements ApplicationRunner {
     // only used when tests are executed directly in Eclipse
     if (System.getProperty("database.db") != null) {
       DbConnData.db = new OSHDBH2(System.getProperty("database.db"));
-      extractMetadata(DbConnData.db);
     }
     try {
       for (String paramName : args.getOptionNames()) {
         switch (paramName) {
           case "database.db":
             DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
-            extractMetadata(DbConnData.db);
             break;
           case "database.jdbc":
             String[] jdbcParam = args.getOptionValues(paramName).get(0).split(";");
             DbConnData.db = new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
-            extractMetadata(DbConnData.db);
             break;
           case "database.ignite":
             DbConnData.db = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
-            extractMetadata(DbConnData.db);
             break;
           case "database.keytables":
             DbConnData.keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
@@ -103,11 +99,13 @@ public class Application implements ApplicationRunner {
       }
       if (DbConnData.keytables != null) {
         DbConnData.tagTranslator = new TagTranslator(DbConnData.keytables.getConnection());
+        extractMetadata(DbConnData.keytables);
       } else {
         if (!(DbConnData.db instanceof OSHDBJdbc)) {
           throw new RuntimeException("Missing keytables.");
         }
         DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
+        extractMetadata(DbConnData.db);
       }
       if (dbPrefix != null ){
         DbConnData.db = DbConnData.db.prefix(dbPrefix);
