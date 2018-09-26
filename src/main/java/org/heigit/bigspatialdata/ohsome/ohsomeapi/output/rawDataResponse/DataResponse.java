@@ -2,6 +2,8 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawDataResponse;
 
 import java.util.List;
 import org.wololo.geojson.Feature;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
@@ -10,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Represents the whole GeoJSON response object for the /elements resource.
  */
+@JsonInclude(Include.NON_NULL)
 public class DataResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
