@@ -71,12 +71,12 @@ public class Application implements ApplicationRunner {
                 new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
             break;
           case "database.multithreading":
-            if (args.getOptionValues(paramName).get(0).equals("false")) {
+            if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("false")) {
               multithreading = false;
             }
             break;
           case "database.caching":
-            if (args.getOptionValues(paramName).get(0).equals("true")) {
+            if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("true")) {
               caching = true;
             }
             break;
@@ -89,7 +89,8 @@ public class Application implements ApplicationRunner {
       }
       if (DbConnData.db == null) {
         throw new RuntimeException(
-            "You have to define either the '--database.db' or the '--database.ignite' parameter.");
+            "You have to define one of the following three database parameters: '--database.db', "
+            + "'--database.ignite', or '--database.jdbc'.");
       }
       if (DbConnData.db instanceof OSHDBJdbc) {
         DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
