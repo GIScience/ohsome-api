@@ -1,6 +1,6 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Represents the JSON response object for the /metadata request. It contains information about the
  * attribution, the version of the API and the
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.ExtractRegion
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion
  * ExtractRegion}.
  */
 @JsonInclude(Include.NON_NULL)
@@ -40,5 +40,4 @@ public class MetadataResponse {
   public ExtractRegion getExtractRegion() {
     return extractRegion;
   }
-
 }

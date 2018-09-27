@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -19,20 +21,20 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilde
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.RatioResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.RatioResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ElementsResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ShareResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ShareResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.RatioGroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.ShareGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.ShareGroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.users.UsersResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -45,8 +47,7 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
+
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
@@ -149,8 +150,9 @@ public class ExecutionUtils {
       Map<OSHDBCombinedIndex<U, V>, A> result) {
     TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
     result.forEach((index, data) -> {
-      if (!ret.containsKey(index.getSecondIndex()))
+      if (!ret.containsKey(index.getSecondIndex())) {
         ret.put(index.getSecondIndex(), new TreeMap<U, A>());
+      }
       ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
     });
     return ret;

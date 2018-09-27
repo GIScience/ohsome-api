@@ -1,5 +1,8 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawData;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
@@ -8,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
 
 /**
  * REST controller containing the method, which is mapped to "/elements" and used to return OSM
@@ -29,7 +30,7 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Raw OSM Data", nickname = "rawData")
@@ -60,5 +61,4 @@ public class ElementsController {
         false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
         response);
   }
-
 }

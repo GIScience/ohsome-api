@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse;
 
 import io.swagger.annotations.ApiModelProperty;
 

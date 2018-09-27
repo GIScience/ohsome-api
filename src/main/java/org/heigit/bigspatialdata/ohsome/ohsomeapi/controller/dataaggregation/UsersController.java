@@ -5,7 +5,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParam
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.UsersRequestExecutor;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,12 +24,13 @@ public class UsersController {
 
   /**
    * Gives the count of OSM users.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users", nickname = "usersCount")
@@ -62,12 +63,13 @@ public class UsersController {
 
   /**
    * Gives the count of OSM users grouped by the OSM type.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the type",
@@ -101,12 +103,13 @@ public class UsersController {
 
   /**
    * Gives the count of OSM users grouped by the tag.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "usersCountGroupByTag")
@@ -149,12 +152,13 @@ public class UsersController {
 
   /**
    * Gives the count of OSM users grouped by the key.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "usersCountGroupByKey")
@@ -193,12 +197,13 @@ public class UsersController {
 
   /**
    * Gives the density of OSM users (number of users per square-kilometers).
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
@@ -232,12 +237,13 @@ public class UsersController {
 
   /**
    * Gives the density of OSM users grouped by the OSM type.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the type",
@@ -271,12 +277,13 @@ public class UsersController {
 
   /**
    * Gives the density of OSM users grouped by the tag.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the tag",
@@ -317,5 +324,4 @@ public class UsersController {
         false, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
         groupByKey, groupByValues);
   }
-
 }

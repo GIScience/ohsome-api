@@ -1,6 +1,6 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.users;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Result;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;

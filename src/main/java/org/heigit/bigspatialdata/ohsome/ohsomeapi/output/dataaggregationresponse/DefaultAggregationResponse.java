@@ -1,16 +1,16 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse;
 
-import org.geojson.Feature;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import org.geojson.Feature;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
  * /groupBy resource. It contains attribution info, the version of the api, optional
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
  * Metadata} and the
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ElementsResult
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
  * ElementsResult} objects.
  */
 @JsonInclude(Include.NON_NULL)

@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.exception;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+/** Holds the needed data for returning a custom error response. */
 @JsonInclude(Include.NON_NULL)
 public class ErrorDetails {
   private String timestamp;

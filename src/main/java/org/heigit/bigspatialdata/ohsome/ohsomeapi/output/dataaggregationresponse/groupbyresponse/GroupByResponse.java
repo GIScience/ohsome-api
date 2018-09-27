@@ -1,25 +1,26 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse;
 
-import org.geojson.Feature;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import org.geojson.Feature;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * /share/groupBy/boundary resource. It contains an optional
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata
- * Metadata} object, the requested
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.ShareGroupByResult
- * ShareGroupByResult} for a JSON response and an identifier of the object. If the output format is
+ * count|length|area|perimeter/groupBy resource. It contains an optional
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
+ * Metadata}, the requested
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult
+ * GroupByResult} for a JSON response and an identifier of the object. If the output format is
  * GeoJSON, the response includes a {@link org.geojson.Feature Feature} array, which holds the
  * respective objects with their timestamp-value pairs.
  */
 @JsonInclude(Include.NON_NULL)
-public class ShareGroupByBoundaryResponse implements Response {
+public class GroupByResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
@@ -32,23 +33,23 @@ public class ShareGroupByBoundaryResponse implements Response {
   @ApiModelProperty(notes = "GeoJSON Features", required = true)
   private Feature[] features;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
-      + "with their timestamp-whole-part values", required = true)
-  private ShareGroupByResult[] shareGroupByBoundaryResult;
+      + "with their timestamp-value pairs", required = true)
+  private GroupByResult[] groupByResult;
 
-  private ShareGroupByBoundaryResponse() {}
+  private GroupByResponse() {}
 
-  public ShareGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      ShareGroupByResult[] shareGroupByBoundaryResult) {
+  public GroupByResponse(Attribution attribution, String apiVersion, Metadata metadata,
+      GroupByResult[] groupByUserResult) {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
     this.metadata = metadata;
-    this.shareGroupByBoundaryResult = shareGroupByBoundaryResult;
+    this.groupByResult = groupByUserResult;
   }
 
   /** Static factory method returning the whole GeoJSON response. */
-  public static ShareGroupByBoundaryResponse of(Attribution attribution, String apiVersion,
-      Metadata metadata, String type, Feature[] features) {
-    ShareGroupByBoundaryResponse response = new ShareGroupByBoundaryResponse();
+  public static GroupByResponse of(Attribution attribution, String apiVersion, Metadata metadata,
+      String type, Feature[] features) {
+    GroupByResponse response = new GroupByResponse();
     response.attribution = attribution;
     response.apiVersion = apiVersion;
     response.metadata = metadata;
@@ -77,8 +78,7 @@ public class ShareGroupByBoundaryResponse implements Response {
     return features;
   }
 
-  public ShareGroupByResult[] getShareGroupByBoundaryResult() {
-    return shareGroupByBoundaryResult;
+  public GroupByResult[] getGroupByResult() {
+    return groupByResult;
   }
 }
-

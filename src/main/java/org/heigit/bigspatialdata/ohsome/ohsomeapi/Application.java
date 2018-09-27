@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
@@ -16,8 +18,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
@@ -90,7 +90,7 @@ public class Application implements ApplicationRunner {
       if (DbConnData.db == null) {
         throw new RuntimeException(
             "You have to define one of the following three database parameters: '--database.db', "
-            + "'--database.ignite', or '--database.jdbc'.");
+                + "'--database.ignite', or '--database.jdbc'.");
       }
       if (DbConnData.db instanceof OSHDBJdbc) {
         DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
@@ -108,7 +108,7 @@ public class Application implements ApplicationRunner {
         DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
         extractMetadata(DbConnData.db);
       }
-      if (dbPrefix != null ){
+      if (dbPrefix != null) {
         DbConnData.db = DbConnData.db.prefix(dbPrefix);
       }
     } catch (ClassNotFoundException | SQLException e) {

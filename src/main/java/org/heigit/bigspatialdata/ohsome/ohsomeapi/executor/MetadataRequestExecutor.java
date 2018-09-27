@@ -2,10 +2,10 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.ExtractRegion;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.MetadataResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.TemporalExtent;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.TemporalExtent;
 
 /** Includes the execute method for requests mapped to /metadata. */
 public class MetadataRequestExecutor {
@@ -13,7 +13,7 @@ public class MetadataRequestExecutor {
   /**
    * Returns the metadata of the underlying extract-file.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.MetadataResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse
    *         MetadataResponse}
    */
   public static MetadataResponse executeGetMetadata() {

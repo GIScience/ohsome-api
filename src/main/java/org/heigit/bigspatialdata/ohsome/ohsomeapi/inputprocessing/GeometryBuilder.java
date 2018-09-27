@@ -1,5 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,18 +28,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.wololo.jts2geojson.GeoJSONReader;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
+
 
 /**
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.
  */
 public class GeometryBuilder {
-  
+
   GeometryFactory gf;
 
   /**

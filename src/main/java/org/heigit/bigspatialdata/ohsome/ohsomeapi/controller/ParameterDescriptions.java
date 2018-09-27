@@ -26,5 +26,4 @@ public class ParameterDescriptions {
   public static final String FORMAT_DESCR = "Output format, e.g.: geojson; default: json";
   public static final String SHOW_METADATA_DESCR =
       "'Boolean' operator 'true' or 'false'; default: 'false'";
-
 }

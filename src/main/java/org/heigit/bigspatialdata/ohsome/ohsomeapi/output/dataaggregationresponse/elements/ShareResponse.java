@@ -1,18 +1,19 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
+
 /**
  * Represents the whole JSON response object for the /elements/count|length|perimeter|area/share
  * resources. It contains the attribution, optional
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
  * Metadata}, as well as the results section showing
- * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ShareResult
+ * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult
  * ShareResult} objects.
  */
 @JsonInclude(Include.NON_NULL)

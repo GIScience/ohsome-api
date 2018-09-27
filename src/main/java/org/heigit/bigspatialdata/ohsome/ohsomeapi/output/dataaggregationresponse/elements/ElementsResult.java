@@ -1,7 +1,8 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements;
+package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Result;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import io.swagger.annotations.ApiModelProperty;
+
 
 /**
  * Represents the result JSON object for most of the /elements resources containing the timestamp

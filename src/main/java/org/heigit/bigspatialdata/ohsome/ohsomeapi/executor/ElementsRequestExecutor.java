@@ -1,5 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,14 +37,14 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.DefaultAggregationResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.elements.ElementsResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawDataResponse.DataResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -53,13 +60,6 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
@@ -79,7 +79,7 @@ public class ElementsRequestExecutor {
    */
   public static void executeRetrieveRawData(RequestParameters requestParams,
       HttpServletResponse response) throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -169,12 +169,12 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.DefaultAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static Response executeCountLengthPerimeterArea(RequestResource requestResource,
       RequestParameters requestParams) throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
@@ -242,13 +242,13 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, RequestParameters requestParams)
       throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -329,12 +329,12 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
       RequestParameters requestParams) throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
@@ -394,13 +394,13 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByTag(RequestResource requestResource,
       RequestParameters requestParams, String[] groupByKey, String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length != 1) {
       throw new BadRequestException(
           "You need to give one groupByKey parameter, if you want to use groupBy/tag.");
@@ -498,12 +498,12 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
    *         GroupByResponseContent}
    */
   public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
       RequestParameters requestParams) throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
@@ -558,13 +558,13 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.GroupByResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
    *         GroupByResponse Content}
    */
   public static Response executeCountLengthPerimeterAreaGroupByKey(RequestResource requestResource,
       RequestParameters requestParams, String[] groupByKeys)
       throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(
           "You need to give at least one groupByKeys parameter, if you want to use groupBy/key");
@@ -644,13 +644,13 @@ public class ElementsRequestExecutor {
    *        AREA).
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.DefaultAggregationResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
   public static Response executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
       RequestParameters requestParams, String[] types2, String[] keys2, String[] values2,
       boolean isShare) throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
@@ -792,7 +792,7 @@ public class ElementsRequestExecutor {
    * 
    * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
    *        are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.groupByResponse.RatioGroupByBoundaryResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse
    *         RatioGroupByBoundaryResponse Content}
    */
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
@@ -800,7 +800,7 @@ public class ElementsRequestExecutor {
       RequestResource requestResource, RequestParameters requestParams, String[] types2,
       String[] keys2, String[] values2, boolean isShare)
       throws UnsupportedOperationException, Exception {
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;

@@ -1,21 +1,22 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
 
 /**
  * REST controller containing the GET and POST request handling methods, which are mapped to
@@ -28,12 +29,13 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements", nickname = "elementsPerimeter")
@@ -67,12 +69,13 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the OSM type.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
@@ -108,12 +111,13 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the user who was the last editor of the
    * requested elements.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(
@@ -151,12 +155,13 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements in meter grouped by the boundary "
@@ -193,6 +198,7 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the key.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -200,7 +206,7 @@ public class PerimeterController {
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
@@ -242,6 +248,7 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the tag.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -253,7 +260,7 @@ public class PerimeterController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
@@ -299,6 +306,7 @@ public class PerimeterController {
   /**
    * Gives the perimeter of items satisfying keys, values (+ other params) and part of items
    * satisfying keys2, values2.(+ other params).
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -308,7 +316,7 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(
@@ -354,6 +362,7 @@ public class PerimeterController {
   /**
    * Gives the perimeter of items satisfying keys, values (+ other params) and part of items
    * satisfying keys2, values2 (plus other parameters), grouped by the boundary.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -363,7 +372,7 @@ public class PerimeterController {
    *        subgroup(share).
    * @param values2 <code>String</code> array having the same format as values and used to define
    *        the subgroup(share).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
@@ -408,12 +417,13 @@ public class PerimeterController {
 
   /**
    * Gives the density of selected items (perimeter of items per square-kilometers).
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)",
@@ -450,12 +460,13 @@ public class PerimeterController {
   /**
    * Gives the density of selected items (perimeter of items per square-kilometers) grouped by the
    * OSM type.
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements (perimeter of items per square-kilometers) "
@@ -491,12 +502,13 @@ public class PerimeterController {
   /**
    * Gives the density of selected items (perimeter of items per square-kilometers) grouped by the
    * boundary parameter (bounding box/circle/polygon).
+   * 
    * <p>
    * The parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(
@@ -536,6 +548,7 @@ public class PerimeterController {
   /**
    * Gives the density of selected items (perimeter of items per square-kilometers) grouped by the
    * tag.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -547,7 +560,7 @@ public class PerimeterController {
    * @param groupByValues <code>String</code> array containing the values used to create the tags
    *        for grouping. If a given value does not appear in the output, then there are no objects
    *        assigned to it (within the given filters).
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Density of selected items (perimeter of items per square-kilometers) "
@@ -593,6 +606,7 @@ public class PerimeterController {
   /**
    * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
@@ -601,7 +615,7 @@ public class PerimeterController {
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
    * @param values2 <code>String</code> array having the same format as values.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Ratio of selected items satisfying types2, keys2 and values2 within items "
@@ -651,12 +665,13 @@ public class PerimeterController {
   /**
    * Gives the ratio of the perimeter of selected items satisfying types2, keys2 and values2 within
    * items selected by types, keys and values grouped by the boundary.
+   * 
    * <p>
    * The other parameters are described in the
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
    * countRatio} method.
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataAggregationResponse.Response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
@@ -703,5 +718,4 @@ public class PerimeterController {
             bcircles, bpolys, types, keys, values, userids, time, format, showMetadata),
         types2, keys2, values2, false);
   }
-
 }

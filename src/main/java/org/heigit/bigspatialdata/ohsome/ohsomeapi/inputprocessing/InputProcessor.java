@@ -1,5 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,9 +32,7 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
+
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
@@ -193,7 +194,6 @@ public class InputProcessor {
    * 
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation). If the array is empty, all three types are used.
-   * @return <code>EnumSet</code> containing the requested OSM type(s).
    * @throws BadRequestException if the content of the parameter does not represent one, two, or all
    *         three OSM types
    */

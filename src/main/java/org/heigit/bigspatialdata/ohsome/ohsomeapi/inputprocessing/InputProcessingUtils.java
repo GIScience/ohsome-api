@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.vividsolutions.jts.geom.Geometry;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -12,7 +13,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import com.vividsolutions.jts.geom.Geometry;
+
 
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
@@ -260,7 +261,6 @@ public class InputProcessingUtils {
    * Defines the toTimestamps for the result json object for /users responses.
    */
   public String[] defineToTimestamps(String[] timeData) {
-
     String[] toTimestamps;
     OSHDBTimestamps timestamps;
     if (timeData.length == 3 && timeData[2] != null) {
@@ -403,7 +403,6 @@ public class InputProcessingUtils {
     if (ExtractMetadata.dataPoly != null) {
       return geom.within(ExtractMetadata.dataPoly);
     }
-
     return true;
   }
 

@@ -1,11 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata;
 
+import io.swagger.annotations.Api;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.MetadataRequestExecutor;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.MetadataResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.Api;
 
 /**
  * REST controller containing the GET request, which enters through "/metadata".
@@ -20,7 +20,7 @@ public class MetadataController {
    * 
    * <p>
    * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataResponse.MetadataResponse
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse
    *         MetadataResponse}
    */
   @RequestMapping(method = RequestMethod.GET, produces = "application/json")

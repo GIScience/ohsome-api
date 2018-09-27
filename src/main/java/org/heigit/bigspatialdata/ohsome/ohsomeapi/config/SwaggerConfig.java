@@ -64,7 +64,7 @@ public class SwaggerConfig {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("rawData").select()
         .apis(RequestHandlerSelectors
-            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawData"))
+            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams())
         .tags(new Tag("dataExtraction", "Direct access to OSM data")).forCodeGeneration(true)

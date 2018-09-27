@@ -1,11 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.vividsolutions.jts.geom.Geometry;
 import java.util.Collection;
 import java.util.EnumSet;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import com.vividsolutions.jts.geom.Geometry;
+
 
 /** Holds all the relevant data that is used to process the request and create the response. */
 public class ProcessingData {
