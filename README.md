@@ -37,11 +37,17 @@ Now you should have a running local API, which is ready for receiving requests u
 ## Testing
 
 To run the tests locally, you need the following:
-1. two free ports (8081 and 8082 for example), which the API will use to start two instances and run different integration tests on
-2. [heidelberg.oshb](http://downloads.ohsome.org/v0.4/heidelberg.oshdb.mv.db) file
-3. maven command: `mvn -Dport1=8081 -Dport2=8082 -DdbFilePathProperty="--database.db=C:\\path-to-your-heidelberg-file\\heidelberg.oshdb" package`
+1. define the properties `-Dport_get -Dport_post -Dport_data` using three free ports (for example 8081, 8082, 8083), which the API will use to start instances and run different integration tests on
+    * -Dport.get starts data-aggregation + metadata tests using GET requests
+    * -Dport.post starts data-aggregation tests using POST requests
+    * -Dport.data starts data-extraction tests using GET and POST requests
+2. [heidelberg.oshb](http://downloads.ohsome.org/v0.4/heidelberg.oshdb.mv.db) file (or any other, which includes the data from Heidelberg)
+3. maven command: `mvn -Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=C:\\path-to-your-heidelberg-file\\heidelberg.oshdb" package`
 
-*Note:* You can disable the integration and/or junit tests via the following properties: `-Dintegration="no" -Djunit="no"`
+*Note:* 
+* You can disable the integration and/or junit tests via the following properties: `-Dintegration="no" -Djunit="no"`
+* If you do not define the -Dport_xyz property, the corresponding test class will not be executed
+
 <p>
 To be able to test this API with your own requests, you can take a look at the description of the parameters and available resources given in the [Swagger2](http://localhost:8080/swagger-ui.html) documentation, which can be accessed while your local copy is running.
 It lists all available resources and gives detailled information about the individual input parameters and JSON responses.
