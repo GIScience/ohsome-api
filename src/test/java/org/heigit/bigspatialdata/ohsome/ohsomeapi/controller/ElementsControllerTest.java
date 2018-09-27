@@ -7,6 +7,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class ElementsControllerTest {
@@ -28,10 +30,22 @@ public class ElementsControllerTest {
    */
 
   // test result without setting any tags
+  @Test
+  public void postElementsUsingNoTagsTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
+    map.add("types", "node");
+    map.add("time", "2016-02-05");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements", map, JsonNode.class);
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
+        .equalsIgnoreCase("node/135742850"));
+  }
 
   // test result with e.g. building=residential
   @Test
-  public void getElementsTest() {
+  public void getElementsUsingOneTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
@@ -40,6 +54,4 @@ public class ElementsControllerTest {
     assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
         .equals("way/140112811"));
   }
-
-  // test result with building=residential && addr:hosuenumber=*
 }
