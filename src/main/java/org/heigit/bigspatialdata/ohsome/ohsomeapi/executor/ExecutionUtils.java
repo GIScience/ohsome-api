@@ -1,7 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -43,10 +41,16 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.wololo.jts2geojson.GeoJSONWriter;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 
 
 /** Holds helper methods that are used by the executor classes. */
@@ -92,6 +96,39 @@ public class ExecutionUtils {
         geom = null;
     }
     return geom;
+  }
+
+  public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
+      TagTranslator tt, int[] keysInt, int[] valuesInt, OSMEntitySnapshot snapshot,
+      Map<String, Object> properties, GeoJSONWriter gjw) {
+    if (keys.equals(null) || keys.length == 0) {
+      for (OSHDBTag oshdbTag : snapshot.getEntity().getTags()) {
+        OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
+        properties.put(tag.getKey(), tag.getValue());
+      }
+    } else {
+      int[] tags = snapshot.getEntity().getRawTags();
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        int tagValueId = tags[i + 1];
+        for (int key : keysInt) {
+          if (tagKeyId == key) {
+            if (valuesInt.length == 0) {
+              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+              properties.put(tag.getKey(), tag.getValue());
+            } else {
+              for (int value : valuesInt) {
+                if (tagValueId == value) {
+                  OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+                  properties.put(tag.getKey(), tag.getValue());
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
   }
 
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */

@@ -1,12 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,11 +48,17 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
@@ -77,7 +76,7 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
-  public static void executeRetrieveRawData(RequestParameters requestParams,
+  public static void executeRetrieveRawData(RequestParameters requestParams, String osmMetadata,
       HttpServletResponse response) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -85,6 +84,12 @@ public class ElementsRequestExecutor {
     String requestUrl = null;
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
+    }
+    final boolean includeOSMMetadata;
+    if (osmMetadata != null && osmMetadata.equalsIgnoreCase("false")) {
+      includeOSMMetadata = false;
+    } else {
+      includeOSMMetadata = true;
     }
     mapRed = inputProcessor.processParameters(mapRed, requestParams);
     TagTranslator tt = DbConnData.tagTranslator;
@@ -101,48 +106,34 @@ public class ElementsRequestExecutor {
         }
       }
     }
+    MapReducer<Feature> preResult = null;
     List<Feature> result = null;
+    ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
-    result = mapRed.map(snapshot -> {
-      Map<String, Object> properties = new TreeMap<>();
-      properties.put("timestamp", snapshot.getTimestamp().toString());
-      properties.put("osm-id", snapshot.getEntity().getType().toString().toLowerCase() + "/"
-          + snapshot.getEntity().getId());
-      if (keys.equals(null) || keys.length == 0) {
-        for (OSHDBTag OSHDBTag : snapshot.getEntity().getTags()) {
-          OSMTag tag = tt.getOSMTagOf(OSHDBTag.getKey(), OSHDBTag.getValue());
-          properties.put(tag.getKey(), tag.getValue());
-        }
-      } else {
-        int[] tags = snapshot.getEntity().getRawTags();
-        for (int i = 0; i < tags.length; i += 2) {
-          int tagKeyId = tags[i];
-          int tagValueId = tags[i + 1];
-          for (int key : keysInt) {
-            if (tagKeyId == key) {
-              if (valuesInt.length == 0) {
-                OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-                properties.put(tag.getKey(), tag.getValue());
-              } else {
-                for (int value : valuesInt) {
-                  if (tagValueId == value) {
-                    OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-                    properties.put(tag.getKey(), tag.getValue());
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      return new Feature(gjw.write(snapshot.getGeometry()), properties);
-    }).collect();
+    if (includeOSMMetadata) {
+      preResult = mapRed.map(snapshot -> {
+        Map<String, Object> properties = new TreeMap<>();
+        properties.put("snapshotTimestamp", snapshot.getTimestamp().toString());
+        properties.put("version", snapshot.getEntity().getVersion());
+        properties.put("osm-id", snapshot.getEntity().getType().toString().toLowerCase() + "/"
+            + snapshot.getEntity().getId());
+        return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
+            properties, gjw);
+      });
+    } else {
+      preResult = mapRed.map(snapshot -> {
+        Map<String, Object> properties = new TreeMap<>();
+        return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
+            properties, gjw);
+      });
+    }
+    result = preResult.collect();
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, "Raw OSM data.", requestUrl);
     }
-    DataResponse OSMData = new DataResponse(new Attribution(url, text), Application.apiVersion,
+    DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
         metadata, "FeatureCollection", result);
 
     JsonFactory jsonFactory = new JsonFactory();
@@ -153,7 +144,7 @@ public class ElementsRequestExecutor {
     ObjectMapper objMapper = new ObjectMapper();
     objMapper.enable(SerializationFeature.INDENT_OUTPUT);
     jsonGen.setCodec(objMapper);
-    jsonGen.writeObject(OSMData);
+    jsonGen.writeObject(osmData);
     response.flushBuffer();
   }
 

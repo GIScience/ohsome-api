@@ -1,16 +1,19 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 
 /**
@@ -34,6 +37,9 @@ public class ElementsController {
    *         Response}
    */
   @ApiOperation(value = "Raw OSM Data", nickname = "rawData")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "OSMMetadata", value = ParameterDescriptions.OSM_METADATA_DESCR,
+          defaultValue = "true", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveRawData(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -52,6 +58,8 @@ public class ElementsController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "osmMetadata", defaultValue = "",
+          required = false) String osmMetadata,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request,
@@ -59,6 +67,6 @@ public class ElementsController {
       throws UnsupportedOperationException, Exception {
     ElementsRequestExecutor.executeRetrieveRawData(new RequestParameters(request.getMethod(), true,
         false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
-        response);
+        osmMetadata, response);
   }
 }
