@@ -29,7 +29,7 @@ public class ElementsControllerTest {
    * /elements tests
    */
 
-  // test result without setting any tags
+  // without setting any tags
   @Test
   public void postElementsUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -43,7 +43,7 @@ public class ElementsControllerTest {
         .equalsIgnoreCase("node/135742850"));
   }
 
-  // test result with e.g. building=residential
+  // building=residential
   @Test
   public void getElementsUsingOneTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -53,5 +53,17 @@ public class ElementsControllerTest {
         JsonNode.class);
     assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
         .equals("way/140112811"));
+  }
+  
+  // setting multiple tags
+  @Test
+  public void getElementsUsingMultipleTagsTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
+            + "name,maxspeed&values=residential&time=2015-10-01",
+        JsonNode.class);
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
+        .equals("way/4084860"));
   }
 }
