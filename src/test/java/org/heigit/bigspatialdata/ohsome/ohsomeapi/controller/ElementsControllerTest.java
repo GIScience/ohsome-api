@@ -37,6 +37,7 @@ public class ElementsControllerTest {
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
     map.add("types", "node");
     map.add("time", "2016-02-05");
+    map.add("osmMetadata", "yes");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements", map, JsonNode.class);
     assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
@@ -49,19 +50,19 @@ public class ElementsControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
-            + "&values=residential&time=2015-12-01",
+            + "&values=residential&time=2015-12-01&osmMetadata=true",
         JsonNode.class);
     assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
         .equals("way/140112811"));
   }
-  
+
   // setting multiple tags
   @Test
   public void getElementsUsingMultipleTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
-            + "name,maxspeed&values=residential&time=2015-10-01",
+            + "name,maxspeed&values=residential&time=2015-10-01&osmMetadata=true",
         JsonNode.class);
     assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
         .equals("way/4084860"));

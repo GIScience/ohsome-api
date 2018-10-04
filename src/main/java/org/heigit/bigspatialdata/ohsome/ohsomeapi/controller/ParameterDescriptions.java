@@ -26,6 +26,8 @@ public class ParameterDescriptions {
   public static final String FORMAT_DESCR = "Output format, e.g.: geojson; default: json";
   public static final String OSM_METADATA_DESCR =
       "'Boolean' operator 'true or 'false'; default: 'true'";
+  public static final String INCLUDE_TAGS_DESCR =
+      "'Boolean' operator 'true or 'false'; default: 'false'";
   public static final String SHOW_METADATA_DESCR =
       "'Boolean' operator 'true' or 'false'; default: 'false'";
 }

@@ -52,6 +52,7 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -77,7 +78,7 @@ public class ElementsRequestExecutor {
    *        a stream.
    */
   public static void executeElements(RequestParameters requestParams, String osmMetadata,
-      String includeOSMTags, HttpServletResponse response)
+      String includeOSMTags, boolean isGeom, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -88,10 +89,10 @@ public class ElementsRequestExecutor {
     }
     final boolean includeOSMMetadata;
     if (osmMetadata != null
-        && (osmMetadata.equalsIgnoreCase("false") || osmMetadata.equalsIgnoreCase("no"))) {
-      includeOSMMetadata = false;
-    } else {
+        && (osmMetadata.equalsIgnoreCase("true") || osmMetadata.equalsIgnoreCase("yes"))) {
       includeOSMMetadata = true;
+    } else {
+      includeOSMMetadata = false;
     }
     final boolean includeTags;
     if (includeOSMTags != null
@@ -126,14 +127,20 @@ public class ElementsRequestExecutor {
         properties.put("version", snapshot.getEntity().getVersion());
         properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
             + snapshot.getEntity().getId());
-        return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
-            properties, gjw, includeTags);
+        if (!isGeom) {
+          return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
+              properties, gjw, includeTags);
+        }
+        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
       });
     } else {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
-        return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
-            properties, gjw, includeTags);
+        if (!isGeom) {
+          return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
+              properties, gjw, includeTags);
+        }
+        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), null);
       });
     }
     result = preResult.collect();
@@ -152,23 +159,10 @@ public class ElementsRequestExecutor {
     JsonGenerator jsonGen = jsonFactory.createGenerator(stream, JsonEncoding.UTF8);
     ObjectMapper objMapper = new ObjectMapper();
     objMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objMapper.setSerializationInclusion(Include.NON_NULL);
     jsonGen.setCodec(objMapper);
     jsonGen.writeObject(osmData);
     response.flushBuffer();
-  }
-
-  /**
-   * Performs an OSM data extraction, where only the geometry of each object is returned.
-   * 
-   * <p>
-   * 
-   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
-   *        are used in every request.
-   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
-   *        a stream.
-   */
-  public static void executeElementsGeom() {
-
   }
 
   /**
