@@ -62,7 +62,7 @@ public class SwaggerConfig {
   @Bean
   public Docket rawDataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("rawData").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("dataExtraction").select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
