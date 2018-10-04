@@ -3,7 +3,10 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.Serializable;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.function.Supplier;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -12,6 +15,7 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -69,6 +73,16 @@ public class Application implements ApplicationRunner {
             jdbcParam = args.getOptionValues(paramName).get(0).split(";");
             DbConnData.keytables =
                 new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
+            DbConnData.mapTagTranslator = new RemoteTagTranslator(() -> {
+              try {
+                Class.forName(jdbcParam[0]);
+                return new TagTranslator(
+                    DriverManager.getConnection(jdbcParam[1], jdbcParam[2], jdbcParam[3])
+                );
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
             break;
           case "database.multithreading":
             if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("false")) {
@@ -107,6 +121,21 @@ public class Application implements ApplicationRunner {
         }
         DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
         extractMetadata(DbConnData.db);
+      }
+      if (DbConnData.mapTagTranslator == null) {
+        DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
+      }
+      if (DbConnData.db instanceof OSHDBIgnite) {
+        RemoteTagTranslator mtt = DbConnData.mapTagTranslator;
+        ((OSHDBIgnite) DbConnData.db).onClose(() -> {
+          try {
+            if (mtt.wasEvaluated()) {
+              mtt.get().getConnection().close();
+            }
+          } catch (SQLException e) {
+            throw new RuntimeException(e);
+          }
+        });
       }
       if (dbPrefix != null) {
         DbConnData.db = DbConnData.db.prefix(dbPrefix);
