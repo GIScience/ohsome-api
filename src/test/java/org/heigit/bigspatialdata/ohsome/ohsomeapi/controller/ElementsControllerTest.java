@@ -29,7 +29,6 @@ public class ElementsControllerTest {
    * /elements tests
    */
 
-  // without setting any tags
   @Test
   public void postElementsUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -44,7 +43,6 @@ public class ElementsControllerTest {
         .equalsIgnoreCase("node/135742850"));
   }
 
-  // building=residential
   @Test
   public void getElementsUsingOneTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -56,7 +54,6 @@ public class ElementsControllerTest {
         .equals("way/140112811"));
   }
 
-  // setting multiple tags
   @Test
   public void getElementsUsingMultipleTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -66,5 +63,22 @@ public class ElementsControllerTest {
         JsonNode.class);
     assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
         .equals("way/4084860"));
+  }
+
+  /*
+   * /elements/geom tests
+   */
+
+  @Test
+  public void getElementsGeomTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(
+            server + port + "/elements/geom?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
+                + "&keys=building&values=residential&time=2015-01-01&osmMetadata=yes",
+            JsonNode.class);
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
+        .equals("way/140112811"));
+    assertTrue(response.getBody().get("features").get(0).get("properties").size() == 3);
   }
 }
