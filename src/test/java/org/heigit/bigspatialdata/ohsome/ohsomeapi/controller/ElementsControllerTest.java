@@ -39,7 +39,7 @@ public class ElementsControllerTest {
     map.add("time", "2016-02-05");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements", map, JsonNode.class);
-    assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
         .equalsIgnoreCase("node/135742850"));
   }
 
@@ -51,7 +51,7 @@ public class ElementsControllerTest {
         server + port + "/elements?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
             + "&values=residential&time=2015-12-01",
         JsonNode.class);
-    assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
         .equals("way/140112811"));
   }
   
@@ -63,7 +63,7 @@ public class ElementsControllerTest {
         server + port + "/elements?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
             + "name,maxspeed&values=residential&time=2015-10-01",
         JsonNode.class);
-    assertTrue(response.getBody().get("features").get(0).get("properties").get("osm-id").asText()
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("osmId").asText()
         .equals("way/4084860"));
   }
 }

@@ -60,13 +60,15 @@ public class ElementsController {
           required = false) String[] time,
       @ApiParam(hidden = true) @RequestParam(value = "osmMetadata", defaultValue = "",
           required = false) String osmMetadata,
+      @ApiParam(hidden = true) @RequestParam(value = "includeTags", defaultValue = "",
+          required = false) String includeTags,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    ElementsRequestExecutor.executeRetrieveRawData(new RequestParameters(request.getMethod(), true,
-        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
-        osmMetadata, response);
+    ElementsRequestExecutor.executeElements(new RequestParameters(request.getMethod(), true, false,
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), osmMetadata,
+        includeTags, response);
   }
 }

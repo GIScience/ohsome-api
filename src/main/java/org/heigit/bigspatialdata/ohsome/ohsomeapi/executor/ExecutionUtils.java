@@ -98,32 +98,24 @@ public class ExecutionUtils {
     return geom;
   }
 
+  /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
       TagTranslator tt, int[] keysInt, int[] valuesInt, OSMEntitySnapshot snapshot,
-      Map<String, Object> properties, GeoJSONWriter gjw) {
-    if (keys.equals(null) || keys.length == 0) {
+      Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags) {
+    if (includeTags) {
       for (OSHDBTag oshdbTag : snapshot.getEntity().getTags()) {
         OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
         properties.put(tag.getKey(), tag.getValue());
       }
-    } else {
+    } else if (!keys.equals(null) && keys.length != 0) {
       int[] tags = snapshot.getEntity().getRawTags();
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
         int tagValueId = tags[i + 1];
         for (int key : keysInt) {
           if (tagKeyId == key) {
-            if (valuesInt.length == 0) {
-              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-              properties.put(tag.getKey(), tag.getValue());
-            } else {
-              for (int value : valuesInt) {
-                if (tagValueId == value) {
-                  OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-                  properties.put(tag.getKey(), tag.getValue());
-                }
-              }
-            }
+            OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+            properties.put(tag.getKey(), tag.getValue());
           }
         }
       }

@@ -76,8 +76,9 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
-  public static void executeRetrieveRawData(RequestParameters requestParams, String osmMetadata,
-      HttpServletResponse response) throws UnsupportedOperationException, Exception {
+  public static void executeElements(RequestParameters requestParams, String osmMetadata,
+      String includeOSMTags, HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
@@ -86,10 +87,18 @@ public class ElementsRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     final boolean includeOSMMetadata;
-    if (osmMetadata != null && osmMetadata.equalsIgnoreCase("false")) {
+    if (osmMetadata != null
+        && (osmMetadata.equalsIgnoreCase("false") || osmMetadata.equalsIgnoreCase("no"))) {
       includeOSMMetadata = false;
     } else {
       includeOSMMetadata = true;
+    }
+    final boolean includeTags;
+    if (includeOSMTags != null
+        && (includeOSMTags.equalsIgnoreCase("true") || includeOSMTags.equalsIgnoreCase("yes"))) {
+      includeTags = true;
+    } else {
+      includeTags = false;
     }
     mapRed = inputProcessor.processParameters(mapRed, requestParams);
     TagTranslator tt = DbConnData.tagTranslator;
@@ -99,7 +108,7 @@ public class ElementsRequestExecutor {
     int[] valuesInt = new int[values.length];
     if (keys.length != 0) {
       for (int i = 0; i < keys.length; i++) {
-        keysInt[i] = tt.getOSHDBTagKeyOf(keys[0]).toInt();
+        keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
         if (values.length != 0 && i < values.length) {
           // works as the relation between keys:values must be n:(m<=n)
           valuesInt[i] = tt.getOSHDBTagOf(keys[i], values[i]).getValue();
@@ -115,16 +124,16 @@ public class ElementsRequestExecutor {
         Map<String, Object> properties = new TreeMap<>();
         properties.put("snapshotTimestamp", snapshot.getTimestamp().toString());
         properties.put("version", snapshot.getEntity().getVersion());
-        properties.put("osm-id", snapshot.getEntity().getType().toString().toLowerCase() + "/"
+        properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
             + snapshot.getEntity().getId());
         return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
-            properties, gjw);
+            properties, gjw, includeTags);
       });
     } else {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
         return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
-            properties, gjw);
+            properties, gjw, includeTags);
       });
     }
     result = preResult.collect();
@@ -146,6 +155,20 @@ public class ElementsRequestExecutor {
     jsonGen.setCodec(objMapper);
     jsonGen.writeObject(osmData);
     response.flushBuffer();
+  }
+
+  /**
+   * Performs an OSM data extraction, where only the geometry of each object is returned.
+   * 
+   * <p>
+   * 
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
+   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
+   *        a stream.
+   */
+  public static void executeElementsGeom() {
+
   }
 
   /**
