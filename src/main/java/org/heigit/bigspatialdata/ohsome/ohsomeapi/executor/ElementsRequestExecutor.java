@@ -27,6 +27,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessin
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
@@ -120,6 +121,7 @@ public class ElementsRequestExecutor {
     List<Feature> result = null;
     ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
+    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     if (includeOSMMetadata) {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
@@ -128,8 +130,8 @@ public class ElementsRequestExecutor {
         properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
             + snapshot.getEntity().getId());
         if (!isGeom) {
-          return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
-              properties, gjw, includeTags);
+          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+              valuesInt, snapshot, properties, gjw, includeTags);
         }
         return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
       });
@@ -137,8 +139,8 @@ public class ElementsRequestExecutor {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
         if (!isGeom) {
-          return exeUtils.createOSMDataFeature(keys, values, tt, keysInt, valuesInt, snapshot,
-              properties, gjw, includeTags);
+          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+              valuesInt, snapshot, properties, gjw, includeTags);
         }
         return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), null);
       });
