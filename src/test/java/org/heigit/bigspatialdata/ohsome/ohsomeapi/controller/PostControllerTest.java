@@ -1,7 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,8 +27,11 @@ public class PostControllerTest {
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT2 != null && (TestProperties.INTEGRATION == null
         || !TestProperties.INTEGRATION.equalsIgnoreCase("no")));
+    List<String> params = new LinkedList<>();
+    params.add("--port=" + port);
+    params.addAll(Arrays.asList(TestProperties.DB_FILE_PATH_PROPERTY.split(" ")));
     // this instance gets reused by all of the following @Test methods
-    Application.main(new String[] {TestProperties.DB_FILE_PATH_PROPERTY, "--port=" + port});
+    Application.main(params.toArray(new String[0]));
   }
 
   /*
@@ -413,8 +421,8 @@ public class PostControllerTest {
   public void elementsAreaRatioGroupByBoundaryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
-        + "8.69304,49.42331");
+    map.add("bboxes", "Neuenheim:8.67691,49.41256,8.69304,49.42331|"
+        + "Weststadt:8.68081,49.39821,8.69528,49.40687");
     map.add("types", "way");
     map.add("keys", "building");
     map.add("time", "2017-01-01");
@@ -422,8 +430,12 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult").get(0)
-        .get("ratio").asDouble() == 0.023699);
+    assertEquals(
+        0.084184,
+        response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult").get(0)
+            .get("ratio").asDouble(),
+        1e-6
+    );
   }
 
   @Test

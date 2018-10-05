@@ -38,8 +38,9 @@ public class Application implements ApplicationRunner {
   public static void main(String[] args) {
     if (args == null || args.length == 0) {
       throw new RuntimeException(
-          "You need to define at least the '--database.db' or the '--database.ignite'"
-              + " + '--database.keytables' parameter(s).");
+          "For tests, define at least the '--database.db' or the '--database.ignite'" +
+              " and '--database.keytables' parameter(s) inside the (nested) " +
+              " '-DdbFilePathProperty=' parameter of 'mvn test'.");
     }
     SpringApplication.run(Application.class, args);
   }
@@ -64,6 +65,9 @@ public class Application implements ApplicationRunner {
             DbConnData.db = new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
             break;
           case "database.ignite":
+            if (DbConnData.db != null) {
+              break;
+            }
             DbConnData.db = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
             break;
           case "database.keytables":

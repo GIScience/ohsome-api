@@ -2,6 +2,10 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,8 +24,11 @@ public class GetControllerTest {
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT1 != null && (TestProperties.INTEGRATION == null
         || !TestProperties.INTEGRATION.equalsIgnoreCase("no")));
+    List<String> params = new LinkedList<>();
+    params.add("--port=" + port);
+    params.addAll(Arrays.asList(TestProperties.DB_FILE_PATH_PROPERTY.split(" ")));
     // this instance gets reused by all of the following @Test methods
-    Application.main(new String[] {TestProperties.DB_FILE_PATH_PROPERTY, "--port=" + port});
+    Application.main(params.toArray(new String[0]));
   }
 
   /*
