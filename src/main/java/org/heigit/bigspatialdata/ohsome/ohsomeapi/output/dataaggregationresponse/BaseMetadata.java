@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the metadata JSON object containing the execution time, the unit, a description of the
- * result values, as well as the request URL.
+ * Represents the metadata JSON object containing various metadata fields about the request:
+ * for example, execution time, unit, a description of the result values, or the request URL.
  */
 @JsonInclude(Include.NON_NULL)
 public abstract class BaseMetadata {

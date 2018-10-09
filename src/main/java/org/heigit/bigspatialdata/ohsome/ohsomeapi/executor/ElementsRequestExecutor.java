@@ -124,7 +124,6 @@ public class ElementsRequestExecutor {
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
           .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
-        System.out.println("fall back to affinity call");
         dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
       mapRed = inputProcessor.processParameters(mapRed, requestParams);
