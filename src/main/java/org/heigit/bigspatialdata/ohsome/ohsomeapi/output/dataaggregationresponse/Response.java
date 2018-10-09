@@ -25,5 +25,5 @@ public interface Response {
 
   public String getApiVersion();
 
-  public Metadata getMetadata();
+  public BaseMetadata getMetadata();
 }
