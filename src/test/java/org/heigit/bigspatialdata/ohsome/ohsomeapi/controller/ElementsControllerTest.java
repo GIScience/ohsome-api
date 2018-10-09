@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,13 +49,11 @@ public class ElementsControllerTest {
     map.add("osmMetadata", "yes");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements", map, JsonNode.class);
-    assertTrue(
-        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("features").iterator(), Spliterator.ORDERED
-        ), false).anyMatch(jsonNode ->
-            jsonNode.get("properties").get("osmId").asText().equalsIgnoreCase("node/135742850")
-        )
-    );
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("node/135742850")));
   }
 
   @Test
@@ -66,13 +63,11 @@ public class ElementsControllerTest {
         server + port + "/elements?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
             + "&values=residential&time=2015-12-01&osmMetadata=true",
         JsonNode.class);
-    assertTrue(
-        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("features").iterator(), Spliterator.ORDERED
-        ), false).anyMatch(jsonNode ->
-            jsonNode.get("properties").get("osmId").asText().equalsIgnoreCase("way/140112811")
-        )
-    );
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/140112811")));
   }
 
   @Test
@@ -82,13 +77,11 @@ public class ElementsControllerTest {
         server + port + "/elements?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
             + "name,maxspeed&values=residential&time=2015-10-01&osmMetadata=true",
         JsonNode.class);
-    assertTrue(
-        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("features").iterator(), Spliterator.ORDERED
-        ), false).anyMatch(jsonNode ->
-            jsonNode.get("properties").get("osmId").asText().equalsIgnoreCase("way/4084860")
-        )
-    );
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/4084860")));
   }
 
   /*
@@ -103,20 +96,16 @@ public class ElementsControllerTest {
             server + port + "/elements/geom?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
                 + "&keys=building&values=residential&time=2015-01-01&osmMetadata=yes",
             JsonNode.class);
-    assertTrue(
-        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("features").iterator(), Spliterator.ORDERED
-        ), false).anyMatch(jsonNode ->
-            jsonNode.get("properties").get("osmId").asText().equalsIgnoreCase("way/140112811")
-        )
-    );
-    assertEquals(
-        3,
-        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("features").iterator(), Spliterator.ORDERED
-        ), false).filter(jsonNode ->
-            jsonNode.get("properties").get("osmId").asText().equalsIgnoreCase("way/140112811")
-        ).findFirst().get().get("properties").size()
-    );
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/140112811")));
+    assertEquals(3, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/140112811"))
+        .findFirst().get().get("properties").size());
   }
 }
