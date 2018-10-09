@@ -1,11 +1,14 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,7 +57,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&time=2015-01-01"
         + "&keys=building&values=residential&showMetadata=true", JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asInt() == 40);
+    assertEquals(40, response.getBody().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -65,10 +68,12 @@ public class GetControllerTest {
             + "8.68667,49.41353,8.68828,49.414&types=way&time=2017-01-01&keys=building"
             + "&values=church&showMetadata=true",
         JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asInt() == 2);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asInt() == 1);
+    assertEquals(2,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox1"))
+            .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -78,10 +83,12 @@ public class GetControllerTest {
         server + port + "/elements/count/groupBy/type?bboxes=8.67038,49.40341,8.69197,49.40873"
             + "&types=way,relation&time=2017-01-01&keys=building&showMetadata=true",
         JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asInt() == 967);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asInt() == 9);
+    assertEquals(967,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -91,8 +98,11 @@ public class GetControllerTest {
         server + port + "/elements/count/groupBy/tag?bboxes=8.67859,49.41189,8.67964,49.41263"
             + "&types=way&time=2017-01-01&keys=building&groupByKey=building&showMetadata=true",
         JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asInt() == 8);
+    assertEquals(8, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
+        .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -103,8 +113,12 @@ public class GetControllerTest {
             server + port + "/elements/count/groupBy/key?bboxes=8.67859,49.41189,8.67964,49.41263"
                 + "&types=way&time=2012-01-01&groupByKeys=building&showMetadata=true",
             JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asInt() == 7);
+    assertEquals(7,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
+            .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -114,8 +128,12 @@ public class GetControllerTest {
         server + port + "/elements/count/groupBy/user?bboxes=8.67859,49.41189,8.67964,49.41263"
             + "&types=way&time=2015-01-01&keys=building&showMetadata=true",
         JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asInt() == 4);
+    assertEquals(4,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("280889"))
+            .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -125,7 +143,7 @@ public class GetControllerTest {
         restTemplate.getForEntity(server + port + "/elements/count/share?bboxes=8.67859,"
             + "49.41189,8.67964,49.41263&types=way&time=2015-01-01&keys=building&keys2="
             + "building&values2=yes", JsonNode.class);
-    assertTrue(response.getBody().get("shareResult").get(0).get("whole").asInt() == 9);
+    assertEquals(9, response.getBody().get("shareResult").get(0).get("whole").asInt());
   }
 
   @Test
@@ -134,9 +152,13 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/share/groupBy/boundary?bboxes=8.68242,49.4127,8.68702,49.41566|"
         + "8.69716,49.41071,8.70534,49.41277&types=way&time=2016-08-11&keys=building"
-        + "&keys2=building&values2=residential&showMetadata=true", JsonNode.class);
-    assertTrue(response.getBody().get("shareGroupByBoundaryResult").get(1).get("shareResult").get(0)
-        .get("part").asInt() == 11);
+        + "&keys2=building&values2=residential", JsonNode.class);
+    assertEquals(11, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
+            false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox2"))
+        .findFirst().get().get("shareResult").get(0).get("part").asInt());
   }
 
   @Test
@@ -144,9 +166,9 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/ratio?bboxes=8.66004,49.41184,8.68481,49.42094&types=way"
-            + "&time=2017-09-20&keys=building&showMetadata=true&types2=node&keys2=addr:housenumber",
+            + "&time=2017-09-20&keys=building&types2=node&keys2=addr:housenumber",
         JsonNode.class);
-    assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.236186);
+    assertEquals(0.236186, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(), 0);
   }
 
   @Test
@@ -154,11 +176,16 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/ratio/groupBy/boundary?bcircles=8.66906,49.4167,100|"
-            + "8.69013,49.40223,100&types=way&time=2017-09-20&keys=building&showMetadata=true"
+            + "8.69013,49.40223,100&types=way&time=2017-09-20&keys=building"
             + "&types2=node&keys2=addr:housenumber",
         JsonNode.class);
-    assertTrue(response.getBody().get("groupByBoundaryResult").get(0).get("ratioResult").get(0)
-        .get("ratio").asDouble() == 0.526316);
+    assertEquals(0.526316, StreamSupport
+        .stream(
+            Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+            false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bcircle1"))
+        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 0);
   }
 
   @Test
@@ -168,30 +195,39 @@ public class GetControllerTest {
         server + port + "/elements/count/density?bboxes=8.68794,49.41434,8.69021,49.41585"
             + "&types=way&time=2017-08-11&keys=building&showMetadata=true",
         JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 3880.74);
+    assertEquals(3880.74, response.getBody().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
   public void getElementsCountDensityGroupByBoundaryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/count/density/groupBy/boundary?bboxes=8.68794,49.41434,8.69021,49.41585|"
-        + "8.67933,49.40505,8.6824,49.40638&types=way&time=2017-08-19"
-        + "&keys=building&showMetadata=true", JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 334.85);
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/elements/count/density/groupBy/boundary?bboxes=8.68794,49.41434,8.69021,49.41585|"
+            + "8.67933,49.40505,8.6824,49.40638&types=way&time=2017-08-19&keys=building",
+        JsonNode.class);
+    assertEquals(334.85,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox2"))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        0);
   }
 
   @Test
   public void getElementsCountDensityGroupByTypeTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port
-            + "/elements/count/density/groupBy/type?bboxes=8.68086,49.39948,8.69401,49.40609"
-            + "&types=way,node&time=2016-11-09&keys=addr:housenumber&showMetadata=true",
-        JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 893.65);
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/type?bboxes=8.68086,49.39948,8.69401,49.40609"
+        + "&types=way,node&time=2016-11-09&keys=addr:housenumber", JsonNode.class);
+    assertEquals(893.65,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        0);
   }
 
   @Test
@@ -200,8 +236,11 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&types=way"
         + "&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes", JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asDouble() == 61.48);
+    assertEquals(61.48, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   /*
