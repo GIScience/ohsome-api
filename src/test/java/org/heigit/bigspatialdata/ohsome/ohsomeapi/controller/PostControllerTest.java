@@ -3,10 +3,12 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,12 +46,17 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
     map.add("types", "way");
-    map.add("time", "2015-01-01");
+    map.add("time", "2013-01-01/2016-01-01/P1Y");
     map.add("keys", "building");
     map.add("values", "residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asInt() == 40);
+    assertEquals(40, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(
+            jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
+        .findFirst().get().get("value").asInt(), 0);
   }
 
   @Test
@@ -68,8 +75,12 @@ public class PostControllerTest {
     map.add("format", "geojson");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/count/groupBy/boundary", map, JsonNode.class);
-    assertTrue(
-        response.getBody().get("features").get(0).get("properties").get("value").asInt() == 367);
+    assertEquals(203, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("groupByBoundaryId").asText()
+            .equalsIgnoreCase("feature2"))
+        .findFirst().get().get("properties").get("value").asInt(), 0);
   }
 
   /*
@@ -82,12 +93,17 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
     map.add("types", "way");
-    map.add("time", "2015-01-01");
+    map.add("time", "2013-01-01/2016-01-01/P1Y");
     map.add("keys", "building");
     map.add("values", "residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 571.84);
+    assertEquals(571.84, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(
+            jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
+        .findFirst().get().get("value").asDouble(), 0);
   }
 
   @Test
@@ -97,13 +113,16 @@ public class PostControllerTest {
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
         + "49.41256,8.69304,49.42331");
     map.add("types", "way");
-    map.add("time", "2015-01-01");
+    map.add("time", "2016-01-01");
     map.add("keys", "building");
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/boundary", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asDouble() == 2476.29);
+    assertEquals(2476.29, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Weststadt"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
@@ -112,12 +131,17 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
     map.add("types", "way,relation");
-    map.add("time", "2015-01-01");
+    map.add("time", "2016-01-01");
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/type", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 999.13);
+    assertEquals(65283.35,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        0);
   }
 
   @Test
@@ -126,12 +150,17 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
     map.add("types", "way");
-    map.add("time", "2015-01-01");
-    map.add("groupByKeys", "building");
+    map.add("time", "2016-01-01");
+    map.add("groupByKeys", "building,highway");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 64127.88);
+    assertEquals(65283.35,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        0);
   }
 
   @Test
@@ -144,8 +173,11 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/tag", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 59012.08);
+    assertEquals(20513.76, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
@@ -158,8 +190,13 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/user", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 4.86);
+    assertEquals(4.86,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("35469"))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        0);
   }
 
   @Test
@@ -172,7 +209,7 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/share", map, JsonNode.class);
-    assertTrue(response.getBody().get("shareResult").get(0).get("part").asDouble() == 64127.88);
+    assertEquals(64127.88, response.getBody().get("shareResult").get(0).get("part").asDouble(), 0);
   }
 
   @Test
@@ -186,8 +223,12 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/share/groupBy/boundary", map, JsonNode.class);
-    assertTrue(response.getBody().get("shareGroupByBoundaryResult").get(1).get("shareResult").get(0)
-        .get("part").asDouble() == 108415.17);
+    assertEquals(108415.17, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
+            false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
+        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 0);
   }
 
   @Test
@@ -202,7 +243,7 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/ratio", map, JsonNode.class);
-    assertTrue(response.getBody().get("ratioResult").get(0).get("ratio").asDouble() == 0.01558);
+    assertEquals(0.01558, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(), 0);
   }
 
   @Test
@@ -220,8 +261,13 @@ public class PostControllerTest {
     map.add("values2", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/ratio/groupBy/boundary", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult").get(0)
-        .get("ratio").asDouble() == 0.008612);
+    assertEquals(0.008612, StreamSupport
+        .stream(
+            Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+            false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
+        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 0);
   }
 
   @Test
@@ -235,7 +281,7 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/density", map, JsonNode.class);
-    assertTrue(response.getBody().get("result").get(0).get("value").asDouble() == 2130.19);
+    assertEquals(2130.19, response.getBody().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
@@ -248,8 +294,13 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/type", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 990.96);
+    assertEquals(990.96,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("relation"))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        0);
   }
 
   @Test
@@ -264,8 +315,11 @@ public class PostControllerTest {
     map.add("groupByValues", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/tag", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
-        .asDouble() == 5073.94);
+    assertEquals(5073.94, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
@@ -280,8 +334,11 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/boundary", map, JsonNode.class);
-    assertTrue(response.getBody().get("groupByResult").get(1).get("result").get(0).get("value")
-        .asDouble() == 455);
+    assertEquals(455, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   /*
@@ -430,12 +487,8 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
-    assertEquals(
-        0.084184,
-        response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult").get(0)
-            .get("ratio").asDouble(),
-        1e-6
-    );
+    assertEquals(0.084184, response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult")
+        .get(0).get("ratio").asDouble(), 1e-6);
   }
 
   @Test
