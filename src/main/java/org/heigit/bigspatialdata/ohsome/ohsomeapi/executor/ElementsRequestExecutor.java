@@ -32,9 +32,9 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessin
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -57,7 +57,6 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
@@ -90,7 +89,6 @@ public class ElementsRequestExecutor {
   public static void executeElements(RequestParameters requestParams, String osmMetadata,
       String includeOSMTags, boolean isGeom, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -177,22 +175,18 @@ public class ElementsRequestExecutor {
     if (ProcessingData.showMetadata) {
       metadata = new StreamMetadata("OSM data as GeoJSON features.", requestUrl);
     }
-
     DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());
-
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
     ObjectMapper objMapper = new ObjectMapper();
     objMapper.enable(SerializationFeature.INDENT_OUTPUT);
     objMapper.setSerializationInclusion(Include.NON_NULL);
-    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8)
-        .setCodec(objMapper)
+    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
         .writeObject(osmData);
 
-    String scaffold = tempStream.toString("UTF-8")
-        .replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
 
     response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
     response.setContentType("application/geo+json; charset=utf-8");
@@ -203,8 +197,7 @@ public class ElementsRequestExecutor {
         ThreadLocal.withInitial(ByteArrayOutputStream::new);
     ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
       try {
-        return jsonFactory
-            .createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
+        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
             .setCodec(objMapper);
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -212,29 +205,26 @@ public class ElementsRequestExecutor {
     });
     outputStream.print("\n");
     AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
-    streamResult
-        .map(data -> {
-          try {
-            outputBuffers.get().reset();
-            outputJsonGen.get().writeObject(data);
-            return outputBuffers.get().toByteArray();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        })
-        .sequential()
-        .forEach(data -> {
-          try {
-            if (isFirst.get()) {
-              isFirst.set(false);
-            } else {
-              outputStream.print(",");
-            }
-            outputStream.write(data);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
+    streamResult.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
     outputStream.print("\n  ]\n}\n");
     response.flushBuffer();
   }
