@@ -9,24 +9,17 @@ import io.swagger.annotations.ApiModelProperty;
  * result values, as well as the request URL.
  */
 @JsonInclude(Include.NON_NULL)
-public class Metadata extends BaseMetadata {
+public class StreamMetadata extends BaseMetadata {
 
-  @ApiModelProperty(notes = "Time the server needed to execute the request", required = true)
-  private long executionTime;
   @ApiModelProperty(notes = "Text describing the result in a sentence", required = true)
   private String description;
   @ApiModelProperty(notes = "Request URL to which this whole output JSON was generated",
       required = true)
   private String requestUrl;
 
-  public Metadata(long executionTime, String description, String requestUrl) {
-    this.executionTime = executionTime;
+  public StreamMetadata(String description, String requestUrl) {
     this.description = description;
     this.requestUrl = requestUrl;
-  }
-
-  public long getExecutionTime() {
-    return executionTime;
   }
 
   public String getDescription() {
