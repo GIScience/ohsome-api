@@ -55,7 +55,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 0);
+        .findFirst().get().get("value").asInt(), 1e-6);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("groupByBoundaryId").asText()
             .equalsIgnoreCase("feature2"))
-        .findFirst().get().get("properties").get("value").asInt(), 0);
+        .findFirst().get().get("properties").get("value").asInt(), 1e-6);
   }
 
   /*
@@ -102,7 +102,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asDouble(), 0);
+        .findFirst().get().get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Weststadt"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -176,7 +176,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -208,7 +208,8 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/share", map, JsonNode.class);
-    assertEquals(64127.88, response.getBody().get("shareResult").get(0).get("part").asDouble(), 0);
+    assertEquals(64127.88, response.getBody().get("shareResult").get(0).get("part").asDouble(),
+        1e-6);
   }
 
   @Test
@@ -227,7 +228,7 @@ public class PostControllerTest {
             response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 0);
+        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 1e-6);
   }
 
   @Test
@@ -242,7 +243,8 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/ratio", map, JsonNode.class);
-    assertEquals(0.01558, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(), 0);
+    assertEquals(0.01558, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        1e-6);
   }
 
   @Test
@@ -266,7 +268,7 @@ public class PostControllerTest {
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 0);
+        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
   }
 
   @Test
@@ -280,7 +282,7 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/density", map, JsonNode.class);
-    assertEquals(2130.19, response.getBody().get("result").get(0).get("value").asDouble(), 0);
+    assertEquals(2130.19, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -318,7 +320,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -337,7 +339,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   /*
@@ -355,7 +357,7 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
-    assertEquals(1845.85, response.getBody().get("result").get(0).get("value").asDouble(), 0);
+    assertEquals(1845.85, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -374,7 +376,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -429,7 +431,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -461,7 +463,8 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/share", map, JsonNode.class);
-    assertEquals(263901.91, response.getBody().get("shareResult").get(0).get("part").asDouble(), 0);
+    assertEquals(263901.91, response.getBody().get("shareResult").get(0).get("part").asDouble(),
+        1e-6);
   }
 
   @Test
@@ -480,7 +483,7 @@ public class PostControllerTest {
             response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("neuenheim"))
-        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 0);
+        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 1e-6);
   }
 
   @Test
@@ -559,7 +562,7 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
