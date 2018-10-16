@@ -40,7 +40,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.StreamMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
@@ -171,9 +170,9 @@ public class ElementsRequestExecutor {
       });
     }
     Stream<Feature> streamResult = preResult.stream();
-    StreamMetadata metadata = null;
+    Metadata metadata = null;
     if (ProcessingData.showMetadata) {
-      metadata = new StreamMetadata("OSM data as GeoJSON features.", requestUrl);
+      metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
     }
     DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());

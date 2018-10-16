@@ -1,13 +1,13 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse;
 
+import java.util.List;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.wololo.geojson.Feature;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.StreamMetadata;
-import org.wololo.geojson.Feature;
 
 /**
  * Represents the whole GeoJSON response object for the /elements resource.
@@ -20,13 +20,13 @@ public class DataResponse implements Response {
   @ApiModelProperty(notes = "Version of this api", required = true)
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
-  private StreamMetadata metadata;
+  private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
   private String type;
   @ApiModelProperty(notes = "List of GeoJSON features containing the OSM data")
   private List<Feature> features;
 
-  public DataResponse(Attribution attribution, String apiVersion, StreamMetadata metadata, String type,
+  public DataResponse(Attribution attribution, String apiVersion, Metadata metadata, String type,
       List<Feature> features) {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
@@ -46,7 +46,7 @@ public class DataResponse implements Response {
   }
 
   @Override
-  public StreamMetadata getMetadata() {
+  public Metadata getMetadata() {
     return metadata;
   }
 
