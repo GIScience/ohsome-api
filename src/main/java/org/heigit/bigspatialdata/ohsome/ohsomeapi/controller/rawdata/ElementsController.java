@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -33,16 +32,17 @@ public class ElementsController {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
+   * @param properties <code>String</code> array defining what types of properties should be
+   *        included within the properties response field. It can contain "tags" and/or "metadata",
+   *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
+   *        properties.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "OSM Data", nickname = "rawData")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "osmMetadata", value = ParameterDescriptions.OSM_METADATA_DESCR,
-          defaultValue = "false", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "includeTags", value = ParameterDescriptions.INCLUDE_TAGS_DESCR,
-          defaultValue = "false", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST})
+  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
+      defaultValue = "false", paramType = "query", dataType = "string", required = false)
+  @RequestMapping(value = "/geom", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMData(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
           required = false) String bboxes,
@@ -60,64 +60,15 @@ public class ElementsController {
           required = false) String[] userids,
       @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
           required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "osmMetadata", defaultValue = "",
-          required = false) String osmMetadata,
-      @ApiParam(hidden = true) @RequestParam(value = "includeTags", defaultValue = "",
-          required = false) String includeTags,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
-      @ApiParam(hidden = true) HttpServletRequest request,
-      @ApiParam(hidden = true) HttpServletResponse response)
-      throws UnsupportedOperationException, Exception {
-    ElementsRequestExecutor
-        .executeElements(
-            new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
-                keys, values, userids, time, showMetadata),
-            osmMetadata, includeTags, false, response);
-  }
-
-  /**
-   * Gives the geometry of OSM objects as GeoJSON features.
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Geometry of OSM Data", nickname = "geomData")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "osmMetadata", value = ParameterDescriptions.OSM_METADATA_DESCR,
-          defaultValue = "false", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/geom", method = {RequestMethod.GET, RequestMethod.POST})
-  public void retrieveGeomData(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "osmMetadata", defaultValue = "",
-          required = false) String osmMetadata,
+      @ApiParam(hidden = true) @RequestParam(value = "properties", defaultValue = "",
+          required = false) String[] properties,
       @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
           defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     ElementsRequestExecutor.executeElements(new RequestParameters(request.getMethod(), true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), osmMetadata,
-        "", true, response);
+        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), properties,
+        response);
   }
 }

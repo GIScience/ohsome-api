@@ -85,29 +85,25 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
-  public static void executeElements(RequestParameters requestParams, String osmMetadata,
-      String includeOSMTags, boolean isGeom, HttpServletResponse response)
-      throws UnsupportedOperationException, Exception {
+  public static void executeElements(RequestParameters requestParams, String[] propertiesParameter,
+      HttpServletResponse response) throws UnsupportedOperationException, Exception {
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    final boolean includeOSMMetadata;
-    if (osmMetadata != null
-        && (osmMetadata.equalsIgnoreCase("true") || osmMetadata.equalsIgnoreCase("yes"))) {
-      includeOSMMetadata = true;
-    } else {
-      includeOSMMetadata = false;
+    boolean iT = false;
+    boolean iOM = false;
+    for (String text : propertiesParameter) {
+      if (text.equalsIgnoreCase("tags")) {
+        iT = true;
+      } else if (text.equalsIgnoreCase("metadata")) {
+        iOM = true;
+      }
     }
-    final boolean includeTags;
-    if (includeOSMTags != null
-        && (includeOSMTags.equalsIgnoreCase("true") || includeOSMTags.equalsIgnoreCase("yes"))) {
-      includeTags = true;
-    } else {
-      includeTags = false;
-    }
+    final boolean includeTags = iT;
+    final boolean includeOSMMetadata = iOM;
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousCM = dbIgnite.computeMode();
@@ -149,24 +145,18 @@ public class ElementsRequestExecutor {
     if (includeOSMMetadata) {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
-        properties.put("snapshotTimestamp", snapshot.getTimestamp().toString());
         properties.put("version", snapshot.getEntity().getVersion());
-        properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
-            + snapshot.getEntity().getId());
-        if (!isGeom) {
-          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, snapshot, properties, gjw, includeTags);
-        }
-        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
+        properties.put("osmType", snapshot.getEntity().getType());
+        properties.put("lastEdit", snapshot.getEntity().getTimestamp().toString());
+        properties.put("changesetId", snapshot.getEntity().getChangesetId());
+        return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+            valuesInt, snapshot, properties, gjw, includeTags);
       });
     } else {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
-        if (!isGeom) {
-          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, snapshot, properties, gjw, includeTags);
-        }
-        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), null);
+        return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+            valuesInt, snapshot, properties, gjw, includeTags);
       });
     }
     Stream<Feature> streamResult = preResult.stream();

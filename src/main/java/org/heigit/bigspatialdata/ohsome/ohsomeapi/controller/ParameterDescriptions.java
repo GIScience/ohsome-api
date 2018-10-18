@@ -24,10 +24,9 @@ public class ParameterDescriptions {
   public static final String USERIDS_DESCR = "OSM userids; default: no userid";
   public static final String TIME_DESCR = "ISO-8601 conform timestring(s); default: today";
   public static final String FORMAT_DESCR = "Output format, e.g.: geojson; default: json";
-  public static final String OSM_METADATA_DESCR =
-      "Boolean operator 'true or 'false'; default: 'false'";
-  public static final String INCLUDE_TAGS_DESCR =
-      "Boolean operator 'true or 'false'; default: 'false'";
+  public static final String PROPERTIES_DESCR =
+      "List of possible property-groups added to each OSM-element, e.g. 'tags', or 'metadata'; "
+          + "default: 'tags'";
   public static final String SHOW_METADATA_DESCR =
       "Boolean operator 'true' or 'false'; default: 'false'";
 }

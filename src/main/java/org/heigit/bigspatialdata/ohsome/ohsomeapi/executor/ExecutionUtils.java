@@ -102,6 +102,9 @@ public class ExecutionUtils {
   public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
       TagTranslator tt, int[] keysInt, int[] valuesInt, OSMEntitySnapshot snapshot,
       Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags) {
+    properties.put("snapshotTimestamp", snapshot.getTimestamp().toString());
+    properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
+        + snapshot.getEntity().getId());
     if (includeTags) {
       for (OSHDBTag oshdbTag : snapshot.getEntity().getTags()) {
         OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
