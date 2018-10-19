@@ -41,7 +41,7 @@ public class ElementsController {
    */
   @ApiOperation(value = "OSM Data", nickname = "rawData")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
-      defaultValue = "false", paramType = "query", dataType = "string", required = false)
+      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/geom", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMData(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",

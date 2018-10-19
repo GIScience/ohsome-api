@@ -36,9 +36,9 @@ public class Application implements ApplicationRunner {
   public static void main(String[] args) {
     if (args == null || args.length == 0) {
       throw new RuntimeException(
-          "For tests, define at least the '--database.db' or the '--database.ignite'" +
-              " and '--database.keytables' parameter(s) inside the (nested) " +
-              " '-DdbFilePathProperty=' parameter of 'mvn test'.");
+          "For tests, define at least the '--database.db' or the '--database.ignite'"
+              + " and '--database.keytables' parameter(s) inside the (nested) "
+              + " '-DdbFilePathProperty=' parameter of 'mvn test'.");
     }
     SpringApplication.run(Application.class, args);
   }
@@ -79,8 +79,7 @@ public class Application implements ApplicationRunner {
               try {
                 Class.forName(jdbcParam[0]);
                 return new TagTranslator(
-                    DriverManager.getConnection(jdbcParam[1], jdbcParam[2], jdbcParam[3])
-                );
+                    DriverManager.getConnection(jdbcParam[1], jdbcParam[2], jdbcParam[3]));
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }

@@ -10,8 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class ExtractRegion {
 
-  @ApiModelProperty(notes = "Spatial extent of this extract-region", required = true, position = 1,
-      hidden = true)
+  @ApiModelProperty(notes = "Spatial extent of this extract-region", required = true, position = 1)
   private JsonNode spatialExtent;
   @ApiModelProperty(notes = "Temporal extent of this extract-region", position = 2)
   private TemporalExtent temporalExtent;
