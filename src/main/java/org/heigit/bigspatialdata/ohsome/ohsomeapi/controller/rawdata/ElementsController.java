@@ -67,8 +67,108 @@ public class ElementsController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    ElementsRequestExecutor.executeElements(new RequestParameters(request.getMethod(), true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), properties,
-        response);
+    ElementsRequestExecutor
+        .executeElements(
+            new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+                keys, values, userids, time, showMetadata),
+            ElementsGeometry.RAW, properties, response);
+  }
+
+  /**
+   * Gives the OSM objects with their bounding box in the geometry field as GeoJSON features.
+   * 
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
+   * 
+   * @param properties <code>String</code> array defining what types of properties should be
+   *        included within the properties response field. It can contain "tags" and/or "metadata",
+   *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
+   *        properties.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "OSM Data", nickname = "rawDataBbox")
+  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
+      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
+  @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST})
+  public void retrieveOSMDataWithBBox(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "properties", defaultValue = "",
+          required = false) String[] properties,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
+    ElementsRequestExecutor.executeElements(
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata),
+        ElementsGeometry.BBOX, properties, response);
+  }
+
+  /**
+   * Gives the OSM objects with their centroid in the geometry field as GeoJSON features.
+   * 
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
+   * 
+   * @param properties <code>String</code> array defining what types of properties should be
+   *        included within the properties response field. It can contain "tags" and/or "metadata",
+   *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
+   *        properties.
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "OSM Data", nickname = "rawDataCentroid")
+  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
+      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
+  @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST})
+  public void retrieveOSMDataWithCentroid(
+      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
+          required = false) String bboxes,
+      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
+          required = false) String bcircles,
+      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
+          required = false) String bpolys,
+      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
+          required = false) String[] types,
+      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
+          required = false) String[] keys,
+      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
+          required = false) String[] values,
+      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
+          required = false) String[] userids,
+      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
+          required = false) String[] time,
+      @ApiParam(hidden = true) @RequestParam(value = "properties", defaultValue = "",
+          required = false) String[] properties,
+      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
+          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
+    ElementsRequestExecutor.executeElements(
+        new RequestParameters(request.getMethod(), true, false, bboxes, bcircles, bpolys, types,
+            keys, values, userids, time, showMetadata),
+        ElementsGeometry.CENTROID, properties, response);
   }
 }

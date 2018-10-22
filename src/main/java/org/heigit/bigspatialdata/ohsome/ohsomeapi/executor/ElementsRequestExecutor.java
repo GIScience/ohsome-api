@@ -24,6 +24,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
@@ -85,8 +86,9 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
-  public static void executeElements(RequestParameters requestParams, String[] propertiesParameter,
-      HttpServletResponse response) throws UnsupportedOperationException, Exception {
+  public static void executeElements(RequestParameters requestParams, ElementsGeometry elemGeom,
+      String[] propertiesParameter, HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -150,13 +152,13 @@ public class ElementsRequestExecutor {
         properties.put("lastEdit", snapshot.getEntity().getTimestamp().toString());
         properties.put("changesetId", snapshot.getEntity().getChangesetId());
         return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, snapshot, properties, gjw, includeTags);
+            valuesInt, snapshot, properties, gjw, includeTags, elemGeom);
       });
     } else {
       preResult = mapRed.map(snapshot -> {
         Map<String, Object> properties = new TreeMap<>();
         return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, snapshot, properties, gjw, includeTags);
+            valuesInt, snapshot, properties, gjw, includeTags, elemGeom);
       });
     }
     Stream<Feature> streamResult = preResult.stream();

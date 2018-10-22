@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
@@ -41,14 +42,17 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
+import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -101,7 +105,8 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
       TagTranslator tt, int[] keysInt, int[] valuesInt, OSMEntitySnapshot snapshot,
-      Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags) {
+      Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags,
+      ElementsGeometry elemGeom) {
     properties.put("snapshotTimestamp", snapshot.getTimestamp().toString());
     properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
         + snapshot.getEntity().getId());
@@ -123,7 +128,20 @@ public class ExecutionUtils {
         }
       }
     }
-    return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
+    switch (elemGeom) {
+      case RAW:
+        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
+      case BBOX:
+        Envelope envelope = snapshot.getGeometry().getEnvelopeInternal();
+        OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
+            properties);
+      case CENTROID:
+        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry().getCentroid()),
+            properties);
+      default:
+        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
+    }
   }
 
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
