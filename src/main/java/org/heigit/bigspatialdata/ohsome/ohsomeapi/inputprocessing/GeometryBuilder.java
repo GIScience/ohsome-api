@@ -165,7 +165,7 @@ public class GeometryBuilder {
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
     InputProcessingUtils utils = new InputProcessingUtils();
-    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
+    Collection<Geometry> geometries = new LinkedHashSet<Geometry>();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -182,8 +182,8 @@ public class GeometryBuilder {
         throw new NotFoundException("The provided boundary parameter does not lie completely "
             + "within the underlying data-extract polygon.");
       }
-      geometryCollection.add(bpoly);
-      ProcessingData.boundaryColl = geometryCollection;
+      geometries.add(bpoly);
+      ProcessingData.boundaryColl = geometries;
       ProcessingData.bpolysGeom = bpoly;
       return bpoly;
     } else {
@@ -197,9 +197,9 @@ public class GeometryBuilder {
             Polygon poly;
             coords.add(
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
-            poly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
-            geometryCollection.add(poly);
-            coords.removeAll(coords);
+            poly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
+            geometries.add(poly);
+            coords.clear();
             if (i + 2 >= bpolys.length) {
               break;
             }
@@ -212,13 +212,13 @@ public class GeometryBuilder {
                 new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
           }
         }
-        Geometry unifiedBPolys = geomFact
-            .createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
-        if (utils.isWithin(unifiedBPolys) == false) {
+        if (geometries.stream().anyMatch(geometry -> !utils.isWithin(geometry))) {
           throw new NotFoundException("The provided boundary parameter does not lie completely "
               + "within the underlying data-extract polygon.");
         }
-        ProcessingData.boundaryColl = geometryCollection;
+        Geometry unifiedBPolys = geomFact
+            .createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
+        ProcessingData.boundaryColl = geometries;
         ProcessingData.bpolysGeom = unifiedBPolys;
         return unifiedBPolys;
       } catch (NumberFormatException | MismatchedDimensionException e) {

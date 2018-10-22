@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -139,8 +140,10 @@ public class ExecutionUtils {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> arrGeoms = geomBuilder.getGeometry();
-    Map<Integer, P> geoms = arrGeoms.stream()
-        .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed().collect(Collectors.toMap(
+        idx -> idx,
+        idx -> (P) arrGeoms.get(idx)
+    ));
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:

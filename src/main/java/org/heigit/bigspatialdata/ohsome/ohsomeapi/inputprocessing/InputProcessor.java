@@ -124,21 +124,21 @@ public class InputProcessor {
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
-          ProcessingData.boundaryValues = utils.splitBboxes(bboxes).toArray(new String[1]);
+          ProcessingData.boundaryValues = utils.splitBboxes(bboxes).toArray(new String[] {});
           mapRed = mapRed.areaOfInterest(
               (Geometry & Polygonal) geomBuilder.createBboxes(ProcessingData.boundaryValues));
           break;
         case BCIRCLES:
-          ProcessingData.boundaryValues = utils.splitBcircles(bcircles).toArray(new String[1]);
+          ProcessingData.boundaryValues = utils.splitBcircles(bcircles).toArray(new String[] {});
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
               .createCircularPolygons(ProcessingData.boundaryValues));
           break;
         case BPOLYS:
-          if (bpolys.replaceAll("\\s", "").startsWith("{")) {
+          if (bpolys.matches("^\\s*\\{")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
           } else {
-            ProcessingData.boundaryValues = utils.splitBpolys(bpolys).toArray(new String[1]);
+            ProcessingData.boundaryValues = utils.splitBpolys(bpolys).toArray(new String[] {});
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createBpolys(ProcessingData.boundaryValues));
           }
