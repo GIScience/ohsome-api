@@ -353,10 +353,11 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
+    ArrayList<Geometry> boundaries = inputProcessor.getGeomBuilder().getGeometry();
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
-          requestParams.isDensity(), df, inputProcessor.getGeomBuilder().getGeometry().get(count));
+          requestParams.isDensity(), df, boundaries.get(count));
       groupByName = boundaryIds[count];
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
