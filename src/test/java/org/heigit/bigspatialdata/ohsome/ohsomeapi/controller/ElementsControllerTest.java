@@ -35,50 +35,9 @@ public class ElementsControllerTest {
     Application.main(params.toArray(new String[0]));
   }
 
-  @Test
-  public void postElementsUsingNoTagsTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
-    map.add("types", "node");
-    map.add("time", "2016-02-05");
-    map.add("properties", "metadata");
-    ResponseEntity<JsonNode> response =
-        restTemplate.postForEntity(server + port + "/elements/geom", map, JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
-            .equalsIgnoreCase("node/135742850")));
-  }
-
-  @Test
-  public void getElementsUsingOneTagTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/geom?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
-        + "&values=residential&time=2015-12-01&properties=metadata", JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
-            .equalsIgnoreCase("way/140112811")));
-  }
-
-  @Test
-  public void getElementsUsingMultipleTagsTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port
-            + "/elements/geom?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
-            + "name,maxspeed&values=residential&time=2015-10-01&properties=metadata",
-        JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
-            .equalsIgnoreCase("way/4084860")));
-  }
+  /*
+   * ./elements/geom tests
+   */
 
   @Test
   public void getElementsGeomTest() {
@@ -98,5 +57,94 @@ public class ElementsControllerTest {
         .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
             .equalsIgnoreCase("way/140112811"))
         .findFirst().get().get("properties").size());
+  }
+
+  @Test
+  public void getElementsGeomUsingOneTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/geom?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
+        + "&values=residential&time=2015-12-01&properties=metadata", JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/140112811")));
+  }
+
+  @Test
+  public void getElementsGeomUsingMultipleTagsTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/elements/geom?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
+            + "name,maxspeed&values=residential&time=2015-10-01&properties=metadata",
+        JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/4084860")));
+  }
+
+  @Test
+  public void postElementsGeomUsingNoTagsTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
+    map.add("types", "node");
+    map.add("time", "2016-02-05");
+    map.add("properties", "metadata");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/geom", map, JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("node/135742850")));
+  }
+
+  /*
+   * ./elements/bbox test
+   */
+
+  @Test
+  public void getElementsBboxTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
+            + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
+        JsonNode.class);
+    assertEquals("Polygon", StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/294644468"))
+        .findFirst().get().get("geometry").get("type").asText());
+    assertEquals(5, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/294644468"))
+        .findFirst().get().get("geometry").get("coordinates").get(0).size());
+  }
+
+  /*
+   * ./elements/centroid test
+   */
+
+  @Test
+  public void getElementsCentroidTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
+            + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
+        JsonNode.class);
+    assertEquals(2, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+            .equalsIgnoreCase("way/294644468"))
+        .findFirst().get().get("geometry").get("coordinates").size());
   }
 }
