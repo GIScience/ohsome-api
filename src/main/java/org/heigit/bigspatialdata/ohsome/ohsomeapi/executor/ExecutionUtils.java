@@ -158,10 +158,8 @@ public class ExecutionUtils {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> arrGeoms = geomBuilder.getGeometry();
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed().collect(Collectors.toMap(
-        idx -> idx,
-        idx -> (P) arrGeoms.get(idx)
-    ));
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
@@ -189,7 +187,7 @@ public class ExecutionUtils {
   }
 
   /**
-   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest() nest} but has
+   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest(Map) nest} but has
    * switched &lt;U&gt; and &lt;V&gt; parameters.
    *
    * @param result the "flat" result data structure that should be converted to a nested structure

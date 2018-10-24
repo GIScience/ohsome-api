@@ -29,15 +29,13 @@ public class ElementsController {
    * 
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param properties <code>String</code> array defining what types of properties should be
    *        included within the properties response field. It can contain "tags" and/or "metadata",
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
    */
   @ApiOperation(value = "OSM Data", nickname = "rawData")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
@@ -79,15 +77,13 @@ public class ElementsController {
    * 
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param properties <code>String</code> array defining what types of properties should be
    *        included within the properties response field. It can contain "tags" and/or "metadata",
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
    */
   @ApiOperation(value = "OSM Data", nickname = "rawDataBbox")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
@@ -128,15 +124,13 @@ public class ElementsController {
    * 
    * <p>
    * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
    * @param properties <code>String</code> array defining what types of properties should be
    *        included within the properties response field. It can contain "tags" and/or "metadata",
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
    */
   @ApiOperation(value = "OSM Data", nickname = "rawDataCentroid")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
