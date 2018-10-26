@@ -44,30 +44,14 @@ public class ElementsController {
   @RequestMapping(value = {"/geometry", "/bbox", "/centroid"},
       method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMData(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "properties", defaultValue = "",
-          required = false) String[] properties,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-
     ElementsGeometry elemGeomType;
     switch (request.getRequestURI()) {
       case "/elements/geometry":
@@ -83,8 +67,10 @@ public class ElementsController {
         elemGeomType = ElementsGeometry.RAW;
         break;
     }
-    ElementsRequestExecutor.executeElements(new RequestParameters(request.getMethod(), true, false,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata), elemGeomType,
-        properties, response);
+    ElementsRequestExecutor.executeElements(
+        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")),
+        elemGeomType, request.getParameterValues("properties"), response);
   }
 }
