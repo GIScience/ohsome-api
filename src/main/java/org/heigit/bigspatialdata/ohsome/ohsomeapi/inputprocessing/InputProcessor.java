@@ -73,17 +73,14 @@ public class InputProcessor {
     ProcessingData.format = requestParameters.getFormat();
     geomBuilder = new GeometryBuilder();
     utils = new InputProcessingUtils();
-    String requestMethod = requestParameters.getRequestMethod();
-    if (requestMethod.equalsIgnoreCase("post")) {
-      bboxes = createEmptyStringIfNull(bboxes);
-      bcircles = createEmptyStringIfNull(bcircles);
-      bpolys = createEmptyStringIfNull(bpolys);
-      types = createEmptyArrayIfNull(types);
-      keys = createEmptyArrayIfNull(keys);
-      values = createEmptyArrayIfNull(values);
-      userids = createEmptyArrayIfNull(userids);
-      time = createEmptyArrayIfNull(time);
-    }
+    bboxes = createEmptyStringIfNull(bboxes);
+    bcircles = createEmptyStringIfNull(bcircles);
+    bpolys = createEmptyStringIfNull(bpolys);
+    types = createEmptyArrayIfNull(types);
+    keys = createEmptyArrayIfNull(keys);
+    values = createEmptyArrayIfNull(values);
+    userids = createEmptyArrayIfNull(userids);
+    time = createEmptyArrayIfNull(time);
     boolean isSnapshot = requestParameters.isSnapshot();
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
