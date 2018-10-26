@@ -36,14 +36,14 @@ public class ElementsControllerTest {
   }
 
   /*
-   * ./elements/geom tests
+   * ./elements/geometry tests
    */
 
   @Test
   public void getElementsGeomTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/geom?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
+        server + port + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
             + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
         JsonNode.class);
     assertTrue(StreamSupport
@@ -63,7 +63,7 @@ public class ElementsControllerTest {
   public void getElementsGeomUsingOneTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/geom?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
+        + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
         + "&values=residential&time=2015-12-01&properties=metadata", JsonNode.class);
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
@@ -77,7 +77,7 @@ public class ElementsControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
-            + "/elements/geom?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
+            + "/elements/geometry?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
             + "name,maxspeed&values=residential&time=2015-10-01&properties=metadata",
         JsonNode.class);
     assertTrue(StreamSupport
@@ -96,7 +96,7 @@ public class ElementsControllerTest {
     map.add("time", "2016-02-05");
     map.add("properties", "metadata");
     ResponseEntity<JsonNode> response =
-        restTemplate.postForEntity(server + port + "/elements/geom", map, JsonNode.class);
+        restTemplate.postForEntity(server + port + "/elements/geometry", map, JsonNode.class);
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)

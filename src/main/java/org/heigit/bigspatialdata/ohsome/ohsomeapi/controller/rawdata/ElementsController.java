@@ -41,7 +41,7 @@ public class ElementsController {
   @ApiOperation(value = "OSM Data", nickname = "rawData")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = {"/geom", "/bbox", "/centroid"},
+  @RequestMapping(value = {"/geometry", "/bbox", "/centroid"},
       method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMData(
       @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
@@ -70,7 +70,7 @@ public class ElementsController {
 
     ElementsGeometry elemGeomType;
     switch (request.getRequestURI()) {
-      case "/elements/geom":
+      case "/elements/geometry":
         elemGeomType = ElementsGeometry.RAW;
         break;
       case "/elements/bbox":
