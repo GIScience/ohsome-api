@@ -79,6 +79,8 @@ public class SwaggerConfig {
     responseMessages.add(new ResponseMessageBuilder().code(401).message("Unauthorized").build());
     responseMessages.add(new ResponseMessageBuilder().code(404).message("Not found").build());
     responseMessages
+        .add(new ResponseMessageBuilder().code(413).message("Payload too large").build());
+    responseMessages
         .add(new ResponseMessageBuilder().code(405).message("Method not allowed").build());
     responseMessages
         .add(new ResponseMessageBuilder().code(500).message("Internal server error").build());

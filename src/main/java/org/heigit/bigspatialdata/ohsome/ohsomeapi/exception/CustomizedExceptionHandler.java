@@ -34,6 +34,12 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
     return createExceptionResponse(ex, request, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(PayloadTooLargeException.class)
+  public final ResponseEntity<ErrorDetails> handlePayloadTooLargeException(
+      PayloadTooLargeException ex, WebRequest request) {
+    return createExceptionResponse(ex, request, HttpStatus.PAYLOAD_TOO_LARGE);
+  }
+
   @ExceptionHandler(NotImplementedException.class)
   public final ResponseEntity<ErrorDetails> handleNotImplementedException(
       NotImplementedException ex, WebRequest request) {
