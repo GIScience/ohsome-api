@@ -25,8 +25,8 @@ import io.swagger.annotations.ApiParam;
 public class ElementsController {
 
   /**
-   * Gives the OSM objects as GeoJSON features. Depending on the used resource, the geometry of the
-   * response consists either of their pure geometry, their bounding box, or their centroid.
+   * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
+   * the geometry field.
    * 
    * <p>
    * The parameters are described in the
@@ -38,12 +38,12 @@ public class ElementsController {
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
    */
-  @ApiOperation(value = "OSM Data", nickname = "rawData")
+  @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
+      nickname = "rawData")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = {"/geometry", "/bbox", "/centroid"},
-      method = {RequestMethod.GET, RequestMethod.POST})
-  public void retrieveOSMData(
+  @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST})
+  public void retrieveOSMDataRaw(
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
@@ -52,25 +52,80 @@ public class ElementsController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    ElementsGeometry elemGeomType;
-    switch (request.getRequestURI()) {
-      case "/elements/geometry":
-        elemGeomType = ElementsGeometry.RAW;
-        break;
-      case "/elements/bbox":
-        elemGeomType = ElementsGeometry.BBOX;
-        break;
-      case "/elements/centroid":
-        elemGeomType = ElementsGeometry.CENTROID;
-        break;
-      default:
-        elemGeomType = ElementsGeometry.RAW;
-        break;
-    }
     ElementsRequestExecutor.executeElements(
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
-        elemGeomType, request.getParameterValues("properties"), response);
+        ElementsGeometry.RAW, request.getParameterValues("properties"), response);
+  }
+
+  /**
+   * Gives the OSM objects as GeoJSON features, which have the bounding box of the respective
+   * objects in the geometry field.
+   * 
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
+   * 
+   * @param properties <code>String</code> array defining what types of properties should be
+   *        included within the properties response field. It can contain "tags" and/or "metadata",
+   *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
+   *        properties.
+   */
+  @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
+      nickname = "rawDataBbox")
+  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
+      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
+  @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST})
+  public void retrieveOSMDataBbox(
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
+      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
+    ElementsRequestExecutor.executeElements(
+        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")),
+        ElementsGeometry.BBOX, request.getParameterValues("properties"), response);
+  }
+
+  /**
+   * Gives the OSM objects as GeoJSON features, which have the centroid of the respective objects in
+   * the geometry field.
+   * 
+   * <p>
+   * The parameters are described in the
+   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
+   * count} method.
+   * 
+   * @param properties <code>String</code> array defining what types of properties should be
+   *        included within the properties response field. It can contain "tags" and/or "metadata",
+   *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
+   *        properties.
+   */
+  @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
+      nickname = "rawDataCentroid")
+  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
+      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
+  @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST})
+  public void retrieveOSMDataCentroid(
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
+      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
+    ElementsRequestExecutor.executeElements(
+        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")),
+        ElementsGeometry.CENTROID, request.getParameterValues("properties"), response);
   }
 }
