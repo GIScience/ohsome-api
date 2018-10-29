@@ -49,6 +49,7 @@ public class ElementsController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] properties,
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
@@ -56,7 +57,7 @@ public class ElementsController {
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
-        ElementsGeometry.RAW, request.getParameterValues("properties"), response);
+        ElementsGeometry.RAW, properties, response);
   }
 
   /**
@@ -84,6 +85,7 @@ public class ElementsController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] properties,
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
@@ -91,7 +93,7 @@ public class ElementsController {
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
-        ElementsGeometry.BBOX, request.getParameterValues("properties"), response);
+        ElementsGeometry.BBOX, properties, response);
   }
 
   /**
@@ -119,6 +121,7 @@ public class ElementsController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] properties,
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
@@ -126,6 +129,6 @@ public class ElementsController {
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
-        ElementsGeometry.CENTROID, request.getParameterValues("properties"), response);
+        ElementsGeometry.CENTROID, properties, response);
   }
 }
