@@ -36,29 +36,17 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users", nickname = "usersCount")
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response count(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+  public Response count(@ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCount(new RequestParameters(request.getMethod(), false,
-        false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return UsersRequestExecutor.executeCount(
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")));
   }
 
   /**
@@ -77,28 +65,17 @@ public class UsersController {
   @RequestMapping(value = "/count/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByType(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCountGroupByType(new RequestParameters(request.getMethod(),
-        false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return UsersRequestExecutor.executeCountGroupByType(
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")));
   }
 
   /**
@@ -122,32 +99,22 @@ public class UsersController {
   @RequestMapping(value = "count/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByTag(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(new RequestParameters(request.getMethod(),
-        false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
-        groupByKey, groupByValues);
+    return UsersRequestExecutor
+        .executeCountGroupByTag(
+            new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
+                request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys,
+                values, userids, time, request.getParameter("showMetadata")),
+            groupByKey, groupByValues);
   }
 
   /**
@@ -169,29 +136,18 @@ public class UsersController {
   @RequestMapping(value = "count/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByKey(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKeys", defaultValue = "", required = false) String[] groupByKey)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCountGroupByKey(new RequestParameters(request.getMethod(),
-        false, false, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
+    return UsersRequestExecutor.executeCountGroupByKey(
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")),
         groupByKey);
   }
 
@@ -211,28 +167,17 @@ public class UsersController {
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensity(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCount(new RequestParameters(request.getMethod(), false, true,
-        bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return UsersRequestExecutor.executeCount(
+        new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")));
   }
 
   /**
@@ -251,28 +196,17 @@ public class UsersController {
   @RequestMapping(value = "/count/density/groupBy/type",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countDensityGroupByType(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCountGroupByType(new RequestParameters(request.getMethod(),
-        false, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata));
+    return UsersRequestExecutor.executeCountGroupByType(
+        new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("showMetadata")));
   }
 
   /**
@@ -297,31 +231,21 @@ public class UsersController {
   @RequestMapping(value = "/count/density/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countDensityGroupByTag(
-      @ApiParam(hidden = true) @RequestParam(value = "bboxes", defaultValue = "",
-          required = false) String bboxes,
-      @ApiParam(hidden = true) @RequestParam(value = "bcircles", defaultValue = "",
-          required = false) String bcircles,
-      @ApiParam(hidden = true) @RequestParam(value = "bpolys", defaultValue = "",
-          required = false) String bpolys,
-      @ApiParam(hidden = true) @RequestParam(value = "types", defaultValue = "",
-          required = false) String[] types,
-      @ApiParam(hidden = true) @RequestParam(value = "keys", defaultValue = "",
-          required = false) String[] keys,
-      @ApiParam(hidden = true) @RequestParam(value = "values", defaultValue = "",
-          required = false) String[] values,
-      @ApiParam(hidden = true) @RequestParam(value = "userids", defaultValue = "",
-          required = false) String[] userids,
-      @ApiParam(hidden = true) @RequestParam(value = "time", defaultValue = "",
-          required = false) String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
+      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws UnsupportedOperationException, Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(new RequestParameters(request.getMethod(),
-        false, true, bboxes, bcircles, bpolys, types, keys, values, userids, time, showMetadata),
-        groupByKey, groupByValues);
+    return UsersRequestExecutor
+        .executeCountGroupByTag(
+            new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
+                request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys,
+                values, userids, time, request.getParameter("showMetadata")),
+            groupByKey, groupByValues);
   }
 }
