@@ -316,7 +316,8 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items (length of items per square-kilometers).
+   * Gives the density of selected items (length of items divided by the total area in
+   * square-kilometers).
    * 
    * <p>
    * The parameters are described in the
@@ -326,8 +327,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (length of elements per square-kilometers)",
-      nickname = "elementsLengthDensity")
+  @ApiOperation(value = "Density of OSM elements (length of elements divided by "
+      + "the total area in square-kilometers)", nickname = "elementsLengthDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthDensity(
@@ -345,8 +346,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items (length of items per square-kilometers) grouped by the OSM
-   * type.
+   * Gives the density of selected items grouped by the OSM type.
    * 
    * <p>
    * The parameters are described in the
@@ -356,8 +356,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items (length of items per square-kilometers) "
-      + "grouped by the OSM type", nickname = "elementsLengthDensityGroupByType")
+  @ApiOperation(value = "Density of selected items grouped by the OSM type",
+      nickname = "elementsLengthDensityGroupByType")
   @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthDensityGroupByType(
@@ -375,8 +375,8 @@ public class LengthController {
   }
 
   /**
-   * Gives density of selected items (length of items per square-kilometers) grouped by the boundary
-   * parameter (bounding box/circle/polygon).
+   * Gives density of selected items grouped by the boundary parameter (bounding
+   * box/circle/polygon).
    * 
    * <p>
    * The parameters are described in the
@@ -387,7 +387,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items (length of items per square-kilometers) grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsLengthDensityGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
@@ -407,7 +407,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items (length of items per square-kilometers) grouped by the tag.
+   * Gives the density of selected items grouped by the tag.
    * 
    * <p>
    * The other parameters are described in the
@@ -423,8 +423,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items (length of items per square-kilometers) "
-      + "grouped by the tag", nickname = "elementsLengthDensityGroupByTag")
+  @ApiOperation(value = "Density of selected items grouped by the tag",
+      nickname = "elementsLengthDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",

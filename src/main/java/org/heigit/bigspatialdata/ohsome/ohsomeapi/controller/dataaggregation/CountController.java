@@ -335,7 +335,8 @@ public class CountController {
   }
 
   /**
-   * Gives the density of selected items (number of items per square-kilometers).
+   * Gives the density of selected items (number of items divided by the total area in
+   * square-kilometers).
    * 
    * <p>
    * The parameters are described in the
@@ -345,8 +346,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (number of elements per square-kilometers)",
-      nickname = "elementsCountDensity")
+  @ApiOperation(value = "Density of OSM elements (number of elements divided by "
+      + "the total area in square-kilometers)", nickname = "elementsCountDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensity(
@@ -425,7 +426,7 @@ public class CountController {
   }
 
   /**
-   * Gives the density of selected items (number of items per square-kilometers) grouped by the tag.
+   * Gives the density of selected items grouped by the tag.
    * 
    * <p>
    * The other parameters are described in the

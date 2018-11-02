@@ -152,7 +152,8 @@ public class UsersController {
   }
 
   /**
-   * Gives the density of OSM users (number of users per square-kilometers).
+   * Gives the density of OSM users (number of users divided by the total area in
+   * square-kilometers).
    * 
    * <p>
    * The parameters are described in the
@@ -162,8 +163,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM users (number of users per square-kilometers)",
-      nickname = "usersCountDensity")
+  @ApiOperation(value = "Density of OSM users (number of users divided "
+      + "by the total area in square-kilometers)", nickname = "usersCountDensity")
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensity(

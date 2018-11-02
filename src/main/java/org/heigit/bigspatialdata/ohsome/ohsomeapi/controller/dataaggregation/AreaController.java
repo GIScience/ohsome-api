@@ -313,7 +313,8 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items (area of items per square-kilometers).
+   * Gives the density of selected items (area of items divided by the total area in
+   * square-kilometers).
    * 
    * <p>
    * The parameters are described in the
@@ -323,8 +324,8 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (area of elements per square-kilometers)",
-      nickname = "elementsAreaDensity")
+  @ApiOperation(value = "Density of OSM elements (area of elements divided "
+      + "by the total area in square-kilometers)", nickname = "elementsAreaDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response areaDensity(
@@ -342,8 +343,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items (area of items per square-kilometers) grouped by the OSM
-   * type.
+   * Gives the density of selected items grouped by the OSM type.
    * 
    * <p>
    * The parameters are described in the
@@ -353,8 +353,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(
-      value = "Density of OSM elements (area of items per square-kilometers) grouped by the type",
+  @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "elementsAreaDensityGroupByType")
   @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
@@ -373,8 +372,8 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items (area of items per square-kilometers) grouped by the
-   * boundary parameter (bounding box/circle/polygon).
+   * Gives the density of selected items grouped by the boundary parameter (bounding
+   * box/circle/polygon).
    * 
    * <p>
    * The parameters are described in the
@@ -385,8 +384,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items (area of items per square-kilometers) "
-          + "grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsAreaGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
@@ -406,7 +404,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items (area of items per square-kilometers) grouped by the tag.
+   * Gives the density of selected items grouped by the tag.
    * 
    * <p>
    * The other parameters are described in the
@@ -423,7 +421,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items (area of items per square-kilometers) grouped by the tag",
+      value = "Density of selected items grouped by the tag",
       nickname = "elementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,

@@ -320,7 +320,8 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items (perimeter of items per square-kilometers).
+   * Gives the density of selected items (perimeter of items divided by the total area in
+   * square-kilometers).
    * 
    * <p>
    * The parameters are described in the
@@ -330,8 +331,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (perimeter of elements per square-kilometers)",
-      nickname = "elementsPerimeterDensity")
+  @ApiOperation(value = "Density of OSM elements (perimeter of elements divided by "
+      + "the total area in square-kilometers)", nickname = "elementsPerimeterDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterDensity(
@@ -350,8 +351,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items (perimeter of items per square-kilometers) grouped by the
-   * OSM type.
+   * Gives the density of selected items grouped by the OSM type.
    * 
    * <p>
    * The parameters are described in the
@@ -361,8 +361,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (perimeter of items per square-kilometers) "
-      + "grouped by the type", nickname = "elementsPerimeterDensityGroupByType")
+  @ApiOperation(value = "Density of OSM elements grouped by the type",
+      nickname = "elementsPerimeterDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterDensityGroupByType(
@@ -380,8 +380,8 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items (perimeter of items per square-kilometers) grouped by the
-   * boundary parameter (bounding box/circle/polygon).
+   * Gives the density of selected items grouped by the boundary parameter (bounding
+   * box/circle/polygon).
    * 
    * <p>
    * The parameters are described in the
@@ -392,8 +392,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items (perimeter of items per square-kilometers) "
-          + "grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsPerimeterDensityGroupByBoundary")
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
@@ -413,8 +412,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items (perimeter of items per square-kilometers) grouped by the
-   * tag.
+   * Gives the density of selected items grouped by the tag.
    * 
    * <p>
    * The other parameters are described in the
@@ -430,8 +428,8 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items (perimeter of items per square-kilometers) "
-      + "grouped by the tag", nickname = "elementsPerimeterDensityGroupByTag")
+  @ApiOperation(value = "Density of selected items grouped by the tag",
+      nickname = "elementsPerimeterDensityGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
