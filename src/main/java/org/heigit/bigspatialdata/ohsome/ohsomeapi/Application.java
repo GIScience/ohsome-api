@@ -48,6 +48,7 @@ public class Application implements ApplicationRunner {
     boolean multithreading = true;
     boolean caching = false;
     String dbPrefix = null;
+    long timeout = 100000;
     // only used when tests are executed directly in Eclipse
     if (System.getProperty("database.db") != null) {
       DbConnData.db = new OSHDBH2(System.getProperty("database.db"));
@@ -98,6 +99,8 @@ public class Application implements ApplicationRunner {
           case "database.prefix":
             dbPrefix = args.getOptionValues(paramName).get(0);
             break;
+          case "database.timeout":
+            timeout = Long.valueOf(args.getOptionValues(paramName).get(0));
           default:
             break;
         }
@@ -127,6 +130,7 @@ public class Application implements ApplicationRunner {
         DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
       }
       if (DbConnData.db instanceof OSHDBIgnite) {
+        ((OSHDBIgnite) DbConnData.db).timeoutInMilliseconds(timeout);
         RemoteTagTranslator mtt = DbConnData.mapTagTranslator;
         ((OSHDBIgnite) DbConnData.db).onClose(() -> {
           try {
