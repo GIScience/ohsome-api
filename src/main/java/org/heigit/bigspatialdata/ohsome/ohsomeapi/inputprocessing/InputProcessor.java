@@ -131,7 +131,7 @@ public class InputProcessor {
               .createCircularPolygons(ProcessingData.boundaryValues));
           break;
         case BPOLYS:
-          if (bpolys.matches("^\\s*\\{.*")) {
+          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
           } else {
