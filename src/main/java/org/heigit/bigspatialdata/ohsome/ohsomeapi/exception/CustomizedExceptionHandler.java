@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.exception;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
+import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBTimeoutException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,6 +51,14 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
   public final ResponseEntity<ErrorDetails> handleUnauthorizedException(UnauthorizedException ex,
       WebRequest request) {
     return createExceptionResponse(ex, request, HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(OSHDBTimeoutException.class)
+  public final ResponseEntity<ErrorDetails> handleTimeoutException(OSHDBTimeoutException ex,
+      WebRequest request) {
+    return createExceptionResponse(
+        new PayloadTooLargeException(ExceptionMessages.payloadTooLargeMessage), request,
+        HttpStatus.PAYLOAD_TOO_LARGE);
   }
 
   /** Creates the error details based on the thrown exception. */
