@@ -26,6 +26,7 @@ import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
@@ -150,7 +151,7 @@ public class ElementsRequestExecutor {
         properties.put("version", snapshot.getEntity().getVersion());
         properties.put("osmType", snapshot.getEntity().getType());
         properties.put("lastEdit", snapshot.getEntity().getTimestamp().toString());
-        properties.put("changesetId", snapshot.getEntity().getChangesetId());
+        properties.put("changesetId", snapshot.getEntity().getChangeset());
         return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
             valuesInt, snapshot, properties, gjw, includeTags, elemGeom);
       });
@@ -466,8 +467,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length != 1) {
-      throw new BadRequestException(
-          "You need to give one groupByKey parameter, if you want to use groupBy/tag.");
+      throw new BadRequestException(ExceptionMessages.groupByKeyParam);
     }
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -630,8 +630,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
-      throw new BadRequestException(
-          "You need to give at least one groupByKeys parameter, if you want to use groupBy/key");
+      throw new BadRequestException(ExceptionMessages.groupByKeysParam);
     }
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -876,8 +875,7 @@ public class ElementsRequestExecutor {
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
     inputProcessor.processParameters(mapRed, requestParams);
     if (ProcessingData.boundary == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(
-          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+      throw new BadRequestException(ExceptionMessages.noBoundary);
     }
     GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
     final GeoJsonObject[] geoJsonGeoms = ProcessingData.geoJsonGeoms;

@@ -27,7 +27,6 @@ public class ErrorDetails {
     return status;
   }
 
-
   public String getMessage() {
     return message;
   }

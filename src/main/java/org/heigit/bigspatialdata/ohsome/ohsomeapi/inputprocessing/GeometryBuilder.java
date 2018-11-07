@@ -19,6 +19,7 @@ import org.geojson.GeoJsonObject;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
@@ -73,8 +74,7 @@ public class GeometryBuilder {
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       if (utils.isWithin(unifiedBbox) == false) {
-        throw new NotFoundException("The provided boundary parameter does not lie completely "
-            + "within the underlying data-extract polygon.");
+        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
       ProcessingData.boundaryColl = geometryColl;
       ProcessingData.bboxesGeom = unifiedBbox;
@@ -122,8 +122,7 @@ public class GeometryBuilder {
         geom = JTS.transform(buffer, transform);
         if (bpoints.length == 3) {
           if (utils.isWithin(geom) == false) {
-            throw new NotFoundException("The provided boundary parameter does not lie completely "
-                + "within the underlying data-extract polygon.");
+            throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
           }
           geometryCollection.add(geom);
           ProcessingData.boundaryColl = geometryCollection;
@@ -135,8 +134,7 @@ public class GeometryBuilder {
       Geometry unifiedBCircles =
           geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
       if (utils.isWithin(unifiedBCircles) == false) {
-        throw new NotFoundException("The provided boundary parameter does not lie completely "
-            + "within the underlying data-extract polygon.");
+        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
       ProcessingData.boundaryColl = geometryCollection;
       ProcessingData.bcirclesGeom = unifiedBCircles;
@@ -174,13 +172,11 @@ public class GeometryBuilder {
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
       } catch (NumberFormatException e) {
-        throw new BadRequestException("The bpolys parameter must contain double-parseable values "
-            + "in form of lon/lat coordinate pairs.");
+        throw new BadRequestException(ExceptionMessages.bpolysFormat);
       }
       bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
       if (utils.isWithin(bpoly) == false) {
-        throw new NotFoundException("The provided boundary parameter does not lie completely "
-            + "within the underlying data-extract polygon.");
+        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
       geometries.add(bpoly);
       ProcessingData.boundaryColl = geometries;
@@ -213,8 +209,7 @@ public class GeometryBuilder {
           }
         }
         if (geometries.stream().anyMatch(geometry -> !utils.isWithin(geometry))) {
-          throw new NotFoundException("The provided boundary parameter does not lie completely "
-              + "within the underlying data-extract polygon.");
+          throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
         }
         Geometry unifiedBPolys = geomFact
             .createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
@@ -222,8 +217,7 @@ public class GeometryBuilder {
         ProcessingData.bpolysGeom = unifiedBPolys;
         return unifiedBPolys;
       } catch (NumberFormatException | MismatchedDimensionException e) {
-        throw new BadRequestException("The bpolys parameter must contain double-parseable values "
-            + "in form of lon/lat coordinate pairs.");
+        throw new BadRequestException(ExceptionMessages.bpolysFormat);
       }
     }
   }

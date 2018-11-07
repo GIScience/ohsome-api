@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -141,9 +142,7 @@ public class InputProcessor {
           }
           break;
         default:
-          throw new BadRequestException(
-              "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its "
-                  + "format, or you defined more than one boundary parameter.");
+          throw new BadRequestException(ExceptionMessages.boundaryParamFormatOrCount);
       }
     } catch (ClassCastException e) {
       throw new BadRequestException(
@@ -518,9 +517,7 @@ public class InputProcessor {
     } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       return BoundaryType.BPOLYS;
     } else {
-      throw new BadRequestException(
-          "Your provided boundary parameter (bboxes, bcircles, or bpolys) does not fit its format, "
-              + "or you defined more than one boundary parameter.");
+      throw new BadRequestException(ExceptionMessages.boundaryParamFormatOrCount);
     }
   }
 

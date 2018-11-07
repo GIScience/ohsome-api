@@ -13,6 +13,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
@@ -173,8 +174,7 @@ public class UsersRequestExecutor {
       String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length != 1) {
-      throw new BadRequestException(
-          "You need to give one groupByKey parameter, if you want to use groupBy/tag.");
+      throw new BadRequestException(ExceptionMessages.groupByKeyParam);
     }
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMContribution> mapRed = null;
@@ -282,8 +282,7 @@ public class UsersRequestExecutor {
       String[] groupByKeys) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
-      throw new BadRequestException(
-          "You need to give at least one groupByKey parameter, if you want to use groupBy/key");
+      throw new BadRequestException(ExceptionMessages.groupByKeysParam);
     }
     ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMContribution> mapRed = null;

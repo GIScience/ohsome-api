@@ -8,6 +8,7 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
@@ -88,10 +89,7 @@ public class InputProcessingUtils {
         for (String boundaryObject : bboxesArray) {
           coords = boundaryObject.split("\\,");
           if (coords.length != 4) {
-            throw new BadRequestException("Error in processing the boundary parameter. Please "
-                + "remember to follow the format, where you separate each boundary object with a "
-                + "pipe-sign '|' and add optional custom ids to every first coordinate with a "
-                + "colon ':'.");
+            throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
           }
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
@@ -104,10 +102,7 @@ public class InputProcessingUtils {
             boundaryParamValues.add(coords[3]);
             idCount++;
           } else {
-            throw new BadRequestException(
-                "One or more boundary object(s) have a custom id (or at least a colon), "
-                    + "whereas other(s) don't. You can either set custom ids for all your "
-                    + "boundary objects, or for none.");
+            throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
           }
         }
       } else {
@@ -127,10 +122,7 @@ public class InputProcessingUtils {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       } else {
-        throw new BadRequestException("The processing of the boundary parameter gave an error. "
-            + "Please use the predefined format where you delimit different objects "
-            + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
-            + "at the first coordinate of each boundary object.");
+        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
     }
     this.boundaryIds = boundaryIds;
@@ -150,10 +142,7 @@ public class InputProcessingUtils {
         for (String boundaryObject : bcirclesArray) {
           coords = boundaryObject.split("\\,");
           if (coords.length != 3) {
-            throw new BadRequestException("Error in processing the boundary parameter. Please "
-                + "remember to follow the format, where you separate each boundary object with a "
-                + "pipe-sign '|' and add optional custom ids to every first coordinate with a "
-                + "colon ':'.");
+            throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
           }
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
@@ -165,10 +154,7 @@ public class InputProcessingUtils {
             boundaryParamValues.add(coords[2]);
             idCount++;
           } else {
-            throw new BadRequestException(
-                "One or more boundary object(s) have a custom id (or at least a colon), "
-                    + "whereas other(s) don't. You can either set custom ids for all your "
-                    + "boundary objects, or for none.");
+            throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
           }
         }
       } else {
@@ -186,10 +172,7 @@ public class InputProcessingUtils {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       } else {
-        throw new BadRequestException("The processing of the boundary parameter gave an error. "
-            + "Please use the predefined format where you delimit different objects "
-            + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
-            + "at the first coordinate of each boundary object.");
+        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
     }
     this.boundaryIds = boundaryIds;
@@ -216,19 +199,13 @@ public class InputProcessingUtils {
             // extract the other coordinates
             for (int i = 1; i < coords.length; i++) {
               if (coords[i].contains(":")) {
-                throw new BadRequestException("Error in processing the boundary parameter. Please "
-                    + "remember to follow the format, where you separate each boundary object "
-                    + "with a pipe-sign '|' and add optional custom ids to every first coordinate "
-                    + "with a colon ':'.");
+                throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
               }
               boundaryParamValues.add(coords[i]);
             }
             idCount++;
           } else {
-            throw new BadRequestException(
-                "One or more boundary object(s) have a custom id (or at least a colon), "
-                    + "whereas other(s) don't. You can either set custom ids for all your "
-                    + "boundary objects, or for none.");
+            throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
           }
         }
       } else {
@@ -246,10 +223,7 @@ public class InputProcessingUtils {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       } else {
-        throw new BadRequestException("The processing of the boundary parameter gave an error. "
-            + "Please use the predefined format where you delimit different objects "
-            + "with the pipe-sign '|' and optionally add custom ids with the colon ':' "
-            + "at the first coordinate of each boundary object.");
+        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
     }
     this.boundaryIds = boundaryIds;

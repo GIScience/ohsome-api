@@ -16,6 +16,7 @@ import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -152,8 +153,7 @@ public class ExecutionUtils {
       MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder, boolean isSnapshot)
       throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(
-          "You need to give at least one boundary parameter if you want to use /groupBy/boundary.");
+      throw new BadRequestException(ExceptionMessages.noBoundary);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
