@@ -1,10 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
@@ -16,6 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 
 /**
@@ -70,8 +70,7 @@ public class CountController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -99,8 +98,7 @@ public class CountController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -128,8 +126,7 @@ public class CountController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -158,8 +155,7 @@ public class CountController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.COUNT,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
@@ -196,7 +192,7 @@ public class CountController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request, @RequestParam(value = "groupByKeys",
           defaultValue = "", required = false) String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -241,7 +237,7 @@ public class CountController {
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -283,7 +279,7 @@ public class CountController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,

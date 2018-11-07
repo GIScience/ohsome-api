@@ -41,8 +41,7 @@ public class UsersController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return UsersRequestExecutor.executeCount(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -70,8 +69,7 @@ public class UsersController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return UsersRequestExecutor.executeCountGroupByType(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -108,7 +106,7 @@ public class UsersController {
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return UsersRequestExecutor
         .executeCountGroupByTag(
             new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
@@ -143,7 +141,7 @@ public class UsersController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "groupByKeys", defaultValue = "", required = false) String[] groupByKey)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return UsersRequestExecutor.executeCountGroupByKey(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -173,8 +171,7 @@ public class UsersController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return UsersRequestExecutor.executeCount(
         new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -202,8 +199,7 @@ public class UsersController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return UsersRequestExecutor.executeCountGroupByType(
         new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -241,7 +237,7 @@ public class UsersController {
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return UsersRequestExecutor
         .executeCountGroupByTag(
             new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),

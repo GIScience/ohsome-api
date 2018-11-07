@@ -45,8 +45,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -74,8 +73,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -106,8 +104,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -136,8 +133,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.AREA,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
@@ -174,7 +170,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
       @ApiParam(hidden = true) HttpServletRequest request, @RequestParam(value = "groupByKeys",
           defaultValue = "", required = false) String[] groupByKeys)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -219,7 +215,7 @@ public class AreaController {
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -261,7 +257,7 @@ public class AreaController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -303,7 +299,7 @@ public class AreaController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.AREA,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
@@ -334,8 +330,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -363,8 +358,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -394,8 +388,7 @@ public class AreaController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request)
-      throws UnsupportedOperationException, Exception {
+      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.AREA,
         RequestParameters.of(request.getMethod(), true, true, request.getParameter("bboxes"),
@@ -420,8 +413,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(
-      value = "Density of selected items grouped by the tag",
+  @ApiOperation(value = "Density of selected items grouped by the tag",
       nickname = "elementsAreaGroupByTag")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
@@ -441,7 +433,7 @@ public class AreaController {
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -486,7 +478,7 @@ public class AreaController {
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.AREA,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -529,7 +521,7 @@ public class AreaController {
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
         RequestResource.AREA,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
