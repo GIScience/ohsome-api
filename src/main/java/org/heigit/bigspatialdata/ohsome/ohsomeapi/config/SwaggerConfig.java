@@ -54,7 +54,7 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .tags(new Tag("metadata", "Metadata of the underlying data-extract"))
+        .tags(new Tag("metadata", ""))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 

@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.MetadataRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ public class MetadataController {
    *         MetadataResponse}
    */
   @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+  @ApiOperation(nickname = "getMetadata", value = "Metadata of the underlying data-extract")
   public MetadataResponse getMetadata() throws UnsupportedOperationException, Exception {
 
     return MetadataRequestExecutor.executeGetMetadata();
