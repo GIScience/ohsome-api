@@ -40,6 +40,7 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -106,43 +107,93 @@ public class ExecutionUtils {
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
-      TagTranslator tt, int[] keysInt, int[] valuesInt, OSMEntitySnapshot snapshot,
-      Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags,
+      TagTranslator tt, int[] keysInt, int[] valuesInt, OSHDBMapReducible mapReducible,
+      boolean isSnapshot, Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags,
       ElementsGeometry elemGeom) {
-    properties.put("snapshotTimestamp", snapshot.getTimestamp().toString());
-    properties.put("osmId", snapshot.getEntity().getType().toString().toLowerCase() + "/"
-        + snapshot.getEntity().getId());
-    if (includeTags) {
-      for (OSHDBTag oshdbTag : snapshot.getEntity().getTags()) {
-        OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
-        properties.put(tag.getKey(), tag.getValue());
-      }
-    } else if (!keys.equals(null) && keys.length != 0) {
-      int[] tags = snapshot.getEntity().getRawTags();
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
-        int tagValueId = tags[i + 1];
-        for (int key : keysInt) {
-          if (tagKeyId == key) {
-            OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-            properties.put(tag.getKey(), tag.getValue());
+    if (isSnapshot) {
+      properties.put("snapshotTimestamp",
+          ((OSMEntitySnapshot) mapReducible).getTimestamp().toString());
+      properties.put("osmId",
+          ((OSMEntitySnapshot) mapReducible).getEntity().getType().toString().toLowerCase() + "/"
+              + ((OSMEntitySnapshot) mapReducible).getEntity().getId());
+      if (includeTags) {
+        for (OSHDBTag oshdbTag : ((OSMEntitySnapshot) mapReducible).getEntity().getTags()) {
+          OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
+          properties.put(tag.getKey(), tag.getValue());
+        }
+      } else if (!keys.equals(null) && keys.length != 0) {
+        int[] tags = ((OSMEntitySnapshot) mapReducible).getEntity().getRawTags();
+        for (int i = 0; i < tags.length; i += 2) {
+          int tagKeyId = tags[i];
+          int tagValueId = tags[i + 1];
+          for (int key : keysInt) {
+            if (tagKeyId == key) {
+              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+              properties.put(tag.getKey(), tag.getValue());
+            }
           }
         }
       }
-    }
-    switch (elemGeom) {
-      case RAW:
-        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
-      case BBOX:
-        Envelope envelope = snapshot.getGeometry().getEnvelopeInternal();
-        OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
-            properties);
-      case CENTROID:
-        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry().getCentroid()),
-            properties);
-      default:
-        return new org.wololo.geojson.Feature(gjw.write(snapshot.getGeometry()), properties);
+      switch (elemGeom) {
+        case RAW:
+          return new org.wololo.geojson.Feature(
+              gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry()), properties);
+        case BBOX:
+          Envelope envelope =
+              ((OSMEntitySnapshot) mapReducible).getGeometry().getEnvelopeInternal();
+          OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+          return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
+              properties);
+        case CENTROID:
+          return new org.wololo.geojson.Feature(
+              gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry().getCentroid()),
+              properties);
+        default:
+          return new org.wololo.geojson.Feature(
+              gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry()), properties);
+      }
+    } else {
+      properties.put("contributionTimestamp",
+          ((OSMContribution) mapReducible).getTimestamp().toString());
+      properties.put("osmId",
+          ((OSMContribution) mapReducible).getEntityAfter().getType().toString().toLowerCase() + "/"
+              + ((OSMContribution) mapReducible).getEntityAfter().getId());
+      if (includeTags) {
+        for (OSHDBTag oshdbTag : ((OSMContribution) mapReducible).getEntityAfter().getTags()) {
+          OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
+          properties.put(tag.getKey(), tag.getValue());
+        }
+      } else if (!keys.equals(null) && keys.length != 0) {
+        int[] tags = ((OSMContribution) mapReducible).getEntityAfter().getRawTags();
+        for (int i = 0; i < tags.length; i += 2) {
+          int tagKeyId = tags[i];
+          int tagValueId = tags[i + 1];
+          for (int key : keysInt) {
+            if (tagKeyId == key) {
+              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+              properties.put(tag.getKey(), tag.getValue());
+            }
+          }
+        }
+      }
+      switch (elemGeom) {
+        case RAW:
+          return new org.wololo.geojson.Feature(
+              gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
+        case BBOX:
+          Envelope envelope =
+              ((OSMContribution) mapReducible).getGeometryAfter().getEnvelopeInternal();
+          OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+          return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
+              properties);
+        case CENTROID:
+          return new org.wololo.geojson.Feature(
+              gjw.write(((OSMContribution) mapReducible).getGeometryAfter().getCentroid()),
+              properties);
+        default:
+          return new org.wololo.geojson.Feature(
+              gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
+      }
     }
   }
 

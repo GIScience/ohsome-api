@@ -36,7 +36,7 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams())
+        .globalOperationParameters(defineGlobalOperationParams(false))
         .tags(new Tag("users", "Data Aggregation functions on users"),
             new Tag("elementsArea", "Area resources for polygonal objects"),
             new Tag("elementsLength", "Length resources for line objects"),
@@ -54,8 +54,8 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .tags(new Tag("metadata", ""))
-        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
+        .tags(new Tag("metadata", "")).forCodeGeneration(true)
+        .globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
   /** Creates the Swagger2 documentation for the data extraction resources. */
@@ -66,9 +66,11 @@ public class SwaggerConfig {
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams())
-        .tags(new Tag("dataExtraction", "Direct access to OSM data")).forCodeGeneration(true)
-        .globalResponseMessage(RequestMethod.GET, responseMessages);
+        .globalOperationParameters(defineGlobalOperationParams(true))
+        .tags(new Tag("dataExtraction", "Direct access to OSM data"),
+            new Tag("dataExtractionFullHistory",
+                "Direct access to the full-history of each OSM object"))
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
   /** Defines custom response messages for the used response codes. */
@@ -104,7 +106,7 @@ public class SwaggerConfig {
    * Defines the description of each parameter, which are used in all resources for the Swagger2
    * documentation.
    */
-  private List<Parameter> defineGlobalOperationParams() {
+  private List<Parameter> defineGlobalOperationParams(boolean isFullHistory) {
     List<Parameter> globalOperationParams = new ArrayList<Parameter>();
     globalOperationParams.add(new ParameterBuilder().name("bboxes")
         .description("WGS84 coordinates in the following formats: "
@@ -141,10 +143,17 @@ public class SwaggerConfig {
     globalOperationParams.add(new ParameterBuilder().name("userids")
         .description("OSM userids; default: no userid").modelRef(new ModelRef("string"))
         .parameterType("query").defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("time")
-        .description("ISO-8601 conform timestring(s); default: latest timestamp within dataset")
-        .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
+    if (!isFullHistory) {
+      globalOperationParams.add(new ParameterBuilder().name("time")
+          .description("ISO-8601 conform timestring(s); default: latest timestamp within dataset")
+          .modelRef(new ModelRef("string")).parameterType("query")
+          .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
+    } else {
+      globalOperationParams.add(new ParameterBuilder().name("time")
+          .description("ISO-8601 conform timestring(s); default: latest timestamp within dataset")
+          .modelRef(new ModelRef("string")).parameterType("query")
+          .defaultValue("2014-01-01,2017-01-01").required(false).build());
+    }
     globalOperationParams.add(new ParameterBuilder().name("showMetadata")
         .description("Boolean operator 'true' or 'false'; default: 'false'")
         .modelRef(new ModelRef("string")).parameterType("query")

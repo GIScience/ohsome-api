@@ -52,11 +52,14 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
@@ -87,14 +90,21 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
+  @SuppressWarnings("unchecked") // intentionally suppressed
   public static void executeElements(RequestParameters requestParams, ElementsGeometry elemGeom,
       String[] propertiesParameter, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
+    boolean isSnapshot = requestParams.isSnapshot();
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
+    }
+    MapReducer<? extends OSHDBMapReducible> mapRed = null;
+    if (isSnapshot) {
+      mapRed = (MapReducer<OSMEntitySnapshot>) mapRed;
+    } else {
+      mapRed = (MapReducer<OSMContribution>) mapRed;
     }
     boolean iT = false;
     boolean iOM = false;
@@ -146,22 +156,38 @@ public class ElementsRequestExecutor {
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     if (includeOSMMetadata) {
-      preResult = mapRed.map(snapshot -> {
+      preResult = mapRed.map(view -> {
         Map<String, Object> properties = new TreeMap<>();
-        properties.put("version", snapshot.getEntity().getVersion());
-        properties.put("osmType", snapshot.getEntity().getType());
-        properties.put("lastEdit", snapshot.getEntity().getTimestamp().toString());
-        properties.put("changesetId", snapshot.getEntity().getChangeset());
-        return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, snapshot, properties, gjw, includeTags, elemGeom);
+        if (isSnapshot) {
+          properties.put("version", ((OSMEntitySnapshot) view).getEntity().getVersion());
+          properties.put("osmType", ((OSMEntitySnapshot) view).getEntity().getType());
+          properties.put("lastEdit",
+              ((OSMEntitySnapshot) view).getEntity().getTimestamp().toString());
+          properties.put("changesetId", ((OSMEntitySnapshot) view).getEntity().getChangeset());
+          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+              valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
+        } else {
+          if (((OSMContribution) view).getContributionTypes().contains(ContributionType.DELETION)) {
+            return null;
+          } else {
+            properties.put("version", ((OSMContribution) view).getEntityAfter().getVersion());
+            properties.put("osmType", ((OSMContribution) view).getEntityAfter().getType());
+            properties.put("changesetId", ((OSMContribution) view).getEntityAfter().getChangeset());
+            return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+                valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
+          }
+        }
       });
     } else {
-      preResult = mapRed.map(snapshot -> {
+      preResult = mapRed.map(view -> {
         Map<String, Object> properties = new TreeMap<>();
         return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, snapshot, properties, gjw, includeTags, elemGeom);
+            valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
       });
     }
+//    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
+//    preResult = preResult.stream();
+    
     Stream<Feature> streamResult = preResult.stream();
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {

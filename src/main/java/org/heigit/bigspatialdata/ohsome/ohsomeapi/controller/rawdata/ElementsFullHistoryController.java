@@ -16,13 +16,13 @@ import io.swagger.annotations.ApiParam;
 
 
 /**
- * REST controller containing the methods, which are mapped to "/elements" and used to return OSM
- * data.
+ * REST controller containing the methods, which are mapped to "/elementsFullHistory" and used to
+ * return the full history of the requested OSM data.
  */
-@Api(tags = "dataExtraction")
+@Api(tags = "dataExtractionFullHistory")
 @RestController
-@RequestMapping("/elements")
-public class ElementsController {
+@RequestMapping("/elementsFullHistory")
+public class ElementsFullHistoryController {
 
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
@@ -39,11 +39,11 @@ public class ElementsController {
    *        properties.
    */
   @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
-      nickname = "rawData")
+      nickname = "rawDataFullHistory")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST})
-  public void retrieveOSMDataRaw(
+  public void retrieveOSMDataRawFullHistory(
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
@@ -54,7 +54,7 @@ public class ElementsController {
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     ElementsRequestExecutor.executeElements(
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
         ElementsGeometry.RAW, properties, response);
@@ -75,7 +75,7 @@ public class ElementsController {
    *        properties.
    */
   @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
-      nickname = "rawDataBbox")
+      nickname = "rawDataBboxFullHistory")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST})
@@ -90,7 +90,7 @@ public class ElementsController {
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     ElementsRequestExecutor.executeElements(
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
         ElementsGeometry.BBOX, properties, response);
@@ -111,7 +111,7 @@ public class ElementsController {
    *        properties.
    */
   @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
-      nickname = "rawDataCentroid")
+      nickname = "rawDataCentroidFullHistory")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST})
@@ -126,7 +126,7 @@ public class ElementsController {
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     ElementsRequestExecutor.executeElements(
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
         ElementsGeometry.CENTROID, properties, response);
