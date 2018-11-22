@@ -24,4 +24,5 @@ public class ExceptionMessages {
       "You need to give one groupByKey parameter, if you want to use groupBy/tag.";
   public static String groupByKeysParam =
       "You need to give one groupByKeys parameter, if you want to use groupBy/key.";
+  public static String timeFormat = "The provided time parameter is not ISO-8601 conform.";
 }

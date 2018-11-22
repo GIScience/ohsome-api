@@ -433,9 +433,14 @@ public class InputProcessor {
       }
     } else {
       for (String timestamp : time) {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
-        utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+        try {
+          ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+          utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+        } catch (Exception e) {
+          throw new BadRequestException(ExceptionMessages.timeFormat);
+        }
       }
+      time = utils.sortTimestamps(time);
       if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(time);
       }

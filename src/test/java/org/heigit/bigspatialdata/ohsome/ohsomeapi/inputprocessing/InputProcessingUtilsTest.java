@@ -104,8 +104,8 @@ public class InputProcessingUtilsTest {
     String time = "2015-01-01/2017-01-01/P1Y";
     String[] timeVals = inProUtils.extractIsoTime(time);
     assertTrue(timeVals.length == 3);
-    assertTrue(timeVals[0].equals("2015-01-01"));
-    assertTrue(timeVals[1].equals("2017-01-01"));
+    assertTrue(timeVals[0].equals("2015-01-01T00:00:00Z"));
+    assertTrue(timeVals[1].equals("2017-01-01T00:00:00Z"));
     assertTrue(timeVals[2].equals("P1Y"));
   }
 }

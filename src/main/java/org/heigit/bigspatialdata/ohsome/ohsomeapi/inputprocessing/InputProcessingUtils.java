@@ -1,12 +1,12 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
@@ -14,6 +14,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import com.vividsolutions.jts.geom.Geometry;
 
 
 /** Holds utility methods that are used by the input processing and executor classes. */
@@ -294,6 +295,12 @@ public class InputProcessingUtils {
         return timeVals;
       }
       String[] timeSplit = time.split("/");
+
+      String[] timestamps = new String[] {timeSplit[0], timeSplit[1]};
+      timestamps = sortTimestamps(timestamps);
+      timeSplit[0] = timestamps[0];
+      timeSplit[1] = timestamps[1];
+
       if (timeSplit[0].length() > 0) {
         // start timestamp
         ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timeSplit[0]);
@@ -334,7 +341,7 @@ public class InputProcessingUtils {
         checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
         timeVals[0] = time;
       } catch (DateTimeParseException e) {
-        throw new BadRequestException("The provided time parameter is not ISO-8601 conform.");
+        throw new BadRequestException(ExceptionMessages.timeFormat);
       }
     }
     return timeVals;
@@ -363,6 +370,22 @@ public class InputProcessingUtils {
                 + ") of the underlying osh-data.");
       }
     }
+  }
+
+  /** Sorts the given timestamps from oldest to newest. */
+  public String[] sortTimestamps(String[] timestamps) throws Exception {
+    List<String> timeStringList = new ArrayList<String>();
+    for (String timestamp : timestamps) {
+      try {
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+        timeStringList.add(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+      } catch (Exception e) {
+        throw new BadRequestException(ExceptionMessages.timeFormat);
+      }
+    }
+    Collections.sort(timeStringList);
+    return timeStringList.toArray(timestamps);
   }
 
   /**
