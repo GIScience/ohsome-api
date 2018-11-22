@@ -185,10 +185,12 @@ public class ElementsRequestExecutor {
             valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
       });
     }
-//    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-//    preResult = preResult.stream();
-    
-    Stream<Feature> streamResult = preResult.stream();
+
+    Stream<Feature> streamResult = preResult.stream().filter(feature -> {
+      if (feature == null)
+        return false;
+      return true;
+    });
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
