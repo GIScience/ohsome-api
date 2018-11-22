@@ -24,7 +24,7 @@ These instructions will get you a copy of the project up and running on your loc
     * keytables included: `java -jar target/ohsome-api-0.9.6.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
     * keytables not included: `java -jar target/ohsome-api-0.9.6.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
 
-Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
+Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/swagger-ui.html*.
 
 *Note:*
 * additionally you can add optional run-parameters:
