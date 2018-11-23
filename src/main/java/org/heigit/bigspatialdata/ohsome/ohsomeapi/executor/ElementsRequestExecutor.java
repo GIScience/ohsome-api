@@ -249,6 +249,213 @@ public class ElementsRequestExecutor {
     response.flushBuffer();
   }
 
+  public static void executeElementsFullHistory(RequestParameters requestParams,
+      ElementsGeometry elemGeom, String[] propertiesParameter, HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
+    MapReducer<OSMContribution> mapRedContribution = null;
+
+    boolean iT = false;
+    boolean iOM = false;
+    for (String text : propertiesParameter) {
+      if (text.equalsIgnoreCase("tags")) {
+        iT = true;
+      } else if (text.equalsIgnoreCase("metadata")) {
+        iOM = true;
+      }
+    }
+    final boolean includeTags = iT;
+    final boolean includeOSMMetadata = iOM;
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
+      ComputeMode previousCM = dbIgnite.computeMode();
+      final double MAX_STREAM_DATA_SIZE = 1E7;
+      Number approxResultSize = inputProcessor.processParameters(mapRedSnapshot, requestParams)
+          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
+          .sum(data -> data.getLength() / data.getLatest().getVersion());
+      if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
+        dbIgnite.computeMode(ComputeMode.AffinityCall);
+      }
+      mapRedSnapshot = inputProcessor.processParameters(mapRedSnapshot, requestParams);
+      mapRedContribution = inputProcessor.processParameters(mapRedContribution, requestParams);
+      dbIgnite.computeMode(previousCM);
+    } else {
+      mapRedSnapshot = inputProcessor.processParameters(mapRedSnapshot, requestParams);
+      mapRedContribution = inputProcessor.processParameters(mapRedContribution, requestParams);
+    }
+    TagTranslator tt = DbConnData.tagTranslator;
+    String[] keys = requestParams.getKeys();
+    String[] values = requestParams.getValues();
+    int[] keysInt = new int[keys.length];
+    int[] valuesInt = new int[values.length];
+    if (keys.length != 0) {
+      for (int i = 0; i < keys.length; i++) {
+        keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
+        if (values.length != 0 && i < values.length) {
+          // works as the relation between keys:values must be n:(m<=n)
+          valuesInt[i] = tt.getOSHDBTagOf(keys[i], values[i]).getValue();
+        }
+      }
+    }
+    MapReducer<Feature> preResult = null;
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    GeoJSONWriter gjw = new GeoJSONWriter();
+    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
+    
+    
+    preResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
+      Map<String, Object> properties = new TreeMap<>();
+      List<Feature> output = new LinkedList<>();
+      int startIndex = 1;
+      // first contribution:
+      // if not "creation": take "before" as starting "row" (geom, tags), validFrom = t_start
+      if (!contributions.get(0).getContributionTypes().contains(ContributionType.CREATION)) {
+        properties.put("validFrom", "useFirstTimestampFromInputParameterHere");
+        properties.put("version", contributions.get(0).getEntityBefore().getVersion());
+        properties.put("osmType", contributions.get(0).getEntityBefore().getType());
+        properties.put("changesetId", contributions.get(0).getEntityBefore().getChangeset());
+      } else {
+        // if creation
+        properties.put("validFrom",
+            contributions.get(0).getEntityAfter().getTimestamp().toString());
+        properties.put("version", contributions.get(0).getEntityAfter().getVersion());
+        properties.put("osmType", contributions.get(0).getEntityAfter().getType());
+        properties.put("changesetId", contributions.get(0).getEntityAfter().getChangeset());
+        if (contributions.size() == 1) {
+          // use latest timestamp from input parameter for validTo
+          properties.put("validTo", "useLastTimestampFromInputParameterHere");
+          output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+              valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+          return output;
+        } else {
+          // use timestamp of contribution 2 for validTo
+          properties.put("validTo",
+              contributions.get(1).getEntityAfter().getTimestamp().toString());
+          output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+              valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+        }
+        if (!contributions.get(1).getContributionTypes().contains(ContributionType.DELETION)) {
+          properties.put("validFrom",
+              contributions.get(1).getEntityAfter().getTimestamp().toString());
+          properties.put("version", contributions.get(1).getEntityAfter().getVersion());
+          properties.put("osmType", contributions.get(1).getEntityAfter().getType());
+          properties.put("changesetId", contributions.get(1).getEntityAfter().getChangeset());
+        }
+        // to skip the 2nd contribution in the following loop
+        startIndex = 2;
+      }
+      for (int i = startIndex; i < contributions.size(); i++) {
+        // for each contribution:
+        // set valid_to of previous row, add to output list (output.add(…))
+        properties.put("validTo", contributions.get(i).getEntityAfter().getTimestamp().toString());
+        output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+            valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+        // if deletion: skip output of next row
+        if (contributions.get(i).getContributionTypes().contains(ContributionType.DELETION)) {
+          i++;
+        } else {
+          // else: take "after" as next row
+          properties.put("validFrom",
+              contributions.get(i).getEntityAfter().getTimestamp().toString());
+          properties.put("version", contributions.get(i).getEntityAfter().getVersion());
+          properties.put("osmType", contributions.get(i).getEntityAfter().getType());
+          properties.put("changesetId", contributions.get(i).getEntityAfter().getChangeset());
+        }
+      }
+      // after loop:
+      // if last contribution was not "deletion": set valid_to = t_end, add row to output list
+      if (!contributions.get(contributions.size() - 1).getContributionTypes()
+          .contains(ContributionType.DELETION)) {
+        properties.put("validTo", "useLastTimestampFromInputParameterHere");
+        output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+            valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+      }
+      return output;
+    });
+    // .stream(output -> ...);
+
+//    mapRedSnapshot
+//    .groupByEntity()
+//    .filter(snapshots -> {
+//      if (snapshots.size() != 2)
+//        return false;
+//      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry() //todo: check if really the case in CellIterator
+//          //snapshots.get(0).getGeometry().equals(snapshots.get(1).getGeometry())
+//          && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity().getVersion();
+//    })
+//    .map(snapshots -> snapshots.get(0))
+//    .map(snapshot -> new Feature(…)) // valid_from = t_start, valid_to = t_end
+//    .steam(output -> ...);
+    
+
+    Stream<Feature> streamResult = preResult.stream().filter(feature -> {
+      if (feature == null)
+        return false;
+      return true;
+    });
+    Metadata metadata = null;
+    if (ProcessingData.showMetadata) {
+      metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
+    }
+    DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
+        metadata, "FeatureCollection", Collections.emptyList());
+    JsonFactory jsonFactory = new JsonFactory();
+    ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
+
+    ObjectMapper objMapper = new ObjectMapper();
+    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objMapper.setSerializationInclusion(Include.NON_NULL);
+    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
+        .writeObject(osmData);
+
+    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+
+    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
+    response.setContentType("application/geo+json; charset=utf-8");
+    ServletOutputStream outputStream = response.getOutputStream();
+    outputStream.write(scaffold.getBytes("UTF-8"));
+
+    ThreadLocal<ByteArrayOutputStream> outputBuffers =
+        ThreadLocal.withInitial(ByteArrayOutputStream::new);
+    ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
+      try {
+        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
+            .setCodec(objMapper);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    outputStream.print("\n");
+    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
+    streamResult.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    outputStream.print("\n  ]\n}\n");
+    response.flushBuffer();
+  }
+
   /**
    * Performs a count|length|perimeter|area calculation.
    * 
