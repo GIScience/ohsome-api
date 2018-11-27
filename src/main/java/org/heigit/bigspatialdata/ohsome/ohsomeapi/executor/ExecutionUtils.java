@@ -304,6 +304,49 @@ public class ExecutionUtils {
     }
   }
 
+  /** Creates the <code>Feature</code> objects in the OSM data response. */
+  public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity,
+      Geometry geometry, Map<String, Object> properties, int[] keysInt,
+      boolean includeTags, boolean includeOSMMetadata, ElementsGeometry elemGeom,
+      TagTranslator tt, GeoJSONWriter gjw) {
+    properties.put("osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
+    if (includeOSMMetadata) {
+      properties.put("version", entity.getVersion());
+      properties.put("osmType", entity.getType());
+      properties.put("changesetId", entity.getChangeset());
+    }
+    if (includeTags) {
+      for (OSHDBTag oshdbTag : entity.getTags()) {
+        OSMTag tag = tt.getOSMTagOf(oshdbTag);
+        properties.put(tag.getKey(), tag.getValue());
+      }
+    } else if (keysInt != null && keysInt.length != 0) {
+      int[] tags = entity.getRawTags();
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        int tagValueId = tags[i + 1];
+        for (int key : keysInt) {
+          if (tagKeyId == key) {
+            OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+            properties.put(tag.getKey(), tag.getValue());
+          }
+        }
+      }
+    }
+    switch (elemGeom) {
+      case BBOX:
+        Envelope envelope = geometry.getEnvelopeInternal();
+        OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
+            properties);
+      case CENTROID:
+        return new org.wololo.geojson.Feature(gjw.write(geometry.getCentroid()), properties);
+      case RAW:
+      default:
+        return new org.wololo.geojson.Feature(gjw.write(geometry), properties);
+    }
+  }
+
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(

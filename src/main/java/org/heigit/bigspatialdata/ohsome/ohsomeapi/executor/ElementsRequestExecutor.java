@@ -259,64 +259,64 @@ public class ElementsRequestExecutor {
     String endTimestamp = endTimestampWithZ.substring(0, endTimestampWithZ.length() - 1);
 
     contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
-      Map<String, Object> properties = new TreeMap<>();
       List<Feature> output = new LinkedList<>();
-      int startIndex = 1;
+
+      Map<String, Object> properties;
+      Geometry currentGeom = null;
+      OSMEntity currentEntity = null;
+      String validFrom = null;
+      String validTo;
+      boolean skipNext = false;
+
       // first contribution:
-      // if not "creation": take "before" as starting "row" (geom, tags), validFrom = t_start
-      if (!contributions.get(0).getContributionTypes().contains(ContributionType.CREATION)) {
-        properties.put("validFrom", startTimestamp);
+      if (contributions.get(0).is(ContributionType.CREATION)) {
+        //   if creation: skip next output
+        skipNext = true;
       } else {
-        // if creation
-        properties.put("validFrom", contributions.get(0).getTimestamp().toString());
-        if (contributions.size() == 1) {
-          // use latest timestamp from input parameter for validTo
-          properties.put("validTo", endTimestamp);
-          output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, contributions.get(0), false, properties, gjw, includeTags,
-              includeOSMMetadata, elemGeom));
-          properties = new TreeMap<>();
-          return output;
-        } else {
-          // use timestamp of contribution 2 for validTo
-          properties.put("validTo", contributions.get(1).getTimestamp().toString());
-          output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, contributions.get(0), false, properties, gjw, includeTags,
-              includeOSMMetadata, elemGeom));
-          properties = new TreeMap<>();
-        }
-        if (!contributions.get(1).getContributionTypes().contains(ContributionType.DELETION)) {
-          properties.put("validFrom", contributions.get(1).getTimestamp().toString());
-        }
-        // to skip the 2nd contribution in the following loop
-        startIndex = 2;
+        //   if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
+        currentEntity = contributions.get(0).getEntityBefore();
+        currentGeom = contributions.get(0).getGeometryBefore();
+        validFrom = startTimestamp;
       }
-      for (int i = startIndex; i < contributions.size(); i++) {
-        // for each contribution:
-        // set valid_to of previous row, add to output list (output.add(…))
-        properties.put("validTo", contributions.get(i).getTimestamp().toString());
-        output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, contributions.get(i), false, properties, gjw, includeTags,
-            includeOSMMetadata, elemGeom));
-        properties = new TreeMap<>();
-        // if deletion: skip output of next row
-        if (contributions.get(i).getContributionTypes().contains(ContributionType.DELETION)) {
-          i++;
+
+      // then for each contribution:
+      for (OSMContribution contribution : contributions) {
+        //   set valid_to of previous row, add to output list (output.add(…))
+        validTo = contribution.getTimestamp().toString();
+        if (!skipNext) {
+          properties = new TreeMap<>();
+          properties.put("validFrom", validFrom);
+          properties.put("validTo", validTo);
+          output.add(exeUtils.createOSMFeature(
+              currentEntity, currentGeom, properties,
+              keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw
+          ));
+        }
+        skipNext = false;
+        if (contribution.is(ContributionType.DELETION)) {
+          //   if deletion: skip output of next row
+          skipNext = true;
         } else {
-          // else: take "after" as next row
-          properties.put("validFrom", contributions.get(i).getTimestamp().toString());
+          //   else: take "after" as next row
+          currentEntity = contribution.getEntityAfter();
+          currentGeom = contribution.getGeometryAfter();
+          validFrom = contribution.getTimestamp().toString();
         }
       }
+
       // after loop:
-      // if last contribution was not "deletion": set valid_to = t_end, add row to output list
-      if (!contributions.get(contributions.size() - 1).getContributionTypes()
-          .contains(ContributionType.DELETION)) {
-        properties.put("validTo", endTimestamp);
-        output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, contributions.get(contributions.size() - 1), false, properties, gjw,
-            includeTags, includeOSMMetadata, elemGeom));
+      if (!contributions.get(contributions.size()-1).is(ContributionType.DELETION)) {
+        //   if last contribution was not "deletion": set valid_to = t_end, add row to output list
+        validTo = endTimestamp;
         properties = new TreeMap<>();
+        properties.put("validFrom", validFrom);
+        properties.put("validTo", validTo);
+        output.add(exeUtils.createOSMFeature(
+            currentEntity, currentGeom, properties,
+            keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw
+        ));
       }
+
       return output;
     });
 
