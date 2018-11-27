@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -9,8 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -36,6 +42,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -55,6 +62,12 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
@@ -62,6 +75,84 @@ import com.vividsolutions.jts.geom.Polygonal;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
+
+  public void executeElementsRequest(HttpServletResponse response, DataResponse osmData,
+      boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
+      Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
+
+    JsonFactory jsonFactory = new JsonFactory();
+    ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
+
+    ObjectMapper objMapper = new ObjectMapper();
+    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objMapper.setSerializationInclusion(Include.NON_NULL);
+    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
+        .writeObject(osmData);
+
+    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+
+    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
+    response.setContentType("application/geo+json; charset=utf-8");
+    ServletOutputStream outputStream = response.getOutputStream();
+    outputStream.write(scaffold.getBytes("UTF-8"));
+
+    ThreadLocal<ByteArrayOutputStream> outputBuffers =
+        ThreadLocal.withInitial(ByteArrayOutputStream::new);
+    ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
+      try {
+        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
+            .setCodec(objMapper);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    outputStream.print("\n");
+    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
+    if (isFullHistory) {
+      contributionStream.map(data -> {
+        try {
+          outputBuffers.get().reset();
+          outputJsonGen.get().writeObject(data);
+          return outputBuffers.get().toByteArray();
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }).sequential().forEach(data -> {
+        try {
+          if (isFirst.get()) {
+            isFirst.set(false);
+          } else {
+            outputStream.print(",");
+          }
+          outputStream.write(data);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    }
+    snapshotStream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    outputStream.print("\n  ]\n}\n");
+    response.flushBuffer();
+  }
 
   /**
    * Defines a certain decimal format.
@@ -153,8 +244,6 @@ public class ExecutionUtils {
               gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry()), properties);
       }
     } else {
-      properties.put("contributionTimestamp",
-          ((OSMContribution) mapReducible).getTimestamp().toString());
       properties.put("osmId",
           ((OSMContribution) mapReducible).getEntityAfter().getType().toString().toLowerCase() + "/"
               + ((OSMContribution) mapReducible).getEntityAfter().getId());
@@ -175,6 +264,10 @@ public class ExecutionUtils {
             }
           }
         }
+      }
+      if (((OSMContribution) mapReducible).getContributionTypes()
+          .contains(ContributionType.DELETION)) {
+        return null;
       }
       switch (elemGeom) {
         case RAW:

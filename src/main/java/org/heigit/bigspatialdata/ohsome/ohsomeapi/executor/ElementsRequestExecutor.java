@@ -1,7 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +12,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -62,15 +58,10 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -197,58 +188,19 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());
-    JsonFactory jsonFactory = new JsonFactory();
-    ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
-
-    ObjectMapper objMapper = new ObjectMapper();
-    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objMapper.setSerializationInclusion(Include.NON_NULL);
-    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
-        .writeObject(osmData);
-
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
-
-    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
-    response.setContentType("application/geo+json; charset=utf-8");
-    ServletOutputStream outputStream = response.getOutputStream();
-    outputStream.write(scaffold.getBytes("UTF-8"));
-
-    ThreadLocal<ByteArrayOutputStream> outputBuffers =
-        ThreadLocal.withInitial(ByteArrayOutputStream::new);
-    ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
-      try {
-        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    outputStream.print("\n");
-    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
-    streamResult.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    outputStream.print("\n  ]\n}\n");
-    response.flushBuffer();
+    exeUtils.executeElementsRequest(response, osmData, false, streamResult, null);
   }
 
+  /**
+   * Performs an OSM data extraction using the full-history of the data.
+   * 
+   * <p>
+   * 
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
+   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
+   *        a stream.
+   */
   public static void executeElementsFullHistory(RequestParameters contributionRequestParams,
       ElementsGeometry elemGeom, String[] propertiesParameter, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
@@ -256,6 +208,10 @@ public class ElementsRequestExecutor {
     String requestUrl = null;
     if (!contributionRequestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
+    }
+    if (contributionRequestParams.getTime().length != 2) {
+      throw new BadRequestException("Wrong time parameter. You need to give exactly "
+          + "two timestamps that are ISO-8601 conform, if you want to use this resource.");
     }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
@@ -317,7 +273,13 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
-    
+    String startTimestampWithZ =
+        ISODateTimeParser.parseISODateTime(contributionRequestParams.getTime()[0]).toString();
+    String endTimestampWithZ =
+        ISODateTimeParser.parseISODateTime(contributionRequestParams.getTime()[1]).toString();
+    String startTimestamp = startTimestampWithZ.substring(0, startTimestampWithZ.length() - 1);
+    String endTimestamp = endTimestampWithZ.substring(0, endTimestampWithZ.length() - 1);
+
     contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
       Map<String, Object> properties = new TreeMap<>();
       List<Feature> output = new LinkedList<>();
@@ -325,33 +287,32 @@ public class ElementsRequestExecutor {
       // first contribution:
       // if not "creation": take "before" as starting "row" (geom, tags), validFrom = t_start
       if (!contributions.get(0).getContributionTypes().contains(ContributionType.CREATION)) {
-        properties.put("validFrom", "useFirstTimestampFromInputParameterHere");
+        properties.put("validFrom", startTimestamp);
         properties.put("version", contributions.get(0).getEntityBefore().getVersion());
         properties.put("osmType", contributions.get(0).getEntityBefore().getType());
         properties.put("changesetId", contributions.get(0).getEntityBefore().getChangeset());
       } else {
         // if creation
-        properties.put("validFrom",
-            contributions.get(0).getEntityAfter().getTimestamp().toString());
+        properties.put("validFrom", contributions.get(0).getTimestamp().toString());
         properties.put("version", contributions.get(0).getEntityAfter().getVersion());
         properties.put("osmType", contributions.get(0).getEntityAfter().getType());
         properties.put("changesetId", contributions.get(0).getEntityAfter().getChangeset());
         if (contributions.size() == 1) {
           // use latest timestamp from input parameter for validTo
-          properties.put("validTo", "useLastTimestampFromInputParameterHere");
+          properties.put("validTo", endTimestamp);
           output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
               valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+          properties = new TreeMap<>();
           return output;
         } else {
           // use timestamp of contribution 2 for validTo
-          properties.put("validTo",
-              contributions.get(1).getEntityAfter().getTimestamp().toString());
+          properties.put("validTo", contributions.get(1).getTimestamp().toString());
           output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
               valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+          properties = new TreeMap<>();
         }
         if (!contributions.get(1).getContributionTypes().contains(ContributionType.DELETION)) {
-          properties.put("validFrom",
-              contributions.get(1).getEntityAfter().getTimestamp().toString());
+          properties.put("validFrom", contributions.get(1).getTimestamp().toString());
           properties.put("version", contributions.get(1).getEntityAfter().getVersion());
           properties.put("osmType", contributions.get(1).getEntityAfter().getType());
           properties.put("changesetId", contributions.get(1).getEntityAfter().getChangeset());
@@ -362,16 +323,16 @@ public class ElementsRequestExecutor {
       for (int i = startIndex; i < contributions.size(); i++) {
         // for each contribution:
         // set valid_to of previous row, add to output list (output.add(…))
-        properties.put("validTo", contributions.get(i).getEntityAfter().getTimestamp().toString());
+        properties.put("validTo", contributions.get(i).getTimestamp().toString());
         output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
             valuesInt, contributions.get(i), false, properties, gjw, includeTags, elemGeom));
+        properties = new TreeMap<>();
         // if deletion: skip output of next row
         if (contributions.get(i).getContributionTypes().contains(ContributionType.DELETION)) {
           i++;
         } else {
           // else: take "after" as next row
-          properties.put("validFrom",
-              contributions.get(i).getEntityAfter().getTimestamp().toString());
+          properties.put("validFrom", contributions.get(i).getTimestamp().toString());
           properties.put("version", contributions.get(i).getEntityAfter().getVersion());
           properties.put("osmType", contributions.get(i).getEntityAfter().getType());
           properties.put("changesetId", contributions.get(i).getEntityAfter().getChangeset());
@@ -381,38 +342,36 @@ public class ElementsRequestExecutor {
       // if last contribution was not "deletion": set valid_to = t_end, add row to output list
       if (!contributions.get(contributions.size() - 1).getContributionTypes()
           .contains(ContributionType.DELETION)) {
-        properties.put("validTo", "useLastTimestampFromInputParameterHere");
+        properties.put("validTo", endTimestamp);
         output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
             valuesInt, contributions.get(contributions.size() - 1), false, properties, gjw,
             includeTags, elemGeom));
+        properties = new TreeMap<>();
       }
       return output;
     });
 
     MapReducer<Feature> snapshotPreResult = null;
-    
-    snapshotPreResult = mapRedSnapshot
-    .groupByEntity()
-    .filter(snapshots -> {
+
+    snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> {
       if (snapshots.size() != 2) {
         return false;
       }
-      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry() //todo: check if really the case in CellIterator
-          //snapshots.get(0).getGeometry().equals(snapshots.get(1).getGeometry())
+      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry() // todo: check if
+                                                                              // really the case in
+                                                                              // CellIterator
+          // snapshots.get(0).getGeometry().equals(snapshots.get(1).getGeometry())
           && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity().getVersion();
-    })
-    .map(snapshots -> snapshots.get(0))
-    .map(snapshot -> {
+    }).map(snapshots -> snapshots.get(0)).map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
-      properties.put("validFrom", "useFirstTimestampFromInputParameterHere");
-      properties.put("validTo", "useLastTimestampFromInputParameterHere");
+      properties.put("validFrom", startTimestamp);
+      properties.put("validTo", endTimestamp);
       properties.put("version", snapshot.getEntity().getVersion());
       properties.put("osmType", snapshot.getEntity().getType());
-      properties.put("lastEdit",
-          snapshot.getEntity().getTimestamp().toString());
+      properties.put("lastEdit", snapshot.getEntity().getTimestamp().toString());
       properties.put("changesetId", snapshot.getEntity().getChangeset());
-      return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-          valuesInt, snapshot, true, properties, gjw, includeTags, elemGeom);
+      return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt, valuesInt,
+          snapshot, true, properties, gjw, includeTags, elemGeom);
     }); // valid_from = t_start, valid_to = t_end
 
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(feature -> {
@@ -425,83 +384,15 @@ public class ElementsRequestExecutor {
         return false;
       return true;
     });
-    
+
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
     }
     DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());
-    JsonFactory jsonFactory = new JsonFactory();
-    ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
-    ObjectMapper objMapper = new ObjectMapper();
-    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objMapper.setSerializationInclusion(Include.NON_NULL);
-    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
-        .writeObject(osmData);
-
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
-
-    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
-    response.setContentType("application/geo+json; charset=utf-8");
-    ServletOutputStream outputStream = response.getOutputStream();
-    outputStream.write(scaffold.getBytes("UTF-8"));
-
-    ThreadLocal<ByteArrayOutputStream> outputBuffers =
-        ThreadLocal.withInitial(ByteArrayOutputStream::new);
-    ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
-      try {
-        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    outputStream.print("\n");
-    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
-    contributionStream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    snapshotStream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    outputStream.print("\n  ]\n}\n");
-    response.flushBuffer();
+    exeUtils.executeElementsRequest(response, osmData, true, snapshotStream, contributionStream);
   }
 
   /**
