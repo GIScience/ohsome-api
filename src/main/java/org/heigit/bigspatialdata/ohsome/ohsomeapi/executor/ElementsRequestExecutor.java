@@ -249,16 +249,24 @@ public class ElementsRequestExecutor {
     response.flushBuffer();
   }
 
-  public static void executeElementsFullHistory(RequestParameters requestParams,
+  public static void executeElementsFullHistory(RequestParameters contributionRequestParams,
       ElementsGeometry elemGeom, String[] propertiesParameter, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
-    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!contributionRequestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
+
+    RequestParameters snapshotRequestParams =
+        new RequestParameters(contributionRequestParams.getRequestMethod(), true,
+            contributionRequestParams.isDensity(), contributionRequestParams.getBboxes(),
+            contributionRequestParams.getBcircles(), contributionRequestParams.getBpolys(),
+            contributionRequestParams.getTypes(), contributionRequestParams.getKeys(),
+            contributionRequestParams.getValues(), contributionRequestParams.getUserids(),
+            contributionRequestParams.getTime(), contributionRequestParams.getShowMetadata());
 
     boolean iT = false;
     boolean iOM = false;
@@ -275,22 +283,25 @@ public class ElementsRequestExecutor {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousCM = dbIgnite.computeMode();
       final double MAX_STREAM_DATA_SIZE = 1E7;
-      Number approxResultSize = inputProcessor.processParameters(mapRedSnapshot, requestParams)
-          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
-          .sum(data -> data.getLength() / data.getLatest().getVersion());
+      Number approxResultSize =
+          inputProcessor.processParameters(mapRedSnapshot, snapshotRequestParams)
+              .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
+              .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
         dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
-      mapRedSnapshot = inputProcessor.processParameters(mapRedSnapshot, requestParams);
-      mapRedContribution = inputProcessor.processParameters(mapRedContribution, requestParams);
+      mapRedSnapshot = inputProcessor.processParameters(mapRedSnapshot, snapshotRequestParams);
+      mapRedContribution =
+          inputProcessor.processParameters(mapRedContribution, contributionRequestParams);
       dbIgnite.computeMode(previousCM);
     } else {
-      mapRedSnapshot = inputProcessor.processParameters(mapRedSnapshot, requestParams);
-      mapRedContribution = inputProcessor.processParameters(mapRedContribution, requestParams);
+      mapRedSnapshot = inputProcessor.processParameters(mapRedSnapshot, snapshotRequestParams);
+      mapRedContribution =
+          inputProcessor.processParameters(mapRedContribution, contributionRequestParams);
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys = requestParams.getKeys();
-    String[] values = requestParams.getValues();
+    String[] keys = contributionRequestParams.getKeys();
+    String[] values = contributionRequestParams.getValues();
     int[] keysInt = new int[keys.length];
     int[] valuesInt = new int[values.length];
     if (keys.length != 0) {
@@ -302,13 +313,12 @@ public class ElementsRequestExecutor {
         }
       }
     }
-    MapReducer<Feature> preResult = null;
+    MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     
-    
-    preResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
+    contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
       Map<String, Object> properties = new TreeMap<>();
       List<Feature> output = new LinkedList<>();
       int startIndex = 1;
@@ -354,7 +364,7 @@ public class ElementsRequestExecutor {
         // set valid_to of previous row, add to output list (output.add(…))
         properties.put("validTo", contributions.get(i).getEntityAfter().getTimestamp().toString());
         output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+            valuesInt, contributions.get(i), false, properties, gjw, includeTags, elemGeom));
         // if deletion: skip output of next row
         if (contributions.get(i).getContributionTypes().contains(ContributionType.DELETION)) {
           i++;
@@ -373,31 +383,49 @@ public class ElementsRequestExecutor {
           .contains(ContributionType.DELETION)) {
         properties.put("validTo", "useLastTimestampFromInputParameterHere");
         output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+            valuesInt, contributions.get(contributions.size() - 1), false, properties, gjw,
+            includeTags, elemGeom));
       }
       return output;
     });
-    // .stream(output -> ...);
 
-//    mapRedSnapshot
-//    .groupByEntity()
-//    .filter(snapshots -> {
-//      if (snapshots.size() != 2)
-//        return false;
-//      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry() //todo: check if really the case in CellIterator
-//          //snapshots.get(0).getGeometry().equals(snapshots.get(1).getGeometry())
-//          && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity().getVersion();
-//    })
-//    .map(snapshots -> snapshots.get(0))
-//    .map(snapshot -> new Feature(…)) // valid_from = t_start, valid_to = t_end
-//    .steam(output -> ...);
+    MapReducer<Feature> snapshotPreResult = null;
     
+    snapshotPreResult = mapRedSnapshot
+    .groupByEntity()
+    .filter(snapshots -> {
+      if (snapshots.size() != 2) {
+        return false;
+      }
+      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry() //todo: check if really the case in CellIterator
+          //snapshots.get(0).getGeometry().equals(snapshots.get(1).getGeometry())
+          && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity().getVersion();
+    })
+    .map(snapshots -> snapshots.get(0))
+    .map(snapshot -> {
+      Map<String, Object> properties = new TreeMap<>();
+      properties.put("validFrom", "useFirstTimestampFromInputParameterHere");
+      properties.put("validTo", "useLastTimestampFromInputParameterHere");
+      properties.put("version", snapshot.getEntity().getVersion());
+      properties.put("osmType", snapshot.getEntity().getType());
+      properties.put("lastEdit",
+          snapshot.getEntity().getTimestamp().toString());
+      properties.put("changesetId", snapshot.getEntity().getChangeset());
+      return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
+          valuesInt, snapshot, true, properties, gjw, includeTags, elemGeom);
+    }); // valid_from = t_start, valid_to = t_end
 
-    Stream<Feature> streamResult = preResult.stream().filter(feature -> {
+    Stream<Feature> contributionStream = contributionPreResult.stream().filter(feature -> {
       if (feature == null)
         return false;
       return true;
     });
+    Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(feature -> {
+      if (feature == null)
+        return false;
+      return true;
+    });
+    
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
@@ -432,7 +460,27 @@ public class ElementsRequestExecutor {
     });
     outputStream.print("\n");
     AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
-    streamResult.map(data -> {
+    contributionStream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    snapshotStream.map(data -> {
       try {
         outputBuffers.get().reset();
         outputJsonGen.get().writeObject(data);
