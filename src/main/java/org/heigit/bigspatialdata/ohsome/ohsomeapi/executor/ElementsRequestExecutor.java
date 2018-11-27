@@ -146,37 +146,15 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
-    if (includeOSMMetadata) {
-      preResult = mapRed.map(view -> {
-        Map<String, Object> properties = new TreeMap<>();
-        if (isSnapshot) {
-          properties.put("version", ((OSMEntitySnapshot) view).getEntity().getVersion());
-          properties.put("osmType", ((OSMEntitySnapshot) view).getEntity().getType());
-          properties.put("lastEdit",
-              ((OSMEntitySnapshot) view).getEntity().getTimestamp().toString());
-          properties.put("changesetId", ((OSMEntitySnapshot) view).getEntity().getChangeset());
-          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
-        } else {
-          if (((OSMContribution) view).getContributionTypes().contains(ContributionType.DELETION)) {
-            return null;
-          } else {
-            properties.put("version", ((OSMContribution) view).getEntityAfter().getVersion());
-            properties.put("osmType", ((OSMContribution) view).getEntityAfter().getType());
-            properties.put("changesetId", ((OSMContribution) view).getEntityAfter().getChangeset());
-            return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-                valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
-          }
-        }
-      });
-    } else {
-      preResult = mapRed.map(view -> {
-        Map<String, Object> properties = new TreeMap<>();
-        return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
-      });
-    }
-
+    preResult = mapRed.map(view -> {
+      Map<String, Object> properties = new TreeMap<>();
+      if (!isSnapshot
+          && ((OSMContribution) view).getContributionTypes().contains(ContributionType.DELETION)) {
+        return null;
+      }
+      return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt, valuesInt,
+          view, isSnapshot, properties, gjw, includeTags, includeOSMMetadata, elemGeom);
+    });
     Stream<Feature> streamResult = preResult.stream().filter(feature -> {
       if (feature == null)
         return false;
@@ -288,34 +266,27 @@ public class ElementsRequestExecutor {
       // if not "creation": take "before" as starting "row" (geom, tags), validFrom = t_start
       if (!contributions.get(0).getContributionTypes().contains(ContributionType.CREATION)) {
         properties.put("validFrom", startTimestamp);
-        properties.put("version", contributions.get(0).getEntityBefore().getVersion());
-        properties.put("osmType", contributions.get(0).getEntityBefore().getType());
-        properties.put("changesetId", contributions.get(0).getEntityBefore().getChangeset());
       } else {
         // if creation
         properties.put("validFrom", contributions.get(0).getTimestamp().toString());
-        properties.put("version", contributions.get(0).getEntityAfter().getVersion());
-        properties.put("osmType", contributions.get(0).getEntityAfter().getType());
-        properties.put("changesetId", contributions.get(0).getEntityAfter().getChangeset());
         if (contributions.size() == 1) {
           // use latest timestamp from input parameter for validTo
           properties.put("validTo", endTimestamp);
           output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+              valuesInt, contributions.get(0), false, properties, gjw, includeTags,
+              includeOSMMetadata, elemGeom));
           properties = new TreeMap<>();
           return output;
         } else {
           // use timestamp of contribution 2 for validTo
           properties.put("validTo", contributions.get(1).getTimestamp().toString());
           output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, contributions.get(0), false, properties, gjw, includeTags, elemGeom));
+              valuesInt, contributions.get(0), false, properties, gjw, includeTags,
+              includeOSMMetadata, elemGeom));
           properties = new TreeMap<>();
         }
         if (!contributions.get(1).getContributionTypes().contains(ContributionType.DELETION)) {
           properties.put("validFrom", contributions.get(1).getTimestamp().toString());
-          properties.put("version", contributions.get(1).getEntityAfter().getVersion());
-          properties.put("osmType", contributions.get(1).getEntityAfter().getType());
-          properties.put("changesetId", contributions.get(1).getEntityAfter().getChangeset());
         }
         // to skip the 2nd contribution in the following loop
         startIndex = 2;
@@ -325,7 +296,8 @@ public class ElementsRequestExecutor {
         // set valid_to of previous row, add to output list (output.add(…))
         properties.put("validTo", contributions.get(i).getTimestamp().toString());
         output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, contributions.get(i), false, properties, gjw, includeTags, elemGeom));
+            valuesInt, contributions.get(i), false, properties, gjw, includeTags,
+            includeOSMMetadata, elemGeom));
         properties = new TreeMap<>();
         // if deletion: skip output of next row
         if (contributions.get(i).getContributionTypes().contains(ContributionType.DELETION)) {
@@ -333,9 +305,6 @@ public class ElementsRequestExecutor {
         } else {
           // else: take "after" as next row
           properties.put("validFrom", contributions.get(i).getTimestamp().toString());
-          properties.put("version", contributions.get(i).getEntityAfter().getVersion());
-          properties.put("osmType", contributions.get(i).getEntityAfter().getType());
-          properties.put("changesetId", contributions.get(i).getEntityAfter().getChangeset());
         }
       }
       // after loop:
@@ -345,7 +314,7 @@ public class ElementsRequestExecutor {
         properties.put("validTo", endTimestamp);
         output.add(exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
             valuesInt, contributions.get(contributions.size() - 1), false, properties, gjw,
-            includeTags, elemGeom));
+            includeTags, includeOSMMetadata, elemGeom));
         properties = new TreeMap<>();
       }
       return output;
@@ -366,12 +335,8 @@ public class ElementsRequestExecutor {
       Map<String, Object> properties = new TreeMap<>();
       properties.put("validFrom", startTimestamp);
       properties.put("validTo", endTimestamp);
-      properties.put("version", snapshot.getEntity().getVersion());
-      properties.put("osmType", snapshot.getEntity().getType());
-      properties.put("lastEdit", snapshot.getEntity().getTimestamp().toString());
-      properties.put("changesetId", snapshot.getEntity().getChangeset());
       return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt, valuesInt,
-          snapshot, true, properties, gjw, includeTags, elemGeom);
+          snapshot, true, properties, gjw, includeTags, includeOSMMetadata, elemGeom);
     }); // valid_from = t_start, valid_to = t_end
 
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(feature -> {

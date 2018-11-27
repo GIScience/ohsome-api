@@ -200,13 +200,21 @@ public class ExecutionUtils {
   public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
       TagTranslator tt, int[] keysInt, int[] valuesInt, OSHDBMapReducible mapReducible,
       boolean isSnapshot, Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags,
-      ElementsGeometry elemGeom) {
+      boolean includeOSMMetadata, ElementsGeometry elemGeom) {
     if (isSnapshot) {
       properties.put("snapshotTimestamp",
           ((OSMEntitySnapshot) mapReducible).getTimestamp().toString());
       properties.put("osmId",
           ((OSMEntitySnapshot) mapReducible).getEntity().getType().toString().toLowerCase() + "/"
               + ((OSMEntitySnapshot) mapReducible).getEntity().getId());
+      if (includeOSMMetadata) {
+        properties.put("version", ((OSMEntitySnapshot) mapReducible).getEntity().getVersion());
+        properties.put("osmType", ((OSMEntitySnapshot) mapReducible).getEntity().getType());
+        properties.put("lastEdit",
+            ((OSMEntitySnapshot) mapReducible).getEntity().getTimestamp().toString());
+        properties.put("changesetId",
+            ((OSMEntitySnapshot) mapReducible).getEntity().getChangeset());
+      }
       if (includeTags) {
         for (OSHDBTag oshdbTag : ((OSMEntitySnapshot) mapReducible).getEntity().getTags()) {
           OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
@@ -247,6 +255,12 @@ public class ExecutionUtils {
       properties.put("osmId",
           ((OSMContribution) mapReducible).getEntityAfter().getType().toString().toLowerCase() + "/"
               + ((OSMContribution) mapReducible).getEntityAfter().getId());
+      if (includeOSMMetadata) {
+        properties.put("version", ((OSMContribution) mapReducible).getEntityAfter().getVersion());
+        properties.put("osmType", ((OSMContribution) mapReducible).getEntityAfter().getType());
+        properties.put("changesetId",
+            ((OSMContribution) mapReducible).getEntityAfter().getChangeset());
+      }
       if (includeTags) {
         for (OSHDBTag oshdbTag : ((OSMContribution) mapReducible).getEntityAfter().getTags()) {
           OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
