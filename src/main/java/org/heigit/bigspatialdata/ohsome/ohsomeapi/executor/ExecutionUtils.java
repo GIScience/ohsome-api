@@ -202,19 +202,6 @@ public class ExecutionUtils {
       boolean isSnapshot, Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags,
       boolean includeOSMMetadata, ElementsGeometry elemGeom) {
     if (isSnapshot) {
-      properties.put("snapshotTimestamp",
-          ((OSMEntitySnapshot) mapReducible).getTimestamp().toString());
-      properties.put("osmId",
-          ((OSMEntitySnapshot) mapReducible).getEntity().getType().toString().toLowerCase() + "/"
-              + ((OSMEntitySnapshot) mapReducible).getEntity().getId());
-      if (includeOSMMetadata) {
-        properties.put("version", ((OSMEntitySnapshot) mapReducible).getEntity().getVersion());
-        properties.put("osmType", ((OSMEntitySnapshot) mapReducible).getEntity().getType());
-        properties.put("lastEdit",
-            ((OSMEntitySnapshot) mapReducible).getEntity().getTimestamp().toString());
-        properties.put("changesetId",
-            ((OSMEntitySnapshot) mapReducible).getEntity().getChangeset());
-      }
       if (includeTags) {
         for (OSHDBTag oshdbTag : ((OSMEntitySnapshot) mapReducible).getEntity().getTags()) {
           OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
@@ -232,6 +219,19 @@ public class ExecutionUtils {
             }
           }
         }
+      }
+      properties.put("@snapshotTimestamp",
+          ((OSMEntitySnapshot) mapReducible).getTimestamp().toString());
+      properties.put("@osmId",
+          ((OSMEntitySnapshot) mapReducible).getEntity().getType().toString().toLowerCase() + "/"
+              + ((OSMEntitySnapshot) mapReducible).getEntity().getId());
+      if (includeOSMMetadata) {
+        properties.put("@version", ((OSMEntitySnapshot) mapReducible).getEntity().getVersion());
+        properties.put("@osmType", ((OSMEntitySnapshot) mapReducible).getEntity().getType());
+        properties.put("@lastEdit",
+            ((OSMEntitySnapshot) mapReducible).getEntity().getTimestamp().toString());
+        properties.put("@changesetId",
+            ((OSMEntitySnapshot) mapReducible).getEntity().getChangeset());
       }
       switch (elemGeom) {
         case RAW:
@@ -251,70 +251,62 @@ public class ExecutionUtils {
           return new org.wololo.geojson.Feature(
               gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry()), properties);
       }
-    } else {
-      properties.put("osmId",
-          ((OSMContribution) mapReducible).getEntityAfter().getType().toString().toLowerCase() + "/"
-              + ((OSMContribution) mapReducible).getEntityAfter().getId());
-      if (includeOSMMetadata) {
-        properties.put("version", ((OSMContribution) mapReducible).getEntityAfter().getVersion());
-        properties.put("osmType", ((OSMContribution) mapReducible).getEntityAfter().getType());
-        properties.put("changesetId",
-            ((OSMContribution) mapReducible).getEntityAfter().getChangeset());
+    }
+    if (((OSMContribution) mapReducible).getContributionTypes()
+        .contains(ContributionType.DELETION)) {
+      return null;
+    }
+    if (includeTags) {
+      for (OSHDBTag oshdbTag : ((OSMContribution) mapReducible).getEntityAfter().getTags()) {
+        OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
+        properties.put(tag.getKey(), tag.getValue());
       }
-      if (includeTags) {
-        for (OSHDBTag oshdbTag : ((OSMContribution) mapReducible).getEntityAfter().getTags()) {
-          OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
-          properties.put(tag.getKey(), tag.getValue());
-        }
-      } else if (!keys.equals(null) && keys.length != 0) {
-        int[] tags = ((OSMContribution) mapReducible).getEntityAfter().getRawTags();
-        for (int i = 0; i < tags.length; i += 2) {
-          int tagKeyId = tags[i];
-          int tagValueId = tags[i + 1];
-          for (int key : keysInt) {
-            if (tagKeyId == key) {
-              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-              properties.put(tag.getKey(), tag.getValue());
-            }
+    } else if (!keys.equals(null) && keys.length != 0) {
+      int[] tags = ((OSMContribution) mapReducible).getEntityAfter().getRawTags();
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        int tagValueId = tags[i + 1];
+        for (int key : keysInt) {
+          if (tagKeyId == key) {
+            OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+            properties.put(tag.getKey(), tag.getValue());
           }
         }
       }
-      if (((OSMContribution) mapReducible).getContributionTypes()
-          .contains(ContributionType.DELETION)) {
-        return null;
-      }
-      switch (elemGeom) {
-        case RAW:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
-        case BBOX:
-          Envelope envelope =
-              ((OSMContribution) mapReducible).getGeometryAfter().getEnvelopeInternal();
-          OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-          return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
-              properties);
-        case CENTROID:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMContribution) mapReducible).getGeometryAfter().getCentroid()),
-              properties);
-        default:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
-      }
+    }
+    properties.put("@osmId",
+        ((OSMContribution) mapReducible).getEntityAfter().getType().toString().toLowerCase() + "/"
+            + ((OSMContribution) mapReducible).getEntityAfter().getId());
+    if (includeOSMMetadata) {
+      properties.put("@version", ((OSMContribution) mapReducible).getEntityAfter().getVersion());
+      properties.put("@osmType", ((OSMContribution) mapReducible).getEntityAfter().getType());
+      properties.put("@changesetId",
+          ((OSMContribution) mapReducible).getEntityAfter().getChangeset());
+    }
+    switch (elemGeom) {
+      case RAW:
+        return new org.wololo.geojson.Feature(
+            gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
+      case BBOX:
+        Envelope envelope =
+            ((OSMContribution) mapReducible).getGeometryAfter().getEnvelopeInternal();
+        OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
+            properties);
+      case CENTROID:
+        return new org.wololo.geojson.Feature(
+            gjw.write(((OSMContribution) mapReducible).getGeometryAfter().getCentroid()),
+            properties);
+      default:
+        return new org.wololo.geojson.Feature(
+            gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
     }
   }
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
-  public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity,
-      Geometry geometry, Map<String, Object> properties, int[] keysInt,
-      boolean includeTags, boolean includeOSMMetadata, ElementsGeometry elemGeom,
-      TagTranslator tt, GeoJSONWriter gjw) {
-    properties.put("osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
-    if (includeOSMMetadata) {
-      properties.put("version", entity.getVersion());
-      properties.put("osmType", entity.getType());
-      properties.put("changesetId", entity.getChangeset());
-    }
+  public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
+      Map<String, Object> properties, int[] keysInt, boolean includeTags,
+      boolean includeOSMMetadata, ElementsGeometry elemGeom, TagTranslator tt, GeoJSONWriter gjw) {
     if (includeTags) {
       for (OSHDBTag oshdbTag : entity.getTags()) {
         OSMTag tag = tt.getOSMTagOf(oshdbTag);
@@ -332,6 +324,12 @@ public class ExecutionUtils {
           }
         }
       }
+    }
+    properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
+    if (includeOSMMetadata) {
+      properties.put("@version", entity.getVersion());
+      properties.put("@osmType", entity.getType());
+      properties.put("@changesetId", entity.getChangeset());
     }
     switch (elemGeom) {
       case BBOX:

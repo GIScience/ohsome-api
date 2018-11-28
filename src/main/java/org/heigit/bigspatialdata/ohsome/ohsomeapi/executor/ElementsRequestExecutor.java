@@ -270,10 +270,10 @@ public class ElementsRequestExecutor {
 
       // first contribution:
       if (contributions.get(0).is(ContributionType.CREATION)) {
-        //   if creation: skip next output
+        // if creation: skip next output
         skipNext = true;
       } else {
-        //   if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
+        // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
         currentEntity = contributions.get(0).getEntityBefore();
         currentGeom = contributions.get(0).getGeometryBefore();
         validFrom = startTimestamp;
@@ -281,42 +281,36 @@ public class ElementsRequestExecutor {
 
       // then for each contribution:
       for (OSMContribution contribution : contributions) {
-        //   set valid_to of previous row, add to output list (output.add(…))
+        // set valid_to of previous row, add to output list (output.add(…))
         validTo = contribution.getTimestamp().toString();
         if (!skipNext) {
           properties = new TreeMap<>();
-          properties.put("validFrom", validFrom);
-          properties.put("validTo", validTo);
-          output.add(exeUtils.createOSMFeature(
-              currentEntity, currentGeom, properties,
-              keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw
-          ));
+          properties.put("@validFrom", validFrom);
+          properties.put("@validTo", validTo);
+          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
         }
         skipNext = false;
         if (contribution.is(ContributionType.DELETION)) {
-          //   if deletion: skip output of next row
+          // if deletion: skip output of next row
           skipNext = true;
         } else {
-          //   else: take "after" as next row
+          // else: take "after" as next row
           currentEntity = contribution.getEntityAfter();
           currentGeom = contribution.getGeometryAfter();
           validFrom = contribution.getTimestamp().toString();
         }
       }
-
       // after loop:
-      if (!contributions.get(contributions.size()-1).is(ContributionType.DELETION)) {
-        //   if last contribution was not "deletion": set valid_to = t_end, add row to output list
+      if (!contributions.get(contributions.size() - 1).is(ContributionType.DELETION)) {
+        // if last contribution was not "deletion": set valid_to = t_end, add row to output list
         validTo = endTimestamp;
         properties = new TreeMap<>();
-        properties.put("validFrom", validFrom);
-        properties.put("validTo", validTo);
-        output.add(exeUtils.createOSMFeature(
-            currentEntity, currentGeom, properties,
-            keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw
-        ));
+        properties.put("@validFrom", validFrom);
+        properties.put("@validTo", validTo);
+        output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+            includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
       }
-
       return output;
     });
 
@@ -326,17 +320,20 @@ public class ElementsRequestExecutor {
       if (snapshots.size() != 2) {
         return false;
       }
-      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry() // todo: check if
-                                                                              // really the case in
-                                                                              // CellIterator
-          // snapshots.get(0).getGeometry().equals(snapshots.get(1).getGeometry())
+      return snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
           && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity().getVersion();
     }).map(snapshots -> snapshots.get(0)).map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
-      properties.put("validFrom", startTimestamp);
-      properties.put("validTo", endTimestamp);
-      return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt, valuesInt,
-          snapshot, true, properties, gjw, includeTags, includeOSMMetadata, elemGeom);
+      OSMEntity entity = snapshot.getEntity();
+      Geometry geom = snapshot.getGeometry();
+      if (includeOSMMetadata) {
+        properties.put("@lastEdit", entity.getTimestamp().toString());
+      }
+      properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
+      properties.put("@validFrom", startTimestamp);
+      properties.put("@validTo", endTimestamp);
+      return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
+          includeOSMMetadata, elemGeom, tt, gjw);
     }); // valid_from = t_start, valid_to = t_end
 
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(feature -> {
