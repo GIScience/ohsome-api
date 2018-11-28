@@ -49,12 +49,12 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811")));
     assertEquals(7, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811"))
         .findFirst().get().get("properties").size());
   }
@@ -68,7 +68,7 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811")));
   }
 
@@ -83,7 +83,7 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/4084860")));
   }
 
@@ -100,7 +100,7 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("node/135742850")));
   }
 
@@ -118,13 +118,13 @@ public class ElementsControllerTest {
     assertEquals("Polygon", StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
         .findFirst().get().get("geometry").get("type").asText());
     assertEquals(5, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
         .findFirst().get().get("geometry").get("coordinates").get(0).size());
   }
@@ -143,7 +143,7 @@ public class ElementsControllerTest {
     assertEquals(2, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
         .findFirst().get().get("geometry").get("coordinates").size());
   }
