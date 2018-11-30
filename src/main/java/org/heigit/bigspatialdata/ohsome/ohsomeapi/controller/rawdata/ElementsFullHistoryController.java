@@ -89,7 +89,7 @@ public class ElementsFullHistoryController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    ElementsRequestExecutor.executeElements(
+    ElementsRequestExecutor.executeElementsFullHistory(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
@@ -125,7 +125,7 @@ public class ElementsFullHistoryController {
       @ApiParam(hidden = true) HttpServletRequest request,
       @ApiParam(hidden = true) HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    ElementsRequestExecutor.executeElements(
+    ElementsRequestExecutor.executeElementsFullHistory(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
