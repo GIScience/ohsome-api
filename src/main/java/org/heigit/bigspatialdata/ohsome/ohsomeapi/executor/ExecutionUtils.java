@@ -25,7 +25,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -75,7 +74,8 @@ import com.vividsolutions.jts.geom.Polygonal;
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
 
-  public void executeElementsRequest(HttpServletResponse response, DataResponse osmData,
+  /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
+  public void streamElementsResponse(HttpServletResponse response, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
       Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
 
@@ -174,7 +174,7 @@ public class ExecutionUtils {
    * @param geomBuilder <code>GeometryBuilder</code> object.
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
-  public Geometry getGeometry(BoundaryType boundary, GeometryBuilder geomBuilder) {
+  public Geometry getGeometry(BoundaryType boundary) {
     Geometry geom;
     switch (boundary) {
       case NOBOUNDARY:
@@ -241,8 +241,7 @@ public class ExecutionUtils {
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder, boolean isSnapshot)
-      throws Exception {
+      MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
@@ -260,9 +259,8 @@ public class ExecutionUtils {
         result = preResult.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
-          } else {
-            return Geo.lengthOf(geom.getBoundary());
           }
+          return Geo.lengthOf(geom.getBoundary());
         });
         break;
       case LENGTH:
@@ -321,9 +319,8 @@ public class ExecutionUtils {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              } else {
-                return 0.0;
               }
+              return 0.0;
             });
       case AREA:
         return (SortedMap<K, V>) preResult
@@ -536,8 +533,8 @@ public class ExecutionUtils {
 
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
   public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
-      Double[] value2, DecimalFormat df, InputProcessor inputProcessor, long startTime,
-      RequestResource reqRes, String requestUrl, Attribution attribution) {
+      Double[] value2, DecimalFormat df, long startTime, RequestResource reqRes, String requestUrl,
+      Attribution attribution) {
     Response response;
     if (!isShare) {
       RatioResult[] resultSet = new RatioResult[timeArray.length];
@@ -582,9 +579,9 @@ public class ExecutionUtils {
    */
   public Response createRatioShareGroupByBoundaryResponse(boolean isShare,
       RequestParameters requestParameters, String[] boundaryIds, String[] timeArray,
-      Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf,
-      InputProcessor inputProcessor, long startTime, RequestResource reqRes, String requestUrl,
-      Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
+      Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf, long startTime,
+      RequestResource reqRes, String requestUrl, Attribution attribution,
+      GeoJsonObject[] geoJsonGeoms) {
     Metadata metadata = null;
     int boundaryIdsLength = boundaryIds.length;
     int timeArrayLenth = timeArray.length;
@@ -617,38 +614,35 @@ public class ExecutionUtils {
           && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
         return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
             "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-      } else {
-        return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
-            groupByResultSet);
       }
+      return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+          groupByResultSet);
 
-    } else {
-      ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
-      for (int i = 0; i < boundaryIdsLength; i++) {
-        String groupByName = boundaryIds[i];
-        ShareResult[] resultSet = new ShareResult[timeArrayLenth];
-        int innerCount = 0;
-        for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-          resultSet[innerCount] =
-              new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
-          innerCount++;
-        }
-        groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
-      }
-      if (ProcessingData.showMetadata) {
-        long duration = System.currentTimeMillis() - startTime;
-        metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
-            reqRes.getLabel(), reqRes.getUnit()), requestUrl);
-      }
-      if (requestParameters.getFormat() != null
-          && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-      } else {
-        return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
-            groupByResultSet);
-      }
     }
+    ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
+    for (int i = 0; i < boundaryIdsLength; i++) {
+      String groupByName = boundaryIds[i];
+      ShareResult[] resultSet = new ShareResult[timeArrayLenth];
+      int innerCount = 0;
+      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+        resultSet[innerCount] =
+            new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
+        innerCount++;
+      }
+      groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
+    }
+    if (ProcessingData.showMetadata) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+          reqRes.getLabel(), reqRes.getUnit()), requestUrl);
+    }
+    if (requestParameters.getFormat() != null
+        && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
+      return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+    }
+    return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+        groupByResultSet);
   }
 
   /** Enum type used in /ratio computation. */

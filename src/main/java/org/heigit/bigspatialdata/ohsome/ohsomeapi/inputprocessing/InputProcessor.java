@@ -63,6 +63,9 @@ public class InputProcessor {
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
       MapReducer<? extends OSHDBMapReducible> mapRed, RequestParameters requestParameters)
       throws Exception {
+    ProcessingData.format = requestParameters.getFormat();
+    geomBuilder = new GeometryBuilder();
+    utils = new InputProcessingUtils();
     String bboxes = requestParameters.getBboxes();
     String bcircles = requestParameters.getBcircles();
     String bpolys = requestParameters.getBpolys();
@@ -71,9 +74,6 @@ public class InputProcessor {
     String[] values = requestParameters.getValues();
     String[] time = requestParameters.getTime();
     String[] userids = requestParameters.getUserids();
-    ProcessingData.format = requestParameters.getFormat();
-    geomBuilder = new GeometryBuilder();
-    utils = new InputProcessingUtils();
     bboxes = createEmptyStringIfNull(bboxes);
     bcircles = createEmptyStringIfNull(bcircles);
     bpolys = createEmptyStringIfNull(bpolys);

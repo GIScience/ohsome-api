@@ -76,8 +76,7 @@ public class UsersRequestExecutor {
     if (requestParameters.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer).";
-      GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-      geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
+      geom = exeUtils.getGeometry(ProcessingData.boundary);
     } else {
       description = "Number of distinct users per time interval.";
     }
@@ -130,8 +129,7 @@ public class UsersRequestExecutor {
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
@@ -231,8 +229,7 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult

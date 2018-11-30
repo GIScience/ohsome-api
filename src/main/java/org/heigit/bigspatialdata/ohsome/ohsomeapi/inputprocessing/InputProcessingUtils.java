@@ -72,9 +72,8 @@ public class InputProcessingUtils {
   public String[] splitOnHyphen(String boundaryParam) {
     if (boundaryParam.contains("|")) {
       return boundaryParam.split("\\|");
-    } else {
-      return new String[] {boundaryParam};
     }
+    return new String[] {boundaryParam};
   }
 
   /** Splits the given bboxes String and returns its content as a String array. */
@@ -122,9 +121,8 @@ public class InputProcessingUtils {
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
-      } else {
-        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
+      throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
@@ -172,9 +170,8 @@ public class InputProcessingUtils {
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
-      } else {
-        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
+      throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
@@ -223,9 +220,8 @@ public class InputProcessingUtils {
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
-      } else {
-        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
+        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
