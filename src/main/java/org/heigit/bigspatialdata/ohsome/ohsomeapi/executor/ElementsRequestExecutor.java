@@ -48,7 +48,6 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -87,16 +86,10 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
-    boolean isSnapshot = requestParams.isSnapshot();
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    MapReducer<? extends OSHDBMapReducible> mapRed = null;
-    if (isSnapshot) {
-      mapRed = (MapReducer<OSMEntitySnapshot>) mapRed;
-    } else {
-      mapRed = (MapReducer<OSMContribution>) mapRed;
-    }
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     boolean iT = false;
     boolean iOM = false;
     for (String text : propertiesParameter) {
@@ -146,14 +139,14 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
-    preResult = mapRed.map(view -> {
+    preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
-      if (!isSnapshot
-          && ((OSMContribution) view).getContributionTypes().contains(ContributionType.DELETION)) {
-        return null;
+      if (includeOSMMetadata) {
+        properties.put("@lastEdit", snapshot.getEntity().getTimestamp().toString());
       }
-      return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt, valuesInt,
-          view, isSnapshot, properties, gjw, includeTags, includeOSMMetadata, elemGeom);
+      properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
+      return exeUtils.createOSMFeature(snapshot.getEntity(), snapshot.getGeometry(), properties,
+          keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw);
     });
     Stream<Feature> streamResult = preResult.stream().filter(feature -> {
       if (feature == null)
