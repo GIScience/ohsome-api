@@ -1,8 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,6 +30,9 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygonal;
 
 
 /**
@@ -61,8 +61,7 @@ public class InputProcessor {
    */
   @SuppressWarnings("unchecked") // intentionally unchecked
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
-      MapReducer<? extends OSHDBMapReducible> mapRed, RequestParameters requestParameters)
-      throws Exception {
+      RequestParameters requestParameters) throws Exception {
     ProcessingData.format = requestParameters.getFormat();
     geomBuilder = new GeometryBuilder();
     utils = new InputProcessingUtils();
@@ -83,6 +82,7 @@ public class InputProcessor {
     userids = createEmptyArrayIfNull(userids);
     time = createEmptyArrayIfNull(time);
     boolean isSnapshot = requestParameters.isSnapshot();
+    MapReducer<? extends OSHDBMapReducible> mapRed = null;
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);

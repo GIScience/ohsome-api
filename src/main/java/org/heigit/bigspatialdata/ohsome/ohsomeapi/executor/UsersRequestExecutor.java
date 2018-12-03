@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +13,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
@@ -34,6 +32,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import com.vividsolutions.jts.geom.Geometry;
 
 
 /** Includes the execute methods for requests mapped to /users. */
@@ -67,7 +66,7 @@ public class UsersRequestExecutor {
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(mapRed, requestParameters);
+    mapRed = inputProcessor.processParameters(requestParameters);
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();
     }).countUniq();
@@ -119,7 +118,7 @@ public class UsersRequestExecutor {
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(mapRed, requestParameters);
+    mapRed = inputProcessor.processParameters(requestParameters);
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
@@ -189,7 +188,7 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = inputProcessor.processParameters(mapRed, requestParameters);
+    mapRed = inputProcessor.processParameters(requestParameters);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -291,7 +290,7 @@ public class UsersRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    mapRed = inputProcessor.processParameters(mapRed, requestParameters);
+    mapRed = inputProcessor.processParameters(requestParameters);
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();

@@ -617,7 +617,6 @@ public class ExecutionUtils {
       }
       return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
           groupByResultSet);
-
     }
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
     for (int i = 0; i < boundaryIdsLength; i++) {
