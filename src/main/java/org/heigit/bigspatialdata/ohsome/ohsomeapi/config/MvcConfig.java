@@ -19,6 +19,7 @@ public class MvcConfig implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(requestInterceptor).addPathPatterns("/**/elements/**/");
+    registry.addInterceptor(requestInterceptor).addPathPatterns("/**/elementsFullHistory/**/");
     registry.addInterceptor(requestInterceptor).addPathPatterns("/**/users/**/");
   }
 }
