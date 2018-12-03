@@ -344,7 +344,7 @@ public class ElementsRequestExecutor {
 
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
-      metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
+      metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.", requestUrl);
     }
     DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());

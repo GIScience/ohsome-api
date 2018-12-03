@@ -38,7 +38,8 @@ public class ElementsFullHistoryController {
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
    */
-  @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
+  @ApiOperation(
+      value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
       nickname = "rawDataFullHistory")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
@@ -74,7 +75,8 @@ public class ElementsFullHistoryController {
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
    */
-  @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
+  @ApiOperation(
+      value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
       nickname = "rawDataBboxFullHistory")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
@@ -110,7 +112,7 @@ public class ElementsFullHistoryController {
    *        meaning that it would add the OSM-tags or metadata of the respective OSM object to the
    *        properties.
    */
-  @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
+  @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
       nickname = "rawDataCentroidFullHistory")
   @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
