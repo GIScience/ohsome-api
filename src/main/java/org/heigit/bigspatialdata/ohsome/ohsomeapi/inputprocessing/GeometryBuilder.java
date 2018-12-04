@@ -182,43 +182,42 @@ public class GeometryBuilder {
       ProcessingData.boundaryColl = geometries;
       ProcessingData.bpolysGeom = bpoly;
       return bpoly;
-    } else {
-      Coordinate firstPoint;
-      try {
-        firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
-        coords.add(firstPoint);
-        for (int i = 2; i < bpolys.length; i += 2) {
-          if (firstPoint.x == Double.parseDouble(bpolys[i])
-              && firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
-            Polygon poly;
-            coords.add(
-                new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
-            poly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
-            geometries.add(poly);
-            coords.clear();
-            if (i + 2 >= bpolys.length) {
-              break;
-            }
-            firstPoint = new Coordinate(Double.parseDouble(bpolys[i + 2]),
-                Double.parseDouble(bpolys[i + 3]));
-            coords.add(firstPoint);
-            i += 2;
-          } else {
-            coords.add(
-                new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+    }
+    Coordinate firstPoint;
+    try {
+      firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
+      coords.add(firstPoint);
+      for (int i = 2; i < bpolys.length; i += 2) {
+        if (firstPoint.x == Double.parseDouble(bpolys[i])
+            && firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
+          Polygon poly;
+          coords.add(
+              new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+          poly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
+          geometries.add(poly);
+          coords.clear();
+          if (i + 2 >= bpolys.length) {
+            break;
           }
+          firstPoint =
+              new Coordinate(Double.parseDouble(bpolys[i + 2]), Double.parseDouble(bpolys[i + 3]));
+          coords.add(firstPoint);
+          i += 2;
+        } else {
+          coords.add(
+              new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
-        if (geometries.stream().anyMatch(geometry -> !utils.isWithin(geometry))) {
-          throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
-        }
-        Geometry unifiedBPolys = geomFact
-            .createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
-        ProcessingData.boundaryColl = geometries;
-        ProcessingData.bpolysGeom = unifiedBPolys;
-        return unifiedBPolys;
-      } catch (NumberFormatException | MismatchedDimensionException e) {
-        throw new BadRequestException(ExceptionMessages.bpolysFormat);
       }
+      if (geometries.stream().anyMatch(geometry -> !utils.isWithin(geometry))) {
+        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+      }
+      Geometry unifiedBPolys =
+          geomFact.createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
+      ProcessingData.boundaryColl = geometries;
+      ProcessingData.bpolysGeom = unifiedBPolys;
+      return unifiedBPolys;
+    } catch (NumberFormatException | MismatchedDimensionException e) {
+      throw new BadRequestException(ExceptionMessages.bpolysFormat);
     }
   }
 

@@ -30,18 +30,6 @@ public class CountController {
   /**
    * Gives the count of OSM objects.
    * 
-   * @param bboxes <code>String</code> array containing lon1, lat1, lon2, lat2 values, which have to
-   *        be <code>double</code> parse-able. The coordinates refer to the bottom-left and
-   *        top-right corner points of a bounding box. If bboxes is given, bcircles and bpolys must
-   *        be <code>null</code> or <code>empty</code>. If neither of these parameters is given, a
-   *        global request is computed.
-   * @param bcircles <code>String</code> array containing lon, lat and radius values, which have to
-   *        be <code>double</code> parse-able. If bcircles is given, bboxes and bpolys must be
-   *        <code>null</code> or <code>empty</code>.
-   * @param bpolys <code>String</code> array containing lon1, lat1, ..., lonN, latN values, which
-   *        have to be <code>double</code> parse-able. The first and the last coordinate pair of
-   *        each polygon have to be the same. If bpolys is given, bboxes and bcircles must be
-   *        <code>null</code> or <code>empty</code>.
    * @param types <code>String</code> array containing one or more OSMTypes. It can contain "node"
    *        and/or "way" and/or "relation". If types is <code>null</code> or <code>empty</code>, all
    *        three are used.
@@ -53,7 +41,6 @@ public class CountController {
    *        which fits to one of the formats used by the method
    *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils#extractIsoTime(String)
    *        extractIsoTime(String time)}.
-   * @param showMetadata <code>String</code> containing the value "true" or "false".
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    * @throws UnsupportedOperationException thrown by
@@ -553,5 +540,4 @@ public class CountController {
             userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
         types2, keys2, values2, false);
   }
-
 }

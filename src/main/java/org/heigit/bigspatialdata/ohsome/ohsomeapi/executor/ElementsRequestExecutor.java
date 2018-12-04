@@ -1,7 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +12,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -52,7 +48,6 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -62,23 +57,19 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  private static final String url = ExtractMetadata.attributionUrl;
-  private static final String text = ExtractMetadata.attributionShort;
+  private static final String URL = ExtractMetadata.attributionUrl;
+  private static final String TEXT = ExtractMetadata.attributionShort;
+  private static final double MAX_STREAM_DATA_SIZE = 1E7;
 
   /**
    * Performs an OSM data extraction.
@@ -90,163 +81,237 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
-  @SuppressWarnings("unchecked") // intentionally suppressed
   public static void executeElements(RequestParameters requestParams, ElementsGeometry elemGeom,
       String[] propertiesParameter, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
-    boolean isSnapshot = requestParams.isSnapshot();
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    MapReducer<? extends OSHDBMapReducible> mapRed = null;
-    if (isSnapshot) {
-      mapRed = (MapReducer<OSMEntitySnapshot>) mapRed;
-    } else {
-      mapRed = (MapReducer<OSMContribution>) mapRed;
-    }
-    boolean iT = false;
-    boolean iOM = false;
-    for (String text : propertiesParameter) {
-      if (text.equalsIgnoreCase("tags")) {
-        iT = true;
-      } else if (text.equalsIgnoreCase("metadata")) {
-        iOM = true;
-      }
-    }
-    final boolean includeTags = iT;
-    final boolean includeOSMMetadata = iOM;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    final boolean includeTags =
+        Arrays.stream(propertiesParameter).anyMatch(p -> p.equalsIgnoreCase("tags"));
+    final boolean includeOSMMetadata =
+        Arrays.stream(propertiesParameter).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
-      ComputeMode previousCM = dbIgnite.computeMode();
+      ComputeMode previousComputeMode = dbIgnite.computeMode();
       // do a preflight to get an approximate result data size estimation:
       // for now just the sum of the average size of the objects versions in bytes is used
       // if that number is larger than 10MB, then fall back to the slightly slower, but much
       // less memory intensive streaming implementation (which is currently only available on
       // the ignite "AffinityCall" backend).
-      final double MAX_STREAM_DATA_SIZE = 1E7;
-      Number approxResultSize = inputProcessor.processParameters(mapRed, requestParams)
+
+      Number approxResultSize = inputProcessor.processParameters(requestParams)
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
           .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
         dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
-      mapRed = inputProcessor.processParameters(mapRed, requestParams);
-      dbIgnite.computeMode(previousCM);
+      mapRed = inputProcessor.processParameters(requestParams);
+      dbIgnite.computeMode(previousComputeMode);
     } else {
-      mapRed = inputProcessor.processParameters(mapRed, requestParams);
+      mapRed = inputProcessor.processParameters(requestParams);
     }
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParams.getKeys();
-    String[] values = requestParams.getValues();
     int[] keysInt = new int[keys.length];
-    int[] valuesInt = new int[values.length];
     if (keys.length != 0) {
       for (int i = 0; i < keys.length; i++) {
         keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
-        if (values.length != 0 && i < values.length) {
-          // works as the relation between keys:values must be n:(m<=n)
-          valuesInt[i] = tt.getOSHDBTagOf(keys[i], values[i]).getValue();
-        }
       }
     }
     final MapReducer<Feature> preResult;
     ExecutionUtils exeUtils = new ExecutionUtils();
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
-    if (includeOSMMetadata) {
-      preResult = mapRed.map(view -> {
-        Map<String, Object> properties = new TreeMap<>();
-        if (isSnapshot) {
-          properties.put("version", ((OSMEntitySnapshot) view).getEntity().getVersion());
-          properties.put("osmType", ((OSMEntitySnapshot) view).getEntity().getType());
-          properties.put("lastEdit",
-              ((OSMEntitySnapshot) view).getEntity().getTimestamp().toString());
-          properties.put("changesetId", ((OSMEntitySnapshot) view).getEntity().getChangeset());
-          return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-              valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
-        } else {
-          if (((OSMContribution) view).getContributionTypes().contains(ContributionType.DELETION)) {
-            return null;
-          } else {
-            properties.put("version", ((OSMContribution) view).getEntityAfter().getVersion());
-            properties.put("osmType", ((OSMContribution) view).getEntityAfter().getType());
-            properties.put("changesetId", ((OSMContribution) view).getEntityAfter().getChangeset());
-            return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-                valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
-          }
-        }
-      });
-    } else {
-      preResult = mapRed.map(view -> {
-        Map<String, Object> properties = new TreeMap<>();
-        return exeUtils.createOSMDataFeature(keys, values, mapTagTranslator.get(), keysInt,
-            valuesInt, view, isSnapshot, properties, gjw, includeTags, elemGeom);
-      });
-    }
-
-    Stream<Feature> streamResult = preResult.stream().filter(feature -> {
-      if (feature == null)
-        return false;
-      return true;
+    preResult = mapRed.map(snapshot -> {
+      Map<String, Object> properties = new TreeMap<>();
+      if (includeOSMMetadata) {
+        properties.put("@lastEdit", snapshot.getEntity().getTimestamp().toString());
+      }
+      properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
+      return exeUtils.createOSMFeature(snapshot.getEntity(), snapshot.getGeometry(), properties,
+          keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw);
     });
+    Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
     }
-    DataResponse osmData = new DataResponse(new Attribution(url, text), Application.apiVersion,
+    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());
-    JsonFactory jsonFactory = new JsonFactory();
-    ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
+    exeUtils.streamElementsResponse(response, osmData, false, streamResult, null);
+  }
 
-    ObjectMapper objMapper = new ObjectMapper();
-    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objMapper.setSerializationInclusion(Include.NON_NULL);
-    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
-        .writeObject(osmData);
+  /**
+   * Performs an OSM data extraction using the full-history of the data.
+   * 
+   * <p>
+   * 
+   * @param requestParams <code>RequestParameters</code> object, which holds those parameters that
+   *        are used in every request.
+   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
+   *        a stream.
+   */
+  public static void executeElementsFullHistory(RequestParameters contributionRequestParams,
+      ElementsGeometry elemGeom, String[] propertiesParameter, HttpServletResponse response)
+      throws UnsupportedOperationException, Exception {
+    InputProcessor inputProcessor = new InputProcessor();
+    String requestUrl = null;
+    if (!contributionRequestParams.getRequestMethod().equalsIgnoreCase("post")) {
+      requestUrl = RequestInterceptor.requestUrl;
+    }
+    if (contributionRequestParams.getTime().length != 2) {
+      throw new BadRequestException("Wrong time parameter. You need to give exactly "
+          + "two timestamps that are ISO-8601 conform, if you want to use this resource.");
+    }
+    MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
+    MapReducer<OSMContribution> mapRedContribution = null;
 
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+    RequestParameters snapshotRequestParams =
+        new RequestParameters(contributionRequestParams.getRequestMethod(), true,
+            contributionRequestParams.isDensity(), contributionRequestParams.getBboxes(),
+            contributionRequestParams.getBcircles(), contributionRequestParams.getBpolys(),
+            contributionRequestParams.getTypes(), contributionRequestParams.getKeys(),
+            contributionRequestParams.getValues(), contributionRequestParams.getUserids(),
+            contributionRequestParams.getTime(), contributionRequestParams.getShowMetadata());
 
-    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
-    response.setContentType("application/geo+json; charset=utf-8");
-    ServletOutputStream outputStream = response.getOutputStream();
-    outputStream.write(scaffold.getBytes("UTF-8"));
-
-    ThreadLocal<ByteArrayOutputStream> outputBuffers =
-        ThreadLocal.withInitial(ByteArrayOutputStream::new);
-    ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
-      try {
-        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+    boolean noFinalIncludeTags = false;
+    boolean noFinalIncludeOSMMetadata = false;
+    for (String text : propertiesParameter) {
+      if (text.equalsIgnoreCase("tags")) {
+        noFinalIncludeTags = true;
+      } else if (text.equalsIgnoreCase("metadata")) {
+        noFinalIncludeOSMMetadata = true;
       }
-    });
-    outputStream.print("\n");
-    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
-    streamResult.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+    }
+    final boolean includeTags = noFinalIncludeTags;
+    final boolean includeOSMMetadata = noFinalIncludeOSMMetadata;
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
+      ComputeMode previousComputeMode = dbIgnite.computeMode();
+      final double maxStreamDataSize = 1E7;
+      Number approxResultSize = inputProcessor.processParameters(snapshotRequestParams)
+          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
+          .sum(data -> data.getLength() / data.getLatest().getVersion());
+      if (approxResultSize.doubleValue() > maxStreamDataSize) {
+        dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
+      mapRedSnapshot = inputProcessor.processParameters(snapshotRequestParams);
+      mapRedContribution = inputProcessor.processParameters(contributionRequestParams);
+      dbIgnite.computeMode(previousComputeMode);
+    } else {
+      mapRedSnapshot = inputProcessor.processParameters(snapshotRequestParams);
+      mapRedContribution = inputProcessor.processParameters(contributionRequestParams);
+    }
+    TagTranslator tt = DbConnData.tagTranslator;
+    String[] keys = contributionRequestParams.getKeys();
+    int[] keysInt = new int[keys.length];
+    if (keys.length != 0) {
+      for (int i = 0; i < keys.length; i++) {
+        keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
+      }
+    }
+    MapReducer<Feature> contributionPreResult = null;
+    ExecutionUtils exeUtils = new ExecutionUtils();
+    GeoJSONWriter gjw = new GeoJSONWriter();
+    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
+    String startTimestampWithZ =
+        ISODateTimeParser.parseISODateTime(contributionRequestParams.getTime()[0]).toString();
+    String endTimestampWithZ =
+        ISODateTimeParser.parseISODateTime(contributionRequestParams.getTime()[1]).toString();
+    String startTimestamp = startTimestampWithZ.substring(0, startTimestampWithZ.length() - 1);
+    String endTimestamp = endTimestampWithZ.substring(0, endTimestampWithZ.length() - 1);
+
+    contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
+      List<Feature> output = new LinkedList<>();
+
+      Map<String, Object> properties;
+      Geometry currentGeom = null;
+      OSMEntity currentEntity = null;
+      String validFrom = null;
+      String validTo;
+      boolean skipNext = false;
+
+      // first contribution:
+      if (contributions.get(0).is(ContributionType.CREATION)) {
+        // if creation: skip next output
+        skipNext = true;
+      } else {
+        // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
+        currentEntity = contributions.get(0).getEntityBefore();
+        currentGeom = contributions.get(0).getGeometryBefore();
+        validFrom = startTimestamp;
+      }
+
+      // then for each contribution:
+      for (OSMContribution contribution : contributions) {
+        // set valid_to of previous row, add to output list (output.add(…))
+        validTo = contribution.getTimestamp().toString();
+        if (!skipNext) {
+          properties = new TreeMap<>();
+          properties.put("@validFrom", validFrom);
+          properties.put("@validTo", validTo);
+          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
         }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+        skipNext = false;
+        if (contribution.is(ContributionType.DELETION)) {
+          // if deletion: skip output of next row
+          skipNext = true;
+        } else {
+          // else: take "after" as next row
+          currentEntity = contribution.getEntityAfter();
+          currentGeom = contribution.getGeometryAfter();
+          validFrom = contribution.getTimestamp().toString();
+        }
       }
+      // after loop:
+      if (!contributions.get(contributions.size() - 1).is(ContributionType.DELETION)) {
+        // if last contribution was not "deletion": set valid_to = t_end, add row to output list
+        validTo = endTimestamp;
+        properties = new TreeMap<>();
+        properties.put("@validFrom", validFrom);
+        properties.put("@validTo", validTo);
+        output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+            includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+      }
+      return output;
     });
-    outputStream.print("\n  ]\n}\n");
-    response.flushBuffer();
+
+    MapReducer<Feature> snapshotPreResult = null;
+
+    snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
+        .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
+            && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
+                .getVersion())
+        .map(snapshots -> snapshots.get(0)).map(snapshot -> {
+          Map<String, Object> properties = new TreeMap<>();
+          OSMEntity entity = snapshot.getEntity();
+          if (includeOSMMetadata) {
+            properties.put("@lastEdit", entity.getTimestamp().toString());
+          }
+          Geometry geom = snapshot.getGeometry();
+          properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
+          properties.put("@validFrom", startTimestamp);
+          properties.put("@validTo", endTimestamp);
+          return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
+              includeOSMMetadata, elemGeom, tt, gjw);
+        }); // valid_from = t_start, valid_to = t_end
+
+    Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
+    Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
+
+    Metadata metadata = null;
+    if (ProcessingData.showMetadata) {
+      metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.", requestUrl);
+    }
+    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
+        metadata, "FeatureCollection", Collections.emptyList());
+
+    exeUtils.streamElementsResponse(response, osmData, true, snapshotStream, contributionStream);
   }
 
   /**
@@ -274,7 +339,7 @@ public class ElementsRequestExecutor {
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    mapRed = inputProcessor.processParameters(requestParams);
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -304,9 +369,8 @@ public class ElementsRequestExecutor {
       default:
         break;
     }
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ElementsResult[] resultSet =
         exeUtils.fillElementsResult(result, requestParams.isDensity(), df, geom);
@@ -317,7 +381,7 @@ public class ElementsRequestExecutor {
           new Metadata(duration, Description.countLengthPerimeterArea(requestParams.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
-    DefaultAggregationResponse response = DefaultAggregationResponse.of(new Attribution(url, text),
+    DefaultAggregationResponse response = DefaultAggregationResponse.of(new Attribution(URL, TEXT),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -350,27 +414,23 @@ public class ElementsRequestExecutor {
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    mapRed = inputProcessor.processParameters(requestParams);
     switch (requestResource) {
       case COUNT:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
-            requestParams.isSnapshot());
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
-            requestParams.isSnapshot());
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
-            requestParams.isSnapshot());
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder(),
-            requestParams.isSnapshot());
+            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
         break;
       default:
         break;
@@ -401,13 +461,12 @@ public class ElementsRequestExecutor {
     }
     if (requestParams.getFormat() != null
         && requestParams.getFormat().equalsIgnoreCase("geojson")) {
-      return GroupByResponse.of(new Attribution(url, text), Application.apiVersion, metadata,
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.apiVersion, metadata,
           "FeatureCollection",
           exeUtils.createGeoJsonFeatures(resultSet, ProcessingData.geoJsonGeoms));
-    } else {
-      return new GroupByResponse(new Attribution(url, text), Application.apiVersion, metadata,
-          resultSet);
     }
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+        resultSet);
   }
 
   /**
@@ -437,7 +496,7 @@ public class ElementsRequestExecutor {
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    mapRed = inputProcessor.processParameters(requestParams);
     if (requestParams.getUserids() != null) {
       for (String user : requestParams.getUserids()) {
         useridsInt.add(Integer.parseInt(user));
@@ -470,7 +529,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(URL, TEXT),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -511,7 +570,7 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    mapRed = inputProcessor.processParameters(requestParams);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -547,8 +606,7 @@ public class ElementsRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
     int count = 0;
     for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -573,7 +631,7 @@ public class ElementsRequestExecutor {
               requestResource.getLabel(), requestResource.getUnit()),
           requestUrl);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(URL, TEXT),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -604,7 +662,7 @@ public class ElementsRequestExecutor {
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    mapRed = inputProcessor.processParameters(requestParams);
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -615,8 +673,7 @@ public class ElementsRequestExecutor {
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary, geomBuilder);
+    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
     int count = 0;
     for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -633,7 +690,7 @@ public class ElementsRequestExecutor {
               requestResource.getLabel(), requestResource.getUnit()),
           requestUrl);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(URL, TEXT),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -670,7 +727,7 @@ public class ElementsRequestExecutor {
     }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = inputProcessor.processParameters(mapRed, requestParams);
+    mapRed = inputProcessor.processParameters(requestParams);
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
@@ -718,7 +775,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
-    GroupByResponse response = new GroupByResponse(new Attribution(url, text),
+    GroupByResponse response = new GroupByResponse(new Attribution(URL, TEXT),
         Application.apiVersion, metadata, resultSet);
     return response;
   }
@@ -749,7 +806,7 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
     // for input processing/checking only
-    inputProcessor.processParameters(mapRed, requestParams);
+    inputProcessor.processParameters(requestParams);
     inputProcessor.checkKeysValues(keys2, values2);
     values2 = inputProcessor.createEmptyArrayIfNull(values2);
     keys2 = inputProcessor.createEmptyArrayIfNull(keys2);
@@ -791,7 +848,7 @@ public class ElementsRequestExecutor {
     }
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (values2 != null && i < values2.length) {
+      if (i < values2.length) {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
@@ -804,11 +861,11 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!inputProcessor.compareKeysValues(requestParams.getKeys(), keys2, requestParams.getValues(),
         values2)) {
-      mapRed = inputProcessor.processParameters(mapRed,
-          new RequestParameters(requestParams.getRequestMethod(), requestParams.isSnapshot(),
-              requestParams.isDensity(), requestParams.getBboxes(), requestParams.getBcircles(),
-              requestParams.getBpolys(), osmTypesString, new String[] {}, new String[] {},
-              requestParams.getUserids(), requestParams.getTime(),
+      mapRed =
+          inputProcessor.processParameters(new RequestParameters(requestParams.getRequestMethod(),
+              requestParams.isSnapshot(), requestParams.isDensity(), requestParams.getBboxes(),
+              requestParams.getBcircles(), requestParams.getBpolys(), osmTypesString,
+              new String[] {}, new String[] {}, requestParams.getUserids(), requestParams.getTime(),
               requestParams.getShowMetadata()));
       mapRed = mapRed.osmEntityFilter(entity -> {
         if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1)) {
@@ -817,7 +874,7 @@ public class ElementsRequestExecutor {
         return true;
       });
     } else {
-      mapRed = inputProcessor.processParameters(mapRed, requestParams);
+      mapRed = inputProcessor.processParameters(requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, OSMEntitySnapshot> preResult;
@@ -869,8 +926,8 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
-    return exeUtils.createRatioShareResponse(isShare, timeArray, value1, value2, ratioDf,
-        inputProcessor, startTime, requestResource, requestUrl, new Attribution(url, text));
+    return exeUtils.createRatioShareResponse(isShare, timeArray, value1, value2, ratioDf, startTime,
+        requestResource, requestUrl, new Attribution(URL, TEXT));
   }
 
   /**
@@ -901,7 +958,7 @@ public class ElementsRequestExecutor {
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
-    inputProcessor.processParameters(mapRed, requestParams);
+    inputProcessor.processParameters(requestParams);
     if (ProcessingData.boundary == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
@@ -961,11 +1018,11 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!inputProcessor.compareKeysValues(requestParams.getKeys(), keys2, requestParams.getValues(),
         values2)) {
-      mapRed = inputProcessor.processParameters(mapRed,
-          new RequestParameters(requestParams.getRequestMethod(), requestParams.isSnapshot(),
-              requestParams.isDensity(), requestParams.getBboxes(), requestParams.getBcircles(),
-              requestParams.getBpolys(), osmTypesString, new String[] {}, new String[] {},
-              requestParams.getUserids(), requestParams.getTime(),
+      mapRed =
+          inputProcessor.processParameters(new RequestParameters(requestParams.getRequestMethod(),
+              requestParams.isSnapshot(), requestParams.isDensity(), requestParams.getBboxes(),
+              requestParams.getBcircles(), requestParams.getBpolys(), osmTypesString,
+              new String[] {}, new String[] {}, requestParams.getUserids(), requestParams.getTime(),
               requestParams.getShowMetadata()));
       mapRed = mapRed.osmEntityFilter(entity -> {
         boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
@@ -973,7 +1030,7 @@ public class ElementsRequestExecutor {
         return matches1 || matches2;
       });
     } else {
-      mapRed = inputProcessor.processParameters(mapRed, requestParams);
+      mapRed = inputProcessor.processParameters(requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
     ArrayList<Geometry> arrGeoms = geomBuilder.getGeometry();
@@ -1016,9 +1073,8 @@ public class ElementsRequestExecutor {
         result = preResult.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
-          } else {
-            return Geo.lengthOf(geom.getBoundary());
           }
+          return Geo.lengthOf(geom.getBoundary());
         });
         break;
       case AREA:
@@ -1086,7 +1142,7 @@ public class ElementsRequestExecutor {
     }
     DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, requestParams, boundaryIds,
-        timeArray, resultValues1, resultValues2, ratioDf, inputProcessor, startTime,
-        requestResource, requestUrl, new Attribution(url, text), geoJsonGeoms);
+        timeArray, resultValues1, resultValues2, ratioDf, startTime, requestResource, requestUrl,
+        new Attribution(URL, TEXT), geoJsonGeoms);
   }
 }

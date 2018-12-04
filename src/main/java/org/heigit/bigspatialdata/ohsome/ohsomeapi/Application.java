@@ -101,6 +101,7 @@ public class Application implements ApplicationRunner {
             break;
           case "database.timeout":
             timeout = Long.valueOf(args.getOptionValues(paramName).get(0));
+            break;
           default:
             break;
         }

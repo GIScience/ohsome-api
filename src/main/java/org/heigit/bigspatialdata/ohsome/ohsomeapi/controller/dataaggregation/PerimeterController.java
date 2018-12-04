@@ -485,8 +485,6 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) @RequestParam(value = "showMetadata",
-          defaultValue = "false") String showMetadata,
       @ApiParam(hidden = true) HttpServletRequest request,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,

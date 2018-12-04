@@ -40,7 +40,7 @@ public class ElementsControllerTest {
    */
 
   @Test
-  public void getElementsGeomTest() {
+  public void getElementsGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
@@ -49,12 +49,12 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811")));
     assertEquals(7, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811"))
         .findFirst().get().get("properties").size());
   }
@@ -68,7 +68,7 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811")));
   }
 
@@ -83,7 +83,7 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/4084860")));
   }
 
@@ -100,13 +100,9 @@ public class ElementsControllerTest {
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("node/135742850")));
   }
-
-  /*
-   * ./elements/bbox test
-   */
 
   @Test
   public void getElementsBboxTest() {
@@ -118,20 +114,16 @@ public class ElementsControllerTest {
     assertEquals("Polygon", StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
         .findFirst().get().get("geometry").get("type").asText());
     assertEquals(5, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
         .findFirst().get().get("geometry").get("coordinates").get(0).size());
   }
-
-  /*
-   * ./elements/centroid test
-   */
 
   @Test
   public void getElementsCentroidTest() {
@@ -143,8 +135,108 @@ public class ElementsControllerTest {
     assertEquals(2, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("osmId").asText()
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
         .findFirst().get().get("geometry").get("coordinates").size());
+  }
+
+  /*
+   * ./elementsFullHistory/geometry|bbox|centroid tests
+   */
+
+  @Test
+  public void getElementsFullHistoryGeometryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elementsFullHistory/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&"
+            + "types=way&keys=building&values=residential&properties=metadata&time=2015-01-01,"
+            + "2015-07-01&showMetadata=true",
+        JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/295135436")));
+    assertEquals(7, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
+            .equalsIgnoreCase("2015-05-05T06:59:35"))
+        .findFirst().get().get("properties").size());
+  }
+
+  @Test
+  public void getElementsFullHistoryGeometryWithTagsTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elementsFullHistory/geometry?bboxes=8.67494,49.417032,8.676136,49.419576&"
+            + "types=way&keys=brand&values=Aldi Süd&properties=tags&time=2017-01-01,2018-01-01&"
+            + "showMetadata=true",
+        JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
+            .equalsIgnoreCase("2017-01-18T17:38:06")));
+    assertEquals(13, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
+            .equalsIgnoreCase("2017-03-03T18:51:20"))
+        .findFirst().get().get("properties").size());
+  }
+
+  @Test
+  public void postElementsFullHistoryBboxTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.67494,49.417032,8.676136,49.419576");
+    map.add("types", "way");
+    map.add("keys", "brand");
+    map.add("values", "Aldi Süd");
+    map.add("time", "2017-01-01,2018-01-01");
+    map.add("properties", "tags,metadata");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elementsFullHistory/bbox", map, JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@changesetId").asText()
+            .equalsIgnoreCase("43971880"))
+        && StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("features").iterator(), Spliterator.ORDERED), false)
+            .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
+                .equalsIgnoreCase("2017-01-01T00:00")));
+    assertEquals(16, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@changesetId").asText()
+            .equalsIgnoreCase("43971880"))
+        .findFirst().get().get("properties").size());
+  }
+
+  @Test
+  public void postElementsFullHistoryCentroidTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
+    map.add("types", "way");
+    map.add("time", "2017-01-01,2017-07-01");
+    map.add("keys", "building");
+    map.add("values", "residential");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elementsFullHistory/centroid", map, JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/295135455")));
+    assertEquals(4, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/295135455"))
+        .findFirst().get().get("properties").size());
   }
 }

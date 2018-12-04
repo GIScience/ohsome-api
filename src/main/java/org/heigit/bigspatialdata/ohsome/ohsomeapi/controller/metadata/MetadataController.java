@@ -30,5 +30,4 @@ public class MetadataController {
 
     return MetadataRequestExecutor.executeGetMetadata();
   }
-
 }

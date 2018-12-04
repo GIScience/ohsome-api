@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -9,8 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -19,7 +25,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -36,11 +41,11 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -55,6 +60,12 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
@@ -62,6 +73,85 @@ import com.vividsolutions.jts.geom.Polygonal;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
+
+  /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
+  public void streamElementsResponse(HttpServletResponse response, DataResponse osmData,
+      boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
+      Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
+
+    JsonFactory jsonFactory = new JsonFactory();
+    ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
+
+    ObjectMapper objMapper = new ObjectMapper();
+    objMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objMapper.setSerializationInclusion(Include.NON_NULL);
+    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
+        .writeObject(osmData);
+
+    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+
+    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
+    response.setContentType("application/geo+json; charset=utf-8");
+    ServletOutputStream outputStream = response.getOutputStream();
+    outputStream.write(scaffold.getBytes("UTF-8"));
+
+    ThreadLocal<ByteArrayOutputStream> outputBuffers =
+        ThreadLocal.withInitial(ByteArrayOutputStream::new);
+    ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
+      try {
+        return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
+            .setCodec(objMapper);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    outputStream.print("\n");
+    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
+    if (isFullHistory) {
+      contributionStream.map(data -> {
+        try {
+          outputBuffers.get().reset();
+          outputJsonGen.get().writeObject(data);
+          return outputBuffers.get().toByteArray();
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }).sequential().forEach(data -> {
+        try {
+          if (isFirst.get()) {
+            isFirst.set(false);
+          } else {
+            outputStream.print(",");
+          }
+          outputStream.write(data);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    }
+    snapshotStream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    outputStream.print("\n  ]\n}\n");
+    response.flushBuffer();
+  }
 
   /**
    * Defines a certain decimal format.
@@ -84,7 +174,7 @@ public class ExecutionUtils {
    * @param geomBuilder <code>GeometryBuilder</code> object.
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
-  public Geometry getGeometry(BoundaryType boundary, GeometryBuilder geomBuilder) {
+  public Geometry getGeometry(BoundaryType boundary) {
     Geometry geom;
     switch (boundary) {
       case NOBOUNDARY:
@@ -106,94 +196,44 @@ public class ExecutionUtils {
   }
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
-  public org.wololo.geojson.Feature createOSMDataFeature(String[] keys, String[] values,
-      TagTranslator tt, int[] keysInt, int[] valuesInt, OSHDBMapReducible mapReducible,
-      boolean isSnapshot, Map<String, Object> properties, GeoJSONWriter gjw, boolean includeTags,
-      ElementsGeometry elemGeom) {
-    if (isSnapshot) {
-      properties.put("snapshotTimestamp",
-          ((OSMEntitySnapshot) mapReducible).getTimestamp().toString());
-      properties.put("osmId",
-          ((OSMEntitySnapshot) mapReducible).getEntity().getType().toString().toLowerCase() + "/"
-              + ((OSMEntitySnapshot) mapReducible).getEntity().getId());
-      if (includeTags) {
-        for (OSHDBTag oshdbTag : ((OSMEntitySnapshot) mapReducible).getEntity().getTags()) {
-          OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
-          properties.put(tag.getKey(), tag.getValue());
-        }
-      } else if (!keys.equals(null) && keys.length != 0) {
-        int[] tags = ((OSMEntitySnapshot) mapReducible).getEntity().getRawTags();
-        for (int i = 0; i < tags.length; i += 2) {
-          int tagKeyId = tags[i];
-          int tagValueId = tags[i + 1];
-          for (int key : keysInt) {
-            if (tagKeyId == key) {
-              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-              properties.put(tag.getKey(), tag.getValue());
-            }
+  public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
+      Map<String, Object> properties, int[] keysInt, boolean includeTags,
+      boolean includeOSMMetadata, ElementsGeometry elemGeom, TagTranslator tt, GeoJSONWriter gjw) {
+    if (includeTags) {
+      for (OSHDBTag oshdbTag : entity.getTags()) {
+        OSMTag tag = tt.getOSMTagOf(oshdbTag);
+        properties.put(tag.getKey(), tag.getValue());
+      }
+    } else if (keysInt != null && keysInt.length != 0) {
+      int[] tags = entity.getRawTags();
+      for (int i = 0; i < tags.length; i += 2) {
+        int tagKeyId = tags[i];
+        int tagValueId = tags[i + 1];
+        for (int key : keysInt) {
+          if (tagKeyId == key) {
+            OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
+            properties.put(tag.getKey(), tag.getValue());
           }
         }
       }
-      switch (elemGeom) {
-        case RAW:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry()), properties);
-        case BBOX:
-          Envelope envelope =
-              ((OSMEntitySnapshot) mapReducible).getGeometry().getEnvelopeInternal();
-          OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-          return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
-              properties);
-        case CENTROID:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry().getCentroid()),
-              properties);
-        default:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMEntitySnapshot) mapReducible).getGeometry()), properties);
-      }
-    } else {
-      properties.put("contributionTimestamp",
-          ((OSMContribution) mapReducible).getTimestamp().toString());
-      properties.put("osmId",
-          ((OSMContribution) mapReducible).getEntityAfter().getType().toString().toLowerCase() + "/"
-              + ((OSMContribution) mapReducible).getEntityAfter().getId());
-      if (includeTags) {
-        for (OSHDBTag oshdbTag : ((OSMContribution) mapReducible).getEntityAfter().getTags()) {
-          OSMTag tag = tt.getOSMTagOf(oshdbTag.getKey(), oshdbTag.getValue());
-          properties.put(tag.getKey(), tag.getValue());
-        }
-      } else if (!keys.equals(null) && keys.length != 0) {
-        int[] tags = ((OSMContribution) mapReducible).getEntityAfter().getRawTags();
-        for (int i = 0; i < tags.length; i += 2) {
-          int tagKeyId = tags[i];
-          int tagValueId = tags[i + 1];
-          for (int key : keysInt) {
-            if (tagKeyId == key) {
-              OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-              properties.put(tag.getKey(), tag.getValue());
-            }
-          }
-        }
-      }
-      switch (elemGeom) {
-        case RAW:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
-        case BBOX:
-          Envelope envelope =
-              ((OSMContribution) mapReducible).getGeometryAfter().getEnvelopeInternal();
-          OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-          return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
-              properties);
-        case CENTROID:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMContribution) mapReducible).getGeometryAfter().getCentroid()),
-              properties);
-        default:
-          return new org.wololo.geojson.Feature(
-              gjw.write(((OSMContribution) mapReducible).getGeometryAfter()), properties);
-      }
+    }
+    properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
+    if (includeOSMMetadata) {
+      properties.put("@version", entity.getVersion());
+      properties.put("@osmType", entity.getType());
+      properties.put("@changesetId", entity.getChangeset());
+    }
+    switch (elemGeom) {
+      case BBOX:
+        Envelope envelope = geometry.getEnvelopeInternal();
+        OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
+            properties);
+      case CENTROID:
+        return new org.wololo.geojson.Feature(gjw.write(geometry.getCentroid()), properties);
+      case RAW:
+      default:
+        return new org.wololo.geojson.Feature(gjw.write(geometry), properties);
     }
   }
 
@@ -201,8 +241,7 @@ public class ExecutionUtils {
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder, boolean isSnapshot)
-      throws Exception {
+      MapReducer<OSMEntitySnapshot> mapRed, GeometryBuilder geomBuilder) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
@@ -220,9 +259,8 @@ public class ExecutionUtils {
         result = preResult.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
-          } else {
-            return Geo.lengthOf(geom.getBoundary());
           }
+          return Geo.lengthOf(geom.getBoundary());
         });
         break;
       case LENGTH:
@@ -281,9 +319,8 @@ public class ExecutionUtils {
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
                 return Geo.lengthOf(snapshot.getGeometry().getBoundary());
-              } else {
-                return 0.0;
               }
+              return 0.0;
             });
       case AREA:
         return (SortedMap<K, V>) preResult
@@ -496,8 +533,8 @@ public class ExecutionUtils {
 
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
   public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
-      Double[] value2, DecimalFormat df, InputProcessor inputProcessor, long startTime,
-      RequestResource reqRes, String requestUrl, Attribution attribution) {
+      Double[] value2, DecimalFormat df, long startTime, RequestResource reqRes, String requestUrl,
+      Attribution attribution) {
     Response response;
     if (!isShare) {
       RatioResult[] resultSet = new RatioResult[timeArray.length];
@@ -542,9 +579,9 @@ public class ExecutionUtils {
    */
   public Response createRatioShareGroupByBoundaryResponse(boolean isShare,
       RequestParameters requestParameters, String[] boundaryIds, String[] timeArray,
-      Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf,
-      InputProcessor inputProcessor, long startTime, RequestResource reqRes, String requestUrl,
-      Attribution attribution, GeoJsonObject[] geoJsonGeoms) {
+      Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf, long startTime,
+      RequestResource reqRes, String requestUrl, Attribution attribution,
+      GeoJsonObject[] geoJsonGeoms) {
     Metadata metadata = null;
     int boundaryIdsLength = boundaryIds.length;
     int timeArrayLenth = timeArray.length;
@@ -577,38 +614,34 @@ public class ExecutionUtils {
           && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
         return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
             "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-      } else {
-        return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
-            groupByResultSet);
       }
-
-    } else {
-      ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
-      for (int i = 0; i < boundaryIdsLength; i++) {
-        String groupByName = boundaryIds[i];
-        ShareResult[] resultSet = new ShareResult[timeArrayLenth];
-        int innerCount = 0;
-        for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-          resultSet[innerCount] =
-              new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
-          innerCount++;
-        }
-        groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
-      }
-      if (ProcessingData.showMetadata) {
-        long duration = System.currentTimeMillis() - startTime;
-        metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
-            reqRes.getLabel(), reqRes.getUnit()), requestUrl);
-      }
-      if (requestParameters.getFormat() != null
-          && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-      } else {
-        return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
-            groupByResultSet);
-      }
+      return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+          groupByResultSet);
     }
+    ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
+    for (int i = 0; i < boundaryIdsLength; i++) {
+      String groupByName = boundaryIds[i];
+      ShareResult[] resultSet = new ShareResult[timeArrayLenth];
+      int innerCount = 0;
+      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+        resultSet[innerCount] =
+            new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
+        innerCount++;
+      }
+      groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
+    }
+    if (ProcessingData.showMetadata) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+          reqRes.getLabel(), reqRes.getUnit()), requestUrl);
+    }
+    if (requestParameters.getFormat() != null
+        && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
+      return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+    }
+    return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+        groupByResultSet);
   }
 
   /** Enum type used in /ratio computation. */
