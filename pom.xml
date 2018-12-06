@@ -13,7 +13,7 @@
 	<name>ohsome-api</name>
 	<description>A public Web-REST-API for "ohsome" OpenStreetMap history data.</description>
 	<packaging>jar</packaging>
-	<version>0.9.6</version>
+	<version>0.9.7</version>
 
 	<properties>
 		<springboot.version>2.0.3.RELEASE</springboot.version>
