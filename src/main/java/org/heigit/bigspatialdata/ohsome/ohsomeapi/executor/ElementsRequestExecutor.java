@@ -298,7 +298,7 @@ public class ElementsRequestExecutor {
           properties.put("@validFrom", startTimestamp);
           properties.put("@validTo", endTimestamp);
           return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
-              includeOSMMetadata, elemGeom, tt, gjw);
+              includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw);
         }); // valid_from = t_start, valid_to = t_end
 
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
