@@ -104,7 +104,7 @@ For more examples, please look at the [Swagger2](http://localhost:8080/swagger-u
     },
     "apiVersion": "0.9",
     "metadata": {
-        "executionTime": 2593,
+        "executionTime": 670,
         "description": "Total number of items aggregated on the boundary object.",
         "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?bpolys=%7B%22type%22:%22FeatureCollection%22,%22features%22:[%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Heidelberg%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]%7D%7D,%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Weinheim%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]%7D%7D]%7D&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true"
     },
