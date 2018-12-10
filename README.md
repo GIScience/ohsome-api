@@ -21,10 +21,11 @@ These instructions will get you a copy of the project up and running on your loc
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 3. enter the command `mvn -DskipTests=true package` to build the project (if you want to build it running the integrated tests too, look at the section [Testing](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api#testing))
 4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
-    * keytables included: `java -jar target/ohsome-api-0.9.6.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
-    * keytables not included: `java -jar target/ohsome-api-0.9.6.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
+    * keytables included: `java -jar target/ohsome-api-0.9.7.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
+    * keytables not included: `java -jar target/ohsome-api-0.9.7.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
 
-Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/swagger-ui.html*.
+Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
+<br>To check if it is running properly, you should be able to visit the swagger documentation under *http://localhost:8080/swagger-ui.html*.
 
 *Note:*
 * additionally you can add optional run-parameters:
@@ -32,7 +33,7 @@ Now you should have a running local API, which is ready for receiving requests u
     * to enable in-memory-caching: `--database.caching=true` (caution.. enabling this option requires quite some memory, but makes processing much faster)
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
     * in Eclipse: *Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'*
-* if you want to get information about the code directly, you can access the [Javadoc](http://129.206.7.121:8044/master/ohsome-api/target/site/apidocs/index.html), which gets updated daily.
+* if you want to get information about the code directly, you can access the [Javadoc](https://docs.ohsome.org/java/ohsome-api/0.9.7/), which gets updated daily.
 
 ## Testing
 
