@@ -143,7 +143,6 @@ public class GeometryBuilderTest {
 
   @Test
   public void createOverlappingPolygonFromGeoJson() {
-
     String geoJson =
         "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":"
             + "{\"id\":\"Neuenheim\"},\"geometry\":{\"type\":\"Polygon\","
@@ -156,5 +155,24 @@ public class GeometryBuilderTest {
     inputProcessor.setUtils(new InputProcessingUtils());
     Geometry geom = geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
     assertTrue(geom instanceof Polygon);
+  }
+
+  @Test
+  public void createGeometryFromMetadataGeoJson() {
+    String geoJson = "{\"type\":\"Polygon\",\"coordinates\":[[[87.9784,26.34136],[87.87828,26.425],"
+        + "[84.60404,27.29723],[84.29493,27.35496],[84.11996,27.48018],[84.04862,27.41662],"
+        + "[80.22741,28.71684],[80.03542,28.81103],[80.02361,28.92357],[80.11695,29.1246],"
+        + "[80.2165,29.1634],[80.2152,29.23861],[80.26026,29.26786],[80.21384,29.45208],"
+        + "[81.21925,30.05499],[81.23257,30.16875],[81.35785,30.22718],[81.39828,30.44943],"
+        + "[82.23489,30.1641],[82.21737,30.10248],[82.57134,29.98702],[82.85296,29.7277],"
+        + "[83.9004,29.35718],[84.10834,29.32062],[84.23132,29.24686],[84.20122,29.16883],"
+        + "[88.03636,26.33809],[87.9784,26.34136]]]}";
+    geomBuilder.createGeometryFromMetadataGeoJson(geoJson);
+  }
+  
+  @Test(expected = RuntimeException.class)
+  public void createGeometryFromWrongMetadataGeoJson() {
+    String geoJson = "{\"type\":\"Polygon\",\"coordinates\":[Invalid-Input]}";
+    geomBuilder.createGeometryFromMetadataGeoJson(geoJson);
   }
 }
