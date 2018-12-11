@@ -25,7 +25,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
@@ -418,19 +417,19 @@ public class ElementsRequestExecutor {
     switch (requestResource) {
       case COUNT:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
+            ProcessingData.boundary, mapRed);
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
+            ProcessingData.boundary, mapRed);
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
+            ProcessingData.boundary, mapRed);
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            ProcessingData.boundary, mapRed, inputProcessor.getGeomBuilder());
+            ProcessingData.boundary, mapRed);
         break;
       default:
         break;
@@ -442,7 +441,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    ArrayList<Geometry> boundaries = inputProcessor.getGeomBuilder().getGeometry();
+    ArrayList<Geometry> boundaries = new ArrayList<>(ProcessingData.boundaryColl);
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
@@ -962,7 +961,6 @@ public class ElementsRequestExecutor {
     if (ProcessingData.boundary == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
-    GeometryBuilder geomBuilder = inputProcessor.getGeomBuilder();
     final GeoJsonObject[] geoJsonGeoms = ProcessingData.geoJsonGeoms;
     inputProcessor.checkKeysValues(keys2, values2);
     values2 = inputProcessor.createEmptyArrayIfNull(values2);
@@ -1033,7 +1031,7 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters(requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
-    ArrayList<Geometry> arrGeoms = geomBuilder.getGeometry();
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(ProcessingData.boundaryColl);
     ArrayList<MatchType> zeroFill = new ArrayList<>();
     for (int j = 0; j < arrGeoms.size(); j++) {
       zeroFill.add(MatchType.MATCHESBOTH);
