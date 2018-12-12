@@ -296,6 +296,10 @@ public class GeometryBuilder {
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
+      InputProcessingUtils utils = new InputProcessingUtils();
+      if (utils.isWithin(result) == false) {
+        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+      }
     }
     ProcessingData.geoJsonGeoms = geoJsonGeoms;
     ProcessingData.boundaryColl = geometryCollection;
