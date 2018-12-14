@@ -69,9 +69,10 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
-
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
+
+  AtomicReference<Boolean> isFirst;
 
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse response, DataResponse osmData,
@@ -104,50 +105,14 @@ public class ExecutionUtils {
         throw new RuntimeException(e);
       }
     });
+    isFirst = new AtomicReference<>(true);
     outputStream.print("\n");
-    AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
     if (isFullHistory) {
-      contributionStream.map(data -> {
-        try {
-          outputBuffers.get().reset();
-          outputJsonGen.get().writeObject(data);
-          return outputBuffers.get().toByteArray();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }).sequential().forEach(data -> {
-        try {
-          if (isFirst.get()) {
-            isFirst.set(false);
-          } else {
-            outputStream.print(",");
-          }
-          outputStream.write(data);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      });
+      contributionStream =
+          writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
     }
-    snapshotStream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
+    snapshotStream =
+        writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
     outputStream.print("\n  ]\n}\n");
     response.flushBuffer();
   }
@@ -528,6 +493,33 @@ public class ExecutionUtils {
       count++;
     }
     return results;
+  }
+
+  /** Fills the given stream with output data. */
+  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
+      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
+      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
+    stream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    return stream;
   }
 
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */

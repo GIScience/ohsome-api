@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller containing the GET and POST requests, which enter through "/changesets".
+ * Controller containing the GET and POST requests, which enter through "/changesets".
  *
  */
 @RestController

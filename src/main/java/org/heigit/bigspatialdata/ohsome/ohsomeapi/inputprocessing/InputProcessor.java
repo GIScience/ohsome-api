@@ -34,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
-
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
  * the request. Uses geometry methods from
@@ -59,7 +58,7 @@ public class InputProcessor {
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    */
-  @SuppressWarnings("unchecked") // intentionally unchecked
+  @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
       RequestParameters requestParameters) throws Exception {
     ProcessingData.format = requestParameters.getFormat();
@@ -353,6 +352,39 @@ public class InputProcessor {
       }
     }
     return keysList.toArray(new String[keysList.size()]);
+  }
+
+  /**
+   * Used in /share and /ratio requests. If isShare: includes the keys and values parameters within
+   * keys2 and values2.
+   */
+  public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2,
+      boolean isShare, RequestParameters requestParams) {
+    keys2 = createEmptyArrayIfNull(keys2);
+    values2 = createEmptyArrayIfNull(values2);
+    if (isShare) {
+      List<Pair<String, String>> keys2Vals2;
+      if (requestParams.getValues().length == 0) {
+        keys2 = addFilterKeys(requestParams.getKeys(), keys2);
+      } else if (keys2.length == 0) {
+        keys2 = requestParams.getKeys();
+        values2 = requestParams.getValues();
+      } else {
+        keys2Vals2 =
+            addFilterKeysVals(requestParams.getKeys(), requestParams.getValues(), keys2, values2);
+        String[] newKeys2 = new String[keys2Vals2.size()];
+        String[] newValues2 = new String[keys2Vals2.size()];
+        for (int i = 0; i < keys2Vals2.size(); i++) {
+          Pair<String, String> tag = keys2Vals2.get(i);
+          newKeys2[i] = tag.getKey();
+          newValues2[i] = tag.getValue();
+        }
+        keys2 = newKeys2;
+        values2 =
+            Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
+      }
+    }
+    return new ImmutablePair<String[], String[]>(keys2, values2);
   }
 
   /**

@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-/** REST controller containing the GET and POST requests, which enter through "/users". */
+/** Controller containing the GET and POST requests, which enter through "/users". */
 @Api(tags = "users")
 @RestController
 @RequestMapping("/users")

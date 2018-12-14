@@ -43,8 +43,9 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
     return createExceptionResponse(ex, HttpStatus.NOT_IMPLEMENTED);
   }
 
-  @ExceptionHandler(UnauthorizedException.class)
-  public final ResponseEntity<ErrorDetails> handleUnauthorizedException(UnauthorizedException ex) {
+  @ExceptionHandler(UnauthorizedRequestException.class)
+  public final ResponseEntity<ErrorDetails> handleUnauthorizedException(
+      UnauthorizedRequestException ex) {
     return createExceptionResponse(ex, HttpStatus.UNAUTHORIZED);
   }
 

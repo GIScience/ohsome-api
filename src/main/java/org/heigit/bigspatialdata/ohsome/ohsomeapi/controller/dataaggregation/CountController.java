@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiParam;
 
 
 /**
- * REST controller containing the GET and POST request handling methods, which are mapped to
+ * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
  */
 @Api(tags = "elementsCount")
@@ -267,7 +267,7 @@ public class CountController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
@@ -309,7 +309,7 @@ public class CountController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.COUNT,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -491,7 +491,7 @@ public class CountController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
@@ -533,7 +533,7 @@ public class CountController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws UnsupportedOperationException, Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.COUNT,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,

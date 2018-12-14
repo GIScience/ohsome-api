@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller containing the GET and POST request handling methods, which are mapped to
+ * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/length".
  */
 @Api(tags = "elementsLength")
@@ -261,7 +261,7 @@ public class LengthController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.LENGTH,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.LENGTH,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
@@ -303,7 +303,7 @@ public class LengthController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.LENGTH,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
@@ -482,7 +482,7 @@ public class LengthController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.LENGTH,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.LENGTH,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("showMetadata")),
@@ -525,7 +525,7 @@ public class LengthController {
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.LENGTH,
         RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,

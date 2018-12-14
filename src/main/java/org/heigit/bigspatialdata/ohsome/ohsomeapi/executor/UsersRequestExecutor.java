@@ -34,7 +34,6 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import com.vividsolutions.jts.geom.Geometry;
 
-
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
 

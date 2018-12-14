@@ -405,7 +405,7 @@ public class ElementsRequestExecutor {
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     ExecutionUtils exeUtils = new ExecutionUtils();
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor();
     String requestUrl = null;
@@ -416,6 +416,7 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters(requestParams);
     switch (requestResource) {
       case COUNT:
+      default:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
             ProcessingData.boundary, mapRed);
         break;
@@ -430,8 +431,6 @@ public class ElementsRequestExecutor {
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
             ProcessingData.boundary, mapRed);
-        break;
-      default:
         break;
     }
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
@@ -501,7 +500,7 @@ public class ElementsRequestExecutor {
         useridsInt.add(Integer.parseInt(user));
       }
     }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> preResult;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     preResult = mapRed.aggregateByTimestamp()
@@ -511,17 +510,14 @@ public class ElementsRequestExecutor {
     result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-
     int count = 0;
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-
       ElementsResult[] results =
           exeUtils.fillElementsResult(entry.getValue(), requestParams.isDensity(), df, null);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-
     Metadata metadata = null;
     if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
@@ -598,8 +594,7 @@ public class ElementsRequestExecutor {
           }
           return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
         }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> result =
-        null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> result;
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = ExecutionUtils.nest(result);
@@ -667,7 +662,7 @@ public class ElementsRequestExecutor {
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
         }, ProcessingData.osmTypes);
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, ? extends Number> result;
     result = exeUtils.computeResult(requestResource, preResult);
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
@@ -748,7 +743,7 @@ public class ElementsRequestExecutor {
           return res;
         }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
             .map(Pair::getValue);
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
     groupByResult = ExecutionUtils.nest(result);
@@ -794,7 +789,7 @@ public class ElementsRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static Response executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
+  public static Response executeCountLengthPerimeterAreaShareRatio(RequestResource requestResource,
       RequestParameters requestParams, String[] types2, String[] keys2, String[] values2,
       boolean isShare) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
@@ -807,30 +802,10 @@ public class ElementsRequestExecutor {
     // for input processing/checking only
     inputProcessor.processParameters(requestParams);
     inputProcessor.checkKeysValues(keys2, values2);
-    values2 = inputProcessor.createEmptyArrayIfNull(values2);
-    keys2 = inputProcessor.createEmptyArrayIfNull(keys2);
-    if (isShare) {
-      List<Pair<String, String>> keys2Vals2;
-      if (requestParams.getValues().length == 0) {
-        keys2 = inputProcessor.addFilterKeys(requestParams.getKeys(), keys2);
-      } else if (keys2.length == 0) {
-        keys2 = requestParams.getKeys();
-        values2 = requestParams.getValues();
-      } else {
-        keys2Vals2 = inputProcessor.addFilterKeysVals(requestParams.getKeys(),
-            requestParams.getValues(), keys2, values2);
-        String[] newKeys2 = new String[keys2Vals2.size()];
-        String[] newValues2 = new String[keys2Vals2.size()];
-        for (int i = 0; i < keys2Vals2.size(); i++) {
-          Pair<String, String> tag = keys2Vals2.get(i);
-          newKeys2[i] = tag.getKey();
-          newValues2[i] = tag.getValue();
-        }
-        keys2 = newKeys2;
-        values2 =
-            Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
-      }
-    }
+    Pair<String[], String[]> keys2Vals2 =
+        inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParams);
+    keys2 = keys2Vals2.getKey();
+    values2 = keys2Vals2.getValue();
     Integer[] keysInt1 = new Integer[requestParams.getKeys().length];
     Integer[] valuesInt1 = new Integer[requestParams.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
@@ -943,7 +918,7 @@ public class ElementsRequestExecutor {
    *         RatioGroupByBoundaryResponse Content}
    */
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
-  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaRatioGroupByBoundary(
+  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
       RequestResource requestResource, RequestParameters requestParams, String[] types2,
       String[] keys2, String[] values2, boolean isShare)
       throws UnsupportedOperationException, Exception {
@@ -963,30 +938,10 @@ public class ElementsRequestExecutor {
     }
     final GeoJsonObject[] geoJsonGeoms = ProcessingData.geoJsonGeoms;
     inputProcessor.checkKeysValues(keys2, values2);
-    values2 = inputProcessor.createEmptyArrayIfNull(values2);
-    keys2 = inputProcessor.createEmptyArrayIfNull(keys2);
-    if (isShare) {
-      List<Pair<String, String>> keys2Vals2;
-      if (requestParams.getValues().length == 0) {
-        keys2 = inputProcessor.addFilterKeys(requestParams.getKeys(), keys2);
-      } else if (keys2.length == 0) {
-        keys2 = requestParams.getKeys();
-        values2 = requestParams.getValues();
-      } else {
-        keys2Vals2 = inputProcessor.addFilterKeysVals(requestParams.getKeys(),
-            requestParams.getValues(), keys2, values2);
-        String[] newKeys2 = new String[keys2Vals2.size()];
-        String[] newValues2 = new String[keys2Vals2.size()];
-        for (int i = 0; i < keys2Vals2.size(); i++) {
-          Pair<String, String> tag = keys2Vals2.get(i);
-          newKeys2[i] = tag.getKey();
-          newValues2[i] = tag.getValue();
-        }
-        keys2 = newKeys2;
-        values2 =
-            Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
-      }
-    }
+    Pair<String[], String[]> keys2Vals2 =
+        inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParams);
+    keys2 = keys2Vals2.getKey();
+    values2 = keys2Vals2.getValue();
     Integer[] keysInt1 = new Integer[requestParams.getKeys().length];
     Integer[] valuesInt1 = new Integer[requestParams.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
