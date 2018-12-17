@@ -38,7 +38,7 @@ Now you should have a running local API, which is ready for receiving requests u
 ## Testing
 
 To run the tests locally, you need the following:
-1. define the properties `-Dport_get -Dport_post -Dport_data` using three free ports (for example 8081, 8082, 8083), which the API will use to start instances and run different integration tests on
+1. define the properties `-Dport_get -Dport_post -Dport_data` using three free ports (for example 8081, 8082, 8083), which the API will use to start instances and run different integration tests
     * -Dport.get starts data-aggregation + metadata tests using GET requests
     * -Dport.post starts data-aggregation tests using POST requests
     * -Dport.data starts data-extraction tests using GET and POST requests
@@ -55,11 +55,15 @@ It lists all available resources and gives detailled information about the indiv
 
 ## Examples
 
-This section gives you some example request URLs and shows the returned JSON responses.
-For more examples, please look at the [Swagger2](http://localhost:8080/swagger-ui.html) documentation.
+This section gives you some example request URLs and shows the returned JSON responses.<p>
+Please also take a look at our blog posts, where we provide more information about this API and show possible use-cases:
+* [How to build a request URL](http://k1z.blog.uni-heidelberg.de/2018/04/26/the-ohsome-api-dynamic-osm-statistics-for-real-world-applications/) 
+* [Background info about the documentation](http://k1z.blog.uni-heidelberg.de/2018/09/03/documentation-of-the-ohsome-api/) 
+* [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
+<p>
 
-* http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true
-<p> 
+http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true
+<p>
 
 ```json
 {
@@ -94,7 +98,7 @@ For more examples, please look at the [Swagger2](http://localhost:8080/swagger-u
 }
 ```
 <p>
-* http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"id":"Heidelberg"},"geometry":{"type":"Polygon","coordinates":[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]}},{"type":"Feature","properties":{"id":"Weinheim"},"geometry":{"type":"Polygon","coordinates":[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]}}]}&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true
+http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"id":"Heidelberg"},"geometry":{"type":"Polygon","coordinates":[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]}},{"type":"Feature","properties":{"id":"Weinheim"},"geometry":{"type":"Polygon","coordinates":[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]}}]}&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true
 <p>
 
 ```json
