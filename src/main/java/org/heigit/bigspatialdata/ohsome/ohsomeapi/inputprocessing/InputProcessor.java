@@ -464,21 +464,18 @@ public class InputProcessor {
         mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
       }
     } else {
+      utils.checkTimestampsOnIsoConformity(time);
       for (String timestamp : time) {
-        try {
-          ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
-          utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-        } catch (Exception e) {
-          throw new BadRequestException(ExceptionMessages.timeFormat);
-        }
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       }
-      time = utils.sortTimestamps(time);
+      timeData = utils.sortTimestamps(time);
       if (!isSnapshot) {
-        toTimestamps = utils.defineToTimestamps(time);
+        toTimestamps = utils.defineToTimestamps(timeData);
       }
-      String firstElem = time[0];
-      time = ArrayUtils.remove(time, 0);
-      mapRed = mapRed.timestamps(firstElem, firstElem, time);
+      String firstElem = timeData[0];
+      timeData = ArrayUtils.remove(timeData, 0);
+      mapRed = mapRed.timestamps(firstElem, firstElem, timeData);
     }
     utils.setToTimestamps(toTimestamps);
     return mapRed;

@@ -2,7 +2,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -234,7 +233,7 @@ public class InputProcessingUtils {
     String[] toTimestamps;
     OSHDBTimestamps timestamps;
     if (timeData.length == 3 && timeData[2] != null) {
-      // nasty nested 'if' needed to check for interval
+      // needed to check for interval
       if (timeData[2].startsWith("P")) {
         timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
         toTimestamps = timestamps.get().stream().map(oshdbTimestamp -> {
@@ -282,72 +281,94 @@ public class InputProcessingUtils {
    */
   public String[] extractIsoTime(String time) throws Exception {
     String[] timeVals = new String[3];
-    if (time.contains("/")) {
+    String[] split = time.split("/");
+    if (split.length == 0 && !"/".equals(time)) {
+      // invalid time parameter
+      throw new BadRequestException(ExceptionMessages.timeFormat);
+    }
+    if (time.startsWith("/")) {
       if (time.length() == 1) {
-        // only "/" is given
+        // only /
         timeVals[0] = ExtractMetadata.fromTstamp;
         timeVals[1] = ExtractMetadata.toTstamp;
         return timeVals;
       }
-      String[] timeSplit = time.split("/");
-
-      String[] timestamps = new String[] {timeSplit[0], timeSplit[1]};
-      timestamps = sortTimestamps(timestamps);
-      timeSplit[0] = timestamps[0];
-      timeSplit[1] = timestamps[1];
-
-      if (timeSplit[0].length() > 0) {
-        // start timestamp
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timeSplit[0]);
-        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-        timeVals[0] = timeSplit[0];
-        if (time.endsWith("/") && (timeSplit.length < 2 || timeSplit[1].length() == 0)) {
-          // latest timestamp
-          timeVals[1] = ExtractMetadata.toTstamp;
-          return timeVals;
-        }
-      } else {
-        // earliest timestamp
-        timeVals[0] = ExtractMetadata.fromTstamp;
-      }
-      if (timeSplit[1].length() > 0) {
-        // end timestamp
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timeSplit[1]);
-        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-        timeVals[1] = timeSplit[1];
-      } else {
-        // latest timestamp
+      if (split[0].length() == 0 && split.length == 2) {
+        // /YYYY-MM-DD
+        checkTimestampsOnIsoConformity(split[1]);
+        checkTemporalExtend(split[1]);
+        timeVals[1] = split[1];
+      } else if (split.length == 3 && split[0].length() == 0 && split[1].length() == 0) {
+        // //PnYnMnD
+        checkPeriodOnIsoConformity(split[2]);
         timeVals[1] = ExtractMetadata.toTstamp;
-      }
-      if (timeSplit.length == 3 && timeSplit[2].length() > 0) {
-        // interval
-        try {
-          ISODateTimeParser.parseISOPeriod(timeSplit[2]);
-          timeVals[2] = timeSplit[2];
-        } catch (Exception e) {
-          throw new BadRequestException(
-              "The interval (period) of the provided time parameter is not ISO-8601 conform.");
-        }
-      }
-    } else {
-      // just one timestamp
-      try {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(time);
-        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-        timeVals[0] = time;
-      } catch (DateTimeParseException e) {
+        timeVals[2] = split[2];
+      } else if (split.length == 3 && split[1].length() != 0) {
+        // /YYYY-MM-DD/PnYnMnD
+        checkTimestampsOnIsoConformity(split[1]);
+        checkTemporalExtend(split[1]);
+        checkPeriodOnIsoConformity(split[2]);
+        timeVals[1] = split[1];
+        timeVals[2] = split[2];
+      } else {
+        // invalid time parameter
         throw new BadRequestException(ExceptionMessages.timeFormat);
       }
+      timeVals[0] = ExtractMetadata.fromTstamp;
+    } else if (time.endsWith("/")) {
+      if (split.length != 1) {
+        // invalid time parameter
+        throw new BadRequestException(ExceptionMessages.timeFormat);
+      }
+      // YYYY-MM-DD/
+      checkTimestampsOnIsoConformity(split[0]);
+      checkTemporalExtend(split[0]);
+      timeVals[0] = split[0];
+      timeVals[1] = ExtractMetadata.toTstamp;
+    } else if (split.length == 3) {
+      if (split[1].length() == 0) {
+        // YYYY-MM-DD//PnYnMnD
+        checkTimestampsOnIsoConformity(split[0]);
+        checkTemporalExtend(split[0]);
+        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[2] = split[2];
+      } else {
+        // YYYY-MM-DD/YYYY-MM-DD/PnYnMnD
+        checkTimestampsOnIsoConformity(split[0], split[1]);
+        checkTemporalExtend(split[0], split[1]);
+        timeVals[1] = split[1];
+      }
+      checkPeriodOnIsoConformity(split[2]);
+      timeVals[0] = split[0];
+      timeVals[2] = split[2];
+    } else if (split.length == 2) {
+      // YYYY-MM-DD/YYYY-MM-DD
+      checkTimestampsOnIsoConformity(split[0], split[1]);
+      checkTemporalExtend(split[0], split[1]);
+      timeVals[0] = split[0];
+      timeVals[1] = split[1];
+    } else if (split.length == 1) {
+      // YYYY-MM-DD
+      checkTimestampsOnIsoConformity(split[0]);
+      checkTemporalExtend(split[0]);
+      timeVals[0] = split[0];
+      return timeVals;
+    } else {
+      // invalid time parameter
+      throw new BadRequestException(ExceptionMessages.timeFormat);
     }
+    String[] sortedTimestamps = sortTimestamps(new String[] {timeVals[0], timeVals[1]});
+    timeVals[0] = sortedTimestamps[0];
+    timeVals[1] = sortedTimestamps[1];
     return timeVals;
   }
 
   /**
-   * Checks the provided time info on its temporal extent. Throws a 404 exception if it is not
-   * completely within the timerange of the underlying data.
-   * 
+   * Checks the provided time info on its temporal extent. Throws a 404 NotFoundException if it is
+   * not completely within the timerange of the underlying data, or a 400 BadRequestException if the
+   * timestamps are not ISO conform.
    */
-  public void checkTemporalExtend(String... timeInfo) throws NotFoundException {
+  protected void checkTemporalExtend(String... timeInfo) throws Exception {
     long start = 0;
     long end = 0;
     long timestampLong = 0;
@@ -356,19 +377,55 @@ public class InputProcessingUtils {
     end = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.toTstamp + "Z")
         .getLong(ChronoField.INSTANT_SECONDS);
     for (String timestamp : timeInfo) {
-      timestampLong =
-          DateTimeFormatter.ISO_DATE_TIME.parse(timestamp).getLong(ChronoField.INSTANT_SECONDS);
-      if (timestampLong < start || timestampLong > end) {
-        throw new NotFoundException(
-            "The given time parameter is not completely within the timeframe ("
-                + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
-                + ") of the underlying osh-data.");
+      try {
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        timestampLong =
+            DateTimeFormatter.ISO_DATE_TIME.parse(zdt.format(DateTimeFormatter.ISO_DATE_TIME))
+                .getLong(ChronoField.INSTANT_SECONDS);
+        if (timestampLong < start || timestampLong > end) {
+          throw new NotFoundException(
+              "The given time parameter is not completely within the timeframe ("
+                  + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
+                  + ") of the underlying osh-data.");
+        }
+      } catch (Exception e) {
+        if (e instanceof NotFoundException) {
+          throw e;
+        }
+        throw new BadRequestException(ExceptionMessages.timeFormat);
       }
     }
   }
 
+  /**
+   * Checks the provided time info on its ISO conformity. Throws a 400 BadRequestException if the
+   * timestamps are not ISO conform.
+   */
+  protected void checkTimestampsOnIsoConformity(String... timeInfo) throws BadRequestException {
+    for (String timestamp : timeInfo) {
+      try {
+        ISODateTimeParser.parseISODateTime(timestamp);
+      } catch (Exception e) {
+        throw new BadRequestException(ExceptionMessages.timeFormat);
+      }
+    }
+  }
+
+  /**
+   * Checks the provided period on its ISO conformity. Throws a 400 BadRequestException if it is not
+   * ISO conform.
+   */
+  protected void checkPeriodOnIsoConformity(String period) throws BadRequestException {
+    try {
+      ISODateTimeParser.parseISOPeriod(period);
+    } catch (Exception e) {
+      throw new BadRequestException(
+          "The interval (period) of the provided time parameter is not ISO-8601 conform.");
+    }
+  }
+
   /** Sorts the given timestamps from oldest to newest. */
-  public String[] sortTimestamps(String[] timestamps) throws Exception {
+  public String[] sortTimestamps(String[] timestamps) throws BadRequestException {
     List<String> timeStringList = new ArrayList<String>();
     for (String timestamp : timestamps) {
       try {
