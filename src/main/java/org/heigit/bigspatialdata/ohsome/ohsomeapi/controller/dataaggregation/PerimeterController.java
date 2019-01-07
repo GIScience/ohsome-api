@@ -128,6 +128,8 @@ public class PerimeterController {
    */
   @ApiOperation(value = "Perimeter of OSM elements in meter grouped by the boundary "
       + "(bboxes, bcircles, or bpolys)", nickname = "elementsPerimeterGroupByBoundary")
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response perimeterGroupByBoundary(
@@ -292,6 +294,8 @@ public class PerimeterController {
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
       nickname = "elementsPerimeterShareGroupByBoundary")
   @ApiImplicitParams({
+      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
@@ -389,6 +393,8 @@ public class PerimeterController {
   @ApiOperation(
       value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsPerimeterDensityGroupByBoundary")
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response perimeterDensityGroupByBoundary(
@@ -514,6 +520,8 @@ public class PerimeterController {
   @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
       nickname = "elementsPerimeterRatioGroupByBoundary")
   @ApiImplicitParams({
+      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
           required = false),

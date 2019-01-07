@@ -134,6 +134,8 @@ public class CountController {
   @ApiOperation(
       value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsCountGroupByBoundary")
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByBoundary(
@@ -295,6 +297,8 @@ public class CountController {
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR, defaultValue = "",
           paramType = "query", dataType = "string", required = true),
+      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary",
@@ -391,6 +395,8 @@ public class CountController {
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "elementsCountDensityGroupByBoundary")
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countDensityGroupByBoundary(
@@ -513,6 +519,8 @@ public class CountController {
   @ApiOperation(value = "Ratio of selected items grouped by the boundary",
       nickname = "elementsCountRatioGroupByBoundary")
   @ApiImplicitParams({
+      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "node", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
