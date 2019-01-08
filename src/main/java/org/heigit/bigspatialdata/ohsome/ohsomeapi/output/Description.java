@@ -48,12 +48,12 @@ public class Description {
   }
 
   public static String countLengthPerimeterAreaShare(String label, String unit) {
-    return "Total " + label + " of the whole and of a share of items in " + unit
+    return "Total " + label + " of the whole and of a share (= part) of items in " + unit
         + " satisfying keys2 and values2 within items selected by types, keys, values.";
   }
 
   public static String countLengthPerimeterAreaShareGroupByBoundary(String label, String unit) {
-    return "Total " + label + " of the whole and of a share of items in " + unit
+    return "Total " + label + " of the whole and of a share (= part) of items in " + unit
         + " satisfying keys2 and values2 within items selected by types, keys, values, "
         + "aggregated on the boundary.";
   }

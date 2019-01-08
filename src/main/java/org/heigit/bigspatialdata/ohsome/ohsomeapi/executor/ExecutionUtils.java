@@ -623,7 +623,7 @@ public class ExecutionUtils {
     }
     if (ProcessingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
     if (requestParameters.getFormat() != null
