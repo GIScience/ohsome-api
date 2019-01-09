@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.Polygon;
 public class GeometryBuilderTest {
 
   private GeometryBuilder geomBuilder;
+  private ProcessingData processingData = new ProcessingData(null);
 
   /** Checks the value of the junit property. */
   @BeforeClass
@@ -29,7 +30,7 @@ public class GeometryBuilderTest {
 
   @Before
   public void setup() {
-    geomBuilder = new GeometryBuilder();
+    geomBuilder = new GeometryBuilder(processingData);
   }
 
   // bboxes tests
@@ -121,7 +122,7 @@ public class GeometryBuilderTest {
         "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":"
             + "{\"id\":\"Neuenheim\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[[[8.68465,"
             + "49.41769]]]}}]}";
-    InputProcessor inputProcessor = new InputProcessor();
+    InputProcessor inputProcessor = new InputProcessor(processingData);
     geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
   }
 
@@ -135,7 +136,7 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{\"id\":\"Weststadt\"},\"geometry\":{\"type\":"
             + "\"Polygon\",\"coordinates\":[[[8.6801,49.39874],[8.6801,49.40586],[8.69615,"
             + "49.40586],[8.69615,49.39874],[8.6801,49.39874]]]}}]}";
-    InputProcessor inputProcessor = new InputProcessor();
+    InputProcessor inputProcessor = new InputProcessor(processingData);
     inputProcessor.setUtils(new InputProcessingUtils());
     Geometry geom = geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
     assertTrue(geom instanceof MultiPolygon);
@@ -151,7 +152,7 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{\"id\":\"Handschuhsheim\"},\"geometry\":"
             + "{\"type\":\"Polygon\",\"coordinates\":[[[8.67817,49.42147],[8.67817,49.4342],"
             + "[8.70053,49.4342],[8.70053,49.42147],[8.67817,49.42147]]]}}]}";
-    InputProcessor inputProcessor = new InputProcessor();
+    InputProcessor inputProcessor = new InputProcessor(processingData);
     inputProcessor.setUtils(new InputProcessingUtils());
     Geometry geom = geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
     assertTrue(geom instanceof Polygon);
@@ -169,7 +170,7 @@ public class GeometryBuilderTest {
         + "[88.03636,26.33809],[87.9784,26.34136]]]}";
     geomBuilder.createGeometryFromMetadataGeoJson(geoJson);
   }
-  
+
   @Test(expected = RuntimeException.class)
   public void createGeometryFromWrongMetadataGeoJson() {
     String geoJson = "{\"type\":\"Polygon\",\"coordinates\":[Invalid-Input]}";

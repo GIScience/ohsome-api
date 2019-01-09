@@ -1,30 +1,125 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.Collection;
 import java.util.EnumSet;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import com.vividsolutions.jts.geom.Geometry;
 
-
-/** Holds all the relevant data that is used to process the request and create the response. */
+/** Holds the relevant objects for processing the request and creating the response. */
 public class ProcessingData {
 
-  public static RequestParameters requestParameters;
-  public static String requestUrl;
-  public static BoundaryType boundary;
-  public static String[] boundaryValues;
-  public static String boundaryValuesGeoJson;
-  public static EnumSet<OSMType> osmTypes;
-  public static boolean showMetadata;
-  public static String format;
-
-  public static Geometry bboxesGeom;
-  public static Geometry bcirclesGeom;
-  public static Geometry bpolysGeom;
   public static Geometry dataPolyGeom;
-  public static Collection<Geometry> boundaryColl;
-  public static GeoJsonObject[] geoJsonGeoms;
+
+  private final RequestParameters requestParameters;
+  public String requestUrl;
+  public BoundaryType boundary;
+  public String[] boundaryValues;
+  public String boundaryValuesGeoJson;
+  public EnumSet<OSMType> osmTypes;
+  public boolean showMetadata;
+  public String format;
+  public Geometry bboxesGeom;
+  public Geometry bcirclesGeom;
+  public Geometry bpolysGeom;
+  public Collection<Geometry> boundaryColl;
+  public GeoJsonObject[] geoJsonGeoms;
+
+  public ProcessingData(RequestParameters requestParameters) {
+    this.requestParameters = requestParameters;
+  }
+
+  public RequestParameters getRequestParameters() {
+    return requestParameters;
+  }
+
+  public String getRequestUrl() {
+    return requestUrl;
+  }
+
+  public void setRequestUrl(String requestUrl) {
+    this.requestUrl = requestUrl;
+  }
+
+  public BoundaryType getBoundary() {
+    return boundary;
+  }
+
+  public void setBoundary(BoundaryType boundary) {
+    this.boundary = boundary;
+  }
+
+  public String[] getBoundaryValues() {
+    return boundaryValues;
+  }
+
+  public void setBoundaryValues(String[] boundaryValues) {
+    this.boundaryValues = boundaryValues;
+  }
+
+  public String getBoundaryValuesGeoJson() {
+    return boundaryValuesGeoJson;
+  }
+
+  public void setBoundaryValuesGeoJson(String boundaryValuesGeoJson) {
+    this.boundaryValuesGeoJson = boundaryValuesGeoJson;
+  }
+
+  public EnumSet<OSMType> getOsmTypes() {
+    return osmTypes;
+  }
+
+  public void setOsmTypes(EnumSet<OSMType> osmTypes) {
+    this.osmTypes = osmTypes;
+  }
+
+  public String getFormat() {
+    return format;
+  }
+
+  public void setFormat(String format) {
+    this.format = format;
+  }
+
+  public Geometry getBboxesGeom() {
+    return bboxesGeom;
+  }
+
+  public void setBboxesGeom(Geometry bboxesGeom) {
+    this.bboxesGeom = bboxesGeom;
+  }
+
+  public Geometry getBcirclesGeom() {
+    return bcirclesGeom;
+  }
+
+  public void setBcirclesGeom(Geometry bcirclesGeom) {
+    this.bcirclesGeom = bcirclesGeom;
+  }
+
+  public Geometry getBpolysGeom() {
+    return bpolysGeom;
+  }
+
+  public void setBpolysGeom(Geometry bpolysGeom) {
+    this.bpolysGeom = bpolysGeom;
+  }
+
+  public Collection<Geometry> getBoundaryColl() {
+    return boundaryColl;
+  }
+
+  public void setBoundaryColl(Collection<Geometry> boundaryColl) {
+    this.boundaryColl = boundaryColl;
+  }
+
+  public GeoJsonObject[] getGeoJsonGeoms() {
+    return geoJsonGeoms;
+  }
+
+  public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
+    this.geoJsonGeoms = geoJsonGeoms;
+  }
 
 }

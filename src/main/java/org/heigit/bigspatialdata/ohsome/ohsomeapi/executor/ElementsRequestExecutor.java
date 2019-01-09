@@ -83,7 +83,8 @@ public class ElementsRequestExecutor {
   public static void executeElements(RequestParameters requestParams, ElementsGeometry elemGeom,
       String[] propertiesParameter, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
     String requestUrl = null;
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
@@ -122,7 +123,7 @@ public class ElementsRequestExecutor {
       }
     }
     final MapReducer<Feature> preResult;
-    ExecutionUtils exeUtils = new ExecutionUtils();
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     preResult = mapRed.map(snapshot -> {
@@ -136,7 +137,7 @@ public class ElementsRequestExecutor {
     });
     Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
@@ -154,15 +155,16 @@ public class ElementsRequestExecutor {
    * @param response <code>HttpServletResponse</code> object, which is used to send the response as
    *        a stream.
    */
-  public static void executeElementsFullHistory(RequestParameters contributionRequestParams,
+  public static void executeElementsFullHistory(RequestParameters requestParams,
       ElementsGeometry elemGeom, String[] propertiesParameter, HttpServletResponse response)
       throws UnsupportedOperationException, Exception {
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
     String requestUrl = null;
-    if (!contributionRequestParams.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    if (contributionRequestParams.getTime().length != 2) {
+    if (requestParams.getTime().length != 2) {
       throw new BadRequestException("Wrong time parameter. You need to give exactly "
           + "two timestamps that are ISO-8601 conform, if you want to use this resource.");
     }
@@ -170,12 +172,10 @@ public class ElementsRequestExecutor {
     MapReducer<OSMContribution> mapRedContribution = null;
 
     RequestParameters snapshotRequestParams =
-        new RequestParameters(contributionRequestParams.getRequestMethod(), true,
-            contributionRequestParams.isDensity(), contributionRequestParams.getBboxes(),
-            contributionRequestParams.getBcircles(), contributionRequestParams.getBpolys(),
-            contributionRequestParams.getTypes(), contributionRequestParams.getKeys(),
-            contributionRequestParams.getValues(), contributionRequestParams.getUserids(),
-            contributionRequestParams.getTime(), contributionRequestParams.getShowMetadata());
+        new RequestParameters(requestParams.getRequestMethod(), true, requestParams.isDensity(),
+            requestParams.getBboxes(), requestParams.getBcircles(), requestParams.getBpolys(),
+            requestParams.getTypes(), requestParams.getKeys(), requestParams.getValues(),
+            requestParams.getUserids(), requestParams.getTime(), requestParams.getShowMetadata());
 
     boolean noFinalIncludeTags = false;
     boolean noFinalIncludeOSMMetadata = false;
@@ -199,14 +199,14 @@ public class ElementsRequestExecutor {
         dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
       mapRedSnapshot = inputProcessor.processParameters(snapshotRequestParams);
-      mapRedContribution = inputProcessor.processParameters(contributionRequestParams);
+      mapRedContribution = inputProcessor.processParameters(requestParams);
       dbIgnite.computeMode(previousComputeMode);
     } else {
       mapRedSnapshot = inputProcessor.processParameters(snapshotRequestParams);
-      mapRedContribution = inputProcessor.processParameters(contributionRequestParams);
+      mapRedContribution = inputProcessor.processParameters(requestParams);
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys = contributionRequestParams.getKeys();
+    String[] keys = requestParams.getKeys();
     int[] keysInt = new int[keys.length];
     if (keys.length != 0) {
       for (int i = 0; i < keys.length; i++) {
@@ -214,13 +214,13 @@ public class ElementsRequestExecutor {
       }
     }
     MapReducer<Feature> contributionPreResult = null;
-    ExecutionUtils exeUtils = new ExecutionUtils();
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     GeoJSONWriter gjw = new GeoJSONWriter();
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     String startTimestampWithZ =
-        ISODateTimeParser.parseISODateTime(contributionRequestParams.getTime()[0]).toString();
+        ISODateTimeParser.parseISODateTime(requestParams.getTime()[0]).toString();
     String endTimestampWithZ =
-        ISODateTimeParser.parseISODateTime(contributionRequestParams.getTime()[1]).toString();
+        ISODateTimeParser.parseISODateTime(requestParams.getTime()[1]).toString();
     String startTimestamp = startTimestampWithZ.substring(0, startTimestampWithZ.length() - 1);
     String endTimestamp = endTimestampWithZ.substring(0, endTimestampWithZ.length() - 1);
 
@@ -304,7 +304,7 @@ public class ElementsRequestExecutor {
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
 
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.", requestUrl);
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
@@ -333,7 +333,8 @@ public class ElementsRequestExecutor {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
     String requestUrl = null;
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
@@ -368,13 +369,13 @@ public class ElementsRequestExecutor {
       default:
         break;
     }
-    ExecutionUtils exeUtils = new ExecutionUtils();
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    Geometry geom = inputProcessor.getGeometry();
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ElementsResult[] resultSet =
         exeUtils.fillElementsResult(result, requestParams.isDensity(), df, geom);
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata =
           new Metadata(duration, Description.countLengthPerimeterArea(requestParams.isDensity(),
@@ -404,10 +405,9 @@ public class ElementsRequestExecutor {
       RequestResource requestResource, RequestParameters requestParams)
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);InputProcessor inputProcessor = new InputProcessor(processingData);ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
@@ -418,19 +418,19 @@ public class ElementsRequestExecutor {
       case COUNT:
       default:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            ProcessingData.boundary, mapRed);
+            processingData.boundary, mapRed);
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            ProcessingData.boundary, mapRed);
+            processingData.boundary, mapRed);
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            ProcessingData.boundary, mapRed);
+            processingData.boundary, mapRed);
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            ProcessingData.boundary, mapRed);
+            processingData.boundary, mapRed);
         break;
     }
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
@@ -440,7 +440,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     String[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    ArrayList<Geometry> boundaries = new ArrayList<>(ProcessingData.boundaryColl);
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.boundaryColl);
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
@@ -450,7 +450,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByBoundary(requestParams.isDensity(),
@@ -461,7 +461,7 @@ public class ElementsRequestExecutor {
         && requestParams.getFormat().equalsIgnoreCase("geojson")) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.apiVersion, metadata,
           "FeatureCollection",
-          exeUtils.createGeoJsonFeatures(resultSet, ProcessingData.geoJsonGeoms));
+          exeUtils.createGeoJsonFeatures(resultSet, processingData.geoJsonGeoms));
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
         resultSet);
@@ -485,9 +485,10 @@ public class ElementsRequestExecutor {
   public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
       RequestParameters requestParams) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ArrayList<Integer> useridsInt = new ArrayList<Integer>();
@@ -519,7 +520,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
@@ -551,9 +552,10 @@ public class ElementsRequestExecutor {
     if (groupByKey == null || groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.groupByKeyParam);
     }
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
@@ -600,7 +602,7 @@ public class ElementsRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
+    Geometry geom = inputProcessor.getGeometry();
     int count = 0;
     for (Entry<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -618,7 +620,7 @@ public class ElementsRequestExecutor {
     // used to remove null objects from the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByTag(requestParams.isDensity(),
@@ -648,9 +650,10 @@ public class ElementsRequestExecutor {
   public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
       RequestParameters requestParams) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
@@ -661,13 +664,13 @@ public class ElementsRequestExecutor {
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }, ProcessingData.osmTypes);
+        }, processingData.osmTypes);
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, ? extends Number> result;
     result = exeUtils.computeResult(requestResource, preResult);
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
+    Geometry geom = inputProcessor.getGeometry();
     int count = 0;
     for (Entry<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -677,7 +680,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(requestParams.isDensity(),
@@ -711,9 +714,10 @@ public class ElementsRequestExecutor {
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(ExceptionMessages.groupByKeysParam);
     }
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
@@ -764,7 +768,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
@@ -793,9 +797,10 @@ public class ElementsRequestExecutor {
       RequestParameters requestParams, String[] types2, String[] keys2, String[] values2,
       boolean isShare) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     TagTranslator tt = DbConnData.tagTranslator;
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
@@ -826,9 +831,9 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = ProcessingData.osmTypes;
+    EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
     inputProcessor.defineOSMTypes(types2);
-    EnumSet<OSMType> osmTypes2 = ProcessingData.osmTypes;
+    EnumSet<OSMType> osmTypes2 = processingData.osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
@@ -923,20 +928,21 @@ public class ElementsRequestExecutor {
       String[] keys2, String[] values2, boolean isShare)
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
     requestParams = inputProcessor.fillWithEmptyIfNull(requestParams);
     inputProcessor.processParameters(requestParams);
-    if (ProcessingData.boundary == BoundaryType.NOBOUNDARY) {
+    if (processingData.boundary == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
-    final GeoJsonObject[] geoJsonGeoms = ProcessingData.geoJsonGeoms;
+    final GeoJsonObject[] geoJsonGeoms = processingData.geoJsonGeoms;
     inputProcessor.checkKeysValues(keys2, values2);
     Pair<String[], String[]> keys2Vals2 =
         inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParams);
@@ -962,9 +968,9 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = ProcessingData.osmTypes;
+    EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
     inputProcessor.defineOSMTypes(types2);
-    EnumSet<OSMType> osmTypes2 = ProcessingData.osmTypes;
+    EnumSet<OSMType> osmTypes2 = processingData.osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
@@ -986,7 +992,7 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters(requestParams);
       mapRed = mapRed.osmType(osmTypes);
     }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(ProcessingData.boundaryColl);
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.boundaryColl);
     ArrayList<MatchType> zeroFill = new ArrayList<>();
     for (int j = 0; j < arrGeoms.size(); j++) {
       zeroFill.add(MatchType.MATCHESBOTH);

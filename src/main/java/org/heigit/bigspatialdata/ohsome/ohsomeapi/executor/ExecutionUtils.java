@@ -73,6 +73,11 @@ import com.vividsolutions.jts.geom.Polygonal;
 public class ExecutionUtils {
 
   AtomicReference<Boolean> isFirst;
+  private final ProcessingData processingData;
+
+  public ExecutionUtils(ProcessingData processingData) {
+    this.processingData = processingData;
+  }
 
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse response, DataResponse osmData,
@@ -131,34 +136,6 @@ public class ExecutionUtils {
     return decForm;
   }
 
-  /**
-   * Gets the geometry from the currently in-use boundary object(s).
-   * 
-   * @param boundary <code>BoundaryType</code> object (NOBOUNDARY, BBOXES, BCIRCLES, BPOLYS).
-   * @param geomBuilder <code>GeometryBuilder</code> object.
-   * @return <code>Geometry</code> object of the used boundary parameter.
-   */
-  public Geometry getGeometry(BoundaryType boundary) {
-    Geometry geom;
-    switch (boundary) {
-      case NOBOUNDARY:
-        geom = ProcessingData.dataPolyGeom;
-        break;
-      case BBOXES:
-        geom = ProcessingData.bboxesGeom;
-        break;
-      case BCIRCLES:
-        geom = ProcessingData.bcirclesGeom;
-        break;
-      case BPOLYS:
-        geom = ProcessingData.bpolysGeom;
-        break;
-      default:
-        geom = null;
-    }
-    return geom;
-  }
-
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
@@ -211,7 +188,7 @@ public class ExecutionUtils {
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(ProcessingData.boundaryColl);
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.boundaryColl);
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
@@ -540,7 +517,7 @@ public class ExecutionUtils {
         resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
       }
       Metadata metadata = null;
-      if (ProcessingData.showMetadata) {
+      if (processingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
@@ -553,7 +530,7 @@ public class ExecutionUtils {
         resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
       }
       Metadata metadata = null;
-      if (ProcessingData.showMetadata) {
+      if (processingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
@@ -596,7 +573,7 @@ public class ExecutionUtils {
         }
         groupByResultSet[i] = new RatioGroupByResult(groupByName, resultSet);
       }
-      if (ProcessingData.showMetadata) {
+      if (processingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
@@ -621,7 +598,7 @@ public class ExecutionUtils {
       }
       groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
     }
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);

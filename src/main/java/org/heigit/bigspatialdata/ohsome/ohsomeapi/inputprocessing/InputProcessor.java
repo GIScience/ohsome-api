@@ -46,6 +46,11 @@ public class InputProcessor {
 
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
+  private final ProcessingData processingData;
+
+  public InputProcessor(ProcessingData processingData) {
+    this.processingData = processingData;
+  }
 
   /**
    * Processes the input parameters from the given request.
@@ -61,8 +66,8 @@ public class InputProcessor {
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
       RequestParameters requestParameters) throws Exception {
-    ProcessingData.format = requestParameters.getFormat();
-    geomBuilder = new GeometryBuilder();
+    processingData.format = requestParameters.getFormat();
+    geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
     String bboxes = requestParameters.getBboxes();
     String bcircles = requestParameters.getBcircles();
@@ -97,22 +102,22 @@ public class InputProcessor {
     }
     String showMetadata = requestParameters.getShowMetadata();
     if (showMetadata == null) {
-      ProcessingData.showMetadata = false;
+      processingData.showMetadata = false;
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
         || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes")) {
-      ProcessingData.showMetadata = true;
+      processingData.showMetadata = true;
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
         || showMetadata.replaceAll("\\s", "").equals("")
         || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no")) {
-      ProcessingData.showMetadata = false;
+      processingData.showMetadata = false;
     } else {
       throw new BadRequestException(
           "The showMetadata parameter can only contain the values 'true', 'yes', 'false', or "
               + "'no'.");
     }
-    ProcessingData.boundary = setBoundaryType(bboxes, bcircles, bpolys);
+    processingData.boundary = setBoundaryType(bboxes, bcircles, bpolys);
     try {
-      switch (ProcessingData.boundary) {
+      switch (processingData.boundary) {
         case NOBOUNDARY:
           if (ExtractMetadata.dataPoly == null) {
             throw new BadRequestException(
@@ -121,23 +126,23 @@ public class InputProcessor {
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
-          ProcessingData.boundaryValues = utils.splitBboxes(bboxes).toArray(new String[] {});
+          processingData.boundaryValues = utils.splitBboxes(bboxes).toArray(new String[] {});
           mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createBboxes(ProcessingData.boundaryValues));
+              (Geometry & Polygonal) geomBuilder.createBboxes(processingData.boundaryValues));
           break;
         case BCIRCLES:
-          ProcessingData.boundaryValues = utils.splitBcircles(bcircles).toArray(new String[] {});
+          processingData.boundaryValues = utils.splitBcircles(bcircles).toArray(new String[] {});
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
-              .createCircularPolygons(ProcessingData.boundaryValues));
+              .createCircularPolygons(processingData.boundaryValues));
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
           } else {
-            ProcessingData.boundaryValues = utils.splitBpolys(bpolys).toArray(new String[] {});
+            processingData.boundaryValues = utils.splitBpolys(bpolys).toArray(new String[] {});
             mapRed = mapRed.areaOfInterest(
-                (Geometry & Polygonal) geomBuilder.createBpolys(ProcessingData.boundaryValues));
+                (Geometry & Polygonal) geomBuilder.createBpolys(processingData.boundaryValues));
           }
           break;
         default:
@@ -148,10 +153,10 @@ public class InputProcessor {
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) "
               + "cannot be processed.");
     }
-    checkFormat(ProcessingData.format);
-    if (ProcessingData.format != null && ProcessingData.format.equalsIgnoreCase("geojson")) {
+    checkFormat(processingData.format);
+    if (processingData.format != null && processingData.format.equalsIgnoreCase("geojson")) {
       GeoJSONWriter writer = new GeoJSONWriter();
-      Collection<Geometry> boundaryColl = ProcessingData.boundaryColl;
+      Collection<Geometry> boundaryColl = processingData.boundaryColl;
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
       for (int i = 0; i < geoJsonGeoms.length; i++) {
         try {
@@ -163,10 +168,10 @@ public class InputProcessor {
                   + "for the creation of the response GeoJSON.");
         }
       }
-      ProcessingData.geoJsonGeoms = geoJsonGeoms;
+      processingData.geoJsonGeoms = geoJsonGeoms;
     }
     defineOSMTypes(types);
-    mapRed = mapRed.osmType(ProcessingData.osmTypes);
+    mapRed = mapRed.osmType(processingData.osmTypes);
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
     if (userids.length != 0) {
@@ -196,16 +201,16 @@ public class InputProcessor {
     types = createEmptyArrayIfNull(types);
     checkOSMTypes(types);
     if (types.length == 0) {
-      ProcessingData.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
+      processingData.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
     } else {
-      ProcessingData.osmTypes = EnumSet.noneOf(OSMType.class);
+      processingData.osmTypes = EnumSet.noneOf(OSMType.class);
       for (String type : types) {
         if (type.equalsIgnoreCase("node")) {
-          ProcessingData.osmTypes.add(OSMType.NODE);
+          processingData.osmTypes.add(OSMType.NODE);
         } else if (type.equalsIgnoreCase("way")) {
-          ProcessingData.osmTypes.add(OSMType.WAY);
+          processingData.osmTypes.add(OSMType.WAY);
         } else {
-          ProcessingData.osmTypes.add(OSMType.RELATION);
+          processingData.osmTypes.add(OSMType.RELATION);
         }
       }
     }
@@ -555,9 +560,33 @@ public class InputProcessor {
     }
   }
 
-  /*
-   * Getters start here
+  /**
+   * Gets the geometry from the currently in-use boundary object(s).
+   * 
+   * @param boundary <code>BoundaryType</code> object (NOBOUNDARY, BBOXES, BCIRCLES, BPOLYS).
+   * @param geomBuilder <code>GeometryBuilder</code> object.
+   * @return <code>Geometry</code> object of the used boundary parameter.
    */
+  public Geometry getGeometry() {
+    Geometry geom;
+    switch (processingData.boundary) {
+      case NOBOUNDARY:
+        geom = ProcessingData.dataPolyGeom;
+        break;
+      case BBOXES:
+        geom = processingData.bboxesGeom;
+        break;
+      case BCIRCLES:
+        geom = processingData.bcirclesGeom;
+        break;
+      case BPOLYS:
+        geom = processingData.bpolysGeom;
+        break;
+      default:
+        geom = null;
+    }
+    return geom;
+  }
 
   public GeometryBuilder getGeomBuilder() {
     return geomBuilder;
@@ -569,5 +598,9 @@ public class InputProcessor {
 
   public void setUtils(InputProcessingUtils utils) {
     this.utils = utils;
+  }
+
+  public ProcessingData getProcessingData() {
+    return processingData;
   }
 }

@@ -48,41 +48,42 @@ public class UsersRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
+   * @param requestParams <code>requestParams</code> object, which holds those parameters that are
+   *        used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    */
-  public static Response executeCount(RequestParameters requestParameters)
+  public static Response executeCount(RequestParameters requestParams)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
     String requestUrl = null;
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters(requestParams);
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();
     }).countUniq();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     Geometry geom = null;
-    if (requestParameters.isDensity()) {
+    if (requestParams.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer).";
-      geom = exeUtils.getGeometry(ProcessingData.boundary);
+      geom = inputProcessor.getGeometry();
     } else {
       description = "Number of distinct users per time interval.";
     }
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
+        exeUtils.fillUsersResult(result, requestParams.isDensity(), toTimestamps, df, geom);
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -99,44 +100,45 @@ public class UsersRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
    * count} method.
    * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
+   * @param requestParams <code>requestParams</code> object, which holds those parameters that are
+   *        used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  public static Response executeCountGroupByType(RequestParameters requestParameters)
+  public static Response executeCountGroupByType(RequestParameters requestParams)
       throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
-    ExecutionUtils exeUtils = new ExecutionUtils();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters(requestParams);
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
-        }, ProcessingData.osmTypes).map(contrib -> {
+        }, processingData.osmTypes).map(contrib -> {
           return contrib.getContributorUserId();
         }).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
+    Geometry geom = inputProcessor.getGeometry();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, geom);
+      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(), requestParams.isDensity(),
+          toTimestamps, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
-    if (requestParameters.isDensity()) {
+    if (requestParams.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer) "
               + "aggregated on the type.";
@@ -144,7 +146,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the type.";
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -161,24 +163,25 @@ public class UsersRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
    * countGroupByTag} method.
    * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
+   * @param requestParams <code>requestParams</code> object, which holds those parameters that are
+   *        used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  public static Response executeCountGroupByTag(RequestParameters requestParameters,
+  public static Response executeCountGroupByTag(RequestParameters requestParams,
       String[] groupByKey, String[] groupByValues) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     if (groupByKey == null || groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.groupByKeyParam);
     }
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     if (groupByValues == null) {
@@ -187,7 +190,7 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters(requestParams);
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -227,13 +230,13 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    Geometry geom = exeUtils.getGeometry(ProcessingData.boundary);
+    Geometry geom = inputProcessor.getGeometry();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, geom);
+      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(), requestParams.isDensity(),
+          toTimestamps, df, geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -243,7 +246,7 @@ public class UsersRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    if (requestParameters.isDensity()) {
+    if (requestParams.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer) "
               + "aggregated on the tag.";
@@ -251,7 +254,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the tag.";
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
@@ -268,28 +271,29 @@ public class UsersRequestExecutor {
    * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
    * countGroupByKey} method.
    * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
+   * @param requestParams <code>requestParams</code> object, which holds those parameters that are
+   *        used in every request.
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  public static Response executeCountGroupByKey(RequestParameters requestParameters,
+  public static Response executeCountGroupByKey(RequestParameters requestParams,
       String[] groupByKeys) throws UnsupportedOperationException, Exception {
     long startTime = System.currentTimeMillis();
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(ExceptionMessages.groupByKeysParam);
     }
-    ExecutionUtils exeUtils = new ExecutionUtils();
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor();
+    ProcessingData processingData = new ProcessingData(requestParams);
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!requestParams.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters(requestParams);
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
@@ -321,8 +325,8 @@ public class UsersRequestExecutor {
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, null);
+      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(), requestParams.isDensity(),
+          toTimestamps, df, null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -332,7 +336,7 @@ public class UsersRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    if (requestParameters.isDensity()) {
+    if (requestParams.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer) "
               + "aggregated on the key.";
@@ -340,7 +344,7 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the key.";
     }
     Metadata metadata = null;
-    if (ProcessingData.showMetadata) {
+    if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }

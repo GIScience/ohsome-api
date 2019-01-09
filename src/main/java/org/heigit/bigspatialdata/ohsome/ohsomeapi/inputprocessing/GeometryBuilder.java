@@ -37,6 +37,11 @@ import com.vividsolutions.jts.geom.Polygon;
 public class GeometryBuilder {
 
   GeometryFactory gf;
+  private final ProcessingData processingData;
+
+  public GeometryBuilder(ProcessingData processingData) {
+    this.processingData = processingData;
+  }
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
@@ -76,8 +81,8 @@ public class GeometryBuilder {
       if (utils.isWithin(unifiedBbox) == false) {
         throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
-      ProcessingData.boundaryColl = geometryColl;
-      ProcessingData.bboxesGeom = unifiedBbox;
+      processingData.boundaryColl = geometryColl;
+      processingData.bboxesGeom = unifiedBbox;
       return unifiedBbox;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
@@ -125,8 +130,8 @@ public class GeometryBuilder {
             throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
           }
           geometryCollection.add(geom);
-          ProcessingData.boundaryColl = geometryCollection;
-          ProcessingData.bcirclesGeom = geom;
+          processingData.boundaryColl = geometryCollection;
+          processingData.bcirclesGeom = geom;
           return geom;
         }
         geometryCollection.add(geom);
@@ -136,8 +141,8 @@ public class GeometryBuilder {
       if (utils.isWithin(unifiedBCircles) == false) {
         throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
-      ProcessingData.boundaryColl = geometryCollection;
-      ProcessingData.bcirclesGeom = unifiedBCircles;
+      processingData.boundaryColl = geometryCollection;
+      processingData.bcirclesGeom = unifiedBCircles;
       return unifiedBCircles;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {
@@ -179,8 +184,8 @@ public class GeometryBuilder {
         throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
       geometries.add(bpoly);
-      ProcessingData.boundaryColl = geometries;
-      ProcessingData.bpolysGeom = bpoly;
+      processingData.boundaryColl = geometries;
+      processingData.bpolysGeom = bpoly;
       return bpoly;
     }
     Coordinate firstPoint;
@@ -213,8 +218,8 @@ public class GeometryBuilder {
       }
       Geometry unifiedBPolys =
           geomFact.createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
-      ProcessingData.boundaryColl = geometries;
-      ProcessingData.bpolysGeom = unifiedBPolys;
+      processingData.boundaryColl = geometries;
+      processingData.bpolysGeom = unifiedBPolys;
       return unifiedBPolys;
     } catch (NumberFormatException | MismatchedDimensionException e) {
       throw new BadRequestException(ExceptionMessages.bpolysFormat);
@@ -301,11 +306,15 @@ public class GeometryBuilder {
         throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
       }
     }
-    ProcessingData.geoJsonGeoms = geoJsonGeoms;
-    ProcessingData.boundaryColl = geometryCollection;
+    processingData.geoJsonGeoms = geoJsonGeoms;
+    processingData.boundaryColl = geometryCollection;
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
     return result;
+  }
+
+  public ProcessingData getprocessingData() {
+    return processingData;
   }
 
 }
