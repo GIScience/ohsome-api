@@ -42,6 +42,10 @@ public class GeometryBuilder {
   public GeometryBuilder(ProcessingData processingData) {
     this.processingData = processingData;
   }
+  
+  public GeometryBuilder() {
+    this.processingData = null;
+  }
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given

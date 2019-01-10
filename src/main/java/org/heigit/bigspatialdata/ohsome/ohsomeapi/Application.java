@@ -161,7 +161,7 @@ public class Application implements ApplicationRunner {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
       ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
-      GeometryBuilder geomBuilder = new GeometryBuilder(null);
+      GeometryBuilder geomBuilder = new GeometryBuilder();
       geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
       ExtractMetadata.dataPoly = ProcessingData.dataPolyGeom;
     }
