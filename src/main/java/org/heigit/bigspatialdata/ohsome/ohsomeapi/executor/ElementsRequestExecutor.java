@@ -436,9 +436,9 @@ public class ElementsRequestExecutor {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    String groupByName = "";
+    Object groupByName;
     InputProcessingUtils utils = inputProcessor.getUtils();
-    String[] boundaryIds = utils.getBoundaryIds();
+    Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.boundaryColl);
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
@@ -1047,7 +1047,7 @@ public class ElementsRequestExecutor {
     SortedMap<MatchType, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> groupByResult;
     InputProcessingUtils utils = inputProcessor.getUtils();
     groupByResult = ExecutionUtils.nest(result);
-    String[] boundaryIds = utils.getBoundaryIds();
+    Object[] boundaryIds = utils.getBoundaryIds();
     Double[] resultValues1 = null;
     Double[] resultValues2 = null;
     String[] timeArray = null;

@@ -257,7 +257,7 @@ public class GeometryBuilder {
       throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
     }
     JsonArray features = root.getJsonArray("features");
-    String[] boundaryIds = new String[features.size()];
+    Object[] boundaryIds = new Object[features.size()];
     GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[features.size()];
     int count = 0;
     for (JsonValue featureVal : features) {
@@ -265,10 +265,18 @@ public class GeometryBuilder {
       JsonObject properties = feature.getJsonObject("properties");
       try {
         if (feature.containsKey("id")) {
-          boundaryIds[count] = feature.getString("id");
+          if (feature.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
+            boundaryIds[count] = feature.getString("id");
+          } else {
+            boundaryIds[count] = feature.getInt("id");
+          }
           count++;
         } else if (properties.containsKey("id")) {
-          boundaryIds[count] = properties.getString("id");
+          if (properties.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
+            boundaryIds[count] = properties.getString("id");
+          } else {
+            boundaryIds[count] = properties.getInt("id");
+          }
           count++;
         } else {
           boundaryIds[count] = "feature" + String.valueOf(count + 1);
@@ -276,7 +284,7 @@ public class GeometryBuilder {
         }
       } catch (Exception e) {
         throw new BadRequestException(
-            "The provided custom id(s) must be of the data type String and unique.");
+            "The provided custom id(s) could not be parsed.");
       }
       JsonObject geomObj = feature.getJsonObject("geometry");
       if (!geomObj.getString("type").equals("Polygon")

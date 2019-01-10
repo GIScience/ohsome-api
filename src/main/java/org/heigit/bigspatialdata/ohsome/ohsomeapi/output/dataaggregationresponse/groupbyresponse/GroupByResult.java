@@ -12,16 +12,16 @@ import io.swagger.annotations.ApiModelProperty;
 public class GroupByResult {
 
   @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
-  private String groupByObject;
+  private Object groupByObject;
   @ApiModelProperty(notes = "ElementsResult array holding timestamp-value pairs", required = true)
   private Result[] result;
 
-  public GroupByResult(String groupByObject, Result[] result) {
-    this.groupByObject = groupByObject;
+  public GroupByResult(Object groupByName, Result[] result) {
+    this.groupByObject = groupByName;
     this.result = result;
   }
 
-  public String getGroupByObject() {
+  public Object getGroupByObject() {
     return groupByObject;
   }
 

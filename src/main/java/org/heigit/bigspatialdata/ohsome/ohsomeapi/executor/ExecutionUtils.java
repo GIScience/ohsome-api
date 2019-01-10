@@ -341,7 +341,7 @@ public class ExecutionUtils {
     for (int i = 0; i < featuresLength; i++) {
       ElementsResult result =
           (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
-      String groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
+      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
       feature.setId(groupByBoundaryId + "@" + tstamp);
@@ -375,7 +375,7 @@ public class ExecutionUtils {
     for (int i = 0; i < featuresLength; i++) {
       RatioResult result =
           (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
-      String groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
+      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
       feature.setId(groupByBoundaryId + "@" + tstamp);
@@ -411,7 +411,7 @@ public class ExecutionUtils {
     for (int i = 0; i < featuresLength; i++) {
       ShareResult result =
           (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
-      String groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
+      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
       String tstamp = result.getTimestamp();
       Feature feature = new Feature();
       feature.setId(groupByBoundaryId + "@" + tstamp);
@@ -546,7 +546,7 @@ public class ExecutionUtils {
    * the <code>isShare</code> parameter.
    */
   public Response createRatioShareGroupByBoundaryResponse(boolean isShare,
-      RequestParameters requestParameters, String[] boundaryIds, String[] timeArray,
+      RequestParameters requestParameters, Object[] boundaryIds, String[] timeArray,
       Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf, long startTime,
       RequestResource reqRes, String requestUrl, Attribution attribution,
       GeoJsonObject[] geoJsonGeoms) {
@@ -556,7 +556,7 @@ public class ExecutionUtils {
     if (!isShare) {
       RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
       for (int i = 0; i < boundaryIdsLength; i++) {
-        String groupByName = boundaryIds[i];
+        Object groupByName = boundaryIds[i];
         RatioResult[] resultSet = new RatioResult[timeArrayLenth];
         int innerCount = 0;
         for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
@@ -588,7 +588,7 @@ public class ExecutionUtils {
     }
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
     for (int i = 0; i < boundaryIdsLength; i++) {
-      String groupByName = boundaryIds[i];
+      Object groupByName = boundaryIds[i];
       ShareResult[] resultSet = new ShareResult[timeArrayLenth];
       int innerCount = 0;
       for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {

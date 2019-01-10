@@ -16,17 +16,17 @@ import io.swagger.annotations.ApiModelProperty;
 public class ShareGroupByResult {
 
   @ApiModelProperty(notes = "Object on which the share-results are grouped on", required = true)
-  private String groupByObject;
+  private Object groupByObject;
   @ApiModelProperty(notes = "ShareResult array holding timestamp, whole and part values",
       required = true)
   private ShareResult[] shareResult;
 
-  public ShareGroupByResult(String groupByObject, ShareResult[] shareResult) {
+  public ShareGroupByResult(Object groupByObject, ShareResult[] shareResult) {
     this.groupByObject = groupByObject;
     this.shareResult = shareResult;
   }
 
-  public String getGroupByObject() {
+  public Object getGroupByObject() {
     return groupByObject;
   }
 

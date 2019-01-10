@@ -13,17 +13,17 @@ import io.swagger.annotations.ApiModelProperty;
 public class RatioGroupByResult {
 
   @ApiModelProperty(notes = "Object on which the ratio-results are grouped on", required = true)
-  private String groupByObject;
+  private Object groupByObject;
   @ApiModelProperty(notes = "RatioResult array holding timestamp, whole and part values",
       required = true)
   private RatioResult[] ratioResult;
 
-  public RatioGroupByResult(String groupByObject, RatioResult[] ratioResult) {
+  public RatioGroupByResult(Object groupByObject, RatioResult[] ratioResult) {
     this.groupByObject = groupByObject;
     this.ratioResult = ratioResult;
   }
 
-  public String getGroupByObject() {
+  public Object getGroupByObject() {
     return groupByObject;
   }
 

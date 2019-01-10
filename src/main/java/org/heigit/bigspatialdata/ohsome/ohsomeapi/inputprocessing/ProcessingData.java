@@ -11,7 +11,6 @@ import com.vividsolutions.jts.geom.Geometry;
 public class ProcessingData {
 
   public static Geometry dataPolyGeom;
-
   private final RequestParameters requestParameters;
   public String requestUrl;
   public BoundaryType boundary;

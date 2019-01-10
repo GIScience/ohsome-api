@@ -18,7 +18,7 @@ import com.vividsolutions.jts.geom.Geometry;
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
 
-  private String[] boundaryIds;
+  private Object[] boundaryIds;
   private String[] toTimestamps = null;
 
   /**
@@ -469,7 +469,7 @@ public class InputProcessingUtils {
     return toTimestamps;
   }
 
-  public String[] getBoundaryIds() {
+  public Object[] getBoundaryIds() {
     return boundaryIds;
   }
 
@@ -477,7 +477,7 @@ public class InputProcessingUtils {
     return toTimestamps;
   }
 
-  public void setBoundaryIds(String[] boundaryIds) {
+  public void setBoundaryIds(Object[] boundaryIds) {
     this.boundaryIds = boundaryIds;
   }
 
