@@ -56,7 +56,7 @@ public class ElementsController {
     ElementsRequestExecutor.executeElements(
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
         ElementsGeometry.RAW, properties, response);
   }
 
@@ -92,7 +92,7 @@ public class ElementsController {
     ElementsRequestExecutor.executeElements(
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
         ElementsGeometry.BBOX, properties, response);
   }
 
@@ -128,7 +128,7 @@ public class ElementsController {
     ElementsRequestExecutor.executeElements(
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
         ElementsGeometry.CENTROID, properties, response);
   }
 }

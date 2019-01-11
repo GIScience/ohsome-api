@@ -6,6 +6,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,6 +33,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
@@ -65,6 +68,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.opencsv.CSVWriter;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
@@ -80,7 +84,7 @@ public class ExecutionUtils {
   }
 
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
-  public void streamElementsResponse(HttpServletResponse response, DataResponse osmData,
+  public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
       Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
 
@@ -95,9 +99,9 @@ public class ExecutionUtils {
 
     String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
 
-    response.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
-    response.setContentType("application/geo+json; charset=utf-8");
-    ServletOutputStream outputStream = response.getOutputStream();
+    servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
+    servletResponse.setContentType("application/geo+json; charset=utf-8");
+    ServletOutputStream outputStream = servletResponse.getOutputStream();
     outputStream.write(scaffold.getBytes("UTF-8"));
 
     ThreadLocal<ByteArrayOutputStream> outputBuffers =
@@ -119,7 +123,102 @@ public class ExecutionUtils {
     snapshotStream =
         writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
     outputStream.print("\n  ]\n}\n");
-    response.flushBuffer();
+    servletResponse.flushBuffer();
+  }
+
+  /** Sends a response in the csv format for /groupBy requests. */
+  public void sendCsvResponse(GroupByResult[] resultSet, HttpServletResponse servletResponse,
+      List<String[]> comments) {
+    CSVWriter writer;
+    try {
+      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
+          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+      writer.writeAll(comments);
+      writer.writeNext(new String[] {"groupByObject", "timestamp", "value"});
+      for (GroupByResult groupByResult : resultSet) {
+        for (Result result : groupByResult.getResult()) {
+          ElementsResult elemResult = (ElementsResult) result;
+          writer.writeNext(new String[] {groupByResult.getGroupByObject().toString(),
+              elemResult.getTimestamp(), String.valueOf(elemResult.getValue())});
+        }
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** Sends a response in the csv format for /count|length|perimeter|area(/density) requests. */
+  public void sendCsvResponse(ElementsResult[] resultSet, HttpServletResponse servletResponse,
+      List<String[]> comments) {
+    CSVWriter writer;
+    try {
+      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
+          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+      writer.writeAll(comments);
+      writer.writeNext(new String[] {"timestamp", "value"});
+      for (ElementsResult elementsResult : resultSet) {
+        writer.writeNext(new String[] {elementsResult.getTimestamp(),
+            String.valueOf(elementsResult.getValue())});
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** Sends a response in the csv format for /share requests. */
+  public void sendCsvResponse(ShareResult[] resultSet, HttpServletResponse servletResponse,
+      List<String[]> comments) {
+    CSVWriter writer;
+    try {
+      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
+          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+      writer.writeAll(comments);
+      writer.writeNext(new String[] {"timestamp", "whole", "part"});
+      for (ShareResult shareResult : resultSet) {
+        writer.writeNext(new String[] {shareResult.getTimestamp(),
+            String.valueOf(shareResult.getWhole()), String.valueOf(shareResult.getPart())});
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** Sends a response in the csv format for /ratio requests. */
+  public void sendCsvResponse(RatioResult[] resultSet, HttpServletResponse servletResponse,
+      List<String[]> comments) {
+    CSVWriter writer;
+    try {
+      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
+          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+      writer.writeAll(comments);
+      writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
+      for (RatioResult ratioResult : resultSet) {
+        writer.writeNext(
+            new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
+                String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
+  public List<String[]> createCsvTopComments(String url, String text, String apiVersion,
+      Metadata metadata) {
+    List<String[]> comments = new LinkedList<String[]>();
+    comments.add(new String[] {"# Copyright URL: " + url});
+    comments.add(new String[] {"# Copyright Text: " + text});
+    comments.add(new String[] {"# API Version: " + apiVersion});
+    if (metadata != null) {
+      comments.add(new String[] {"# Execution Time: " + metadata.getExecutionTime()});
+      comments.add(new String[] {"# Description: " + metadata.getDescription()});
+      comments.add(new String[] {"# Request URL: " + metadata.getRequestUrl()});
+    }
+    return comments;
   }
 
   /**
@@ -502,7 +601,8 @@ public class ExecutionUtils {
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
   public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
       Double[] value2, DecimalFormat df, long startTime, RequestResource reqRes, String requestUrl,
-      Attribution attribution) {
+      RequestParameters requestParameters, Attribution attribution,
+      HttpServletResponse servletResponse) {
     Response response;
     if (!isShare) {
       RatioResult[] resultSet = new RatioResult[timeArray.length];
@@ -536,6 +636,13 @@ public class ExecutionUtils {
             Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
             requestUrl);
       }
+      if (requestParameters.getFormat() != null
+          && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+        sendCsvResponse(resultSet, servletResponse,
+            createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+                Application.apiVersion, metadata));
+        return null;
+      }
       response = new ShareResponse(attribution, Application.apiVersion, metadata, resultSet);
     }
     return response;
@@ -549,15 +656,17 @@ public class ExecutionUtils {
       RequestParameters requestParameters, Object[] boundaryIds, String[] timeArray,
       Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf, long startTime,
       RequestResource reqRes, String requestUrl, Attribution attribution,
-      GeoJsonObject[] geoJsonGeoms) {
+      GeoJsonObject[] geoJsonGeoms, HttpServletResponse servletResponse) {
     Metadata metadata = null;
     int boundaryIdsLength = boundaryIds.length;
     int timeArrayLenth = timeArray.length;
+    RatioResult[] ratioResultSet = new RatioResult[0];
+    ShareResult[] shareResultSet = new ShareResult[0];
     if (!isShare) {
       RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
       for (int i = 0; i < boundaryIdsLength; i++) {
         Object groupByName = boundaryIds[i];
-        RatioResult[] resultSet = new RatioResult[timeArrayLenth];
+        ratioResultSet = new RatioResult[timeArrayLenth];
         int innerCount = 0;
         for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
           double ratio = resultValues2[j] / resultValues1[j];
@@ -567,21 +676,28 @@ public class ExecutionUtils {
           } catch (Exception e) {
             // do nothing --> just return ratio without rounding (trimming)
           }
-          resultSet[innerCount] =
+          ratioResultSet[innerCount] =
               new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
           innerCount++;
         }
-        groupByResultSet[i] = new RatioGroupByResult(groupByName, resultSet);
+        groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
       }
       if (processingData.showMetadata) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
       }
-      if (requestParameters.getFormat() != null
-          && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+      if (requestParameters.getFormat() != null) {
+        if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
+          return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+              "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+        } else if (requestParameters.getFormat() != null
+            && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+          sendCsvResponse(ratioResultSet, servletResponse,
+              createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+                  Application.apiVersion, metadata));
+          return null;
+        }
       }
       return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
           groupByResultSet);
@@ -589,25 +705,32 @@ public class ExecutionUtils {
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
     for (int i = 0; i < boundaryIdsLength; i++) {
       Object groupByName = boundaryIds[i];
-      ShareResult[] resultSet = new ShareResult[timeArrayLenth];
+      shareResultSet = new ShareResult[timeArrayLenth];
       int innerCount = 0;
       for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-        resultSet[innerCount] =
+        shareResultSet[innerCount] =
             new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
         innerCount++;
       }
-      groupByResultSet[i] = new ShareGroupByResult(groupByName, resultSet);
+      groupByResultSet[i] = new ShareGroupByResult(groupByName, shareResultSet);
     }
     if (processingData.showMetadata) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
-    if (requestParameters.getFormat() != null
-        && requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-      return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
-          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+    if (requestParameters.getFormat() != null) {
+      if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
+        return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+      } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
+        sendCsvResponse(shareResultSet, servletResponse,
+            createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+                Application.apiVersion, metadata));
+        return null;
+      }
     }
+
     return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
         groupByResultSet);
   }

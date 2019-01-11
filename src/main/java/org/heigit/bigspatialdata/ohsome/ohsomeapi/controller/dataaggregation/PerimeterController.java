@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
@@ -47,11 +48,13 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -68,18 +71,20 @@ public class PerimeterController {
   @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
       nickname = "elementsPerimeterGroupByType")
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterGroupByType(
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -106,12 +111,14 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(
         RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -131,19 +138,21 @@ public class PerimeterController {
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.PERIMETER,
-        RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -173,15 +182,16 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, @RequestParam(value = "groupByKeys",
-          defaultValue = "", required = false) String[] groupByKeys)
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+      @RequestParam(value = "groupByKeys", defaultValue = "",
+          required = false) String[] groupByKeys)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(
         RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
-        groupByKeys);
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        groupByKeys, servletResponse);
   }
 
   /**
@@ -217,7 +227,7 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
@@ -226,8 +236,8 @@ public class PerimeterController {
         RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
-        groupByKey, groupByValues);
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        groupByKey, groupByValues, servletResponse);
   }
 
   /**
@@ -263,7 +273,7 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
@@ -271,8 +281,8 @@ public class PerimeterController {
         RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
-        types, keys2, values2, true);
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        types, keys2, values2, true, servletResponse);
   }
 
   /**
@@ -308,16 +318,16 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.PERIMETER,
-        RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        types, keys2, values2, true);
+        types, keys2, values2, true, servletResponse);
   }
 
   /**
@@ -342,12 +352,14 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
 
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -364,18 +376,20 @@ public class PerimeterController {
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "elementsPerimeterDensityGroupByType")
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByType(
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -396,19 +410,21 @@ public class PerimeterController {
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByBoundary(
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request) throws Exception {
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.PERIMETER,
-        RequestParameters.of(request.getMethod(), true, true, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        servletResponse);
   }
 
   /**
@@ -444,7 +460,7 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
@@ -453,8 +469,8 @@ public class PerimeterController {
         RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
-        groupByKey, groupByValues);
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        groupByKey, groupByValues, servletResponse);
   }
 
   /**
@@ -492,7 +508,7 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
@@ -501,8 +517,8 @@ public class PerimeterController {
         RequestResource.PERIMETER,
         new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
-        types2, keys2, values2, false);
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        types2, keys2, values2, false, servletResponse);
   }
 
   /**
@@ -538,16 +554,16 @@ public class PerimeterController {
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
       @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request,
+      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.PERIMETER,
-        RequestParameters.of(request.getMethod(), true, false, request.getParameter("bboxes"),
+        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
             userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        types2, keys2, values2, false);
+        types2, keys2, values2, false, servletResponse);
   }
 }

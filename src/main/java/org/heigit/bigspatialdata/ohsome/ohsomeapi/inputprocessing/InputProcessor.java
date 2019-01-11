@@ -261,7 +261,7 @@ public class InputProcessor {
       values = new String[0];
     }
     RequestParameters requestParameters2 =
-        RequestParameters.of(requestParameters.getRequestMethod(), requestParameters.isSnapshot(),
+        new RequestParameters(requestParameters.getRequestMethod(), requestParameters.isSnapshot(),
             requestParameters.isDensity(), requestParameters.getBboxes(),
             requestParameters.getBcircles(), requestParameters.getBpolys(), types, keys, values,
             requestParameters.getUserids(), requestParameters.getTime(),
@@ -527,10 +527,10 @@ public class InputProcessor {
    */
   private void checkFormat(String format) throws BadRequestException {
     if (format != null && !format.isEmpty() && !format.equalsIgnoreCase("geojson")
-        && !format.equalsIgnoreCase("json")) {
+        && !format.equalsIgnoreCase("json") && !format.equalsIgnoreCase("csv")) {
       throw new BadRequestException(
           "The given 'format' parameter is invalid. Please choose between "
-              + "'geojson'(only available for /groupBy/boundary requests) or 'json'.");
+              + "'geojson'(only available for /groupBy/boundary requests), 'json', or 'csv'.");
     }
   }
 

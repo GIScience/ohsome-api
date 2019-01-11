@@ -45,7 +45,7 @@ public class UsersController {
     return UsersRequestExecutor.executeCount(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")));
   }
 
   /**
@@ -73,7 +73,7 @@ public class UsersController {
     return UsersRequestExecutor.executeCountGroupByType(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")));
   }
 
   /**
@@ -107,12 +107,11 @@ public class UsersController {
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws Exception {
-    return UsersRequestExecutor
-        .executeCountGroupByTag(
-            new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
-                request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys,
-                values, userids, time, request.getParameter("showMetadata")),
-            groupByKey, groupByValues);
+    return UsersRequestExecutor.executeCountGroupByTag(
+        new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        groupByKey, groupByValues);
   }
 
   /**
@@ -145,7 +144,7 @@ public class UsersController {
     return UsersRequestExecutor.executeCountGroupByKey(
         new RequestParameters(request.getMethod(), false, false, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")),
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
         groupByKey);
   }
 
@@ -175,7 +174,7 @@ public class UsersController {
     return UsersRequestExecutor.executeCount(
         new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")));
   }
 
   /**
@@ -203,7 +202,7 @@ public class UsersController {
     return UsersRequestExecutor.executeCountGroupByType(
         new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
             request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("showMetadata")));
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")));
   }
 
   /**
@@ -238,11 +237,10 @@ public class UsersController {
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws Exception {
-    return UsersRequestExecutor
-        .executeCountGroupByTag(
-            new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
-                request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys,
-                values, userids, time, request.getParameter("showMetadata")),
-            groupByKey, groupByValues);
+    return UsersRequestExecutor.executeCountGroupByTag(
+        new RequestParameters(request.getMethod(), false, true, request.getParameter("bboxes"),
+            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
+            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
+        groupByKey, groupByValues);
   }
 }

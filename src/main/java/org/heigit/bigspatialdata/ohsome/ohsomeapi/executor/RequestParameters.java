@@ -17,15 +17,12 @@ public class RequestParameters {
   private String format;
   private String showMetadata;
 
-  private RequestParameters() {}
-
-  /** Overloaded constructor, which gets used by all but the /groupBy/boundary resources. */
   public RequestParameters(String requestMethod, boolean isSnapshot, boolean isDensity,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String showMetadata) {
+      String[] userids, String[] time, String format, String showMetadata) {
     this.requestMethod = requestMethod;
-    this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
+    this.isSnapshot = isSnapshot;
     this.bboxes = bboxes;
     this.bcircles = bcircles;
     this.bpolys = bpolys;
@@ -34,29 +31,8 @@ public class RequestParameters {
     this.values = values;
     this.userids = userids;
     this.time = time;
+    this.format = format;
     this.showMetadata = showMetadata;
-  }
-
-  /** Static factory method, which includes the <code>format</code> parameter. */
-  public static RequestParameters of(String requestMethod, boolean isSnapshot, boolean isDensity,
-      String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String format, String showMetadata) {
-    RequestParameters requestParameters = new RequestParameters();
-    requestParameters.requestMethod = requestMethod;
-    requestParameters.isSnapshot = isSnapshot;
-    requestParameters.isDensity = isDensity;
-    requestParameters.bboxes = bboxes;
-    requestParameters.bcircles = bcircles;
-    requestParameters.bpolys = bpolys;
-    requestParameters.types = types;
-    requestParameters.keys = keys;
-    requestParameters.values = values;
-    requestParameters.userids = userids;
-    requestParameters.time = time;
-    requestParameters.format = format;
-    requestParameters.showMetadata = showMetadata;
-
-    return requestParameters;
   }
 
   public String getRequestMethod() {
