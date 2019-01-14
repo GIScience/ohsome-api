@@ -22,8 +22,10 @@ public class ParameterDescriptions {
   public static final String VALUES_DESCR =
       "OSM value(s) e.g.: 'primary', 'residential'; default: no value";
   public static final String USERIDS_DESCR = "OSM userids; default: no userid";
-  public static final String TIME_DESCR = "ISO-8601 conform timestring(s); default: today";
-  public static final String FORMAT_DESCR = "Output format, e.g.: geojson; default: json";
+  public static final String TIME_DESCR =
+      "ISO-8601 conform timestring(s); default: latest timestamp within dataset";
+  public static final String FORMAT_DESCR =
+      "Output format geojson (for specific resources only), csv, or json; default: json";
   public static final String PROPERTIES_DESCR =
       "List of possible property-groups added to each OSM-element, e.g. 'tags', or 'metadata'; "
           + "default: 'tags'";

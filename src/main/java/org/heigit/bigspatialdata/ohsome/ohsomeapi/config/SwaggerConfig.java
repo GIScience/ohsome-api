@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -108,56 +109,46 @@ public class SwaggerConfig {
    */
   private List<Parameter> defineGlobalOperationParams(boolean isFullHistory) {
     List<Parameter> globalOperationParams = new ArrayList<Parameter>();
-    globalOperationParams.add(new ParameterBuilder().name("bboxes")
-        .description("WGS84 coordinates in the following formats: "
-            + "id1:lon1,lat1,lon2,lat2|id2:lon1,lat1,lon2,lat2|... "
-            + "OR lon1,lat1,lon2,lat2|lon1,lat1,lon2,lat2|...; "
-            + "default: whole dataset (if all three boundary parameters are empty)")
-        .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue(DefaultSwaggerParameters.BBOX).required(false).build());
+    globalOperationParams
+        .add(new ParameterBuilder().name("bboxes").description(ParameterDescriptions.BBOXES_DESCR)
+            .modelRef(new ModelRef("string")).parameterType("query")
+            .defaultValue(DefaultSwaggerParameters.BBOX).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("bcircles")
-        .description("WGS84 coordinates + radius in meters in the following formats: "
-            + "id1:lon,lat,r|id2:lon,lat,r|... OR lon,lat,r|lon,lat,r|...; "
-            + "default: whole dataset (if all three boundary parameters are empty)")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
-        .build());
-    globalOperationParams.add(new ParameterBuilder().name("bpolys")
-        .description("WGS84 coordinates given as a list of coordinate pairs (as for bboxes) "
-            + "or GeoJSON FeatureCollection. The first point has to be the same as "
-            + "the last point and MultiPolygons are only supported in GeoJSON; "
-            + "default: whole dataset (if all three boundary parameters are empty)")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
-        .build());
-    globalOperationParams.add(new ParameterBuilder().name("types")
-        .description("OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types")
-        .modelRef(new ModelRef("string")).allowMultiple(true).parameterType("query")
-        .defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description("OSM key(s) e.g.: 'highway', 'building'; default: no key")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
-        .build());
-    globalOperationParams.add(new ParameterBuilder().name("values")
-        .description("OSM value(s) e.g.: 'primary', 'residential'; default: no value")
-        .modelRef(new ModelRef("string")).parameterType("query").defaultValue("").required(false)
-        .build());
-    globalOperationParams.add(new ParameterBuilder().name("userids")
-        .description("OSM userids; default: no userid").modelRef(new ModelRef("string"))
+        .description(ParameterDescriptions.BCIRCLES_DESCR).modelRef(new ModelRef("string"))
         .parameterType("query").defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("bpolys")
+        .description(ParameterDescriptions.BPOLYS_DESCR).modelRef(new ModelRef("string"))
+        .parameterType("query").defaultValue("").required(false).build());
+    globalOperationParams
+        .add(new ParameterBuilder().name("types").description(ParameterDescriptions.TYPES_DESCR)
+            .modelRef(new ModelRef("string")).allowMultiple(true).parameterType("query")
+            .defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("keys")
+        .description(ParameterDescriptions.KEYS_DESCR).modelRef(new ModelRef("string"))
+        .parameterType("query").defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("values")
+        .description(ParameterDescriptions.VALUES_DESCR).modelRef(new ModelRef("string"))
+        .parameterType("query").defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("userids")
+        .description(ParameterDescriptions.USERIDS_DESCR).modelRef(new ModelRef("string"))
+        .parameterType("query").defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("format")
+        .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef("string"))
+        .parameterType("query").defaultValue("json").required(false).build());
     if (!isFullHistory) {
-      globalOperationParams.add(new ParameterBuilder().name("time")
-          .description("ISO-8601 conform timestring(s); default: latest timestamp within dataset")
-          .modelRef(new ModelRef("string")).parameterType("query")
-          .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
+      globalOperationParams
+          .add(new ParameterBuilder().name("time").description(ParameterDescriptions.TIME_DESCR)
+              .modelRef(new ModelRef("string")).parameterType("query")
+              .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
-          .description("ISO-8601 conform timestring(s); default: latest timestamp within dataset")
-          .modelRef(new ModelRef("string")).parameterType("query")
-          .defaultValue("2014-01-01,2017-01-01").required(false).build());
+          .description(ParameterDescriptions.TIME_DESCR).modelRef(new ModelRef("string"))
+          .parameterType("query").defaultValue("2014-01-01,2017-01-01").required(false).build());
     }
     globalOperationParams.add(new ParameterBuilder().name("showMetadata")
-        .description("Boolean operator 'true' or 'false'; default: 'false'")
-        .modelRef(new ModelRef("string")).parameterType("query")
-        .defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false).build());
+        .description(ParameterDescriptions.SHOW_METADATA_DESCR).modelRef(new ModelRef("string"))
+        .parameterType("query").defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false)
+        .build());
     return globalOperationParams;
   }
 }
