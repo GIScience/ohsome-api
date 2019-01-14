@@ -25,7 +25,7 @@ public class ParameterDescriptions {
   public static final String TIME_DESCR =
       "ISO-8601 conform timestring(s); default: latest timestamp within dataset";
   public static final String FORMAT_DESCR =
-      "Output format geojson (for specific resources only), csv, or json; default: json";
+      "Output format geojson (for /groupBy/boundary resources only), csv, or json; default: json";
   public static final String PROPERTIES_DESCR =
       "List of possible property-groups added to each OSM-element, e.g. 'tags', or 'metadata'; "
           + "default: 'tags'";
