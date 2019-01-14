@@ -623,6 +623,13 @@ public class ExecutionUtils {
             Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
             requestUrl);
       }
+      if (requestParameters.getFormat() != null
+          && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+        sendCsvResponse(resultSet, servletResponse,
+            createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+                Application.apiVersion, metadata));
+        return null;
+      }
       response = new RatioResponse(attribution, Application.apiVersion, metadata, resultSet);
     } else {
       ShareResult[] resultSet = new ShareResult[timeArray.length];
