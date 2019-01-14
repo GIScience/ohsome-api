@@ -42,7 +42,7 @@ public class GeometryBuilder {
   public GeometryBuilder(ProcessingData processingData) {
     this.processingData = processingData;
   }
-  
+
   public GeometryBuilder() {
     this.processingData = null;
   }
@@ -270,14 +270,22 @@ public class GeometryBuilder {
       try {
         if (feature.containsKey("id")) {
           if (feature.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
-            boundaryIds[count] = feature.getString("id");
+            String id = feature.getString("id");
+            if ("csv".equalsIgnoreCase(processingData.getFormat())) {
+              inputProcessor.getUtils().checkCustomBoundaryId(id);
+            }
+            boundaryIds[count] = id;
           } else {
             boundaryIds[count] = feature.getInt("id");
           }
           count++;
         } else if (properties.containsKey("id")) {
           if (properties.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
-            boundaryIds[count] = properties.getString("id");
+            String id = properties.getString("id");
+            if ("csv".equalsIgnoreCase(processingData.getFormat())) {
+              inputProcessor.getUtils().checkCustomBoundaryId(id);
+            }
+            boundaryIds[count] = id;
           } else {
             boundaryIds[count] = properties.getInt("id");
           }
@@ -287,8 +295,10 @@ public class GeometryBuilder {
           count++;
         }
       } catch (Exception e) {
-        throw new BadRequestException(
-            "The provided custom id(s) could not be parsed.");
+        if (e instanceof BadRequestException) {
+          throw e;
+        }
+        throw new BadRequestException("The provided custom id(s) could not be parsed.");
       }
       JsonObject geomObj = feature.getJsonObject("geometry");
       if (!geomObj.getString("type").equals("Polygon")

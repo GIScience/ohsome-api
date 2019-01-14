@@ -440,6 +440,14 @@ public class InputProcessingUtils {
     return timeStringList.toArray(timestamps);
   }
 
+  /** Checks the given custom boundary id. At the moment only used if output format = csv. */
+  public void checkCustomBoundaryId(String id) {
+    if (id.contains(";")) {
+      throw new BadRequestException("The given custom ids cannot contain semicolons, "
+          + "if you want to use csv as output format.");
+    }
+  }
+
   /**
    * Checks if the given geometry is within the underlying data-polygon. Returns also true if no
    * data-polygon is given.
