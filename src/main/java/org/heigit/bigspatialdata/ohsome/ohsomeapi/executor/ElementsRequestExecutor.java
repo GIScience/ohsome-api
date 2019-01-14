@@ -386,7 +386,7 @@ public class ElementsRequestExecutor {
     }
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-      exeUtils.sendCsvResponse(resultSet, servletResponse,
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
       return null;
     }
@@ -473,7 +473,7 @@ public class ElementsRequestExecutor {
             "FeatureCollection",
             exeUtils.createGeoJsonFeatures(resultSet, processingData.geoJsonGeoms));
       } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
-        exeUtils.sendCsvResponse(resultSet, servletResponse,
+        exeUtils.writeCsvResponse(resultSet, servletResponse,
             exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
         return null;
       }
@@ -543,7 +543,7 @@ public class ElementsRequestExecutor {
     }
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-      exeUtils.sendCsvResponse(resultSet, servletResponse,
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
       return null;
     }
@@ -650,7 +650,7 @@ public class ElementsRequestExecutor {
     }
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-      exeUtils.sendCsvResponse(resultSet, servletResponse,
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
       return null;
     }
@@ -716,7 +716,7 @@ public class ElementsRequestExecutor {
     }
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-      exeUtils.sendCsvResponse(resultSet, servletResponse,
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
       return null;
     }
@@ -807,7 +807,7 @@ public class ElementsRequestExecutor {
     }
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-      exeUtils.sendCsvResponse(resultSet, servletResponse,
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
       return null;
     }

@@ -126,8 +126,8 @@ public class ExecutionUtils {
     servletResponse.flushBuffer();
   }
 
-  /** Sends a response in the csv format for /groupBy requests. */
-  public void sendCsvResponse(GroupByResult[] resultSet, HttpServletResponse servletResponse,
+  /** Writes a response in the csv format for /groupBy requests. */
+  public void writeCsvResponse(GroupByResult[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
@@ -148,8 +148,8 @@ public class ExecutionUtils {
     }
   }
 
-  /** Sends a response in the csv format for /count|length|perimeter|area(/density) requests. */
-  public void sendCsvResponse(ElementsResult[] resultSet, HttpServletResponse servletResponse,
+  /** Writes a response in the csv format for /count|length|perimeter|area(/density) requests. */
+  public void writeCsvResponse(ElementsResult[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
@@ -167,8 +167,8 @@ public class ExecutionUtils {
     }
   }
 
-  /** Sends a response in the csv format for /share requests. */
-  public void sendCsvResponse(ShareResult[] resultSet, HttpServletResponse servletResponse,
+  /** Writes a response in the csv format for /share requests. */
+  public void writeCsvResponse(ShareResult[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
@@ -186,8 +186,8 @@ public class ExecutionUtils {
     }
   }
 
-  /** Sends a response in the csv format for /ratio requests. */
-  public void sendCsvResponse(RatioResult[] resultSet, HttpServletResponse servletResponse,
+  /** Writes a response in the csv format for /ratio requests. */
+  public void writeCsvResponse(RatioResult[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
@@ -199,6 +199,50 @@ public class ExecutionUtils {
         writer.writeNext(
             new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
                 String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** Writes a response in the csv format for /ratio/groupBy/boundary requests. */
+  public void writeCsvResponse(RatioGroupByResult[] resultSet, HttpServletResponse servletResponse,
+      List<String[]> comments) {
+    CSVWriter writer;
+    try {
+      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
+          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+      writer.writeAll(comments);
+      writer.writeNext(new String[] {"groupByObject", "timestamp", "value", "value2", "ratio"});
+      for (RatioGroupByResult ratioGroupByResult : resultSet) {
+        for (RatioResult ratioResult : ratioGroupByResult.getRatioResult()) {
+          writer.writeNext(new String[] {ratioGroupByResult.getGroupByObject().toString(),
+              ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
+              String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+        }
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /** Writes a response in the csv format for /share/groupBy/boundary requests. */
+  public void writeCsvResponse(ShareGroupByResult[] resultSet, HttpServletResponse servletResponse,
+      List<String[]> comments) {
+    CSVWriter writer;
+    try {
+      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
+          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+      writer.writeAll(comments);
+      writer.writeNext(new String[] {"groupByObject", "timestamp", "whole", "part"});
+      for (ShareGroupByResult shareGroupByResult : resultSet) {
+        for (ShareResult shareResult : shareGroupByResult.getShareResult()) {
+          writer.writeNext(new String[] {shareGroupByResult.getGroupByObject().toString(),
+              shareResult.getTimestamp(), String.valueOf(shareResult.getWhole()),
+              String.valueOf(shareResult.getPart())});
+        }
       }
       writer.close();
     } catch (IOException e) {
@@ -627,7 +671,7 @@ public class ExecutionUtils {
       }
       if (requestParameters.getFormat() != null
           && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-        sendCsvResponse(resultSet, servletResponse,
+        writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                 Application.apiVersion, metadata));
         return null;
@@ -647,7 +691,7 @@ public class ExecutionUtils {
       }
       if (requestParameters.getFormat() != null
           && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-        sendCsvResponse(resultSet, servletResponse,
+        writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                 Application.apiVersion, metadata));
         return null;
@@ -702,7 +746,7 @@ public class ExecutionUtils {
               "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
         } else if (requestParameters.getFormat() != null
             && requestParameters.getFormat().equalsIgnoreCase("csv")) {
-          sendCsvResponse(ratioResultSet, servletResponse,
+          writeCsvResponse(groupByResultSet, servletResponse,
               createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                   Application.apiVersion, metadata));
           return null;
@@ -733,7 +777,7 @@ public class ExecutionUtils {
         return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
             "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
       } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
-        sendCsvResponse(shareResultSet, servletResponse,
+        writeCsvResponse(groupByResultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                 Application.apiVersion, metadata));
         return null;
