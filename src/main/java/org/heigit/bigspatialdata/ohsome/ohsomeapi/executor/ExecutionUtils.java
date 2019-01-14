@@ -216,7 +216,9 @@ public class ExecutionUtils {
     if (metadata != null) {
       comments.add(new String[] {"# Execution Time: " + metadata.getExecutionTime()});
       comments.add(new String[] {"# Description: " + metadata.getDescription()});
-      comments.add(new String[] {"# Request URL: " + metadata.getRequestUrl()});
+      if (metadata.getRequestUrl() != null) {
+        comments.add(new String[] {"# Request URL: " + metadata.getRequestUrl()});
+      }
     }
     return comments;
   }
