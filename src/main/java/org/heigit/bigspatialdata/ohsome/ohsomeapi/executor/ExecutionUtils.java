@@ -134,14 +134,25 @@ public class ExecutionUtils {
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
-      writer.writeNext(new String[] {"groupByObject", "timestamp", "value"});
-      for (GroupByResult groupByResult : resultSet) {
-        for (Result result : groupByResult.getResult()) {
-          ElementsResult elemResult = (ElementsResult) result;
-          writer.writeNext(new String[] {groupByResult.getGroupByObject().toString(),
-              elemResult.getTimestamp(), String.valueOf(elemResult.getValue())});
+      List<String> columnNames = new LinkedList<String>();
+      List<String[]> rows = new LinkedList<String[]>();
+      columnNames.add("timestamp");
+      for (int i = 0; i < resultSet.length; i++) {
+        columnNames.add(resultSet[i].getGroupByObject().toString());
+        for (int j = 0; j < resultSet[i].getResult().length; j++) {
+          ElementsResult elemResult = (ElementsResult) resultSet[i].getResult()[j];
+          if (i == 0) {
+            String[] row = new String[resultSet.length + 1];
+            row[0] = elemResult.getTimestamp();
+            row[1] = String.valueOf(elemResult.getValue());
+            rows.add(row);
+          } else {
+            rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+          }
         }
       }
+      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
+      writer.writeAll(rows);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -214,14 +225,32 @@ public class ExecutionUtils {
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
-      writer.writeNext(new String[] {"groupByObject", "timestamp", "value", "value2", "ratio"});
-      for (RatioGroupByResult ratioGroupByResult : resultSet) {
-        for (RatioResult ratioResult : ratioGroupByResult.getRatioResult()) {
-          writer.writeNext(new String[] {ratioGroupByResult.getGroupByObject().toString(),
-              ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
-              String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+      List<String> columnNames = new LinkedList<String>();
+      List<String[]> rows = new LinkedList<String[]>();
+      columnNames.add("timestamp");
+      for (int i = 0; i < resultSet.length; i++) {
+        columnNames.add(resultSet[i].getGroupByObject() + "_value");
+        columnNames.add(resultSet[i].getGroupByObject() + "_value2");
+        columnNames.add(resultSet[i].getGroupByObject() + "_ratio");
+        for (int j = 0; j < resultSet[i].getRatioResult().length; j++) {
+          RatioResult ratioResult = resultSet[i].getRatioResult()[j];
+          if (i == 0) {
+            String[] row = new String[resultSet.length * 3 + 1];
+            row[0] = ratioResult.getTimestamp();
+            row[1] = String.valueOf(ratioResult.getValue());
+            row[2] = String.valueOf(ratioResult.getValue2());
+            row[3] = String.valueOf(ratioResult.getRatio());
+            rows.add(row);
+          } else {
+            int count = i * 3 + 1;
+            rows.get(j)[count] = String.valueOf(ratioResult.getValue());
+            rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
+            rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
+          }
         }
       }
+      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
+      writer.writeAll(rows);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -236,14 +265,29 @@ public class ExecutionUtils {
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
-      writer.writeNext(new String[] {"groupByObject", "timestamp", "whole", "part"});
-      for (ShareGroupByResult shareGroupByResult : resultSet) {
-        for (ShareResult shareResult : shareGroupByResult.getShareResult()) {
-          writer.writeNext(new String[] {shareGroupByResult.getGroupByObject().toString(),
-              shareResult.getTimestamp(), String.valueOf(shareResult.getWhole()),
-              String.valueOf(shareResult.getPart())});
+      List<String> columnNames = new LinkedList<String>();
+      List<String[]> rows = new LinkedList<String[]>();
+      columnNames.add("timestamp");
+      for (int i = 0; i < resultSet.length; i++) {
+        columnNames.add(resultSet[i].getGroupByObject() + "_whole");
+        columnNames.add(resultSet[i].getGroupByObject() + "_part");
+        for (int j = 0; j < resultSet[i].getShareResult().length; j++) {
+          ShareResult shareResult = resultSet[i].getShareResult()[j];
+          if (i == 0) {
+            String[] row = new String[resultSet.length * 2 + 1];
+            row[0] = shareResult.getTimestamp();
+            row[1] = String.valueOf(shareResult.getWhole());
+            row[2] = String.valueOf(shareResult.getPart());
+            rows.add(row);
+          } else {
+            int count = i * 2 + 1;
+            rows.get(j)[count] = String.valueOf(shareResult.getWhole());
+            rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
+          }
         }
       }
+      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
+      writer.writeAll(rows);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
