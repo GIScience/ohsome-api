@@ -541,4 +541,31 @@ public class GetControllerTest {
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
+
+  /*
+   * csv output tests start here
+   */
+
+  @Test
+  public void getElementsCountCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&time=2015-01-01"
+        + "&keys=building&values=residential&format=csv", String.class);
+    int length = response.getBody().length();
+    assertEquals("40.0", response.getBody().substring(length - 5, length - 1));
+  }
+
+  @Test
+  public void getElementsCountGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/boundary?bboxes=8.70538,49.40891,8.70832,49.41155|"
+            + "8.68667,49.41353,8.68828,49.414&types=way&time=2017-01-01&keys=building"
+            + "&values=church&format=csv",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
+    assertEquals(165, length);
+  }
 }
