@@ -492,7 +492,7 @@ public class InputProcessor {
    * @param userids String array containing the OSM user IDs.
    * @throws BadRequestException if one of the userids is invalid
    */
-  private void checkUserids(String[] userids) {
+  private void checkUserids(String[] userids) throws BadRequestException {
     for (String user : userids) {
       try {
         Long.valueOf(user);

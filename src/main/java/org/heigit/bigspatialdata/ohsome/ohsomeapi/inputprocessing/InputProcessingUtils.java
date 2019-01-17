@@ -204,7 +204,7 @@ public class InputProcessingUtils {
             throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
           }
         }
-      } else {
+      } else if (bpolysArray[0].contains(",")) {
         idCount = 1;
         for (String boundaryObject : bpolysArray) {
           coords = boundaryObject.split("\\,");
@@ -214,6 +214,8 @@ public class InputProcessingUtils {
           boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
           idCount++;
         }
+      } else {
+        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
