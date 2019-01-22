@@ -506,8 +506,8 @@ public class InputProcessor {
   /** Checks the given OSMType(s) String[] on its length and content. */
   private void checkOSMTypes(String[] types) throws BadRequestException {
     if (types.length > 3) {
-      throw new BadRequestException(
-          "Parameter 'types' containing the OSM Types cannot have more than 3 entries.");
+      throw new BadRequestException("Parameter 'types' (and 'types2') containing the OSM Types "
+          + "cannot have more than 3 entries.");
     } else if (types.length == 0) {
       // do nothing
     } else {

@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import javax.servlet.http.HttpServletRequest;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -25,6 +26,15 @@ public class ProcessingData {
   public Collection<Geometry> boundaryColl;
   public GeoJsonObject[] geoJsonGeoms;
 
+  public ProcessingData(HttpServletRequest request, boolean isSnapshot, boolean isDensity) {
+    this.requestParameters = new RequestParameters(request.getMethod(), isSnapshot, isDensity,
+        request.getParameter("bboxes"), request.getParameter("bcircles"),
+        request.getParameter("bpolys"), request.getParameter("types").split(","),
+        request.getParameter("keys").split(","), request.getParameter("values").split(","),
+        request.getParameter("userids").split(","), request.getParameter("time").split(","),
+        request.getParameter("format"), request.getParameter("showMetadata"));
+  }
+  
   public ProcessingData(RequestParameters requestParameters) {
     this.requestParameters = requestParameters;
   }

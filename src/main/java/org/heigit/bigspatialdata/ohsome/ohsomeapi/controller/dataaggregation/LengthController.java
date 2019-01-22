@@ -1,22 +1,20 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Controller containing the GET and POST request handling methods, which are mapped to
@@ -30,38 +28,20 @@ public class LengthController {
   /**
    * Gives the length of OSM objects.
    * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
   @ApiOperation(value = "Length of OSM elements", nickname = "elementsLength")
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response length(@ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
+  public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        servletRequest, servletResponse, true, false);
   }
 
   /**
    * Gives the length of OSM objects grouped by the OSM type.
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -70,29 +50,15 @@ public class LengthController {
       nickname = "elementsLengthGroupByType")
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthGroupByType(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
+  public Response lengthGroupByType(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        servletRequest, servletResponse, true, false);
   }
 
   /**
    * Gives the length of OSM objects grouped by the user who was the last editor of the requested
    * elements.
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -103,30 +69,15 @@ public class LengthController {
       nickname = "elementsLengthGroupByUser")
   @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthGroupByUser(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
+  public Response lengthGroupByUser(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(
-        RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        RequestResource.LENGTH, servletRequest, servletResponse, true, false);
   }
 
   /**
    * Gives the length of OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -139,29 +90,14 @@ public class LengthController {
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthGroupByBoundary(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
+  public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        RequestResource.LENGTH, servletRequest, servletResponse, true, false);
   }
 
   /**
    * Gives the length of OSM objects grouped by the key.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
    *        grouping. One or more keys can be provided.
@@ -175,30 +111,16 @@ public class LengthController {
       paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthGroupByKey(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
-      @RequestParam(value = "groupByKeys", defaultValue = "",
+  public Response lengthGroupByKey(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, @RequestParam(value = "groupByKeys", defaultValue = "",
           required = false) String[] groupByKeys)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        groupByKeys, servletResponse);
+        servletRequest, servletResponse, true, false);
   }
 
   /**
    * Gives the length of OSM objects grouped by the tag.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
    *        grouping. At the current implementation, there must be one key given (not more and not
@@ -219,32 +141,19 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthGroupByTag(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+  public Response lengthGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        groupByKey, groupByValues, servletResponse);
+        servletRequest, servletResponse, true, false);
   }
 
   /**
    * Gives the length of items satisfying keys, values (+ other params) and part of items satisfying
    * keys2, values2.(+ other params).
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @param keys2 <code>String</code> array having the same format as keys and used to define the
    *        subgroup(share).
@@ -262,31 +171,18 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthShare(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+  public Response lengthShare(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        types, keys2, values2, true, servletResponse);
+        servletRequest, servletResponse, true, false, true);
   }
 
   /**
    * Gives the length of items satisfying keys, values (+ other params) and part of items satisfying
    * keys2, values2 (plus other parameters), grouped by the boundary.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @param keys2 <code>String</code> array having the same format as keys and used to define the
    *        subgroup(share).
@@ -306,32 +202,18 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
-  public Response lengthShareGroupByBoundary(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+  public Response lengthShareGroupByBoundary(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-        RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        types, keys2, values2, true, servletResponse);
+        RequestResource.LENGTH, servletRequest, servletResponse, true, false, true);
   }
 
   /**
    * Gives the density of selected items (length of items divided by the total area in
    * square-kilometers).
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -340,28 +222,14 @@ public class LengthController {
       + "the total area in square-kilometers)", nickname = "elementsLengthDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthDensity(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
+  public Response lengthDensity(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        servletRequest, servletResponse, true, true);
   }
 
   /**
    * Gives the density of selected items grouped by the OSM type.
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -370,29 +238,15 @@ public class LengthController {
       nickname = "elementsLengthDensityGroupByType")
   @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthDensityGroupByType(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
+  public Response lengthDensityGroupByType(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        servletRequest, servletResponse, true, true);
   }
 
   /**
    * Gives density of selected items grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -404,29 +258,14 @@ public class LengthController {
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response lengthDensityGroupByBoundary(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
+  public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        servletResponse);
+        RequestResource.LENGTH, servletRequest, servletResponse, true, true);
   }
 
   /**
    * Gives the density of selected items grouped by the tag.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @param groupByKey <code>String</code> array containing the key used to create the tags for the
    *        grouping. At the current implementation, there must be one key given (not more and not
@@ -447,32 +286,19 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthDensityGroupByTag(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+  public Response lengthDensityGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
       @RequestParam(value = "groupByValues", defaultValue = "",
           required = false) String[] groupByValues)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, true, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        groupByKey, groupByValues, servletResponse);
+        servletRequest, servletResponse, true, true);
   }
 
   /**
    * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
    * 
    * @param types2 <code>String</code> array having the same format as types.
    * @param keys2 <code>String</code> array having the same format as keys.
@@ -492,32 +318,19 @@ public class LengthController {
           defaultValue = "primary", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response lengthRatio(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+  public Response lengthRatio(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        types2, keys2, values2, false, servletResponse);
+        servletRequest, servletResponse, true, false, false);
   }
 
   /**
    * Gives the ratio of the length of selected items satisfying types2, keys2 and values2 within
    * items selected by types, keys and values grouped by the boundary.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
-   * countRatio} method.
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
@@ -537,22 +350,13 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
-  public Response lengthRatioGroupByBoundary(
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] types,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] keys,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] values,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] userids,
-      @ApiParam(hidden = true) @RequestParam(defaultValue = "") String[] time,
-      @ApiParam(hidden = true) HttpServletRequest request, HttpServletResponse servletResponse,
+  public Response lengthRatioGroupByBoundary(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
       @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
       @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-        RequestResource.LENGTH,
-        new RequestParameters(request.getMethod(), true, false, request.getParameter("bboxes"),
-            request.getParameter("bcircles"), request.getParameter("bpolys"), types, keys, values,
-            userids, time, request.getParameter("format"), request.getParameter("showMetadata")),
-        types2, keys2, values2, false, servletResponse);
+        RequestResource.LENGTH, servletRequest, servletResponse, true, false, false);
   }
 }

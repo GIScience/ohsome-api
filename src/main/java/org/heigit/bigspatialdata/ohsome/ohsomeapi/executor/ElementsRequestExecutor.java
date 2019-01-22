@@ -70,30 +70,22 @@ public class ElementsRequestExecutor {
   public static final String TEXT = ExtractMetadata.attributionShort;
   private static final double MAX_STREAM_DATA_SIZE = 1E7;
 
-  /**
-   * Performs an OSM data extraction.
-   * 
-   * <p>
-   * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
-   *        a stream.
-   */
-  public static void executeElements(RequestParameters requestParameters, ElementsGeometry elemGeom,
-      String[] propertiesParameter, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
-    ProcessingData processingData = new ProcessingData(requestParameters);
+  /** Performs an OSM data extraction. */
+  public static void executeElements(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+    ProcessingData processingData = new ProcessingData(servletRequest, true, false);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     String requestUrl = null;
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    final boolean includeTags =
-        Arrays.stream(propertiesParameter).anyMatch(p -> p.equalsIgnoreCase("tags"));
+    final boolean includeTags = Arrays.stream(servletRequest.getParameterValues("properties"))
+        .anyMatch(p -> p.equalsIgnoreCase("tags"));
     final boolean includeOSMMetadata =
-        Arrays.stream(propertiesParameter).anyMatch(p -> p.equalsIgnoreCase("metadata"));
+        Arrays.stream(servletRequest.getParameterValues("properties"))
+            .anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
@@ -102,7 +94,6 @@ public class ElementsRequestExecutor {
       // if that number is larger than 10MB, then fall back to the slightly slower, but much
       // less memory intensive streaming implementation (which is currently only available on
       // the ignite "AffinityCall" backend).
-
       Number approxResultSize = inputProcessor.processParameters(requestParameters)
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
           .sum(data -> data.getLength() / data.getLatest().getVersion());
@@ -145,21 +136,13 @@ public class ElementsRequestExecutor {
     exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
   }
 
-  /**
-   * Performs an OSM data extraction using the full-history of the data.
-   * 
-   * <p>
-   * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @param response <code>HttpServletResponse</code> object, which is used to send the response as
-   *        a stream.
-   */
-  public static void executeElementsFullHistory(RequestParameters requestParameters,
-      ElementsGeometry elemGeom, String[] propertiesParameter, HttpServletResponse servletResponse)
+  /** Performs an OSM data extraction using the full-history of the data. */
+  public static void executeElementsFullHistory(ElementsGeometry elemGeom,
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws UnsupportedOperationException, Exception {
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, false, false);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     String requestUrl = null;
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
@@ -170,25 +153,17 @@ public class ElementsRequestExecutor {
     }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
-
     RequestParameters snapshotrequestParameters = new RequestParameters(
         requestParameters.getRequestMethod(), true, requestParameters.isDensity(),
         requestParameters.getBboxes(), requestParameters.getBcircles(),
         requestParameters.getBpolys(), requestParameters.getTypes(), requestParameters.getKeys(),
         requestParameters.getValues(), requestParameters.getUserids(), requestParameters.getTime(),
         requestParameters.getFormat(), requestParameters.getShowMetadata());
-
-    boolean noFinalIncludeTags = false;
-    boolean noFinalIncludeOSMMetadata = false;
-    for (String text : propertiesParameter) {
-      if (text.equalsIgnoreCase("tags")) {
-        noFinalIncludeTags = true;
-      } else if (text.equalsIgnoreCase("metadata")) {
-        noFinalIncludeOSMMetadata = true;
-      }
-    }
-    final boolean includeTags = noFinalIncludeTags;
-    final boolean includeOSMMetadata = noFinalIncludeOSMMetadata;
+    final boolean includeTags = Arrays.stream(servletRequest.getParameterValues("properties"))
+        .anyMatch(p -> p.equalsIgnoreCase("tags"));
+    final boolean includeOSMMetadata =
+        Arrays.stream(servletRequest.getParameterValues("properties"))
+            .anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
@@ -224,17 +199,14 @@ public class ElementsRequestExecutor {
         ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1]).toString();
     String startTimestamp = startTimestampWithZ.substring(0, startTimestampWithZ.length() - 1);
     String endTimestamp = endTimestampWithZ.substring(0, endTimestampWithZ.length() - 1);
-
     contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
       List<Feature> output = new LinkedList<>();
-
       Map<String, Object> properties;
       Geometry currentGeom = null;
       OSMEntity currentEntity = null;
       String validFrom = null;
       String validTo;
       boolean skipNext = false;
-
       // first contribution:
       if (contributions.get(0).is(ContributionType.CREATION)) {
         // if creation: skip next output
@@ -245,7 +217,6 @@ public class ElementsRequestExecutor {
         currentGeom = contributions.get(0).getGeometryBefore();
         validFrom = startTimestamp;
       }
-
       // then for each contribution:
       for (OSMContribution contribution : contributions) {
         // set valid_to of previous row, add to output list (output.add(…))
@@ -280,9 +251,7 @@ public class ElementsRequestExecutor {
       }
       return output;
     });
-
     MapReducer<Feature> snapshotPreResult = null;
-
     snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
         .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
             && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
@@ -300,10 +269,8 @@ public class ElementsRequestExecutor {
           return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
               includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw);
         }); // valid_from = t_start, valid_to = t_end
-
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
-
     Metadata metadata = null;
     if (processingData.showMetadata) {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.", requestUrl);
@@ -315,29 +282,16 @@ public class ElementsRequestExecutor {
         contributionStream);
   }
 
-  /**
-   * Performs a count|length|perimeter|area calculation.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
+  /** Performs a count|length|perimeter|area calculation. */
   public static Response executeCountLengthPerimeterArea(RequestResource requestResource,
-      RequestParameters requestParameters, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
+      boolean isDensity) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     String requestUrl = null;
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
@@ -394,29 +348,17 @@ public class ElementsRequestExecutor {
         metadata, resultSet);
   }
 
-  /**
-   * Performs a count|length|perimeter|area calculation grouped by the boundary.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
+  /** Performs a count|length|perimeter|area calculation grouped by the boundary. */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
-      RequestResource requestResource, RequestParameters requestParameters,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      RequestResource requestResource, HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity)
+      throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -482,28 +424,15 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /**
-   * Performs a count|length|perimeter|area calculation grouped by the user.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
+  /** Performs a count|length|perimeter|area calculation grouped by the user. */
   public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
-      RequestParameters requestParameters, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
+      boolean isDensity) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -551,31 +480,20 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /**
-   * Performs a count|length|perimeter|area calculation grouped by the tag.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByTag(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[])
-   * countGroupByTag} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
+  /** Performs a count|length|perimeter|area calculation grouped by the tag. */
   public static Response executeCountLengthPerimeterAreaGroupByTag(RequestResource requestResource,
-      RequestParameters requestParameters, String[] groupByKey, String[] groupByValues,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
+      boolean isDensity) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
+    String[] groupByKey = servletRequest.getParameterValues("groupByKey");
+    String[] groupByValues = servletRequest.getParameterValues("groupByValues");
     if (groupByKey == null || groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.groupByKeyParam);
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -658,28 +576,15 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /**
-   * Performs a count|perimeter|area calculation grouped by the OSM type.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
-   *         GroupByResponseContent}
-   */
+  /** Performs a count|perimeter|area calculation grouped by the OSM type. */
   public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
-      RequestParameters requestParameters, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
+      boolean isDensity) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -724,31 +629,19 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /**
-   * Performs a count|length|perimeter|area calculation grouped by the key.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countGroupByKey(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[])
-   * countGroupByKey} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse
-   *         GroupByResponse Content}
-   */
+  /** Performs a count|length|perimeter|area calculation grouped by the key. */
   public static Response executeCountLengthPerimeterAreaGroupByKey(RequestResource requestResource,
-      RequestParameters requestParameters, String[] groupByKeys,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
+      boolean isDensity) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
+    String[] groupByKeys = servletRequest.getParameterValues("groupByKeys");
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(ExceptionMessages.groupByKeysParam);
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -815,35 +708,23 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /**
-   * Performs a count|length|perimeter|area-share|ratio calculation.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
-   * countRatio} method.
-   * 
-   * @param requestResource <code>Enum</code> defining the request type (COUNT, LENGTH, PERIMETER,
-   *        AREA).
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   */
+  /** Performs a count|length|perimeter|area-share|ratio calculation. */
   public static Response executeCountLengthPerimeterAreaShareRatio(RequestResource requestResource,
-      RequestParameters requestParameters, String[] types2, String[] keys2, String[] values2,
-      boolean isShare, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
+      boolean isDensity, boolean isShare) throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     TagTranslator tt = DbConnData.tagTranslator;
     requestParameters = inputProcessor.fillWithEmptyIfNull(requestParameters);
     // for input processing/checking only
     inputProcessor.processParameters(requestParameters);
+    String[] keys2 = servletRequest.getParameterValues("keys2");
+    String[] values2 = servletRequest.getParameterValues("values2");
     inputProcessor.checkKeysValues(keys2, values2);
     Pair<String[], String[]> keys2Vals2 =
         inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParameters);
@@ -871,7 +752,7 @@ public class ElementsRequestExecutor {
       }
     }
     EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
-    inputProcessor.defineOSMTypes(types2);
+    inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
     EnumSet<OSMType> osmTypes2 = processingData.osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
@@ -950,30 +831,19 @@ public class ElementsRequestExecutor {
         servletResponse);
   }
 
-  /**
-   * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
-   * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#countRatio(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest, String[], String[], String[])
-   * countRatio} method.
-   * 
-   * @param requestParameters <code>RequestParameters</code> object, which holds those parameters
-   *        that are used in every request.
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse
-   *         RatioGroupByBoundaryResponse Content}
-   */
+  /** Performs a count|length|perimeter|area-ratio calculation grouped by the boundary. */
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-      RequestResource requestResource, RequestParameters requestParameters, String[] types2,
-      String[] keys2, String[] values2, boolean isShare, HttpServletResponse servletResponse)
+      RequestResource requestResource, HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity, boolean isShare)
       throws UnsupportedOperationException, Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    ProcessingData processingData = new ProcessingData(requestParameters);
+    ProcessingData processingData = new ProcessingData(servletRequest, isSnapshot, isDensity);
     InputProcessor inputProcessor = new InputProcessor(processingData);
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
@@ -984,6 +854,8 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
     final GeoJsonObject[] geoJsonGeoms = processingData.geoJsonGeoms;
+    String[] keys2 = servletRequest.getParameterValues("keys2");
+    String[] values2 = servletRequest.getParameterValues("values2");
     inputProcessor.checkKeysValues(keys2, values2);
     Pair<String[], String[]> keys2Vals2 =
         inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParameters);
@@ -1011,7 +883,7 @@ public class ElementsRequestExecutor {
       }
     }
     EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
-    inputProcessor.defineOSMTypes(types2);
+    inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
     EnumSet<OSMType> osmTypes2 = processingData.osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
