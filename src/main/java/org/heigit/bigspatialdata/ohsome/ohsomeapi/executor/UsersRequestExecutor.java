@@ -46,8 +46,9 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
-    ProcessingData processingData = new ProcessingData(servletRequest, false, isDensity);
-    InputProcessor inputProcessor = new InputProcessor(processingData);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
@@ -55,7 +56,7 @@ public class UsersRequestExecutor {
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters();
     result = mapRed.aggregateByTimestamp().map(contrib -> {
       return contrib.getContributorUserId();
     }).countUniq();
@@ -87,8 +88,9 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
-    ProcessingData processingData = new ProcessingData(servletRequest, false, isDensity);
-    InputProcessor inputProcessor = new InputProcessor(processingData);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
@@ -97,7 +99,7 @@ public class UsersRequestExecutor {
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters();
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
@@ -143,8 +145,9 @@ public class UsersRequestExecutor {
       throw new BadRequestException(ExceptionMessages.groupByKeyParam);
     }
     MapReducer<OSMContribution> mapRed = null;
-    ProcessingData processingData = new ProcessingData(servletRequest, false, isDensity);
-    InputProcessor inputProcessor = new InputProcessor(processingData);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
@@ -159,7 +162,7 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -241,8 +244,9 @@ public class UsersRequestExecutor {
       throw new BadRequestException(ExceptionMessages.groupByKeysParam);
     }
     MapReducer<OSMContribution> mapRed = null;
-    ProcessingData processingData = new ProcessingData(servletRequest, false, isDensity);
-    InputProcessor inputProcessor = new InputProcessor(processingData);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String description = null;
@@ -252,7 +256,7 @@ public class UsersRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    mapRed = inputProcessor.processParameters(requestParameters);
+    mapRed = inputProcessor.processParameters();
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();

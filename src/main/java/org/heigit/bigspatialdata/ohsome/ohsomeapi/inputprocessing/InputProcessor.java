@@ -46,10 +46,18 @@ public class InputProcessor {
 
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
-  private final ProcessingData processingData;
+  private ProcessingData processingData;
+  private boolean isSnapshot;
 
-  public InputProcessor(ProcessingData processingData) {
-    this.processingData = processingData;
+  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+    this.isSnapshot = isSnapshot;
+    processingData =
+        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+            servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+            servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
+            servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
+            servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
+            servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata")));
   }
 
   /**
@@ -64,28 +72,26 @@ public class InputProcessor {
    *         including the settings derived from the given parameters.
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(
-      RequestParameters requestParameters) throws Exception {
-    processingData.format = requestParameters.getFormat();
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
+    String bboxes = createEmptyStringIfNull(processingData.getRequestParameters().getBboxes());
+    String bcircles = createEmptyStringIfNull(processingData.getRequestParameters().getBcircles());
+    String bpolys = createEmptyStringIfNull(processingData.getRequestParameters().getBpolys());
+    String[] types =
+        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTypes()));
+    String[] keys =
+        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getKeys()));
+    String[] values = splitParamOnComma(
+        createEmptyArrayIfNull(processingData.getRequestParameters().getValues()));
+    String[] userids = splitParamOnComma(
+        createEmptyArrayIfNull(processingData.getRequestParameters().getUserids()));
+    String[] time =
+        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTime()));
+    String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
+    String showMetadata =
+        createEmptyStringIfNull(processingData.getRequestParameters().getShowMetadata());
+    processingData.format = format;
     geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
-    String bboxes = requestParameters.getBboxes();
-    String bcircles = requestParameters.getBcircles();
-    String bpolys = requestParameters.getBpolys();
-    String[] types = requestParameters.getTypes();
-    String[] keys = requestParameters.getKeys();
-    String[] values = requestParameters.getValues();
-    String[] time = requestParameters.getTime();
-    String[] userids = requestParameters.getUserids();
-    bboxes = createEmptyStringIfNull(bboxes);
-    bcircles = createEmptyStringIfNull(bcircles);
-    bpolys = createEmptyStringIfNull(bpolys);
-    types = createEmptyArrayIfNull(types);
-    keys = createEmptyArrayIfNull(keys);
-    values = createEmptyArrayIfNull(values);
-    userids = createEmptyArrayIfNull(userids);
-    time = createEmptyArrayIfNull(time);
-    boolean isSnapshot = requestParameters.isSnapshot();
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
@@ -100,7 +106,6 @@ public class InputProcessor {
         mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
-    String showMetadata = requestParameters.getShowMetadata();
     if (showMetadata == null) {
       processingData.showMetadata = false;
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
@@ -216,6 +221,17 @@ public class InputProcessor {
     }
   }
 
+  /** Splits the given input parameter on ',' and returns a String[] containing the splits. */
+  public String[] splitParamOnComma(String[] param) {
+    if (param.length != 1) {
+      return param;
+    }
+    if (param[0].contains(",")) {
+      return param[0].split(",");
+    }
+    return param;
+  }
+
   /**
    * Creates an empty array if an input parameter of a POST request is null.
    * 
@@ -286,10 +302,8 @@ public class InputProcessor {
    */
   public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
       String[] values2) {
-    if (keys.length == keys2.length && values.length == values2.length) {
-      if (Arrays.equals(keys, keys2) && Arrays.equals(values, values2)) {
-        return true;
-      }
+    if (Arrays.equals(keys, keys2) && Arrays.equals(values, values2)) {
+      return true;
     }
     return false;
   }
@@ -602,5 +616,9 @@ public class InputProcessor {
 
   public ProcessingData getProcessingData() {
     return processingData;
+  }
+
+  public void setProcessingData(ProcessingData processingData) {
+    this.processingData = processingData;
   }
 }

@@ -29,12 +29,12 @@ public class ProcessingData {
   public ProcessingData(HttpServletRequest request, boolean isSnapshot, boolean isDensity) {
     this.requestParameters = new RequestParameters(request.getMethod(), isSnapshot, isDensity,
         request.getParameter("bboxes"), request.getParameter("bcircles"),
-        request.getParameter("bpolys"), request.getParameter("types").split(","),
-        request.getParameter("keys").split(","), request.getParameter("values").split(","),
-        request.getParameter("userids").split(","), request.getParameter("time").split(","),
+        request.getParameter("bpolys"), request.getParameterValues("types"),
+        request.getParameterValues("keys"), request.getParameterValues("values"),
+        request.getParameterValues("userids"), request.getParameterValues("time"),
         request.getParameter("format"), request.getParameter("showMetadata"));
   }
-  
+
   public ProcessingData(RequestParameters requestParameters) {
     this.requestParameters = requestParameters;
   }
