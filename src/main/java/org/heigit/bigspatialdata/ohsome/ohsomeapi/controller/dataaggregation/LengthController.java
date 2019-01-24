@@ -9,7 +9,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -112,9 +111,7 @@ public class LengthController {
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthGroupByKey(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, @RequestParam(value = "groupByKeys", defaultValue = "",
-          required = false) String[] groupByKeys)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false);
   }
@@ -142,11 +139,7 @@ public class LengthController {
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false);
   }
@@ -172,10 +165,7 @@ public class LengthController {
   @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthShare(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false, true);
   }
@@ -203,10 +193,7 @@ public class LengthController {
   @RequestMapping(value = "/share/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response lengthShareGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.LENGTH, servletRequest, servletResponse, true, false, true);
   }
@@ -287,11 +274,7 @@ public class LengthController {
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthDensityGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, true);
   }
@@ -319,11 +302,7 @@ public class LengthController {
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response lengthRatio(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false, false);
   }
@@ -351,11 +330,7 @@ public class LengthController {
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response lengthRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.LENGTH, servletRequest, servletResponse, true, false, false);
   }

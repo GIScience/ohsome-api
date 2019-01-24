@@ -9,7 +9,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -114,9 +113,7 @@ public class CountController {
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByKey(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, @RequestParam(value = "groupByKeys", defaultValue = "",
-          required = false) String[] groupByKeys)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.COUNT,
         servletRequest, servletResponse, true, false);
   }
@@ -144,11 +141,7 @@ public class CountController {
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
-      throws Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
         servletRequest, servletResponse, true, false);
   }
@@ -173,9 +166,7 @@ public class CountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countShare(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
+  public Response countShare(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
         servletRequest, servletResponse, true, false, true);
@@ -204,10 +195,7 @@ public class CountController {
   @RequestMapping(value = "/share/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countShareGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.COUNT, servletRequest, servletResponse, true, false, true);
   }
@@ -298,11 +286,7 @@ public class CountController {
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
-      throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
         servletRequest, servletResponse, true, true);
   }
@@ -329,10 +313,7 @@ public class CountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
-      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
+  public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws UnsupportedOperationException, Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
         servletRequest, servletResponse, true, false, false);
@@ -360,11 +341,7 @@ public class CountController {
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse,
-      @RequestParam(value = "types2", defaultValue = "", required = false) String[] types2,
-      @RequestParam(value = "keys2", defaultValue = "", required = false) String[] keys2,
-      @RequestParam(value = "values2", defaultValue = "", required = false) String[] values2)
-      throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.COUNT, servletRequest, servletResponse, true, false, false);
   }

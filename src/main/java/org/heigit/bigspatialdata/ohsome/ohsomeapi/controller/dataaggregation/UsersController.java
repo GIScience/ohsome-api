@@ -3,18 +3,15 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.UsersRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 /** Controller containing the GET and POST servletRequests, which enter through "/users". */
 @Api(tags = "users")
@@ -64,11 +61,7 @@ public class UsersController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countGroupByTag(HttpServletRequest servletRequest,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
-      throws Exception {
+  public Response countGroupByTag(HttpServletRequest servletRequest) throws Exception {
     return UsersRequestExecutor.executeCountGroupByTag(servletRequest, false);
   }
 
@@ -85,9 +78,7 @@ public class UsersController {
           dataType = "string", required = true)})
   @RequestMapping(value = "count/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countGroupByKey(HttpServletRequest servletRequest,
-      @RequestParam(value = "groupByKeys", defaultValue = "", required = false) String[] groupByKey)
-      throws Exception {
+  public Response countGroupByKey(HttpServletRequest servletRequest) throws Exception {
     return UsersRequestExecutor.executeCountGroupByKey(servletRequest, false);
   }
 
@@ -136,11 +127,7 @@ public class UsersController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
-  public Response countDensityGroupByTag(HttpServletRequest servletRequest,
-      @RequestParam(value = "groupByKey", defaultValue = "", required = false) String[] groupByKey,
-      @RequestParam(value = "groupByValues", defaultValue = "",
-          required = false) String[] groupByValues)
-      throws Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, false);
+  public Response countDensityGroupByTag(HttpServletRequest servletRequest) throws Exception {
+    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, true);
   }
 }
