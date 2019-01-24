@@ -47,10 +47,14 @@ public class InputProcessor {
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private ProcessingData processingData;
+  private HttpServletRequest servletRequest;
   private boolean isSnapshot;
+  private boolean isDensity;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+    this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
+    this.isDensity = isDensity;
     processingData =
         new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
             servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
@@ -58,6 +62,10 @@ public class InputProcessor {
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
             servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata")));
+  }
+
+  public InputProcessor(ProcessingData processingData) {
+    this.processingData = processingData;
   }
 
   /**
@@ -89,6 +97,10 @@ public class InputProcessor {
     String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
     String showMetadata =
         createEmptyStringIfNull(processingData.getRequestParameters().getShowMetadata());
+    // overwriting RequestParameters object with splitted/non-null parameters
+    processingData.setRequestParameters(
+        new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
+            bpolys, types, keys, values, userids, time, format, showMetadata));
     processingData.format = format;
     geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();

@@ -2,7 +2,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import javax.servlet.http.HttpServletRequest;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -12,7 +11,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class ProcessingData {
 
   public static Geometry dataPolyGeom;
-  private final RequestParameters requestParameters;
+  private RequestParameters requestParameters;
   public String requestUrl;
   public BoundaryType boundary;
   public String[] boundaryValues;
@@ -26,21 +25,16 @@ public class ProcessingData {
   public Collection<Geometry> boundaryColl;
   public GeoJsonObject[] geoJsonGeoms;
 
-  public ProcessingData(HttpServletRequest request, boolean isSnapshot, boolean isDensity) {
-    this.requestParameters = new RequestParameters(request.getMethod(), isSnapshot, isDensity,
-        request.getParameter("bboxes"), request.getParameter("bcircles"),
-        request.getParameter("bpolys"), request.getParameterValues("types"),
-        request.getParameterValues("keys"), request.getParameterValues("values"),
-        request.getParameterValues("userids"), request.getParameterValues("time"),
-        request.getParameter("format"), request.getParameter("showMetadata"));
-  }
-
   public ProcessingData(RequestParameters requestParameters) {
     this.requestParameters = requestParameters;
   }
 
   public RequestParameters getRequestParameters() {
     return requestParameters;
+  }
+
+  public void setRequestParameters(RequestParameters requestParameters) {
+    this.requestParameters = requestParameters;
   }
 
   public String getRequestUrl() {
@@ -130,5 +124,4 @@ public class ProcessingData {
   public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
     this.geoJsonGeoms = geoJsonGeoms;
   }
-
 }

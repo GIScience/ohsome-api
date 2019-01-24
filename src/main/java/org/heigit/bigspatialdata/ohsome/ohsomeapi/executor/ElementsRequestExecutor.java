@@ -79,11 +79,12 @@ public class ElementsRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    final boolean includeTags = Arrays.stream(servletRequest.getParameterValues("properties"))
-        .anyMatch(p -> p.equalsIgnoreCase("tags"));
+    String[] propertiesParam = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
+    final boolean includeTags =
+        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("tags"));
     final boolean includeOSMMetadata =
-        Arrays.stream(servletRequest.getParameterValues("properties"))
-            .anyMatch(p -> p.equalsIgnoreCase("metadata"));
+        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
@@ -147,11 +148,12 @@ public class ElementsRequestExecutor {
     }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
-    final boolean includeTags = Arrays.stream(servletRequest.getParameterValues("properties"))
-        .anyMatch(p -> p.equalsIgnoreCase("tags"));
+    String[] propertiesParam = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
+    final boolean includeTags =
+        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("tags"));
     final boolean includeOSMMetadata =
-        Arrays.stream(servletRequest.getParameterValues("properties"))
-            .anyMatch(p -> p.equalsIgnoreCase("metadata"));
+        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
@@ -171,8 +173,10 @@ public class ElementsRequestExecutor {
     }
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    if (requestParameters.getTime().length != 2) {
-      throw new BadRequestException("Wrong time parameter. You need to give exactly two timestamps "
+    String[] time = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
+    if (time.length != 2) {
+      throw new BadRequestException("Wrong time parameter. You need to give exactly two timestamps"
           + "that are ISO-8601 conform, if you want to use the full-history extraction.");
     }
     TagTranslator tt = DbConnData.tagTranslator;
@@ -756,8 +760,10 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
-    inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
+    EnumSet<OSMType> osmTypes1 = inputProcessor.getProcessingData().osmTypes;
+    if (!isShare) {
+      inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
+    }
     EnumSet<OSMType> osmTypes2 = inputProcessor.getProcessingData().osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
@@ -894,7 +900,9 @@ public class ElementsRequestExecutor {
       }
     }
     EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
-    inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
+    if (!isShare) {
+      inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
+    }
     EnumSet<OSMType> osmTypes2 = inputProcessor.getProcessingData().osmTypes;
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
