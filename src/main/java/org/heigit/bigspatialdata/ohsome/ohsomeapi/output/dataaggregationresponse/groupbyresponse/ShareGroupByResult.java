@@ -13,21 +13,15 @@ import io.swagger.annotations.ApiModelProperty;
  * requests.
  */
 @JsonInclude(Include.NON_NULL)
-public class ShareGroupByResult {
+public class ShareGroupByResult extends GroupByObject{
 
-  @ApiModelProperty(notes = "Object on which the share-results are grouped on", required = true)
-  private Object groupByObject;
   @ApiModelProperty(notes = "ShareResult array holding timestamp, whole and part values",
       required = true)
   private ShareResult[] shareResult;
 
   public ShareGroupByResult(Object groupByObject, ShareResult[] shareResult) {
-    this.groupByObject = groupByObject;
+    super(groupByObject);
     this.shareResult = shareResult;
-  }
-
-  public Object getGroupByObject() {
-    return groupByObject;
   }
 
   public ShareResult[] getShareResult() {

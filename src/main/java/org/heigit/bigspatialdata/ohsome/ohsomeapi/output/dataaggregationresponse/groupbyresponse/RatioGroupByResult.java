@@ -10,21 +10,15 @@ import io.swagger.annotations.ApiModelProperty;
  * RatioResult} objects. The RatioGroupByResult is only used in responses for /ratio/groupBy
  * requests.
  */
-public class RatioGroupByResult {
+public class RatioGroupByResult extends GroupByObject {
 
-  @ApiModelProperty(notes = "Object on which the ratio-results are grouped on", required = true)
-  private Object groupByObject;
   @ApiModelProperty(notes = "RatioResult array holding timestamp, whole and part values",
       required = true)
   private RatioResult[] ratioResult;
 
   public RatioGroupByResult(Object groupByObject, RatioResult[] ratioResult) {
-    this.groupByObject = groupByObject;
+    super(groupByObject);
     this.ratioResult = ratioResult;
-  }
-
-  public Object getGroupByObject() {
-    return groupByObject;
   }
 
   public RatioResult[] getRatioResult() {

@@ -37,6 +37,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
@@ -127,7 +128,7 @@ public class ExecutionUtils {
   }
 
   /** Writes a response in the csv format for /groupBy requests. */
-  public void writeCsvResponse(GroupByResult[] resultSet, HttpServletResponse servletResponse,
+  public void writeCsvResponse(GroupByObject[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
@@ -137,17 +138,63 @@ public class ExecutionUtils {
       List<String> columnNames = new LinkedList<String>();
       List<String[]> rows = new LinkedList<String[]>();
       columnNames.add("timestamp");
-      for (int i = 0; i < resultSet.length; i++) {
-        columnNames.add(resultSet[i].getGroupByObject().toString());
-        for (int j = 0; j < resultSet[i].getResult().length; j++) {
-          ElementsResult elemResult = (ElementsResult) resultSet[i].getResult()[j];
-          if (i == 0) {
-            String[] row = new String[resultSet.length + 1];
-            row[0] = elemResult.getTimestamp();
-            row[1] = String.valueOf(elemResult.getValue());
-            rows.add(row);
-          } else {
-            rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+      if (resultSet instanceof GroupByResult[]) {
+        for (int i = 0; i < resultSet.length; i++) {
+          GroupByResult groupByResult = (GroupByResult) resultSet[i];
+          columnNames.add(groupByResult.getGroupByObject().toString());
+          for (int j = 0; j < groupByResult.getResult().length; j++) {
+            ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
+            if (i == 0) {
+              String[] row = new String[resultSet.length + 1];
+              row[0] = elemResult.getTimestamp();
+              row[1] = String.valueOf(elemResult.getValue());
+              rows.add(row);
+            } else {
+              rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+            }
+          }
+        }
+      } else if (resultSet instanceof RatioGroupByResult[]) {
+        for (int i = 0; i < resultSet.length; i++) {
+          RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
+          columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
+          columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
+          columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
+          for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
+            RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
+            if (i == 0) {
+              String[] row = new String[resultSet.length * 3 + 1];
+              row[0] = ratioResult.getTimestamp();
+              row[1] = String.valueOf(ratioResult.getValue());
+              row[2] = String.valueOf(ratioResult.getValue2());
+              row[3] = String.valueOf(ratioResult.getRatio());
+              rows.add(row);
+            } else {
+              int count = i * 3 + 1;
+              rows.get(j)[count] = String.valueOf(ratioResult.getValue());
+              rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
+              rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
+            }
+          }
+        }
+      } else if (resultSet instanceof ShareGroupByResult[]) {
+        for (int i = 0; i < resultSet.length; i++) {
+          ShareGroupByResult shareGroupByResult = (ShareGroupByResult) resultSet[i];
+          columnNames.add(shareGroupByResult.getGroupByObject() + "_whole");
+          columnNames.add(shareGroupByResult.getGroupByObject() + "_part");
+          for (int j = 0; j < shareGroupByResult.getShareResult().length; j++) {
+            ShareResult shareResult = shareGroupByResult.getShareResult()[j];
+            if (i == 0) {
+              String[] row = new String[resultSet.length * 2 + 1];
+              row[0] = shareResult.getTimestamp();
+              row[1] = String.valueOf(shareResult.getWhole());
+              row[2] = String.valueOf(shareResult.getPart());
+              rows.add(row);
+            } else {
+              int count = i * 2 + 1;
+              rows.get(j)[count] = String.valueOf(shareResult.getWhole());
+              rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
+            }
           }
         }
       }
@@ -159,18 +206,32 @@ public class ExecutionUtils {
     }
   }
 
-  /** Writes a response in the csv format for /count|length|perimeter|area(/density) requests. */
-  public void writeCsvResponse(ElementsResult[] resultSet, HttpServletResponse servletResponse,
+  /**
+   * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)
+   * requests.
+   */
+  public void writeCsvResponse(Result[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
-      writer.writeNext(new String[] {"timestamp", "value"});
-      for (ElementsResult elementsResult : resultSet) {
-        writer.writeNext(new String[] {elementsResult.getTimestamp(),
-            String.valueOf(elementsResult.getValue())});
+      if (resultSet instanceof ElementsResult[]) {
+        writer.writeNext(new String[] {"timestamp", "value"});
+        for (Result result : resultSet) {
+          ElementsResult elementsResult = (ElementsResult) result;
+          writer.writeNext(new String[] {elementsResult.getTimestamp(),
+              String.valueOf(elementsResult.getValue())});
+        }
+      } else if (resultSet instanceof RatioResult[]) {
+        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
+        for (Result result : resultSet) {
+          RatioResult ratioResult = (RatioResult) result;
+          writer.writeNext(
+              new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
+                  String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+        }
       }
       writer.close();
     } catch (IOException e) {
@@ -191,103 +252,6 @@ public class ExecutionUtils {
         writer.writeNext(new String[] {shareResult.getTimestamp(),
             String.valueOf(shareResult.getWhole()), String.valueOf(shareResult.getPart())});
       }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /ratio requests. */
-  public void writeCsvResponse(RatioResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    CSVWriter writer;
-    try {
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
-      for (RatioResult ratioResult : resultSet) {
-        writer.writeNext(
-            new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
-                String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
-      }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /ratio/groupBy/boundary requests. */
-  public void writeCsvResponse(RatioGroupByResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    CSVWriter writer;
-    try {
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      List<String> columnNames = new LinkedList<String>();
-      List<String[]> rows = new LinkedList<String[]>();
-      columnNames.add("timestamp");
-      for (int i = 0; i < resultSet.length; i++) {
-        columnNames.add(resultSet[i].getGroupByObject() + "_value");
-        columnNames.add(resultSet[i].getGroupByObject() + "_value2");
-        columnNames.add(resultSet[i].getGroupByObject() + "_ratio");
-        for (int j = 0; j < resultSet[i].getRatioResult().length; j++) {
-          RatioResult ratioResult = resultSet[i].getRatioResult()[j];
-          if (i == 0) {
-            String[] row = new String[resultSet.length * 3 + 1];
-            row[0] = ratioResult.getTimestamp();
-            row[1] = String.valueOf(ratioResult.getValue());
-            row[2] = String.valueOf(ratioResult.getValue2());
-            row[3] = String.valueOf(ratioResult.getRatio());
-            rows.add(row);
-          } else {
-            int count = i * 3 + 1;
-            rows.get(j)[count] = String.valueOf(ratioResult.getValue());
-            rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
-            rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
-          }
-        }
-      }
-      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
-      writer.writeAll(rows);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /share/groupBy/boundary requests. */
-  public void writeCsvResponse(ShareGroupByResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    CSVWriter writer;
-    try {
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      List<String> columnNames = new LinkedList<String>();
-      List<String[]> rows = new LinkedList<String[]>();
-      columnNames.add("timestamp");
-      for (int i = 0; i < resultSet.length; i++) {
-        columnNames.add(resultSet[i].getGroupByObject() + "_whole");
-        columnNames.add(resultSet[i].getGroupByObject() + "_part");
-        for (int j = 0; j < resultSet[i].getShareResult().length; j++) {
-          ShareResult shareResult = resultSet[i].getShareResult()[j];
-          if (i == 0) {
-            String[] row = new String[resultSet.length * 2 + 1];
-            row[0] = shareResult.getTimestamp();
-            row[1] = String.valueOf(shareResult.getWhole());
-            row[2] = String.valueOf(shareResult.getPart());
-            rows.add(row);
-          } else {
-            int count = i * 2 + 1;
-            rows.get(j)[count] = String.valueOf(shareResult.getWhole());
-            rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
-          }
-        }
-      }
-      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
-      writer.writeAll(rows);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
