@@ -70,9 +70,25 @@ public class ElementsRequestExecutor {
   public static final String TEXT = ExtractMetadata.attributionShort;
   private static final double MAX_STREAM_DATA_SIZE = 1E7;
 
-  /** Performs an OSM data extraction. */
+  /**
+   * Performs an OSM data extraction.
+   * 
+   * @param elemGeom
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
+   *        ElementsGeometry} defining the geometry of the OSM elements
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters},
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
+   *         streamElementsResponse}
+   */
   public static void executeElements(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
     String requestUrl = null;
     if (!servletRequest.getMethod().equalsIgnoreCase("post")) {
@@ -137,10 +153,27 @@ public class ElementsRequestExecutor {
     exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
   }
 
-  /** Performs an OSM data extraction using the full-history of the data. */
+  /**
+   * Performs an OSM data extraction using the full-history of the data.
+   * 
+   * @param elemGeom
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
+   *        ElementsGeometry} defining the geometry of the OSM elements
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters},
+   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
+   *         parseISODateTime},
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
+   *         streamElementsResponse}
+   */
   public static void executeElementsFullHistory(ElementsGeometry elemGeom,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
     String requestUrl = null;
     if (!servletRequest.getMethod().equalsIgnoreCase("post")) {
@@ -275,15 +308,34 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
         metadata, "FeatureCollection", Collections.emptyList());
-
     exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
         contributionStream);
   }
 
-  /** Performs a count|length|perimeter|area calculation. */
+  /**
+   * Performs a count|length|perimeter|area calculation.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters},
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   */
   public static Response executeCountLengthPerimeterArea(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, ? extends Number> result = null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -347,11 +399,30 @@ public class ElementsRequestExecutor {
         metadata, resultSet);
   }
 
-  /** Performs a count|length|perimeter|area calculation grouped by the boundary. */
+  /**
+   * Performs a count|length|perimeter|area calculation grouped by the boundary.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters} and
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer)
+   *         computeCountLengthPerimeterAreaGbB}
+   */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity)
-      throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -424,10 +495,30 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count|length|perimeter|area calculation grouped by the user. */
+  /**
+   * Performs a count|length|perimeter|area calculation grouped by the user.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters} and
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
+   *         computeResult}
+   */
   public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
@@ -437,11 +528,10 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    ArrayList<Integer> useridsInt = new ArrayList<Integer>();
+    ArrayList<Integer> useridsInt = new ArrayList<>();
     if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters();
     if (requestParameters.getUserids() != null) {
       for (String user : requestParameters.getUserids()) {
         useridsInt.add(Integer.parseInt(user));
@@ -481,10 +571,30 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count|length|perimeter|area calculation grouped by the tag. */
+  /**
+   * Performs a count|length|perimeter|area calculation grouped by the tag.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters} and
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
+   *         computeResult}
+   */
   public static Response executeCountLengthPerimeterAreaGroupByTag(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
@@ -510,7 +620,6 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = inputProcessor.processParameters();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -580,10 +689,30 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count|perimeter|area calculation grouped by the OSM type. */
+  /**
+   * Performs a count|perimeter|area calculation grouped by the OSM type.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters} and
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
+   *         computeResult}
+   */
   public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
@@ -633,10 +762,30 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count|length|perimeter|area calculation grouped by the key. */
+  /**
+   * Performs a count|length|perimeter|area calculation grouped by the key.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters} and
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
+   *         computeResult}
+   */
   public static Response executeCountLengthPerimeterAreaGroupByKey(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
@@ -656,7 +805,6 @@ public class ElementsRequestExecutor {
     }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
-    mapRed = inputProcessor.processParameters();
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
@@ -714,10 +862,32 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count|length|perimeter|area-share|ratio calculation. */
+  /**
+   * Performs a count|length|perimeter|area-share|ratio calculation.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @param isShare whether this request is accessed via the /share (true), or /ratio (false)
+   *        resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters} and
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
+   *         computeResult}
+   */
   public static Response executeCountLengthPerimeterAreaShareRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity, boolean isShare) throws UnsupportedOperationException, Exception {
+      boolean isDensity, boolean isShare) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
@@ -727,9 +897,6 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     TagTranslator tt = DbConnData.tagTranslator;
-    requestParameters = inputProcessor.fillWithEmptyIfNull(requestParameters);
-    // for input processing/checking only
-    inputProcessor.processParameters();
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
     String[] values2 = inputProcessor.splitParamOnComma(
@@ -845,26 +1012,46 @@ public class ElementsRequestExecutor {
         servletResponse);
   }
 
-  /** Performs a count|length|perimeter|area-ratio calculation grouped by the boundary. */
+  /**
+   * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @param isShare whether this request is accessed via the /share (true), or /ratio (false)
+   *        resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters},
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   */
   @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity, boolean isShare)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    mapRed = inputProcessor.processParameters();
+    inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
-    requestParameters = inputProcessor.fillWithEmptyIfNull(requestParameters);
-    inputProcessor.processParameters();
     if (processingData.boundary == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.noBoundary);
     }
