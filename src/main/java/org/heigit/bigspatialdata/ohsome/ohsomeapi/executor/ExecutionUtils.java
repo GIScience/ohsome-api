@@ -479,107 +479,69 @@ public class ExecutionUtils {
     return tags;
   }
 
-  /**
-   * Creates the GeoJson features used in the GeoJson response for a
-   * count|length|perimeter|area/groupBy/boundary request.
-   */
-  public Feature[] createGeoJsonFeatures(GroupByResult[] groupByResults,
-      GeoJsonObject[] geoJsonGeoms) {
-    int groupByResultsLength = groupByResults.length;
-    int resultLength = groupByResults[0].getResult().length;
-    int featuresLength = groupByResultsLength * resultLength;
-    Feature[] features = new Feature[featuresLength];
+  /** Creates the GeoJson features used in the GeoJson response. */
+  public Feature[] createGeoJsonFeatures(GroupByObject[] results, GeoJsonObject[] geojsonGeoms) {
+    int groupByResultsLength = results.length;
     int groupByResultCount = 0;
     int tstampCount = 0;
-    for (int i = 0; i < featuresLength; i++) {
-      ElementsResult result =
-          (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
-      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
-      String tstamp = result.getTimestamp();
-      Feature feature = new Feature();
-      feature.setId(groupByBoundaryId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-      feature.setProperty("timestamp", tstamp);
-      feature.setProperty("value", result.getValue());
-      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-      feature.setGeometry(geom);
-      tstampCount++;
-      if (tstampCount == resultLength) {
-        tstampCount = 0;
-        groupByResultCount++;
+    Feature[] features;
+    if (results instanceof GroupByResult[]) {
+      GroupByResult[] groupByResults = (GroupByResult[]) results;
+      int resultLength = groupByResults[0].getResult().length;
+      int featuresLength = groupByResultsLength * resultLength;
+      features = new Feature[featuresLength];
+      for (int i = 0; i < featuresLength; i++) {
+        ElementsResult result =
+            (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
+        String tstamp = result.getTimestamp();
+        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        feature.setProperty("value", result.getValue());
+        tstampCount++;
+        if (tstampCount == resultLength) {
+          tstampCount = 0;
+          groupByResultCount++;
+        }
+        features[i] = feature;
       }
-      features[i] = feature;
-    }
-    return features;
-  }
-
-  /**
-   * Creates the GeoJson features used in the GeoJson response for a
-   * count|length|perimeter|area/ratio/groupBy/boundary request.
-   */
-  public Feature[] createGeoJsonFeatures(RatioGroupByResult[] groupByResults,
-      GeoJsonObject[] geoJsonGeoms) {
-    int groupByResultsLength = groupByResults.length;
-    int resultLength = groupByResults[0].getRatioResult().length;
-    int featuresLength = groupByResultsLength * resultLength;
-    Feature[] features = new Feature[featuresLength];
-    int groupByResultCount = 0;
-    int tstampCount = 0;
-    for (int i = 0; i < featuresLength; i++) {
-      RatioResult result =
-          (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
-      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
-      String tstamp = result.getTimestamp();
-      Feature feature = new Feature();
-      feature.setId(groupByBoundaryId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-      feature.setProperty("timestamp", tstamp);
-      feature.setProperty("value", result.getValue());
-      feature.setProperty("value2", result.getValue2());
-      feature.setProperty("ratio", result.getRatio());
-      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-      feature.setGeometry(geom);
-      tstampCount++;
-      if (tstampCount == resultLength) {
-        tstampCount = 0;
-        groupByResultCount++;
+    } else if (results instanceof ShareGroupByResult[]) {
+      ShareGroupByResult[] groupByResults = (ShareGroupByResult[]) results;
+      int resultLength = groupByResults[0].getShareResult().length;
+      int featuresLength = groupByResultsLength * resultLength;
+      features = new Feature[featuresLength];
+      for (int i = 0; i < featuresLength; i++) {
+        ShareResult result =
+            (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
+        String tstamp = result.getTimestamp();
+        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        feature.setProperty("whole", result.getWhole());
+        feature.setProperty("part", result.getPart());
+        tstampCount++;
+        if (tstampCount == resultLength) {
+          tstampCount = 0;
+          groupByResultCount++;
+        }
+        features[i] = feature;
       }
-      features[i] = feature;
-    }
-    return features;
-  }
-
-  /**
-   * Creates the GeoJson features used in the GeoJson response for a
-   * count|length|perimeter|area/share/groupBy/boundary request.
-   */
-  public Feature[] createGeoJsonFeatures(ShareGroupByResult[] groupByResults,
-      GeoJsonObject[] geoJsonGeoms) {
-    int groupByResultsLength = groupByResults.length;
-    int resultLength = groupByResults[0].getShareResult().length;
-    int featuresLength = groupByResultsLength * resultLength;
-    Feature[] features = new Feature[featuresLength];
-    int groupByResultCount = 0;
-    int tstampCount = 0;
-    for (int i = 0; i < featuresLength; i++) {
-      ShareResult result =
-          (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
-      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
-      String tstamp = result.getTimestamp();
-      Feature feature = new Feature();
-      feature.setId(groupByBoundaryId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-      feature.setProperty("timestamp", tstamp);
-      feature.setProperty("whole", result.getWhole());
-      feature.setProperty("part", result.getPart());
-      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-      feature.setGeometry(geom);
-      tstampCount++;
-      if (tstampCount == resultLength) {
-        tstampCount = 0;
-        groupByResultCount++;
+    } else {
+      RatioGroupByResult[] groupByResults = (RatioGroupByResult[]) results;
+      int resultLength = groupByResults[0].getRatioResult().length;
+      int featuresLength = groupByResultsLength * resultLength;
+      features = new Feature[featuresLength];
+      for (int i = 0; i < featuresLength; i++) {
+        RatioResult result =
+            (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
+        String tstamp = result.getTimestamp();
+        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        feature.setProperty("value", result.getValue());
+        feature.setProperty("value2", result.getValue2());
+        feature.setProperty("ratio", result.getRatio());
+        tstampCount++;
+        if (tstampCount == resultLength) {
+          tstampCount = 0;
+          groupByResultCount++;
+        }
+        features[i] = feature;
       }
-      features[i] = feature;
     }
     return features;
   }
@@ -623,33 +585,6 @@ public class ExecutionUtils {
       count++;
     }
     return results;
-  }
-
-  /** Fills the given stream with output data. */
-  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
-      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
-      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
-    stream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    return stream;
   }
 
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
@@ -794,6 +729,46 @@ public class ExecutionUtils {
 
     return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
         groupByResultSet);
+  }
+
+  /** Fills the given stream with output data. */
+  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
+      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
+      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
+    stream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    return stream;
+  }
+
+  /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
+  private Feature fillGeojsonFeature(GroupByObject[] results, GeoJsonObject[] geoJsonGeoms,
+      int groupByResultCount, String timestamp) {
+    Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
+    Feature feature = new Feature();
+    feature.setId(groupByBoundaryId + "@" + timestamp);
+    feature.setProperty("groupByBoundaryId", groupByBoundaryId);
+    feature.setProperty("timestamp", timestamp);
+    GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
+    feature.setGeometry(geom);
+    return feature;
   }
 
   /** Enum type used in /ratio computation. */
