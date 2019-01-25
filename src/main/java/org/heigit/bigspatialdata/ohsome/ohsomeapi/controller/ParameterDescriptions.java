@@ -31,4 +31,8 @@ public class ParameterDescriptions {
           + "default: 'tags'";
   public static final String SHOW_METADATA_DESCR =
       "Boolean operator 'true' or 'false'; default: 'false'";
+
+  private ParameterDescriptions() {
+    throw new IllegalStateException("Utility class");
+  }
 }

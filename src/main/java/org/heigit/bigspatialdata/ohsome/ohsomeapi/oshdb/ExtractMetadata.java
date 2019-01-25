@@ -12,4 +12,8 @@ public class ExtractMetadata {
   public static String attributionUrl = null;
   public static Geometry dataPoly = null;
   public static JsonNode dataPolyJson = null;
+
+  private ExtractMetadata() {
+    throw new IllegalStateException("Utility class");
+  }
 }

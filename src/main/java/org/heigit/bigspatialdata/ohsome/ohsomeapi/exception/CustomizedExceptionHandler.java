@@ -51,7 +51,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(OSHDBTimeoutException.class)
   public final ResponseEntity<ErrorDetails> handleTimeoutException() {
-    return createExceptionResponse(new PayloadTooLargeException(ExceptionMessages.payloadTooLarge),
+    return createExceptionResponse(
+        new PayloadTooLargeException(ExceptionMessages.PAYLOAD_TOO_LARGE),
         HttpStatus.PAYLOAD_TOO_LARGE);
   }
 

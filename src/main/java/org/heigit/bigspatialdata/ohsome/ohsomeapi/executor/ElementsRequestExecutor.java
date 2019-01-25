@@ -70,6 +70,10 @@ public class ElementsRequestExecutor {
   public static final String TEXT = ExtractMetadata.attributionShort;
   private static final double MAX_STREAM_DATA_SIZE = 1E7;
 
+  private ElementsRequestExecutor() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /**
    * Performs an OSM data extraction.
    * 
@@ -145,10 +149,10 @@ public class ElementsRequestExecutor {
     });
     Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
     }
-    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
+    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
   }
@@ -303,10 +307,10 @@ public class ElementsRequestExecutor {
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.", requestUrl);
     }
-    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.apiVersion,
+    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
         contributionStream);
@@ -383,7 +387,7 @@ public class ElementsRequestExecutor {
     ElementsResult[] resultSet =
         exeUtils.fillElementsResult(result, requestParameters.isDensity(), df, geom);
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata =
           new Metadata(duration, Description.countLengthPerimeterArea(requestParameters.isDensity(),
@@ -392,10 +396,10 @@ public class ElementsRequestExecutor {
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.apiVersion,
+    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, resultSet);
   }
 
@@ -441,19 +445,19 @@ public class ElementsRequestExecutor {
       case COUNT:
       default:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            processingData.boundary, mapRed);
+            processingData.getBoundary(), mapRed);
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            processingData.boundary, mapRed);
+            processingData.getBoundary(), mapRed);
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            processingData.boundary, mapRed);
+            processingData.getBoundary(), mapRed);
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            processingData.boundary, mapRed);
+            processingData.getBoundary(), mapRed);
         break;
     }
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
@@ -463,7 +467,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.boundaryColl);
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
@@ -473,7 +477,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByBoundary(requestParameters.isDensity(),
@@ -482,16 +486,16 @@ public class ElementsRequestExecutor {
     }
     if (requestParameters.getFormat() != null) {
       if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return GroupByResponse.of(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+        return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
             "FeatureCollection",
-            exeUtils.createGeoJsonFeatures(resultSet, processingData.geoJsonGeoms));
+            exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
       } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
         exeUtils.writeCsvResponse(resultSet, servletResponse,
-            exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
+            exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
         return null;
       }
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -556,7 +560,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
@@ -564,10 +568,10 @@ public class ElementsRequestExecutor {
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -603,7 +607,7 @@ public class ElementsRequestExecutor {
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     if (groupByKey == null || groupByKey.length != 1) {
-      throw new BadRequestException(ExceptionMessages.groupByKeyParam);
+      throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
@@ -672,7 +676,7 @@ public class ElementsRequestExecutor {
     // used to remove null objects from the resultSet
     resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
@@ -682,10 +686,10 @@ public class ElementsRequestExecutor {
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -729,7 +733,7 @@ public class ElementsRequestExecutor {
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
           return f.getEntity().getType();
-        }, processingData.osmTypes);
+        }, processingData.getOsmTypes());
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, ? extends Number> result;
     result = exeUtils.computeResult(requestResource, preResult);
     SortedMap<OSMType, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
@@ -745,7 +749,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(requestParameters.isDensity(),
@@ -755,10 +759,10 @@ public class ElementsRequestExecutor {
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -792,7 +796,7 @@ public class ElementsRequestExecutor {
     String[] groupByKeys = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKeys")));
     if (groupByKeys == null || groupByKeys.length == 0) {
-      throw new BadRequestException(ExceptionMessages.groupByKeysParam);
+      throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
@@ -847,7 +851,7 @@ public class ElementsRequestExecutor {
       count++;
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
@@ -855,10 +859,10 @@ public class ElementsRequestExecutor {
     if (requestParameters.getFormat() != null
         && requestParameters.getFormat().equalsIgnoreCase("csv")) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.apiVersion, metadata));
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.apiVersion, metadata,
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -927,11 +931,13 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = inputProcessor.getProcessingData().osmTypes;
+    EnumSet<OSMType> osmTypes1 =
+        (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     if (!isShare) {
       inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
     }
-    EnumSet<OSMType> osmTypes2 = inputProcessor.getProcessingData().osmTypes;
+    EnumSet<OSMType> osmTypes2 =
+        (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
@@ -1052,10 +1058,10 @@ public class ElementsRequestExecutor {
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     TagTranslator tt = DbConnData.tagTranslator;
-    if (processingData.boundary == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.noBoundary);
+    if (processingData.getBoundary() == BoundaryType.NOBOUNDARY) {
+      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    final GeoJsonObject[] geoJsonGeoms = processingData.geoJsonGeoms;
+    final GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
     String[] values2 = inputProcessor.splitParamOnComma(
@@ -1086,11 +1092,12 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = processingData.osmTypes;
+    EnumSet<OSMType> osmTypes1 = (EnumSet<OSMType>) processingData.getOsmTypes();
     if (!isShare) {
       inputProcessor.defineOSMTypes(servletRequest.getParameterValues("types2"));
     }
-    EnumSet<OSMType> osmTypes2 = inputProcessor.getProcessingData().osmTypes;
+    EnumSet<OSMType> osmTypes2 =
+        (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
@@ -1116,7 +1123,7 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters();
       mapRed = mapRed.osmType(osmTypes);
     }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.boundaryColl);
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
     ArrayList<MatchType> zeroFill = new ArrayList<>();
     for (int j = 0; j < arrGeoms.size(); j++) {
       zeroFill.add(MatchType.MATCHESBOTH);

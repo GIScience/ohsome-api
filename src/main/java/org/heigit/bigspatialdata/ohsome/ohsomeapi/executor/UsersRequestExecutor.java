@@ -40,6 +40,10 @@ public class UsersRequestExecutor {
   private static final String url = ExtractMetadata.attributionUrl;
   private static final String text = ExtractMetadata.attributionShort;
 
+  private UsersRequestExecutor() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /** Performs a count calculation. */
   public static Response executeCount(HttpServletRequest servletRequest, boolean isDensity)
       throws UnsupportedOperationException, Exception {
@@ -73,12 +77,12 @@ public class UsersRequestExecutor {
     UsersResult[] results =
         exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
     Response response = DefaultAggregationResponse.of(new Attribution(url, text),
-        Application.apiVersion, metadata, results);
+        Application.API_VERSION, metadata, results);
     return response;
   }
 
@@ -103,7 +107,7 @@ public class UsersRequestExecutor {
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
-        }, processingData.osmTypes).map(contrib -> {
+        }, processingData.getOsmTypes()).map(contrib -> {
           return contrib.getContributorUserId();
         }).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
@@ -126,11 +130,11 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the type.";
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+    Response response = new GroupByResponse(new Attribution(url, text), Application.API_VERSION,
         metadata, resultSet);
     return response;
   }
@@ -142,7 +146,7 @@ public class UsersRequestExecutor {
     String[] groupByKey = servletRequest.getParameterValues("groupByKey");
     String[] groupByValues = servletRequest.getParameterValues("groupByValues");
     if (groupByKey == null || groupByKey.length != 1) {
-      throw new BadRequestException(ExceptionMessages.groupByKeyParam);
+      throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
@@ -226,11 +230,11 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the tag.";
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+    Response response = new GroupByResponse(new Attribution(url, text), Application.API_VERSION,
         metadata, resultSet);
     return response;
   }
@@ -241,7 +245,7 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     String[] groupByKeys = servletRequest.getParameterValues("groupByKeys");
     if (groupByKeys == null || groupByKeys.length == 0) {
-      throw new BadRequestException(ExceptionMessages.groupByKeysParam);
+      throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
@@ -307,11 +311,11 @@ public class UsersRequestExecutor {
       description = "Number of distinct users per time interval aggregated on the key.";
     }
     Metadata metadata = null;
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.apiVersion,
+    Response response = new GroupByResponse(new Attribution(url, text), Application.API_VERSION,
         metadata, resultSet);
     return response;
   }

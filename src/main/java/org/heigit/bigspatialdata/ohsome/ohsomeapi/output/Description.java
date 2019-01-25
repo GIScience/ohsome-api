@@ -71,4 +71,8 @@ public class Description {
         + " selected by types, keys, values parameters (= value output) and ratio of value2:value, "
         + "aggregated on the boundary objects.";
   }
+
+  private Description() {
+    throw new IllegalStateException("Utility class");
+  }
 }

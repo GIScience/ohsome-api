@@ -32,7 +32,7 @@ public class ElementsFullHistoryController {
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMDataRawFullHistory(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.RAW, servletRequest,
         servletResponse);
   }
@@ -48,7 +48,7 @@ public class ElementsFullHistoryController {
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMDataBbox(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.BBOX, servletRequest,
         servletResponse);
   }
@@ -63,7 +63,7 @@ public class ElementsFullHistoryController {
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMDataCentroid(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.CENTROID, servletRequest,
         servletResponse);
   }

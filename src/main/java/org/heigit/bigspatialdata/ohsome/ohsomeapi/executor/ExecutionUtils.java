@@ -337,11 +337,11 @@ public class ExecutionUtils {
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.noBoundary);
+      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.boundaryColl);
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
@@ -606,7 +606,7 @@ public class ExecutionUtils {
         resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
       }
       Metadata metadata = null;
-      if (processingData.showMetadata) {
+      if (processingData.isShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
@@ -616,17 +616,17 @@ public class ExecutionUtils {
           && requestParameters.getFormat().equalsIgnoreCase("csv")) {
         writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.apiVersion, metadata));
+                Application.API_VERSION, metadata));
         return null;
       }
-      response = new RatioResponse(attribution, Application.apiVersion, metadata, resultSet);
+      response = new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
     } else {
       ShareResult[] resultSet = new ShareResult[timeArray.length];
       for (int i = 0; i < timeArray.length; i++) {
         resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
       }
       Metadata metadata = null;
-      if (processingData.showMetadata) {
+      if (processingData.isShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
@@ -636,10 +636,10 @@ public class ExecutionUtils {
           && requestParameters.getFormat().equalsIgnoreCase("csv")) {
         writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.apiVersion, metadata));
+                Application.API_VERSION, metadata));
         return null;
       }
-      response = new ShareResponse(attribution, Application.apiVersion, metadata, resultSet);
+      response = new ShareResponse(attribution, Application.API_VERSION, metadata, resultSet);
     }
     return response;
   }
@@ -678,24 +678,24 @@ public class ExecutionUtils {
         }
         groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
       }
-      if (processingData.showMetadata) {
+      if (processingData.isShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
       }
       if (requestParameters.getFormat() != null) {
         if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-          return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+          return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
               "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
         } else if (requestParameters.getFormat() != null
             && requestParameters.getFormat().equalsIgnoreCase("csv")) {
           writeCsvResponse(groupByResultSet, servletResponse,
               createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                  Application.apiVersion, metadata));
+                  Application.API_VERSION, metadata));
           return null;
         }
       }
-      return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+      return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
           groupByResultSet);
     }
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
@@ -710,24 +710,24 @@ public class ExecutionUtils {
       }
       groupByResultSet[i] = new ShareGroupByResult(groupByName, shareResultSet);
     }
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
     if (requestParameters.getFormat() != null) {
       if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+        return ShareGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
             "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
       } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
         writeCsvResponse(groupByResultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.apiVersion, metadata));
+                Application.API_VERSION, metadata));
         return null;
       }
     }
 
-    return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+    return new ShareGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
   }
 

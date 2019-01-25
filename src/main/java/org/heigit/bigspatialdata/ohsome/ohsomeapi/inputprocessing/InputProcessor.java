@@ -96,7 +96,7 @@ public class InputProcessor {
     processingData.setRequestParameters(
         new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
             bpolys, types, keys, values, userids, time, format, showMetadata));
-    processingData.format = format;
+    processingData.setFormat(format);
     geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
@@ -114,22 +114,22 @@ public class InputProcessor {
       }
     }
     if (showMetadata == null) {
-      processingData.showMetadata = false;
+      processingData.setShowMetadata(false);
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
         || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes")) {
-      processingData.showMetadata = true;
+      processingData.setShowMetadata(true);
     } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
         || showMetadata.replaceAll("\\s", "").equals("")
         || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no")) {
-      processingData.showMetadata = false;
+      processingData.setShowMetadata(false);
     } else {
       throw new BadRequestException(
           "The showMetadata parameter can only contain the values 'true', 'yes', 'false', or "
               + "'no'.");
     }
-    processingData.boundary = setBoundaryType(bboxes, bcircles, bpolys);
+    processingData.setBoundary(setBoundaryType(bboxes, bcircles, bpolys));
     try {
-      switch (processingData.boundary) {
+      switch (processingData.getBoundary()) {
         case NOBOUNDARY:
           if (ExtractMetadata.dataPoly == null) {
             throw new BadRequestException(
@@ -138,37 +138,38 @@ public class InputProcessor {
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
         case BBOXES:
-          processingData.boundaryValues = utils.splitBboxes(bboxes).toArray(new String[] {});
+          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
           mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createBboxes(processingData.boundaryValues));
+              (Geometry & Polygonal) geomBuilder.createBboxes(processingData.getBoundaryValues()));
           break;
         case BCIRCLES:
-          processingData.boundaryValues = utils.splitBcircles(bcircles).toArray(new String[] {});
+          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
-              .createCircularPolygons(processingData.boundaryValues));
+              .createCircularPolygons(processingData.getBoundaryValues()));
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
             mapRed = mapRed.areaOfInterest(
                 (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
           } else {
-            processingData.boundaryValues = utils.splitBpolys(bpolys).toArray(new String[] {});
-            mapRed = mapRed.areaOfInterest(
-                (Geometry & Polygonal) geomBuilder.createBpolys(processingData.boundaryValues));
+            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
+            mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
+                .createBpolys(processingData.getBoundaryValues()));
           }
           break;
         default:
-          throw new BadRequestException(ExceptionMessages.boundaryParamFormatOrCount);
+          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
       }
     } catch (ClassCastException e) {
       throw new BadRequestException(
           "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) "
               + "cannot be processed.");
     }
-    checkFormat(processingData.format);
-    if (processingData.format != null && processingData.format.equalsIgnoreCase("geojson")) {
+    checkFormat(processingData.getFormat());
+    if (processingData.getFormat() != null
+        && processingData.getFormat().equalsIgnoreCase("geojson")) {
       GeoJSONWriter writer = new GeoJSONWriter();
-      Collection<Geometry> boundaryColl = processingData.boundaryColl;
+      Collection<Geometry> boundaryColl = processingData.getBoundaryColl();
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
       for (int i = 0; i < geoJsonGeoms.length; i++) {
         try {
@@ -180,10 +181,10 @@ public class InputProcessor {
                   + "for the creation of the response GeoJSON.");
         }
       }
-      processingData.geoJsonGeoms = geoJsonGeoms;
+      processingData.setGeoJsonGeoms(geoJsonGeoms);
     }
     defineOSMTypes(types);
-    mapRed = mapRed.osmType(processingData.osmTypes);
+    mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
     if (userids.length != 0) {
@@ -213,16 +214,16 @@ public class InputProcessor {
     types = createEmptyArrayIfNull(types);
     checkOSMTypes(types);
     if (types.length == 0) {
-      processingData.osmTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
+      processingData.setOsmTypes(EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION));
     } else {
-      processingData.osmTypes = EnumSet.noneOf(OSMType.class);
+      processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
       for (String type : types) {
         if (type.equalsIgnoreCase("node")) {
-          processingData.osmTypes.add(OSMType.NODE);
+          processingData.getOsmTypes().add(OSMType.NODE);
         } else if (type.equalsIgnoreCase("way")) {
-          processingData.osmTypes.add(OSMType.WAY);
+          processingData.getOsmTypes().add(OSMType.WAY);
         } else {
-          processingData.osmTypes.add(OSMType.RELATION);
+          processingData.getOsmTypes().add(OSMType.RELATION);
         }
       }
     }
@@ -550,7 +551,7 @@ public class InputProcessor {
     } else if (bboxes.isEmpty() && bcircles.isEmpty() && !bpolys.isEmpty()) {
       return BoundaryType.BPOLYS;
     } else {
-      throw new BadRequestException(ExceptionMessages.boundaryParamFormatOrCount);
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
     }
   }
 
@@ -563,18 +564,18 @@ public class InputProcessor {
    */
   public Geometry getGeometry() {
     Geometry geom;
-    switch (processingData.boundary) {
+    switch (processingData.getBoundary()) {
       case NOBOUNDARY:
-        geom = ProcessingData.dataPolyGeom;
+        geom = ProcessingData.getDataPolyGeom();
         break;
       case BBOXES:
-        geom = processingData.bboxesGeom;
+        geom = processingData.getBboxesGeom();
         break;
       case BCIRCLES:
-        geom = processingData.bcirclesGeom;
+        geom = processingData.getBcirclesGeom();
         break;
       case BPOLYS:
-        geom = processingData.bpolysGeom;
+        geom = processingData.getBpolysGeom();
         break;
       default:
         geom = null;

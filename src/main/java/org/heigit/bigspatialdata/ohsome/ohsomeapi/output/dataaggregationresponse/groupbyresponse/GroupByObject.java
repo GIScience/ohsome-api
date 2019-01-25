@@ -16,13 +16,13 @@ import io.swagger.annotations.ApiModelProperty;
 public abstract class GroupByObject {
 
   @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
-  protected Object groupByObject;
+  protected Object groupByObjectValue;
 
-  public GroupByObject(Object groupByObject) {
-    this.groupByObject = groupByObject;
+  public GroupByObject(Object groupByObjectValue) {
+    this.groupByObjectValue = groupByObjectValue;
   }
 
   public Object getGroupByObject() {
-    return groupByObject;
+    return groupByObjectValue;
   }
 }

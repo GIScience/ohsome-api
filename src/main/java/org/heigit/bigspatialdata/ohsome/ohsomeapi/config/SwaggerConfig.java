@@ -76,7 +76,7 @@ public class SwaggerConfig {
 
   /** Defines custom response messages for the used response codes. */
   private ArrayList<ResponseMessage> defineResponseMessages() {
-    ArrayList<ResponseMessage> responseMessages = new ArrayList<ResponseMessage>();
+    ArrayList<ResponseMessage> responseMessages = new ArrayList<>();
     responseMessages.add(new ResponseMessageBuilder().code(200).message("OK").build());
     responseMessages.add(new ResponseMessageBuilder().code(400).message("Bad request").build());
     responseMessages.add(new ResponseMessageBuilder().code(401).message("Unauthorized").build());
@@ -108,46 +108,47 @@ public class SwaggerConfig {
    * documentation.
    */
   private List<Parameter> defineGlobalOperationParams(boolean isFullHistory) {
-    List<Parameter> globalOperationParams = new ArrayList<Parameter>();
-    globalOperationParams
-        .add(new ParameterBuilder().name("bboxes").description(ParameterDescriptions.BBOXES_DESCR)
-            .modelRef(new ModelRef("string")).parameterType("query")
-            .defaultValue(DefaultSwaggerParameters.BBOX).required(false).build());
+    final String STRING = "string";
+    final String QUERY = "query";
+    List<Parameter> globalOperationParams = new ArrayList<>();
+    globalOperationParams.add(new ParameterBuilder().name("bboxes")
+        .description(ParameterDescriptions.BBOXES_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue(DefaultSwaggerParameters.BBOX).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("bcircles")
-        .description(ParameterDescriptions.BCIRCLES_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue("").required(false).build());
+        .description(ParameterDescriptions.BCIRCLES_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
-        .description(ParameterDescriptions.BPOLYS_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue("").required(false).build());
+        .description(ParameterDescriptions.BPOLYS_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("").required(false).build());
     globalOperationParams
         .add(new ParameterBuilder().name("types").description(ParameterDescriptions.TYPES_DESCR)
-            .modelRef(new ModelRef("string")).allowMultiple(true).parameterType("query")
+            .modelRef(new ModelRef(STRING)).allowMultiple(true).parameterType(QUERY)
             .defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.KEYS_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue("").required(false).build());
+        .description(ParameterDescriptions.KEYS_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("values")
-        .description(ParameterDescriptions.VALUES_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue("").required(false).build());
+        .description(ParameterDescriptions.VALUES_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("userids")
-        .description(ParameterDescriptions.USERIDS_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue("").required(false).build());
+        .description(ParameterDescriptions.USERIDS_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("format")
-        .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue("json").required(false).build());
+        .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("json").required(false).build());
     if (!isFullHistory) {
       globalOperationParams
           .add(new ParameterBuilder().name("time").description(ParameterDescriptions.TIME_DESCR)
-              .modelRef(new ModelRef("string")).parameterType("query")
+              .modelRef(new ModelRef(STRING)).parameterType(QUERY)
               .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
-          .description(ParameterDescriptions.TIME_DESCR).modelRef(new ModelRef("string"))
-          .parameterType("query").defaultValue("2014-01-01,2017-01-01").required(false).build());
+          .description(ParameterDescriptions.TIME_DESCR).modelRef(new ModelRef(STRING))
+          .parameterType(QUERY).defaultValue("2014-01-01,2017-01-01").required(false).build());
     }
     globalOperationParams.add(new ParameterBuilder().name("showMetadata")
-        .description(ParameterDescriptions.SHOW_METADATA_DESCR).modelRef(new ModelRef("string"))
-        .parameterType("query").defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false)
+        .description(ParameterDescriptions.SHOW_METADATA_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false)
         .build());
     return globalOperationParams;
   }

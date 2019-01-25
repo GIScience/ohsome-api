@@ -31,7 +31,7 @@ public class ElementsController {
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMDataRaw(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElements(ElementsGeometry.RAW, servletRequest, servletResponse);
   }
 
@@ -45,7 +45,7 @@ public class ElementsController {
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMDataBbox(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElements(ElementsGeometry.BBOX, servletRequest, servletResponse);
   }
 
@@ -59,7 +59,7 @@ public class ElementsController {
       defaultValue = "tags", paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST})
   public void retrieveOSMDataCentroid(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElements(ElementsGeometry.CENTROID, servletRequest,
         servletResponse);
   }

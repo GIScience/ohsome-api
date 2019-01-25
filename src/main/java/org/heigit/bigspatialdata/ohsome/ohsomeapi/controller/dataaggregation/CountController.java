@@ -195,7 +195,7 @@ public class CountController {
   @RequestMapping(value = "/share/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countShareGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.COUNT, servletRequest, servletResponse, true, false, true);
   }
@@ -217,7 +217,7 @@ public class CountController {
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensity(HttpServletRequest request, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT, request,
         servletResponse, true, true);
   }
@@ -238,7 +238,7 @@ public class CountController {
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
         servletRequest, servletResponse, true, true);
   }
@@ -258,7 +258,7 @@ public class CountController {
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.COUNT, servletRequest, servletResponse, true, true);
   }
@@ -286,7 +286,7 @@ public class CountController {
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
         servletRequest, servletResponse, true, true);
   }
@@ -314,7 +314,7 @@ public class CountController {
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
         servletRequest, servletResponse, true, false, false);
   }
@@ -341,7 +341,7 @@ public class CountController {
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws UnsupportedOperationException, Exception {
+      HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
         RequestResource.COUNT, servletRequest, servletResponse, true, false, false);
   }
