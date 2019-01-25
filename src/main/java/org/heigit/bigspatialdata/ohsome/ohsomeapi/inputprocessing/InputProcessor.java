@@ -71,11 +71,6 @@ public class InputProcessor {
   /**
    * Processes the input parameters from the given request.
    * 
-   * <p>
-   * The other parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    */
@@ -269,33 +264,6 @@ public class InputProcessor {
       toCheck = "";
     }
     return toCheck;
-  }
-
-  /**
-   * Looks at specific objects within the RequestParameters object and makes them empty, if they are
-   * null. Needed for the /ratio computation using POST requests.
-   */
-  public RequestParameters fillWithEmptyIfNull(RequestParameters requestParameters) {
-    String[] types = requestParameters.getTypes();
-    if (types == null) {
-      types = new String[0];
-    }
-    String[] keys = requestParameters.getKeys();
-    if (keys == null) {
-      keys = new String[0];
-    }
-    String[] values = requestParameters.getValues();
-    if (values == null) {
-      values = new String[0];
-    }
-    RequestParameters requestParameters2 =
-        new RequestParameters(requestParameters.getRequestMethod(), requestParameters.isSnapshot(),
-            requestParameters.isDensity(), requestParameters.getBboxes(),
-            requestParameters.getBcircles(), requestParameters.getBpolys(), types, keys, values,
-            requestParameters.getUserids(), requestParameters.getTime(),
-            requestParameters.getFormat(), requestParameters.getShowMetadata());
-
-    return requestParameters2;
   }
 
   /** Checks the given keys and values String[] on their length. */
