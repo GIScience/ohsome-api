@@ -18,7 +18,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -30,7 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ComponentScan({"org.heigit.bigspatialdata.ohsome.ohsomeapi"})
 public class Application implements ApplicationRunner {
 
-  public static final String apiVersion = "0.9";
+  public static final String API_VERSION = "0.9";
 
   /** Main method to run this SpringBootApplication. */
   public static void main(String[] args) {
@@ -45,18 +44,19 @@ public class Application implements ApplicationRunner {
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
+    final String DB_PROPERTY = "database.db";
     boolean multithreading = true;
     boolean caching = false;
     String dbPrefix = null;
     long timeout = 100000;
     // only used when tests are executed directly in Eclipse
-    if (System.getProperty("database.db") != null) {
-      DbConnData.db = new OSHDBH2(System.getProperty("database.db"));
+    if (System.getProperty(DB_PROPERTY) != null) {
+      DbConnData.db = new OSHDBH2(System.getProperty(DB_PROPERTY));
     }
     try {
       for (String paramName : args.getOptionNames()) {
         switch (paramName) {
-          case "database.db":
+          case DB_PROPERTY:
             DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
             break;
           case "database.jdbc":
@@ -156,14 +156,14 @@ public class Application implements ApplicationRunner {
    * 
    * @param db <code>OSHDBDatabase</code> object to the OSHDB-file of either H2, or Ignite type.
    */
-  private void extractMetadata(OSHDBDatabase db) throws JsonProcessingException, IOException {
+  private static void extractMetadata(OSHDBDatabase db) throws IOException {
     if (db.metadata("extract.region") != null) {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
       ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
       GeometryBuilder geomBuilder = new GeometryBuilder();
       geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
-      ExtractMetadata.dataPoly = ProcessingData.dataPolyGeom;
+      ExtractMetadata.dataPoly = ProcessingData.getDataPolyGeom();
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");

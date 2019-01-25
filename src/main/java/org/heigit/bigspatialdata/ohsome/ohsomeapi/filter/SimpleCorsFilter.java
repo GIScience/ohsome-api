@@ -39,7 +39,13 @@ public class SimpleCorsFilter implements Filter {
     }
   }
 
-  public void init(FilterConfig filterConfig) {}
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    /** Needed by {@link javax.servlet.Filter Filter]}. */
+  }
 
-  public void destroy() {}
+  @Override
+  public void destroy() {
+    /** Needed by {@link javax.servlet.Filter Filter]}. */
+  }
 }

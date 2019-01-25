@@ -83,10 +83,10 @@ public class GeometryBuilder {
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       if (utils.isWithin(unifiedBbox) == false) {
-        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
-      processingData.boundaryColl = geometryColl;
-      processingData.bboxesGeom = unifiedBbox;
+      processingData.setBoundaryColl(geometryColl);
+      processingData.setBboxesGeom(unifiedBbox);
       return unifiedBbox;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
@@ -131,11 +131,11 @@ public class GeometryBuilder {
         geom = JTS.transform(buffer, transform);
         if (bpoints.length == 3) {
           if (utils.isWithin(geom) == false) {
-            throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+            throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
           }
           geometryCollection.add(geom);
-          processingData.boundaryColl = geometryCollection;
-          processingData.bcirclesGeom = geom;
+          processingData.setBoundaryColl(geometryCollection);
+          processingData.setBcirclesGeom(geom);
           return geom;
         }
         geometryCollection.add(geom);
@@ -143,10 +143,10 @@ public class GeometryBuilder {
       Geometry unifiedBCircles =
           geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
       if (utils.isWithin(unifiedBCircles) == false) {
-        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
-      processingData.boundaryColl = geometryCollection;
-      processingData.bcirclesGeom = unifiedBCircles;
+      processingData.setBoundaryColl(geometryCollection);
+      processingData.setBcirclesGeom(unifiedBCircles);
       return unifiedBCircles;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {
@@ -181,15 +181,15 @@ public class GeometryBuilder {
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
       } catch (NumberFormatException e) {
-        throw new BadRequestException(ExceptionMessages.bpolysFormat);
+        throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
       bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
       if (utils.isWithin(bpoly) == false) {
-        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
       geometries.add(bpoly);
-      processingData.boundaryColl = geometries;
-      processingData.bpolysGeom = bpoly;
+      processingData.setBoundaryColl(geometries);
+      processingData.setBpolysGeom(bpoly);
       return bpoly;
     }
     Coordinate firstPoint;
@@ -218,15 +218,15 @@ public class GeometryBuilder {
         }
       }
       if (geometries.stream().anyMatch(geometry -> !utils.isWithin(geometry))) {
-        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
       Geometry unifiedBPolys =
           geomFact.createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
-      processingData.boundaryColl = geometries;
-      processingData.bpolysGeom = unifiedBPolys;
+      processingData.setBoundaryColl(geometries);
+      processingData.setBpolysGeom(unifiedBPolys);
       return unifiedBPolys;
     } catch (NumberFormatException | MismatchedDimensionException e) {
-      throw new BadRequestException(ExceptionMessages.bpolysFormat);
+      throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
     }
   }
 
@@ -238,7 +238,7 @@ public class GeometryBuilder {
   public void createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
     GeoJSONReader reader = new GeoJSONReader();
     try {
-      ProcessingData.dataPolyGeom = reader.read(geoJson);
+      ProcessingData.setDataPolyGeom(reader.read(geoJson));
     } catch (Exception e) {
       throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
           + "converted. Please use a different data file and contact an admin about this issue.");
@@ -325,11 +325,11 @@ public class GeometryBuilder {
       }
       InputProcessingUtils utils = new InputProcessingUtils();
       if (utils.isWithin(result) == false) {
-        throw new NotFoundException(ExceptionMessages.boundaryNotInDataExtract);
+        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
     }
-    processingData.geoJsonGeoms = geoJsonGeoms;
-    processingData.boundaryColl = geometryCollection;
+    processingData.setGeoJsonGeoms(geoJsonGeoms);
+    processingData.setBoundaryColl(geometryCollection);
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
     return result;

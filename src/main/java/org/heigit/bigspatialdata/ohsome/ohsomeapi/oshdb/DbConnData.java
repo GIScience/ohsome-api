@@ -15,4 +15,8 @@ public class DbConnData {
    * remote machines.
    */
   public static RemoteTagTranslator mapTagTranslator = null;
+  
+  private DbConnData() {
+    throw new IllegalStateException("Utility class");
+  }
 }

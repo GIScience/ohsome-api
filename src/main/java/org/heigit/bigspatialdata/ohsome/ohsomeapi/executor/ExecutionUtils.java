@@ -37,6 +37,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
@@ -127,7 +128,7 @@ public class ExecutionUtils {
   }
 
   /** Writes a response in the csv format for /groupBy requests. */
-  public void writeCsvResponse(GroupByResult[] resultSet, HttpServletResponse servletResponse,
+  public void writeCsvResponse(GroupByObject[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
@@ -137,17 +138,63 @@ public class ExecutionUtils {
       List<String> columnNames = new LinkedList<String>();
       List<String[]> rows = new LinkedList<String[]>();
       columnNames.add("timestamp");
-      for (int i = 0; i < resultSet.length; i++) {
-        columnNames.add(resultSet[i].getGroupByObject().toString());
-        for (int j = 0; j < resultSet[i].getResult().length; j++) {
-          ElementsResult elemResult = (ElementsResult) resultSet[i].getResult()[j];
-          if (i == 0) {
-            String[] row = new String[resultSet.length + 1];
-            row[0] = elemResult.getTimestamp();
-            row[1] = String.valueOf(elemResult.getValue());
-            rows.add(row);
-          } else {
-            rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+      if (resultSet instanceof GroupByResult[]) {
+        for (int i = 0; i < resultSet.length; i++) {
+          GroupByResult groupByResult = (GroupByResult) resultSet[i];
+          columnNames.add(groupByResult.getGroupByObject().toString());
+          for (int j = 0; j < groupByResult.getResult().length; j++) {
+            ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
+            if (i == 0) {
+              String[] row = new String[resultSet.length + 1];
+              row[0] = elemResult.getTimestamp();
+              row[1] = String.valueOf(elemResult.getValue());
+              rows.add(row);
+            } else {
+              rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+            }
+          }
+        }
+      } else if (resultSet instanceof RatioGroupByResult[]) {
+        for (int i = 0; i < resultSet.length; i++) {
+          RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
+          columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
+          columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
+          columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
+          for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
+            RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
+            if (i == 0) {
+              String[] row = new String[resultSet.length * 3 + 1];
+              row[0] = ratioResult.getTimestamp();
+              row[1] = String.valueOf(ratioResult.getValue());
+              row[2] = String.valueOf(ratioResult.getValue2());
+              row[3] = String.valueOf(ratioResult.getRatio());
+              rows.add(row);
+            } else {
+              int count = i * 3 + 1;
+              rows.get(j)[count] = String.valueOf(ratioResult.getValue());
+              rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
+              rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
+            }
+          }
+        }
+      } else if (resultSet instanceof ShareGroupByResult[]) {
+        for (int i = 0; i < resultSet.length; i++) {
+          ShareGroupByResult shareGroupByResult = (ShareGroupByResult) resultSet[i];
+          columnNames.add(shareGroupByResult.getGroupByObject() + "_whole");
+          columnNames.add(shareGroupByResult.getGroupByObject() + "_part");
+          for (int j = 0; j < shareGroupByResult.getShareResult().length; j++) {
+            ShareResult shareResult = shareGroupByResult.getShareResult()[j];
+            if (i == 0) {
+              String[] row = new String[resultSet.length * 2 + 1];
+              row[0] = shareResult.getTimestamp();
+              row[1] = String.valueOf(shareResult.getWhole());
+              row[2] = String.valueOf(shareResult.getPart());
+              rows.add(row);
+            } else {
+              int count = i * 2 + 1;
+              rows.get(j)[count] = String.valueOf(shareResult.getWhole());
+              rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
+            }
           }
         }
       }
@@ -159,18 +206,32 @@ public class ExecutionUtils {
     }
   }
 
-  /** Writes a response in the csv format for /count|length|perimeter|area(/density) requests. */
-  public void writeCsvResponse(ElementsResult[] resultSet, HttpServletResponse servletResponse,
+  /**
+   * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)
+   * requests.
+   */
+  public void writeCsvResponse(Result[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
     CSVWriter writer;
     try {
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
-      writer.writeNext(new String[] {"timestamp", "value"});
-      for (ElementsResult elementsResult : resultSet) {
-        writer.writeNext(new String[] {elementsResult.getTimestamp(),
-            String.valueOf(elementsResult.getValue())});
+      if (resultSet instanceof ElementsResult[]) {
+        writer.writeNext(new String[] {"timestamp", "value"});
+        for (Result result : resultSet) {
+          ElementsResult elementsResult = (ElementsResult) result;
+          writer.writeNext(new String[] {elementsResult.getTimestamp(),
+              String.valueOf(elementsResult.getValue())});
+        }
+      } else if (resultSet instanceof RatioResult[]) {
+        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
+        for (Result result : resultSet) {
+          RatioResult ratioResult = (RatioResult) result;
+          writer.writeNext(
+              new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
+                  String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+        }
       }
       writer.close();
     } catch (IOException e) {
@@ -191,103 +252,6 @@ public class ExecutionUtils {
         writer.writeNext(new String[] {shareResult.getTimestamp(),
             String.valueOf(shareResult.getWhole()), String.valueOf(shareResult.getPart())});
       }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /ratio requests. */
-  public void writeCsvResponse(RatioResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    CSVWriter writer;
-    try {
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
-      for (RatioResult ratioResult : resultSet) {
-        writer.writeNext(
-            new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
-                String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
-      }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /ratio/groupBy/boundary requests. */
-  public void writeCsvResponse(RatioGroupByResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    CSVWriter writer;
-    try {
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      List<String> columnNames = new LinkedList<String>();
-      List<String[]> rows = new LinkedList<String[]>();
-      columnNames.add("timestamp");
-      for (int i = 0; i < resultSet.length; i++) {
-        columnNames.add(resultSet[i].getGroupByObject() + "_value");
-        columnNames.add(resultSet[i].getGroupByObject() + "_value2");
-        columnNames.add(resultSet[i].getGroupByObject() + "_ratio");
-        for (int j = 0; j < resultSet[i].getRatioResult().length; j++) {
-          RatioResult ratioResult = resultSet[i].getRatioResult()[j];
-          if (i == 0) {
-            String[] row = new String[resultSet.length * 3 + 1];
-            row[0] = ratioResult.getTimestamp();
-            row[1] = String.valueOf(ratioResult.getValue());
-            row[2] = String.valueOf(ratioResult.getValue2());
-            row[3] = String.valueOf(ratioResult.getRatio());
-            rows.add(row);
-          } else {
-            int count = i * 3 + 1;
-            rows.get(j)[count] = String.valueOf(ratioResult.getValue());
-            rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
-            rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
-          }
-        }
-      }
-      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
-      writer.writeAll(rows);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /share/groupBy/boundary requests. */
-  public void writeCsvResponse(ShareGroupByResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    CSVWriter writer;
-    try {
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      List<String> columnNames = new LinkedList<String>();
-      List<String[]> rows = new LinkedList<String[]>();
-      columnNames.add("timestamp");
-      for (int i = 0; i < resultSet.length; i++) {
-        columnNames.add(resultSet[i].getGroupByObject() + "_whole");
-        columnNames.add(resultSet[i].getGroupByObject() + "_part");
-        for (int j = 0; j < resultSet[i].getShareResult().length; j++) {
-          ShareResult shareResult = resultSet[i].getShareResult()[j];
-          if (i == 0) {
-            String[] row = new String[resultSet.length * 2 + 1];
-            row[0] = shareResult.getTimestamp();
-            row[1] = String.valueOf(shareResult.getWhole());
-            row[2] = String.valueOf(shareResult.getPart());
-            rows.add(row);
-          } else {
-            int count = i * 2 + 1;
-            rows.get(j)[count] = String.valueOf(shareResult.getWhole());
-            rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
-          }
-        }
-      }
-      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
-      writer.writeAll(rows);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -373,11 +337,11 @@ public class ExecutionUtils {
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.noBoundary);
+      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.boundaryColl);
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
@@ -515,107 +479,69 @@ public class ExecutionUtils {
     return tags;
   }
 
-  /**
-   * Creates the GeoJson features used in the GeoJson response for a
-   * count|length|perimeter|area/groupBy/boundary request.
-   */
-  public Feature[] createGeoJsonFeatures(GroupByResult[] groupByResults,
-      GeoJsonObject[] geoJsonGeoms) {
-    int groupByResultsLength = groupByResults.length;
-    int resultLength = groupByResults[0].getResult().length;
-    int featuresLength = groupByResultsLength * resultLength;
-    Feature[] features = new Feature[featuresLength];
+  /** Creates the GeoJson features used in the GeoJson response. */
+  public Feature[] createGeoJsonFeatures(GroupByObject[] results, GeoJsonObject[] geojsonGeoms) {
+    int groupByResultsLength = results.length;
     int groupByResultCount = 0;
     int tstampCount = 0;
-    for (int i = 0; i < featuresLength; i++) {
-      ElementsResult result =
-          (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
-      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
-      String tstamp = result.getTimestamp();
-      Feature feature = new Feature();
-      feature.setId(groupByBoundaryId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-      feature.setProperty("timestamp", tstamp);
-      feature.setProperty("value", result.getValue());
-      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-      feature.setGeometry(geom);
-      tstampCount++;
-      if (tstampCount == resultLength) {
-        tstampCount = 0;
-        groupByResultCount++;
+    Feature[] features;
+    if (results instanceof GroupByResult[]) {
+      GroupByResult[] groupByResults = (GroupByResult[]) results;
+      int resultLength = groupByResults[0].getResult().length;
+      int featuresLength = groupByResultsLength * resultLength;
+      features = new Feature[featuresLength];
+      for (int i = 0; i < featuresLength; i++) {
+        ElementsResult result =
+            (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
+        String tstamp = result.getTimestamp();
+        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        feature.setProperty("value", result.getValue());
+        tstampCount++;
+        if (tstampCount == resultLength) {
+          tstampCount = 0;
+          groupByResultCount++;
+        }
+        features[i] = feature;
       }
-      features[i] = feature;
-    }
-    return features;
-  }
-
-  /**
-   * Creates the GeoJson features used in the GeoJson response for a
-   * count|length|perimeter|area/ratio/groupBy/boundary request.
-   */
-  public Feature[] createGeoJsonFeatures(RatioGroupByResult[] groupByResults,
-      GeoJsonObject[] geoJsonGeoms) {
-    int groupByResultsLength = groupByResults.length;
-    int resultLength = groupByResults[0].getRatioResult().length;
-    int featuresLength = groupByResultsLength * resultLength;
-    Feature[] features = new Feature[featuresLength];
-    int groupByResultCount = 0;
-    int tstampCount = 0;
-    for (int i = 0; i < featuresLength; i++) {
-      RatioResult result =
-          (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
-      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
-      String tstamp = result.getTimestamp();
-      Feature feature = new Feature();
-      feature.setId(groupByBoundaryId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-      feature.setProperty("timestamp", tstamp);
-      feature.setProperty("value", result.getValue());
-      feature.setProperty("value2", result.getValue2());
-      feature.setProperty("ratio", result.getRatio());
-      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-      feature.setGeometry(geom);
-      tstampCount++;
-      if (tstampCount == resultLength) {
-        tstampCount = 0;
-        groupByResultCount++;
+    } else if (results instanceof ShareGroupByResult[]) {
+      ShareGroupByResult[] groupByResults = (ShareGroupByResult[]) results;
+      int resultLength = groupByResults[0].getShareResult().length;
+      int featuresLength = groupByResultsLength * resultLength;
+      features = new Feature[featuresLength];
+      for (int i = 0; i < featuresLength; i++) {
+        ShareResult result =
+            (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
+        String tstamp = result.getTimestamp();
+        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        feature.setProperty("whole", result.getWhole());
+        feature.setProperty("part", result.getPart());
+        tstampCount++;
+        if (tstampCount == resultLength) {
+          tstampCount = 0;
+          groupByResultCount++;
+        }
+        features[i] = feature;
       }
-      features[i] = feature;
-    }
-    return features;
-  }
-
-  /**
-   * Creates the GeoJson features used in the GeoJson response for a
-   * count|length|perimeter|area/share/groupBy/boundary request.
-   */
-  public Feature[] createGeoJsonFeatures(ShareGroupByResult[] groupByResults,
-      GeoJsonObject[] geoJsonGeoms) {
-    int groupByResultsLength = groupByResults.length;
-    int resultLength = groupByResults[0].getShareResult().length;
-    int featuresLength = groupByResultsLength * resultLength;
-    Feature[] features = new Feature[featuresLength];
-    int groupByResultCount = 0;
-    int tstampCount = 0;
-    for (int i = 0; i < featuresLength; i++) {
-      ShareResult result =
-          (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
-      Object groupByBoundaryId = groupByResults[groupByResultCount].getGroupByObject();
-      String tstamp = result.getTimestamp();
-      Feature feature = new Feature();
-      feature.setId(groupByBoundaryId + "@" + tstamp);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-      feature.setProperty("timestamp", tstamp);
-      feature.setProperty("whole", result.getWhole());
-      feature.setProperty("part", result.getPart());
-      GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-      feature.setGeometry(geom);
-      tstampCount++;
-      if (tstampCount == resultLength) {
-        tstampCount = 0;
-        groupByResultCount++;
+    } else {
+      RatioGroupByResult[] groupByResults = (RatioGroupByResult[]) results;
+      int resultLength = groupByResults[0].getRatioResult().length;
+      int featuresLength = groupByResultsLength * resultLength;
+      features = new Feature[featuresLength];
+      for (int i = 0; i < featuresLength; i++) {
+        RatioResult result =
+            (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
+        String tstamp = result.getTimestamp();
+        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        feature.setProperty("value", result.getValue());
+        feature.setProperty("value2", result.getValue2());
+        feature.setProperty("ratio", result.getRatio());
+        tstampCount++;
+        if (tstampCount == resultLength) {
+          tstampCount = 0;
+          groupByResultCount++;
+        }
+        features[i] = feature;
       }
-      features[i] = feature;
     }
     return features;
   }
@@ -661,33 +587,6 @@ public class ExecutionUtils {
     return results;
   }
 
-  /** Fills the given stream with output data. */
-  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
-      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
-      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
-    stream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    return stream;
-  }
-
   /** Creates either a RatioResponse or a ShareResponse depending on the request. */
   public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
       Double[] value2, DecimalFormat df, long startTime, RequestResource reqRes, String requestUrl,
@@ -707,7 +606,7 @@ public class ExecutionUtils {
         resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
       }
       Metadata metadata = null;
-      if (processingData.showMetadata) {
+      if (processingData.isShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
@@ -717,17 +616,17 @@ public class ExecutionUtils {
           && requestParameters.getFormat().equalsIgnoreCase("csv")) {
         writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.apiVersion, metadata));
+                Application.API_VERSION, metadata));
         return null;
       }
-      response = new RatioResponse(attribution, Application.apiVersion, metadata, resultSet);
+      response = new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
     } else {
       ShareResult[] resultSet = new ShareResult[timeArray.length];
       for (int i = 0; i < timeArray.length; i++) {
         resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
       }
       Metadata metadata = null;
-      if (processingData.showMetadata) {
+      if (processingData.isShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration,
             Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
@@ -737,10 +636,10 @@ public class ExecutionUtils {
           && requestParameters.getFormat().equalsIgnoreCase("csv")) {
         writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.apiVersion, metadata));
+                Application.API_VERSION, metadata));
         return null;
       }
-      response = new ShareResponse(attribution, Application.apiVersion, metadata, resultSet);
+      response = new ShareResponse(attribution, Application.API_VERSION, metadata, resultSet);
     }
     return response;
   }
@@ -779,24 +678,24 @@ public class ExecutionUtils {
         }
         groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
       }
-      if (processingData.showMetadata) {
+      if (processingData.isShowMetadata()) {
         long duration = System.currentTimeMillis() - startTime;
         metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
       }
       if (requestParameters.getFormat() != null) {
         if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-          return RatioGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+          return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
               "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
         } else if (requestParameters.getFormat() != null
             && requestParameters.getFormat().equalsIgnoreCase("csv")) {
           writeCsvResponse(groupByResultSet, servletResponse,
               createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                  Application.apiVersion, metadata));
+                  Application.API_VERSION, metadata));
           return null;
         }
       }
-      return new RatioGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+      return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
           groupByResultSet);
     }
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
@@ -811,25 +710,65 @@ public class ExecutionUtils {
       }
       groupByResultSet[i] = new ShareGroupByResult(groupByName, shareResultSet);
     }
-    if (processingData.showMetadata) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
     if (requestParameters.getFormat() != null) {
       if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return ShareGroupByBoundaryResponse.of(attribution, Application.apiVersion, metadata,
+        return ShareGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
             "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
       } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
         writeCsvResponse(groupByResultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.apiVersion, metadata));
+                Application.API_VERSION, metadata));
         return null;
       }
     }
 
-    return new ShareGroupByBoundaryResponse(attribution, Application.apiVersion, metadata,
+    return new ShareGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
+  }
+
+  /** Fills the given stream with output data. */
+  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
+      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
+      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
+    stream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).sequential().forEach(data -> {
+      try {
+        if (isFirst.get()) {
+          isFirst.set(false);
+        } else {
+          outputStream.print(",");
+        }
+        outputStream.write(data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    return stream;
+  }
+
+  /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
+  private Feature fillGeojsonFeature(GroupByObject[] results, GeoJsonObject[] geoJsonGeoms,
+      int groupByResultCount, String timestamp) {
+    Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
+    Feature feature = new Feature();
+    feature.setId(groupByBoundaryId + "@" + timestamp);
+    feature.setProperty("groupByBoundaryId", groupByBoundaryId);
+    feature.setProperty("timestamp", timestamp);
+    GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
+    feature.setGeometry(geom);
+    return feature;
   }
 
   /** Enum type used in /ratio computation. */

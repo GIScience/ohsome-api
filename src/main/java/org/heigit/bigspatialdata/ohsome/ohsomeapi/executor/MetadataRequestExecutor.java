@@ -19,7 +19,11 @@ public class MetadataRequestExecutor {
   public static MetadataResponse executeGetMetadata() {
     return new MetadataResponse(
         new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.apiVersion, new ExtractRegion(ExtractMetadata.dataPolyJson,
+        Application.API_VERSION, new ExtractRegion(ExtractMetadata.dataPolyJson,
             new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp)));
+  }
+
+  private MetadataRequestExecutor() {
+    throw new IllegalStateException("Utility class");
   }
 }

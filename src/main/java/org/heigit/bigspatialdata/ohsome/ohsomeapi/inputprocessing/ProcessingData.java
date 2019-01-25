@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Set;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -10,20 +11,20 @@ import com.vividsolutions.jts.geom.Geometry;
 /** Holds the relevant objects for processing the request and creating the response. */
 public class ProcessingData {
 
-  public static Geometry dataPolyGeom;
-  private final RequestParameters requestParameters;
-  public String requestUrl;
-  public BoundaryType boundary;
-  public String[] boundaryValues;
-  public String boundaryValuesGeoJson;
-  public EnumSet<OSMType> osmTypes;
-  public boolean showMetadata;
-  public String format;
-  public Geometry bboxesGeom;
-  public Geometry bcirclesGeom;
-  public Geometry bpolysGeom;
-  public Collection<Geometry> boundaryColl;
-  public GeoJsonObject[] geoJsonGeoms;
+  private static Geometry dataPolyGeom;
+  private RequestParameters requestParameters;
+  private String requestUrl;
+  private BoundaryType boundary;
+  private String[] boundaryValues;
+  private String boundaryValuesGeoJson;
+  private EnumSet<OSMType> osmTypes;
+  private boolean showMetadata;
+  private String format;
+  private Geometry bboxesGeom;
+  private Geometry bcirclesGeom;
+  private Geometry bpolysGeom;
+  private Collection<Geometry> boundaryColl;
+  private GeoJsonObject[] geoJsonGeoms;
 
   public ProcessingData(RequestParameters requestParameters) {
     this.requestParameters = requestParameters;
@@ -31,6 +32,10 @@ public class ProcessingData {
 
   public RequestParameters getRequestParameters() {
     return requestParameters;
+  }
+
+  public void setRequestParameters(RequestParameters requestParameters) {
+    this.requestParameters = requestParameters;
   }
 
   public String getRequestUrl() {
@@ -65,12 +70,12 @@ public class ProcessingData {
     this.boundaryValuesGeoJson = boundaryValuesGeoJson;
   }
 
-  public EnumSet<OSMType> getOsmTypes() {
+  public Set<OSMType> getOsmTypes() {
     return osmTypes;
   }
 
-  public void setOsmTypes(EnumSet<OSMType> osmTypes) {
-    this.osmTypes = osmTypes;
+  public void setOsmTypes(Set<OSMType> osmTypes) {
+    this.osmTypes = (EnumSet<OSMType>) osmTypes;
   }
 
   public String getFormat() {
@@ -121,4 +126,19 @@ public class ProcessingData {
     this.geoJsonGeoms = geoJsonGeoms;
   }
 
+  public static Geometry getDataPolyGeom() {
+    return dataPolyGeom;
+  }
+
+  public static void setDataPolyGeom(Geometry dataPolyGeom) {
+    ProcessingData.dataPolyGeom = dataPolyGeom;
+  }
+
+  public boolean isShowMetadata() {
+    return showMetadata;
+  }
+
+  public void setShowMetadata(boolean showMetadata) {
+    this.showMetadata = showMetadata;
+  }
 }

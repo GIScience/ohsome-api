@@ -11,4 +11,8 @@ public class DefaultSwaggerParameters {
   public static final String RESIDENTIAL_VALUE = "residential";
   public static final String TIME = "2014-01-01/2017-01-01/P1Y";
   public static final String SHOW_METADATA = "false";
+  
+  private DefaultSwaggerParameters() {
+    throw new IllegalStateException("Utility class");
+  }
 }

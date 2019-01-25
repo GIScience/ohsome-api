@@ -87,7 +87,7 @@ public class InputProcessingUtils {
         for (String boundaryObject : bboxesArray) {
           coords = boundaryObject.split("\\,");
           if (coords.length != 4) {
-            throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+            throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
           }
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
@@ -100,7 +100,7 @@ public class InputProcessingUtils {
             boundaryParamValues.add(coords[3]);
             idCount++;
           } else {
-            throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
+            throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
           }
         }
       } else {
@@ -120,7 +120,7 @@ public class InputProcessingUtils {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       }
-      throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+      throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
@@ -139,7 +139,7 @@ public class InputProcessingUtils {
         for (String boundaryObject : bcirclesArray) {
           coords = boundaryObject.split("\\,");
           if (coords.length != 3) {
-            throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+            throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
           }
           if (coords[0].contains(":")) {
             String[] idAndCoordinate = coords[0].split(":");
@@ -151,7 +151,7 @@ public class InputProcessingUtils {
             boundaryParamValues.add(coords[2]);
             idCount++;
           } else {
-            throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
+            throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
           }
         }
       } else {
@@ -169,7 +169,7 @@ public class InputProcessingUtils {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       }
-      throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+      throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
@@ -195,13 +195,13 @@ public class InputProcessingUtils {
             // extract the other coordinates
             for (int i = 1; i < coords.length; i++) {
               if (coords[i].contains(":")) {
-                throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+                throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
               }
               boundaryParamValues.add(coords[i]);
             }
             idCount++;
           } else {
-            throw new BadRequestException(ExceptionMessages.boundaryIdsFormat);
+            throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
           }
         }
       } else if (bpolysArray[0].contains(",")) {
@@ -215,13 +215,13 @@ public class InputProcessingUtils {
           idCount++;
         }
       } else {
-        throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+        throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       }
-      throw new BadRequestException(ExceptionMessages.boundaryParamFormat);
+      throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
     }
     this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
@@ -286,7 +286,7 @@ public class InputProcessingUtils {
     String[] split = time.split("/");
     if (split.length == 0 && !"/".equals(time)) {
       // invalid time parameter
-      throw new BadRequestException(ExceptionMessages.timeFormat);
+      throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
     }
     if (time.startsWith("/")) {
       if (time.length() == 1) {
@@ -314,13 +314,13 @@ public class InputProcessingUtils {
         timeVals[2] = split[2];
       } else {
         // invalid time parameter
-        throw new BadRequestException(ExceptionMessages.timeFormat);
+        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
       timeVals[0] = ExtractMetadata.fromTstamp;
     } else if (time.endsWith("/")) {
       if (split.length != 1) {
         // invalid time parameter
-        throw new BadRequestException(ExceptionMessages.timeFormat);
+        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
       // YYYY-MM-DD/
       checkTimestampsOnIsoConformity(split[0]);
@@ -357,7 +357,7 @@ public class InputProcessingUtils {
       return timeVals;
     } else {
       // invalid time parameter
-      throw new BadRequestException(ExceptionMessages.timeFormat);
+      throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
     }
     String[] sortedTimestamps = sortTimestamps(new String[] {timeVals[0], timeVals[1]});
     timeVals[0] = sortedTimestamps[0];
@@ -394,7 +394,7 @@ public class InputProcessingUtils {
         if (e instanceof NotFoundException) {
           throw e;
         }
-        throw new BadRequestException(ExceptionMessages.timeFormat);
+        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
     }
   }
@@ -408,7 +408,7 @@ public class InputProcessingUtils {
       try {
         ISODateTimeParser.parseISODateTime(timestamp);
       } catch (Exception e) {
-        throw new BadRequestException(ExceptionMessages.timeFormat);
+        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
     }
   }
@@ -435,7 +435,7 @@ public class InputProcessingUtils {
         checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
         timeStringList.add(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       } catch (Exception e) {
-        throw new BadRequestException(ExceptionMessages.timeFormat);
+        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
     }
     Collections.sort(timeStringList);
