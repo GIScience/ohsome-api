@@ -132,6 +132,9 @@ public class ExecutionUtils {
       List<String[]> comments) {
     CSVWriter writer;
     try {
+      servletResponse.setCharacterEncoding("UTF-8");
+      servletResponse.setContentType("text/csv");
+      servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.csv");
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
@@ -214,6 +217,9 @@ public class ExecutionUtils {
       List<String[]> comments) {
     CSVWriter writer;
     try {
+      servletResponse.setCharacterEncoding("UTF-8");
+      servletResponse.setContentType("text/csv");
+      servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.csv");
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
@@ -244,6 +250,9 @@ public class ExecutionUtils {
       List<String[]> comments) {
     CSVWriter writer;
     try {
+      servletResponse.setCharacterEncoding("UTF-8");
+      servletResponse.setContentType("text/csv");
+      servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.csv");
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
