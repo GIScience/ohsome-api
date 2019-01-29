@@ -1,9 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.vividsolutions.jts.geom.MultiPolygon;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -253,7 +255,6 @@ public class GeometryBuilder {
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
-    Geometry result = null;
     GeoJSONReader reader = new GeoJSONReader();
     JsonReader jsonReader = Json.createReader(new StringReader(geoJson));
     JsonObject root = jsonReader.readObject();
@@ -308,30 +309,42 @@ public class GeometryBuilder {
                 + "or 'MultiPolygon'.");
       }
       try {
-        if (result == null) {
-          result = reader.read(geomObj.toString());
-          geometryCollection.add(result);
-          geoJsonGeoms[count - 1] =
-              new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
-        } else {
-          Geometry currentResult = reader.read(geomObj.toString());
-          geometryCollection.add(currentResult);
-          geoJsonGeoms[count - 1] =
-              new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
-          result = currentResult.union(result);
-        }
+        Geometry currentResult = reader.read(geomObj.toString());
+        geometryCollection.add(currentResult);
+        geoJsonGeoms[count - 1] =
+            new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
-      }
-      InputProcessingUtils utils = new InputProcessingUtils();
-      if (utils.isWithin(result) == false) {
-        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
     }
     processingData.setGeoJsonGeoms(geoJsonGeoms);
     processingData.setBoundaryColl(geometryCollection);
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
+
+    GeometryFactory geometryFactory = new GeometryFactory();
+    Polygon[] polys = geometryCollection.stream().flatMap(geo -> {
+      if (geo instanceof MultiPolygon) {
+        int num = geo.getNumGeometries();
+        ArrayList<Polygon> parts = new ArrayList<>(num);
+        for (int i=0; i<num; i++) {
+          parts.add((Polygon) geo.getGeometryN(i));
+        }
+        return parts.stream();
+      } else {
+        return Stream.of(geo);
+      }
+    }).toArray(Polygon[]::new);
+
+    MultiPolygon mp = geometryFactory.createMultiPolygon(polys);
+    // merge all input geometries to single (multi) polygon
+    Geometry result = mp.union();
+
+    InputProcessingUtils utils = new InputProcessingUtils();
+    if (!utils.isWithin(result)) {
+      throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
+    }
+
     return result;
   }
 
