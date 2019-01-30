@@ -314,8 +314,6 @@ public class GeometryBuilder {
    * data extract.
    * 
    * @param geometries <code>Collection<Geometry></code> containing the geometries to unify
-   * @param util <code>InputProcessingUtils</code> used to theck if unified geometry is within data
-   *        extract
    * @return unified geometries
    * @throws NotFoundException if the unified Geometry does not lie completely within the underlying
    *         data extract
