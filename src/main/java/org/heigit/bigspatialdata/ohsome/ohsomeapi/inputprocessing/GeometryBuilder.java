@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -60,7 +62,6 @@ public class GeometryBuilder {
    *         underlying data-extract polygon
    */
   public Geometry createBboxes(String[] bboxes) throws BadRequestException, NotFoundException {
-    InputProcessingUtils utils = new InputProcessingUtils();
     try {
       Geometry unifiedBbox;
       OSHDBBoundingBox bbox;
@@ -71,23 +72,21 @@ public class GeometryBuilder {
       double maxLat = Double.parseDouble(bboxes[3]);
       bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
-      Collection<Geometry> geometryColl = new LinkedHashSet<Geometry>();
-      geometryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
+      Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
+      geometryCollection.add(OSHDBGeometryBuilder.getGeometry(bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
         bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-        geometryColl.add(OSHDBGeometryBuilder.getGeometry(bbox));
+        geometryCollection.add(OSHDBGeometryBuilder.getGeometry(bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
-      if (utils.isWithin(unifiedBbox) == false) {
-        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
-      }
-      processingData.setBoundaryColl(geometryColl);
+      Geometry result = unifyPolys(geometryCollection);
+      processingData.setBoundaryColl(geometryCollection);
       processingData.setBboxesGeom(unifiedBbox);
-      return unifiedBbox;
+      return result;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
           "Apart from the custom ids, the bboxeses array must contain double-parseable values "
@@ -140,14 +139,10 @@ public class GeometryBuilder {
         }
         geometryCollection.add(geom);
       }
-      Geometry unifiedBCircles =
-          geomFact.createGeometryCollection(geometryCollection.toArray(new Geometry[] {})).union();
-      if (utils.isWithin(unifiedBCircles) == false) {
-        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
-      }
+      Geometry result = unifyPolys(geometryCollection);
       processingData.setBoundaryColl(geometryCollection);
-      processingData.setBcirclesGeom(unifiedBCircles);
-      return unifiedBCircles;
+      processingData.setBcirclesGeom(result);
+      return result;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {
       throw new BadRequestException(
@@ -171,8 +166,7 @@ public class GeometryBuilder {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
-    InputProcessingUtils utils = new InputProcessingUtils();
-    Collection<Geometry> geometries = new LinkedHashSet<Geometry>();
+    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -184,11 +178,8 @@ public class GeometryBuilder {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
       bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
-      if (utils.isWithin(bpoly) == false) {
-        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
-      }
-      geometries.add(bpoly);
-      processingData.setBoundaryColl(geometries);
+      geometryCollection.add(bpoly);
+      processingData.setBoundaryColl(geometryCollection);
       processingData.setBpolysGeom(bpoly);
       return bpoly;
     }
@@ -203,7 +194,7 @@ public class GeometryBuilder {
           coords.add(
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
           poly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
-          geometries.add(poly);
+          geometryCollection.add(poly);
           coords.clear();
           if (i + 2 >= bpolys.length) {
             break;
@@ -217,14 +208,10 @@ public class GeometryBuilder {
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
       }
-      if (geometries.stream().anyMatch(geometry -> !utils.isWithin(geometry))) {
-        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
-      }
-      Geometry unifiedBPolys =
-          geomFact.createGeometryCollection(geometries.toArray(new Geometry[] {})).union();
-      processingData.setBoundaryColl(geometries);
-      processingData.setBpolysGeom(unifiedBPolys);
-      return unifiedBPolys;
+      Geometry result = unifyPolys(geometryCollection);
+      processingData.setBoundaryColl(geometryCollection);
+      processingData.setBpolysGeom(result);
+      return result;
     } catch (NumberFormatException | MismatchedDimensionException e) {
       throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
     }
@@ -253,7 +240,6 @@ public class GeometryBuilder {
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
     Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
-    Geometry result = null;
     GeoJSONReader reader = new GeoJSONReader();
     JsonReader jsonReader = Json.createReader(new StringReader(geoJson));
     JsonObject root = jsonReader.readObject();
@@ -308,30 +294,51 @@ public class GeometryBuilder {
                 + "or 'MultiPolygon'.");
       }
       try {
-        if (result == null) {
-          result = reader.read(geomObj.toString());
-          geometryCollection.add(result);
-          geoJsonGeoms[count - 1] =
-              new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
-        } else {
-          Geometry currentResult = reader.read(geomObj.toString());
-          geometryCollection.add(currentResult);
-          geoJsonGeoms[count - 1] =
-              new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
-          result = currentResult.union(result);
-        }
+        Geometry currentResult = reader.read(geomObj.toString());
+        geometryCollection.add(currentResult);
+        geoJsonGeoms[count - 1] =
+            new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
-      }
-      InputProcessingUtils utils = new InputProcessingUtils();
-      if (utils.isWithin(result) == false) {
-        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
     }
     processingData.setGeoJsonGeoms(geoJsonGeoms);
     processingData.setBoundaryColl(geometryCollection);
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
+    return unifyPolys(geometryCollection);
+  }
+
+  /**
+   * Computes the union of the given geometries and checks if it is completely within the underlying
+   * data extract.
+   * 
+   * @param geometries <code>Collection<Geometry></code> containing the geometries to unify
+   * @return unified geometries
+   * @throws NotFoundException if the unified Geometry does not lie completely within the underlying
+   *         data extract
+   */
+  private Geometry unifyPolys(Collection<Geometry> geometries) throws NotFoundException {
+    GeometryFactory geometryFactory = new GeometryFactory();
+    Polygon[] polys = geometries.stream().flatMap(geo -> {
+      if (geo instanceof MultiPolygon) {
+        int num = geo.getNumGeometries();
+        ArrayList<Polygon> parts = new ArrayList<>(num);
+        for (int i = 0; i < num; i++) {
+          parts.add((Polygon) geo.getGeometryN(i));
+        }
+        return parts.stream();
+      } else {
+        return Stream.of(geo);
+      }
+    }).toArray(Polygon[]::new);
+    MultiPolygon mp = geometryFactory.createMultiPolygon(polys);
+    // merge all input geometries to single (multi) polygon
+    Geometry result = mp.union();
+    InputProcessingUtils utils = new InputProcessingUtils();
+    if (!utils.isWithin(result)) {
+      throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
+    }
     return result;
   }
 
