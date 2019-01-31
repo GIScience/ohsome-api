@@ -179,6 +179,7 @@ public class ElementsRequestExecutor {
   public static void executeElementsFullHistory(ElementsGeometry elemGeom,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
+    InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
     String requestUrl = null;
     if (!servletRequest.getMethod().equalsIgnoreCase("post")) {
       requestUrl = RequestInterceptor.requestUrl;
@@ -195,18 +196,17 @@ public class ElementsRequestExecutor {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
       final double maxStreamDataSize = 1E7;
-      InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
       Number approxResultSize = snapshotInputProcessor.processParameters()
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
           .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > maxStreamDataSize) {
         dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
-      mapRedSnapshot = inputProcessor.processParameters();
+      mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
       dbIgnite.computeMode(previousComputeMode);
     } else {
-      mapRedSnapshot = inputProcessor.processParameters();
+      mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
     }
     ProcessingData processingData = inputProcessor.getProcessingData();
