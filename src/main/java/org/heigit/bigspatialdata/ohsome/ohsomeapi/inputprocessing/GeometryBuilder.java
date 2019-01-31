@@ -32,7 +32,6 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-
 /**
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.
  */
@@ -51,7 +50,7 @@ public class GeometryBuilder {
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
-   * <code>String</code> array. Only used if more than one bounding box is given in the input array.
+   * <code>String</code> array.
    * 
    * @param bboxes <code>String</code> array containing the lon/lat coordinates of the bounding
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
@@ -129,9 +128,6 @@ public class GeometryBuilder {
         transform = CRS.findMathTransform(targetCrs, sourceCrs, false);
         geom = JTS.transform(buffer, transform);
         if (bpoints.length == 3) {
-          if (utils.isWithin(geom) == false) {
-            throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
-          }
           geometryCollection.add(geom);
           processingData.setBoundaryColl(geometryCollection);
           processingData.setBcirclesGeom(geom);
@@ -165,8 +161,8 @@ public class GeometryBuilder {
   public Geometry createBpolys(String[] bpolys) throws BadRequestException, NotFoundException {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry bpoly;
-    ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
-    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
+    ArrayList<Coordinate> coords = new ArrayList<>();
+    Collection<Geometry> geometryCollection = new LinkedHashSet<>();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -183,12 +179,10 @@ public class GeometryBuilder {
       processingData.setBpolysGeom(bpoly);
       return bpoly;
     }
-    Coordinate firstPoint;
+    Coordinate firstPoint = null;
     try {
-      firstPoint = new Coordinate(Double.parseDouble(bpolys[0]), Double.parseDouble(bpolys[1]));
-      coords.add(firstPoint);
-      for (int i = 2; i < bpolys.length; i += 2) {
-        if (firstPoint.x == Double.parseDouble(bpolys[i])
+      for (int i = 0; i < bpolys.length; i += 2) {
+        if (firstPoint != null && firstPoint.x == Double.parseDouble(bpolys[i])
             && firstPoint.y == Double.parseDouble(bpolys[i + 1])) {
           Polygon poly;
           coords.add(
@@ -196,16 +190,14 @@ public class GeometryBuilder {
           poly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
           geometryCollection.add(poly);
           coords.clear();
-          if (i + 2 >= bpolys.length) {
-            break;
-          }
-          firstPoint =
-              new Coordinate(Double.parseDouble(bpolys[i + 2]), Double.parseDouble(bpolys[i + 3]));
-          coords.add(firstPoint);
-          i += 2;
+          firstPoint = null;
         } else {
-          coords.add(
-              new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
+          Coordinate coord =
+              new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1]));
+          coords.add(coord);
+          if (firstPoint == null) {
+            firstPoint = coord;
+          }
         }
       }
       Geometry result = unifyPolys(geometryCollection);
@@ -239,10 +231,13 @@ public class GeometryBuilder {
    * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
-    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
-    GeoJSONReader reader = new GeoJSONReader();
-    JsonReader jsonReader = Json.createReader(new StringReader(geoJson));
-    JsonObject root = jsonReader.readObject();
+    Collection<Geometry> geometryCollection = new LinkedHashSet<>();
+    JsonObject root = null;
+    try (JsonReader jsonReader = Json.createReader(new StringReader(geoJson))) {
+      root = jsonReader.readObject();
+    } catch (Exception e) {
+      throw new BadRequestException("Error in reading of the given GeoJSON.");
+    }
     if (!root.getString("type").equals("FeatureCollection")) {
       throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
     }
@@ -255,45 +250,22 @@ public class GeometryBuilder {
       JsonObject properties = feature.getJsonObject("properties");
       try {
         if (feature.containsKey("id")) {
-          if (feature.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
-            String id = feature.getString("id");
-            if ("csv".equalsIgnoreCase(processingData.getFormat())) {
-              inputProcessor.getUtils().checkCustomBoundaryId(id);
-            }
-            boundaryIds[count] = id;
-          } else {
-            boundaryIds[count] = feature.getInt("id");
-          }
-          count++;
+          boundaryIds[count] = createBoundaryIdFromJsonObjectId(feature, inputProcessor);
         } else if (properties.containsKey("id")) {
-          if (properties.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
-            String id = properties.getString("id");
-            if ("csv".equalsIgnoreCase(processingData.getFormat())) {
-              inputProcessor.getUtils().checkCustomBoundaryId(id);
-            }
-            boundaryIds[count] = id;
-          } else {
-            boundaryIds[count] = properties.getInt("id");
-          }
-          count++;
+          boundaryIds[count] = createBoundaryIdFromJsonObjectId(properties, inputProcessor);
         } else {
-          boundaryIds[count] = "feature" + String.valueOf(count + 1);
-          count++;
+          boundaryIds[count] = "feature" + (count + 1);
         }
+        count++;
+      } catch (BadRequestException e) {
+        throw e;
       } catch (Exception e) {
-        if (e instanceof BadRequestException) {
-          throw e;
-        }
         throw new BadRequestException("The provided custom id(s) could not be parsed.");
       }
       JsonObject geomObj = feature.getJsonObject("geometry");
-      if (!geomObj.getString("type").equals("Polygon")
-          && !geomObj.getString("type").equals("MultiPolygon")) {
-        throw new BadRequestException(
-            "The geometry of each feature in the GeoJSON has to be of type 'Polygon' "
-                + "or 'MultiPolygon'.");
-      }
+      checkGeometryTypeOfFeature(geomObj);
       try {
+        GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
         geometryCollection.add(currentResult);
         geoJsonGeoms[count - 1] =
@@ -340,6 +312,46 @@ public class GeometryBuilder {
       throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
     }
     return result;
+  }
+
+  /**
+   * Creates a boundary ID value from the 'id' field in the given <code>JsonObject</code>.
+   * 
+   * @param jsonObject <code>JsonObject</code> where the 'id' value is extracted from
+   * @param inputProcessor used for
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils#checkCustomBoundaryId(String)
+   *        checkCustomBoundaryId}
+   * @return <code>Object</code> having the custom id of type <code>String</code> or
+   *         <code>Integer</code>
+   */
+  private Object createBoundaryIdFromJsonObjectId(JsonObject jsonObject,
+      InputProcessor inputProcessor) {
+    if (jsonObject.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
+      String id = jsonObject.getString("id");
+      if ("csv".equalsIgnoreCase(processingData.getFormat())) {
+        inputProcessor.getUtils().checkCustomBoundaryId(id);
+      }
+      return id;
+    } else {
+      return jsonObject.getInt("id");
+    }
+  }
+
+  /**
+   * Checks the geometry of the given <code>JsonObject</code> on its type. If it's not of type
+   * Polygon or Multipolygon, an exception is thrown.
+   * 
+   * @param geomObj <code>JsonObject</code> to check
+   * @throws BadRequestException if the given <code>JsonObject</code> is not of type Polygon or
+   *         Multipolygon
+   */
+  private void checkGeometryTypeOfFeature(JsonObject geomObj) throws BadRequestException {
+    if (!geomObj.getString("type").equals("Polygon")
+        && !geomObj.getString("type").equals("MultiPolygon")) {
+      throw new BadRequestException(
+          "The geometry of each feature in the GeoJSON has to be of type 'Polygon' "
+              + "or 'MultiPolygon'.");
+    }
   }
 
   public ProcessingData getprocessingData() {
