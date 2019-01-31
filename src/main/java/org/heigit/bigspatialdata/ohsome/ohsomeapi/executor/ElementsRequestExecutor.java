@@ -195,9 +195,10 @@ public class ElementsRequestExecutor {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
       final double maxStreamDataSize = 1E7;
-      Number approxResultSize =
-          inputProcessor.processParameters().map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
-              .sum(data -> data.getLength() / data.getLatest().getVersion());
+      InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
+      Number approxResultSize = snapshotInputProcessor.processParameters()
+          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
+          .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > maxStreamDataSize) {
         dbIgnite.computeMode(ComputeMode.AffinityCall);
       }
