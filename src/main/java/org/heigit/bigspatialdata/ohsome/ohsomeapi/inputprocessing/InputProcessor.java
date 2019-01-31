@@ -231,11 +231,8 @@ public class InputProcessor {
 
   /** Splits the given input parameter on ',' and returns a String[] containing the splits. */
   public String[] splitParamOnComma(String[] param) {
-    if (param.length != 1) {
-      return param;
-    }
-    if (param[0].contains(",")) {
-      return param[0].split(",");
+    if (param.length == 1 && param[0].contains(",")) {
+      return param[0].replaceAll("\\s", "").split(",");
     }
     return param;
   }
