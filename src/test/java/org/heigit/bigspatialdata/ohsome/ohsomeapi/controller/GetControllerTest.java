@@ -68,12 +68,11 @@ public class GetControllerTest {
             + "8.68667,49.41353,8.68828,49.414&types=way&time=2017-01-01&keys=building"
             + "&values=church&showMetadata=true",
         JsonNode.class);
-    assertEquals(2,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox1"))
-            .findFirst().get().get("result").get(0).get("value").asInt());
+    assertEquals(2, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
+        .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -157,7 +156,7 @@ public class GetControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox2"))
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
         .findFirst().get().get("shareResult").get(0).get("part").asInt());
   }
 
@@ -185,7 +184,7 @@ public class GetControllerTest {
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bcircle1"))
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
   }
 
@@ -207,13 +206,11 @@ public class GetControllerTest {
             + "/elements/count/density/groupBy/boundary?bboxes=8.68794,49.41434,8.69021,49.41585|"
             + "8.67933,49.40505,8.6824,49.40638&types=way&time=2017-08-19&keys=building",
         JsonNode.class);
-    assertEquals(334.85,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox2"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+    assertEquals(334.85, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
@@ -266,13 +263,11 @@ public class GetControllerTest {
             + "/elements/length/groupBy/boundary?bboxes=8.695443,49.408928,8.695636,49.409151|"
             + "8.699262,49.409451,8.701547,49.412205&types=way&time=2014-08-21&keys=highway",
         JsonNode.class);
-    assertEquals(25.5,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox1"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+    assertEquals(25.5, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   @Test
@@ -357,7 +352,7 @@ public class GetControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox2"))
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
         .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 1e-6);
   }
 
@@ -384,7 +379,7 @@ public class GetControllerTest {
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox1"))
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
   }
 
@@ -434,13 +429,11 @@ public class GetControllerTest {
             + "/elements/length/density/groupBy/boundary?bboxes=8.69079,49.40129,8.69238,49.40341|"
             + "8.67504,49.4119,8.67813,49.41668&types=way&time=2017-05-30&key=highway",
         JsonNode.class);
-    assertEquals(74036.22,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("bbox2"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+    assertEquals(74036.22, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
   /*
@@ -566,6 +559,6 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
-    assertEquals(165, length);
+    assertEquals(173, length);
   }
 }

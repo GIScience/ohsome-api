@@ -11,7 +11,7 @@ public class ExceptionMessages {
       + "does not lie completely within the underlying data-extract polygon.";
   public static final String BPOLYS_FORMAT = "The bpolys parameter must contain "
       + "double-parseable values in form of lon/lat coordinate pairs.";
-  public static final String BOUNDAR_PARAM_FORMAT =
+  public static final String BOUNDARY_PARAM_FORMAT =
       "Error in processing the boundary parameter. Please "
           + "remember to follow the format, where you separate each boundary object with a pipe-sign "
           + "'|' and add optional custom ids to every first coordinate with a colon ':'.";

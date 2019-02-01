@@ -41,7 +41,6 @@ public class InputProcessingUtils {
     if (lat < -80) {
       return "EPSG:32761"; // UPS South
     }
-
     int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
     if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0) {
       zoneNumber = 32;
@@ -64,175 +63,96 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Splits the given boundary parameter (bboxes, bcircles, or bpolys) on '|' to seperate the
-   * different bounding objects.
+   * Splits the given bounding boxes and returns them in a <code>List</code>.
+   * 
+   * @param bboxes contains the given bounding boxes
+   * @return <code>List</code> containing the splitted bounding boxes
+   * @throws BadRequestException if the bboxes parameter has invalid content
    */
-  public String[] splitOnHyphen(String boundaryParam) {
-    if (boundaryParam.contains("|")) {
-      return boundaryParam.split("\\|");
-    }
-    return new String[] {boundaryParam};
-  }
-
-  /** Splits the given bboxes String and returns its content as a String array. */
-  public ArrayList<String> splitBboxes(String bboxes) {
+  public List<String> splitBboxes(String bboxes) throws BadRequestException {
     String[] bboxesArray = splitOnHyphen(bboxes);
-    ArrayList<String> boundaryParamValues = new ArrayList<String>();
-    String[] boundaryIds = new String[bboxesArray.length];
-    String[] coords;
-    int idCount = 0;
+    List<String> boundaryParamValues = new ArrayList<>();
+    boundaryIds = new String[bboxesArray.length];
     try {
       if (bboxesArray[0].contains(":")) {
-        // custom ids are given
-        for (String boundaryObject : bboxesArray) {
-          coords = boundaryObject.split("\\,");
-          if (coords.length != 4) {
-            throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
-          }
-          if (coords[0].contains(":")) {
-            String[] idAndCoordinate = coords[0].split(":");
-            // extract the id
-            boundaryIds[idCount] = idAndCoordinate[0];
-            // extract the coordinates
-            boundaryParamValues.add(idAndCoordinate[1]);
-            boundaryParamValues.add(coords[1]);
-            boundaryParamValues.add(coords[2]);
-            boundaryParamValues.add(coords[3]);
-            idCount++;
-          } else {
-            throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
-          }
-        }
+        boundaryParamValues = splitBboxesWithIds(bboxesArray);
       } else {
-        // no custom ids are given
-        idCount = 1;
-        for (String boundaryObject : bboxesArray) {
-          coords = boundaryObject.split("\\,");
-          for (String coord : coords) {
-            boundaryParamValues.add(coord);
-          }
-          // adding of ids
-          boundaryIds[idCount - 1] = "bbox" + String.valueOf(idCount);
-          idCount++;
-        }
+        boundaryParamValues = splitBoundariesWithoutIds(bboxesArray);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       }
-      throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
-    this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
     return boundaryParamValues;
   }
 
-  /** Splits the given bcircles String and returns its content as a String array. */
-  public ArrayList<String> splitBcircles(String bcircles) {
+  /**
+   * Splits the given bounding circles and returns them in a <code>List</code>.
+   * 
+   * @param bcircles contains the given bounding circles
+   * @return <code>List</code> containing the splitted bounding circles
+   * @throws BadRequestException if the bcircles parameter has invalid content
+   */
+  public List<String> splitBcircles(String bcircles) throws BadRequestException {
     String[] bcirclesArray = splitOnHyphen(bcircles);
-    ArrayList<String> boundaryParamValues = new ArrayList<String>();
-    String[] boundaryIds = new String[bcirclesArray.length];
-    String[] coords;
-    int idCount = 0;
+    List<String> boundaryParamValues = new ArrayList<>();
+    boundaryIds = new String[bcirclesArray.length];
     try {
       if (bcirclesArray[0].contains(":")) {
-        for (String boundaryObject : bcirclesArray) {
-          coords = boundaryObject.split("\\,");
-          if (coords.length != 3) {
-            throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
-          }
-          if (coords[0].contains(":")) {
-            String[] idAndCoordinate = coords[0].split(":");
-            boundaryIds[idCount] = idAndCoordinate[0];
-            // extract the coordinate
-            boundaryParamValues.add(idAndCoordinate[1]);
-            boundaryParamValues.add(coords[1]);
-            // extract the radius
-            boundaryParamValues.add(coords[2]);
-            idCount++;
-          } else {
-            throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
-          }
-        }
+        boundaryParamValues = splitBcirclesWithIds(bcirclesArray);
       } else {
-        idCount = 1;
-        for (String boundaryObject : bcirclesArray) {
-          coords = boundaryObject.split("\\,");
-          for (String coord : coords) {
-            boundaryParamValues.add(coord);
-          }
-          boundaryIds[idCount - 1] = "bcircle" + String.valueOf(idCount);
-          idCount++;
-        }
+        boundaryParamValues = splitBoundariesWithoutIds(bcirclesArray);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       }
-      throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
-    this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
     return boundaryParamValues;
   }
 
-  /** Splits the given bpolys String and returns its content as an ArrayList. */
-  public ArrayList<String> splitBpolys(String bpolys) {
+  /**
+   * Splits the given bounding polygons and returns them in a <code>List</code>.
+   * 
+   * @param bpolys contains the given bounding polygons
+   * @return <code>List</code> containing the splitted bounding polygons
+   * @throws BadRequestException if the bpolys parameter has invalid content
+   */
+  public List<String> splitBpolys(String bpolys) throws BadRequestException {
     String[] bpolysArray = splitOnHyphen(bpolys);
-    ArrayList<String> boundaryParamValues = new ArrayList<String>();
-    String[] boundaryIds = new String[bpolysArray.length];
-    String[] coords;
-    int idCount = 0;
+    List<String> boundaryParamValues = new ArrayList<>();
+    boundaryIds = new String[bpolysArray.length];
     try {
       if (bpolysArray[0].contains(":")) {
-        for (String boundaryObject : bpolysArray) {
-          coords = boundaryObject.split("\\,");
-          if (coords[0].contains(":")) {
-            String[] idAndCoordinate = coords[0].split(":");
-            // extract the id and the first coordinate
-            boundaryIds[idCount] = idAndCoordinate[0];
-            boundaryParamValues.add(idAndCoordinate[1]);
-            // extract the other coordinates
-            for (int i = 1; i < coords.length; i++) {
-              if (coords[i].contains(":")) {
-                throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
-              }
-              boundaryParamValues.add(coords[i]);
-            }
-            idCount++;
-          } else {
-            throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
-          }
-        }
+        boundaryParamValues = splitBpolysWithIds(bpolysArray);
+
       } else if (bpolysArray[0].contains(",")) {
-        idCount = 1;
-        for (String boundaryObject : bpolysArray) {
-          coords = boundaryObject.split("\\,");
-          for (String coord : coords) {
-            boundaryParamValues.add(coord);
-          }
-          boundaryIds[idCount - 1] = "bpoly" + String.valueOf(idCount);
-          idCount++;
-        }
+        boundaryParamValues = splitBoundariesWithoutIds(bpolysArray);
       } else {
-        throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
+        throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
         throw e;
       }
-      throw new BadRequestException(ExceptionMessages.BOUNDAR_PARAM_FORMAT);
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
-    this.boundaryIds = boundaryIds;
     boundaryParamValues.removeAll(Collections.singleton(null));
     return boundaryParamValues;
   }
 
   /**
    * Defines the toTimestamps for the result json object for /users responses.
+   * 
+   * @param timeData contains the requested time
+   * @return array having only the toTimestamps
    */
   public String[] defineToTimestamps(String[] timeData) {
-    String[] toTimestamps;
     OSHDBTimestamps timestamps;
     if (timeData.length == 3 && timeData[2] != null) {
       // needed to check for interval
@@ -280,14 +200,17 @@ public class InputProcessingUtils {
    * @param time <code>String</code> holding the unparsed time information.
    * @return <code>String</code> array containing the startTime at at [0], the endTime at [1] and
    *         the period at [2].
+   * @throws BadRequestException if the given time parameter is not ISO-8601 conform
+   * @throws NotFoundException if the given time is not completely within the timerange of the
+   *         underlying data
    */
-  public String[] extractIsoTime(String time) throws Exception {
-    String[] timeVals = new String[3];
+  public String[] extractIsoTime(String time) throws BadRequestException, NotFoundException {
     String[] split = time.split("/");
     if (split.length == 0 && !"/".equals(time)) {
       // invalid time parameter
       throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
     }
+    String[] timeVals = new String[3];
     if (time.startsWith("/")) {
       if (time.length() == 1) {
         // only /
@@ -366,11 +289,15 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Checks the provided time info on its temporal extent. Throws a 404 NotFoundException if it is
-   * not completely within the timerange of the underlying data, or a 400 BadRequestException if the
-   * timestamps are not ISO conform.
+   * Checks the provided time info on its temporal extent.
+   * 
+   * @param timeInfo time information to check
+   * @throws NotFoundException if the given time is not completely within the timerange of the
+   *         underlying data
+   * @throws BadRequestException if the timestamps are not ISO-8601 conform.
    */
-  protected void checkTemporalExtend(String... timeInfo) throws Exception {
+  protected void checkTemporalExtend(String... timeInfo)
+      throws NotFoundException, BadRequestException {
     long start = 0;
     long end = 0;
     long timestampLong = 0;
@@ -390,18 +317,19 @@ public class InputProcessingUtils {
                   + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
                   + ") of the underlying osh-data.");
         }
+      } catch (NotFoundException e) {
+        throw e;
       } catch (Exception e) {
-        if (e instanceof NotFoundException) {
-          throw e;
-        }
         throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
     }
   }
 
   /**
-   * Checks the provided time info on its ISO conformity. Throws a 400 BadRequestException if the
-   * timestamps are not ISO conform.
+   * Checks the provided time info on its ISO conformity.
+   * 
+   * @param timeInfo time information to check
+   * @throws BadRequestException if the timestamps are not ISO-8601 conform.
    */
   protected void checkTimestampsOnIsoConformity(String... timeInfo) throws BadRequestException {
     for (String timestamp : timeInfo) {
@@ -465,9 +393,122 @@ public class InputProcessingUtils {
     return true;
   }
 
+  /**
+   * Splits the given boundary parameter (bboxes, bcircles, or bpolys) on '|' to seperate the
+   * different bounding objects.
+   * 
+   * @param boundaryParam <code>String</code> that contains the boundary parameter(s)
+   * @return splitted boundaries
+   */
+  private String[] splitOnHyphen(String boundaryParam) {
+    if (boundaryParam.contains("|")) {
+      return boundaryParam.split("\\|");
+    }
+    return new String[] {boundaryParam};
+  }
+
+  /**
+   * Splits the coordinates from the given boundaries array.
+   * 
+   * @param boundariesArray contains the boundaries without a custom id
+   * @return <code>List</code> containing the splitted boundaries
+   */
+  private List<String> splitBoundariesWithoutIds(String[] boundariesArray) {
+    List<String> boundaryParamValues = new ArrayList<>();
+    for (int i = 0; i < boundariesArray.length; i++) {
+      String[] coords = boundariesArray[i].split("\\,");
+      for (String coord : coords) {
+        boundaryParamValues.add(coord);
+      }
+      boundaryIds[i] = "boundary" + (i + 1);
+    }
+    return boundaryParamValues;
+  }
+
+  /**
+   * Splits the ids and the coordinates from the given bounding boxes array.
+   * 
+   * @param bboxesArray contains the bounding boxes having a custom id
+   * @return <code>List</code> containing the splitted bounding boxes
+   * @throws BadRequestException if the bboxes have invalid content
+   */
+  private List<String> splitBboxesWithIds(String[] bboxesArray) throws BadRequestException {
+    List<String> boundaryParamValues = new ArrayList<>();
+    for (int i = 0; i < bboxesArray.length; i++) {
+      String[] coords = bboxesArray[i].split("\\,");
+      if (coords.length != 4) {
+        throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+      }
+      if (coords[0].contains(":")) {
+        String[] idAndCoordinate = coords[0].split(":");
+        // extract the id
+        boundaryIds[i] = idAndCoordinate[0];
+        // extract the coordinates
+        boundaryParamValues.add(idAndCoordinate[1]);
+        boundaryParamValues.add(coords[1]);
+        boundaryParamValues.add(coords[2]);
+        boundaryParamValues.add(coords[3]);
+      } else {
+        throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
+      }
+    }
+    return boundaryParamValues;
+  }
+
+  /**
+   * Splits the ids and the coordinates from the given bounding circles array.
+   * 
+   * @param bcirclesArray contains the bounding circles having a custom id
+   * @return <code>List</code> containing the splitted bounding circles
+   * @throws BadRequestException if the bcircles have invalid content
+   */
+  private List<String> splitBcirclesWithIds(String[] bcirclesArray) throws BadRequestException {
+    List<String> boundaryParamValues = new ArrayList<>();
+    for (int i = 0; i < bcirclesArray.length; i++) {
+      String[] coords = bcirclesArray[i].split("\\,");
+      if (coords.length != 3) {
+        throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+      }
+      String[] idAndCoordinate = coords[0].split(":");
+      boundaryIds[i] = idAndCoordinate[0];
+      // extract the coordinate
+      boundaryParamValues.add(idAndCoordinate[1]);
+      boundaryParamValues.add(coords[1]);
+      // extract the radius
+      boundaryParamValues.add(coords[2]);
+    }
+    return boundaryParamValues;
+  }
+
+  /**
+   * Splits the ids and the coordinates from the given bounding polygons array.
+   * 
+   * @param bcirclesArray contains the bounding polygons having a custom id
+   * @return <code>List</code> containing the splitted bounding polygons
+   * @throws BadRequestException if the bpolys have invalid content
+   */
+  private List<String> splitBpolysWithIds(String[] bpolysArray) throws BadRequestException {
+    List<String> boundaryParamValues = new ArrayList<>();
+    for (int i = 0; i < bpolysArray.length; i++) {
+      String[] coords = bpolysArray[i].split("\\,");
+      String[] idAndCoordinate = coords[0].split(":");
+      // extract the id and the first coordinate
+      boundaryIds[i] = idAndCoordinate[0];
+      boundaryParamValues.add(idAndCoordinate[1]);
+      // extract the other coordinates
+      for (int j = 1; j < coords.length; j++) {
+        if (coords[j].contains(":")) {
+          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+        }
+        boundaryParamValues.add(coords[j]);
+      }
+    }
+    return boundaryParamValues;
+  }
+
   /** Internal helper method to get the toTimestamps from a timestampList. */
   private String[] getToTimestampsFromTimestamplist(String[] timeData) {
-    String[] toTimestamps = new String[timeData.length];
+    toTimestamps = new String[timeData.length];
     for (int i = 0; i < timeData.length; i++) {
       try {
         toTimestamps[i] =
