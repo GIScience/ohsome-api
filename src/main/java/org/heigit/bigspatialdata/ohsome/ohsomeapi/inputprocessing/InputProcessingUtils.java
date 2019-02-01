@@ -412,8 +412,10 @@ public class InputProcessingUtils {
    * 
    * @param boundariesArray contains the boundaries without a custom id
    * @return <code>List</code> containing the splitted boundaries
+   * @throws BadRequestException if the coordinates are invalid
    */
-  private List<String> splitBoundariesWithoutIds(String[] boundariesArray) {
+  private List<String> splitBoundariesWithoutIds(String[] boundariesArray)
+      throws BadRequestException {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < boundariesArray.length; i++) {
       String[] coords = boundariesArray[i].split("\\,");
@@ -422,6 +424,7 @@ public class InputProcessingUtils {
       }
       boundaryIds[i] = "boundary" + (i + 1);
     }
+    checkBoundaryParamLength(boundaryParamValues);
     return boundaryParamValues;
   }
 
@@ -452,6 +455,7 @@ public class InputProcessingUtils {
         throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
       }
     }
+    checkBoundaryParamLength(boundaryParamValues);
     return boundaryParamValues;
   }
 
@@ -477,6 +481,7 @@ public class InputProcessingUtils {
       // extract the radius
       boundaryParamValues.add(coords[2]);
     }
+    checkBoundaryParamLength(boundaryParamValues);
     return boundaryParamValues;
   }
 
@@ -503,7 +508,21 @@ public class InputProcessingUtils {
         boundaryParamValues.add(coords[j]);
       }
     }
+    checkBoundaryParamLength(boundaryParamValues);
     return boundaryParamValues;
+  }
+
+  /**
+   * Checks the given boundaries list on their length. As it only contains coordinates, it must be
+   * even.
+   * 
+   * @param boundaries parameter to check the length
+   * @throws BadRequestException if the length is not even
+   */
+  private void checkBoundaryParamLength(List<String> boundaries) throws BadRequestException {
+    if (boundaries.size() % 2 != 0) {
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+    }
   }
 
   /** Internal helper method to get the toTimestamps from a timestampList. */
