@@ -10,7 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class GroupByResult extends GroupByObject{
 
-  @ApiModelProperty(notes = "ElementsResult array holding timestamp-value pairs", required = true)
+  @ApiModelProperty(notes = "Result array holding timestamp-value pairs", required = true)
   private Result[] result;
 
   public GroupByResult(Object groupByName, Result[] result) {

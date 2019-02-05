@@ -19,6 +19,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -138,71 +140,21 @@ public class ExecutionUtils {
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
-      List<String> columnNames = new LinkedList<String>();
-      List<String[]> rows = new LinkedList<String[]>();
-      columnNames.add("timestamp");
+      Pair<List<String>, List<String[]>> rows;
       if (resultSet instanceof GroupByResult[]) {
-        for (int i = 0; i < resultSet.length; i++) {
-          GroupByResult groupByResult = (GroupByResult) resultSet[i];
-          columnNames.add(groupByResult.getGroupByObject().toString());
-          for (int j = 0; j < groupByResult.getResult().length; j++) {
-            ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
-            if (i == 0) {
-              String[] row = new String[resultSet.length + 1];
-              row[0] = elemResult.getTimestamp();
-              row[1] = String.valueOf(elemResult.getValue());
-              rows.add(row);
-            } else {
-              rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
-            }
-          }
+        GroupByResult result = (GroupByResult) resultSet[0];
+        if (result.getResult() instanceof UsersResult[]) {
+          rows = createCsvResponseForUsersGroupBy(resultSet);
+        } else {
+          rows = createCsvResponseForElementsGroupBy(resultSet);
         }
       } else if (resultSet instanceof RatioGroupByResult[]) {
-        for (int i = 0; i < resultSet.length; i++) {
-          RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
-          columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
-          columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
-          columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
-          for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
-            RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
-            if (i == 0) {
-              String[] row = new String[resultSet.length * 3 + 1];
-              row[0] = ratioResult.getTimestamp();
-              row[1] = String.valueOf(ratioResult.getValue());
-              row[2] = String.valueOf(ratioResult.getValue2());
-              row[3] = String.valueOf(ratioResult.getRatio());
-              rows.add(row);
-            } else {
-              int count = i * 3 + 1;
-              rows.get(j)[count] = String.valueOf(ratioResult.getValue());
-              rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
-              rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
-            }
-          }
-        }
-      } else if (resultSet instanceof ShareGroupByResult[]) {
-        for (int i = 0; i < resultSet.length; i++) {
-          ShareGroupByResult shareGroupByResult = (ShareGroupByResult) resultSet[i];
-          columnNames.add(shareGroupByResult.getGroupByObject() + "_whole");
-          columnNames.add(shareGroupByResult.getGroupByObject() + "_part");
-          for (int j = 0; j < shareGroupByResult.getShareResult().length; j++) {
-            ShareResult shareResult = shareGroupByResult.getShareResult()[j];
-            if (i == 0) {
-              String[] row = new String[resultSet.length * 2 + 1];
-              row[0] = shareResult.getTimestamp();
-              row[1] = String.valueOf(shareResult.getWhole());
-              row[2] = String.valueOf(shareResult.getPart());
-              rows.add(row);
-            } else {
-              int count = i * 2 + 1;
-              rows.get(j)[count] = String.valueOf(shareResult.getWhole());
-              rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
-            }
-          }
-        }
+        rows = createCsvResponseForElementsRatioGroupBy(resultSet);
+      } else {
+        rows = createCsvResponseForElementsShareGroupBy(resultSet);
       }
-      writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
-      writer.writeAll(rows);
+      writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]));
+      writer.writeAll(rows.getRight());
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -229,6 +181,13 @@ public class ExecutionUtils {
           ElementsResult elementsResult = (ElementsResult) result;
           writer.writeNext(new String[] {elementsResult.getTimestamp(),
               String.valueOf(elementsResult.getValue())});
+        }
+      } else if (resultSet instanceof UsersResult[]) {
+        writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"});
+        for (Result result : resultSet) {
+          UsersResult usersResult = (UsersResult) result;
+          writer.writeNext(new String[] {usersResult.getFromTimestamp(),
+              usersResult.getFromTimestamp(), String.valueOf(usersResult.getValue())});
         }
       } else if (resultSet instanceof RatioResult[]) {
         writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
@@ -270,7 +229,7 @@ public class ExecutionUtils {
   /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
   public List<String[]> createCsvTopComments(String url, String text, String apiVersion,
       Metadata metadata) {
-    List<String[]> comments = new LinkedList<String[]>();
+    List<String[]> comments = new LinkedList<>();
     comments.add(new String[] {"# Copyright URL: " + url});
     comments.add(new String[] {"# Copyright Text: " + text});
     comments.add(new String[] {"# API Version: " + apiVersion});
@@ -738,6 +697,140 @@ public class ExecutionUtils {
 
     return new ShareGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
+  }
+
+  /**
+   * Creates the csv response for /elements/_/groupBy requests.
+   * 
+   * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
+   *        containing <code>ElementsResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsGroupBy(
+      GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("timestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      GroupByResult groupByResult = (GroupByResult) resultSet[i];
+      columnNames.add(groupByResult.getGroupByObject().toString());
+      for (int j = 0; j < groupByResult.getResult().length; j++) {
+        ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
+        if (i == 0) {
+          String[] row = new String[resultSet.length + 1];
+          row[0] = elemResult.getTimestamp();
+          row[1] = String.valueOf(elemResult.getValue());
+          rows.add(row);
+        } else {
+          rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /**
+   * Creates the csv response for /elements/_/ratio/groupBy requests.
+   * 
+   * @param resultSet <code>GroupByObject</code> array containing <code>RatioGroupByResult</code>
+   *        objects containing <code>RatioResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsRatioGroupBy(
+      GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("timestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
+      for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
+        RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
+        if (i == 0) {
+          String[] row = new String[resultSet.length * 3 + 1];
+          row[0] = ratioResult.getTimestamp();
+          row[1] = String.valueOf(ratioResult.getValue());
+          row[2] = String.valueOf(ratioResult.getValue2());
+          row[3] = String.valueOf(ratioResult.getRatio());
+          rows.add(row);
+        } else {
+          int count = i * 3 + 1;
+          rows.get(j)[count] = String.valueOf(ratioResult.getValue());
+          rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
+          rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /**
+   * Creates the csv response for /elements/_/share/groupBy requests.
+   * 
+   * @param resultSet <code>GroupByObject</code> array containing <code>ShareGroupByResult</code>
+   *        objects containing <code>ShareResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsShareGroupBy(
+      GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("timestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      ShareGroupByResult shareGroupByResult = (ShareGroupByResult) resultSet[i];
+      columnNames.add(shareGroupByResult.getGroupByObject() + "_whole");
+      columnNames.add(shareGroupByResult.getGroupByObject() + "_part");
+      for (int j = 0; j < shareGroupByResult.getShareResult().length; j++) {
+        ShareResult shareResult = shareGroupByResult.getShareResult()[j];
+        if (i == 0) {
+          String[] row = new String[resultSet.length * 2 + 1];
+          row[0] = shareResult.getTimestamp();
+          row[1] = String.valueOf(shareResult.getWhole());
+          row[2] = String.valueOf(shareResult.getPart());
+          rows.add(row);
+        } else {
+          int count = i * 2 + 1;
+          rows.get(j)[count] = String.valueOf(shareResult.getWhole());
+          rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /**
+   * Creates the csv response for /users/_/groupBy requests.
+   * 
+   * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
+   *        containing <code>UsersResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForUsersGroupBy(
+      GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("fromTimestamp");
+    columnNames.add("toTimestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      GroupByResult groupByResult = (GroupByResult) resultSet[i];
+      columnNames.add(groupByResult.getGroupByObject().toString());
+      for (int j = 0; j < groupByResult.getResult().length; j++) {
+        UsersResult usersResult = (UsersResult) groupByResult.getResult()[j];
+        if (i == 0) {
+          String[] row = new String[resultSet.length * 2 + 1];
+          row[0] = usersResult.getFromTimestamp();
+          row[1] = usersResult.getToTimestamp();
+          row[2] = String.valueOf(usersResult.getValue());
+          rows.add(row);
+        } else {
+          int count = i * 2 + 1;
+          rows.get(j)[count] = String.valueOf(usersResult.getValue());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
   }
 
   /** Fills the given stream with output data. */

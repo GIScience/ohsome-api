@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
@@ -45,8 +46,8 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation. */
-  public static Response executeCount(HttpServletRequest servletRequest, boolean isDensity)
-      throws Exception {
+  public static Response executeCount(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
@@ -78,13 +79,18 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(results, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
     return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, results);
   }
 
   /** Performs a count calculation grouped by the OSM type. */
   public static Response executeCountGroupByType(HttpServletRequest servletRequest,
-      boolean isDensity) throws Exception {
+      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
@@ -127,13 +133,18 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
   /** Performs a count calculation grouped by the tag. */
   public static Response executeCountGroupByTag(HttpServletRequest servletRequest,
-      boolean isDensity) throws Exception {
+      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     String[] groupByKey = servletRequest.getParameterValues("groupByKey");
     if (groupByKey == null || groupByKey.length != 1) {
@@ -223,13 +234,18 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 
   /** Performs a count calculation grouped by the key. */
   public static Response executeCountGroupByKey(HttpServletRequest servletRequest,
-      boolean isDensity) throws Exception {
+      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     String[] groupByKeys = servletRequest.getParameterValues("groupByKeys");
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -299,6 +315,11 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
+    }
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);

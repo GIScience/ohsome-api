@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.UsersRequestExecutor;
@@ -28,8 +29,9 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users", nickname = "usersCount")
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response count(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCount(servletRequest, false);
+  public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+      throws Exception {
+    return UsersRequestExecutor.executeCount(servletRequest, servletResponse, false);
   }
 
   /**
@@ -42,8 +44,9 @@ public class UsersController {
       nickname = "usersCountGroupByType")
   @RequestMapping(value = "/count/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countGroupByType(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByType(servletRequest, false);
+  public Response countGroupByType(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return UsersRequestExecutor.executeCountGroupByType(servletRequest, servletResponse, false);
   }
 
   /**
@@ -61,8 +64,9 @@ public class UsersController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countGroupByTag(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, false);
+  public Response countGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, servletResponse, false);
   }
 
   /**
@@ -78,8 +82,9 @@ public class UsersController {
           dataType = "string", required = true)})
   @RequestMapping(value = "count/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countGroupByKey(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByKey(servletRequest, false);
+  public Response countGroupByKey(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return UsersRequestExecutor.executeCountGroupByKey(servletRequest, servletResponse, false);
   }
 
   /**
@@ -93,8 +98,9 @@ public class UsersController {
       + "by the total area in square-kilometers)", nickname = "usersCountDensity")
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public Response countDensity(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCount(servletRequest, true);
+  public Response countDensity(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return UsersRequestExecutor.executeCount(servletRequest, servletResponse, true);
   }
 
   /**
@@ -107,8 +113,9 @@ public class UsersController {
       nickname = "usersCountDensityGroupByType")
   @RequestMapping(value = "/count/density/groupBy/type",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
-  public Response countDensityGroupByType(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByType(servletRequest, true);
+  public Response countDensityGroupByType(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return UsersRequestExecutor.executeCountGroupByType(servletRequest, servletResponse, true);
   }
 
   /**
@@ -127,7 +134,8 @@ public class UsersController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
-  public Response countDensityGroupByTag(HttpServletRequest servletRequest) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, true);
+  public Response countDensityGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, servletResponse, true);
   }
 }
