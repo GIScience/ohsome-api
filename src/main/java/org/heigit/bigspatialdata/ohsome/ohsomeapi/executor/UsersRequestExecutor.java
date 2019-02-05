@@ -146,12 +146,13 @@ public class UsersRequestExecutor {
   public static Response executeCountGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    String[] groupByKey = servletRequest.getParameterValues("groupByKey");
-    if (groupByKey == null || groupByKey.length != 1) {
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    String[] groupByKey = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
+    if (groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -160,10 +161,8 @@ public class UsersRequestExecutor {
     if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    String[] groupByValues = servletRequest.getParameterValues("groupByValues");
-    if (groupByValues == null) {
-      groupByValues = new String[0];
-    }
+    String[] groupByValues = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
