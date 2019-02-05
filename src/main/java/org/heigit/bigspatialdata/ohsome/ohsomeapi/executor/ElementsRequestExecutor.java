@@ -599,9 +599,7 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
-    String[] groupByValues = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
-    if (groupByKey == null || groupByKey.length != 1) {
+    if (groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
     mapRed = inputProcessor.processParameters();
@@ -613,9 +611,8 @@ public class ElementsRequestExecutor {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    if (groupByValues == null) {
-      groupByValues = new String[0];
-    }
+    String[] groupByValues = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
