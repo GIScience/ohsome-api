@@ -37,8 +37,8 @@ import com.vividsolutions.jts.geom.Geometry;
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
 
-  private static final String url = ExtractMetadata.attributionUrl;
-  private static final String text = ExtractMetadata.attributionShort;
+  private static final String URL = ExtractMetadata.attributionUrl;
+  private static final String TEXT = ExtractMetadata.attributionShort;
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
@@ -46,7 +46,7 @@ public class UsersRequestExecutor {
 
   /** Performs a count calculation. */
   public static Response executeCount(HttpServletRequest servletRequest, boolean isDensity)
-      throws UnsupportedOperationException, Exception {
+      throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
@@ -54,18 +54,14 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String description = null;
     String requestUrl = null;
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters();
-    result = mapRed.aggregateByTimestamp().map(contrib -> {
-      return contrib.getContributorUserId();
-    }).countUniq();
+    result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     Geometry geom = null;
+    String description = null;
     if (requestParameters.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer).";
@@ -73,6 +69,7 @@ public class UsersRequestExecutor {
     } else {
       description = "Number of distinct users per time interval.";
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     UsersResult[] results =
         exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
@@ -81,14 +78,13 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = DefaultAggregationResponse.of(new Attribution(url, text),
-        Application.API_VERSION, metadata, results);
-    return response;
+    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
+        metadata, results);
   }
 
   /** Performs a count calculation grouped by the OSM type. */
   public static Response executeCountGroupByType(HttpServletRequest servletRequest,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
@@ -96,32 +92,29 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String description = null;
     String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters();
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
-        }, processingData.getOsmTypes()).map(contrib -> {
-          return contrib.getContributorUserId();
-        }).countUniq();
+        }, processingData.getOsmTypes()).map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     Geometry geom = inputProcessor.getGeometry();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
           requestParameters.isDensity(), toTimestamps, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
+    String description = null;
     if (requestParameters.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer) "
@@ -134,17 +127,15 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.API_VERSION,
-        metadata, resultSet);
-    return response;
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
   }
 
   /** Performs a count calculation grouped by the tag. */
   public static Response executeCountGroupByTag(HttpServletRequest servletRequest,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     String[] groupByKey = servletRequest.getParameterValues("groupByKey");
-    String[] groupByValues = servletRequest.getParameterValues("groupByValues");
     if (groupByKey == null || groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
@@ -154,19 +145,17 @@ public class UsersRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String description = null;
     String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
+    String[] groupByValues = servletRequest.getParameterValues("groupByValues");
     if (groupByValues == null) {
       groupByValues = new String[0];
     }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
-    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
-    mapRed = inputProcessor.processParameters();
+    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -199,9 +188,7 @@ public class UsersRequestExecutor {
       }
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
-        .map(contrib -> {
-          return contrib.getContributorUserId();
-        }).countUniq();
+        .map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -209,6 +196,7 @@ public class UsersRequestExecutor {
     Geometry geom = inputProcessor.getGeometry();
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
@@ -222,6 +210,7 @@ public class UsersRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    String description = null;
     if (requestParameters.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer) "
@@ -234,14 +223,13 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.API_VERSION,
-        metadata, resultSet);
-    return response;
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
   }
 
   /** Performs a count calculation grouped by the key. */
   public static Response executeCountGroupByKey(HttpServletRequest servletRequest,
-      boolean isDensity) throws UnsupportedOperationException, Exception {
+      boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     String[] groupByKeys = servletRequest.getParameterValues("groupByKeys");
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -253,14 +241,11 @@ public class UsersRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String description = null;
     String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    mapRed = inputProcessor.processParameters();
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
@@ -282,15 +267,14 @@ public class UsersRequestExecutor {
       }
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt)).map(Pair::getValue)
-        .map(contrib -> {
-          return contrib.getContributorUserId();
-        }).countUniq();
+        .map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
           requestParameters.isDensity(), toTimestamps, df, null);
@@ -303,6 +287,7 @@ public class UsersRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
+    String description = null;
     if (requestParameters.isDensity()) {
       description =
           "Density of distinct users per time interval (number of users per square-kilometer) "
@@ -315,8 +300,7 @@ public class UsersRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description, requestUrl);
     }
-    Response response = new GroupByResponse(new Attribution(url, text), Application.API_VERSION,
-        metadata, resultSet);
-    return response;
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
   }
 }

@@ -95,7 +95,7 @@ public class ElementsRequestExecutor {
       HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
     String requestUrl = null;
-    if (!servletRequest.getMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -181,7 +181,7 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
     String requestUrl = null;
-    if (!servletRequest.getMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
@@ -347,12 +347,10 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
     String requestUrl = null;
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
-    mapRed = inputProcessor.processParameters();
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -385,6 +383,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ElementsResult[] resultSet =
         exeUtils.fillElementsResult(result, requestParameters.isDensity(), df, geom);
     Metadata metadata = null;
@@ -394,8 +393,7 @@ public class ElementsRequestExecutor {
           new Metadata(duration, Description.countLengthPerimeterArea(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
-    if (requestParameters.getFormat() != null
-        && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
@@ -437,7 +435,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     mapRed = inputProcessor.processParameters();
@@ -484,16 +482,14 @@ public class ElementsRequestExecutor {
               requestResource.getLabel(), requestResource.getUnit()),
           requestUrl);
     }
-    if (requestParameters.getFormat() != null) {
-      if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
-        return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-            "FeatureCollection",
-            exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
-      } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
-        exeUtils.writeCsvResponse(resultSet, servletResponse,
-            exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-        return null;
-      }
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+          "FeatureCollection",
+          exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
@@ -533,7 +529,7 @@ public class ElementsRequestExecutor {
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     ArrayList<Integer> useridsInt = new ArrayList<>();
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     if (requestParameters.getUserids() != null) {
@@ -565,8 +561,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
-    if (requestParameters.getFormat() != null
-        && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
@@ -615,7 +610,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     if (groupByValues == null) {
@@ -683,8 +678,7 @@ public class ElementsRequestExecutor {
               requestResource.getLabel(), requestResource.getUnit()),
           requestUrl);
     }
-    if (requestParameters.getFormat() != null
-        && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
@@ -726,7 +720,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
@@ -756,8 +750,7 @@ public class ElementsRequestExecutor {
               requestResource.getLabel(), requestResource.getUnit()),
           requestUrl);
     }
-    if (requestParameters.getFormat() != null
-        && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
@@ -804,7 +797,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     TagTranslator tt = DbConnData.tagTranslator;
@@ -856,8 +849,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
           requestResource.getLabel(), requestResource.getUnit()), requestUrl);
     }
-    if (requestParameters.getFormat() != null
-        && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
@@ -914,7 +906,7 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
@@ -1056,8 +1048,7 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    TagTranslator tt = DbConnData.tagTranslator;
+
     if (processingData.getBoundary() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -1075,9 +1066,10 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!requestParameters.getRequestMethod().equalsIgnoreCase("post")) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = RequestInterceptor.requestUrl;
     }
+    TagTranslator tt = DbConnData.tagTranslator;
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
       keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).toInt();
       if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
@@ -1088,7 +1080,7 @@ public class ElementsRequestExecutor {
     }
     for (int i = 0; i < keys2.length; i++) {
       keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (values2 != null && i < values2.length) {
+      if (i < values2.length) {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
@@ -1183,6 +1175,7 @@ public class ElementsRequestExecutor {
     Double[] resultValues2 = null;
     String[] timeArray = null;
     boolean timeArrayFilled = false;
+    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<MatchType, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> entry : groupByResult
         .entrySet()) {
       if (!timeArrayFilled) {
