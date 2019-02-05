@@ -819,13 +819,13 @@ public class ExecutionUtils {
       for (int j = 0; j < groupByResult.getResult().length; j++) {
         UsersResult usersResult = (UsersResult) groupByResult.getResult()[j];
         if (i == 0) {
-          String[] row = new String[resultSet.length * 2 + 1];
+          String[] row = new String[resultSet.length + 2];
           row[0] = usersResult.getFromTimestamp();
           row[1] = usersResult.getToTimestamp();
           row[2] = String.valueOf(usersResult.getValue());
           rows.add(row);
         } else {
-          int count = i * 2 + 1;
+          int count = i + 2;
           rows.get(j)[count] = String.valueOf(usersResult.getValue());
         }
       }
