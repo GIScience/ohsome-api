@@ -261,8 +261,10 @@ public class ElementsRequestExecutor {
           properties = new TreeMap<>();
           properties.put("@validFrom", validFrom);
           properties.put("@validTo", validTo);
-          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+          if (!currentGeom.isEmpty()) {
+            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+                includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+          }
         }
         skipNext = false;
         if (contribution.is(ContributionType.DELETION)) {
@@ -282,8 +284,10 @@ public class ElementsRequestExecutor {
         properties = new TreeMap<>();
         properties.put("@validFrom", validFrom);
         properties.put("@validTo", validTo);
-        output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-            includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+        if (!currentGeom.isEmpty()) {
+          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+        }
       }
       return output;
     });
