@@ -115,12 +115,12 @@ public class InputProcessor {
     }
     if (showMetadata == null) {
       processingData.setShowMetadata(false);
-    } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("true")
-        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("yes")) {
+    } else if ("true".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
+        || "yes".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
       processingData.setShowMetadata(true);
-    } else if (showMetadata.replaceAll("\\s", "").equalsIgnoreCase("false")
-        || showMetadata.replaceAll("\\s", "").equals("")
-        || showMetadata.replaceAll("\\s", "").equalsIgnoreCase("no")) {
+    } else if ("false".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
+        || "".equals(showMetadata.replaceAll("\\s", ""))
+        || "no".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
       processingData.setShowMetadata(false);
     } else {
       throw new BadRequestException(
@@ -529,8 +529,8 @@ public class InputProcessor {
 
   /**
    * Sets a corresponding enum (NOBOUNDARY for no boundary, BBOXES for bboxes, BCIRCLES for
-   * bcircles, BPOLYS for bpolys) based on the given boundary parameter(s). Only one (or none) of
-   * them is allowed to have content in it.
+   * bcircles, BPOLYS for bpolys) based on the given boundary parameter(s). Only one of them is
+   * allowed to have content in it.
    * 
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
@@ -538,10 +538,12 @@ public class InputProcessor {
    *        and optional custom names at each first coordinate appended with a colon (:).
    * @param bpolys <code>String</code> containing the bounding polygons separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
+   * @throws BadRequestException if there is not exactly one boundary parameter defined
    */
-  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys) {
+  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys)
+      throws BadRequestException {
     if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
-      return BoundaryType.NOBOUNDARY;
+      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       return BoundaryType.BBOXES;
     } else if (bboxes.isEmpty() && !bcircles.isEmpty() && bpolys.isEmpty()) {

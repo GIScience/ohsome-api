@@ -6,7 +6,7 @@ public class ExceptionMessages {
   public static final String PAYLOAD_TOO_LARGE =
       "The given query is too large. Please use a smaller region and/or coarser time period.";
   public static final String NO_BOUNDARY =
-      "You need to give at least one boundary parameter if you want to use /groupBy/boundary.";
+      "You need to define one of the boundary parameters (bboxes, bcircles, bpolys).";
   public static final String BOUNDARY_NOT_IN_DATA_EXTRACT = "The provided boundary parameter "
       + "does not lie completely within the underlying data-extract polygon.";
   public static final String BPOLYS_FORMAT = "The bpolys parameter must contain "
