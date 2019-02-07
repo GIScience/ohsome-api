@@ -218,9 +218,9 @@ public class InputProcessor {
     } else {
       processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
       for (String type : types) {
-        if (type.equalsIgnoreCase("node")) {
+        if ("node".equalsIgnoreCase(type)) {
           processingData.getOsmTypes().add(OSMType.NODE);
-        } else if (type.equalsIgnoreCase("way")) {
+        } else if ("way".equalsIgnoreCase(type)) {
           processingData.getOsmTypes().add(OSMType.WAY);
         } else {
           processingData.getOsmTypes().add(OSMType.RELATION);
@@ -229,7 +229,13 @@ public class InputProcessor {
     }
   }
 
-  /** Splits the given input parameter on ',' and returns a String[] containing the splits. */
+  /**
+   * Splits the given input parameter on ',' if it has a length of 1 and contains ',' at [0].
+   * Returns a String array containing the splits.
+   * 
+   * @param param <code>String</code> array containing the content to split
+   * @return <code>String</code> array containing the splitted parameter content
+   */
   public String[] splitParamOnComma(String[] param) {
     if (param.length == 1 && param[0].contains(",")) {
       return param[0].replaceAll("\\s", "").split(",");
@@ -266,11 +272,9 @@ public class InputProcessor {
 
   /** Checks the given keys and values String[] on their length. */
   public void checkKeysValues(String[] keys, String[] values) throws BadRequestException {
-    if (values != null) {
-      if (keys.length < values.length) {
-        throw new BadRequestException("There cannot be more input values in the values|values2 "
-            + "than in the keys|keys2 parameter, as values_n must fit to keys_n.");
-      }
+    if (values != null && keys.length < values.length) {
+      throw new BadRequestException("There cannot be more input values in the values|values2 "
+          + "than in the keys|keys2 parameter, as values_n must fit to keys_n.");
     }
   }
 
@@ -280,10 +284,7 @@ public class InputProcessor {
    */
   public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
       String[] values2) {
-    if (Arrays.equals(keys, keys2) && Arrays.equals(values, values2)) {
-      return true;
-    }
-    return false;
+    return (Arrays.equals(keys, keys2) && Arrays.equals(values, values2));
   }
 
   /**
@@ -292,7 +293,7 @@ public class InputProcessor {
    */
   public List<Pair<String, String>> addFilterKeysVals(String[] keys, String[] values,
       String[] keys2, String[] values2) {
-    ArrayList<Pair<String, String>> tags = new ArrayList<Pair<String, String>>();
+    ArrayList<Pair<String, String>> tags = new ArrayList<>();
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
       Pair<String, String> tag;
@@ -317,11 +318,11 @@ public class InputProcessor {
     Collections.sort(tags, new Comparator<Pair<String, String>>() {
       @Override
       public int compare(Pair<String, String> p1, Pair<String, String> p2) {
-        if (p1.getValue().equals("") && p2.getValue().equals("")) {
+        if ("".equals(p1.getValue()) && "".equals(p2.getValue())) {
           return 0;
-        } else if (p1.getValue().equals("") && !p2.getValue().equals("")) {
+        } else if ("".equals(p1.getValue()) && !"".equals(p2.getValue())) {
           return 1;
-        } else if (!p1.getValue().equals("") && p2.getValue().equals("")) {
+        } else if (!"".equals(p1.getValue()) && "".equals(p2.getValue())) {
           return -1;
         } else {
           return 0;
@@ -378,10 +379,10 @@ public class InputProcessor {
         }
         keys2 = newKeys2;
         values2 =
-            Arrays.stream(newValues2).filter(value -> !value.equals("")).toArray(String[]::new);
+            Arrays.stream(newValues2).filter(value -> !"".equals(value)).toArray(String[]::new);
       }
     }
-    return new ImmutablePair<String[], String[]>(keys2, values2);
+    return new ImmutablePair<>(keys2, values2);
   }
 
   /**
@@ -418,7 +419,7 @@ public class InputProcessor {
     // prerequisites: both arrays (keys and values) must be of the same length
     // and key-value pairs need to be at the same index in both arrays
     for (int i = 0; i < keys.length; i++) {
-      if (values[i].equals("")) {
+      if ("".equals(values[i])) {
         mapRed = mapRed.osmTag(keys[i]);
       } else {
         mapRed = mapRed.osmTag(keys[i], values[i]);
@@ -504,8 +505,8 @@ public class InputProcessor {
       // do nothing
     } else {
       for (String type : types) {
-        if (!type.equalsIgnoreCase("node") && !type.equalsIgnoreCase("way")
-            && !type.equalsIgnoreCase("relation")) {
+        if (!"node".equalsIgnoreCase(type) && !"way".equalsIgnoreCase(type)
+            && !"relation".equalsIgnoreCase(type)) {
           throw new BadRequestException(
               "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' "
                   + "as its content.");
@@ -518,11 +519,11 @@ public class InputProcessor {
    * Checks the content of the given format parameter.
    */
   private void checkFormat(String format) throws BadRequestException {
-    if (format != null && !format.isEmpty() && !format.equalsIgnoreCase("geojson")
-        && !format.equalsIgnoreCase("json") && !format.equalsIgnoreCase("csv")) {
+    if (format != null && !format.isEmpty() && !"geojson".equalsIgnoreCase(format)
+        && !"json".equalsIgnoreCase(format) && !"csv".equalsIgnoreCase(format)) {
       throw new BadRequestException(
-          "The given 'format' parameter is invalid. Please choose between "
-              + "'geojson'(only available for /groupBy/boundary requests), 'json', or 'csv'.");
+          "The given 'format' parameter is invalid. Please choose between 'geojson'(only available"
+              + " for /groupBy/boundary and data extraction requests), 'json', or 'csv'.");
     }
   }
 
