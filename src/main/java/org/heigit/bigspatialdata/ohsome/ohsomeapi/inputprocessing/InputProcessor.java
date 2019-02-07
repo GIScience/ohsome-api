@@ -123,17 +123,14 @@ public class InputProcessor {
         || "no".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
       processingData.setShowMetadata(false);
     } else {
-      throw new BadRequestException(
-          "The showMetadata parameter can only contain the values 'true', 'yes', 'false', or "
-              + "'no'.");
+      throw new BadRequestException(ExceptionMessages.SHOWMETADATA_PARAM);
     }
     processingData.setBoundary(setBoundaryType(bboxes, bcircles, bpolys));
     try {
       switch (processingData.getBoundary()) {
         case NOBOUNDARY:
           if (ExtractMetadata.dataPoly == null) {
-            throw new BadRequestException(
-                "You need to define one boundary parameter (bboxes, bcircles, or bpolys).");
+            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
           }
           mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
           break;
@@ -161,13 +158,10 @@ public class InputProcessor {
           throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
       }
     } catch (ClassCastException e) {
-      throw new BadRequestException(
-          "The content of the provided boundary parameter (bboxes, bcircles, or bpolys) "
-              + "cannot be processed.");
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
     checkFormat(processingData.getFormat());
-    if (processingData.getFormat() != null
-        && processingData.getFormat().equalsIgnoreCase("geojson")) {
+    if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
       GeoJSONWriter writer = new GeoJSONWriter();
       Collection<Geometry> boundaryColl = processingData.getBoundaryColl();
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
@@ -176,9 +170,7 @@ public class InputProcessor {
           geoJsonGeoms[i] = new ObjectMapper().readValue(
               writer.write((Geometry) boundaryColl.toArray()[i]).toString(), GeoJsonObject.class);
         } catch (IOException e) {
-          throw new BadRequestException(
-              "The geometry of your given boundary input could not be parsed "
-                  + "for the creation of the response GeoJSON.");
+          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_GEOJSON_FORMAT);
         }
       }
       processingData.setGeoJsonGeoms(geoJsonGeoms);
@@ -273,8 +265,7 @@ public class InputProcessor {
   /** Checks the given keys and values String[] on their length. */
   public void checkKeysValues(String[] keys, String[] values) throws BadRequestException {
     if (values != null && keys.length < values.length) {
-      throw new BadRequestException("There cannot be more input values in the values|values2 "
-          + "than in the keys|keys2 parameter, as values_n must fit to keys_n.");
+      throw new BadRequestException(ExceptionMessages.KEYS_VALUES_RATIO_INVALID);
     }
   }
 
@@ -449,8 +440,7 @@ public class InputProcessor {
         mapRed = mapRed.timestamps(timeData[0], timeData[1]);
       } else {
         if (!isSnapshot) {
-          throw new BadRequestException(
-              "You need to give at least two timestamps or a time interval for this resource.");
+          throw new BadRequestException(ExceptionMessages.TIME_FORMAT_CONTRIBUTION);
         }
         mapRed = mapRed.timestamps(timeData[0]);
       }

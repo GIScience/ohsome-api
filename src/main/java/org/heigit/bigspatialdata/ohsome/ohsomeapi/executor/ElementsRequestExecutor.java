@@ -214,8 +214,7 @@ public class ElementsRequestExecutor {
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
     if (time.length != 2) {
-      throw new BadRequestException("Wrong time parameter. You need to give exactly two timestamps"
-          + "that are ISO-8601 conform, if you want to use the full-history extraction.");
+      throw new BadRequestException(ExceptionMessages.TIME_FORMAT_FULL_HISTORY);
     }
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParameters.getKeys();
