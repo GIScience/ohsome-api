@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,6 +29,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
@@ -260,13 +261,14 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
-      boolean includeOSMMetadata, ElementsGeometry elemGeom, TagTranslator tt, GeoJSONWriter gjw) {
+      boolean includeOSMMetadata, ElementsGeometry elemGeom) {
+    TagTranslator tt = DbConnData.mapTagTranslator.get();
     if (includeTags) {
       for (OSHDBTag oshdbTag : entity.getTags()) {
         OSMTag tag = tt.getOSMTagOf(oshdbTag);
         properties.put(tag.getKey(), tag.getValue());
       }
-    } else if (keysInt != null && keysInt.length != 0) {
+    } else if (keysInt.length != 0) {
       int[] tags = entity.getRawTags();
       for (int i = 0; i < tags.length; i += 2) {
         int tagKeyId = tags[i];
@@ -283,8 +285,9 @@ public class ExecutionUtils {
     if (includeOSMMetadata) {
       properties.put("@version", entity.getVersion());
       properties.put("@osmType", entity.getType());
-      properties.put("@changesetId", entity.getChangeset());
+      properties.put("@changesetId", entity.getChangesetId());
     }
+    GeoJSONWriter gjw = new GeoJSONWriter();
     switch (elemGeom) {
       case BBOX:
         Envelope envelope = geometry.getEnvelopeInternal();
@@ -395,7 +398,7 @@ public class ExecutionUtils {
   }
 
   /** Compares an OSMType with an EnumSet of OSMTypes. */
-  public boolean isOSMType(EnumSet<OSMType> types, OSMType currentElementType) {
+  public boolean isOSMType(Set<OSMType> types, OSMType currentElementType) {
     for (OSMType type : types) {
       if (currentElementType.equals(type)) {
         return true;
@@ -405,7 +408,7 @@ public class ExecutionUtils {
   }
 
   /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
-  public boolean entityMatches(OSMEntity entity, EnumSet<OSMType> osmTypes, Integer[] keysInt,
+  public boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
       Integer[] valuesInt) {
     boolean matches = true;
     if (osmTypes.contains(entity.getType())) {
@@ -477,8 +480,7 @@ public class ExecutionUtils {
       int featuresLength = groupByResultsLength * resultLength;
       features = new Feature[featuresLength];
       for (int i = 0; i < featuresLength; i++) {
-        ShareResult result =
-            (ShareResult) groupByResults[groupByResultCount].getShareResult()[tstampCount];
+        ShareResult result = groupByResults[groupByResultCount].getShareResult()[tstampCount];
         String tstamp = result.getTimestamp();
         Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
         feature.setProperty("whole", result.getWhole());
@@ -496,8 +498,7 @@ public class ExecutionUtils {
       int featuresLength = groupByResultsLength * resultLength;
       features = new Feature[featuresLength];
       for (int i = 0; i < featuresLength; i++) {
-        RatioResult result =
-            (RatioResult) groupByResults[groupByResultCount].getRatioResult()[tstampCount];
+        RatioResult result = groupByResults[groupByResultCount].getRatioResult()[tstampCount];
         String tstamp = result.getTimestamp();
         Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
         feature.setProperty("value", result.getValue());
@@ -581,7 +582,7 @@ public class ExecutionUtils {
             requestUrl);
       }
       if (requestParameters.getFormat() != null
-          && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+          && "csv".equalsIgnoreCase(requestParameters.getFormat())) {
         writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                 Application.API_VERSION, metadata));
@@ -601,7 +602,7 @@ public class ExecutionUtils {
             requestUrl);
       }
       if (requestParameters.getFormat() != null
-          && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+          && "csv".equalsIgnoreCase(requestParameters.getFormat())) {
         writeCsvResponse(resultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                 Application.API_VERSION, metadata));
@@ -624,13 +625,11 @@ public class ExecutionUtils {
     Metadata metadata = null;
     int boundaryIdsLength = boundaryIds.length;
     int timeArrayLenth = timeArray.length;
-    RatioResult[] ratioResultSet = new RatioResult[0];
-    ShareResult[] shareResultSet = new ShareResult[0];
     if (!isShare) {
       RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
       for (int i = 0; i < boundaryIdsLength; i++) {
         Object groupByName = boundaryIds[i];
-        ratioResultSet = new RatioResult[timeArrayLenth];
+        RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
         int innerCount = 0;
         for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
           double ratio = resultValues2[j] / resultValues1[j];
@@ -652,11 +651,11 @@ public class ExecutionUtils {
             reqRes.getLabel(), reqRes.getUnit()), requestUrl);
       }
       if (requestParameters.getFormat() != null) {
-        if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
+        if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
           return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
               "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
         } else if (requestParameters.getFormat() != null
-            && requestParameters.getFormat().equalsIgnoreCase("csv")) {
+            && "csv".equalsIgnoreCase(requestParameters.getFormat())) {
           writeCsvResponse(groupByResultSet, servletResponse,
               createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                   Application.API_VERSION, metadata));
@@ -669,7 +668,7 @@ public class ExecutionUtils {
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
     for (int i = 0; i < boundaryIdsLength; i++) {
       Object groupByName = boundaryIds[i];
-      shareResultSet = new ShareResult[timeArrayLenth];
+      ShareResult[] shareResultSet = new ShareResult[timeArrayLenth];
       int innerCount = 0;
       for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
         shareResultSet[innerCount] =
@@ -684,10 +683,10 @@ public class ExecutionUtils {
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
     if (requestParameters.getFormat() != null) {
-      if (requestParameters.getFormat().equalsIgnoreCase("geojson")) {
+      if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
         return ShareGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
             "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-      } else if (requestParameters.getFormat().equalsIgnoreCase("csv")) {
+      } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
         writeCsvResponse(groupByResultSet, servletResponse,
             createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
                 Application.API_VERSION, metadata));

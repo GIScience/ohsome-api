@@ -31,7 +31,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -59,7 +58,6 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.wololo.geojson.Feature;
-import org.wololo.jts2geojson.GeoJSONWriter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygonal;
 
@@ -136,8 +134,6 @@ public class ElementsRequestExecutor {
     }
     final MapReducer<Feature> preResult;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    GeoJSONWriter gjw = new GeoJSONWriter();
-    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
@@ -145,7 +141,7 @@ public class ElementsRequestExecutor {
       }
       properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
       return exeUtils.createOSMFeature(snapshot.getEntity(), snapshot.getGeometry(), properties,
-          keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw);
+          keysInt, includeTags, includeOSMMetadata, elemGeom);
     });
     Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
@@ -186,12 +182,6 @@ public class ElementsRequestExecutor {
     }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
-    String[] propertiesParam = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
-    final boolean includeTags =
-        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("tags"));
-    final boolean includeOSMMetadata =
-        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
       final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       ComputeMode previousComputeMode = dbIgnite.computeMode();
@@ -226,8 +216,12 @@ public class ElementsRequestExecutor {
     }
     MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    GeoJSONWriter gjw = new GeoJSONWriter();
-    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
+    String[] propertiesParam = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
+    final boolean includeTags =
+        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("tags"));
+    final boolean includeOSMMetadata =
+        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     String startTimestampWithZ =
         ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0]).toString();
     String endTimestampWithZ =
@@ -262,7 +256,7 @@ public class ElementsRequestExecutor {
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+                includeTags, includeOSMMetadata, elemGeom));
           }
         }
         skipNext = false;
@@ -285,7 +279,7 @@ public class ElementsRequestExecutor {
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw));
+              includeTags, includeOSMMetadata, elemGeom));
         }
       }
       return output;
@@ -306,7 +300,7 @@ public class ElementsRequestExecutor {
           properties.put("@validFrom", startTimestamp);
           properties.put("@validTo", endTimestamp);
           return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
-              includeOSMMetadata, elemGeom, mapTagTranslator.get(), gjw);
+              includeOSMMetadata, elemGeom);
         }); // valid_from = t_start, valid_to = t_end
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
