@@ -72,6 +72,37 @@ public class Description {
         + "aggregated on the boundary objects.";
   }
 
+  public static String usersCount(boolean isDensity) {
+    if (isDensity) {
+      return "Density of distinct users per time interval (number of users per square-kilometer).";
+    }
+    return "Number of distinct users per time interval.";
+  }
+
+  public static String usersCountGroupByTag(boolean isDensity) {
+    if (isDensity) {
+      return "Density of distinct users per time interval (number of users per square-kilometer) "
+          + "aggregated on the tag.";
+    }
+    return "Number of distinct users per time interval aggregated on the tag.";
+  }
+
+  public static String usersCountGroupByType(boolean isDensity) {
+    if (isDensity) {
+      return "Density of distinct users per time interval (number of users per square-kilometer) "
+          + "aggregated on the type.";
+    }
+    return "Number of distinct users per time interval aggregated on the type.";
+  }
+
+  public static String usersCountGroupByKey(boolean isDensity) {
+    if (isDensity) {
+      return "Density of distinct users per time interval (number of users per square-kilometer) "
+          + "aggregated on the key.";
+    }
+    return "Number of distinct users per time interval aggregated on the key.";
+  }
+
   private Description() {
     throw new IllegalStateException("Utility class");
   }

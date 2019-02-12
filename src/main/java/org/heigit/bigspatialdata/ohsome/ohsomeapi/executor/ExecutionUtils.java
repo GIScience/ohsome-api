@@ -28,8 +28,10 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeo
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
@@ -82,6 +84,7 @@ public class ExecutionUtils {
 
   AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
+  private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
 
   public ExecutionUtils(ProcessingData processingData) {
     this.processingData = processingData;
@@ -254,8 +257,7 @@ public class ExecutionUtils {
   public DecimalFormat defineDecimalFormat(String format) {
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
-    DecimalFormat decForm = new DecimalFormat(format, otherSymbols);
-    return decForm;
+    return new DecimalFormat(format, otherSymbols);
   }
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
@@ -367,7 +369,7 @@ public class ExecutionUtils {
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
-  @SuppressWarnings({"unchecked"}) // intentionally suppressed
+  @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public <K extends OSHDBCombinedIndex<OSHDBTimestamp, ?>, V extends Number> SortedMap<K, V> computeResult(
       RequestResource requestResource, MapAggregator<?, OSMEntitySnapshot> preResult)
       throws Exception {
@@ -537,11 +539,13 @@ public class ExecutionUtils {
 
   /** Fills the UsersResult array with respective UsersResult objects. */
   public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
-      boolean isDensity, String[] toTimestamps, DecimalFormat df, Geometry geom) {
+      boolean isDensity, InputProcessor inputProcessor, DecimalFormat df) {
     UsersResult[] results = new UsersResult[entryVal.entrySet().size()];
     int count = 0;
+    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
+        Geometry geom = inputProcessor.getGeometry();
         results[count] =
             new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 toTimestamps[count + 1], Double.parseDouble(
@@ -556,115 +560,120 @@ public class ExecutionUtils {
     return results;
   }
 
-  /** Creates either a RatioResponse or a ShareResponse depending on the request. */
-  public Response createRatioShareResponse(boolean isShare, String[] timeArray, Double[] value1,
-      Double[] value2, DecimalFormat df, long startTime, RequestResource reqRes, String requestUrl,
-      RequestParameters requestParameters, Attribution attribution,
+  /** Creates a RatioResponse. */
+  public Response createRatioResponse(String[] timeArray, Double[] value1, Double[] value2,
+      long startTime, RequestResource reqRes, String requestUrl,
       HttpServletResponse servletResponse) {
-    Response response;
-    if (!isShare) {
-      RatioResult[] resultSet = new RatioResult[timeArray.length];
-      for (int i = 0; i < timeArray.length; i++) {
-        double ratio = value2[i] / value1[i];
-        // in case ratio has the values "NaN", "Infinity", etc.
-        try {
-          ratio = Double.parseDouble(df.format(ratio));
-        } catch (Exception e) {
-          // do nothing --> just return ratio without rounding (trimming)
-        }
-        resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
+    RatioResult[] resultSet = new RatioResult[timeArray.length];
+    for (int i = 0; i < timeArray.length; i++) {
+      double ratio = value2[i] / value1[i];
+      // in case ratio has the values "NaN", "Infinity", etc.
+      try {
+        ratio = Double.parseDouble(ratioDf.format(ratio));
+      } catch (Exception e) {
+        // do nothing --> just return ratio without rounding (trimming)
       }
-      Metadata metadata = null;
-      if (processingData.isShowMetadata()) {
-        long duration = System.currentTimeMillis() - startTime;
-        metadata = new Metadata(duration,
-            Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
-            requestUrl);
-      }
-      if (requestParameters.getFormat() != null
-          && "csv".equalsIgnoreCase(requestParameters.getFormat())) {
-        writeCsvResponse(resultSet, servletResponse,
-            createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.API_VERSION, metadata));
-        return null;
-      }
-      response = new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
-    } else {
-      ShareResult[] resultSet = new ShareResult[timeArray.length];
-      for (int i = 0; i < timeArray.length; i++) {
-        resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
-      }
-      Metadata metadata = null;
-      if (processingData.isShowMetadata()) {
-        long duration = System.currentTimeMillis() - startTime;
-        metadata = new Metadata(duration,
-            Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
-            requestUrl);
-      }
-      if (requestParameters.getFormat() != null
-          && "csv".equalsIgnoreCase(requestParameters.getFormat())) {
-        writeCsvResponse(resultSet, servletResponse,
-            createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.API_VERSION, metadata));
-        return null;
-      }
-      response = new ShareResponse(attribution, Application.API_VERSION, metadata, resultSet);
+      resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
     }
-    return response;
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
+          requestUrl);
+    }
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(ElementsRequestExecutor.URL,
+          ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
+    return new RatioResponse(
+        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
+        Application.API_VERSION, metadata, resultSet);
   }
 
-  /**
-   * Creates either a RatioGroupByBoundaryResponse or a ShareGroupByBoundaryResponse depending on
-   * the <code>isShare</code> parameter.
-   */
-  public Response createRatioShareGroupByBoundaryResponse(boolean isShare,
-      RequestParameters requestParameters, Object[] boundaryIds, String[] timeArray,
-      Double[] resultValues1, Double[] resultValues2, DecimalFormat ratioDf, long startTime,
-      RequestResource reqRes, String requestUrl, Attribution attribution,
-      GeoJsonObject[] geoJsonGeoms, HttpServletResponse servletResponse) {
+  /** Creates a ShareResponse. */
+  public Response createShareResponse(String[] timeArray, Double[] value1, Double[] value2,
+      long startTime, RequestResource reqRes, String requestUrl,
+      HttpServletResponse servletResponse) {
+    ShareResult[] resultSet = new ShareResult[timeArray.length];
+    for (int i = 0; i < timeArray.length; i++) {
+      resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
+    }
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
+          requestUrl);
+    }
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(ElementsRequestExecutor.URL,
+          ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
+    return new ShareResponse(
+        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
+        Application.API_VERSION, metadata, resultSet);
+  }
+
+  /** Creates a RatioGroupByBoundaryResponse. */
+  public Response createRatioGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
+      Double[] resultValues1, Double[] resultValues2, long startTime, RequestResource reqRes,
+      String requestUrl, HttpServletResponse servletResponse) {
     Metadata metadata = null;
     int boundaryIdsLength = boundaryIds.length;
     int timeArrayLenth = timeArray.length;
-    if (!isShare) {
-      RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
-      for (int i = 0; i < boundaryIdsLength; i++) {
-        Object groupByName = boundaryIds[i];
-        RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
-        int innerCount = 0;
-        for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-          double ratio = resultValues2[j] / resultValues1[j];
-          // in case ratio has the values "NaN", "Infinity", etc.
-          try {
-            ratio = Double.parseDouble(ratioDf.format(ratio));
-          } catch (Exception e) {
-            // do nothing --> just return ratio without rounding (trimming)
-          }
-          ratioResultSet[innerCount] =
-              new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
-          innerCount++;
+    RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
+    for (int i = 0; i < boundaryIdsLength; i++) {
+      Object groupByName = boundaryIds[i];
+      RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
+      int innerCount = 0;
+      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+        double ratio = resultValues2[j] / resultValues1[j];
+        // in case ratio has the values "NaN", "Infinity", etc.
+        try {
+          ratio = Double.parseDouble(ratioDf.format(ratio));
+        } catch (Exception e) {
+          // do nothing --> just return ratio without rounding (trimming)
         }
-        groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
+        ratioResultSet[innerCount] =
+            new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
+        innerCount++;
       }
-      if (processingData.isShowMetadata()) {
-        long duration = System.currentTimeMillis() - startTime;
-        metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
-            reqRes.getLabel(), reqRes.getUnit()), requestUrl);
-      }
-      if (requestParameters.getFormat() != null) {
-        if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
-          return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-              "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-        } else if (requestParameters.getFormat() != null
-            && "csv".equalsIgnoreCase(requestParameters.getFormat())) {
-          writeCsvResponse(groupByResultSet, servletResponse,
-              createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                  Application.API_VERSION, metadata));
-          return null;
-        }
-      }
-      return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
-          groupByResultSet);
+      groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
     }
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
+          reqRes.getLabel(), reqRes.getUnit()), requestUrl);
+    }
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    Attribution attribution =
+        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
+      return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
+          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      writeCsvResponse(groupByResultSet, servletResponse,
+          createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+              Application.API_VERSION, metadata));
+      return null;
+    }
+    return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
+        groupByResultSet);
+  }
+
+  /** Creates a RatioGroupByBoundaryResponse. */
+  public Response createShareGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
+      Double[] resultValues1, Double[] resultValues2, long startTime, RequestResource reqRes,
+      String requestUrl, HttpServletResponse servletResponse) {
+    Metadata metadata = null;
+    int boundaryIdsLength = boundaryIds.length;
+    int timeArrayLenth = timeArray.length;
     ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
     for (int i = 0; i < boundaryIdsLength; i++) {
       Object groupByName = boundaryIds[i];
@@ -682,18 +691,19 @@ public class ExecutionUtils {
       metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
           reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
-    if (requestParameters.getFormat() != null) {
-      if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
-        return ShareGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-            "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-      } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-        writeCsvResponse(groupByResultSet, servletResponse,
-            createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-                Application.API_VERSION, metadata));
-        return null;
-      }
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    Attribution attribution =
+        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
+      return ShareGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
+          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      writeCsvResponse(groupByResultSet, servletResponse,
+          createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+              Application.API_VERSION, metadata));
+      return null;
     }
-
     return new ShareGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
   }

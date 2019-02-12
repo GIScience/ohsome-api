@@ -19,6 +19,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
@@ -33,7 +34,6 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import com.vividsolutions.jts.geom.Geometry;
 
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
@@ -60,24 +60,14 @@ public class UsersRequestExecutor {
       requestUrl = RequestInterceptor.requestUrl;
     }
     result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
-    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
-    Geometry geom = null;
-    String description = null;
-    if (requestParameters.isDensity()) {
-      description =
-          "Density of distinct users per time interval (number of users per square-kilometer).";
-      geom = inputProcessor.getGeometry();
-    } else {
-      description = "Number of distinct users per time interval.";
-    }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), toTimestamps, df, geom);
+        exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestUrl);
+      metadata = new Metadata(duration, Description.usersCount(isDensity), requestUrl);
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(results, servletResponse,
@@ -109,29 +99,19 @@ public class UsersRequestExecutor {
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    Geometry geom = inputProcessor.getGeometry();
-    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, geom);
+          requestParameters.isDensity(), inputProcessor, df);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
-    }
-    String description = null;
-    if (requestParameters.isDensity()) {
-      description =
-          "Density of distinct users per time interval (number of users per square-kilometer) "
-              + "aggregated on the type.";
-    } else {
-      description = "Number of distinct users per time interval aggregated on the type.";
     }
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestUrl);
+      metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity), requestUrl);
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -203,14 +183,12 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    Geometry geom = inputProcessor.getGeometry();
-    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, geom);
+          requestParameters.isDensity(), inputProcessor, df);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -220,18 +198,10 @@ public class UsersRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    String description = null;
-    if (requestParameters.isDensity()) {
-      description =
-          "Density of distinct users per time interval (number of users per square-kilometer) "
-              + "aggregated on the tag.";
-    } else {
-      description = "Number of distinct users per time interval aggregated on the tag.";
-    }
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestUrl);
+      metadata = new Metadata(duration, Description.usersCountGroupByTag(isDensity), requestUrl);
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -287,12 +257,11 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
-    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     int count = 0;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), toTimestamps, df, null);
+          requestParameters.isDensity(), inputProcessor, df);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -302,18 +271,10 @@ public class UsersRequestExecutor {
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    String description = null;
-    if (requestParameters.isDensity()) {
-      description =
-          "Density of distinct users per time interval (number of users per square-kilometer) "
-              + "aggregated on the key.";
-    } else {
-      description = "Number of distinct users per time interval aggregated on the key.";
-    }
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description, requestUrl);
+      metadata = new Metadata(duration, Description.usersCountGroupByKey(isDensity), requestUrl);
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,

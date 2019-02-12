@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
@@ -881,7 +880,7 @@ public class ElementsRequestExecutor {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    mapRed = inputProcessor.processParameters();
+    inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
@@ -977,7 +976,6 @@ public class ElementsRequestExecutor {
     int value2Count = 0;
     int matchesBothCount = 0;
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
     // time and value extraction
     for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> entry : result
         .entrySet()) {
@@ -999,9 +997,13 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
-    return exeUtils.createRatioShareResponse(isShare, timeArray, value1, value2, ratioDf, startTime,
-        requestResource, requestUrl, requestParameters, new Attribution(URL, TEXT),
-        servletResponse);
+    if (isShare) {
+      return exeUtils.createShareResponse(timeArray, value1, value2, startTime, requestResource,
+          requestUrl, servletResponse);
+    } else {
+      return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
+          requestUrl, servletResponse);
+    }
   }
 
   /**
@@ -1042,11 +1044,9 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
-
     if (processingData.getBoundary() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    final GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
     String[] values2 = inputProcessor.splitParamOnComma(
@@ -1217,9 +1217,12 @@ public class ElementsRequestExecutor {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
     }
-    DecimalFormat ratioDf = exeUtils.defineDecimalFormat("#.######");
-    return exeUtils.createRatioShareGroupByBoundaryResponse(isShare, requestParameters, boundaryIds,
-        timeArray, resultValues1, resultValues2, ratioDf, startTime, requestResource, requestUrl,
-        new Attribution(URL, TEXT), geoJsonGeoms, servletResponse);
+    if (isShare) {
+      return exeUtils.createShareGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
+          resultValues2, startTime, requestResource, requestUrl, servletResponse);
+    } else {
+      return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
+          resultValues2, startTime, requestResource, requestUrl, servletResponse);
+    }
   }
 }
