@@ -14,11 +14,15 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
       Object handler) {
+    String queryString = request.getQueryString();
+    if (queryString != null) {
+      queryString = queryString.replaceAll("%20", "");
+    }
     // builds the initial url, which was sent as request
     if (request.getHeader("X-REQUEST-URI") != null) {
-      requestUrl = request.getHeader("X-REQUEST-URI") + "?" + request.getQueryString();
+      requestUrl = request.getHeader("X-REQUEST-URI") + "?" + queryString;
     } else {
-      requestUrl = request.getRequestURL() + "?" + request.getQueryString();
+      requestUrl = request.getRequestURL() + "?" + queryString;
     }
     // adding a 1 year cache option
     response.setHeader("Cache-Control", "no-transform, public, max-age=31556926");

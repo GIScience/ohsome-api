@@ -51,13 +51,14 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor =
+        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     String requestUrl = null;
     if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = RequestInterceptor.requestUrl;
+      requestUrl = inputProcessor.getRequestUrl();
     }
     result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
@@ -84,13 +85,14 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor =
+        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     String requestUrl = null;
     if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = RequestInterceptor.requestUrl;
+      requestUrl = inputProcessor.getRequestUrl();
     }
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
@@ -126,7 +128,8 @@ public class UsersRequestExecutor {
   public static Response executeCountGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor =
+        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -139,7 +142,7 @@ public class UsersRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = RequestInterceptor.requestUrl;
+      requestUrl = inputProcessor.getRequestUrl();
     }
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
@@ -221,14 +224,15 @@ public class UsersRequestExecutor {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor =
+        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
     if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = RequestInterceptor.requestUrl;
+      requestUrl = inputProcessor.getRequestUrl();
     }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];

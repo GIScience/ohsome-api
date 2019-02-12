@@ -50,8 +50,10 @@ public class InputProcessor {
   private HttpServletRequest servletRequest;
   private boolean isSnapshot;
   private boolean isDensity;
+  private String requestUrl;
 
-  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity,
+      String requestUrl) {
     this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
@@ -62,6 +64,7 @@ public class InputProcessor {
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
             servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata")));
+    this.requestUrl = requestUrl;
   }
 
   public InputProcessor(ProcessingData processingData) {
@@ -249,16 +252,17 @@ public class InputProcessor {
   }
 
   /**
-   * Creates an empty <code>String</code>, if a given boundary input parameter of a POST request is
-   * null.
+   * Creates an empty <code>String</code>, if a given input parameter is null. Otherwise returns the
+   * trimmed parameter.
    * 
    * @param toCheck <code>String</code>, which is checked.
-   * @return <code>String</code>, which is empty, but not null.
+   * @return <code>String</code>, which is trimmed and not null.
    */
   public String createEmptyStringIfNull(String toCheck) {
     if (toCheck == null) {
       toCheck = "";
     }
+    toCheck = toCheck.replaceAll("\\s", "");
     return toCheck;
   }
 
@@ -591,5 +595,9 @@ public class InputProcessor {
 
   public void setProcessingData(ProcessingData processingData) {
     this.processingData = processingData;
+  }
+
+  public String getRequestUrl() {
+    return requestUrl;
   }
 }
