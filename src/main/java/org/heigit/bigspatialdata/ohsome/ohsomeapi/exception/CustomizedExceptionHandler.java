@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @RestController
 public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
+  
+  private String requestUrl = RequestInterceptor.requestUrl;
 
   @ExceptionHandler(BadRequestException.class)
   public final ResponseEntity<ErrorDetails> handleBadRequestException(BadRequestException ex) {
@@ -59,15 +61,14 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
   /** Creates the error details based on the thrown exception. */
   private ResponseEntity<ErrorDetails> createExceptionResponse(Exception ex, HttpStatus status) {
     ErrorDetails errorDetails;
-    String requestUrl = RequestInterceptor.requestUrl;
-    if (ex.getMessage().equals("No message available")) {
-      if (RequestInterceptor.requestUrl.split("\\?")[1].equals("null")) {
+    if ("No message available".equals(ex.getMessage())) {
+      if ("null".equals(requestUrl.split("\\?")[1])) {
         requestUrl = requestUrl.split("\\?")[0];
       }
       errorDetails = new ErrorDetails(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
           status.value(), "Internal server error", requestUrl);
     } else {
-      if (RequestInterceptor.requestUrl.split("\\?")[1].equals("null")) {
+      if ("null".equals(requestUrl.split("\\?")[1])) {
         requestUrl = requestUrl.split("\\?")[0];
       }
       errorDetails = new ErrorDetails(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
