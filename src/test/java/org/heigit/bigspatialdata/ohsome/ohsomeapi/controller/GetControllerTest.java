@@ -179,7 +179,7 @@ public class GetControllerTest {
             + "8.69013,49.40223,100&types=way&time=2017-09-20&keys=building"
             + "&types2=node&keys2=addr:housenumber",
         JsonNode.class);
-    assertEquals(0.526316, StreamSupport
+    assertEquals(1.052632, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
