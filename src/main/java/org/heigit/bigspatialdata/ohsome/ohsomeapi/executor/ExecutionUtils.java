@@ -327,14 +327,18 @@ public class ExecutionUtils {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
-          return Geo.lengthOf(geom.getBoundary());
+          return ElementsRequestExecutor.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
         break;
       case LENGTH:
-        result = preResult.sum(Geo::lengthOf);
+        result = preResult.sum(geom -> {
+          return ElementsRequestExecutor.cacheInUserData(geom, () -> Geo.lengthOf(geom));
+        });
         break;
       case AREA:
-        result = preResult.sum(Geo::areaOf);
+        result = preResult.sum(geom -> {
+          return ElementsRequestExecutor.cacheInUserData(geom, () -> Geo.areaOf(geom));
+        });
         break;
       default:
         break;
@@ -379,20 +383,20 @@ public class ExecutionUtils {
       case LENGTH:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
+              return ElementsRequestExecutor.cacheInUserData(snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry()));
             });
       case PERIMETER:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+                return ElementsRequestExecutor.cacheInUserData(snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
               }
               return 0.0;
             });
       case AREA:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
+              return ElementsRequestExecutor.cacheInUserData(snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry()));
             });
       default:
         return null;
