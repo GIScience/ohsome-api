@@ -407,16 +407,6 @@ public class ExecutionUtils {
     }
   }
 
-  /** Compares an OSMType with an EnumSet of OSMTypes. */
-  public boolean isOSMType(Set<OSMType> types, OSMType currentElementType) {
-    for (OSMType type : types) {
-      if (currentElementType.equals(type)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
   public boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
       Integer[] valuesInt) {
