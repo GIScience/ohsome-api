@@ -131,6 +131,7 @@ public class Application implements ApplicationRunner {
         DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
       }
       if (DbConnData.db instanceof OSHDBIgnite) {
+        ProcessingData.setTimeout(timeout/1000);
         ((OSHDBIgnite) DbConnData.db).timeoutInMilliseconds(timeout);
         RemoteTagTranslator mtt = DbConnData.mapTagTranslator;
         ((OSHDBIgnite) DbConnData.db).onClose(() -> {
