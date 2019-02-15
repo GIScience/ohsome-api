@@ -43,7 +43,6 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableSupplier;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
@@ -352,6 +351,7 @@ public class ElementsRequestExecutor {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = inputProcessor.getRequestUrl();
     }
+
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -359,20 +359,23 @@ public class ElementsRequestExecutor {
       case AREA:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return cacheInUserData(snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry()));
+              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.areaOf(snapshot.getGeometry()));
             });
         break;
       case LENGTH:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return cacheInUserData(snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry()));
+              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.lengthOf(snapshot.getGeometry()));
             });
         break;
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
-                return cacheInUserData(snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
+                return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                    () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
               } else {
                 return 0.0;
               }
@@ -1018,13 +1021,6 @@ public class ElementsRequestExecutor {
     }
   }
 
-  static <O> O cacheInUserData(Geometry geom, SerializableSupplier<O> mapper) {
-    if (geom.getUserData() == null) {
-      geom.setUserData(mapper.get());
-    }
-    return (O) geom.getUserData();
-  }
-
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
    * 
@@ -1163,7 +1159,7 @@ public class ElementsRequestExecutor {
         break;
       case LENGTH:
         result = preResult.sum(geom -> {
-          return cacheInUserData(geom, () -> Geo.lengthOf(geom));
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom));
         });
         break;
       case PERIMETER:
@@ -1171,12 +1167,12 @@ public class ElementsRequestExecutor {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
-          return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
         break;
       case AREA:
         result = preResult.sum(geom -> {
-          return cacheInUserData(geom, () -> Geo.areaOf(geom));
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom));
         });
         break;
       default:
