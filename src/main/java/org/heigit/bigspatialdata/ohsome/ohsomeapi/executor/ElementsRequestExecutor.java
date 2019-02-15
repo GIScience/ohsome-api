@@ -351,6 +351,7 @@ public class ElementsRequestExecutor {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = inputProcessor.getRequestUrl();
     }
+
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -358,20 +359,23 @@ public class ElementsRequestExecutor {
       case AREA:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
+              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.areaOf(snapshot.getGeometry()));
             });
         break;
       case LENGTH:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
+              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.lengthOf(snapshot.getGeometry()));
             });
         break;
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+                return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                    () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
               } else {
                 return 0.0;
               }
@@ -1155,7 +1159,7 @@ public class ElementsRequestExecutor {
         break;
       case LENGTH:
         result = preResult.sum(geom -> {
-          return Geo.lengthOf(geom);
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom));
         });
         break;
       case PERIMETER:
@@ -1163,12 +1167,12 @@ public class ElementsRequestExecutor {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
-          return Geo.lengthOf(geom.getBoundary());
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
         break;
       case AREA:
         result = preResult.sum(geom -> {
-          return Geo.areaOf(geom);
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom));
         });
         break;
       default:

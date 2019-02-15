@@ -52,6 +52,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableSupplier;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
@@ -327,14 +328,18 @@ public class ExecutionUtils {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
-          return Geo.lengthOf(geom.getBoundary());
+          return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
         break;
       case LENGTH:
-        result = preResult.sum(Geo::lengthOf);
+        result = preResult.sum(geom -> {
+          return cacheInUserData(geom, () -> Geo.lengthOf(geom));
+        });
         break;
       case AREA:
-        result = preResult.sum(Geo::areaOf);
+        result = preResult.sum(geom -> {
+          return cacheInUserData(geom, () -> Geo.areaOf(geom));
+        });
         break;
       default:
         break;
@@ -379,20 +384,23 @@ public class ExecutionUtils {
       case LENGTH:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.lengthOf(snapshot.getGeometry());
+              return cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.lengthOf(snapshot.getGeometry()));
             });
       case PERIMETER:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
-                return Geo.lengthOf(snapshot.getGeometry().getBoundary());
+                return cacheInUserData(snapshot.getGeometry(),
+                    () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
               }
               return 0.0;
             });
       case AREA:
         return (SortedMap<K, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return Geo.areaOf(snapshot.getGeometry());
+              return cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.areaOf(snapshot.getGeometry()));
             });
       default:
         return null;
@@ -515,6 +523,22 @@ public class ExecutionUtils {
       }
     }
     return features;
+  }
+
+  /**
+   * Caches the given mapper value in the user data of the <code>Geometry</code> object.
+   * 
+   * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
+   * @param arbitrary function that returns a time-independent value from a snapshot object, for
+   *        example lenght, area, perimeter
+   * @return evaluated mapper function or cached value stored in the user data of the
+   *         <code>Geometry</code> object
+   */
+  public static Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
+    if (geom.getUserData() == null) {
+      geom.setUserData(mapper.get());
+    }
+    return (Double) geom.getUserData();
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
