@@ -30,7 +30,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -264,8 +263,7 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
-      boolean includeOSMMetadata, ElementsGeometry elemGeom) {
-    TagTranslator tt = DbConnData.mapTagTranslator.get();
+      boolean includeOSMMetadata, ElementsGeometry elemGeom, TagTranslator tt) {
     if (includeTags) {
       for (OSHDBTag oshdbTag : entity.getTags()) {
         OSMTag tag = tt.getOSMTagOf(oshdbTag);

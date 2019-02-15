@@ -30,6 +30,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -134,6 +135,7 @@ public class ElementsRequestExecutor {
     }
     final MapReducer<Feature> preResult;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
@@ -141,7 +143,7 @@ public class ElementsRequestExecutor {
       }
       properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
       return exeUtils.createOSMFeature(snapshot.getEntity(), snapshot.getGeometry(), properties,
-          keysInt, includeTags, includeOSMMetadata, elemGeom);
+          keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get());
     });
     Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
@@ -218,6 +220,7 @@ public class ElementsRequestExecutor {
     }
     MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     String[] propertiesParam = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
     final boolean includeTags =
@@ -258,7 +261,7 @@ public class ElementsRequestExecutor {
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, elemGeom));
+                includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
           }
         }
         skipNext = false;
@@ -281,7 +284,7 @@ public class ElementsRequestExecutor {
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-              includeTags, includeOSMMetadata, elemGeom));
+              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
         }
       }
       return output;
@@ -302,7 +305,7 @@ public class ElementsRequestExecutor {
           properties.put("@validFrom", startTimestamp);
           properties.put("@validTo", endTimestamp);
           return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
-              includeOSMMetadata, elemGeom);
+              includeOSMMetadata, elemGeom, mapTagTranslator.get());
         }); // valid_from = t_start, valid_to = t_end
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
