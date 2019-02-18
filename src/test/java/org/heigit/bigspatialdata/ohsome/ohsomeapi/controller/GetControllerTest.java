@@ -131,7 +131,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("280889"))
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("280888"))
             .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -324,7 +324,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("6654"))
+            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("6653"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
         0);
   }
@@ -559,6 +559,6 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
-    assertEquals(173, length);
+    assertEquals(172, length);
   }
 }
