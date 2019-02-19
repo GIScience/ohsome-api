@@ -238,7 +238,7 @@ public class GeometryBuilder {
     } catch (Exception e) {
       throw new BadRequestException("Error in reading of the given GeoJSON.");
     }
-    if (!root.getString("type").equals("FeatureCollection")) {
+    if (!"FeatureCollection".equals(root.getString("type"))) {
       throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
     }
     JsonArray features = root.getJsonArray("features");
@@ -251,7 +251,7 @@ public class GeometryBuilder {
       try {
         if (feature.containsKey("id")) {
           boundaryIds[count] = createBoundaryIdFromJsonObjectId(feature, inputProcessor);
-        } else if (properties.containsKey("id")) {
+        } else if (properties != null && properties.containsKey("id")) {
           boundaryIds[count] = createBoundaryIdFromJsonObjectId(properties, inputProcessor);
         } else {
           boundaryIds[count] = "feature" + (count + 1);
