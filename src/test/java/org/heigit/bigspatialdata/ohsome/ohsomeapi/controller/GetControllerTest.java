@@ -1,4 +1,4 @@
-package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
+ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -117,21 +117,6 @@ public class GetControllerTest {
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
-            .findFirst().get().get("result").get(0).get("value").asInt());
-  }
-
-  @Test
-  public void getElementsCountGroupByUserTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/count/groupBy/user?bboxes=8.67859,49.41189,8.67964,49.41263"
-            + "&types=way&time=2015-01-01&keys=building&showMetadata=true",
-        JsonNode.class);
-    assertEquals(4,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("280888"))
             .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -311,22 +296,6 @@ public class GetControllerTest {
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("highway=path"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
-  }
-
-  @Test
-  public void getElementsLengthGroupByUserTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/length/groupBy/user?bboxes=8.68658,49.39316,8.69881,49.40511"
-            + "&types=way&time=2014-04-03&keys=highway",
-        JsonNode.class);
-    assertEquals(134.65,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("6653"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
   }
 
   @Test

@@ -12,14 +12,13 @@ public class RequestParameters {
   private String[] types;
   private String[] keys;
   private String[] values;
-  private String[] userids;
   private String[] time;
   private String format;
   private String showMetadata;
 
   public RequestParameters(String requestMethod, boolean isSnapshot, boolean isDensity,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] userids, String[] time, String format, String showMetadata) {
+      String[] time, String format, String showMetadata) {
     this.requestMethod = requestMethod;
     this.isDensity = isDensity;
     this.isSnapshot = isSnapshot;
@@ -29,7 +28,6 @@ public class RequestParameters {
     this.types = types;
     this.keys = keys;
     this.values = values;
-    this.userids = userids;
     this.time = time;
     this.format = format;
     this.showMetadata = showMetadata;
@@ -69,10 +67,6 @@ public class RequestParameters {
 
   public String[] getValues() {
     return values;
-  }
-
-  public String[] getUserids() {
-    return userids;
   }
 
   public String[] getTime() {

@@ -9,9 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -63,13 +61,12 @@ public class InputProcessor {
     this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
-    processingData =
-        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
-            servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-            servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
-            servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
-            servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
-            servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata")));
+    processingData = new ProcessingData(new RequestParameters(servletRequest.getMethod(),
+        isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
+        servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
+        servletRequest.getParameterValues("types"), servletRequest.getParameterValues("keys"),
+        servletRequest.getParameterValues("values"), servletRequest.getParameterValues("time"),
+        servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata")));
     this.requestUrl = requestUrl;
   }
 
@@ -99,8 +96,6 @@ public class InputProcessor {
         splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getKeys()));
     String[] values = splitParamOnComma(
         createEmptyArrayIfNull(processingData.getRequestParameters().getValues()));
-    String[] userids = splitParamOnComma(
-        createEmptyArrayIfNull(processingData.getRequestParameters().getUserids()));
     String[] time =
         splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTime()));
     String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
@@ -109,7 +104,7 @@ public class InputProcessor {
     // overwriting RequestParameters object with splitted/non-null parameters
     processingData.setRequestParameters(
         new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
-            bpolys, types, keys, values, userids, time, format, showMetadata));
+            bpolys, types, keys, values, time, format, showMetadata));
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
@@ -209,18 +204,6 @@ public class InputProcessor {
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
-    if (userids.length != 0) {
-      checkUserids(userids);
-      Set<Integer> useridSet = new HashSet<>();
-      for (String user : userids) {
-        useridSet.add(Integer.valueOf(user));
-      }
-      mapRed = mapRed.osmEntityFilter(entity -> {
-        return useridSet.contains(entity.getUserId());
-      });
-    } else {
-      // do nothing --> all users will be used
-    }
     return (MapReducer<T>) mapRed;
   }
 
@@ -498,23 +481,6 @@ public class InputProcessor {
     }
     utils.setToTimestamps(toTimestamps);
     return mapRed;
-  }
-
-  /**
-   * Checks the content of the userids <code>String</code> array.
-   * 
-   * @param userids String array containing the OSM user IDs.
-   * @throws BadRequestException if one of the userids is invalid
-   */
-  private void checkUserids(String[] userids) throws BadRequestException {
-    for (String user : userids) {
-      try {
-        Long.valueOf(user);
-      } catch (NumberFormatException e) {
-        throw new BadRequestException("The userids parameter can only contain valid OSM userids, "
-            + "which are always a positive whole number");
-      }
-    }
   }
 
   /** Checks the given OSMType(s) String[] on its length and content. */

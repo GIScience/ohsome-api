@@ -501,82 +501,6 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area calculation grouped by the user.
-   * 
-   * @param requestResource
-   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
-   *        RequestResource} definition of the request resource
-   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
-   *        request object
-   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
-   *        outgoing response object
-   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
-   *        (false)
-   * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
-   */
-  public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws Exception {
-    final long startTime = System.currentTimeMillis();
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor =
-        new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
-    mapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    ArrayList<Integer> useridsInt = new ArrayList<>();
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
-    if (requestParameters.getUserids() != null) {
-      for (String user : requestParameters.getUserids()) {
-        useridsInt.add(Integer.parseInt(user));
-      }
-    }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> preResult;
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    preResult = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-          return f.getEntity().getUserId();
-        }, useridsInt);
-    result = exeUtils.computeResult(requestResource, preResult);
-    groupByResult = ExecutionUtils.nest(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    int count = 0;
-    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
-        .entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, null);
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-      count++;
-    }
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
-          requestResource.getLabel(), requestResource.getUnit()), requestUrl);
-    }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-        resultSet);
-  }
-
-  /**
    * Performs a count|length|perimeter|area calculation grouped by the tag.
    * 
    * @param requestResource
@@ -943,12 +867,12 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
-      RequestParameters requestParams = new RequestParameters(servletRequest.getMethod(),
-          isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
-          servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
-          osmTypesString, new String[] {}, new String[] {},
-          servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
-          servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
+      RequestParameters requestParams =
+          new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
+              new String[] {}, servletRequest.getParameterValues("time"),
+              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
       ProcessingData pD = new ProcessingData(requestParams);
       InputProcessor iP =
           new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
@@ -1106,12 +1030,12 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
-      RequestParameters requestParams = new RequestParameters(servletRequest.getMethod(),
-          isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
-          servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
-          osmTypesString, new String[] {}, new String[] {},
-          servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
-          servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
+      RequestParameters requestParams =
+          new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
+              new String[] {}, servletRequest.getParameterValues("time"),
+              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
       ProcessingData pD = new ProcessingData(requestParams);
       InputProcessor iP =
           new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
