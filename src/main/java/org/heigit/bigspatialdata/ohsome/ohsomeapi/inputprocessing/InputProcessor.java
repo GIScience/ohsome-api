@@ -22,6 +22,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -44,6 +46,10 @@ import com.vividsolutions.jts.geom.Polygonal;
  */
 public class InputProcessor {
 
+  /*
+   * Represents about 1/500 of 180° * 360°.
+   */
+  public static final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private ProcessingData processingData;
@@ -71,6 +77,10 @@ public class InputProcessor {
     this.processingData = processingData;
   }
 
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
+    return this.processParameters(null);
+  }
+
   /**
    * Processes the input parameters from the given request.
    * 
@@ -78,7 +88,8 @@ public class InputProcessor {
    *         including the settings derived from the given parameters.
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
+      throws Exception {
     String bboxes = createEmptyStringIfNull(processingData.getRequestParameters().getBboxes());
     String bcircles = createEmptyStringIfNull(processingData.getRequestParameters().getBcircles());
     String bpolys = createEmptyStringIfNull(processingData.getRequestParameters().getBpolys());
@@ -100,9 +111,58 @@ public class InputProcessor {
         new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
             bpolys, types, keys, values, userids, time, format, showMetadata));
     processingData.setFormat(format);
+    MapReducer<? extends OSHDBMapReducible> mapRed = null;
+    processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
     geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
-    MapReducer<? extends OSHDBMapReducible> mapRed = null;
+    Geometry boundary;
+    try {
+      switch (processingData.getBoundaryType()) {
+        case NOBOUNDARY:
+          if (ExtractMetadata.dataPoly == null) {
+            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
+          }
+          boundary = ExtractMetadata.dataPoly;
+          break;
+        case BBOXES:
+          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
+          boundary = geomBuilder.createBboxes(processingData.getBoundaryValues());
+          break;
+        case BCIRCLES:
+          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
+          boundary = geomBuilder.createCircularPolygons(processingData.getBoundaryValues());
+          break;
+        case BPOLYS:
+          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
+            boundary = geomBuilder.createGeometryFromGeoJson(bpolys, this);
+          } else {
+            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
+            boundary = geomBuilder.createBpolys(processingData.getBoundaryValues());
+          }
+          break;
+        default:
+          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
+      }
+    } catch (ClassCastException e) {
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+    }
+
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
+      if (forceComputeMode != null) {
+        dbIgnite.computeMode(forceComputeMode);
+      } else {
+        ComputeMode computeMode;
+        double boundarySize = boundary.getEnvelope().getArea();
+        if (boundarySize <= COMPUTE_MODE_THRESHOLD) {
+          computeMode = ComputeMode.LocalPeek;
+        } else {
+          computeMode = ComputeMode.ScanQuery;
+        }
+        dbIgnite.computeMode(computeMode);
+      }
+    }
+
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);
@@ -116,6 +176,8 @@ public class InputProcessor {
         mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
+    mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+
     if (showMetadata == null) {
       processingData.setShowMetadata(false);
     } else if ("true".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
@@ -127,41 +189,6 @@ public class InputProcessor {
       processingData.setShowMetadata(false);
     } else {
       throw new BadRequestException(ExceptionMessages.SHOWMETADATA_PARAM);
-    }
-    processingData.setBoundary(setBoundaryType(bboxes, bcircles, bpolys));
-    try {
-      switch (processingData.getBoundary()) {
-        case NOBOUNDARY:
-          if (ExtractMetadata.dataPoly == null) {
-            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-          }
-          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
-          break;
-        case BBOXES:
-          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
-          mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createBboxes(processingData.getBoundaryValues()));
-          break;
-        case BCIRCLES:
-          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
-          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
-              .createCircularPolygons(processingData.getBoundaryValues()));
-          break;
-        case BPOLYS:
-          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
-            mapRed = mapRed.areaOfInterest(
-                (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
-          } else {
-            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
-            mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
-                .createBpolys(processingData.getBoundaryValues()));
-          }
-          break;
-        default:
-          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
-      }
-    } catch (ClassCastException e) {
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
@@ -552,27 +579,14 @@ public class InputProcessor {
   /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 
-   * @param boundary <code>BoundaryType</code> object (NOBOUNDARY, BBOXES, BCIRCLES, BPOLYS).
-   * @param geomBuilder <code>GeometryBuilder</code> object.
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
   public Geometry getGeometry() {
     Geometry geom;
-    switch (processingData.getBoundary()) {
-      case NOBOUNDARY:
-        geom = ProcessingData.getDataPolyGeom();
-        break;
-      case BBOXES:
-        geom = processingData.getBboxesGeom();
-        break;
-      case BCIRCLES:
-        geom = processingData.getBcirclesGeom();
-        break;
-      case BPOLYS:
-        geom = processingData.getBpolysGeom();
-        break;
-      default:
-        geom = null;
+    if (BoundaryType.NOBOUNDARY == processingData.getBoundaryType()) {
+      geom = ProcessingData.getDataPolyGeom();
+    } else {
+      geom = processingData.getBoundary();
     }
     return geom;
   }

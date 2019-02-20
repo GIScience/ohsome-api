@@ -105,8 +105,6 @@ public class ElementsRequestExecutor {
     final boolean includeOSMMetadata =
         Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
-      ComputeMode previousComputeMode = dbIgnite.computeMode();
       // do a preflight to get an approximate result data size estimation:
       // for now just the sum of the average size of the objects versions in bytes is used
       // if that number is larger than 10MB, then fall back to the slightly slower, but much
@@ -116,10 +114,10 @@ public class ElementsRequestExecutor {
           inputProcessor.processParameters().map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
               .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
-        dbIgnite.computeMode(ComputeMode.AffinityCall);
+        mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      } else {
+        mapRed = inputProcessor.processParameters();
       }
-      mapRed = inputProcessor.processParameters();
-      dbIgnite.computeMode(previousComputeMode);
     } else {
       mapRed = inputProcessor.processParameters();
     }
@@ -187,18 +185,17 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
-      ComputeMode previousComputeMode = dbIgnite.computeMode();
       final double maxStreamDataSize = 1E7;
       Number approxResultSize = snapshotInputProcessor.processParameters()
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
           .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > maxStreamDataSize) {
-        dbIgnite.computeMode(ComputeMode.AffinityCall);
+        mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
+        mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      } else {
+        mapRedSnapshot = snapshotInputProcessor.processParameters();
+        mapRedContribution = inputProcessor.processParameters();
       }
-      mapRedSnapshot = snapshotInputProcessor.processParameters();
-      mapRedContribution = inputProcessor.processParameters();
-      dbIgnite.computeMode(previousComputeMode);
     } else {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
@@ -451,19 +448,19 @@ public class ElementsRequestExecutor {
       case COUNT:
       default:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
     }
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
@@ -1063,7 +1060,7 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
-    if (processingData.getBoundary() == BoundaryType.NOBOUNDARY) {
+    if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     String[] keys2 = inputProcessor.splitParamOnComma(

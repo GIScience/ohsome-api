@@ -14,15 +14,13 @@ public class ProcessingData {
   private static Geometry dataPolyGeom;
   private RequestParameters requestParameters;
   private String requestUrl;
-  private BoundaryType boundary;
+  private BoundaryType boundaryType;
   private String[] boundaryValues;
   private String boundaryValuesGeoJson;
   private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
   private String format;
-  private Geometry bboxesGeom;
-  private Geometry bcirclesGeom;
-  private Geometry bpolysGeom;
+  private Geometry boundary;
   private Collection<Geometry> boundaryColl;
   private GeoJsonObject[] geoJsonGeoms;
 
@@ -46,12 +44,12 @@ public class ProcessingData {
     this.requestUrl = requestUrl;
   }
 
-  public BoundaryType getBoundary() {
-    return boundary;
+  public BoundaryType getBoundaryType() {
+    return boundaryType;
   }
 
-  public void setBoundary(BoundaryType boundary) {
-    this.boundary = boundary;
+  public void setBoundaryType(BoundaryType boundaryType) {
+    this.boundaryType = boundaryType;
   }
 
   public String[] getBoundaryValues() {
@@ -86,28 +84,12 @@ public class ProcessingData {
     this.format = format;
   }
 
-  public Geometry getBboxesGeom() {
-    return bboxesGeom;
+  public Geometry getBoundary() {
+    return boundary;
   }
 
-  public void setBboxesGeom(Geometry bboxesGeom) {
-    this.bboxesGeom = bboxesGeom;
-  }
-
-  public Geometry getBcirclesGeom() {
-    return bcirclesGeom;
-  }
-
-  public void setBcirclesGeom(Geometry bcirclesGeom) {
-    this.bcirclesGeom = bcirclesGeom;
-  }
-
-  public Geometry getBpolysGeom() {
-    return bpolysGeom;
-  }
-
-  public void setBpolysGeom(Geometry bpolysGeom) {
-    this.bpolysGeom = bpolysGeom;
+  public void setBoundary(Geometry boundary) {
+    this.boundary = boundary;
   }
 
   public Collection<Geometry> getBoundaryColl() {
