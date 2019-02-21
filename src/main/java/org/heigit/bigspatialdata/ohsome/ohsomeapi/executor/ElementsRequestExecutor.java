@@ -867,12 +867,12 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
-      RequestParameters requestParams =
-          new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
-              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
-              new String[] {}, servletRequest.getParameterValues("time"),
-              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
+      RequestParameters requestParams = new RequestParameters(servletRequest.getMethod(),
+          isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
+          servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
+          osmTypesString, new String[] {}, new String[] {},
+          servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+          servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
       ProcessingData pD = new ProcessingData(requestParams);
       InputProcessor iP =
           new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
@@ -1030,12 +1030,12 @@ public class ElementsRequestExecutor {
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
-      RequestParameters requestParams =
-          new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
-              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
-              new String[] {}, servletRequest.getParameterValues("time"),
-              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
+      RequestParameters requestParams = new RequestParameters(servletRequest.getMethod(),
+          isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
+          servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
+          osmTypesString, new String[] {}, new String[] {},
+          servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+          servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
       ProcessingData pD = new ProcessingData(requestParams);
       InputProcessor iP =
           new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);

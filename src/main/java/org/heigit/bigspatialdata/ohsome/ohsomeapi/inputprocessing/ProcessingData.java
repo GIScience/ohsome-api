@@ -12,6 +12,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class ProcessingData {
 
   private static Geometry dataPolyGeom;
+  private static double timeout;
   private RequestParameters requestParameters;
   private String requestUrl;
   private BoundaryType boundaryType;
@@ -26,6 +27,22 @@ public class ProcessingData {
 
   public ProcessingData(RequestParameters requestParameters) {
     this.requestParameters = requestParameters;
+  }
+
+  public static Geometry getDataPolyGeom() {
+    return dataPolyGeom;
+  }
+
+  public static void setDataPolyGeom(Geometry dataPolyGeom) {
+    ProcessingData.dataPolyGeom = dataPolyGeom;
+  }
+
+  public static double getTimeout() {
+    return timeout;
+  }
+
+  public static void setTimeout(double timeout) {
+    ProcessingData.timeout = timeout;
   }
 
   public RequestParameters getRequestParameters() {
@@ -106,14 +123,6 @@ public class ProcessingData {
 
   public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
     this.geoJsonGeoms = geoJsonGeoms;
-  }
-
-  public static Geometry getDataPolyGeom() {
-    return dataPolyGeom;
-  }
-
-  public static void setDataPolyGeom(Geometry dataPolyGeom) {
-    ProcessingData.dataPolyGeom = dataPolyGeom;
   }
 
   public boolean isShowMetadata() {

@@ -133,6 +133,9 @@ public class SwaggerConfig {
     globalOperationParams.add(new ParameterBuilder().name("format")
         .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef(STRING))
         .parameterType(QUERY).defaultValue("json").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("timeout")
+        .description(ParameterDescriptions.TIMEOUT_DESCR).modelRef(new ModelRef(STRING))
+        .parameterType(QUERY).defaultValue("").required(false).build());
     if (!isFullHistory) {
       globalOperationParams
           .add(new ParameterBuilder().name("time").description(ParameterDescriptions.TIME_DESCR)

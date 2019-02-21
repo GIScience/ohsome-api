@@ -61,12 +61,13 @@ public class InputProcessor {
     this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
-    processingData = new ProcessingData(new RequestParameters(servletRequest.getMethod(),
-        isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
-        servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
-        servletRequest.getParameterValues("types"), servletRequest.getParameterValues("keys"),
-        servletRequest.getParameterValues("values"), servletRequest.getParameterValues("time"),
-        servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata")));
+    processingData =
+        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+            servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+            servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
+            servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
+            servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()));
     this.requestUrl = requestUrl;
   }
 
@@ -101,10 +102,11 @@ public class InputProcessor {
     String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
     String showMetadata =
         createEmptyStringIfNull(processingData.getRequestParameters().getShowMetadata());
+    double timeout = defineRequestTimeout();
     // overwriting RequestParameters object with splitted/non-null parameters
     processingData.setRequestParameters(
         new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
-            bpolys, types, keys, values, time, format, showMetadata));
+            bpolys, types, keys, values, time, format, showMetadata, timeout));
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
@@ -157,6 +159,8 @@ public class InputProcessor {
         dbIgnite.computeMode(computeMode);
       }
     }
+
+    DbConnData.db.timeout(timeout);
 
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
@@ -512,6 +516,28 @@ public class InputProcessor {
           "The given 'format' parameter is invalid. Please choose between 'geojson'(only available"
               + " for /groupBy/boundary and data extraction requests), 'json', or 'csv'.");
     }
+  }
+
+  /**
+   * Defines the timeout for this request depending on the given timeout parameter. If it is smaller
+   * than the predefined value, it is used for this request.
+   * 
+   * @return <code>double</code> value defining the timeout for this request
+   * @throws BadRequestException if the given timeout is larger than the predefined one
+   */
+  private double defineRequestTimeout() throws BadRequestException {
+    double timeout = ProcessingData.getTimeout();
+    String requestTimeoutString = createEmptyStringIfNull(servletRequest.getParameter("timeout"));
+    if (!requestTimeoutString.isEmpty()) {
+      double requestTimeoutDouble = Double.parseDouble(requestTimeoutString);
+      if (requestTimeoutDouble <= timeout) {
+        timeout = requestTimeoutDouble;
+      } else {
+        throw new BadRequestException(
+            ExceptionMessages.TIMEOUT + ProcessingData.getTimeout() + " seconds");
+      }
+    }
+    return timeout;
   }
 
   /**
