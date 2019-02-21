@@ -130,9 +130,6 @@ public class SwaggerConfig {
     globalOperationParams.add(new ParameterBuilder().name("values")
         .description(ParameterDescriptions.VALUES_DESCR).modelRef(new ModelRef(STRING))
         .parameterType(QUERY).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("userids")
-        .description(ParameterDescriptions.USERIDS_DESCR).modelRef(new ModelRef(STRING))
-        .parameterType(QUERY).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("format")
         .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef(STRING))
         .parameterType(QUERY).defaultValue("json").required(false).build());

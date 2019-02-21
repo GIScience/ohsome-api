@@ -9,9 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -22,6 +20,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
@@ -44,6 +44,10 @@ import com.vividsolutions.jts.geom.Polygonal;
  */
 public class InputProcessor {
 
+  /*
+   * Represents about 1/500 of 180° * 360°.
+   */
+  public static final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private ProcessingData processingData;
@@ -57,29 +61,22 @@ public class InputProcessor {
     this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
-      processingData = new ProcessingData(new RequestParameters(servletRequest.getMethod(),
-          isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
-          servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
-          servletRequest.getParameterValues("types"), servletRequest.getParameterValues("keys"),
-          servletRequest.getParameterValues("values"), servletRequest.getParameterValues("userids"),
-          servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-          servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()));
-//    } else {
-//      try {
-//        BufferedReader reader = servletRequest.getReader();
-//        while (reader.readLine() != null) {
-//          System.out.println(reader.readLine());
-//        }
-//      } catch (IOException e) {
-//        // TODO Auto-generated catch block
-//        throw new RuntimeException();
-//      }
-//    }
+    processingData =
+        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+            servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+            servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
+            servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
+            servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()));
     this.requestUrl = requestUrl;
   }
 
   public InputProcessor(ProcessingData processingData) {
     this.processingData = processingData;
+  }
+
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
+    return this.processParameters(null);
   }
 
   /**
@@ -89,7 +86,8 @@ public class InputProcessor {
    *         including the settings derived from the given parameters.
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
+      throws Exception {
     String bboxes = createEmptyStringIfNull(processingData.getRequestParameters().getBboxes());
     String bcircles = createEmptyStringIfNull(processingData.getRequestParameters().getBcircles());
     String bpolys = createEmptyStringIfNull(processingData.getRequestParameters().getBpolys());
@@ -99,8 +97,6 @@ public class InputProcessor {
         splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getKeys()));
     String[] values = splitParamOnComma(
         createEmptyArrayIfNull(processingData.getRequestParameters().getValues()));
-    String[] userids = splitParamOnComma(
-        createEmptyArrayIfNull(processingData.getRequestParameters().getUserids()));
     String[] time =
         splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTime()));
     String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
@@ -110,11 +106,60 @@ public class InputProcessor {
     // overwriting RequestParameters object with splitted/non-null parameters
     processingData.setRequestParameters(
         new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
-            bpolys, types, keys, values, userids, time, format, showMetadata, timeout));
+            bpolys, types, keys, values, time, format, showMetadata, timeout));
     processingData.setFormat(format);
+    MapReducer<? extends OSHDBMapReducible> mapRed = null;
+    processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
     geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
-    MapReducer<? extends OSHDBMapReducible> mapRed = null;
+    Geometry boundary;
+    try {
+      switch (processingData.getBoundaryType()) {
+        case NOBOUNDARY:
+          if (ExtractMetadata.dataPoly == null) {
+            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
+          }
+          boundary = ExtractMetadata.dataPoly;
+          break;
+        case BBOXES:
+          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
+          boundary = geomBuilder.createBboxes(processingData.getBoundaryValues());
+          break;
+        case BCIRCLES:
+          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
+          boundary = geomBuilder.createCircularPolygons(processingData.getBoundaryValues());
+          break;
+        case BPOLYS:
+          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
+            boundary = geomBuilder.createGeometryFromGeoJson(bpolys, this);
+          } else {
+            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
+            boundary = geomBuilder.createBpolys(processingData.getBoundaryValues());
+          }
+          break;
+        default:
+          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
+      }
+    } catch (ClassCastException e) {
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+    }
+
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
+      if (forceComputeMode != null) {
+        dbIgnite.computeMode(forceComputeMode);
+      } else {
+        ComputeMode computeMode;
+        double boundarySize = boundary.getEnvelope().getArea();
+        if (boundarySize <= COMPUTE_MODE_THRESHOLD) {
+          computeMode = ComputeMode.LocalPeek;
+        } else {
+          computeMode = ComputeMode.ScanQuery;
+        }
+        dbIgnite.computeMode(computeMode);
+      }
+    }
+
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);
@@ -128,6 +173,8 @@ public class InputProcessor {
         mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
+    mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+
     if (showMetadata == null) {
       processingData.setShowMetadata(false);
     } else if ("true".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
@@ -139,41 +186,6 @@ public class InputProcessor {
       processingData.setShowMetadata(false);
     } else {
       throw new BadRequestException(ExceptionMessages.SHOWMETADATA_PARAM);
-    }
-    processingData.setBoundary(setBoundaryType(bboxes, bcircles, bpolys));
-    try {
-      switch (processingData.getBoundary()) {
-        case NOBOUNDARY:
-          if (ExtractMetadata.dataPoly == null) {
-            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-          }
-          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) ExtractMetadata.dataPoly);
-          break;
-        case BBOXES:
-          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
-          mapRed = mapRed.areaOfInterest(
-              (Geometry & Polygonal) geomBuilder.createBboxes(processingData.getBoundaryValues()));
-          break;
-        case BCIRCLES:
-          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
-          mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
-              .createCircularPolygons(processingData.getBoundaryValues()));
-          break;
-        case BPOLYS:
-          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
-            mapRed = mapRed.areaOfInterest(
-                (Geometry & Polygonal) geomBuilder.createGeometryFromGeoJson(bpolys, this));
-          } else {
-            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
-            mapRed = mapRed.areaOfInterest((Geometry & Polygonal) geomBuilder
-                .createBpolys(processingData.getBoundaryValues()));
-          }
-          break;
-        default:
-          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
-      }
-    } catch (ClassCastException e) {
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
@@ -194,18 +206,6 @@ public class InputProcessor {
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
-    if (userids.length != 0) {
-      checkUserids(userids);
-      Set<Integer> useridSet = new HashSet<>();
-      for (String user : userids) {
-        useridSet.add(Integer.valueOf(user));
-      }
-      mapRed = mapRed.osmEntityFilter(entity -> {
-        return useridSet.contains(entity.getUserId());
-      });
-    } else {
-      // do nothing --> all users will be used
-    }
     return (MapReducer<T>) mapRed;
   }
 
@@ -485,23 +485,6 @@ public class InputProcessor {
     return mapRed;
   }
 
-  /**
-   * Checks the content of the userids <code>String</code> array.
-   * 
-   * @param userids String array containing the OSM user IDs.
-   * @throws BadRequestException if one of the userids is invalid
-   */
-  private void checkUserids(String[] userids) throws BadRequestException {
-    for (String user : userids) {
-      try {
-        Long.valueOf(user);
-      } catch (NumberFormatException e) {
-        throw new BadRequestException("The userids parameter can only contain valid OSM userids, "
-            + "which are always a positive whole number");
-      }
-    }
-  }
-
   /** Checks the given OSMType(s) String[] on its length and content. */
   private void checkOSMTypes(String[] types) throws BadRequestException {
     if (types.length > 3) {
@@ -585,27 +568,14 @@ public class InputProcessor {
   /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 
-   * @param boundary <code>BoundaryType</code> object (NOBOUNDARY, BBOXES, BCIRCLES, BPOLYS).
-   * @param geomBuilder <code>GeometryBuilder</code> object.
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
   public Geometry getGeometry() {
     Geometry geom;
-    switch (processingData.getBoundary()) {
-      case NOBOUNDARY:
-        geom = ProcessingData.getDataPolyGeom();
-        break;
-      case BBOXES:
-        geom = processingData.getBboxesGeom();
-        break;
-      case BCIRCLES:
-        geom = processingData.getBcirclesGeom();
-        break;
-      case BPOLYS:
-        geom = processingData.getBpolysGeom();
-        break;
-      default:
-        geom = null;
+    if (BoundaryType.NOBOUNDARY == processingData.getBoundaryType()) {
+      geom = ProcessingData.getDataPolyGeom();
+    } else {
+      geom = processingData.getRequestGeom();
     }
     return geom;
   }

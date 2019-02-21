@@ -62,22 +62,6 @@ public class CountController {
   }
 
   /**
-   * Gives the count of OSM objects grouped by the userId.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Count of OSM elements grouped by the user who was the last editor "
-      + "of the requested elements", nickname = "elementsCountGroupByUser")
-  @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
-  public Response countGroupByUser(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
-  }
-
-  /**
    * Gives the count of OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
    * 
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
