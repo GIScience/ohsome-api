@@ -1,12 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.exception;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-
 /** Holds custom error messages used in several classes for different exceptions. */
 public class ExceptionMessages {
 
   public static final String PAYLOAD_TOO_LARGE =
-      "The given query is too large. Please use a smaller region and/or coarser time period.";
+      "The given query is too large in respect to the given timeout. Please use a smaller region "
+          + "and/or coarser time period.";
   public static final String NO_BOUNDARY =
       "You need to define one of the boundary parameters (bboxes, bcircles, bpolys).";
   public static final String BOUNDARY_NOT_IN_DATA_EXTRACT = "The provided boundary parameter "
@@ -41,8 +40,7 @@ public class ExceptionMessages {
       "You need to give at least two timestamps or a time interval for this resource.";
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
-  public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than "
-      + ProcessingData.getTimeout() + " seconds";
+  public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";
 
   private ExceptionMessages() {
     throw new IllegalStateException("Utility class");
