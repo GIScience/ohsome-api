@@ -160,6 +160,8 @@ public class InputProcessor {
       }
     }
 
+    DbConnData.db.timeout(timeout);
+
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);
@@ -528,10 +530,11 @@ public class InputProcessor {
     String requestTimeoutString = createEmptyStringIfNull(servletRequest.getParameter("timeout"));
     if (!requestTimeoutString.isEmpty()) {
       double requestTimeoutDouble = Double.parseDouble(requestTimeoutString);
-      if (requestTimeoutDouble > timeout) {
+      if (requestTimeoutDouble <= timeout) {
         timeout = requestTimeoutDouble;
       } else {
-        throw new BadRequestException(ExceptionMessages.TIMEOUT);
+        throw new BadRequestException(
+            ExceptionMessages.TIMEOUT + ProcessingData.getTimeout() + " seconds");
       }
     }
     return timeout;
