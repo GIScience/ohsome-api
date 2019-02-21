@@ -20,7 +20,7 @@ public class ProcessingData {
   private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
   private String format;
-  private Geometry boundary;
+  private Geometry requestGeom;
   private Collection<Geometry> boundaryColl;
   private GeoJsonObject[] geoJsonGeoms;
 
@@ -84,12 +84,12 @@ public class ProcessingData {
     this.format = format;
   }
 
-  public Geometry getBoundary() {
-    return boundary;
+  public Geometry getRequestGeom() {
+    return requestGeom;
   }
 
-  public void setBoundary(Geometry boundary) {
-    this.boundary = boundary;
+  public void setRequestGeom(Geometry requestGeom) {
+    this.requestGeom = requestGeom;
   }
 
   public Collection<Geometry> getBoundaryColl() {

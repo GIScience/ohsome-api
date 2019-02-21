@@ -552,7 +552,7 @@ public class InputProcessor {
     if (BoundaryType.NOBOUNDARY == processingData.getBoundaryType()) {
       geom = ProcessingData.getDataPolyGeom();
     } else {
-      geom = processingData.getBoundary();
+      geom = processingData.getRequestGeom();
     }
     return geom;
   }
