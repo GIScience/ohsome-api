@@ -31,6 +31,7 @@ public class ParameterDescriptions {
           + "default: 'tags'";
   public static final String SHOW_METADATA_DESCR =
       "Boolean operator 'true' or 'false'; default: 'false'";
+  public static final String TIMEOUT_DESCR = "Custom timeout in seconds;";
 
   private ParameterDescriptions() {
     throw new IllegalStateException("Utility class");
