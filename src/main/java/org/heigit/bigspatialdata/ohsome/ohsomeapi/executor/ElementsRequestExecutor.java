@@ -879,8 +879,8 @@ public class ElementsRequestExecutor {
       iP.setProcessingData(pD);
       mapRed = iP.processParameters();
       mapRed = mapRed.osmEntityFilter(entity -> {
-        if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1)) {
-          return exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        if (!ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1)) {
+          return ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         }
         return true;
       });
@@ -891,8 +891,8 @@ public class ElementsRequestExecutor {
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       OSMEntity entity = f.getEntity();
-      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+      boolean matches1 = ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+      boolean matches2 = ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
       if (matches1 && matches2) {
         return MatchType.MATCHESBOTH;
       } else if (matches1) {
@@ -1042,8 +1042,8 @@ public class ElementsRequestExecutor {
       iP.setProcessingData(pD);
       mapRed = iP.processParameters();
       mapRed = mapRed.osmEntityFilter(entity -> {
-        boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-        boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        boolean matches1 = ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+        boolean matches2 = ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         return matches1 || matches2;
       });
     } else {
@@ -1064,8 +1064,8 @@ public class ElementsRequestExecutor {
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms)
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) f -> {
           OSMEntity entity = f.getEntity();
-          boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-          boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+          boolean matches1 = ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+          boolean matches2 = ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
           if (matches1 && matches2) {
             return MatchType.MATCHESBOTH;
           } else if (matches1) {

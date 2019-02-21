@@ -406,7 +406,7 @@ public class ExecutionUtils {
   }
 
   /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
-  public boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
+  public static boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
       Integer[] valuesInt) {
     boolean matches = true;
     if (osmTypes.contains(entity.getType())) {
