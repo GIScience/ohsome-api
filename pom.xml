@@ -21,10 +21,9 @@
 		<jsonpath.version>2.2.0</jsonpath.version>
 		<oshdb.version>0.5.0-SNAPSHOT</oshdb.version>
 		<jacksondatatype.version>2.9.6</jacksondatatype.version>
-		<geotools.version>17.2</geotools.version>
+		<geotools.version>20.2</geotools.version>
 		<springfox.version>2.9.2</springfox.version>
 		<apachecommons.version>3.7</apachecommons.version>
-		<geotools.version>19.2</geotools.version>
 	</properties>
 
 	<dependencies>
@@ -96,6 +95,12 @@
 			<artifactId>opencsv</artifactId>
 			<version>4.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-geometry</artifactId>
+			<version>${geotools.version}</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
 		<dependency>
 			<groupId>org.geotools</groupId>
@@ -120,12 +125,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>${apachecommons.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-geometry</artifactId>
-			<version>19.2</version>
-		</dependency>
+
 
 	</dependencies>
 
