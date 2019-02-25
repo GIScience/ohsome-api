@@ -508,6 +508,8 @@ public class GetControllerTest {
    * csv output tests start here
    */
 
+  // csv output tests for elementsCount
+
   @Test
   public void getElementsCountCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -663,5 +665,65 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("1429.0;7.0;1428.0;136.0", response.getBody().substring(length - 24, length - 1));
+  }
+
+  // csv output tests for elementsArea
+
+  @Test
+  public void getElementsAreaDensityGroupByTypeCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/area/density/groupBy/type?bcircles=8.68136,49.39115,1500"
+            + "&format=csv&keys=leisure&showMetadata=false&time=2018-01-01&types=way,relation",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("97989.41;12329.71", response.getBody().substring(length - 18, length - 1));
+  }
+
+  @Test
+  public void getElementsAreaDensityGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/area/density/groupBy/tag?bboxes=8.68482,49.40167,8.68721,49.40267"
+            + "&format=csv&groupByKey=building&"
+            + "groupByValues=retail,church&showMetadata=false&time=2018-10-01&types=way",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("49279.72;14440.82", response.getBody().substring(length - 18, length - 1));
+  }
+
+  @Test
+  public void getElementsAreaTypeCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/area/groupBy/type?bcircles=8.689054,49.402481,500&"
+            + "format=csv&showMetadata=false&keys=building&time=2018-01-01&types=way,relation",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("209696.95;22111.69", response.getBody().substring(length - 19, length - 1));
+  }
+
+  @Test
+  public void getElementsAreaRatioCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/area/ratio?bboxes=8.68934,49.39415,8.69654,49.39936"
+            + "&format=csv&keys=landuse&keys2=building&showMetadata=false&time=2018-01-01&"
+            + "types=way&types2=way&values=cemetery&values2=yes",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("0.041629", response.getBody().substring(length - 9, length - 1));
+  }
+
+  @Test
+  public void getElementsAreaShareGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/area/share/groupBy/boundary?bboxes=8.68275,49.39993,8.68722,49.40517|"
+            + "8.6874,49.39996,8.69188,49.40521&format=csv&keys=leisure&keys2=leisure&showMetadata=false&time=2018-01-01&"
+            + "types=way&types2=way&values2=playground",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("3892.4199999999996;3651.24;4846.01;612.76", response.getBody().substring(length - 42, length - 1));
   }
 }
