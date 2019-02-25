@@ -16,7 +16,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
@@ -51,8 +50,7 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor =
-        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -85,8 +83,7 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor =
-        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -128,8 +125,7 @@ public class UsersRequestExecutor {
   public static Response executeCountGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    InputProcessor inputProcessor =
-        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -224,8 +220,7 @@ public class UsersRequestExecutor {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor =
-        new InputProcessor(servletRequest, false, isDensity, RequestInterceptor.requestUrl);
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();

@@ -20,6 +20,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -56,8 +57,7 @@ public class InputProcessor {
   private boolean isDensity;
   private String requestUrl;
 
-  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity,
-      String requestUrl) {
+  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
@@ -68,7 +68,7 @@ public class InputProcessor {
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
             servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()));
-    this.requestUrl = requestUrl;
+    this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
   }
 
   public InputProcessor(ProcessingData processingData) {
