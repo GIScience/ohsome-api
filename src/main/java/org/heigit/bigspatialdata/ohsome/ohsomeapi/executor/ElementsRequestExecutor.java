@@ -57,9 +57,9 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygonal;
 import org.wololo.geojson.Feature;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygonal;
 
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
@@ -105,8 +105,6 @@ public class ElementsRequestExecutor {
     final boolean includeOSMMetadata =
         Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
     if (DbConnData.db instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
-      ComputeMode previousComputeMode = dbIgnite.computeMode();
       // do a preflight to get an approximate result data size estimation:
       // for now just the sum of the average size of the objects versions in bytes is used
       // if that number is larger than 10MB, then fall back to the slightly slower, but much
@@ -116,10 +114,10 @@ public class ElementsRequestExecutor {
           inputProcessor.processParameters().map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
               .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
-        dbIgnite.computeMode(ComputeMode.AffinityCall);
+        mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      } else {
+        mapRed = inputProcessor.processParameters();
       }
-      mapRed = inputProcessor.processParameters();
-      dbIgnite.computeMode(previousComputeMode);
     } else {
       mapRed = inputProcessor.processParameters();
     }
@@ -187,18 +185,17 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
-      ComputeMode previousComputeMode = dbIgnite.computeMode();
       final double maxStreamDataSize = 1E7;
       Number approxResultSize = snapshotInputProcessor.processParameters()
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
           .sum(data -> data.getLength() / data.getLatest().getVersion());
       if (approxResultSize.doubleValue() > maxStreamDataSize) {
-        dbIgnite.computeMode(ComputeMode.AffinityCall);
+        mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
+        mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      } else {
+        mapRedSnapshot = snapshotInputProcessor.processParameters();
+        mapRedContribution = inputProcessor.processParameters();
       }
-      mapRedSnapshot = snapshotInputProcessor.processParameters();
-      mapRedContribution = inputProcessor.processParameters();
-      dbIgnite.computeMode(previousComputeMode);
     } else {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
@@ -451,19 +448,19 @@ public class ElementsRequestExecutor {
       case COUNT:
       default:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
       case LENGTH:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
       case PERIMETER:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
       case AREA:
         result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            processingData.getBoundary(), mapRed);
+            processingData.getBoundaryType(), mapRed);
         break;
     }
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
@@ -495,82 +492,6 @@ public class ElementsRequestExecutor {
           "FeatureCollection",
           exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-        resultSet);
-  }
-
-  /**
-   * Performs a count|length|perimeter|area calculation grouped by the user.
-   * 
-   * @param requestResource
-   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
-   *        RequestResource} definition of the request resource
-   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
-   *        request object
-   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
-   *        outgoing response object
-   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
-   *        (false)
-   * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
-   */
-  public static Response executeCountLengthPerimeterAreaGroupByUser(RequestResource requestResource,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity) throws Exception {
-    final long startTime = System.currentTimeMillis();
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor =
-        new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
-    mapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    ArrayList<Integer> useridsInt = new ArrayList<>();
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
-    if (requestParameters.getUserids() != null) {
-      for (String user : requestParameters.getUserids()) {
-        useridsInt.add(Integer.parseInt(user));
-      }
-    }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> preResult;
-    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    preResult = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, Integer>) f -> {
-          return f.getEntity().getUserId();
-        }, useridsInt);
-    result = exeUtils.computeResult(requestResource, preResult);
-    groupByResult = ExecutionUtils.nest(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    int count = 0;
-    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
-        .entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, null);
-      resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
-      count++;
-    }
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByUser(
-          requestResource.getLabel(), requestResource.getUnit()), requestUrl);
-    }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
@@ -950,16 +871,16 @@ public class ElementsRequestExecutor {
           isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
           servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
           osmTypesString, new String[] {}, new String[] {},
-          servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
-          servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
+          servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+          servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
       ProcessingData pD = new ProcessingData(requestParams);
       InputProcessor iP =
           new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
       iP.setProcessingData(pD);
       mapRed = iP.processParameters();
       mapRed = mapRed.osmEntityFilter(entity -> {
-        if (!exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1)) {
-          return exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        if (!ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1)) {
+          return ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         }
         return true;
       });
@@ -970,8 +891,8 @@ public class ElementsRequestExecutor {
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(f -> {
       OSMEntity entity = f.getEntity();
-      boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-      boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+      boolean matches1 = ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+      boolean matches2 = ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
       if (matches1 && matches2) {
         return MatchType.MATCHESBOTH;
       } else if (matches1) {
@@ -1063,7 +984,7 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
-    if (processingData.getBoundary() == BoundaryType.NOBOUNDARY) {
+    if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     String[] keys2 = inputProcessor.splitParamOnComma(
@@ -1113,16 +1034,16 @@ public class ElementsRequestExecutor {
           isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
           servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
           osmTypesString, new String[] {}, new String[] {},
-          servletRequest.getParameterValues("userids"), servletRequest.getParameterValues("time"),
-          servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"));
+          servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+          servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
       ProcessingData pD = new ProcessingData(requestParams);
       InputProcessor iP =
           new InputProcessor(servletRequest, isSnapshot, isDensity, RequestInterceptor.requestUrl);
       iP.setProcessingData(pD);
       mapRed = iP.processParameters();
       mapRed = mapRed.osmEntityFilter(entity -> {
-        boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-        boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+        boolean matches1 = ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+        boolean matches2 = ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
         return matches1 || matches2;
       });
     } else {
@@ -1143,8 +1064,8 @@ public class ElementsRequestExecutor {
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms)
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) f -> {
           OSMEntity entity = f.getEntity();
-          boolean matches1 = exeUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
-          boolean matches2 = exeUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
+          boolean matches1 = ExecutionUtils.entityMatches(entity, osmTypes1, keysInt1, valuesInt1);
+          boolean matches2 = ExecutionUtils.entityMatches(entity, osmTypes2, keysInt2, valuesInt2);
           if (matches1 && matches2) {
             return MatchType.MATCHESBOTH;
           } else if (matches1) {

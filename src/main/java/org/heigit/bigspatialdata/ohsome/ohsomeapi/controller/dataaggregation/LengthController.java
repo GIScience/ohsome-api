@@ -56,25 +56,6 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the user who was the last editor of the requested
-   * elements.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Length of OSM elements grouped by the user "
-          + "who was the last editor of the requested elements",
-      nickname = "elementsLengthGroupByUser")
-  @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
-  public Response lengthGroupByUser(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(
-        RequestResource.LENGTH, servletRequest, servletResponse, true, false);
-  }
-
-  /**
    * Gives the length of OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 

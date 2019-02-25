@@ -57,25 +57,6 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the user who was the last editor of the
-   * servletRequested elements.
-   * 
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Perimeter of OSM elements grouped by the user "
-          + "who was the last editor of the servletRequested elements",
-      nickname = "elementsPerimeterGroupByUser")
-  @RequestMapping(value = "/groupBy/user", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
-  public Response perimeterGroupByUser(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByUser(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
-  }
-
-  /**
    * Gives the perimeter of polygonal OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 

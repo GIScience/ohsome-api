@@ -111,6 +111,8 @@ public class Application implements ApplicationRunner {
             "You have to define one of the following three database parameters: '--database.db', "
                 + "'--database.ignite', or '--database.jdbc'.");
       }
+      ProcessingData.setTimeout(timeout/1000);
+      DbConnData.db.timeoutInMilliseconds(timeout);
       if (DbConnData.db instanceof OSHDBJdbc) {
         DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
       }
@@ -131,7 +133,6 @@ public class Application implements ApplicationRunner {
         DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
       }
       if (DbConnData.db instanceof OSHDBIgnite) {
-        ((OSHDBIgnite) DbConnData.db).timeoutInMilliseconds(timeout);
         RemoteTagTranslator mtt = DbConnData.mapTagTranslator;
         ((OSHDBIgnite) DbConnData.db).onClose(() -> {
           try {

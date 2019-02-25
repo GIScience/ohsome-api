@@ -180,25 +180,6 @@ public class PostControllerTest {
   }
 
   @Test
-  public void elementsPerimeterGroupByUserTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("time", "2015-01-01");
-    map.add("keys", "building");
-    ResponseEntity<JsonNode> response = restTemplate
-        .postForEntity(server + port + "/elements/perimeter/groupBy/user", map, JsonNode.class);
-    assertEquals(4.86,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("35468"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
-  }
-
-  @Test
   public void elementsPerimeterShareTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -432,25 +413,6 @@ public class PostControllerTest {
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
-  }
-
-  @Test
-  public void elementsAreaGroupByUserTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("time", "2017-01-01");
-    map.add("keys", "building");
-    ResponseEntity<JsonNode> response = restTemplate
-        .postForEntity(server + port + "/elements/area/groupBy/user", map, JsonNode.class);
-    assertEquals(168,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("5359"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
   }
 
   @Test

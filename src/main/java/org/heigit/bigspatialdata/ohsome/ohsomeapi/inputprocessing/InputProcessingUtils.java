@@ -13,7 +13,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
@@ -77,7 +77,7 @@ public class InputProcessingUtils {
       if (bboxesArray[0].contains(":")) {
         boundaryParamValues = splitBboxesWithIds(bboxesArray);
       } else {
-        boundaryParamValues = splitBoundariesWithoutIds(bboxesArray);
+        boundaryParamValues = splitBoundariesWithoutIds(bboxesArray, BoundaryType.BBOXES);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
@@ -104,7 +104,7 @@ public class InputProcessingUtils {
       if (bcirclesArray[0].contains(":")) {
         boundaryParamValues = splitBcirclesWithIds(bcirclesArray);
       } else {
-        boundaryParamValues = splitBoundariesWithoutIds(bcirclesArray);
+        boundaryParamValues = splitBoundariesWithoutIds(bcirclesArray, BoundaryType.BCIRCLES);
       }
     } catch (Exception e) {
       if (e.getClass() == BadRequestException.class) {
@@ -132,7 +132,7 @@ public class InputProcessingUtils {
         boundaryParamValues = splitBpolysWithIds(bpolysArray);
 
       } else if (bpolysArray[0].contains(",")) {
-        boundaryParamValues = splitBoundariesWithoutIds(bpolysArray);
+        boundaryParamValues = splitBoundariesWithoutIds(bpolysArray, BoundaryType.BPOLYS);
       } else {
         throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
       }
@@ -414,8 +414,8 @@ public class InputProcessingUtils {
    * @return <code>List</code> containing the splitted boundaries
    * @throws BadRequestException if the coordinates are invalid
    */
-  private List<String> splitBoundariesWithoutIds(String[] boundariesArray)
-      throws BadRequestException {
+  private List<String> splitBoundariesWithoutIds(String[] boundariesArray,
+      BoundaryType boundaryType) throws BadRequestException {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < boundariesArray.length; i++) {
       String[] coords = boundariesArray[i].split("\\,");
@@ -424,7 +424,7 @@ public class InputProcessingUtils {
       }
       boundaryIds[i] = "boundary" + (i + 1);
     }
-    checkBoundaryParamLength(boundaryParamValues);
+    checkBoundaryParamLength(boundaryParamValues, boundaryType);
     return boundaryParamValues;
   }
 
@@ -455,7 +455,7 @@ public class InputProcessingUtils {
         throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
       }
     }
-    checkBoundaryParamLength(boundaryParamValues);
+    checkBoundaryParamLength(boundaryParamValues, BoundaryType.BBOXES);
     return boundaryParamValues;
   }
 
@@ -481,7 +481,7 @@ public class InputProcessingUtils {
       // extract the radius
       boundaryParamValues.add(coords[2]);
     }
-    checkBoundaryParamLength(boundaryParamValues);
+    checkBoundaryParamLength(boundaryParamValues, BoundaryType.BCIRCLES);
     return boundaryParamValues;
   }
 
@@ -508,19 +508,24 @@ public class InputProcessingUtils {
         boundaryParamValues.add(coords[j]);
       }
     }
-    checkBoundaryParamLength(boundaryParamValues);
+    checkBoundaryParamLength(boundaryParamValues, BoundaryType.BPOLYS);
     return boundaryParamValues;
   }
 
   /**
-   * Checks the given boundaries list on their length. As it only contains coordinates, it must be
-   * even.
+   * Checks the given boundaries list on their length. Bounding box and polygon list must be even,
+   * bounding circle list must be divisable by three.
    * 
    * @param boundaries parameter to check the length
-   * @throws BadRequestException if the length is not even
+   * @throws BadRequestException if the length is not even or divisible by three
    */
-  private void checkBoundaryParamLength(List<String> boundaries) throws BadRequestException {
-    if (boundaries.size() % 2 != 0) {
+  private void checkBoundaryParamLength(List<String> boundaries, BoundaryType boundaryType)
+      throws BadRequestException {
+    if ((boundaryType.equals(BoundaryType.BBOXES) || boundaryType.equals(BoundaryType.BPOLYS))
+        && boundaries.size() % 2 != 0) {
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
+    }
+    if (boundaryType.equals(BoundaryType.BCIRCLES) && boundaries.size() % 3 != 0) {
       throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
   }
