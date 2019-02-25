@@ -518,7 +518,6 @@ public class GetControllerTest {
     assertEquals("40.0", response.getBody().substring(length - 5, length - 1));
   }
 
-
   @Test
   public void getElementsCountDensityCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -540,7 +539,6 @@ public class GetControllerTest {
     assertEquals("48.83;30.19", response.getBody().substring(length - 12, length - 1 ));
     assertEquals(176, length);
   }
-
 
   @Test
   public void getElementsCountDensityGroupByTagCsvTest() {
@@ -587,26 +585,11 @@ public class GetControllerTest {
         server + port + "/elements/count/groupBy/key?bboxes=8.6562,49.41243,8.69946,49.42384&"
             + "format=csv&groupByKeys=building,highway&showMetadata=false&"
             + "time=2014-01-01&types=way",
-        String.class);//out of bbox: 8.625,49.3711,8.7334,49.4397
+        String.class);
     int length = response.getBody().length();
     assertEquals("2292.0;1429.0", response.getBody().substring(length - 14, length - 1));
     assertEquals(192, length);
   }
-
-
-  /*@Test
-  public void getElementsCountGroupByTagCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(
-        server + port + "/elements/count/groupBy/tag?bboxes=8.6562,49.41243,8.69946,49.42384|"
-            + "8.65053,49.39757,8.69379,49.40899&format=csv&groupByKey=highway&"
-            + "groupByValues=primary,secondary&showMetadata=false&time=2014-01-01&types=way",
-        String.class);
-    int length = response.getBody().length();
-    assertEquals("7.0;31.0", response.getBody().substring(length - 9, length - 1));
-    //assertEquals(204, length);
-    //ComparisonFailure: expected:<[7.0;31].0> but was:<[.0;189].0>
-  }*/
 
   @Test
   public void getElementsCountGroupByTagCsvTest() {
@@ -618,21 +601,7 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("127.0;13.0", response.getBody().substring(length - 11, length - 1));
-    //assertEquals(204, length);
   }
-
-   /* @Test
-    public void getElementsCountGroupByTypeCsvTest() {
-      TestRestTemplate restTemplate = new TestRestTemplate();
-      ResponseEntity<String> response = restTemplate.getForEntity(
-          server + port + "/elements/count/groupBy/type?bboxes=8.6562,49.41243,8.69946,49.42384"
-              + "&format=csv&showMetadata=false&time=2016-01-01&types=way,node",
-          String.class);
-      int length = response.getBody().length();
-      assertEquals("6540.0;5485.0", response.getBody().substring(length - 14, length - 1));
-      assertEquals(167, length);
-      // ComparisonFailure: expected:<6540.0;548[6].0> but was:<6540.0;548[5].0>
-    }*/
 
    @Test
    public void getElementsCountGroupByTypeCsvTest() {
@@ -644,8 +613,6 @@ public class GetControllerTest {
          String.class);
      int length = response.getBody().length();
      assertEquals("18.0;7.0", response.getBody().substring(length - 9, length - 1));
-     //assertEquals(167, length);
-
    }
 
   @Test
@@ -658,9 +625,7 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("4622.0;827.0;0.178927", response.getBody().substring(length - 22, length - 1));
-    //assertEquals(185, length);
   }
-
 
   @Test
   public void getElementsCountRatioGroupByBoundaryCsvTest() {
@@ -673,9 +638,7 @@ public class GetControllerTest {
     int length = response.getBody().length();
     assertEquals("122.0;6.0;0.04918;343.0;25.0;0.072886",
         response.getBody().substring(length - 38, length - 1));
-    //assertEquals(213, length);// but was 283
   }
-
 
   @Test
   public void getElementsCountShareCsvTest() {
@@ -695,13 +658,10 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<String> response = restTemplate.getForEntity(
         server + port + "/elements/count/share/groupBy/boundary?bboxes=8.6562,49.41243,8.69946,49.42384|"
-            + "8.65053,49.39757,8.69379,49.40899&format=csv&keys2=highway&showMetadata=false&"
+            + "8.65053,49.39757,8.69379,49.40899&format=csv&keys=highway&keys2=highway&showMetadata=false&"
             + "time=2014-01-01&types=way&values2=secondary",
         String.class);
     int length = response.getBody().length();
-    assertEquals("7.0;3527.0;136.0", response.getBody().substring(length - 17, length - 1));
-    // in overpass 3526.0; im swagger 3527.0
-    assertEquals(230, length);
+    assertEquals("1429.0;7.0;1428.0;136.0", response.getBody().substring(length - 24, length - 1));
   }
-
 }
