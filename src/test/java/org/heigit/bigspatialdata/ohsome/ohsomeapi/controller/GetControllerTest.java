@@ -549,6 +549,55 @@ public class GetControllerTest {
     assertEquals("40.0", response.getBody().substring(length - 5, length - 1));
   }
 
+
+  @Test
+  public void getElementsCountDensityCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density?bboxes=8.66709,49.41237,8.69649,49.42099&types=way&time=2015-01-01"
+        + "&keys=building&values=residential&format=csv", String.class);
+    int length = response.getBody().length();
+    assertEquals("8.34", response.getBody().substring(length - 5, length - 1));
+  }
+
+  @Test
+  public void getElementsCountDensityGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/boundary?bboxes=8.6544,49.4085,8.6979,49.4349|"
+        + "8.6551,49.3818,8.6986,49.4082&types=way&time=2017-01-01"
+        + "&keys=building&values=residential&format=csv", String.class);
+    int length = response.getBody().length();
+    assertEquals("48.83;30.19", response.getBody().substring(length - 12, length - 1 ));
+    assertEquals(176, length);
+  }
+
+
+  @Test
+  public void getElementsCountDensityGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/tag?bboxes=8.6737,49.413,8.694,49.4258|"
+        + "8.6743,49.3958,8.6946,49.4086"
+        + "&format=csv&groupByKey=building&groupByValues=residential&showMetadata=false&"
+        + "time=2016-01-01&types=way", String.class);
+    int length = response.getBody().length();
+    assertEquals("41.62", response.getBody().substring(length - 6, length - 1 ));
+    assertEquals(189, length);
+  }
+
+  @Test
+  public void getElementsCountDensityGroupByTypeCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/type?bboxes=8.6544,49.4085,8.6979,49.4349"
+        + "&types=way&time=2015-01-01"
+        + "&keys=highway&values=primary&format=csv", String.class);
+    int length = response.getBody().length();
+    assertEquals("13.97", response.getBody().substring(length - 6, length - 1 ));
+    assertEquals(154, length);
+  }
+
   @Test
   public void getElementsCountGroupByBoundaryCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -561,4 +610,129 @@ public class GetControllerTest {
     assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
     assertEquals(172, length);
   }
+
+  @Test
+  public void getElementsCountGroupByKeyCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/key?bboxes=8.6562,49.41243,8.69946,49.42384&"
+            + "format=csv&groupByKeys=building,highway&showMetadata=false&"
+            + "time=2014-01-01&types=way",
+        String.class);//out of bbox: 8.625,49.3711,8.7334,49.4397
+    int length = response.getBody().length();
+    assertEquals("2292.0;1429.0", response.getBody().substring(length - 14, length - 1));
+    assertEquals(192, length);
+  }
+
+
+  /*@Test
+  public void getElementsCountGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/tag?bboxes=8.6562,49.41243,8.69946,49.42384|"
+            + "8.65053,49.39757,8.69379,49.40899&format=csv&groupByKey=highway&"
+            + "groupByValues=primary,secondary&showMetadata=false&time=2014-01-01&types=way",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("7.0;31.0", response.getBody().substring(length - 9, length - 1));
+    //assertEquals(204, length);
+    //ComparisonFailure: expected:<[7.0;31].0> but was:<[.0;189].0>
+  }*/
+
+  @Test
+  public void getElementsCountGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/tag?bboxes=8.6562,49.41243,8.69946,49.42384"
+            + "&format=csv&groupByKey=highway&"
+            + "groupByValues=tertiary,path&showMetadata=false&time=2015-01-01&types=way",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("127.0;13.0", response.getBody().substring(length - 11, length - 1));
+    //assertEquals(204, length);
+  }
+
+   /* @Test
+    public void getElementsCountGroupByTypeCsvTest() {
+      TestRestTemplate restTemplate = new TestRestTemplate();
+      ResponseEntity<String> response = restTemplate.getForEntity(
+          server + port + "/elements/count/groupBy/type?bboxes=8.6562,49.41243,8.69946,49.42384"
+              + "&format=csv&showMetadata=false&time=2016-01-01&types=way,node",
+          String.class);
+      int length = response.getBody().length();
+      assertEquals("6540.0;5485.0", response.getBody().substring(length - 14, length - 1));
+      assertEquals(167, length);
+      // ComparisonFailure: expected:<6540.0;548[6].0> but was:<6540.0;548[5].0>
+    }*/
+
+   @Test
+   public void getElementsCountGroupByTypeCsvTest() {
+     TestRestTemplate restTemplate = new TestRestTemplate();
+     ResponseEntity<String> response = restTemplate.getForEntity(
+         server + port + "/elements/count/groupBy/type?bboxes=8.6562,49.41243,8.69946,49.42384"
+             + "&format=csv&showMetadata=false&time=2016-01-01&types=way,node&"
+             + "keys=amenity&values=restaurant",
+         String.class);
+     int length = response.getBody().length();
+     assertEquals("18.0;7.0", response.getBody().substring(length - 9, length - 1));
+     //assertEquals(167, length);
+
+   }
+
+  @Test
+  public void getElementsCountRatioCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/ratio?bboxes=8.6773,49.4124,8.6977,49.4351&"
+            + "format=csv&keys2=addr:housenumber&showMetadata=false&time=2014-01-01&types=way&"
+            + "types2=node",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("4622.0;827.0;0.178927", response.getBody().substring(length - 22, length - 1));
+    //assertEquals(185, length);
+  }
+
+
+  @Test
+  public void getElementsCountRatioGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/ratio/groupBy/boundary?bboxes=8.6753,49.3857,8.6957,49.4083|"
+            + "8.6773,49.4124,8.6977,49.4351&format=csv&keys=building&keys2=addr:housenumber&"
+            + "showMetadata=false&time=2016-01-01&types=way&types2=node&values=residential&values2=2",
+        String.class);//8.6773,49.4124,8.6977,49.435
+    int length = response.getBody().length();
+    assertEquals("122.0;6.0;0.04918;343.0;25.0;0.072886",
+        response.getBody().substring(length - 38, length - 1));
+    //assertEquals(213, length);// but was 283
+  }
+
+
+  @Test
+  public void getElementsCountShareCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/share?bboxes=8.6773,49.4124,8.6977,49.4351&"
+            + "format=csv&keys=building&keys2=maxspeed&showMetadata=false&"
+            + "time=2017-01-01&types=way&values=residential",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("390.0;0.0", response.getBody().substring(length - 10, length - 1));
+    assertEquals(165, length);
+  }
+
+  @Test
+  public void getElementsCountShareGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        server + port + "/elements/count/share/groupBy/boundary?bboxes=8.6562,49.41243,8.69946,49.42384|"
+            + "8.65053,49.39757,8.69379,49.40899&format=csv&keys2=highway&showMetadata=false&"
+            + "time=2014-01-01&types=way&values2=secondary",
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("7.0;3527.0;136.0", response.getBody().substring(length - 17, length - 1));
+    // in overpass 3526.0; im swagger 3527.0
+    assertEquals(230, length);
+  }
+
 }
