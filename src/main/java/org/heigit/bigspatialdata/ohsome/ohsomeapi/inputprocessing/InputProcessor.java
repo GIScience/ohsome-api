@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,12 +29,13 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
@@ -175,7 +177,13 @@ public class InputProcessor {
         mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
-    mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+    if (boundary.isRectangle()) {
+      mapRed = mapRed.areaOfInterest(
+          OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal())
+      );
+    } else {
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+    }
 
     if (showMetadata == null) {
       processingData.setShowMetadata(false);
