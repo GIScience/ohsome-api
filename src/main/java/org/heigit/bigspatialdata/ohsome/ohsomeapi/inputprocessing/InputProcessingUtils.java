@@ -356,7 +356,7 @@ public class InputProcessingUtils {
 
   /** Sorts the given timestamps from oldest to newest. */
   public String[] sortTimestamps(String[] timestamps) throws BadRequestException {
-    List<String> timeStringList = new ArrayList<String>();
+    List<String> timeStringList = new ArrayList<>();
     for (String timestamp : timestamps) {
       try {
         ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);

@@ -20,6 +20,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -27,6 +28,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
@@ -56,8 +58,7 @@ public class InputProcessor {
   private boolean isDensity;
   private String requestUrl;
 
-  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity,
-      String requestUrl) {
+  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
@@ -68,7 +69,7 @@ public class InputProcessor {
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
             servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()));
-    this.requestUrl = requestUrl;
+    this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
   }
 
   public InputProcessor(ProcessingData processingData) {
@@ -175,7 +176,12 @@ public class InputProcessor {
         mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
-    mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+    if (boundary.isRectangle()) {
+      mapRed =
+          mapRed.areaOfInterest(OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal()));
+    } else {
+      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+    }
 
     if (showMetadata == null) {
       processingData.setShowMetadata(false);
@@ -446,7 +452,14 @@ public class InputProcessor {
       throws Exception {
     String[] toTimestamps = null;
     String[] timeData;
-    if (time.length == 1) {
+    if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0) {
+      if (!isSnapshot) {
+        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
+        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
+      } else {
+        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
+      }
+    } else if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
       if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(timeData);
@@ -461,13 +474,6 @@ public class InputProcessor {
           throw new BadRequestException(ExceptionMessages.TIME_FORMAT_CONTRIBUTION);
         }
         mapRed = mapRed.timestamps(timeData[0]);
-      }
-    } else if (time.length == 0) {
-      if (!isSnapshot) {
-        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
-        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
-      } else {
-        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
       }
     } else {
       utils.checkTimestampsOnIsoConformity(time);
@@ -529,7 +535,12 @@ public class InputProcessor {
     double timeout = ProcessingData.getTimeout();
     String requestTimeoutString = createEmptyStringIfNull(servletRequest.getParameter("timeout"));
     if (!requestTimeoutString.isEmpty()) {
-      double requestTimeoutDouble = Double.parseDouble(requestTimeoutString);
+      double requestTimeoutDouble;
+      try {
+        requestTimeoutDouble = Double.parseDouble(requestTimeoutString);
+      } catch (Exception e) {
+        throw new BadRequestException(ExceptionMessages.TIMEOUT_FORMAT);
+      }
       if (requestTimeoutDouble <= timeout) {
         timeout = requestTimeoutDouble;
       } else {

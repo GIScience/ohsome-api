@@ -2,7 +2,8 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.exception;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.interceptor.RequestInterceptor;
+import javax.servlet.http.HttpServletRequest;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBTimeoutException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,61 +18,66 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(BadRequestException.class)
-  public final ResponseEntity<ErrorDetails> handleBadRequestException(BadRequestException ex) {
-    return createExceptionResponse(ex, HttpStatus.BAD_REQUEST);
+  public final ResponseEntity<ErrorDetails> handleBadRequestException(BadRequestException ex,
+      HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.BAD_REQUEST, servletRequest);
   }
 
   @ExceptionHandler(NotAllowedException.class)
-  public final ResponseEntity<ErrorDetails> handleNotAllowedException(NotAllowedException ex) {
-    return createExceptionResponse(ex, HttpStatus.METHOD_NOT_ALLOWED);
+  public final ResponseEntity<ErrorDetails> handleNotAllowedException(NotAllowedException ex,
+      HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.METHOD_NOT_ALLOWED, servletRequest);
   }
 
   @ExceptionHandler(NotFoundException.class)
-  public final ResponseEntity<ErrorDetails> handleNotFoundException(NotFoundException ex) {
-    return createExceptionResponse(ex, HttpStatus.NOT_FOUND);
+  public final ResponseEntity<ErrorDetails> handleNotFoundException(NotFoundException ex,
+      HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.NOT_FOUND, servletRequest);
   }
 
   @ExceptionHandler(PayloadTooLargeException.class)
   public final ResponseEntity<ErrorDetails> handlePayloadTooLargeException(
-      PayloadTooLargeException ex) {
-    return createExceptionResponse(ex, HttpStatus.PAYLOAD_TOO_LARGE);
+      PayloadTooLargeException ex, HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.PAYLOAD_TOO_LARGE, servletRequest);
   }
 
   @ExceptionHandler(NotImplementedException.class)
   public final ResponseEntity<ErrorDetails> handleNotImplementedException(
-      NotImplementedException ex) {
-    return createExceptionResponse(ex, HttpStatus.NOT_IMPLEMENTED);
+      NotImplementedException ex, HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.NOT_IMPLEMENTED, servletRequest);
   }
 
   @ExceptionHandler(UnauthorizedRequestException.class)
   public final ResponseEntity<ErrorDetails> handleUnauthorizedException(
-      UnauthorizedRequestException ex) {
-    return createExceptionResponse(ex, HttpStatus.UNAUTHORIZED);
+      UnauthorizedRequestException ex, HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.UNAUTHORIZED, servletRequest);
   }
 
   @ExceptionHandler(OSHDBTimeoutException.class)
-  public final ResponseEntity<ErrorDetails> handleTimeoutException() {
+  public final ResponseEntity<ErrorDetails> handleTimeoutException(
+      HttpServletRequest servletRequest) {
     return createExceptionResponse(
         new PayloadTooLargeException(ExceptionMessages.PAYLOAD_TOO_LARGE),
-        HttpStatus.PAYLOAD_TOO_LARGE);
+        HttpStatus.PAYLOAD_TOO_LARGE, servletRequest);
   }
 
   /** Creates the error details based on the thrown exception. */
-  private ResponseEntity<ErrorDetails> createExceptionResponse(Exception ex, HttpStatus status) {
+  private ResponseEntity<ErrorDetails> createExceptionResponse(Exception ex, HttpStatus status,
+      HttpServletRequest servletRequest) {
     ErrorDetails errorDetails;
-    String requestUrl = RequestInterceptor.requestUrl;
+    String servletRequestUrl = RequestUtils.extractRequestUrl(servletRequest);
     if ("No message available".equals(ex.getMessage())) {
-      if ("null".equals(requestUrl.split("\\?")[1])) {
-        requestUrl = requestUrl.split("\\?")[0];
+      if ("null".equals(servletRequestUrl.split("\\?")[1])) {
+        servletRequestUrl = servletRequestUrl.split("\\?")[0];
       }
       errorDetails = new ErrorDetails(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
-          status.value(), "Internal server error", requestUrl);
+          status.value(), "Internal server error", servletRequestUrl);
     } else {
-      if ("null".equals(requestUrl.split("\\?")[1])) {
-        requestUrl = requestUrl.split("\\?")[0];
+      if ("null".equals(servletRequestUrl.split("\\?")[1])) {
+        servletRequestUrl = servletRequestUrl.split("\\?")[0];
       }
       errorDetails = new ErrorDetails(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
-          status.value(), ex.getMessage(), requestUrl);
+          status.value(), ex.getMessage(), servletRequestUrl);
     }
     return new ResponseEntity<>(errorDetails, status);
   }

@@ -134,7 +134,7 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/type", map, JsonNode.class);
-    assertEquals(65283.35,
+    assertEquals(65283.12,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -153,7 +153,7 @@ public class PostControllerTest {
     map.add("groupByKeys", "building,highway");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
-    assertEquals(65283.35,
+    assertEquals(65283.12,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -172,7 +172,7 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/tag", map, JsonNode.class);
-    assertEquals(20513.76, StreamSupport
+    assertEquals(20513.5, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
@@ -189,7 +189,7 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/share", map, JsonNode.class);
-    assertEquals(64127.88, response.getBody().get("shareResult").get(0).get("part").asDouble(),
+    assertEquals(64127.65, response.getBody().get("shareResult").get(0).get("part").asDouble(),
         1e-6);
   }
 
@@ -276,7 +276,7 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/type", map, JsonNode.class);
-    assertEquals(990.96,
+    assertEquals(990.97,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -297,7 +297,7 @@ public class PostControllerTest {
     map.add("groupByValues", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/tag", map, JsonNode.class);
-    assertEquals(5073.94, StreamSupport
+    assertEquals(5073.93, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
@@ -389,7 +389,7 @@ public class PostControllerTest {
     map.add("groupByKeys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/key", map, JsonNode.class);
-    assertEquals(263901.91,
+    assertEquals(263900.49,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -408,7 +408,7 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/tag", map, JsonNode.class);
-    assertEquals(244077.2, StreamSupport
+    assertEquals(244076.11, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
@@ -425,7 +425,7 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/share", map, JsonNode.class);
-    assertEquals(263901.91, response.getBody().get("shareResult").get(0).get("part").asDouble(),
+    assertEquals(263900.49, response.getBody().get("shareResult").get(0).get("part").asDouble(),
         1e-6);
   }
 
@@ -538,7 +538,7 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/density/groupBy/boundary", map, JsonNode.class);
-    assertEquals(261743.13,
+    assertEquals(261743.53,
         response.getBody().get("groupByResult").get(0).get("result").get(0).get("value").asDouble(),
         1e-6);
   }

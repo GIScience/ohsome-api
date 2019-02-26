@@ -6,14 +6,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS) and to cache the
- * result if no exception is thrown.
+ * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS) and a header to 
+ * enable caching, if appropriate.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -29,6 +30,7 @@ public class RequestFilter extends OncePerRequestFilter {
     response.setHeader("Access-Control-Allow-Headers",
         "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,"
             + "Access-Control-Request-Headers,Authorization");
+    boolean cacheNotAllowed = RequestUtils.cacheNotAllowed(request);
     HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
       int status = 200;
 
@@ -40,7 +42,7 @@ public class RequestFilter extends OncePerRequestFilter {
 
       @Override
       public void setHeader(String name, String value) {
-        if (status != 200) {
+        if (status != 200 || cacheNotAllowed) {
           super.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         } else {
           super.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
