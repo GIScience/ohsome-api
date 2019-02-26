@@ -548,18 +548,93 @@ public class PostControllerTest {
 
   // elementsLength
 
-  /*@Test
+  @Test
   public void elementsLengthTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.68445,49.38992,8.68603,49.39182");
+    map.add("bboxes", "8.68627,49.38969,8.6908,49.39364");
     map.add("types", "way");
     map.add("time", "2018-01-01");
-    map.add("keys", "building");
-    map.add("values", "yes");
+    map.add("keys", "highway");
+    map.add("values", "service");
+    map.add("format","csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/length", map,
         String.class);
-    assertEquals(1845.85, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
-  }*/
+    int length = response.getBody().length();
+    assertEquals("159.83", response.getBody().substring(length - 7, length - 1));
+  }
+
+
+  @Test
+  public void elementsLengthDensityGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68627,49.38969,8.69155,49.39364");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("groupByKey", "highway");
+    map.add("groupByValues", "service");
+    map.add("format","csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/length/density/groupBy/tag", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("1312.36", response.getBody().substring(length - 8, length - 1));
+  }
+
+  @Test
+  public void elementsLengthRatioGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.671126,49.413615,8.675487,49.415193|8.676769,49.414209,8.68113,49.415786");
+    map.add("types", "way");
+    map.add("types2", "way");
+    map.add("time", "2018-01-01");
+    map.add("keys", "highway");
+    map.add("keys2", "highway");
+    map.add("values", "residential");
+    map.add("values2", "service");
+    map.add("format","csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/length/ratio/groupBy/boundary", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("166.12;849.56;5.114134;1163.31;234.76;0.201803", response.getBody().substring(length - 47, length - 1));
+  }
+
+  @Test
+  public void elementsLengthShareTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bcircles", "8.664098,49.412268,700");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("keys", "barrier");
+    map.add("keys2", "barrier");
+    map.add("values2", "hedge");
+    map.add("format","csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/length/share", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("2806.2299999999996;547.24", response.getBody().substring(length - 26, length - 1));
+  }
+
+  @Test
+  public void elementsLengthGroupByTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bcircles", "8.668116,49.410736,50");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("keys", "highway");
+    map.add("values", "footway");
+    map.add("format","csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/length/groupBy/type", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("99.55", response.getBody().substring(length - 6, length - 1));
+  }
 }
