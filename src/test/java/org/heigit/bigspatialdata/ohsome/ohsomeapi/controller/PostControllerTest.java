@@ -542,4 +542,24 @@ public class PostControllerTest {
         response.getBody().get("groupByResult").get(0).get("result").get(0).get("value").asDouble(),
         1e-6);
   }
+
+  // csv output tests
+
+
+  // elementsLength
+
+  /*@Test
+  public void elementsLengthTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68445,49.38992,8.68603,49.39182");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("keys", "building");
+    map.add("values", "yes");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/length", map,
+        String.class);
+    assertEquals(1845.85, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+  }*/
 }
