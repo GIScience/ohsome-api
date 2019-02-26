@@ -177,9 +177,8 @@ public class InputProcessor {
       }
     }
     if (boundary.isRectangle()) {
-      mapRed = mapRed.areaOfInterest(
-          OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal())
-      );
+      mapRed =
+          mapRed.areaOfInterest(OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal()));
     } else {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
     }
@@ -536,7 +535,12 @@ public class InputProcessor {
     double timeout = ProcessingData.getTimeout();
     String requestTimeoutString = createEmptyStringIfNull(servletRequest.getParameter("timeout"));
     if (!requestTimeoutString.isEmpty()) {
-      double requestTimeoutDouble = Double.parseDouble(requestTimeoutString);
+      double requestTimeoutDouble;
+      try {
+        requestTimeoutDouble = Double.parseDouble(requestTimeoutString);
+      } catch (Exception e) {
+        throw new BadRequestException(ExceptionMessages.TIMEOUT_FORMAT);
+      }
       if (requestTimeoutDouble <= timeout) {
         timeout = requestTimeoutDouble;
       } else {
