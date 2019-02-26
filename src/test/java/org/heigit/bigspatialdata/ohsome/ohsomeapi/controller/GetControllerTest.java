@@ -204,7 +204,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/type?bboxes=8.68086,49.39948,8.69401,49.40609"
         + "&types=way,node&time=2016-11-09&keys=addr:housenumber", JsonNode.class);
-    assertEquals(893.65,
+    assertEquals(893.67,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -305,7 +305,7 @@ public class GetControllerTest {
         server + port + "/elements/length/share?bboxes=8.68297,49.40863,8.69121,49.41016&types=way"
             + "&time=2016-07-25&keys2=highway",
         JsonNode.class);
-    assertEquals(4233.42, response.getBody().get("shareResult").get(0).get("part").asDouble(),
+    assertEquals(4233.37, response.getBody().get("shareResult").get(0).get("part").asDouble(),
         1e-6);
   }
 
@@ -398,7 +398,7 @@ public class GetControllerTest {
             + "/elements/length/density/groupBy/boundary?bboxes=8.69079,49.40129,8.69238,49.40341|"
             + "8.67504,49.4119,8.67813,49.41668&types=way&time=2017-05-30&key=highway",
         JsonNode.class);
-    assertEquals(74036.22, StreamSupport
+    assertEquals(74037.2, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
