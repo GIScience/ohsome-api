@@ -1,6 +1,5 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,9 +32,9 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
@@ -454,7 +453,14 @@ public class InputProcessor {
       throws Exception {
     String[] toTimestamps = null;
     String[] timeData;
-    if (time.length == 1) {
+    if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0) {
+      if (!isSnapshot) {
+        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
+        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
+      } else {
+        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
+      }
+    } else if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
       if (!isSnapshot) {
         toTimestamps = utils.defineToTimestamps(timeData);
@@ -469,13 +475,6 @@ public class InputProcessor {
           throw new BadRequestException(ExceptionMessages.TIME_FORMAT_CONTRIBUTION);
         }
         mapRed = mapRed.timestamps(timeData[0]);
-      }
-    } else if (time.length == 0) {
-      if (!isSnapshot) {
-        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
-        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
-      } else {
-        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
       }
     } else {
       utils.checkTimestampsOnIsoConformity(time);
