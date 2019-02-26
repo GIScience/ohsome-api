@@ -41,6 +41,8 @@ public class ExceptionMessages {
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";
+  public static final String TIMEOUT_FORMAT = "The given timeout does not fit to its format. Please"
+      + " give one value in seconds and use a point as the decimal delimiter, if needed.";
 
   private ExceptionMessages() {
     throw new IllegalStateException("Utility class");
