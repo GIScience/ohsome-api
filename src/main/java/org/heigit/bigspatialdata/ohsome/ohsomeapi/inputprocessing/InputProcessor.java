@@ -57,6 +57,8 @@ public class InputProcessor {
   private boolean isSnapshot;
   private boolean isDensity;
   private String requestUrl;
+  private boolean includeTags;
+  private boolean includeOSMMetadata;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     this.servletRequest = servletRequest;
@@ -401,6 +403,29 @@ public class InputProcessor {
   }
 
   /**
+   * Processes the properties parameter used in data-extraction ressources and sets the respective
+   * boolean values includeTags and includeOSMMetadata.
+   * 
+   * @throws BadRequestException if the properties parameter contains invalid content
+   */
+  public void processPropertiesParam() throws BadRequestException {
+    String[] properties =
+        splitParamOnComma(createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
+    if (properties.length > 2) {
+      throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
+    }
+    for (String property : properties) {
+      if ("tags".equalsIgnoreCase(property)) {
+        this.includeTags = true;
+      } else if ("metadata".equalsIgnoreCase(property)) {
+        this.includeOSMMetadata = true;
+      } else {
+        throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
+      }
+    }
+  }
+
+  /**
    * Checks the given keys and values parameters on their length and includes them in the
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String) where(key)}, or
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String, String)
@@ -616,5 +641,15 @@ public class InputProcessor {
 
   public String getRequestUrl() {
     return requestUrl;
+  }
+
+
+  public boolean includeTags() {
+    return includeTags;
+  }
+
+
+  public boolean includeOSMMetadata() {
+    return includeOSMMetadata;
   }
 }

@@ -3,11 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.exception;
 /** Holds custom error messages used in several classes for different exceptions. */
 public class ExceptionMessages {
 
-  public static final String PAYLOAD_TOO_LARGE =
-      "The given query is too large in respect to the given timeout. Please use a smaller region "
-          + "and/or coarser time period.";
-  public static final String NO_BOUNDARY =
-      "You need to define one of the boundary parameters (bboxes, bcircles, bpolys).";
   public static final String BOUNDARY_NOT_IN_DATA_EXTRACT = "The provided boundary parameter "
       + "does not lie completely within the underlying data-extract polygon.";
   public static final String BPOLYS_FORMAT = "The bpolys parameter must contain "
@@ -33,13 +28,20 @@ public class ExceptionMessages {
       "You need to give one groupByKeys parameter, if you want to use groupBy/key.";
   public static final String KEYS_VALUES_RATIO_INVALID = "There cannot be more input values in the "
       + "values|values2 than in the keys|keys2 parameter, as values_n must fit to keys_n.";
+  public static final String NO_BOUNDARY =
+      "You need to define one of the boundary parameters (bboxes, bcircles, bpolys).";
+  public static final String PAYLOAD_TOO_LARGE =
+      "The given query is too large in respect to the given timeout. Please use a smaller region "
+          + "and/or coarser time period.";
+  public static final String PROPERTIES_PARAM =
+      "The properties parameter can only contain the values 'tags' and/or 'metadata'.";
+  public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
+      + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";
   public static final String TIME_FORMAT_FULL_HISTORY = "Wrong time parameter. You need to give "
       + "exactly two ISO-8601 conform timestamps, if you want to use the full-history extraction.";
   public static final String TIME_FORMAT_CONTRIBUTION =
       "You need to give at least two timestamps or a time interval for this resource.";
-  public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
-      + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";
   public static final String TIMEOUT_FORMAT = "The given timeout does not fit to its format. Please"
       + " give one value in seconds and use a point as the decimal delimiter, if needed.";
