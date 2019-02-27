@@ -107,7 +107,7 @@ public class SwaggerConfig {
    * Defines the description of each parameter, which are used in all resources for the Swagger2
    * documentation.
    */
-  private List<Parameter> defineGlobalOperationParams(boolean isFullHistory) {
+  private List<Parameter> defineGlobalOperationParams(boolean isDataExtraction) {
     final String STRING = "string";
     final String QUERY = "query";
     List<Parameter> globalOperationParams = new ArrayList<>();
@@ -130,17 +130,17 @@ public class SwaggerConfig {
     globalOperationParams.add(new ParameterBuilder().name("values")
         .description(ParameterDescriptions.VALUES_DESCR).modelRef(new ModelRef(STRING))
         .parameterType(QUERY).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("format")
-        .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef(STRING))
-        .parameterType(QUERY).defaultValue("json").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("timeout")
         .description(ParameterDescriptions.TIMEOUT_DESCR).modelRef(new ModelRef(STRING))
         .parameterType(QUERY).defaultValue("").required(false).build());
-    if (!isFullHistory) {
+    if (!isDataExtraction) {
       globalOperationParams
           .add(new ParameterBuilder().name("time").description(ParameterDescriptions.TIME_DESCR)
               .modelRef(new ModelRef(STRING)).parameterType(QUERY)
               .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
+      globalOperationParams.add(new ParameterBuilder().name("format")
+          .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef(STRING))
+          .parameterType(QUERY).defaultValue("json").required(false).build());
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
           .description(ParameterDescriptions.TIME_DESCR).modelRef(new ModelRef(STRING))
