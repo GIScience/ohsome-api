@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -356,7 +357,7 @@ public class ExecutionUtils {
    * @return a nested data structure: for each index part there is a separate level of nested maps
    * 
    */
-  public static <A, U, V> SortedMap<V, SortedMap<U, A>> nest(
+  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
       Map<OSHDBCombinedIndex<U, V>, A> result) {
     TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
     result.forEach((index, data) -> {

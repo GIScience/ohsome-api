@@ -215,12 +215,13 @@ public class UsersRequestExecutor {
   public static Response executeCountGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    String[] groupByKeys = servletRequest.getParameterValues("groupByKeys");
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    String[] groupByKeys = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKeys")));
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();

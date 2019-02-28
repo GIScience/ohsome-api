@@ -95,6 +95,18 @@
 			<artifactId>opencsv</artifactId>
 			<version>4.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.wololo/jts2geojson -->
+		<dependency>
+			<groupId>org.wololo</groupId>
+			<artifactId>jts2geojson</artifactId>
+			<version>0.13.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.glassfish/javax.json -->
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<version>1.1.4</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
 		<dependency>
 			<groupId>org.geotools</groupId>

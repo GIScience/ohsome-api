@@ -57,6 +57,8 @@ public class InputProcessor {
   private boolean isSnapshot;
   private boolean isDensity;
   private String requestUrl;
+  private boolean includeTags;
+  private boolean includeOSMMetadata;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     this.servletRequest = servletRequest;
@@ -272,17 +274,15 @@ public class InputProcessor {
   }
 
   /**
-   * Creates an empty <code>String</code>, if a given input parameter is null. Otherwise returns the
-   * trimmed parameter.
+   * Creates an empty <code>String</code>, if a given input parameter is null.
    * 
    * @param toCheck <code>String</code>, which is checked.
-   * @return <code>String</code>, which is trimmed and not null.
+   * @return <code>String</code>, which may be empty but not null.
    */
   public String createEmptyStringIfNull(String toCheck) {
     if (toCheck == null) {
       toCheck = "";
     }
-    toCheck = toCheck.replaceAll("\\s", "");
     return toCheck;
   }
 
@@ -398,6 +398,29 @@ public class InputProcessor {
       }
     }
     return new ImmutablePair<>(keys2, values2);
+  }
+
+  /**
+   * Processes the properties parameter used in data-extraction ressources and sets the respective
+   * boolean values includeTags and includeOSMMetadata.
+   * 
+   * @throws BadRequestException if the properties parameter contains invalid content
+   */
+  public void processPropertiesParam() throws BadRequestException {
+    String[] properties =
+        splitParamOnComma(createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
+    if (properties.length > 2) {
+      throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
+    }
+    for (String property : properties) {
+      if ("tags".equalsIgnoreCase(property)) {
+        this.includeTags = true;
+      } else if ("metadata".equalsIgnoreCase(property)) {
+        this.includeOSMMetadata = true;
+      } else {
+        throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
+      }
+    }
   }
 
   /**
@@ -616,5 +639,15 @@ public class InputProcessor {
 
   public String getRequestUrl() {
     return requestUrl;
+  }
+
+
+  public boolean includeTags() {
+    return includeTags;
+  }
+
+
+  public boolean includeOSMMetadata() {
+    return includeOSMMetadata;
   }
 }

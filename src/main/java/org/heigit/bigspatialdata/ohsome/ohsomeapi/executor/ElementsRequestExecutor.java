@@ -96,12 +96,9 @@ public class ElementsRequestExecutor {
       requestUrl = inputProcessor.getRequestUrl();
     }
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    String[] propertiesParam = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
-    final boolean includeTags =
-        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("tags"));
-    final boolean includeOSMMetadata =
-        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
+    inputProcessor.processPropertiesParam();
+    final boolean includeTags = inputProcessor.includeTags();
+    final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     if (DbConnData.db instanceof OSHDBIgnite) {
       // do a preflight to get an approximate result data size estimation:
       // for now just the sum of the average size of the objects versions in bytes is used
@@ -214,12 +211,9 @@ public class ElementsRequestExecutor {
     MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
-    String[] propertiesParam = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
-    final boolean includeTags =
-        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("tags"));
-    final boolean includeOSMMetadata =
-        Arrays.stream(propertiesParam).anyMatch(p -> p.equalsIgnoreCase("metadata"));
+    inputProcessor.processPropertiesParam();
+    final boolean includeTags = inputProcessor.includeTags();
+    final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     String startTimestampWithZ =
         ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0]).toString();
     String endTimestampWithZ =
