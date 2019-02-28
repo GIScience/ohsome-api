@@ -274,17 +274,15 @@ public class InputProcessor {
   }
 
   /**
-   * Creates an empty <code>String</code>, if a given input parameter is null. Otherwise returns the
-   * trimmed parameter.
+   * Creates an empty <code>String</code>, if a given input parameter is null.
    * 
    * @param toCheck <code>String</code>, which is checked.
-   * @return <code>String</code>, which is trimmed and not null.
+   * @return <code>String</code>, which may be empty but not null.
    */
   public String createEmptyStringIfNull(String toCheck) {
     if (toCheck == null) {
       toCheck = "";
     }
-    toCheck = toCheck.replaceAll("\\s", "");
     return toCheck;
   }
 
