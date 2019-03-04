@@ -549,7 +549,7 @@ public class PostControllerTest {
   // elementsLength
 
   @Test
-  public void elementsLengthTest() {
+  public void elementsLengthCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68627,49.38969,8.6908,49.39364");
@@ -567,7 +567,7 @@ public class PostControllerTest {
 
 
   @Test
-  public void elementsLengthDensityGroupByTagTest() {
+  public void elementsLengthDensityGroupByTagCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68627,49.38969,8.69155,49.39364");
@@ -584,7 +584,7 @@ public class PostControllerTest {
   }
 
   @Test
-  public void elementsLengthRatioGroupByBoundaryTest() {
+  public void elementsLengthRatioGroupByBoundaryCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.671126,49.413615,8.675487,49.415193|8.676769,49.414209,8.68113,49.415786");
@@ -604,7 +604,7 @@ public class PostControllerTest {
   }
 
   @Test
-  public void elementsLengthShareTest() {
+  public void elementsLengthShareCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.664098,49.412268,700");
@@ -622,7 +622,7 @@ public class PostControllerTest {
   }
 
   @Test
-  public void elementsLengthGroupByTypeTest() {
+  public void elementsLengthGroupByTypeCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.668116,49.410736,50");
@@ -636,5 +636,41 @@ public class PostControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("99.55", response.getBody().substring(length - 6, length - 1));
+  }
+
+  // elementsPerimeter
+
+  @Test
+  public void elementsPerimeterCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.673116,49.399482,8.675444,49.400885");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys", "name");
+    map.add("values", "Technologiepark Heidelberg Gebäude D");
+    map.add("format","csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("390.38", response.getBody().substring(length - 7, length - 1));
+  }
+
+  @Test
+  public void elementsPerimeterDensityGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bcircles", "8.674709,49.400617,400|8.675659,49.39841,100");
+    map.add("types", "way");
+    map.add("time", "2017-01-01");
+    map.add("keys", "building");
+    map.add("values", "yes");
+    map.add("format","csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/density/groupBy/boundary", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("21712.4;37389.98", response.getBody().substring(length - 17, length - 1));
   }
 }
