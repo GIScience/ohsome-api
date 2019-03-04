@@ -23,7 +23,9 @@ public class PostControllerTest {
   private static String port = TestProperties.PORT2;
   private String server = TestProperties.SERVER;
 
-  /** Method to start this application context. */
+  /**
+   * Method to start this application context.
+   */
   @BeforeClass
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT2 != null && (TestProperties.INTEGRATION == null
@@ -545,7 +547,6 @@ public class PostControllerTest {
 
   // csv output tests
 
-
   // elementsLength
 
   @Test
@@ -557,7 +558,7 @@ public class PostControllerTest {
     map.add("time", "2018-01-01");
     map.add("keys", "highway");
     map.add("values", "service");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/length", map,
         String.class);
@@ -575,7 +576,7 @@ public class PostControllerTest {
     map.add("time", "2018-01-01");
     map.add("groupByKey", "highway");
     map.add("groupByValues", "service");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/length/density/groupBy/tag", map,
         String.class);
@@ -595,12 +596,13 @@ public class PostControllerTest {
     map.add("keys2", "highway");
     map.add("values", "residential");
     map.add("values2", "service");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/length/ratio/groupBy/boundary", map,
         String.class);
     int length = response.getBody().length();
-    assertEquals("166.12;849.56;5.114134;1163.31;234.76;0.201803", response.getBody().substring(length - 47, length - 1));
+    assertEquals("166.12;849.56;5.114134;1163.31;234.76;0.201803",
+        response.getBody().substring(length - 47, length - 1));
   }
 
   @Test
@@ -613,12 +615,13 @@ public class PostControllerTest {
     map.add("keys", "barrier");
     map.add("keys2", "barrier");
     map.add("values2", "hedge");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/length/share", map,
         String.class);
     int length = response.getBody().length();
-    assertEquals("2806.2299999999996;547.24", response.getBody().substring(length - 26, length - 1));
+    assertEquals("2806.2299999999996;547.24",
+        response.getBody().substring(length - 26, length - 1));
   }
 
   @Test
@@ -630,7 +633,7 @@ public class PostControllerTest {
     map.add("time", "2018-01-01");
     map.add("keys", "highway");
     map.add("values", "footway");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/length/groupBy/type", map,
         String.class);
@@ -649,7 +652,7 @@ public class PostControllerTest {
     map.add("time", "2017-01-01");
     map.add("keys", "name");
     map.add("values", "Technologiepark Heidelberg Gebäude D");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter", map,
         String.class);
@@ -666,11 +669,64 @@ public class PostControllerTest {
     map.add("time", "2017-01-01");
     map.add("keys", "building");
     map.add("values", "yes");
-    map.add("format","csv");
+    map.add("format", "csv");
     ResponseEntity<String> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/boundary", map,
         String.class);
     int length = response.getBody().length();
     assertEquals("21712.4;37389.98", response.getBody().substring(length - 17, length - 1));
+  }
+
+  @Test
+  public void elementsPerimeterGroupByKeyCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.685642,49.395621,8.687128,49.396528");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("groupByKeys", "building,leisure");
+    map.add("format", "csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/groupBy/key", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("365.52;428.03", response.getBody().substring(length - 14, length - 1));
+  }
+
+  @Test
+  public void elementsPerimeterRatioGroupByBoundaryCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.685642,49.396078,8.687192,49.396528|8.685744,49.395621,8.687294,49.396078");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("keys", "leisure");
+    map.add("keys2", "leisure");
+    map.add("values2", "pitch");
+    map.add("format", "csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/ratio/groupBy/boundary", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("86.33;86.33;1.0;341.7;170.85;0.5", response.getBody().substring(length - 33, length - 1));
+  }
+
+  @Test
+  public void elementsPerimeterShareCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.677869,49.382719,8.6798,49.38466");
+    map.add("types", "way");
+    map.add("time", "2018-01-01");
+    map.add("keys", "building");
+    map.add("keys2", "shop");
+    map.add("values", "commercial");
+    map.add("values2", "supermarket");
+    map.add("format", "csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/share", map,
+        String.class);
+    int length = response.getBody().length();
+    assertEquals("628.21;497.21", response.getBody().substring(length - 14, length - 1));
   }
 }
