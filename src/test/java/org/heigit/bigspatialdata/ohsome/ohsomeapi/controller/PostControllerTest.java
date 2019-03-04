@@ -588,7 +588,8 @@ public class PostControllerTest {
   public void elementsLengthRatioGroupByBoundaryCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.671126,49.413615,8.675487,49.415193|8.676769,49.414209,8.68113,49.415786");
+    map.add("bboxes", "8.671126,49.413615,8.675487,49.415193|"
+        + "8.676769,49.414209,8.68113,49.415786");
     map.add("types", "way");
     map.add("types2", "way");
     map.add("time", "2018-01-01");
@@ -697,7 +698,8 @@ public class PostControllerTest {
   public void elementsPerimeterRatioGroupByBoundaryCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.685642,49.396078,8.687192,49.396528|8.685744,49.395621,8.687294,49.396078");
+    map.add("bboxes", "8.685642,49.396078,8.687192,49.396528|"
+        + "8.685744,49.395621,8.687294,49.396078");
     map.add("types", "way");
     map.add("time", "2018-01-01");
     map.add("keys", "leisure");
@@ -708,7 +710,8 @@ public class PostControllerTest {
         server + port + "/elements/perimeter/ratio/groupBy/boundary", map,
         String.class);
     int length = response.getBody().length();
-    assertEquals("86.33;86.33;1.0;341.7;170.85;0.5", response.getBody().substring(length - 33, length - 1));
+    assertEquals("86.33;86.33;1.0;341.7;170.85;0.5", response.getBody().substring
+        (length - 33, length - 1));
   }
 
   @Test
