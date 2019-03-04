@@ -38,7 +38,7 @@ public class CountController {
    */
   @ApiOperation(value = "Count of OSM elements", nickname = "elementsCount")
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
@@ -95,7 +95,7 @@ public class CountController {
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.COUNT,
@@ -123,7 +123,7 @@ public class CountController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
@@ -149,7 +149,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countShare(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
@@ -177,7 +177,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countShareGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
@@ -199,7 +199,7 @@ public class CountController {
   @ApiOperation(value = "Density of OSM elements (number of elements divided by "
       + "the total area in square-kilometers)", nickname = "elementsCountDensity")
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest request, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT, request,
@@ -268,7 +268,7 @@ public class CountController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
@@ -296,7 +296,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
@@ -323,7 +323,7 @@ public class CountController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
