@@ -573,6 +573,25 @@ public class ExecutionUtils {
     return results;
   }
 
+  /**
+   * Fills the result value arrays for the share|ratio/groupBy/boundary response.
+   * 
+   * @param resultSet <code>Set</code> containing the result values
+   * @param df <code>DecimalFormat</code> defining the number of digits of the result values
+   * @return <code>Double[]</code> containing the formatted result values
+   */
+  public Double[] fillElementsShareRatioGroupByBoundaryResultValues(
+      Set<? extends Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> resultSet,
+      DecimalFormat df) {
+    Double[] resultValues = new Double[resultSet.size()];
+    int valueCount = 0;
+    for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : resultSet) {
+      resultValues[valueCount] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+      valueCount++;
+    }
+    return resultValues;
+  }
+
   /** Creates a RatioResponse. */
   public Response createRatioResponse(String[] timeArray, Double[] value1, Double[] value2,
       long startTime, RequestResource reqRes, String requestUrl,

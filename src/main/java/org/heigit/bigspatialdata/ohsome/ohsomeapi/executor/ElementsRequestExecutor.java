@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -340,7 +341,6 @@ public class ElementsRequestExecutor {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = inputProcessor.getRequestUrl();
     }
-
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -432,25 +432,8 @@ public class ElementsRequestExecutor {
       requestUrl = inputProcessor.getRequestUrl();
     }
     mapRed = inputProcessor.processParameters();
-    switch (requestResource) {
-      case COUNT:
-      default:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            processingData.getBoundaryType(), mapRed);
-        break;
-      case LENGTH:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            processingData.getBoundaryType(), mapRed);
-        break;
-      case PERIMETER:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            processingData.getBoundaryType(), mapRed);
-        break;
-      case AREA:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            processingData.getBoundaryType(), mapRed);
-        break;
-    }
+    result = exeUtils.computeCountLengthPerimeterAreaGbB(requestResource,
+        processingData.getBoundaryType(), mapRed);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -525,6 +508,7 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String requestUrl = null;
+
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       requestUrl = inputProcessor.getRequestUrl();
@@ -533,7 +517,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
-    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
+    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -562,6 +546,7 @@ public class ElementsRequestExecutor {
           }
           return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
         }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
+
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> result;
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
@@ -1094,32 +1079,19 @@ public class ElementsRequestExecutor {
     DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<MatchType, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> entry : groupByResult
         .entrySet()) {
+      Set<? extends Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> resultSet =
+          entry.getValue().entrySet();
       if (!timeArrayFilled) {
-        timeArray = new String[entry.getValue().entrySet().size()];
+        timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = new Double[entry.getValue().entrySet().size()];
-        int value2Count = 0;
-        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
-            .getValue().entrySet()) {
-          resultValues2[value2Count] =
-              Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          value2Count++;
-        }
+        resultValues2 = exeUtils.fillElementsShareRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = new Double[entry.getValue().entrySet().size()];
-        int value1Count = 0;
-        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
-            .getValue().entrySet()) {
-          resultValues1[value1Count] =
-              Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          value1Count++;
-        }
+        resultValues1 = exeUtils.fillElementsShareRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
-        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
-            .getValue().entrySet()) {
+        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : resultSet) {
           resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
