@@ -255,7 +255,7 @@ public class ExecutionUtils {
    *        after the comma)
    * @return <code>DecimalFormat</code> object with the defined format.
    */
-  public DecimalFormat defineDecimalFormat(String format) {
+  public static DecimalFormat defineDecimalFormat(String format) {
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
     otherSymbols.setDecimalSeparator('.');
     return new DecimalFormat(format, otherSymbols);
