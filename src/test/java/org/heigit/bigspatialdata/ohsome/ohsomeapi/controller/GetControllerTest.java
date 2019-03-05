@@ -508,8 +508,6 @@ public class GetControllerTest {
    * csv output tests start here
    */
 
-  // csv output tests for elementsCount
-
   @Test
   public void getElementsCountCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -676,8 +674,6 @@ public class GetControllerTest {
         .substring(length - 24, length - 1));
   }
 
-  // csv output tests for elementsArea
-
   @Test
   public void getElementsAreaDensityGroupByTypeCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -742,8 +738,6 @@ public class GetControllerTest {
     assertEquals("3892.4199999999996;3651.24;4846.01;612.76", response.getBody()
         .substring(length - 42, length - 1));
   }
-
-  // csv output tests for users
 
   @Test
   public void getUsersCountCsvTest() {
