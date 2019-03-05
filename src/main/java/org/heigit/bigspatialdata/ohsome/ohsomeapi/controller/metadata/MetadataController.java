@@ -25,7 +25,7 @@ public class MetadataController {
    *         MetadataResponse}
    */
   @GetMapping(produces = "application/json")
-  @ApiOperation(nickname = "getMetadata", value = "Metadata of the underlying data-extract")
+  @ApiOperation(nickname = "metadata", value = "Metadata of the underlying data-extract")
   public MetadataResponse getMetadata() {
     return MetadataRequestExecutor.executeGetMetadata();
   }
