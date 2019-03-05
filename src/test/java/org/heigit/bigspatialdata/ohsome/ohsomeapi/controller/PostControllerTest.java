@@ -547,8 +547,6 @@ public class PostControllerTest {
 
   // csv output tests
 
-  // elementsLength
-
   @Test
   public void elementsLengthCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -641,8 +639,6 @@ public class PostControllerTest {
     int length = response.getBody().length();
     assertEquals("99.55", response.getBody().substring(length - 6, length - 1));
   }
-
-  // elementsPerimeter
 
   @Test
   public void elementsPerimeterCsvTest() {
