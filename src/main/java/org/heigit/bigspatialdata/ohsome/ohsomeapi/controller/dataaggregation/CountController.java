@@ -6,7 +6,13 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParam
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +42,8 @@ public class CountController {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
-  @ApiOperation(value = "Count of OSM elements", nickname = "elementsCount")
+  @ApiOperation(value = "Count of OSM elements", nickname = "count",
+      response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
@@ -52,12 +59,12 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the type",
-      nickname = "elementsCountGroupByType")
+      nickname = "countGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(RequestResource.COUNT,
         servletRequest, servletResponse, true, false);
   }
 
@@ -69,7 +76,7 @@ public class CountController {
    */
   @ApiOperation(
       value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "elementsCountGroupByBoundary")
+      nickname = "countGroupByBoundary", response = GroupByResponse.class)
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
@@ -89,7 +96,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "elementsCountGroupByKey")
+      nickname = "countGroupByKey", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -115,7 +122,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the tag",
-      nickname = "elementsCountGroupByTag")
+      nickname = "countGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -141,8 +148,10 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Share of count of elements satisfying keys2 and values2 "
-      + "within elements selected by types, keys and values", nickname = "elementsCountShare")
+  @ApiOperation(
+      value = "Share of count of elements satisfying keys2 and values2 "
+          + "within elements selected by types, keys and values",
+      nickname = "countShare", response = ShareResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
@@ -168,7 +177,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "elementsCountShareGroupByBoundary")
+      nickname = "countShareGroupByBoundary", response = ShareGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR, defaultValue = "",
           paramType = "query", dataType = "string", required = true),
@@ -196,8 +205,10 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (number of elements divided by "
-      + "the total area in square-kilometers)", nickname = "elementsCountDensity")
+  @ApiOperation(
+      value = "Density of OSM elements (number of elements divided by "
+          + "the total area in square-kilometers)",
+      nickname = "countDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest request, HttpServletResponse servletResponse)
@@ -218,12 +229,12 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
-      nickname = "elementsCountDensityGroupByType")
+      nickname = "countDensityGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.COUNT,
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(RequestResource.COUNT,
         servletRequest, servletResponse, true, true);
   }
 
@@ -236,7 +247,7 @@ public class CountController {
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "elementsCountDensityGroupByBoundary")
+      nickname = "countDensityGroupByBoundary", response = GroupByResponse.class)
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
@@ -260,7 +271,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
-      nickname = "elementsCountDensityGroupByTag")
+      nickname = "countDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -285,8 +296,10 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of selected items satisfying types2, keys2 and values2 "
-      + "within items selected by types, keys and values", nickname = "elementsCountRatio")
+  @ApiOperation(
+      value = "Ratio of selected items satisfying types2, keys2 and values2 "
+          + "within items selected by types, keys and values",
+      nickname = "countRatio", response = RatioResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = "node", paramType = "query", dataType = "string", required = false),
@@ -311,7 +324,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of selected items grouped by the boundary",
-      nickname = "elementsCountRatioGroupByBoundary")
+      nickname = "countRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false),

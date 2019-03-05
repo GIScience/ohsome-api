@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,10 +26,10 @@ public class ElementsFullHistoryController {
    */
   @ApiOperation(
       value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
-      nickname = "rawDataFullHistory")
+      nickname = "fullHistory", response = DataResponse.class)
   @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public void retrieveOSMDataRawFullHistory(HttpServletRequest servletRequest,
+  public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.RAW, servletRequest,
         servletResponse);
@@ -40,10 +41,10 @@ public class ElementsFullHistoryController {
    */
   @ApiOperation(
       value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
-      nickname = "rawDataBboxFullHistory")
+      nickname = "bboxFullHistory", response = DataResponse.class)
   @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public void retrieveOSMDataBbox(HttpServletRequest servletRequest,
+  public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.BBOX, servletRequest,
         servletResponse);
@@ -54,10 +55,10 @@ public class ElementsFullHistoryController {
    * the geometry field.
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
-      nickname = "rawDataCentroidFullHistory")
+      nickname = "dentroidFullHistory", response = DataResponse.class)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public void retrieveOSMDataCentroid(HttpServletRequest servletRequest,
+  public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.CENTROID, servletRequest,
         servletResponse);
