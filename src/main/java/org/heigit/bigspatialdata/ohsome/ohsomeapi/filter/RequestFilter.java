@@ -30,6 +30,12 @@ public class RequestFilter extends OncePerRequestFilter {
     response.setHeader("Access-Control-Allow-Headers",
         "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,"
             + "Access-Control-Request-Headers,Authorization");
+    if (RequestUtils.isDataExtraction(request)) {
+      response.setHeader("Content-disposition", "attachment;filename=ohsome.geojson");
+    }
+    if (RequestUtils.usesCsvFormat(request)) {
+      response.setHeader("Content-disposition", "attachment;filename=ohsome.csv");
+    }
     boolean cacheNotAllowed = RequestUtils.cacheNotAllowed(request);
     HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
       int status = 200;

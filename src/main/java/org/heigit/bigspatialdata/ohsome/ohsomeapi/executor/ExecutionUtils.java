@@ -107,7 +107,6 @@ public class ExecutionUtils {
 
     String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
 
-    servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.geojson");
     servletResponse.setContentType("application/geo+json; charset=utf-8");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
     outputStream.write(scaffold.getBytes("UTF-8"));
@@ -141,7 +140,6 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
-      servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.csv");
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
@@ -176,7 +174,6 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
-      servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.csv");
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
@@ -216,7 +213,6 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
-      servletResponse.addHeader("Content-disposition", "attachment;filename=ohsome.csv");
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
