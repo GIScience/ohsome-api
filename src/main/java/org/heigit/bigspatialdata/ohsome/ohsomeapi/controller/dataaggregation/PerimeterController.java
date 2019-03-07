@@ -6,7 +6,13 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParam
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,9 +37,10 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Perimeter of OSM elements", nickname = "elementsPerimeter")
+  @ApiOperation(value = "Perimeter of OSM elements", nickname = "perimeter",
+      response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeter(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
@@ -47,13 +54,13 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
-      nickname = "elementsPerimeterGroupByType")
+      nickname = "perimeterGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(
+        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -63,8 +70,10 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Perimeter of OSM elements in meter grouped by the boundary "
-      + "(bboxes, bcircles, or bpolys)", nickname = "elementsPerimeterGroupByBoundary")
+  @ApiOperation(
+      value = "Perimeter of OSM elements in meter grouped by the boundary "
+          + "(bboxes, bcircles, or bpolys)",
+      nickname = "perimeterGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByBoundary(HttpServletRequest servletRequest,
@@ -82,13 +91,13 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "elementsPerimeterGroupByKey")
+      nickname = "perimeterGroupByKey", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(
@@ -108,7 +117,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
-      nickname = "elementsPerimeterGroupByTag")
+      nickname = "perimeterGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -116,7 +125,7 @@ public class PerimeterController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
@@ -137,14 +146,14 @@ public class PerimeterController {
   @ApiOperation(
       value = "Share of perimeter of elements satisfying keys2 and values2 within elements "
           + "selected by types, keys and values",
-      nickname = "elementsPerimeterShare")
+      nickname = "perimeterShare", response = ShareResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterShare(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(
@@ -163,14 +172,14 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "elementsPerimeterShareGroupByBoundary")
+      nickname = "perimeterShareGroupByBoundary", response = ShareGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/share/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterShareGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
@@ -184,10 +193,12 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM elements (perimeter of elements divided by "
-      + "the total area in square-kilometers)", nickname = "elementsPerimeterDensity")
+  @ApiOperation(
+      value = "Density of OSM elements (perimeter of elements divided by "
+          + "the total area in square-kilometers)",
+      nickname = "perimeterDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
 
@@ -202,13 +213,13 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
-      nickname = "elementsPerimeterDensityGroupByType")
+      nickname = "perimeterDensityGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountPerimeterAreaGroupByType(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(
+        RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
   }
 
   /**
@@ -220,7 +231,7 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "elementsPerimeterDensityGroupByBoundary")
+      nickname = "perimeterDensityGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByBoundary(HttpServletRequest servletRequest,
@@ -242,7 +253,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Density of selected items grouped by the tag",
-      nickname = "elementsPerimeterDensityGroupByTag")
+      nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -250,7 +261,7 @@ public class PerimeterController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
@@ -267,8 +278,10 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of selected items satisfying types2, keys2 and values2 within items "
-      + "selected by types, keys and values", nickname = "elementsPerimeterRatio")
+  @ApiOperation(
+      value = "Ratio of selected items satisfying types2, keys2 and values2 within items "
+          + "selected by types, keys and values",
+      nickname = "perimeterRatio", response = RatioResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
@@ -280,7 +293,7 @@ public class PerimeterController {
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, paramType = "query",
           dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response perimeterRatio(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(
@@ -295,7 +308,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
-      nickname = "elementsPerimeterRatioGroupByBoundary")
+      nickname = "perimeterRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
@@ -308,7 +321,7 @@ public class PerimeterController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(

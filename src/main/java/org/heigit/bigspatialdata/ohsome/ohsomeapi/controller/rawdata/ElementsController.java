@@ -2,15 +2,13 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-
 
 /**
  * REST controller containing the methods, which are mapped to "/elements" and used to return OSM
@@ -26,11 +24,10 @@ public class ElementsController {
    * the geometry field.
    */
   @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
-      nickname = "rawData")
-  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
-      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST})
-  public void retrieveOSMDataRaw(HttpServletRequest servletRequest,
+      nickname = "geometry", response = DataResponse.class)
+  @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public void elementsGeometry(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElements(ElementsGeometry.RAW, servletRequest, servletResponse);
   }
@@ -40,12 +37,11 @@ public class ElementsController {
    * objects in the geometry field.
    */
   @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
-      nickname = "rawDataBbox")
-  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
-      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST})
-  public void retrieveOSMDataBbox(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
+      nickname = "bbox", response = DataResponse.class)
+  @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+      throws Exception {
     ElementsRequestExecutor.executeElements(ElementsGeometry.BBOX, servletRequest, servletResponse);
   }
 
@@ -54,11 +50,10 @@ public class ElementsController {
    * the geometry field.
    */
   @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
-      nickname = "rawDataCentroid")
-  @ApiImplicitParam(name = "properties", value = ParameterDescriptions.PROPERTIES_DESCR,
-      defaultValue = "tags", paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST})
-  public void retrieveOSMDataCentroid(HttpServletRequest servletRequest,
+      nickname = "centroid", response = DataResponse.class)
+  @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public void elementsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     ElementsRequestExecutor.executeElements(ElementsGeometry.CENTROID, servletRequest,
         servletResponse);

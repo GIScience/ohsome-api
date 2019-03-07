@@ -576,7 +576,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|perimeter|area calculation grouped by the OSM type.
+   * Performs a count|length|perimeter|area calculation grouped by the OSM type.
    * 
    * @param requestResource
    *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
@@ -596,7 +596,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response executeCountPerimeterAreaGroupByType(RequestResource requestResource,
+  public static Response executeCountLengthPerimeterAreaGroupByType(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();

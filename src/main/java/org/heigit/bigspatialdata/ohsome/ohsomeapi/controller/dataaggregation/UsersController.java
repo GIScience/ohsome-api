@@ -5,7 +5,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.UsersRequestExecutor;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,9 +28,10 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users", nickname = "usersCount")
+  @ApiOperation(value = "Count of OSM users", nickname = "count",
+      response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     return UsersRequestExecutor.executeCount(servletRequest, servletResponse, false);
@@ -40,10 +43,10 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the type",
-      nickname = "usersCountGroupByType")
+  @ApiOperation(value = "Count of OSM users grouped by the type", nickname = "countGroupByType",
+      response = GroupByResponse.class)
   @RequestMapping(value = "/count/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByType(servletRequest, servletResponse, false);
@@ -55,7 +58,8 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "usersCountGroupByTag")
+  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "countGroupByTag",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -63,7 +67,7 @@ public class UsersController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByTag(servletRequest, servletResponse, false);
@@ -75,13 +79,14 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "usersCountGroupByKey")
+  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "countGroupByKey",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true)})
   @RequestMapping(value = "count/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByKey(servletRequest, servletResponse, false);
@@ -94,10 +99,12 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
-  @ApiOperation(value = "Density of OSM users (number of users divided "
-      + "by the total area in square-kilometers)", nickname = "usersCountDensity")
+  @ApiOperation(
+      value = "Density of OSM users (number of users divided "
+          + "by the total area in square-kilometers)",
+      nickname = "countDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCount(servletRequest, servletResponse, true);
@@ -110,9 +117,9 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the type",
-      nickname = "usersCountDensityGroupByType")
+      nickname = "countDensityGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/count/density/groupBy/type",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByType(servletRequest, servletResponse, true);
@@ -125,7 +132,7 @@ public class UsersController {
    *         Response}
    */
   @ApiOperation(value = "Density of OSM users grouped by the tag",
-      nickname = "usersCountDensityGroupByTag")
+      nickname = "countDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -133,7 +140,7 @@ public class UsersController {
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/tag",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByTag(servletRequest, servletResponse, true);
