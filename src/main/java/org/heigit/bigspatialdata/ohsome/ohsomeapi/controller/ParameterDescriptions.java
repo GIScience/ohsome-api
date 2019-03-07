@@ -27,7 +27,7 @@ public class ParameterDescriptions {
   public static final String FORMAT_DESCR =
       "Output format geojson (for /groupBy/boundary resources only), csv, or json; default: json";
   public static final String PROPERTIES_DESCR =
-      "List of possible property-groups added to each OSM-element, e.g. 'tags', or 'metadata'; "
+      "List of possible property-groups added to each OSM-element: 'tags' and/or 'metadata'; "
           + "default: no property";
   public static final String SHOW_METADATA_DESCR =
       "Boolean operator 'true' or 'false'; default: 'false'";
