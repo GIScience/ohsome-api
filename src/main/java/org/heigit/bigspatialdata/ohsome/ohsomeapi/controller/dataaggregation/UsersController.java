@@ -25,6 +25,8 @@ public class UsersController {
   /**
    * Gives the count of OSM users.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
@@ -40,6 +42,8 @@ public class UsersController {
   /**
    * Gives the count of OSM users grouped by the OSM type.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -55,6 +59,8 @@ public class UsersController {
   /**
    * Gives the count of OSM users grouped by the tag.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -76,6 +82,8 @@ public class UsersController {
   /**
    * Gives the count of OSM users grouped by the key.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -96,6 +104,8 @@ public class UsersController {
    * Gives the density of OSM users (number of users divided by the total area in
    * square-kilometers).
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
    *         Response}
    */
@@ -113,6 +123,8 @@ public class UsersController {
   /**
    * Gives the density of OSM users grouped by the OSM type.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -128,6 +140,8 @@ public class UsersController {
   /**
    * Gives the density of OSM users grouped by the tag.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */

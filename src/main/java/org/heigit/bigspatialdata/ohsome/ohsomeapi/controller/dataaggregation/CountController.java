@@ -34,11 +34,10 @@ public class CountController {
   /**
    * Gives the count of OSM objects.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
-   * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
-   *         aggregateByTimestamp()}
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
@@ -55,11 +54,13 @@ public class CountController {
   /**
    * Gives the count of OSM objects grouped by the OSM type.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the type",
-      nickname = "countGroupByType", response = GroupByResponse.class)
+  @ApiOperation(value = "Count of OSM elements grouped by the type", nickname = "countGroupByType",
+      response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
@@ -71,6 +72,8 @@ public class CountController {
   /**
    * Gives the count of OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -90,13 +93,13 @@ public class CountController {
   /**
    * Gives the count of OSM objects grouped by the key.
    * 
-   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
-   *        grouping. One or more keys can be provided.
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "countGroupByKey", response = GroupByResponse.class)
+  @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -112,17 +115,13 @@ public class CountController {
   /**
    * Gives the count of OSM objects grouped by the tag.
    * 
-   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @param groupByValues <code>String</code> array containing the values used to create the tags
-   *        for grouping. If a given value does not appear in the output, then there are no objects
-   *        assigned to it (within the given filters).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the tag",
-      nickname = "countGroupByTag", response = GroupByResponse.class)
+  @ApiOperation(value = "Count of OSM elements grouped by the tag", nickname = "countGroupByTag",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -141,10 +140,8 @@ public class CountController {
    * Gives the share of selected items satisfying keys2 and values2 within items selected by types,
    * keys and values.
    * 
-   * @param keys2 <code>String</code> array having the same format as keys and used to define the
-   *        subgroup(share).
-   * @param values2 <code>String</code> array having the same format as values and used to define
-   *        the subgroup(share).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -169,10 +166,8 @@ public class CountController {
    * Gives the share of selected items satisfying keys2 and values2 within items selected by types,
    * keys and values grouped by the boundary.
    * 
-   * @param keys2 <code>String</code> array having the same format as keys and used to define the
-   *        subgroup(share).
-   * @param values2 <code>String</code> array having the same format as values and used to define
-   *        the subgroup(share).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -197,11 +192,8 @@ public class CountController {
    * Gives the density of selected items (number of items divided by the total area in
    * square-kilometers).
    * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -220,11 +212,8 @@ public class CountController {
   /**
    * Gives the density of OSM objects grouped by the OSM type.
    * 
-   * <p>
-   * The parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
-   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -242,6 +231,8 @@ public class CountController {
    * Gives the density of OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -261,12 +252,8 @@ public class CountController {
   /**
    * Gives the density of selected items grouped by the tag.
    * 
-   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @param groupByValues <code>String</code> array containing the values used to create the tags
-   *        for grouping. If a given value does not appear in the output, then there are no objects
-   *        assigned to it (within the given filters).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -290,9 +277,8 @@ public class CountController {
    * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
    * 
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -320,6 +306,8 @@ public class CountController {
    * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
    * types, keys and values grouped by the boundary.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */

@@ -23,6 +23,9 @@ public class ElementsFullHistoryController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
    * the geometry field.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(
       value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
@@ -38,6 +41,9 @@ public class ElementsFullHistoryController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the bounding box of the respective
    * objects in the geometry field.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(
       value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
@@ -53,6 +59,9 @@ public class ElementsFullHistoryController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the centroid of the respective objects in
    * the geometry field.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
       nickname = "dentroidFullHistory", response = DataResponse.class)
