@@ -50,6 +50,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableSupplier;
@@ -140,6 +141,9 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
+      if (!RequestUtils.cacheNotAllowed(processingData.getServletRequest())) {
+        servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
+      }
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
@@ -174,6 +178,9 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
+      if (!RequestUtils.cacheNotAllowed(processingData.getServletRequest())) {
+        servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
+      }
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
@@ -213,6 +220,9 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
+      if (!RequestUtils.cacheNotAllowed(processingData.getServletRequest())) {
+        servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
+      }
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
           CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
       writer.writeAll(comments);
