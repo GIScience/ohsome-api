@@ -64,7 +64,7 @@ public class ElementsFullHistoryController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
-      nickname = "dentroidFullHistory", response = DataResponse.class)
+      nickname = "centroidFullHistory", response = DataResponse.class)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
