@@ -143,8 +143,9 @@ public class SwaggerConfig {
           .parameterType(QUERY).defaultValue("json").required(false).build());
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
-          .description(ParameterDescriptions.TIME_DESCR).modelRef(new ModelRef(STRING))
-          .parameterType(QUERY).defaultValue("2014-01-01,2017-01-01").required(false).build());
+          .description(ParameterDescriptions.TIME_DATA_EXTRACTION_DESCR)
+          .modelRef(new ModelRef(STRING)).parameterType(QUERY).defaultValue("2014-01-01,2017-01-01")
+          .required(true).build());
       globalOperationParams.add(new ParameterBuilder().name("properties")
           .description(ParameterDescriptions.PROPERTIES_DESCR).modelRef(new ModelRef(STRING))
           .parameterType(QUERY).defaultValue("tags").required(false).build());

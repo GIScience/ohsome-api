@@ -32,10 +32,38 @@ public class RequestUtils {
    * @return whether caching is allowed, or not
    */
   public static boolean cacheNotAllowed(HttpServletRequest request) {
-    return isMetadata(request) || hasDefaultToTimestamp(request) || isDataExtraction(request);
+    return isMetadata(request) || usesDefaultToTimestamp(request) || isDataExtraction(request);
+  }
+  
+  /**
+   * Checks if the given request is requesting a data-extraction.
+   * 
+   * @param request <code>HttpServletRequest</code> object used to check
+   * @return whether it is a data-extraction request, or not
+   */
+  public static boolean isDataExtraction(HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    return (url.contains("elementsFullHistory") || url.contains("elements/geometry")
+        || url.contains("elements/centroid") || url.contains("elements/bbox"));
+  }
+  
+  /**
+   * Checks if the given request uses the csv format.
+   * 
+   * @param request <code>HttpServletRequest</code> object used to check
+   * @return whether it uses the csv format, or not
+   */
+  public static boolean usesCsvFormat(HttpServletRequest request) {
+    return "csv".equalsIgnoreCase(request.getParameter("format"));
   }
 
-  private static boolean hasDefaultToTimestamp(HttpServletRequest request) {
+  /**
+   * Checks if the given request uses the default toTimestamp.
+   * 
+   * @param request <code>HttpServletRequest</code> object used to check
+   * @return whether it uses the default toTimestamp, or not
+   */
+  private static boolean usesDefaultToTimestamp(HttpServletRequest request) {
     String[] time = request.getParameterValues("time");
     if (time == null || time[0].replaceAll("\\s", "").length() == 0) {
       return true;
@@ -47,12 +75,12 @@ public class RequestUtils {
     return (time[0].contains("//") || time[0].endsWith("/"));
   }
 
-  private static boolean isDataExtraction(HttpServletRequest request) {
-    String url = request.getRequestURL().toString();
-    return (url.contains("elementsFullHistory") || url.contains("elements/geometry")
-        || url.contains("elements/centroid") || url.contains("elements/bbox"));
-  }
-
+  /**
+   * Checks if the given request is requesting metadata.
+   * 
+   * @param request <code>HttpServletRequest</code> object used to check
+   * @return whether it is a metadata request, or not
+   */
   private static boolean isMetadata(HttpServletRequest request) {
     return request.getRequestURL().toString().contains("/metadata");
   }
