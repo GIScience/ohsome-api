@@ -70,7 +70,7 @@ public class InputProcessor {
             servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()));
+            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()), servletRequest);
     this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
   }
 
