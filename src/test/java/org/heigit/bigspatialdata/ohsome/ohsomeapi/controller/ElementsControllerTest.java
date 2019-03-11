@@ -161,7 +161,7 @@ public class ElementsControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
-            .equalsIgnoreCase("2015-05-05T06:59:35"))
+            .equalsIgnoreCase("2015-05-05T06:59:35Z"))
         .findFirst().get().get("properties").size());
   }
 
@@ -177,12 +177,12 @@ public class ElementsControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
-            .equalsIgnoreCase("2017-01-18T17:38:06")));
+            .equalsIgnoreCase("2017-01-18T17:38:06Z")));
     assertEquals(13, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
-            .equalsIgnoreCase("2017-03-03T18:51:20"))
+            .equalsIgnoreCase("2017-03-03T18:51:20Z"))
         .findFirst().get().get("properties").size());
   }
 
@@ -207,7 +207,7 @@ public class ElementsControllerTest {
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("features").iterator(), Spliterator.ORDERED), false)
             .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
-                .equalsIgnoreCase("2017-01-01T00:00")));
+                .equalsIgnoreCase("2017-01-01T00:00:00Z")));
     assertEquals(16, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)

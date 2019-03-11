@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
 import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -132,9 +133,11 @@ public class ElementsRequestExecutor {
     preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
-        properties.put("@lastEdit", snapshot.getEntity().getTimestamp().toString());
+        properties.put("@lastEdit",
+            TimestampFormatter.getInstance().isoDateTime(snapshot.getEntity().getTimestamp()));
       }
-      properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
+      properties.put("@snapshotTimestamp",
+          TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
       return exeUtils.createOSMFeature(snapshot.getEntity(), snapshot.getGeometry(), properties,
           keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get());
     });
@@ -214,12 +217,10 @@ public class ElementsRequestExecutor {
     inputProcessor.processPropertiesParam();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
-    String startTimestampWithZ =
-        ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0]).toString();
-    String endTimestampWithZ =
-        ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1]).toString();
-    String startTimestamp = startTimestampWithZ.substring(0, startTimestampWithZ.length() - 1);
-    String endTimestamp = endTimestampWithZ.substring(0, endTimestampWithZ.length() - 1);
+    String startTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0])
+        .format(DateTimeFormatter.ISO_DATE_TIME);
+    String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
+        .format(DateTimeFormatter.ISO_DATE_TIME);
     contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
       List<Feature> output = new LinkedList<>();
       Map<String, Object> properties;
@@ -241,7 +242,7 @@ public class ElementsRequestExecutor {
       // then for each contribution:
       for (OSMContribution contribution : contributions) {
         // set valid_to of previous row, add to output list (output.add(…))
-        validTo = contribution.getTimestamp().toString();
+        validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext) {
           properties = new TreeMap<>();
           properties.put("@validFrom", validFrom);
@@ -259,7 +260,7 @@ public class ElementsRequestExecutor {
           // else: take "after" as next row
           currentEntity = contribution.getEntityAfter();
           currentGeom = contribution.getGeometryAfter();
-          validFrom = contribution.getTimestamp().toString();
+          validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         }
       }
       // after loop:
@@ -288,7 +289,8 @@ public class ElementsRequestExecutor {
             properties.put("@lastEdit", entity.getTimestamp().toString());
           }
           Geometry geom = snapshot.getGeometry();
-          properties.put("@snapshotTimestamp", snapshot.getTimestamp().toString());
+          properties.put("@snapshotTimestamp",
+              TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
           properties.put("@validFrom", startTimestamp);
           properties.put("@validTo", endTimestamp);
           return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
