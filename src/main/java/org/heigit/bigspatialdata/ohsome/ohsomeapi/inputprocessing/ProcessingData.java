@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;

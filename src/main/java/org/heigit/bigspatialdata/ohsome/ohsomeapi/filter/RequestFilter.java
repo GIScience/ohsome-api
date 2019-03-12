@@ -6,8 +6,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -15,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS) and a header to 
+ * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS) and a header to
  * enable caching, if appropriate.
  */
 @Component
@@ -38,8 +36,8 @@ public class RequestFilter extends OncePerRequestFilter {
     if (RequestUtils.usesCsvFormat(request)) {
       response.setHeader("Content-disposition", "attachment;filename=ohsome.csv");
     }
-    boolean cacheNotAllowed = RequestUtils.cacheNotAllowed(
-        request.getRequestURL().toString(), request.getParameterValues("time"));
+    boolean cacheNotAllowed = RequestUtils.cacheNotAllowed(request.getRequestURL().toString(),
+        request.getParameterValues("time"));
     HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
       int status = 200;
 
