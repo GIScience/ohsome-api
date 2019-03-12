@@ -25,11 +25,10 @@ public class ProcessingData {
   private Geometry requestGeom;
   private Collection<Geometry> boundaryColl;
   private GeoJsonObject[] geoJsonGeoms;
-  private HttpServletRequest servletRequest;
 
-  public ProcessingData(RequestParameters requestParameters, HttpServletRequest servletRequest) {
+  public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
-    this.servletRequest = servletRequest;
+    this.requestUrl = requestUrl;
   }
 
   public static Geometry getDataPolyGeom() {
@@ -134,9 +133,5 @@ public class ProcessingData {
 
   public void setShowMetadata(boolean showMetadata) {
     this.showMetadata = showMetadata;
-  }
-
-  public HttpServletRequest getServletRequest() {
-    return servletRequest;
   }
 }

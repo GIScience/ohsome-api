@@ -141,7 +141,7 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
-      if (!RequestUtils.cacheNotAllowed(processingData.getServletRequest())) {
+      if (!RequestUtils.cacheNotAllowed(processingData)) {
         servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
       }
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
@@ -178,7 +178,7 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
-      if (!RequestUtils.cacheNotAllowed(processingData.getServletRequest())) {
+      if (!RequestUtils.cacheNotAllowed(processingData)) {
         servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
       }
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
@@ -220,7 +220,7 @@ public class ExecutionUtils {
     try {
       servletResponse.setCharacterEncoding("UTF-8");
       servletResponse.setContentType("text/csv");
-      if (!RequestUtils.cacheNotAllowed(processingData.getServletRequest())) {
+      if (!RequestUtils.cacheNotAllowed(processingData)) {
         servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
       }
       writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,

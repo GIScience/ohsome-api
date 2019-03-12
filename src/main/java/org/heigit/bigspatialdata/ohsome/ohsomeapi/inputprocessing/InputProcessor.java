@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -53,15 +54,16 @@ public class InputProcessor {
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private ProcessingData processingData;
-  private HttpServletRequest servletRequest;
   private boolean isSnapshot;
   private boolean isDensity;
   private String requestUrl;
+  private String requestMethod;
+  private String requestTimeout;
+  private Map<String, String[]> requestParameters;
   private boolean includeTags;
   private boolean includeOSMMetadata;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
-    this.servletRequest = servletRequest;
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
     processingData =
@@ -70,8 +72,12 @@ public class InputProcessor {
             servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()), servletRequest);
+            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()),
+            servletRequest.getRequestURL().toString());
     this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
+    this.requestMethod = servletRequest.getMethod();
+    this.requestTimeout = servletRequest.getParameter("timeout");
+    this.requestParameters = servletRequest.getParameterMap();
   }
 
   public InputProcessor(ProcessingData processingData) {
@@ -108,7 +114,7 @@ public class InputProcessor {
     double timeout = defineRequestTimeout();
     // overwriting RequestParameters object with splitted/non-null parameters
     processingData.setRequestParameters(
-        new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity, bboxes, bcircles,
+        new RequestParameters(requestMethod, isSnapshot, isDensity, bboxes, bcircles,
             bpolys, types, keys, values, time, format, showMetadata, timeout));
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
@@ -408,7 +414,7 @@ public class InputProcessor {
    */
   public void processPropertiesParam() throws BadRequestException {
     String[] properties =
-        splitParamOnComma(createEmptyArrayIfNull(servletRequest.getParameterValues("properties")));
+        splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
     if (properties.length > 2) {
       throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
     }
@@ -556,7 +562,7 @@ public class InputProcessor {
    */
   private double defineRequestTimeout() throws BadRequestException {
     double timeout = ProcessingData.getTimeout();
-    String requestTimeoutString = createEmptyStringIfNull(servletRequest.getParameter("timeout"));
+    String requestTimeoutString = createEmptyStringIfNull(requestTimeout);
     if (!requestTimeoutString.isEmpty()) {
       double requestTimeoutDouble;
       try {

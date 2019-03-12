@@ -859,7 +859,8 @@ public class ElementsRequestExecutor {
           osmTypesString, new String[] {}, new String[] {},
           servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
           servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
-      ProcessingData pD = new ProcessingData(requestParams, servletRequest);
+      ProcessingData pD =
+          new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
       InputProcessor iP = new InputProcessor(servletRequest, isSnapshot, isDensity);
       iP.setProcessingData(pD);
       mapRed = iP.processParameters();
@@ -1020,7 +1021,8 @@ public class ElementsRequestExecutor {
           osmTypesString, new String[] {}, new String[] {},
           servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
           servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
-      ProcessingData pD = new ProcessingData(requestParams, servletRequest);
+      ProcessingData pD =
+          new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
       InputProcessor iP = new InputProcessor(servletRequest, isSnapshot, isDensity);
       iP.setProcessingData(pD);
       mapRed = iP.processParameters();
