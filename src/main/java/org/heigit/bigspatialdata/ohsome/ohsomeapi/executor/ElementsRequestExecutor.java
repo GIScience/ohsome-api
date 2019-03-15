@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -457,10 +458,115 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
-  public static Response executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) {
+      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
+    final long startTime = System.currentTimeMillis();
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    String[] groupByKey = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
+    if (groupByKey.length != 1) {
+      throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
+    }
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    String[] groupByValues = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
+    TagTranslator tt = DbConnData.tagTranslator;
+    Integer[] valuesInt = new Integer[groupByValues.length];
+    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
+    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
+    if (groupByValues.length != 0) {
+      for (int j = 0; j < groupByValues.length; j++) {
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
+        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
+      }
+    }
 
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+
+    MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
+        mapRed.aggregateByGeometry(geoms).map(f -> {
+          int[] tags = f.getEntity().getRawTags();
+          for (int i = 0; i < tags.length; i += 2) {
+            int tagKeyId = tags[i];
+            int tagValueId = tags[i + 1];
+            if (tagKeyId == keysInt) {
+              if (valuesInt.length == 0) {
+                return new ImmutablePair<>(
+                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+              }
+              for (int value : valuesInt) {
+                if (tagValueId == value) {
+                  return new ImmutablePair<>(
+                      new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+                }
+              }
+            }
+          }
+          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+        }).aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
+            .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
+
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, ? extends Number> result;
+    result = exeUtils.computeNestedResult(requestResource, preResult);
+    SortedMap<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult =
+        OSHDBCombinedIndex.nest(result);
+
+    // passt bis hierhin
+    
+//    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+//    Object groupByName;
+//    InputProcessingUtils utils = inputProcessor.getUtils();
+//    Object[] boundaryIds = utils.getBoundaryIds();
+//    int count = 0;
+//
+//    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
+//    for (Entry<Integer, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number>> entry : groupByResult
+//        .entrySet()) {
+//
+//      ElementsResult[] results = new ElementsResult[geoms.size() * groupByResult.entrySet().size()];
+//
+//      int bbox = entry.getKey();
+//      System.out.println(bbox);
+//
+//
+//      for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> innerEntry : entry
+//          .getValue().entrySet()) {
+//
+//      }
+//    }
+
+    // ElementsResult[] results = exeUtils.fillNestedElementsResult(entry.getValue(),
+    // requestParameters.isDensity(), df, boundaries.get(count));
+    //
+    //
+    // // check for non-remainder objects (which do have the defined key and value)
+    // if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
+    // groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
+    // } else {
+    // groupByName = "remainder";
+    // }
+    // resultSet[count] = new GroupByResult(groupByName, results);
+    // count++;
+    // }
+    // // used to remove null objects from the resultSet
+    // resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
+    // Metadata metadata = null;
+    // if (processingData.isShowMetadata()) {
+    // long duration = System.currentTimeMillis() - startTime;
+    // metadata = new Metadata(duration,
+    // Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
+    // requestResource.getLabel(), requestResource.getUnit()),
+    // inputProcessor.getRequestUrlIfGetRequest());
+    // }
+    // return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    // resultSet);
 
     return null;
   }

@@ -318,7 +318,6 @@ public class ExecutionUtils {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
@@ -326,30 +325,25 @@ public class ExecutionUtils {
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
-        result = preResult.count();
-        break;
+        return preResult.count();
       case PERIMETER:
-        result = preResult.sum(geom -> {
+        return preResult.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
           return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
-        break;
       case LENGTH:
-        result = preResult.sum(geom -> {
+        return preResult.sum(geom -> {
           return cacheInUserData(geom, () -> Geo.lengthOf(geom));
         });
-        break;
       case AREA:
-        result = preResult.sum(geom -> {
+        return preResult.sum(geom -> {
           return cacheInUserData(geom, () -> Geo.areaOf(geom));
         });
-        break;
       default:
-        break;
+        return null;
     }
-    return result;
   }
 
   /**
@@ -381,7 +375,7 @@ public class ExecutionUtils {
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public <K extends OSHDBCombinedIndex<OSHDBTimestamp, ?>, V extends Number> SortedMap<K, V> computeResult(
-      RequestResource requestResource, MapAggregator<?, OSMEntitySnapshot> preResult)
+      RequestResource requestResource, MapAggregator<? extends K, OSMEntitySnapshot> preResult)
       throws Exception {
     switch (requestResource) {
       case COUNT:
@@ -407,6 +401,37 @@ public class ExecutionUtils {
               return cacheInUserData(snapshot.getGeometry(),
                   () -> Geo.areaOf(snapshot.getGeometry()));
             });
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Computes the result depending on the <code>RequestResource</code> using a
+   * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
+   */
+  @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
+  public <K extends OSHDBCombinedIndex<? extends OSHDBCombinedIndex<Integer, ?>, OSHDBTimestamp>, V extends Number> SortedMap<K, V> computeNestedResult(
+      RequestResource requestResource, MapAggregator<? extends K, Geometry> preResult) throws Exception {
+    
+    switch (requestResource) {
+      case COUNT:
+        return (SortedMap<K, V>) preResult.count();
+      case PERIMETER:
+        return (SortedMap<K, V>) preResult.sum(geom -> {
+          if (!(geom instanceof Polygonal)) {
+            return 0.0;
+          }
+          return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+        });
+      case LENGTH:
+        return (SortedMap<K, V>) preResult.sum(geom -> {
+          return cacheInUserData(geom, () -> Geo.lengthOf(geom));
+        });
+      case AREA:
+        return (SortedMap<K, V>)preResult.sum(geom -> {
+          return cacheInUserData(geom, () -> Geo.areaOf(geom));
+        });
       default:
         return null;
     }
