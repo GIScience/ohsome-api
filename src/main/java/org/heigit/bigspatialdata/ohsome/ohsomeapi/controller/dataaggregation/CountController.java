@@ -58,8 +58,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the type",
-      nickname = "countGroupByType", response = GroupByResponse.class)
+  @ApiOperation(value = "Count of OSM elements grouped by the type", nickname = "countGroupByType",
+      response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
@@ -95,8 +95,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key",
-      nickname = "countGroupByKey", response = GroupByResponse.class)
+  @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -121,8 +121,8 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the tag",
-      nickname = "countGroupByTag", response = GroupByResponse.class)
+  @ApiOperation(value = "Count of OSM elements grouped by the tag", nickname = "countGroupByTag",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -135,6 +135,22 @@ public class CountController {
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
         servletRequest, servletResponse, true, false);
+  }
+
+  @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
+      nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+        RequestResource.COUNT, servletRequest, servletResponse, true, false);
   }
 
   /**
