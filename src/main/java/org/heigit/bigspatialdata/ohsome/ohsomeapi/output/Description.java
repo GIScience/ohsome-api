@@ -22,6 +22,16 @@ public class Description {
     return "Total " + label + " of items in " + unit + ", aggregated on the boundary.";
   }
 
+  public static String countLengthPerimeterAreaGroupByBoundaryGroupByTag(boolean isDensity,
+      String label, String unit) {
+    if (isDensity) {
+      return "Density of selected items (" + label + " of items in " + unit + " divided by the "
+          + "area in square kilometers), aggregated on the boundary and on the tag.";
+    }
+    return "Total " + label + " of items in " + unit
+        + ", aggregated on the boundary and on the tag.";
+  }
+
   public static String countLengthPerimeterAreaGroupByUser(String label, String unit) {
     return "Total " + label + " of items in " + unit + ", aggregated on the user.";
   }

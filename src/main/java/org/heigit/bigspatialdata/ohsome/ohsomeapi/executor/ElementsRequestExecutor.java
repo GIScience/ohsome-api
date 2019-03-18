@@ -99,19 +99,20 @@ public class ElementsRequestExecutor {
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     if (DbConnData.db instanceof OSHDBIgnite) {
+      // TODO discuss the usage of this part and adapt it
       // do a preflight to get an approximate result data size estimation:
       // for now just the sum of the average size of the objects versions in bytes is used
       // if that number is larger than 10MB, then fall back to the slightly slower, but much
       // less memory intensive streaming implementation (which is currently only available on
       // the ignite "AffinityCall" backend).
-      Number approxResultSize =
-          inputProcessor.processParameters().map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
-              .sum(data -> data.getLength() / data.getLatest().getVersion());
-      if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
-        mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
-      } else {
-        mapRed = inputProcessor.processParameters();
-      }
+      // Number approxResultSize =
+      // inputProcessor.processParameters().map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
+      // .sum(data -> data.getLength() / data.getLatest().getVersion());
+      // if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
+      // mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      // } else {
+      // mapRed = inputProcessor.processParameters();
+      // }
     } else {
       mapRed = inputProcessor.processParameters();
     }
@@ -174,17 +175,18 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
-      final double maxStreamDataSize = 1E7;
-      Number approxResultSize = snapshotInputProcessor.processParameters()
-          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
-          .sum(data -> data.getLength() / data.getLatest().getVersion());
-      if (approxResultSize.doubleValue() > maxStreamDataSize) {
-        mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
-        mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
-      } else {
-        mapRedSnapshot = snapshotInputProcessor.processParameters();
-        mapRedContribution = inputProcessor.processParameters();
-      }
+      // TODO discuss the usage of this part and adapt it
+      // final double maxStreamDataSize = 1E7;
+      // Number approxResultSize = snapshotInputProcessor.processParameters()
+      // .map(data -> ((OSMEntitySnapshot) data).getOSHEntity())
+      // .sum(data -> data.getLength() / data.getLatest().getVersion());
+      // if (approxResultSize.doubleValue() > maxStreamDataSize) {
+      // mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
+      // mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      // } else {
+      // mapRedSnapshot = snapshotInputProcessor.processParameters();
+      // mapRedContribution = inputProcessor.processParameters();
+      // }
     } else {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
@@ -458,6 +460,25 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
+  /**
+   * Performs a count|length|perimeter|area calculation grouped by the boundary and the tag.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters}
+   */
   public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
@@ -518,57 +539,42 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult =
         OSHDBCombinedIndex.nest(result);
 
-    // passt bis hierhin
-    
-//    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-//    Object groupByName;
-//    InputProcessingUtils utils = inputProcessor.getUtils();
-//    Object[] boundaryIds = utils.getBoundaryIds();
-//    int count = 0;
-//
-//    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
-//    for (Entry<Integer, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number>> entry : groupByResult
-//        .entrySet()) {
-//
-//      ElementsResult[] results = new ElementsResult[geoms.size() * groupByResult.entrySet().size()];
-//
-//      int bbox = entry.getKey();
-//      System.out.println(bbox);
-//
-//
-//      for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> innerEntry : entry
-//          .getValue().entrySet()) {
-//
-//      }
-//    }
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    Object[] boundaryIds = utils.getBoundaryIds();
+    int count = 0;
 
-    // ElementsResult[] results = exeUtils.fillNestedElementsResult(entry.getValue(),
-    // requestParameters.isDensity(), df, boundaries.get(count));
-    //
-    //
-    // // check for non-remainder objects (which do have the defined key and value)
-    // if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-    // groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
-    // } else {
-    // groupByName = "remainder";
-    // }
-    // resultSet[count] = new GroupByResult(groupByName, results);
-    // count++;
-    // }
-    // // used to remove null objects from the resultSet
-    // resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
-    // Metadata metadata = null;
-    // if (processingData.isShowMetadata()) {
-    // long duration = System.currentTimeMillis() - startTime;
-    // metadata = new Metadata(duration,
-    // Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
-    // requestResource.getLabel(), requestResource.getUnit()),
-    // inputProcessor.getRequestUrlIfGetRequest());
-    // }
-    // return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-    // resultSet);
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
+    for (Entry<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
+      int boundaryIdentifier = entry.getKey().getFirstIndex();
+      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
+          requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
+      int tagValue = entry.getKey().getSecondIndex().getValue();
+      String tagIdentifier;
+      // check for non-remainder objects (which do have the defined key and value)
+      if (entry.getKey().getSecondIndex().getKey() != -1 && tagValue != -1) {
+        tagIdentifier = tt.getOSMTagOf(keysInt, tagValue).toString();
+      } else {
+        tagIdentifier = "remainder";
+      }
 
-    return null;
+      resultSet[count] =
+          new GroupByResult(new Object[] {boundaryIds[boundaryIdentifier], tagIdentifier}, results);
+      count++;
+    }
+    // used to remove null objects from the resultSet
+    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()),
+          inputProcessor.getRequestUrlIfGetRequest());
+    }
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
   }
 
   /**
