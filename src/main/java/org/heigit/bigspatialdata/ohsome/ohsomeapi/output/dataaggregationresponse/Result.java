@@ -11,5 +11,5 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationrespons
  */
 public interface Result {
 
-  public double getValue();
+  double getValue();
 }

@@ -22,6 +22,9 @@ public class ElementsController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
    * the geometry field.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
       nickname = "geometry", response = DataResponse.class)
@@ -35,6 +38,9 @@ public class ElementsController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the bounding box of the respective
    * objects in the geometry field.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
       nickname = "bbox", response = DataResponse.class)
@@ -48,6 +54,9 @@ public class ElementsController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the centroid of the respective objects in
    * the geometry field.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
       nickname = "centroid", response = DataResponse.class)

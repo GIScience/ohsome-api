@@ -44,19 +44,19 @@ public class Application implements ApplicationRunner {
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
-    final String DB_PROPERTY = "database.db";
+    final String dbProperty = "database.db";
     boolean multithreading = true;
     boolean caching = false;
     String dbPrefix = null;
-    long timeout = 100000;
+    long timeoutInMilliseconds = 100000;
     // only used when tests are executed directly in Eclipse
-    if (System.getProperty(DB_PROPERTY) != null) {
-      DbConnData.db = new OSHDBH2(System.getProperty(DB_PROPERTY));
+    if (System.getProperty(dbProperty) != null) {
+      DbConnData.db = new OSHDBH2(System.getProperty(dbProperty));
     }
     try {
       for (String paramName : args.getOptionNames()) {
         switch (paramName) {
-          case DB_PROPERTY:
+          case dbProperty:
             DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
             break;
           case "database.jdbc":
@@ -100,7 +100,7 @@ public class Application implements ApplicationRunner {
             dbPrefix = args.getOptionValues(paramName).get(0);
             break;
           case "database.timeout":
-            timeout = Long.valueOf(args.getOptionValues(paramName).get(0));
+            timeoutInMilliseconds = Long.valueOf(args.getOptionValues(paramName).get(0));
             break;
           default:
             break;
@@ -111,8 +111,8 @@ public class Application implements ApplicationRunner {
             "You have to define one of the following three database parameters: '--database.db', "
                 + "'--database.ignite', or '--database.jdbc'.");
       }
-      ProcessingData.setTimeout(timeout/1000);
-      DbConnData.db.timeoutInMilliseconds(timeout);
+      ProcessingData.setTimeout(timeoutInMilliseconds / 1000);
+      DbConnData.db.timeoutInMilliseconds(timeoutInMilliseconds);
       if (DbConnData.db instanceof OSHDBJdbc) {
         DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
       }

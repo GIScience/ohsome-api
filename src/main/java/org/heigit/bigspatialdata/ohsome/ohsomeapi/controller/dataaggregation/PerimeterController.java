@@ -34,6 +34,8 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -50,6 +52,8 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the OSM type.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -67,6 +71,8 @@ public class PerimeterController {
    * Gives the perimeter of polygonal OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -85,8 +91,8 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the key.
    * 
-   * @param groupByKeys <code>String</code> array containing the key used to create the tags for the
-   *        grouping. One or more keys can be provided.
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -107,12 +113,8 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the tag.
    *
-   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @param groupByValues <code>String</code> array containing the values used to create the tags
-   *        for grouping. If a given value does not appear in the output, then there are no objects
-   *        assigned to it (within the given filters).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -136,10 +138,8 @@ public class PerimeterController {
    * Gives the perimeter of items satisfying keys, values (+ other params) and part of items
    * satisfying keys2, values2.(+ other params).
    * 
-   * @param keys2 <code>String</code> array having the same format as keys and used to define the
-   *        subgroup(share).
-   * @param values2 <code>String</code> array having the same format as values and used to define
-   *        the subgroup(share).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -164,10 +164,8 @@ public class PerimeterController {
    * Gives the perimeter of items satisfying keys, values (+ other params) and part of items
    * satisfying keys2, values2 (plus other parameters), grouped by the boundary.
    * 
-   * @param keys2 <code>String</code> array having the same format as keys and used to define the
-   *        subgroup(share).
-   * @param values2 <code>String</code> array having the same format as values and used to define
-   *        the subgroup(share).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -190,6 +188,8 @@ public class PerimeterController {
    * Gives the density of selected items (perimeter of items divided by the total area in
    * square-kilometers).
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -209,6 +209,8 @@ public class PerimeterController {
   /**
    * Gives the density of selected items grouped by the OSM type.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -226,6 +228,8 @@ public class PerimeterController {
    * Gives the density of selected items grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -243,12 +247,8 @@ public class PerimeterController {
   /**
    * Gives the density of selected items grouped by the tag.
    * 
-   * @param groupByKey <code>String</code> array containing the key used to create the tags for the
-   *        grouping. At the current implementation, there must be one key given (not more and not
-   *        less).
-   * @param groupByValues <code>String</code> array containing the values used to create the tags
-   *        for grouping. If a given value does not appear in the output, then there are no objects
-   *        assigned to it (within the given filters).
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -272,9 +272,8 @@ public class PerimeterController {
    * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
    * 
-   * @param types2 <code>String</code> array having the same format as types.
-   * @param keys2 <code>String</code> array having the same format as keys.
-   * @param values2 <code>String</code> array having the same format as values.
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
@@ -304,6 +303,8 @@ public class PerimeterController {
    * Gives the ratio of the perimeter of selected items satisfying types2, keys2 and values2 within
    * items selected by types, keys and values grouped by the boundary.
    * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */

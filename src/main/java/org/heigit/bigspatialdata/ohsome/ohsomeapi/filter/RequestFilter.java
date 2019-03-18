@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS) and a header to 
- * enable caching, if appropriate.
+ * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS), sets the
+ * character encoding to utf-8, if it's undefined, as well as a header to enable caching, if
+ * appropriate.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -23,6 +24,9 @@ public class RequestFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
+    if (request.getCharacterEncoding() == null) {
+      request.setCharacterEncoding("UTF-8");
+    }
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader("Access-Control-Allow-Methods", "POST, GET");
     response.setHeader("Access-Control-Max-Age", "3600");
@@ -30,13 +34,14 @@ public class RequestFilter extends OncePerRequestFilter {
     response.setHeader("Access-Control-Allow-Headers",
         "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,"
             + "Access-Control-Request-Headers,Authorization");
-    if (RequestUtils.isDataExtraction(request)) {
+    if (RequestUtils.isDataExtraction(request.getRequestURL().toString())) {
       response.setHeader("Content-disposition", "attachment;filename=ohsome.geojson");
     }
     if (RequestUtils.usesCsvFormat(request)) {
       response.setHeader("Content-disposition", "attachment;filename=ohsome.csv");
     }
-    boolean cacheNotAllowed = RequestUtils.cacheNotAllowed(request);
+    boolean cacheNotAllowed = RequestUtils.cacheNotAllowed(request.getRequestURL().toString(),
+        request.getParameterValues("time"));
     HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
       int status = 200;
 
@@ -62,4 +67,5 @@ public class RequestFilter extends OncePerRequestFilter {
     };
     filterChain.doFilter(request, wrapper);
   }
+
 }

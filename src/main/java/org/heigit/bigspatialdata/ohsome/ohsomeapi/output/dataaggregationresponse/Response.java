@@ -21,9 +21,9 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationrespons
  */
 public interface Response {
 
-  public Attribution getAttribution();
+  Attribution getAttribution();
 
-  public String getApiVersion();
+  String getApiVersion();
 
-  public Metadata getMetadata();
+  Metadata getMetadata();
 }

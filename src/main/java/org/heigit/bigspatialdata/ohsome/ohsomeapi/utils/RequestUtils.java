@@ -1,6 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.utils;
 
 import javax.servlet.http.HttpServletRequest;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 
 /** Utils class containing request-specific static utility methods. */
 public class RequestUtils {
@@ -25,24 +26,35 @@ public class RequestUtils {
   }
 
   /**
-   * Checks, if caching will be allowed for the given <code>HttpServletRequest</code> object, or
-   * not.
+   * Checks, if caching will be allowed for the given query, or not.
    * 
-   * @param request <code>HttpServletRequest</code> object used to check
+   * @param processingData the {@link ProcessingData} of the request to check
    * @return whether caching is allowed, or not
    */
-  public static boolean cacheNotAllowed(HttpServletRequest request) {
-    return isMetadata(request) || usesDefaultToTimestamp(request) || isDataExtraction(request);
+  public static boolean cacheNotAllowed(ProcessingData processingData) {
+    String url = processingData.getRequestUrl();
+    String[] timeParameter = processingData.getRequestParameters().getTime();
+    return cacheNotAllowed(url, timeParameter);
+  }
+
+  /**
+   * Checks, if caching will be allowed for the given query, or not.
+   *
+   * @param url the URL of the request to check
+   * @param timeParameter the "time" parameter of the request to check
+   * @return whether caching is allowed, or not
+   */
+  public static boolean cacheNotAllowed(String url, String[] timeParameter) {
+    return isMetadata(url) || usesDefaultToTimestamp(timeParameter) || isDataExtraction(url);
   }
   
   /**
    * Checks if the given request is requesting a data-extraction.
    * 
-   * @param request <code>HttpServletRequest</code> object used to check
+   * @param url the url of the request to check
    * @return whether it is a data-extraction request, or not
    */
-  public static boolean isDataExtraction(HttpServletRequest request) {
-    String url = request.getRequestURL().toString();
+  public static boolean isDataExtraction(String url) {
     return (url.contains("elementsFullHistory") || url.contains("elements/geometry")
         || url.contains("elements/centroid") || url.contains("elements/bbox"));
   }
@@ -60,28 +72,27 @@ public class RequestUtils {
   /**
    * Checks if the given request uses the default toTimestamp.
    * 
-   * @param request <code>HttpServletRequest</code> object used to check
+   * @param timeParameter the "time" parameter of the request to check
    * @return whether it uses the default toTimestamp, or not
    */
-  private static boolean usesDefaultToTimestamp(HttpServletRequest request) {
-    String[] time = request.getParameterValues("time");
-    if (time == null || time[0].replaceAll("\\s", "").length() == 0) {
+  private static boolean usesDefaultToTimestamp(String[] timeParameter) {
+    if (timeParameter == null || timeParameter[0].replaceAll("\\s", "").length() == 0) {
       return true;
     }
-    int length = time.length;
+    int length = timeParameter.length;
     if (length != 1) {
       return false;
     }
-    return (time[0].contains("//") || time[0].endsWith("/"));
+    return (timeParameter[0].contains("//") || timeParameter[0].endsWith("/"));
   }
 
   /**
    * Checks if the given request is requesting metadata.
    * 
-   * @param request <code>HttpServletRequest</code> object used to check
+   * @param url the url of the request to check
    * @return whether it is a metadata request, or not
    */
-  private static boolean isMetadata(HttpServletRequest request) {
-    return request.getRequestURL().toString().contains("/metadata");
+  private static boolean isMetadata(String url) {
+    return url.contains("/metadata");
   }
 }

@@ -3,7 +3,6 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -25,11 +24,10 @@ public class ProcessingData {
   private Geometry requestGeom;
   private Collection<Geometry> boundaryColl;
   private GeoJsonObject[] geoJsonGeoms;
-  private HttpServletRequest servletRequest;
 
-  public ProcessingData(RequestParameters requestParameters, HttpServletRequest servletRequest) {
+  public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
-    this.servletRequest = servletRequest;
+    this.requestUrl = requestUrl;
   }
 
   public static Geometry getDataPolyGeom() {
@@ -134,9 +132,5 @@ public class ProcessingData {
 
   public void setShowMetadata(boolean showMetadata) {
     this.showMetadata = showMetadata;
-  }
-
-  public HttpServletRequest getServletRequest() {
-    return servletRequest;
   }
 }
