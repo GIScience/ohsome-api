@@ -429,7 +429,7 @@ public class InputProcessor {
     }
   }
 
-  public String getRequestUrlIfGetRequest() {
+  public String getRequestUrlIfGetRequest(HttpServletRequest servletRequest) {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       return this.getRequestUrl();
     }
@@ -654,9 +654,11 @@ public class InputProcessor {
     return requestUrl;
   }
 
+
   public boolean includeTags() {
     return includeTags;
   }
+
 
   public boolean includeOSMMetadata() {
     return includeOSMMetadata;

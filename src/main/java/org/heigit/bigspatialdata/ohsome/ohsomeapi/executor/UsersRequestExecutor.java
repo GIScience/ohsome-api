@@ -63,7 +63,7 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.usersCount(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(results, servletResponse,
@@ -103,7 +103,7 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -189,7 +189,7 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.usersCountGroupByTag(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -259,7 +259,7 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.usersCountGroupByKey(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,

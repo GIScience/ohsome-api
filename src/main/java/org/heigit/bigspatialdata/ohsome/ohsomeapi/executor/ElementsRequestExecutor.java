@@ -43,7 +43,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -145,7 +144,7 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.",
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
@@ -299,7 +298,7 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.",
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
@@ -380,7 +379,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterArea(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -447,7 +446,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByBoundary(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -573,7 +572,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
@@ -678,7 +677,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -745,7 +744,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -841,7 +840,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByKey(requestResource.getLabel(),
               requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -996,10 +995,10 @@ public class ElementsRequestExecutor {
     }
     if (isShare) {
       return exeUtils.createShareResponse(timeArray, value1, value2, startTime, requestResource,
-          inputProcessor.getRequestUrlIfGetRequest(), servletResponse);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     } else {
       return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
-          inputProcessor.getRequestUrlIfGetRequest(), servletResponse);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     }
   }
 
@@ -1199,11 +1198,11 @@ public class ElementsRequestExecutor {
     }
     if (isShare) {
       return exeUtils.createShareGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource, inputProcessor.getRequestUrlIfGetRequest(),
+          resultValues2, startTime, requestResource, inputProcessor.getRequestUrlIfGetRequest(servletRequest),
           servletResponse);
     } else {
       return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource, inputProcessor.getRequestUrlIfGetRequest(),
+          resultValues2, startTime, requestResource, inputProcessor.getRequestUrlIfGetRequest(servletRequest),
           servletResponse);
     }
   }
