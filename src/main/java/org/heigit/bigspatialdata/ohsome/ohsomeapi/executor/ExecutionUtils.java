@@ -374,20 +374,20 @@ public class ExecutionUtils {
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public <K extends OSHDBCombinedIndex<OSHDBTimestamp, ?>, V extends Number> SortedMap<K, V> computeResult(
-      RequestResource requestResource, MapAggregator<? extends K, OSMEntitySnapshot> preResult)
+  public <K2 extends Comparable<K2> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K2>, V> computeResult(
+      RequestResource requestResource, MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K2>, OSMEntitySnapshot> preResult)
       throws Exception {
     switch (requestResource) {
       case COUNT:
-        return (SortedMap<K, V>) preResult.count();
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K2>, V>) preResult.count();
       case LENGTH:
-        return (SortedMap<K, V>) preResult
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K2>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return cacheInUserData(snapshot.getGeometry(),
                   () -> Geo.lengthOf(snapshot.getGeometry()));
             });
       case PERIMETER:
-        return (SortedMap<K, V>) preResult
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K2>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
                 return cacheInUserData(snapshot.getGeometry(),
@@ -396,7 +396,7 @@ public class ExecutionUtils {
               return 0.0;
             });
       case AREA:
-        return (SortedMap<K, V>) preResult
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K2>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return cacheInUserData(snapshot.getGeometry(),
                   () -> Geo.areaOf(snapshot.getGeometry()));
