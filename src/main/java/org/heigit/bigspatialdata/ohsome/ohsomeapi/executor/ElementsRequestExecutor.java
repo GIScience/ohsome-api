@@ -548,7 +548,7 @@ public class ElementsRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
+          Description.countLengthPerimeterAreaGroupByBoundaryGroupByTag(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
