@@ -480,6 +480,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}
    */
+  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
@@ -507,27 +508,22 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
         mapRed.aggregateByGeometry(geoms)
             .map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
             .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
-
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, ? extends Number> result;
     result = exeUtils.computeNestedResult(requestResource, preResult);
     SortedMap<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult =
         OSHDBCombinedIndex.nest(result);
-
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
     for (Entry<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
@@ -542,7 +538,6 @@ public class ElementsRequestExecutor {
       } else {
         tagIdentifier = "remainder";
       }
-
       resultSet[count] =
           new GroupByResult(new Object[] {boundaryIds[boundaryIdentifier], tagIdentifier}, results);
       count++;
