@@ -226,6 +226,37 @@ public class GetControllerTest {
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
+  @Test
+  public void getElementsCountGroupByBoundaryGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes",
+        JsonNode.class);
+    assertEquals(43, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(
+            jsonNode -> "boundary1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+                && "remainder".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+        .findFirst().get().get("result").get(0).get("value").asInt(), 0);
+  }
+
+  @Test
+  public void getElementsCountDensityGroupByBoundaryGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401,"
+        + "49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2016-11-09&keys=building&"
+        + "groupByKey=building", JsonNode.class);
+    assertEquals(2.83, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> "b2".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+            && "building=church".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+  }
+
   /*
    * /elements/length tests
    */
