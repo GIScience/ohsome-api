@@ -91,6 +91,30 @@ public class CountController {
   }
 
   /**
+   * Gives the count of OSM objects grouped by the boundary and the tag.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
+      nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+        RequestResource.COUNT, servletRequest, servletResponse, true, false);
+  }
+
+  /**
    * Gives the count of OSM objects grouped by the key.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -134,22 +158,6 @@ public class CountController {
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
         servletRequest, servletResponse, true, false);
-  }
-
-  @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
-      nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
-        RequestResource.COUNT, servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -265,6 +273,30 @@ public class CountController {
         RequestResource.COUNT, servletRequest, servletResponse, true, true);
   }
 
+  /**
+   * Gives the density of OSM objects grouped by the boundary and the tag.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
+      nickname = "countDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+        RequestResource.COUNT, servletRequest, servletResponse, true, true);
+  }
+  
   /**
    * Gives the density of selected items grouped by the tag.
    * 
