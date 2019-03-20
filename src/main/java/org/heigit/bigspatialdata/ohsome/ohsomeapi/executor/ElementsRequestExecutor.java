@@ -513,26 +513,9 @@ public class ElementsRequestExecutor {
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
 
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
-        mapRed.aggregateByGeometry(geoms).map(f -> {
-          int[] tags = f.getEntity().getRawTags();
-          for (int i = 0; i < tags.length; i += 2) {
-            int tagKeyId = tags[i];
-            int tagValueId = tags[i + 1];
-            if (tagKeyId == keysInt) {
-              if (valuesInt.length == 0) {
-                return new ImmutablePair<>(
-                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
-              }
-              for (int value : valuesInt) {
-                if (tagValueId == value) {
-                  return new ImmutablePair<>(
-                      new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
-                }
-              }
-            }
-          }
-          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-        }).aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
+        mapRed.aggregateByGeometry(geoms)
+            .map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+            .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
 
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, ? extends Number> result;
@@ -627,27 +610,8 @@ public class ElementsRequestExecutor {
       }
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> preResult =
-        mapRed.map(f -> {
-          int[] tags = f.getEntity().getRawTags();
-          for (int i = 0; i < tags.length; i += 2) {
-            int tagKeyId = tags[i];
-            int tagValueId = tags[i + 1];
-            if (tagKeyId == keysInt) {
-              if (valuesInt.length == 0) {
-                return new ImmutablePair<>(
-                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
-              }
-              for (int value : valuesInt) {
-                if (tagValueId == value) {
-                  return new ImmutablePair<>(
-                      new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
-                }
-              }
-            }
-          }
-          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-        }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
-
+        mapRed.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f)).aggregateByTimestamp()
+            .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> result;
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
@@ -837,10 +801,11 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          Description.countLengthPerimeterAreaGroupByKey(requestResource.getLabel(),
-              requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+      metadata =
+          new Metadata(duration,
+              Description.countLengthPerimeterAreaGroupByKey(requestResource.getLabel(),
+                  requestResource.getUnit()),
+              inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -1198,12 +1163,12 @@ public class ElementsRequestExecutor {
     }
     if (isShare) {
       return exeUtils.createShareGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource, inputProcessor.getRequestUrlIfGetRequest(servletRequest),
-          servletResponse);
+          resultValues2, startTime, requestResource,
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     } else {
       return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource, inputProcessor.getRequestUrlIfGetRequest(servletRequest),
-          servletResponse);
+          resultValues2, startTime, requestResource,
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     }
   }
 }

@@ -92,6 +92,81 @@ public class ExecutionUtils {
     this.processingData = processingData;
   }
 
+  /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
+  public static boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
+      Integer[] valuesInt) {
+    boolean matches = true;
+    if (osmTypes.contains(entity.getType())) {
+      for (int i = 0; i < keysInt.length; i++) {
+        boolean matchesTag;
+        if (i < valuesInt.length) {
+          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
+        } else {
+          matchesTag = entity.hasTagKey(keysInt[i]);
+        }
+        if (!matchesTag) {
+          matches = false;
+          break;
+        }
+      }
+    } else {
+      matches = false;
+    }
+    return matches;
+  }
+
+  /**
+   * Defines a certain decimal format.
+   * 
+   * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
+   *        after the comma)
+   * @return <code>DecimalFormat</code> object with the defined format.
+   */
+  public static DecimalFormat defineDecimalFormat(String format) {
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    return new DecimalFormat(format, otherSymbols);
+  }
+
+  /**
+   * Caches the given mapper value in the user data of the <code>Geometry</code> object.
+   * 
+   * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
+   * @param arbitrary function that returns a time-independent value from a snapshot object, for
+   *        example lenght, area, perimeter
+   * @return evaluated mapper function or cached value stored in the user data of the
+   *         <code>Geometry</code> object
+   */
+  public static Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
+    if (geom.getUserData() == null) {
+      geom.setUserData(mapper.get());
+    }
+    return (Double) geom.getUserData();
+  }
+
+  /**
+   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest(Map) nest} but has
+   * switched &lt;U&gt; and &lt;V&gt; parameters.
+   *
+   * @param result the "flat" result data structure that should be converted to a nested structure
+   * @param <A> an arbitrary data type, used for the data value items
+   * @param <U> an arbitrary data type, used for the index'es key items
+   * @param <V> an arbitrary data type, used for the index'es key items
+   * @return a nested data structure: for each index part there is a separate level of nested maps
+   * 
+   */
+  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
+      Map<OSHDBCombinedIndex<U, V>, A> result) {
+    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
+    result.forEach((index, data) -> {
+      if (!ret.containsKey(index.getSecondIndex())) {
+        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
+      }
+      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
+    });
+    return ret;
+  }
+  
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
@@ -254,19 +329,6 @@ public class ExecutionUtils {
     return comments;
   }
 
-  /**
-   * Defines a certain decimal format.
-   * 
-   * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
-   *        after the comma)
-   * @return <code>DecimalFormat</code> object with the defined format.
-   */
-  public static DecimalFormat defineDecimalFormat(String format) {
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    return new DecimalFormat(format, otherSymbols);
-  }
-
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
@@ -347,29 +409,6 @@ public class ExecutionUtils {
   }
 
   /**
-   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest(Map) nest} but has
-   * switched &lt;U&gt; and &lt;V&gt; parameters.
-   *
-   * @param result the "flat" result data structure that should be converted to a nested structure
-   * @param <A> an arbitrary data type, used for the data value items
-   * @param <U> an arbitrary data type, used for the index'es key items
-   * @param <V> an arbitrary data type, used for the index'es key items
-   * @return a nested data structure: for each index part there is a separate level of nested maps
-   * 
-   */
-  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
-      Map<OSHDBCombinedIndex<U, V>, A> result) {
-    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
-    result.forEach((index, data) -> {
-      if (!ret.containsKey(index.getSecondIndex())) {
-        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
-      }
-      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
-    });
-    return ret;
-  }
-
-  /**
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
@@ -441,29 +480,6 @@ public class ExecutionUtils {
       default:
         return null;
     }
-  }
-
-  /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
-  public static boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
-      Integer[] valuesInt) {
-    boolean matches = true;
-    if (osmTypes.contains(entity.getType())) {
-      for (int i = 0; i < keysInt.length; i++) {
-        boolean matchesTag;
-        if (i < valuesInt.length) {
-          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
-        } else {
-          matchesTag = entity.hasTagKey(keysInt[i]);
-        }
-        if (!matchesTag) {
-          matches = false;
-          break;
-        }
-      }
-    } else {
-      matches = false;
-    }
-    return matches;
   }
 
   /**
@@ -551,22 +567,6 @@ public class ExecutionUtils {
     return features;
   }
 
-  /**
-   * Caches the given mapper value in the user data of the <code>Geometry</code> object.
-   * 
-   * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
-   * @param arbitrary function that returns a time-independent value from a snapshot object, for
-   *        example lenght, area, perimeter
-   * @return evaluated mapper function or cached value stored in the user data of the
-   *         <code>Geometry</code> object
-   */
-  public static Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
-    if (geom.getUserData() == null) {
-      geom.setUserData(mapper.get());
-    }
-    return (Double) geom.getUserData();
-  }
-
   /** Fills the ElementsResult array with respective ElementsResult objects. */
   public ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, DecimalFormat df, Geometry geom) {
@@ -627,6 +627,37 @@ public class ExecutionUtils {
       valueCount++;
     }
     return resultValues;
+  }
+
+  /**
+   * Maps the given <code>OSMEntitySnapshot</code> to a given tag, or to the remainder (having -1,
+   * -1 as identifier) if none of the given tags is included.
+   * 
+   * @param keysInt int value of the groupByKey parameter
+   * @param valuesInt Integer[] of the groupByValues parameter
+   * @param f <code>OSMEntitySnapshot</code>
+   * @return nested <code>Pair</code> containing the integer values of the tag category and the
+   *         <code>OSMEntitySnapshot</code>
+   */
+  public Pair<Pair<Integer, Integer>, OSMEntitySnapshot> mapSnapshotToTags(int keysInt,
+      Integer[] valuesInt, OSMEntitySnapshot f) {
+    int[] tags = f.getEntity().getRawTags();
+    for (int i = 0; i < tags.length; i += 2) {
+      int tagKeyId = tags[i];
+      int tagValueId = tags[i + 1];
+      if (tagKeyId == keysInt) {
+        if (valuesInt.length == 0) {
+          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+        }
+        for (int value : valuesInt) {
+          if (tagValueId == value) {
+            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
+                f);
+          }
+        }
+      }
+    }
+    return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
   }
 
   /** Creates a RatioResponse. */
