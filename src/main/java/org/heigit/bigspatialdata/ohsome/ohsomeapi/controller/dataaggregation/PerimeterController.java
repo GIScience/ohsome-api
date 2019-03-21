@@ -89,6 +89,30 @@ public class PerimeterController {
   }
 
   /**
+   * Gives the perimeter of polygonal OSM objects grouped by the boundary and the tag.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the boundary and the tag",
+      nickname = "perimeterGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+  }
+
+  /**
    * Gives the perimeter of polygonal OSM objects grouped by the key.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -241,6 +265,30 @@ public class PerimeterController {
   public Response perimeterDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
+        RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
+  }
+
+  /**
+   * Gives the density of selected items grouped by the boundary and the tag.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Density of  grouped by the boundary and the tag",
+      nickname = "perimeterDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
         RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
   }
 

@@ -274,7 +274,7 @@ public class CountController {
   }
 
   /**
-   * Gives the density of OSM objects grouped by the boundary and the tag.
+   * Gives the density of selected items grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response

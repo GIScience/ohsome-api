@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiOperation;
 public class LengthController {
 
   /**
-   * Gives the length of OSM objects.
+   * Gives the length of OSM elements.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -49,15 +49,15 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the OSM type.
+   * Gives the length of OSM elements grouped by the OSM type.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the type",
-      nickname = "lengthGroupByType", response = GroupByResponse.class)
+  @ApiOperation(value = "Length of OSM elements grouped by the type", nickname = "lengthGroupByType",
+      response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByType(HttpServletRequest servletRequest,
@@ -67,7 +67,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the boundary parameter (bounding
+   * Gives the length of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -76,8 +76,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(
-      value = "Length of OSM elements in meter grouped by "
-          + "the boundary (bboxes, bcircles, or bpolys)",
+      value = "Length of  in meter grouped by " + "the boundary (bboxes, bcircles, or bpolys)",
       nickname = "lengthGroupByBoundary", response = GroupByResponse.class)
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
@@ -90,14 +89,38 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the key.
+   * Gives the length of OSM elements grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "lengthGroupByKey",
+  @ApiOperation(value = "Length of OSM elements grouped by the boundary and the tag",
+      nickname = "lengthGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+        RequestResource.LENGTH, servletRequest, servletResponse, true, false);
+  }
+
+  /**
+   * Gives the length of OSM elements grouped by the key.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Length of OSM elements grouped by the key", nickname = "lengthGroupByKey",
       response = GroupByResponse.class)
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys",
       value = ParameterDescriptions.KEYS_DESCR, defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY,
@@ -111,7 +134,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the length of OSM objects grouped by the tag.
+   * Gives the length of OSM elements grouped by the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -244,6 +267,30 @@ public class LengthController {
   public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
+        RequestResource.LENGTH, servletRequest, servletResponse, true, true);
+  }
+
+  /**
+   * Gives the density of selected items grouped by the boundary and the tag.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   */
+  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
+      nickname = "lengthDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
         RequestResource.LENGTH, servletRequest, servletResponse, true, true);
   }
 
