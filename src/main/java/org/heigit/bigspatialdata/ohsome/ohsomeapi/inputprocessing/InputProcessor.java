@@ -481,7 +481,7 @@ public class InputProcessor {
       throws Exception {
     String[] toTimestamps = null;
     String[] timeData;
-    if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0) {
+    if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
       if (!isSnapshot) {
         toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
         mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
