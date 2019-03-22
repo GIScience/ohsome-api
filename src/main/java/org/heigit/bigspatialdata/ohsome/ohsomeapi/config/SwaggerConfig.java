@@ -144,7 +144,7 @@ public class SwaggerConfig {
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
           .description(ParameterDescriptions.TIME_DATA_EXTRACTION_DESCR)
-          .modelRef(new ModelRef(STRING)).parameterType(QUERY).defaultValue("2014-01-01,2017-01-01")
+          .modelRef(new ModelRef(STRING)).parameterType(QUERY).defaultValue("2016-01-01,2017-01-01")
           .required(true).build());
       globalOperationParams.add(new ParameterBuilder().name("properties")
           .description(ParameterDescriptions.PROPERTIES_DESCR).modelRef(new ModelRef(STRING))
