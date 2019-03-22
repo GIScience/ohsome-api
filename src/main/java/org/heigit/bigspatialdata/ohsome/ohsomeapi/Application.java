@@ -1,14 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 
-import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
@@ -18,7 +15,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
@@ -121,14 +117,13 @@ public class Application implements ApplicationRunner {
       }
       if (DbConnData.keytables != null) {
         DbConnData.tagTranslator = new TagTranslator(DbConnData.keytables.getConnection());
-        extractMetadata(DbConnData.keytables);
       } else {
         if (!(DbConnData.db instanceof OSHDBJdbc)) {
           throw new RuntimeException("Missing keytables.");
         }
         DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
-        extractMetadata(DbConnData.db);
       }
+      RequestUtils.extractOSHDBMetadata();
       if (DbConnData.mapTagTranslator == null) {
         DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
       }
@@ -149,42 +144,6 @@ public class Application implements ApplicationRunner {
       }
     } catch (ClassNotFoundException | SQLException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Extracts some metadata from the given db object and adds it to the corresponding objects.
-   * 
-   * @param db <code>OSHDBDatabase</code> object to the OSHDB-file of either H2, or Ignite type.
-   */
-  private static void extractMetadata(OSHDBDatabase db) throws IOException {
-    if (db.metadata("extract.region") != null) {
-      String dataPolyString = db.metadata("extract.region");
-      ObjectMapper mapper = new ObjectMapper();
-      ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
-      GeometryBuilder geomBuilder = new GeometryBuilder();
-      geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
-      ExtractMetadata.dataPoly = ProcessingData.getDataPolyGeom();
-    }
-    if (db.metadata("extract.timerange") != null) {
-      String[] timeranges = db.metadata("extract.timerange").split(",");
-      ExtractMetadata.fromTstamp = timeranges[0];
-      ExtractMetadata.toTstamp = timeranges[1];
-    } else {
-      // the here defined hard-coded values are only temporary available
-      // in future an exception will be thrown, if these metadata infos are not retrieveable
-      ExtractMetadata.fromTstamp = "2007-11-01";
-      ExtractMetadata.toTstamp = "2018-01-01T00:00:00";
-    }
-    if (db.metadata("attribution.short") != null) {
-      ExtractMetadata.attributionShort = db.metadata("attribution.short");
-    } else {
-      ExtractMetadata.attributionShort = "© OpenStreetMap contributors";
-    }
-    if (db.metadata("attribution.url") != null) {
-      ExtractMetadata.attributionUrl = db.metadata("attribution.url");
-    } else {
-      ExtractMetadata.attributionUrl = "https://ohsome.org/copyrights";
     }
   }
 }

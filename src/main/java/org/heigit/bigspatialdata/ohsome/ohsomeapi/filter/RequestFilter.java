@@ -27,6 +27,7 @@ public class RequestFilter extends OncePerRequestFilter {
     if (request.getCharacterEncoding() == null) {
       request.setCharacterEncoding("UTF-8");
     }
+    // TODO move header definition into separate method defineResponseHeaders
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader("Access-Control-Allow-Methods", "POST, GET");
     response.setHeader("Access-Control-Max-Age", "3600");
@@ -65,7 +66,7 @@ public class RequestFilter extends OncePerRequestFilter {
         setHeader(name, value);
       }
     };
+    RequestUtils.extractOSHDBMetadata();
     filterChain.doFilter(request, wrapper);
   }
-
 }
