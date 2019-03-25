@@ -552,6 +552,11 @@ public class ElementsRequestExecutor {
               requestResource.getLabel(), requestResource.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }

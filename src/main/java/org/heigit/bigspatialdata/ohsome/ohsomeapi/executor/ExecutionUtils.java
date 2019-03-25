@@ -166,7 +166,7 @@ public class ExecutionUtils {
     });
     return ret;
   }
-  
+
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
@@ -822,7 +822,13 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      columnNames.add(groupByResult.getGroupByObject().toString());
+      Object groupByObject = groupByResult.getGroupByObject();
+      if (groupByObject instanceof Object[]) {
+        Object[] groupByObjectArr = (Object[]) groupByObject;
+        columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
+      } else {
+        columnNames.add(groupByObject.toString());
+      }
       for (int j = 0; j < groupByResult.getResult().length; j++) {
         ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
         if (i == 0) {
