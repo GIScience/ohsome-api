@@ -556,6 +556,10 @@ public class ElementsRequestExecutor {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
+    } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+          "FeatureCollection",
+          exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
