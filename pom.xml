@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.heigit.bigspatialdata</groupId>
 		<artifactId>bigspatialdata-parent</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
 
 	<groupId>org.heigit.bigspatialdata.ohsome</groupId>
@@ -19,7 +19,7 @@
 	<properties>
 		<springboot.version>2.0.3.RELEASE</springboot.version>
 		<jsonpath.version>2.2.0</jsonpath.version>
-		<oshdb.version>0.5.0-SNAPSHOT</oshdb.version>
+		<oshdb.version>0.5.0</oshdb.version>
 		<jacksondatatype.version>2.9.6</jacksondatatype.version>
 		<geotools.version>20.2</geotools.version>
 		<springfox.version>2.9.2</springfox.version>
