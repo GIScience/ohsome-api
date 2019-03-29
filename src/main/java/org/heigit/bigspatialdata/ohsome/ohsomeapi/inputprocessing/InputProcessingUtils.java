@@ -301,9 +301,9 @@ public class InputProcessingUtils {
     long start = 0;
     long end = 0;
     long timestampLong = 0;
-    start = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.fromTstamp + "T00:00:00Z")
+    start = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.fromTstamp)
         .getLong(ChronoField.INSTANT_SECONDS);
-    end = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.toTstamp + "Z")
+    end = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.toTstamp)
         .getLong(ChronoField.INSTANT_SECONDS);
     for (String timestamp : timeInfo) {
       try {
