@@ -622,12 +622,15 @@ public class PostControllerTest {
     map.add("groupByValues", "residential,garage");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/density/groupBy/boundary/groupBy/tag", map, JsonNode.class);
-    assertEquals(7568.03, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> "b1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
-            && "building=residential".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(7568.03,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> "b1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+                && "building=residential"
+                    .equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        1e-6);
     assertEquals(3, response.getBody().get("groupByResult").size());
   }
 
@@ -648,7 +651,6 @@ public class PostControllerTest {
     int length = response.getBody().length();
     assertEquals("159.83", response.getBody().substring(length - 7, length - 1));
   }
-
 
   @Test
   public void elementsLengthDensityGroupByTagCsvTest() {
@@ -737,6 +739,26 @@ public class PostControllerTest {
   }
 
   @Test
+  public void elementsPerimeterGroupByBoundaryGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
+        + "49.41256,8.69304,49.42331");
+    map.add("types", "way");
+    map.add("time", "2016-07-01");
+    map.add("keys", "building");
+    map.add("groupByKey", "building");
+    map.add("groupByValues", "house");
+    map.add("format", "csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/perimeter/groupBy/boundary/groupBy/tag", map, String.class);
+    String responseBody = response.getBody();
+    String[] splittedResponseBody = responseBody.split("\\r?\\n");
+    assertEquals(5, splittedResponseBody.length);
+    assertEquals(52, splittedResponseBody[4].length());
+  }
+
+  @Test
   public void elementsPerimeterDensityGroupByBoundaryCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -802,5 +824,24 @@ public class PostControllerTest {
         restTemplate.postForEntity(server + port + "/elements/perimeter/share", map, String.class);
     int length = response.getBody().length();
     assertEquals("628.21;497.21", response.getBody().substring(length - 14, length - 1));
+  }
+
+  @Test
+  public void elementsAreaGroupByBoundaryGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "b1:8.68081,49.39821,8.69528,49.40687");
+    map.add("types", "way");
+    map.add("time", "2014-07-09");
+    map.add("keys", "building");
+    map.add("groupByKey", "building");
+    map.add("groupByValues", "garage");
+    map.add("format", "csv");
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + "/elements/area/groupBy/boundary/groupBy/tag", map, String.class);
+    String responseBody = response.getBody();
+    String[] splittedResponseBody = responseBody.split("\\r?\\n");
+    assertEquals(5, splittedResponseBody.length);
+    assertEquals(37, splittedResponseBody[4].length());
   }
 }
