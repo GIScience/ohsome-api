@@ -104,8 +104,8 @@ public class RequestUtils {
     } else {
       // the here defined hard-coded values are only temporary available
       // in future an exception will be thrown, if these metadata infos are not retrieveable
-      ExtractMetadata.fromTstamp = "2007-11-01";
-      ExtractMetadata.toTstamp = "2018-01-01T00:00:00";
+      ExtractMetadata.fromTstamp = "2008-01-01T00:00:00Z";
+      ExtractMetadata.toTstamp = "2018-01-01T00:00:00Z";
     }
     if (db.metadata("attribution.short") != null) {
       ExtractMetadata.attributionShort = db.metadata("attribution.short");
