@@ -39,6 +39,7 @@ public class UsersRequestExecutor {
 
   private static final String URL = ExtractMetadata.attributionUrl;
   private static final String TEXT = ExtractMetadata.attributionShort;
+  public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
@@ -54,19 +55,15 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     UsersResult[] results =
         exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCount(isDensity), requestUrl);
+      metadata = new Metadata(duration, Description.usersCount(isDensity),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(results, servletResponse,
@@ -87,10 +84,6 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     result = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
           return f.getEntityAfter().getType();
@@ -100,7 +93,6 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df);
@@ -110,7 +102,8 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity), requestUrl);
+      metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -136,10 +129,6 @@ public class UsersRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -183,7 +172,6 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
@@ -200,7 +188,8 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByTag(isDensity), requestUrl);
+      metadata = new Metadata(duration, Description.usersCountGroupByTag(isDensity),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -226,10 +215,6 @@ public class UsersRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(requestParameters.getRequestMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -258,7 +243,6 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df);
@@ -274,7 +258,8 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByKey(isDensity), requestUrl);
+      metadata = new Metadata(duration, Description.usersCountGroupByKey(isDensity),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,

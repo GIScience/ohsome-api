@@ -76,6 +76,22 @@ public class GetControllerTest {
   }
 
   @Test
+  public void getElementsCountGroupByBoundaryGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes",
+        JsonNode.class);
+    assertEquals(43, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(
+            jsonNode -> "boundary1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+                && "remainder".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+        .findFirst().get().get("result").get(0).get("value").asInt(), 0);
+  }
+
+  @Test
   public void getElementsCountGroupByTypeTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
@@ -226,6 +242,21 @@ public class GetControllerTest {
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
+  @Test
+  public void getElementsCountDensityGroupByBoundaryGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401,"
+        + "49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2016-11-09&keys=building&"
+        + "groupByKey=building", JsonNode.class);
+    assertEquals(2.83, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> "b2".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+            && "building=church".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+  }
+
   /*
    * /elements/length tests
    */
@@ -253,6 +284,21 @@ public class GetControllerTest {
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
+  }
+
+  @Test
+  public void getElementsLengthGroupByBoundaryGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/length/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609"
+        + "&types=way&time=2017-11-25&keys=highway&groupByKey=highway", JsonNode.class);
+    assertEquals(670.61, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> "boundary1"
+            .equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+            && "highway=secondary".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -405,6 +451,23 @@ public class GetControllerTest {
         .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
+  @Test
+  public void getElementsLengthDensityGroupByBoundaryGroupByTagTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/length/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401"
+        + ",49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2017-10-08&keys=highway&"
+        + "groupByKey=highway", JsonNode.class);
+    assertEquals(73.71,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> "b1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
+                && "highway=steps".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        1e-6);
+  }
+
   /*
    * /users tests
    */
@@ -542,6 +605,21 @@ public class GetControllerTest {
   }
 
   @Test
+  public void getElementsCountDensityGroupByBoundaryGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401,"
+        + "49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2016-11-09&keys=building&"
+        + "groupByKey=building&format=csv&groupByValues=garage,residential", String.class);
+    String responseBody = response.getBody();
+    String[] splittedResponseBody = responseBody.split("\\r?\\n");
+    assertEquals(5, splittedResponseBody.length);
+    // check on length of header line and data line of csv response
+    assertEquals(121, splittedResponseBody[3].length());
+    assertEquals(59, splittedResponseBody[4].length());
+  }
+
+  @Test
   public void getElementsCountDensityGroupByTagCsvTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<String> response = restTemplate.getForEntity(
@@ -576,6 +654,18 @@ public class GetControllerTest {
     int length = response.getBody().length();
     assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
     assertEquals(172, length);
+  }
+
+  @Test
+  public void getElementsCountGroupByBoundaryGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes"
+        + "&format=csv", String.class);
+    int length = response.getBody().length();
+    assertEquals(198, length);
+    assertEquals("43.0;931.0", response.getBody().substring(length - 11, length - 1));
   }
 
   @Test
@@ -658,6 +748,29 @@ public class GetControllerTest {
         + "time=2014-01-01&types=way&values2=secondary", String.class);
     int length = response.getBody().length();
     assertEquals("1429.0;7.0;1428.0;136.0", response.getBody().substring(length - 24, length - 1));
+  }
+
+  @Test
+  public void getElementsLengthGroupByBoundaryGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/length/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609"
+        + "&types=way&time=2017-11-25&keys=highway&groupByKey=highway&format=csv&groupByValues="
+        + "primary,secondary", String.class);
+    int length = response.getBody().length();
+    assertEquals("2017-11-25T00:00:00Z;15861.34;670.61;2258.59",
+        response.getBody().substring(length - 45, length - 1));
+  }
+
+  @Test
+  public void getElementsLengthDensityGroupByBoundaryGroupByTagCsvTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.getForEntity(server + port
+        + "/elements/length/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401"
+        + ",49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2017-10-08&keys=highway&"
+        + "groupByKey=highway&format=csv&groupByValues=residential,primary", String.class);
+    int length = response.getBody().length();
+    assertEquals("3195.93", response.getBody().substring(length - 8, length - 1));
   }
 
   @Test

@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,6 +69,7 @@ public class ElementsRequestExecutor {
 
   public static final String URL = ExtractMetadata.attributionUrl;
   public static final String TEXT = ExtractMetadata.attributionShort;
+  public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   private static final double MAX_STREAM_DATA_SIZE = 1E7;
 
   private ElementsRequestExecutor() {
@@ -93,10 +96,6 @@ public class ElementsRequestExecutor {
   public static void executeElements(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     MapReducer<OSMEntitySnapshot> mapRed = null;
     inputProcessor.processPropertiesParam();
     final boolean includeTags = inputProcessor.includeTags();
@@ -145,7 +144,8 @@ public class ElementsRequestExecutor {
     Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
-      metadata = new Metadata(null, "OSM data as GeoJSON features.", requestUrl);
+      metadata = new Metadata(null, "OSM data as GeoJSON features.",
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
@@ -175,10 +175,6 @@ public class ElementsRequestExecutor {
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -301,7 +297,8 @@ public class ElementsRequestExecutor {
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
-      metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.", requestUrl);
+      metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.",
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
@@ -339,11 +336,6 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    String requestUrl = null;
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
-
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
@@ -378,16 +370,16 @@ public class ElementsRequestExecutor {
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     RequestParameters requestParameters = processingData.getRequestParameters();
     ElementsResult[] resultSet =
         exeUtils.fillElementsResult(result, requestParameters.isDensity(), df, geom);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata =
-          new Metadata(duration, Description.countLengthPerimeterArea(requestParameters.isDensity(),
-              requestResource.getLabel(), requestResource.getUnit()), requestUrl);
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterArea(requestParameters.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -429,31 +421,9 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     mapRed = inputProcessor.processParameters();
-    switch (requestResource) {
-      case COUNT:
-      default:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.COUNT,
-            processingData.getBoundaryType(), mapRed);
-        break;
-      case LENGTH:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.LENGTH,
-            processingData.getBoundaryType(), mapRed);
-        break;
-      case PERIMETER:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.PERIMETER,
-            processingData.getBoundaryType(), mapRed);
-        break;
-      case AREA:
-        result = exeUtils.computeCountLengthPerimeterAreaGbB(RequestResource.AREA,
-            processingData.getBoundaryType(), mapRed);
-        break;
-    }
+    result = exeUtils.computeCountLengthPerimeterAreaGbB(requestResource,
+        processingData.getBoundaryType(), mapRed);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -476,7 +446,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByBoundary(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          requestUrl);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -486,6 +456,110 @@ public class ElementsRequestExecutor {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
+    }
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
+  }
+
+  /**
+   * Performs a count|length|perimeter|area calculation grouped by the boundary and the tag.
+   * 
+   * @param requestResource
+   *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
+   *        RequestResource} definition of the request resource
+   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
+   *        request object
+   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
+   *        outgoing response object
+   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
+   *        (false)
+   * @param isDensity whether this request is accessed via the /density resource
+   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
+   *         Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters}
+   */
+  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
+  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
+      RequestResource requestResource, HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
+    final long startTime = System.currentTimeMillis();
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    String[] groupByKey = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
+    if (groupByKey.length != 1) {
+      throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
+    }
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    String[] groupByValues = inputProcessor.splitParamOnComma(
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
+    TagTranslator tt = DbConnData.tagTranslator;
+    Integer[] valuesInt = new Integer[groupByValues.length];
+    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
+    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
+    if (groupByValues.length != 0) {
+      for (int j = 0; j < groupByValues.length; j++) {
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
+        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
+      }
+    }
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
+        mapRed.aggregateByGeometry(geoms)
+            .map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+            .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
+            .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, ? extends Number> result;
+    result = exeUtils.computeNestedResult(requestResource, preResult);
+    SortedMap<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult =
+        OSHDBCombinedIndex.nest(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    Object[] boundaryIds = utils.getBoundaryIds();
+    int count = 0;
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
+    for (Entry<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
+      int boundaryIdentifier = entry.getKey().getFirstIndex();
+      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
+          requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
+      int tagValue = entry.getKey().getSecondIndex().getValue();
+      String tagIdentifier;
+      // check for non-remainder objects (which do have the defined key and value)
+      if (entry.getKey().getSecondIndex().getKey() != -1 && tagValue != -1) {
+        tagIdentifier = tt.getOSMTagOf(keysInt, tagValue).toString();
+      } else {
+        tagIdentifier = "remainder";
+      }
+      resultSet[count] =
+          new GroupByResult(new Object[] {boundaryIds[boundaryIdentifier], tagIdentifier}, results);
+      count++;
+    }
+    // used to remove null objects from the resultSet
+    resultSet = Arrays.stream(resultSet).filter(Objects::nonNull).toArray(GroupByResult[]::new);
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration,
+          Description.countLengthPerimeterAreaGroupByBoundaryGroupByTag(requestParameters.isDensity(),
+              requestResource.getLabel(), requestResource.getUnit()),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+    }
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+          "FeatureCollection",
+          exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
@@ -527,16 +601,11 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
-    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<Pair<Integer, Integer>>();
+    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
@@ -545,26 +614,8 @@ public class ElementsRequestExecutor {
       }
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> preResult =
-        mapRed.map(f -> {
-          int[] tags = f.getEntity().getRawTags();
-          for (int i = 0; i < tags.length; i += 2) {
-            int tagKeyId = tags[i];
-            int tagValueId = tags[i + 1];
-            if (tagKeyId == keysInt) {
-              if (valuesInt.length == 0) {
-                return new ImmutablePair<>(
-                    new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
-              }
-              for (int value : valuesInt) {
-                if (tagValueId == value) {
-                  return new ImmutablePair<>(
-                      new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
-                }
-              }
-            }
-          }
-          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
-        }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
+        mapRed.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f)).aggregateByTimestamp()
+            .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, ? extends Number> result;
     SortedMap<Pair<Integer, Integer>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     result = exeUtils.computeResult(requestResource, preResult);
@@ -594,7 +645,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countLengthPerimeterAreaGroupByTag(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          requestUrl);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -636,11 +687,6 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp()
         .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
@@ -666,7 +712,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(requestParameters.isDensity(),
               requestResource.getLabel(), requestResource.getUnit()),
-          requestUrl);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -713,11 +759,6 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -764,8 +805,11 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaGroupByKey(
-          requestResource.getLabel(), requestResource.getUnit()), requestUrl);
+      metadata =
+          new Metadata(duration,
+              Description.countLengthPerimeterAreaGroupByKey(requestResource.getLabel(),
+                  requestResource.getUnit()),
+              inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -809,7 +853,6 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
@@ -824,9 +867,6 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
       keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).toInt();
       if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
@@ -901,7 +941,6 @@ public class ElementsRequestExecutor {
     int value1Count = 0;
     int value2Count = 0;
     int matchesBothCount = 0;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     // time and value extraction
     for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> entry : result
         .entrySet()) {
@@ -925,10 +964,10 @@ public class ElementsRequestExecutor {
     }
     if (isShare) {
       return exeUtils.createShareResponse(timeArray, value1, value2, startTime, requestResource,
-          requestUrl, servletResponse);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     } else {
       return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
-          requestUrl, servletResponse);
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     }
   }
 
@@ -969,7 +1008,6 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String requestUrl = null;
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -986,9 +1024,6 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
-      requestUrl = inputProcessor.getRequestUrl();
-    }
     TagTranslator tt = DbConnData.tagTranslator;
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
       keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).toInt();
@@ -1096,35 +1131,21 @@ public class ElementsRequestExecutor {
     Double[] resultValues2 = null;
     String[] timeArray = null;
     boolean timeArrayFilled = false;
-    DecimalFormat df = exeUtils.defineDecimalFormat("#.##");
     for (Entry<MatchType, ? extends SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> entry : groupByResult
         .entrySet()) {
+      Set<? extends Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> resultSet =
+          entry.getValue().entrySet();
       if (!timeArrayFilled) {
-        timeArray = new String[entry.getValue().entrySet().size()];
+        timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = new Double[entry.getValue().entrySet().size()];
-        int value2Count = 0;
-        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
-            .getValue().entrySet()) {
-          resultValues2[value2Count] =
-              Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          value2Count++;
-        }
+        resultValues2 = exeUtils.fillElementsShareRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = new Double[entry.getValue().entrySet().size()];
-        int value1Count = 0;
-        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
-            .getValue().entrySet()) {
-          resultValues1[value1Count] =
-              Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          value1Count++;
-        }
+        resultValues1 = exeUtils.fillElementsShareRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
-        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : entry
-            .getValue().entrySet()) {
+        for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : resultSet) {
           resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
@@ -1146,10 +1167,12 @@ public class ElementsRequestExecutor {
     }
     if (isShare) {
       return exeUtils.createShareGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource, requestUrl, servletResponse);
+          resultValues2, startTime, requestResource,
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     } else {
       return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource, requestUrl, servletResponse);
+          resultValues2, startTime, requestResource,
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
     }
   }
 }

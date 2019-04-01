@@ -92,6 +92,81 @@ public class ExecutionUtils {
     this.processingData = processingData;
   }
 
+  /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
+  public static boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
+      Integer[] valuesInt) {
+    boolean matches = true;
+    if (osmTypes.contains(entity.getType())) {
+      for (int i = 0; i < keysInt.length; i++) {
+        boolean matchesTag;
+        if (i < valuesInt.length) {
+          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
+        } else {
+          matchesTag = entity.hasTagKey(keysInt[i]);
+        }
+        if (!matchesTag) {
+          matches = false;
+          break;
+        }
+      }
+    } else {
+      matches = false;
+    }
+    return matches;
+  }
+
+  /**
+   * Defines a certain decimal format.
+   * 
+   * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
+   *        after the comma)
+   * @return <code>DecimalFormat</code> object with the defined format.
+   */
+  public static DecimalFormat defineDecimalFormat(String format) {
+    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    otherSymbols.setDecimalSeparator('.');
+    return new DecimalFormat(format, otherSymbols);
+  }
+
+  /**
+   * Caches the given mapper value in the user data of the <code>Geometry</code> object.
+   * 
+   * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
+   * @param arbitrary function that returns a time-independent value from a snapshot object, for
+   *        example lenght, area, perimeter
+   * @return evaluated mapper function or cached value stored in the user data of the
+   *         <code>Geometry</code> object
+   */
+  public static Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
+    if (geom.getUserData() == null) {
+      geom.setUserData(mapper.get());
+    }
+    return (Double) geom.getUserData();
+  }
+
+  /**
+   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest(Map) nest} but has
+   * switched &lt;U&gt; and &lt;V&gt; parameters.
+   *
+   * @param result the "flat" result data structure that should be converted to a nested structure
+   * @param <A> an arbitrary data type, used for the data value items
+   * @param <U> an arbitrary data type, used for the index'es key items
+   * @param <V> an arbitrary data type, used for the index'es key items
+   * @return a nested data structure: for each index part there is a separate level of nested maps
+   * 
+   */
+  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
+      Map<OSHDBCombinedIndex<U, V>, A> result) {
+    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
+    result.forEach((index, data) -> {
+      if (!ret.containsKey(index.getSecondIndex())) {
+        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
+      }
+      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
+    });
+    return ret;
+  }
+
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
@@ -254,19 +329,6 @@ public class ExecutionUtils {
     return comments;
   }
 
-  /**
-   * Defines a certain decimal format.
-   * 
-   * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
-   *        after the comma)
-   * @return <code>DecimalFormat</code> object with the defined format.
-   */
-  public DecimalFormat defineDecimalFormat(String format) {
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    return new DecimalFormat(format, otherSymbols);
-  }
-
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
@@ -318,7 +380,6 @@ public class ExecutionUtils {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result = null;
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
@@ -326,53 +387,25 @@ public class ExecutionUtils {
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
-        result = preResult.count();
-        break;
+        return preResult.count();
       case PERIMETER:
-        result = preResult.sum(geom -> {
+        return preResult.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
           return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
-        break;
       case LENGTH:
-        result = preResult.sum(geom -> {
+        return preResult.sum(geom -> {
           return cacheInUserData(geom, () -> Geo.lengthOf(geom));
         });
-        break;
       case AREA:
-        result = preResult.sum(geom -> {
+        return preResult.sum(geom -> {
           return cacheInUserData(geom, () -> Geo.areaOf(geom));
         });
-        break;
       default:
-        break;
+        return null;
     }
-    return result;
-  }
-
-  /**
-   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest(Map) nest} but has
-   * switched &lt;U&gt; and &lt;V&gt; parameters.
-   *
-   * @param result the "flat" result data structure that should be converted to a nested structure
-   * @param <A> an arbitrary data type, used for the data value items
-   * @param <U> an arbitrary data type, used for the index'es key items
-   * @param <V> an arbitrary data type, used for the index'es key items
-   * @return a nested data structure: for each index part there is a separate level of nested maps
-   * 
-   */
-  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
-      Map<OSHDBCombinedIndex<U, V>, A> result) {
-    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
-    result.forEach((index, data) -> {
-      if (!ret.containsKey(index.getSecondIndex())) {
-        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
-      }
-      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
-    });
-    return ret;
   }
 
   /**
@@ -380,20 +413,21 @@ public class ExecutionUtils {
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public <K extends OSHDBCombinedIndex<OSHDBTimestamp, ?>, V extends Number> SortedMap<K, V> computeResult(
-      RequestResource requestResource, MapAggregator<?, OSMEntitySnapshot> preResult)
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
+      RequestResource requestResource,
+      MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> preResult)
       throws Exception {
     switch (requestResource) {
       case COUNT:
-        return (SortedMap<K, V>) preResult.count();
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult.count();
       case LENGTH:
-        return (SortedMap<K, V>) preResult
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return cacheInUserData(snapshot.getGeometry(),
                   () -> Geo.lengthOf(snapshot.getGeometry()));
             });
       case PERIMETER:
-        return (SortedMap<K, V>) preResult
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               if (snapshot.getGeometry() instanceof Polygonal) {
                 return cacheInUserData(snapshot.getGeometry(),
@@ -402,7 +436,7 @@ public class ExecutionUtils {
               return 0.0;
             });
       case AREA:
-        return (SortedMap<K, V>) preResult
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
               return cacheInUserData(snapshot.getGeometry(),
                   () -> Geo.areaOf(snapshot.getGeometry()));
@@ -412,27 +446,40 @@ public class ExecutionUtils {
     }
   }
 
-  /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
-  public static boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
-      Integer[] valuesInt) {
-    boolean matches = true;
-    if (osmTypes.contains(entity.getType())) {
-      for (int i = 0; i < keysInt.length; i++) {
-        boolean matchesTag;
-        if (i < valuesInt.length) {
-          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
-        } else {
-          matchesTag = entity.hasTagKey(keysInt[i]);
-        }
-        if (!matchesTag) {
-          matches = false;
-          break;
-        }
-      }
-    } else {
-      matches = false;
+  /**
+   * Computes the result depending on the <code>RequestResource</code> using a
+   * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
+   */
+  @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> computeNestedResult(
+      RequestResource requestResource,
+      MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, Geometry> preResult)
+      throws Exception {
+    switch (requestResource) {
+      case COUNT:
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .count();
+      case PERIMETER:
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .sum(geom -> {
+              if (!(geom instanceof Polygonal)) {
+                return 0.0;
+              }
+              return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+            });
+      case LENGTH:
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .sum(geom -> {
+              return cacheInUserData(geom, () -> Geo.lengthOf(geom));
+            });
+      case AREA:
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .sum(geom -> {
+              return cacheInUserData(geom, () -> Geo.areaOf(geom));
+            });
+      default:
+        return null;
     }
-    return matches;
   }
 
   /**
@@ -460,18 +507,29 @@ public class ExecutionUtils {
     int groupByResultsLength = results.length;
     int groupByResultCount = 0;
     int tstampCount = 0;
+    int boundaryCount = 0;
     Feature[] features;
     if (results instanceof GroupByResult[]) {
       GroupByResult[] groupByResults = (GroupByResult[]) results;
       int resultLength = groupByResults[0].getResult().length;
       int featuresLength = groupByResultsLength * resultLength;
+      int nestedGroupByNextBoundaryInterval = featuresLength / geojsonGeoms.length;
       features = new Feature[featuresLength];
       for (int i = 0; i < featuresLength; i++) {
         ElementsResult result =
             (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
         String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
         feature.setProperty("value", result.getValue());
+        // needed for /groupBy/boundary/groupBy/tag
+        if (results[groupByResultCount].getGroupByObject() instanceof Object[]) {
+          feature.setGeometry(geojsonGeoms[boundaryCount]);
+          if ((i + 1) % nestedGroupByNextBoundaryInterval == 0) {
+            boundaryCount++;
+          }
+        } else {
+          feature.setGeometry(geojsonGeoms[groupByResultCount]);
+        }
         tstampCount++;
         if (tstampCount == resultLength) {
           tstampCount = 0;
@@ -487,9 +545,10 @@ public class ExecutionUtils {
       for (int i = 0; i < featuresLength; i++) {
         ShareResult result = groupByResults[groupByResultCount].getShareResult()[tstampCount];
         String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
         feature.setProperty("whole", result.getWhole());
         feature.setProperty("part", result.getPart());
+        feature.setGeometry(geojsonGeoms[groupByResultCount]);
         tstampCount++;
         if (tstampCount == resultLength) {
           tstampCount = 0;
@@ -505,10 +564,11 @@ public class ExecutionUtils {
       for (int i = 0; i < featuresLength; i++) {
         RatioResult result = groupByResults[groupByResultCount].getRatioResult()[tstampCount];
         String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, geojsonGeoms, groupByResultCount, tstamp);
+        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
         feature.setProperty("value", result.getValue());
         feature.setProperty("value2", result.getValue2());
         feature.setProperty("ratio", result.getRatio());
+        feature.setGeometry(geojsonGeoms[groupByResultCount]);
         tstampCount++;
         if (tstampCount == resultLength) {
           tstampCount = 0;
@@ -518,22 +578,6 @@ public class ExecutionUtils {
       }
     }
     return features;
-  }
-
-  /**
-   * Caches the given mapper value in the user data of the <code>Geometry</code> object.
-   * 
-   * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
-   * @param arbitrary function that returns a time-independent value from a snapshot object, for
-   *        example lenght, area, perimeter
-   * @return evaluated mapper function or cached value stored in the user data of the
-   *         <code>Geometry</code> object
-   */
-  public static Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
-    if (geom.getUserData() == null) {
-      geom.setUserData(mapper.get());
-    }
-    return (Double) geom.getUserData();
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
@@ -577,6 +621,56 @@ public class ExecutionUtils {
       count++;
     }
     return results;
+  }
+
+  /**
+   * Fills the result value arrays for the share|ratio/groupBy/boundary response.
+   * 
+   * @param resultSet <code>Set</code> containing the result values
+   * @param df <code>DecimalFormat</code> defining the number of digits of the result values
+   * @return <code>Double[]</code> containing the formatted result values
+   */
+  public Double[] fillElementsShareRatioGroupByBoundaryResultValues(
+      Set<? extends Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> resultSet,
+      DecimalFormat df) {
+    Double[] resultValues = new Double[resultSet.size()];
+    int valueCount = 0;
+    for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : resultSet) {
+      resultValues[valueCount] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+      valueCount++;
+    }
+    return resultValues;
+  }
+
+  /**
+   * Maps the given <code>OSMEntitySnapshot</code> to a given tag, or to the remainder (having -1,
+   * -1 as identifier) if none of the given tags is included.
+   * 
+   * @param keysInt int value of the groupByKey parameter
+   * @param valuesInt Integer[] of the groupByValues parameter
+   * @param f <code>OSMEntitySnapshot</code>
+   * @return nested <code>Pair</code> containing the integer values of the tag category and the
+   *         <code>OSMEntitySnapshot</code>
+   */
+  public Pair<Pair<Integer, Integer>, OSMEntitySnapshot> mapSnapshotToTags(int keysInt,
+      Integer[] valuesInt, OSMEntitySnapshot f) {
+    int[] tags = f.getEntity().getRawTags();
+    for (int i = 0; i < tags.length; i += 2) {
+      int tagKeyId = tags[i];
+      int tagValueId = tags[i + 1];
+      if (tagKeyId == keysInt) {
+        if (valuesInt.length == 0) {
+          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+        }
+        for (int value : valuesInt) {
+          if (tagValueId == value) {
+            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
+                f);
+          }
+        }
+      }
+    }
+    return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
   }
 
   /** Creates a RatioResponse. */
@@ -741,7 +835,13 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      columnNames.add(groupByResult.getGroupByObject().toString());
+      Object groupByObject = groupByResult.getGroupByObject();
+      if (groupByObject instanceof Object[]) {
+        Object[] groupByObjectArr = (Object[]) groupByObject;
+        columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
+      } else {
+        columnNames.add(groupByObject.toString());
+      }
       for (int j = 0; j < groupByResult.getResult().length; j++) {
         ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
         if (i == 0) {
@@ -889,15 +989,21 @@ public class ExecutionUtils {
   }
 
   /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
-  private Feature fillGeojsonFeature(GroupByObject[] results, GeoJsonObject[] geoJsonGeoms,
-      int groupByResultCount, String timestamp) {
+  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
+      String timestamp) {
     Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
     Feature feature = new Feature();
-    feature.setId(groupByBoundaryId + "@" + timestamp);
-    feature.setProperty("groupByBoundaryId", groupByBoundaryId);
+    if (groupByBoundaryId instanceof Object[]) {
+      Object[] groupByBoundaryIdArr = (Object[]) groupByBoundaryId;
+      String boundaryTagId =
+          groupByBoundaryIdArr[0].toString() + "_" + groupByBoundaryIdArr[1].toString();
+      feature.setId(boundaryTagId + "@" + timestamp);
+      feature.setProperty("groupByBoundaryId", boundaryTagId);
+    } else {
+      feature.setId(groupByBoundaryId + "@" + timestamp);
+      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
+    }
     feature.setProperty("timestamp", timestamp);
-    GeoJsonObject geom = geoJsonGeoms[groupByResultCount];
-    feature.setGeometry(geom);
     return feature;
   }
 

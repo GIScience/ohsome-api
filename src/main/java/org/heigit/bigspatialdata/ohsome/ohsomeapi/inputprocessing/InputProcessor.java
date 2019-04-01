@@ -429,6 +429,13 @@ public class InputProcessor {
     }
   }
 
+  public String getRequestUrlIfGetRequest(HttpServletRequest servletRequest) {
+    if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
+      return this.getRequestUrl();
+    }
+    return null;
+  }
+  
   /**
    * Checks the given keys and values parameters on their length and includes them in the
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String) where(key)}, or

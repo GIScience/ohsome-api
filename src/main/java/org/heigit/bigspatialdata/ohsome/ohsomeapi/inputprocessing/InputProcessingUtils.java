@@ -72,7 +72,7 @@ public class InputProcessingUtils {
   public List<String> splitBboxes(String bboxes) throws BadRequestException {
     String[] bboxesArray = splitOnHyphen(bboxes);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new String[bboxesArray.length];
+    boundaryIds = new Object[bboxesArray.length];
     try {
       if (bboxesArray[0].contains(":")) {
         boundaryParamValues = splitBboxesWithIds(bboxesArray);
@@ -99,7 +99,7 @@ public class InputProcessingUtils {
   public List<String> splitBcircles(String bcircles) throws BadRequestException {
     String[] bcirclesArray = splitOnHyphen(bcircles);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new String[bcirclesArray.length];
+    boundaryIds = new Object[bcirclesArray.length];
     try {
       if (bcirclesArray[0].contains(":")) {
         boundaryParamValues = splitBcirclesWithIds(bcirclesArray);
@@ -126,7 +126,7 @@ public class InputProcessingUtils {
   public List<String> splitBpolys(String bpolys) throws BadRequestException {
     String[] bpolysArray = splitOnHyphen(bpolys);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new String[bpolysArray.length];
+    boundaryIds = new Object[bpolysArray.length];
     try {
       if (bpolysArray[0].contains(":")) {
         boundaryParamValues = splitBpolysWithIds(bpolysArray);
