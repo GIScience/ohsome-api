@@ -601,7 +601,6 @@ public class GetControllerTest {
         + "&keys=building&values=residential&format=csv", String.class);
     int length = response.getBody().length();
     assertEquals("48.83;30.19", response.getBody().substring(length - 12, length - 1));
-    assertEquals(176, length);
   }
 
   @Test
@@ -629,7 +628,6 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("41.62", response.getBody().substring(length - 6, length - 1));
-    assertEquals(189, length);
   }
 
   @Test
@@ -641,7 +639,6 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals("13.97", response.getBody().substring(length - 6, length - 1));
-    assertEquals(154, length);
   }
 
   @Test
@@ -653,7 +650,6 @@ public class GetControllerTest {
         + "&values=church&format=csv", String.class);
     int length = response.getBody().length();
     assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
-    assertEquals(172, length);
   }
 
   @Test
@@ -664,7 +660,6 @@ public class GetControllerTest {
         + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes"
         + "&format=csv", String.class);
     int length = response.getBody().length();
-    assertEquals(198, length);
     assertEquals("43.0;931.0", response.getBody().substring(length - 11, length - 1));
   }
 
@@ -678,7 +673,6 @@ public class GetControllerTest {
             String.class);
     int length = response.getBody().length();
     assertEquals("2292.0;1429.0", response.getBody().substring(length - 14, length - 1));
-    assertEquals(192, length);
   }
 
   @Test
@@ -736,7 +730,6 @@ public class GetControllerTest {
             + "time=2017-01-01&types=way&values=residential", String.class);
     int length = response.getBody().length();
     assertEquals("390.0;0.0", response.getBody().substring(length - 10, length - 1));
-    assertEquals(165, length);
   }
 
   @Test
