@@ -120,7 +120,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key",
+  @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
       nickname = "perimeterGroupByKey", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,

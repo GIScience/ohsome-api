@@ -87,7 +87,7 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "countGroupByKey",
+  @ApiOperation(value = "Count of OSM users grouped by the key", nickname = "countGroupByKey",
       response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,

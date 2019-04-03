@@ -75,7 +75,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(
-      value = "Area of OSM elements in meter grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "areaGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
@@ -117,7 +117,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "areaGroupByKey",
+  @ApiOperation(value = "Area of OSM elements grouped by the key", nickname = "areaGroupByKey",
       response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
