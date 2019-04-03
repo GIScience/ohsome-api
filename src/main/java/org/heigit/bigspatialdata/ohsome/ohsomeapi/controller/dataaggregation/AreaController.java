@@ -84,7 +84,7 @@ public class AreaController {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.AREA, servletRequest, servletResponse, true, false);
   }
-  
+
   /**
    * Gives the area of OSM objects grouped by the boundary and the tag.
    * 
@@ -96,7 +96,7 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements in meter grouped by the boundary and the tag",
       nickname = "areaGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -142,7 +142,7 @@ public class AreaController {
   @ApiOperation(value = "Area of OSM elements grouped by the tag", nickname = "areaGroupByTag",
       response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -263,7 +263,7 @@ public class AreaController {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
         RequestResource.AREA, servletRequest, servletResponse, true, true);
   }
-  
+
   /**
    * Gives the density of selected items grouped by the boundary and the tag.
    * 
@@ -275,7 +275,7 @@ public class AreaController {
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "areaDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -299,7 +299,7 @@ public class AreaController {
   @ApiOperation(value = "Density of selected items grouped by the tag",
       nickname = "areaDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,

@@ -56,8 +56,8 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Length of OSM elements grouped by the type", nickname = "lengthGroupByType",
-      response = GroupByResponse.class)
+  @ApiOperation(value = "Length of OSM elements grouped by the type",
+      nickname = "lengthGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByType(HttpServletRequest servletRequest,
@@ -99,7 +99,7 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements grouped by the boundary and the tag",
       nickname = "lengthGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -144,7 +144,7 @@ public class LengthController {
   @ApiOperation(value = "Length of OSM elements grouped by the tag", nickname = "lengthGroupByTag",
       response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -281,7 +281,7 @@ public class LengthController {
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "lengthDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -305,7 +305,7 @@ public class LengthController {
   @ApiOperation(value = "Density of selected items grouped by the tag",
       nickname = "lengthDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,

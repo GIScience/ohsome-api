@@ -67,7 +67,7 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "countGroupByTag",
       response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -148,7 +148,7 @@ public class UsersController {
   @ApiOperation(value = "Density of OSM users grouped by the tag",
       nickname = "countDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,

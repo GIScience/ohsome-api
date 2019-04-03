@@ -101,7 +101,7 @@ public class CountController {
   @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
       nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -147,7 +147,7 @@ public class CountController {
   @ApiOperation(value = "Count of OSM elements grouped by the tag", nickname = "countGroupByTag",
       response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -284,7 +284,7 @@ public class CountController {
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "countDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
@@ -296,7 +296,7 @@ public class CountController {
     return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
         RequestResource.COUNT, servletRequest, servletResponse, true, true);
   }
-  
+
   /**
    * Gives the density of selected items grouped by the tag.
    * 
@@ -308,7 +308,7 @@ public class CountController {
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "countDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
