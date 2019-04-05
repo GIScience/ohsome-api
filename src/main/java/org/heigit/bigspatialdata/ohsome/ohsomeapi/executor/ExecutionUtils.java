@@ -271,7 +271,7 @@ public class ExecutionUtils {
         for (Result result : resultSet) {
           UsersResult usersResult = (UsersResult) result;
           writer.writeNext(new String[] {usersResult.getFromTimestamp(),
-              usersResult.getFromTimestamp(), String.valueOf(usersResult.getValue())});
+              usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
         }
       } else if (resultSet instanceof RatioResult[]) {
         writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
