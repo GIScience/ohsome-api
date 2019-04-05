@@ -832,8 +832,8 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals(
-        "7.0\n" + "2015-01-01T00:00:00Z;2015-01-01T00:00:00Z;7.0\n"
-            + "2016-01-01T00:00:00Z;2016-01-01T00:00:00Z;14.0",
+        "7.0\n" + "2015-01-01T00:00:00Z;2016-01-01T00:00:00Z;7.0\n"
+            + "2016-01-01T00:00:00Z;2017-01-01T00:00:00Z;14.0",
         response.getBody().substring(length - 97, length - 1));
   }
 
@@ -846,8 +846,8 @@ public class GetControllerTest {
         String.class);
     int length = response.getBody().length();
     assertEquals(
-        "28.94\n" + "2015-01-01T00:00:00Z;2015-01-01T00:00:00Z;24.81\n"
-            + "2016-01-01T00:00:00Z;2016-01-01T00:00:00Z;28.94",
+        "28.94\n" + "2015-01-01T00:00:00Z;2016-01-01T00:00:00Z;24.81\n"
+            + "2016-01-01T00:00:00Z;2017-01-01T00:00:00Z;28.94",
         response.getBody().substring(length - 102, length - 1));
   }
 
