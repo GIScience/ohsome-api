@@ -179,7 +179,7 @@ public class ElementsRequestExecutor {
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
       final double maxStreamDataSize = 1E7;
-      Number approxResultSize = inputProcessor.processParameters()
+      Number approxResultSize = snapshotInputProcessor.processParameters()
           .map(data -> ((OSMEntitySnapshot) data).getOSHEntity()).map(data -> (OSHEntityImpl) data)
           .sum(data -> data.getLength() / data.getVersions().iterator().next().getVersion());
       if (approxResultSize.doubleValue() > maxStreamDataSize) {
@@ -548,8 +548,8 @@ public class ElementsRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.countLengthPerimeterAreaGroupByBoundaryGroupByTag(requestParameters.isDensity(),
-              requestResource.getLabel(), requestResource.getUnit()),
+          Description.countLengthPerimeterAreaGroupByBoundaryGroupByTag(
+              requestParameters.isDensity(), requestResource.getLabel(), requestResource.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
