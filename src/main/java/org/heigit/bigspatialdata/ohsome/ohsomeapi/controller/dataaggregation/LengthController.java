@@ -76,7 +76,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(
-      value = "Length of  in meter grouped by " + "the boundary (bboxes, bcircles, or bpolys)",
+      value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "lengthGroupByBoundary", response = GroupByResponse.class)
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
@@ -210,7 +210,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items (length of items divided by the total area in
+   * Gives the density of OSM elements (length of items divided by the total area in
    * square-kilometers).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -231,14 +231,14 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items grouped by the OSM type.
+   * Gives the density of OSM elements grouped by the OSM type.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items grouped by the OSM type",
+  @ApiOperation(value = "Density of OSM elements grouped by the OSM type",
       nickname = "lengthDensityGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
@@ -249,8 +249,7 @@ public class LengthController {
   }
 
   /**
-   * Gives density of selected items grouped by the boundary parameter (bounding
-   * box/circle/polygon).
+   * Gives density of OSM elements grouped by the boundary parameter (bounding box/circle/polygon).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -258,7 +257,7 @@ public class LengthController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "lengthDensityGroupByBoundary", response = GroupByResponse.class)
   @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
@@ -271,7 +270,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items grouped by the boundary and the tag.
+   * Gives the density of OSM elements grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -295,14 +294,14 @@ public class LengthController {
   }
 
   /**
-   * Gives the density of selected items grouped by the tag.
+   * Gives the density of OSM elements grouped by the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items grouped by the tag",
+  @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "lengthDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
@@ -319,7 +318,7 @@ public class LengthController {
   }
 
   /**
-   * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -327,7 +326,7 @@ public class LengthController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of the length of selected items", nickname = "lengthRatio",
+  @ApiOperation(value = "Ratio of the length of OSM elements", nickname = "lengthRatio",
       response = RatioResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
@@ -347,15 +346,15 @@ public class LengthController {
   }
 
   /**
-   * Gives the ratio of the length of selected items satisfying types2, keys2 and values2 within
-   * items selected by types, keys and values grouped by the boundary.
+   * Gives the ratio of the length of OSM elements satisfying types2, keys2 and values2 within items
+   * selected by types, keys and values grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of the length of selected items grouped by the boundary",
+  @ApiOperation(value = "Ratio of the length of OSM elements grouped by the boundary",
       nickname = "lengthRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,

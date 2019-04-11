@@ -93,7 +93,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Area of OSM elements in meter grouped by the boundary and the tag",
+  @ApiOperation(value = "Area of OSM elements grouped by the boundary and the tag",
       nickname = "areaGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
@@ -206,7 +206,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items (area of items divided by the total area in
+   * Gives the density of OSM elements (area of items divided by the total area in
    * square-kilometers).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -227,7 +227,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items grouped by the OSM type.
+   * Gives the density of OSM elements grouped by the OSM type.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -245,7 +245,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items grouped by the boundary parameter (bounding
+   * Gives the density of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -254,7 +254,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "areaDensityGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
@@ -265,7 +265,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items grouped by the boundary and the tag.
+   * Gives the density of OSM elements grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -289,14 +289,14 @@ public class AreaController {
   }
 
   /**
-   * Gives the density of selected items grouped by the tag.
+   * Gives the density of OSM elements grouped by the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items grouped by the tag",
+  @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "areaDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
@@ -313,7 +313,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -322,7 +322,7 @@ public class AreaController {
    *         Response}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 "
+      value = "Ratio of OSM elements satisfying types2, keys2 and values2 "
           + "within items selected by types, keys and values",
       nickname = "areaRatio", response = RatioResponse.class)
   @ApiImplicitParams({
@@ -342,7 +342,7 @@ public class AreaController {
   }
 
   /**
-   * Gives the ratio of the area of selected items satisfying types2, keys2 and values2 within items
+   * Gives the ratio of the area of OSM elements satisfying types2, keys2 and values2 within items
    * selected by types, keys and values grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -350,7 +350,7 @@ public class AreaController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of the area of selected items grouped by the boundary",
+  @ApiOperation(value = "Ratio of the area of OSM elements grouped by the boundary",
       nickname = "areaRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
