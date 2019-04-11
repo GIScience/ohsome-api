@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 /** Controller containing the GET and POST servletRequests, which enter through "/users". */
-@Api(tags = "users")
+@Api(tags = "Users")
 @RestController
 @RequestMapping("/users")
 public class UsersController {

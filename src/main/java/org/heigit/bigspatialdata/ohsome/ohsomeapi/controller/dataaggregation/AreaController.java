@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/area".
  */
-@Api(tags = "elementsArea")
+@Api(tags = "Area")
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {

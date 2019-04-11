@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * REST controller containing the GET request, which enters through "/metadata".
  */
-@Api(tags = "metadata")
+@Api(tags = "Metadata")
 @RestController
 @RequestMapping("/metadata")
 public class MetadataController {
@@ -25,7 +25,7 @@ public class MetadataController {
    *         MetadataResponse}
    */
   @GetMapping(produces = "application/json")
-  @ApiOperation(nickname = "metadata", value = "Metadata of the underlying data-extract")
+  @ApiOperation(nickname = "Metadata", value = "Metadata of the underlying OSHDB data-extract")
   public MetadataResponse getMetadata() {
     return MetadataRequestExecutor.executeGetMetadata();
   }

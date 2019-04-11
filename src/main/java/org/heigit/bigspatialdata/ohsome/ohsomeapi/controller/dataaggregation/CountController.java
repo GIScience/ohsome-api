@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
  */
-@Api(tags = "elementsCount")
+@Api(tags = "Count")
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {

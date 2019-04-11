@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiOperation;
  * REST controller containing the methods, which are mapped to "/elements" and used to return OSM
  * data.
  */
-@Api(tags = "dataExtraction")
+@Api(tags = "Data Extraction")
 @RestController
 @RequestMapping("/elements")
 public class ElementsController {

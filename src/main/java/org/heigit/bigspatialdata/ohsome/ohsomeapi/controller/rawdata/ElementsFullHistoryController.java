@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiOperation;
  * REST controller containing the methods, which are mapped to "/elementsFullHistory" and used to
  * return the full history of the requested OSM data.
  */
-@Api(tags = "dataExtractionFullHistory")
+@Api(tags = "Full-History Data Extraction")
 @RestController
 @RequestMapping("/elementsFullHistory")
 public class ElementsFullHistoryController {

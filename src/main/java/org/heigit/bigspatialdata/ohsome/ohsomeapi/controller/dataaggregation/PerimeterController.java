@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/perimeter".
  */
-@Api(tags = "elementsPerimeter")
+@Api(tags = "Perimeter")
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
