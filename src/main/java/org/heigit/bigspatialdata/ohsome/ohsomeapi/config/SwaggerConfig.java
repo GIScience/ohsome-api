@@ -41,7 +41,7 @@ public class SwaggerConfig {
         .tags(new Tag("Users", "Compute data aggregation functions on users"),
             new Tag("Area", "Compute the area of polygonal OSM elements"),
             new Tag("Length", "Compute the length of linear OSM elements"),
-            new Tag("Count", "Compute the count of point/linear/polygonal elements"),
+            new Tag("Count", "Compute the count of point/linear/polygonal OSM elements"),
             new Tag("Perimeter", "Compute the perimeter of polygonal OSM elements"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
