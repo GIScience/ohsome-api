@@ -874,12 +874,10 @@ public class GetControllerTest {
             + "&format=csv&groupByKey=shop&time=2015-01-01/2018-01-01/P1Y"
             + "&types=node&groupByValues=clothes,wine",
         String.class);
-    int length = response.getBody().length();
-    assertEquals(
-        "2015-01-01T00:00:00Z;2016-01-01T00:00:00Z;4.0;0.0;0.0\n"
-            + "2016-01-01T00:00:00Z;2017-01-01T00:00:00Z;7.0;5.0;2.0\n"
-            + "2017-01-01T00:00:00Z;2018-01-01T00:00:00Z;3.0;2.0;0.0",
-        response.getBody().substring(length - 162, length - 1));
+    String responseBody = response.getBody();
+    String[] splittedResponseBody = responseBody.split("\\r?\\n");
+    assertEquals(7, splittedResponseBody.length);
+    assertEquals(57, splittedResponseBody[4].length());
   }
 
   @Test

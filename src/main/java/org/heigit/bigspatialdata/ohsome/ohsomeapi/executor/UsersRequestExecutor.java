@@ -164,6 +164,7 @@ public class UsersRequestExecutor {
       if (res.isEmpty()) {
         res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f));
       }
+      res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-2, -2), f));
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
         .map(OSMContribution::getContributorUserId).countUniq();
@@ -176,11 +177,12 @@ public class UsersRequestExecutor {
         .entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df);
-      // check for non-remainder objects (which do have the defined key and value)
-      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
-      } else {
+      if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
+        groupByName = "total";
+      } else if (entry.getKey().getKey() == -1 && entry.getKey().getValue() == -1) {
         groupByName = "remainder";
+      } else {
+        groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -235,6 +237,7 @@ public class UsersRequestExecutor {
       if (res.isEmpty()) {
         res.add(new ImmutablePair<>(-1, f));
       }
+      res.add(new ImmutablePair<>(-2, f));
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt)).map(Pair::getValue)
         .map(OSMContribution::getContributorUserId).countUniq();
@@ -246,11 +249,12 @@ public class UsersRequestExecutor {
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df);
-      // check for non-remainder objects (which do have the defined key)
-      if (entry.getKey() != -1) {
-        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
-      } else {
+      if (entry.getKey() == -2) {
+        groupByName = "total";
+      } else if (entry.getKey() == -1) {
         groupByName = "remainder";
+      } else {
+        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
