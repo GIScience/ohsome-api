@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
  */
-@Api(tags = "elementsCount")
+@Api(tags = "Count")
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {
@@ -161,7 +161,7 @@ public class CountController {
   }
 
   /**
-   * Gives the share of selected items satisfying keys2 and values2 within items selected by types,
+   * Gives the share of OSM elements satisfying keys2 and values2 within items selected by types,
    * keys and values.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -187,7 +187,7 @@ public class CountController {
   }
 
   /**
-   * Gives the share of selected items satisfying keys2 and values2 within items selected by types,
+   * Gives the share of OSM elements satisfying keys2 and values2 within items selected by types,
    * keys and values grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -213,7 +213,7 @@ public class CountController {
   }
 
   /**
-   * Gives the density of selected items (number of items divided by the total area in
+   * Gives the density of OSM elements (number of items divided by the total area in
    * square-kilometers).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -274,7 +274,7 @@ public class CountController {
   }
 
   /**
-   * Gives the density of selected items grouped by the boundary and the tag.
+   * Gives the density of OSM elements grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -298,7 +298,7 @@ public class CountController {
   }
 
   /**
-   * Gives the density of selected items grouped by the tag.
+   * Gives the density of OSM elements grouped by the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -322,7 +322,7 @@ public class CountController {
   }
 
   /**
-   * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -331,7 +331,7 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 "
+      value = "Ratio of OSM elements satisfying types2, keys2 and values2 "
           + "within items selected by types, keys and values",
       nickname = "countRatio", response = RatioResponse.class)
   @ApiImplicitParams({
@@ -351,7 +351,7 @@ public class CountController {
   }
 
   /**
-   * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
    * types, keys and values grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -359,7 +359,7 @@ public class CountController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of selected items grouped by the boundary",
+  @ApiOperation(value = "Ratio of OSM elements grouped by the boundary",
       nickname = "countRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,

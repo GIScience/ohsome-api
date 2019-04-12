@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/perimeter".
  */
-@Api(tags = "elementsPerimeter")
+@Api(tags = "Perimeter")
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
@@ -77,7 +77,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(
-      value = "Perimeter of OSM elements in meter grouped by the boundary "
+      value = "Perimeter of OSM elements in grouped by the boundary "
           + "(bboxes, bcircles, or bpolys)",
       nickname = "perimeterGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
@@ -209,7 +209,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items (perimeter of items divided by the total area in
+   * Gives the density of OSM elements (perimeter of items divided by the total area in
    * square-kilometers).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -231,7 +231,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items grouped by the OSM type.
+   * Gives the density of OSM elements grouped by the OSM type.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -249,7 +249,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items grouped by the boundary parameter (bounding
+   * Gives the density of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -258,7 +258,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(
-      value = "Density of selected items grouped by the boundary (bboxes, bcircles, or bpolys)",
+      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "perimeterDensityGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
@@ -269,7 +269,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items grouped by the boundary and the tag.
+   * Gives the density of OSM elements grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -293,14 +293,14 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the density of selected items grouped by the tag.
+   * Gives the density of OSM elements grouped by the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Density of selected items grouped by the tag",
+  @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
@@ -317,7 +317,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the ratio of selected items satisfying types2, keys2 and values2 within items selected by
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
    * types, keys and values.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -326,7 +326,7 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(
-      value = "Ratio of selected items satisfying types2, keys2 and values2 within items "
+      value = "Ratio of OSM elements satisfying types2, keys2 and values2 within items "
           + "selected by types, keys and values",
       nickname = "perimeterRatio", response = RatioResponse.class)
   @ApiImplicitParams({
@@ -348,7 +348,7 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the ratio of the perimeter of selected items satisfying types2, keys2 and values2 within
+   * Gives the ratio of the perimeter of OSM elements satisfying types2, keys2 and values2 within
    * items selected by types, keys and values grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -356,7 +356,7 @@ public class PerimeterController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Ratio of the perimeter of selected items grouped by the boundary",
+  @ApiOperation(value = "Ratio of the perimeter of OSM elements grouped by the boundary",
       nickname = "perimeterRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,

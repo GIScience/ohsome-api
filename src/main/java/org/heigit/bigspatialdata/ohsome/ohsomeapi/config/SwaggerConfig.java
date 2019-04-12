@@ -33,16 +33,16 @@ public class SwaggerConfig {
   @Bean
   public Docket dataAggregationDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("dataAggregation").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("Data Aggregation").select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(false))
-        .tags(new Tag("users", "Data Aggregation functions on users"),
-            new Tag("elementsArea", "Area resources for polygonal objects"),
-            new Tag("elementsLength", "Length resources for line objects"),
-            new Tag("elementsCount", "Count resources for point/line/polygonal objects"),
-            new Tag("elementsPerimeter", "Perimeter resources for polygonal objects"))
+        .tags(new Tag("Users", "Compute data aggregation functions on users"),
+            new Tag("Area", "Compute the area of polygonal OSM elements"),
+            new Tag("Length", "Compute the length of linear OSM elements"),
+            new Tag("Count", "Compute the count of point/linear/polygonal OSM elements"),
+            new Tag("Perimeter", "Compute the perimeter of polygonal OSM elements"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
@@ -51,26 +51,26 @@ public class SwaggerConfig {
   @Bean
   public Docket metadataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("metadata").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("Metadata").select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .tags(new Tag("metadata", "")).forCodeGeneration(true)
-        .globalResponseMessage(RequestMethod.GET, responseMessages);
+        .tags(new Tag("Metadata", "Request metadata of the underlying OSHDB"))
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
   /** Creates the Swagger2 documentation for the data extraction resources. */
   @Bean
   public Docket rawDataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("dataExtraction").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("Data Extraction").select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
-        .tags(new Tag("dataExtraction", "Direct access to OSM data"),
-            new Tag("dataExtractionFullHistory",
-                "Direct access to the full-history of each OSM object"))
+        .tags(new Tag("Data Extraction", "Direct access to the OSM data"),
+            new Tag("Full-History Data Extraction",
+                "Direct access to the full-history of the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
