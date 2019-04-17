@@ -301,10 +301,12 @@ public class InputProcessingUtils {
     long start = 0;
     long end = 0;
     long timestampLong = 0;
-    start = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.fromTstamp)
-        .getLong(ChronoField.INSTANT_SECONDS);
-    end = DateTimeFormatter.ISO_DATE_TIME.parse(ExtractMetadata.toTstamp)
-        .getLong(ChronoField.INSTANT_SECONDS);
+    try {
+      start = ISODateTimeParser.parseISODateTime(ExtractMetadata.fromTstamp).toEpochSecond();
+      end = ISODateTimeParser.parseISODateTime(ExtractMetadata.toTstamp).toEpochSecond();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     for (String timestamp : timeInfo) {
       try {
         ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
