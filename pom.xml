@@ -23,7 +23,8 @@
 		<jacksondatatype.version>2.9.6</jacksondatatype.version>
 		<geotools.version>20.2</geotools.version>
 		<springfox.version>2.9.2</springfox.version>
-		<apachecommons.version>3.7</apachecommons.version>
+    <apachecommons.version>3.7</apachecommons.version>
+    <apachecommons-csv.version>1.6</apachecommons-csv.version>
 		<mavencheckstyle.version>3.0.0</mavencheckstyle.version>
 		<checkstyle.version>8.17</checkstyle.version>
 	</properties>
@@ -143,7 +144,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
-			<version>${apachecommons.version}</version>
+			<version>${apachecommons-csv.version}</version>
 		</dependency>
 
   </dependencies>
