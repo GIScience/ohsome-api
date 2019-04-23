@@ -139,7 +139,14 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>${apachecommons.version}</version>
 		</dependency>
-	</dependencies>
+    <!-- http://commons.apache.org/proper/commons-csv/dependency-info.html -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${apachecommons.version}</version>
+		</dependency>
+
+  </dependencies>
 
 	<build>
 		<plugins>
