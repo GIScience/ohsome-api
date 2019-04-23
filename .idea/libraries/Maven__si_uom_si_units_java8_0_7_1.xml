@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: si.uom:si-units-java8:0.7.1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/si/uom/si-units-java8/0.7.1/si-units-java8-0.7.1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/si/uom/si-units-java8/0.7.1/si-units-java8-0.7.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/si/uom/si-units-java8/0.7.1/si-units-java8-0.7.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
