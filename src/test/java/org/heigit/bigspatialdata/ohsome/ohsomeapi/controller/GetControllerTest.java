@@ -746,26 +746,34 @@ public class GetControllerTest {
     //assertEquals("127.0;13.0", response.getBody().substring(length - 11, length - 1));
   }
 
+
   @Test
-  public void getElementsCountGroupByTypeCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(
-        server + port + "/elements/count/groupBy/type?bboxes=8.6562,49.41243,8.69946,49.42384"
-            + "&format=csv&time=2016-01-01&types=way,node&keys=amenity&values=restaurant",
-        String.class);
-    int length = response.getBody().length();
-    //assertEquals("18.0;7.0", response.getBody().substring(length - 9, length - 1));
+  public void getElementsCountGroupByTypeCsvTest() throws IOException {
+    // expect result to have 1 entry row, with one timestamp-column and one column per requested type
+    // and check results against known values
+    String responseBody = getResponseBody("/elements/count/groupBy/type?"
+        + "bboxes=8.68748,49.41404,8.69094,49.41458"
+        + "&format=csv&time=2016-01-01&types=way,node&keys=amenity&values=restaurant");
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(3, headers.size());
+    assertEquals(2.0, Double.parseDouble(records.get(0).get("WAY")),
+        0);
   }
 
   @Test
-  public void getElementsCountRatioCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(
-        server + port + "/elements/count/ratio?bboxes=8.6773,49.4124,8.6977,49.4351&"
-            + "format=csv&keys2=addr:housenumber&time=2014-01-01&types=way&types2=node",
-        String.class);
-    int length = response.getBody().length();
-    //assertEquals("4622.0;827.0;0.178927", response.getBody().substring(length - 22, length - 1));
+  public void getElementsCountRatioCsvTest() throws IOException {
+    // expect result to have 1 entry row, with 4 columns and check results against known values
+    String responseBody = getResponseBody("/elements/count/ratio?"
+        + "bboxes=8.689317,49.395149,8.689799,49.395547&format=csv&keys=building&"
+        + "keys2=addr:housenumber&time=2018-01-01&types=way&types2=node");
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(4, headers.size());
+    assertEquals(0.2, Double.parseDouble(records.get(0).get("ratio")),
+        0);
   }
 
   @Test
