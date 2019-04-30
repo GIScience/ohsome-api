@@ -701,49 +701,64 @@ public class GetControllerTest {
   }
 
   @Test
-  public void getElementsCountGroupByBoundaryCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(server + port
-        + "/elements/count/groupBy/boundary?bboxes=8.70538,49.40891,8.70832,49.41155|8.68667,"
-        + "49.41353,8.68828,49.414&types=way&time=2017-01-01&keys=building"
-        + "&values=church&format=csv", String.class);
-    int length = response.getBody().length();
-   // assertEquals("2.0;1.0", response.getBody().substring(length - 8, length - 1));
+  public void getElementsCountGroupByBoundaryCsvTest() throws IOException {
+    // expect result to have 1 entry row, with 3 columns and check results against known values
+    String responseBody = getResponseBody("/elements/count/groupBy/boundary?"
+        + "bboxes=8.672445,49.418337,8.673196,49.419087|"
+        + "8.670868,49.418892,8.672188,49.419216&types=node&time=2017-05-01&keys=bicycle_parking"
+        + "&values=stands&format=csv");
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(3, headers.size());
+    assertEquals(2.0, Double.parseDouble(records.get(0).get("boundary1")),
+        0);
   }
 
   @Test
-  public void getElementsCountGroupByBoundaryGroupByTagCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(server + port
-        + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
-        + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes"
-        + "&format=csv", String.class);
-    int length = response.getBody().length();
-    //assertEquals("43.0;931.0", response.getBody().substring(length - 11, length - 1));
+  public void getElementsCountGroupByBoundaryGroupByTagCsvTest() throws IOException {
+    // expect result to have 1 entry row, with columns for: timestamp and
+    // per boundary:
+    // remainder , key=value 1 , ... , key=value N
+    String responseBody = getResponseBody("/elements/count/groupBy/boundary/groupBy/tag?"
+        + "bboxes=8.673025,49.41914,8.673931,49.419597|8.671206,49.419401,8.672215,49.41951&"
+        + "types=way,node,relation&time=2016-11-09&&groupByKey=natural&groupByValues=tree,water"
+        + "&format=csv");
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(7, headers.size());
+    assertEquals(5.0, Double.parseDouble(records.get(0).get("boundary2_natural=tree")),
+        0);
   }
 
   @Test
-  public void getElementsCountGroupByKeyCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response =
-        restTemplate.getForEntity(
-            server + port + "/elements/count/groupBy/key?bboxes=8.6562,49.41243,8.69946,49.42384&"
-                + "format=csv&groupByKeys=building,highway&time=2014-01-01&types=way",
-            String.class);
-    int length = response.getBody().length();
-    //assertEquals("2292.0;1429.0", response.getBody().substring(length - 14, length - 1));
+  public void getElementsCountGroupByKeyCsvTest() throws IOException {
+    // expect result to have 1 entry row, with 4 columns and check results against known values
+    String responseBody = getResponseBody("/elements/count/groupBy/key?"
+        + "bboxes=8.66841,49.40129,8.6728,49.40282&"
+        + "format=csv&groupByKeys=female,male&time=2019-01-01&types=node");
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(4, headers.size());
+    assertEquals(1.0, Double.parseDouble(records.get(0).get("female")),
+        0);
   }
 
   @Test
-  public void getElementsCountGroupByTagCsvTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(
-        server + port + "/elements/count/groupBy/tag?bboxes=8.6562,49.41243,8.69946,49.42384"
-            + "&format=csv&groupByKey=highway&groupByValues=tertiary,path&time=2015-01-01&"
-            + "types=way",
-        String.class);
-    int length = response.getBody().length();
-    //assertEquals("127.0;13.0", response.getBody().substring(length - 11, length - 1));
+  public void getElementsCountGroupByTagCsvTest() throws IOException {
+    // expect result to have 1 entry row, with 4 columns and check results against known values
+    String responseBody = getResponseBody("/elements/count/groupBy/tag?"
+        + "bboxes=8.685459,49.412258,8.689724,49.412868"
+        + "&format=csv&groupByKey=amenity&groupByValues=bbq,cafe&time=2019-01-01&"
+        + "types=node,way");
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(4, headers.size());
+    assertEquals(2.0, Double.parseDouble(records.get(0).get("amenity=bbq")),
+        0);
   }
 
 
