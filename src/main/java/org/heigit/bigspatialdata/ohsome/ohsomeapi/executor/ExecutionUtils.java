@@ -132,7 +132,7 @@ public class ExecutionUtils {
    * Caches the given mapper value in the user data of the <code>Geometry</code> object.
    * 
    * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
-   * @param arbitrary function that returns a time-independent value from a snapshot object, for
+   * @param mapper arbitrary function that returns a time-independent value from a snapshot object, for
    *        example lenght, area, perimeter
    * @return evaluated mapper function or cached value stored in the user data of the
    *         <code>Geometry</code> object
@@ -145,7 +145,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * Adapted helper function, which works like {@link OSHBCombinedIndex#nest(Map) nest} but has
+   * Adapted helper function, which works like 
+   * {@link org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex#nest(Map) nest} but has
    * switched &lt;U&gt; and &lt;V&gt; parameters.
    *
    * @param result the "flat" result data structure that should be converted to a nested structure

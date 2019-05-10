@@ -285,7 +285,7 @@ public class GeometryBuilder {
    * Computes the union of the given geometries and checks if it is completely within the underlying
    * data extract.
    * 
-   * @param geometries <code>Collection<Geometry></code> containing the geometries to unify
+   * @param geometries <code>Collection</code> containing the geometries to unify
    * @return unified geometries
    * @throws NotFoundException if the unified Geometry does not lie completely within the underlying
    *         data extract

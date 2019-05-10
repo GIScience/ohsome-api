@@ -227,10 +227,10 @@ public class CountController {
       nickname = "countDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response countDensity(HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT, request,
-        servletResponse, true, true);
+  public Response countDensity(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
+        servletRequest, servletResponse, true, true);
   }
 
   /**
