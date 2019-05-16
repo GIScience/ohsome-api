@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +31,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.wololo.jts2geojson.GeoJSONReader;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.

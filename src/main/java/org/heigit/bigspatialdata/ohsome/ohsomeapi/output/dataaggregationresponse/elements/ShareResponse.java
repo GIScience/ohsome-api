@@ -1,11 +1,11 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 
 
 /**

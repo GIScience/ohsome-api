@@ -1,7 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 
 
 /**
