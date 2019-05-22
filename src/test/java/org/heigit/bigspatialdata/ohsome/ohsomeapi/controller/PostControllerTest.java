@@ -2,12 +2,18 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -635,21 +641,53 @@ public class PostControllerTest {
   }
 
   // csv output tests
-
-  @Test
-  public void elementsLengthCsvTest() {
+  /** Method to get response body as String */
+  private String getPostResponseBody(String urlParams, MultiValueMap<String, String> map) {
     TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<String> response = restTemplate.postForEntity(
+        server + port + urlParams, map,
+        String.class);
+    String responseBody = response.getBody();
+    return responseBody;
+  }
+
+  /** Method to create CSV parser, skip comment headers */
+  private CSVParser csvParser(String responseBody) throws IOException {
+    CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';')
+        .withCommentMarker('#');
+    CSVParser csvParser = CSVParser.parse(responseBody, csvFormat);
+    return csvParser;
+  }
+
+  /** Method to get CSV entries */
+  private List<CSVRecord> getCSVRecords(String responseBody) throws IOException {
+    CSVParser csvParser = csvParser(responseBody);
+    List<CSVRecord> records = csvParser.getRecords();
+    return  records;
+  }
+
+  /** Method to get CSV headers */
+  private Map<String, Integer> getCSVHeaders(String responseBody) throws IOException {
+    CSVParser csvParser = csvParser(responseBody);
+    Map<String, Integer> headers = csvParser.getHeaderMap();
+    return  headers;
+  }
+  @Test
+  public void elementsLengthCsvTest() throws IOException {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.68627,49.38969,8.6908,49.39364");
+    map.add("bboxes", "8.67508,49.37834,8.67565,49.38026");
     map.add("types", "way");
-    map.add("time", "2018-01-01");
-    map.add("keys", "highway");
-    map.add("values", "service");
+    map.add("time", "2019-01-11");
+    map.add("keys", "railway");
+    map.add("values", "platform");
     map.add("format", "csv");
-    ResponseEntity<String> response =
-        restTemplate.postForEntity(server + port + "/elements/length", map, String.class);
-    int length = response.getBody().length();
-    assertEquals("159.83", response.getBody().substring(length - 7, length - 1));
+    String responseBody = getPostResponseBody("/elements/length", map);
+    List<CSVRecord> records = getCSVRecords(responseBody);
+    assertEquals(1, getCSVRecords(responseBody).size());
+    Map<String, Integer> headers = getCSVHeaders(responseBody);
+    assertEquals(2, headers.size());
+    assertEquals(378.09, Double.parseDouble(records.get(0).get("value")),
+        0.01);
   }
 
   @Test
