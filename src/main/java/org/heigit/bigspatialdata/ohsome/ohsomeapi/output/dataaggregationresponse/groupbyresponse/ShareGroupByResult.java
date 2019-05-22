@@ -1,9 +1,9 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse;
 
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
 
 
 /**
@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
  * requests.
  */
 @JsonInclude(Include.NON_NULL)
-public class ShareGroupByResult extends GroupByObject{
+public class ShareGroupByResult extends GroupByObject {
 
   @ApiModelProperty(notes = "ShareResult array holding timestamp, whole and part values",
       required = true)

@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +36,6 @@ import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
@@ -438,14 +438,9 @@ public class InputProcessor {
   
   /**
    * Checks the given keys and values parameters on their length and includes them in the
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String) where(key)}, or
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#where(String, String)
-   * where(key, value)} method.
-   * 
-   * <p>
-   * The keys and values parameters are described in the
-   * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation.CountController#count(String, String, String, String[], String[], String[], String[], String[], String, HttpServletRequest)
-   * count} method.
+   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)}, or
+   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
+   * osmTag(key, value)} method.
    * 
    * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
    *        MapReducer} object

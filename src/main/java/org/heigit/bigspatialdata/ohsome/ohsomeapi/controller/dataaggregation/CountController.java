@@ -1,5 +1,9 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
@@ -16,10 +20,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 
 
 /**
@@ -227,10 +227,10 @@ public class CountController {
       nickname = "countDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response countDensity(HttpServletRequest request, HttpServletResponse servletResponse)
-      throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT, request,
-        servletResponse, true, true);
+  public Response countDensity(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
+        servletRequest, servletResponse, true, true);
   }
 
   /**

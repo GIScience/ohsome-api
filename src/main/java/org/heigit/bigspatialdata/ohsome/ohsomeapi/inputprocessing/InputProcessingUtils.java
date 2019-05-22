@@ -490,7 +490,7 @@ public class InputProcessingUtils {
   /**
    * Splits the ids and the coordinates from the given bounding polygons array.
    * 
-   * @param bcirclesArray contains the bounding polygons having a custom id
+   * @param bpolysArray contains the bounding polygons having a custom id
    * @return <code>List</code> containing the splitted bounding polygons
    * @throws BadRequestException if the bpolys have invalid content
    */

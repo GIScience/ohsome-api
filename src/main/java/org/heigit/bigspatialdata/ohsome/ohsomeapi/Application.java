@@ -12,6 +12,7 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,11 +36,20 @@ public class Application implements ApplicationRunner {
               + " and '--database.keytables' parameter(s) inside the (nested) "
               + " '-DdbFilePathProperty=' parameter of 'mvn test'.");
     }
-    SpringApplication.run(Application.class, args);
+    try {
+      preRun(new DefaultApplicationArguments(args));
+      SpringApplication.run(Application.class, args);
+    } catch (Exception e) {
+      System.exit(1);
+    }
   }
 
-  @Override
-  public void run(ApplicationArguments args) throws Exception {
+  /**
+   * Reads and sets the given application arguments and makes a connection to the OSHDB.
+   * @param args Application arguments given over the commandline on startup
+   * @throws Exception if the connection to the db cannot be established
+   */
+  public static void preRun(ApplicationArguments args) throws Exception {
     final String dbProperty = "database.db";
     boolean multithreading = true;
     boolean caching = false;
@@ -146,4 +156,7 @@ public class Application implements ApplicationRunner {
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public void run(ApplicationArguments args) throws Exception {}
 }

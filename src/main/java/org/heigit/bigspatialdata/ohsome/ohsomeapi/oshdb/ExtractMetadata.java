@@ -1,7 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb;
 
-import org.locationtech.jts.geom.Geometry;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.locationtech.jts.geom.Geometry;
 
 /** Holds the metadata that is derived from the data-extract. */
 public class ExtractMetadata {
