@@ -774,7 +774,7 @@ public class GetControllerTest {
             + "&format=csv&keys=leisure&time=2018-01-01&types=way,relation",
         String.class);
     int length = response.getBody().length();
-    assertEquals("97989.41;12329.71", response.getBody().substring(length - 18, length - 1));
+    assertEquals("97989.41;4764.2", response.getBody().substring(length - 16, length - 1));
   }
 
   @Test
@@ -795,7 +795,7 @@ public class GetControllerTest {
         .getForEntity(server + port + "/elements/area/groupBy/type?bcircles=8.689054,49.402481,500&"
             + "format=csv&keys=building&time=2018-01-01&types=way,relation", String.class);
     int length = response.getBody().length();
-    assertEquals("209696.95;22111.69", response.getBody().substring(length - 19, length - 1));
+    assertEquals("209696.95;15864.9", response.getBody().substring(length - 18, length - 1));
   }
 
   @Test

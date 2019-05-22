@@ -23,9 +23,7 @@ public class PostControllerTest {
   private static String port = TestProperties.PORT2;
   private String server = TestProperties.SERVER;
 
-  /**
-   * Method to start this application context.
-   */
+  /** Method to start this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT2 != null && (TestProperties.INTEGRATION == null
@@ -438,7 +436,7 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/type", map, JsonNode.class);
-    assertEquals(22216.19,
+    assertEquals(15969.39,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -528,7 +526,7 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
-    assertEquals(0.084184, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+    assertEquals(0.060513, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
         1e-6);
   }
 
@@ -545,7 +543,7 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
-    assertEquals(0.084184, response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult")
+    assertEquals(0.060513, response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult")
         .get(0).get("ratio").asDouble(), 1e-6);
   }
 
@@ -573,7 +571,7 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/density/groupBy/type", map, JsonNode.class);
-    assertEquals(26198.91,
+    assertEquals(22225.48,
         response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
         1e-6);
   }
