@@ -66,14 +66,14 @@ public class InputProcessor {
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
-    processingData =
-        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+    processingData = new ProcessingData(
+        new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
             servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
             servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
             servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()),
-            servletRequest.getRequestURL().toString());
+        servletRequest.getRequestURL().toString());
     this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
     this.requestMethod = servletRequest.getMethod();
     this.requestTimeout = servletRequest.getParameter("timeout");
@@ -113,9 +113,8 @@ public class InputProcessor {
         createEmptyStringIfNull(processingData.getRequestParameters().getShowMetadata());
     double timeout = defineRequestTimeout();
     // overwriting RequestParameters object with splitted/non-null parameters
-    processingData.setRequestParameters(
-        new RequestParameters(requestMethod, isSnapshot, isDensity, bboxes, bcircles,
-            bpolys, types, keys, values, time, format, showMetadata, timeout));
+    processingData.setRequestParameters(new RequestParameters(requestMethod, isSnapshot, isDensity,
+        bboxes, bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout));
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
@@ -218,35 +217,57 @@ public class InputProcessor {
       }
       processingData.setGeoJsonGeoms(geoJsonGeoms);
     }
-    defineOSMTypes(types);
+    defineTypes(types);
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
+    if (processingData.containsSimpleFeatureTypes()) {
+      mapRed = utils.filterOnSimpleFeatures(mapRed, processingData);
+    }
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
     return (MapReducer<T>) mapRed;
   }
 
   /**
-   * Defines the OSMType(s) out of the given String[].
+   * Defines the type(s) out of the given String[].
    * 
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation). If the array is empty, all three types are used.
-   * @throws BadRequestException if the content of the parameter does not represent one, two, or all
-   *         three OSM types
+   * @throws BadRequestException if the content of the parameter does not represent one or more OSM
+   *         types, OR one or more of point/line/polygon
    */
-  public void defineOSMTypes(String[] types) throws BadRequestException {
+  public void defineTypes(String[] types) throws BadRequestException {
     types = createEmptyArrayIfNull(types);
-    checkOSMTypes(types);
+    checkTypes(types);
     if (types.length == 0) {
       processingData.setOsmTypes(EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION));
     } else {
-      processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
-      for (String type : types) {
-        if ("node".equalsIgnoreCase(type)) {
-          processingData.getOsmTypes().add(OSMType.NODE);
-        } else if ("way".equalsIgnoreCase(type)) {
-          processingData.getOsmTypes().add(OSMType.WAY);
-        } else {
-          processingData.getOsmTypes().add(OSMType.RELATION);
+      if (!processingData.containsSimpleFeatureTypes()) {
+        processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
+        for (String type : types) {
+          if ("node".equalsIgnoreCase(type)) {
+            processingData.getOsmTypes().add(OSMType.NODE);
+          } else if ("way".equalsIgnoreCase(type)) {
+            processingData.getOsmTypes().add(OSMType.WAY);
+          } else {
+            processingData.getOsmTypes().add(OSMType.RELATION);
+          }
+        }
+      } else {
+        processingData.setSimpleFeatureTypes(EnumSet.noneOf(SimpleFeatureType.class));
+        processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
+        for (String type : types) {
+          if ("point".equalsIgnoreCase(type)) {
+            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.POINT);
+            processingData.getOsmTypes().add(OSMType.NODE);
+          } else if ("line".equalsIgnoreCase(type)) {
+            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.LINE);
+            processingData.getOsmTypes().add(OSMType.WAY);
+            processingData.getOsmTypes().add(OSMType.RELATION);
+          } else {
+            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.POLYGON);
+            processingData.getOsmTypes().add(OSMType.WAY);
+            processingData.getOsmTypes().add(OSMType.RELATION);
+          }
         }
       }
     }
@@ -435,11 +456,11 @@ public class InputProcessor {
     }
     return null;
   }
-  
+
   /**
    * Checks the given keys and values parameters on their length and includes them in the
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)}, or
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
+   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
+   * or {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
    * osmTag(key, value)} method.
    * 
    * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
@@ -524,20 +545,25 @@ public class InputProcessor {
     return mapRed;
   }
 
-  /** Checks the given OSMType(s) String[] on its length and content. */
-  private void checkOSMTypes(String[] types) throws BadRequestException {
+  /** Checks the given type(s) String[] on its length and content. */
+  private void checkTypes(String[] types) throws BadRequestException {
     if (types.length > 3) {
-      throw new BadRequestException("Parameter 'types' (and 'types2') containing the OSM Types "
-          + "cannot have more than 3 entries.");
+      throw new BadRequestException(
+          "Parameter 'types' (and 'types2') cannot have more than 3 entries.");
     } else if (types.length == 0) {
       // do nothing
     } else {
+      processingData.setContainsSimpleFeatureTypes(!"node".equalsIgnoreCase(types[0])
+          && !"way".equalsIgnoreCase(types[0]) && !"relation".equalsIgnoreCase(types[0]));
       for (String type : types) {
-        if (!"node".equalsIgnoreCase(type) && !"way".equalsIgnoreCase(type)
-            && !"relation".equalsIgnoreCase(type)) {
-          throw new BadRequestException(
-              "Parameter 'types' can only have 'node' and/or 'way' and/or 'relation' "
-                  + "as its content.");
+        if (utils.isSimpleFeatureType(type)) {
+          if (!processingData.containsSimpleFeatureTypes()) {
+            throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
+          }
+        } else {
+          if (processingData.containsSimpleFeatureTypes()) {
+            throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
+          }
         }
       }
     }

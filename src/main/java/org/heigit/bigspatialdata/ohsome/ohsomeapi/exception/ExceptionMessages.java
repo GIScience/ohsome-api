@@ -45,6 +45,8 @@ public class ExceptionMessages {
   public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";
   public static final String TIMEOUT_FORMAT = "The given timeout does not fit to its format. Please"
       + " give one value in seconds and use a point as the decimal delimiter, if needed.";
+  public static final String TYPES_PARAM = "Parameter 'types' (and 'types2') can only have 'node' "
+      + "and/or 'way' and/or 'relation' OR 'point' and/or 'line' and/or 'polygon'.";
 
   private ExceptionMessages() {
     throw new IllegalStateException("Utility class");
