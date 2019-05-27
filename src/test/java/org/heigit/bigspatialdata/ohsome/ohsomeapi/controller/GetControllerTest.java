@@ -907,7 +907,7 @@ public class GetControllerTest {
     assertTrue(!headers.containsKey("NODE"));
     assertEquals(3, headers.size());
     assertEquals(264812.45, Double.parseDouble(records.get(0).get("WAY")), 0.01);
-    assertEquals(120015.73, Double.parseDouble(records.get(0).get("RELATION")), 0.01);
+    assertEquals(46838.97, Double.parseDouble(records.get(0).get("RELATION")), 0.01);
   }
 
   @Test
