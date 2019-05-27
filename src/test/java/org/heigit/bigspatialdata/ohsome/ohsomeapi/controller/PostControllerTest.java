@@ -895,7 +895,7 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCSVRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(48.36, Double.parseDouble(records.get(0).get("parb1_building=garaget")),
+    assertEquals(48.36, Double.parseDouble(records.get(0).get("b1_building=garage")),
         0.01);
   }
 }
