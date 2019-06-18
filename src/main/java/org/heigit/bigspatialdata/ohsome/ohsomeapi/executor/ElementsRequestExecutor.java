@@ -214,6 +214,7 @@ public class ElementsRequestExecutor {
     inputProcessor.processPropertiesParam();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
+    final boolean unclippedGeometries = inputProcessor.isUnclipped();
     String startTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
@@ -233,15 +234,16 @@ public class ElementsRequestExecutor {
       } else {
         // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
         currentEntity = contributions.get(0).getEntityBefore();
-        currentGeom = contributions.get(0).getGeometryBefore();
+        currentGeom = exeUtils.getGeometry(contributions.get(0), unclippedGeometries, true);
         validFrom = startTimestamp;
-      }
+      }    
       // then for each contribution:
       for (OSMContribution contribution : contributions) {
         // set valid_to of previous row, add to output list (output.add(…))
         validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext) {
           properties = new TreeMap<>();
+          properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
           properties.put("@validFrom", validFrom);
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
@@ -256,15 +258,17 @@ public class ElementsRequestExecutor {
         } else {
           // else: take "after" as next row
           currentEntity = contribution.getEntityAfter();
-          currentGeom = contribution.getGeometryAfter();
+          currentGeom = exeUtils.getGeometry(contribution, unclippedGeometries, false);
           validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         }
       }
       // after loop:
-      if (!contributions.get(contributions.size() - 1).is(ContributionType.DELETION)) {
+      OSMContribution lastContribution = contributions.get(contributions.size() - 1);
+      if (!lastContribution.is(ContributionType.DELETION)) {
         // if last contribution was not "deletion": set valid_to = t_end, add row to output list
         validTo = endTimestamp;
         properties = new TreeMap<>();
+        properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
         properties.put("@validFrom", validFrom);
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
@@ -275,6 +279,7 @@ public class ElementsRequestExecutor {
       return output;
     });
     MapReducer<Feature> snapshotPreResult = null;
+    // handles cases where valid_from = t_start, valid_to = t_end
     snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
         .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
             && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
@@ -292,7 +297,7 @@ public class ElementsRequestExecutor {
           properties.put("@validTo", endTimestamp);
           return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
               includeOSMMetadata, elemGeom, mapTagTranslator.get());
-        }); // valid_from = t_start, valid_to = t_end
+        });
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;

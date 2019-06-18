@@ -62,6 +62,7 @@ public class InputProcessor {
   private Map<String, String[]> requestParameters;
   private boolean includeTags;
   private boolean includeOSMMetadata;
+  private boolean unclipped;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     this.isSnapshot = isSnapshot;
@@ -429,14 +430,14 @@ public class InputProcessor {
 
   /**
    * Processes the properties parameter used in data-extraction ressources and sets the respective
-   * boolean values includeTags and includeOSMMetadata.
+   * boolean values includeTags, includeOSMMetadata and unclippedGeometries.
    * 
    * @throws BadRequestException if the properties parameter contains invalid content
    */
   public void processPropertiesParam() throws BadRequestException {
     String[] properties =
         splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
-    if (properties.length > 2) {
+    if (properties.length > 3) {
       throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
     }
     for (String property : properties) {
@@ -444,6 +445,8 @@ public class InputProcessor {
         this.includeTags = true;
       } else if ("metadata".equalsIgnoreCase(property)) {
         this.includeOSMMetadata = true;
+      } else if ("unclipped".equalsIgnoreCase(property)) {
+        this.unclipped = true;
       } else {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
       }
@@ -683,5 +686,9 @@ public class InputProcessor {
 
   public boolean includeOSMMetadata() {
     return includeOSMMetadata;
+  }
+
+  public boolean isUnclipped() {
+    return unclipped;
   }
 }
