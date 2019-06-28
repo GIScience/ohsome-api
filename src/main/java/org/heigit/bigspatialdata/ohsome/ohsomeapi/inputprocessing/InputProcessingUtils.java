@@ -338,13 +338,12 @@ public class InputProcessingUtils {
   /** Checks if the given String is one of the simple feature types (point, line, polygon). */
   public boolean isSimpleFeatureType(String type) {
     return "point".equalsIgnoreCase(type) || "line".equalsIgnoreCase(type)
-        || "polygon".equalsIgnoreCase(type);
+        || "polygon".equalsIgnoreCase(type) || "other".equalsIgnoreCase(type);
   }
 
   /**
    * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
-   * @param mapRed
-   * @param processingData
+   * 
    * @return MapReducer with filtered geometries
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
@@ -355,6 +354,7 @@ public class InputProcessingUtils {
     boolean containsPoint = false;
     boolean containsLine = false;
     boolean containsPolygon = false;
+    boolean containsOther = false;
     for (SimpleFeatureType type : simpleFeatureTypes) {
       if (type.equals(SimpleFeatureType.POINT)) {
         containsPoint = true;
@@ -362,43 +362,22 @@ public class InputProcessingUtils {
         containsLine = true;
       } else if (type.equals(SimpleFeatureType.POLYGON)) {
         containsPolygon = true;
+      } else if (type.equals(SimpleFeatureType.OTHER)) {
+        containsOther = true;
       }
     }
-    if (containsPolygon && containsPoint && containsLine) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Polygonal)
-            || (predicate.getGeometry() instanceof Puntal)
-            || (predicate.getGeometry() instanceof Lineal);
-      });
-    } else if (containsPolygon && containsLine) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Polygonal)
-            || (predicate.getGeometry() instanceof Lineal);
-      });
-    } else if (containsPolygon && containsPoint) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Polygonal)
-            || (predicate.getGeometry() instanceof Puntal);
-      });
-    } else if (containsPoint && containsLine) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Lineal)
-            || (predicate.getGeometry() instanceof Puntal);
-      });
-    } else if (containsPolygon) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Polygonal);
-      });
-    } else if (containsLine) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Lineal);
-      });
-    } else if (containsPoint) {
-      mapReducer = mapReducer.filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-        return (predicate.getGeometry() instanceof Puntal);
-      });
-    }
-    return (MapReducer<T>) mapReducer;
+    final boolean hasPoly = containsPolygon;
+    final boolean hasPoint = containsPoint;
+    final boolean hasLine = containsLine;
+    final boolean hasOther = containsOther;
+    return (MapReducer<T>) mapReducer
+        .filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
+          return (hasPoly && predicate.getGeometry() instanceof Polygonal)
+              || (hasPoint && predicate.getGeometry() instanceof Puntal)
+              || (hasLine && predicate.getGeometry() instanceof Lineal)
+              || (hasOther && "GeometryCollection"
+                  .equalsIgnoreCase(predicate.getGeometry().getGeometryType()));
+        });
   }
 
   /**

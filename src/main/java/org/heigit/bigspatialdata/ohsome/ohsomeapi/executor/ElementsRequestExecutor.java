@@ -889,7 +889,7 @@ public class ElementsRequestExecutor {
     EnumSet<OSMType> osmTypes1 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     if (!isShare) {
-      inputProcessor.defineTypes(servletRequest.getParameterValues("types2"));
+      inputProcessor.defineTypes(servletRequest.getParameterValues("types2"), mapRed);
     }
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
@@ -1046,7 +1046,7 @@ public class ElementsRequestExecutor {
     }
     EnumSet<OSMType> osmTypes1 = (EnumSet<OSMType>) processingData.getOsmTypes();
     if (!isShare) {
-      inputProcessor.defineTypes(servletRequest.getParameterValues("types2"));
+      inputProcessor.defineTypes(servletRequest.getParameterValues("types2"), mapRed);
     }
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();

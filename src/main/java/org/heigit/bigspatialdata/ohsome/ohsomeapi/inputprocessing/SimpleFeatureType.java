@@ -5,5 +5,5 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
  * parameter.
  */
 public enum SimpleFeatureType {
-  POINT, LINE, POLYGON
+  POINT, LINE, POLYGON, OTHER
 }
