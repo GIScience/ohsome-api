@@ -10,11 +10,15 @@ import java.util.Set;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializablePredicate;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
@@ -339,6 +343,23 @@ public class InputProcessingUtils {
   public boolean isSimpleFeatureType(String type) {
     return "point".equalsIgnoreCase(type) || "line".equalsIgnoreCase(type)
         || "polygon".equalsIgnoreCase(type) || "other".equalsIgnoreCase(type);
+  }
+
+  /**
+   * Applies an entity filter using only planar relations (relations with an area) on the given
+   * MapReducer object. It uses the tags "type=multipolygon" and "type=boundary".
+   */
+  public <T extends OSHDBMapReducible> MapReducer<T> filterOnPlanarRelations(MapReducer<T> mapRed) {
+    // further filtering to not look at all relations
+    TagTranslator tt = DbConnData.tagTranslator;
+    OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
+    OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
+    mapRed.osmEntityFilter(entity -> {
+      return !entity.getType().equals(OSMType.RELATION)
+          || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
+          || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue());
+    });
+    return mapRed;
   }
 
   /**

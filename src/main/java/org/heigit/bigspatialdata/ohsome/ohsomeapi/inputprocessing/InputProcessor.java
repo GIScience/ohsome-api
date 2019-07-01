@@ -30,9 +30,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
@@ -239,7 +237,6 @@ public class InputProcessor {
    * @throws BadRequestException if the content of the parameter does not represent one or more OSM
    *         types, OR one or more of point/line/polygon
    */
-  // @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> defineTypes(String[] types,
       MapReducer<T> mapRed) throws BadRequestException {
     types = createEmptyArrayIfNull(types);
@@ -272,18 +269,11 @@ public class InputProcessor {
             processingData.getSimpleFeatureTypes().add(SimpleFeatureType.POLYGON);
             processingData.getOsmTypes().add(OSMType.WAY);
             processingData.getOsmTypes().add(OSMType.RELATION);
-            // further filtering to not look at all relations
-            TagTranslator tt = DbConnData.tagTranslator;
-            OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
-            OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
-            mapRed.osmEntityFilter(entity -> {
-              return !entity.getType().equals(OSMType.RELATION)
-                  || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
-                  || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue());
-            });
+            mapRed = utils.filterOnPlanarRelations(mapRed);
           } else {
-            // type "other"
+            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.OTHER);
             processingData.getOsmTypes().add(OSMType.RELATION);
+            mapRed = utils.filterOnPlanarRelations(mapRed);
           } 
         }
       }
