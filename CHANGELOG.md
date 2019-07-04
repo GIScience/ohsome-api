@@ -1,5 +1,37 @@
-## 0.9.8.SNAPSHOT (current master)
+## current master
 
+### Prominent Changes
+
+* Remove of userids parameter and /groupBy/user resource (#51)
+* New category 'total' in response for /users/count/groupBY/tag|key (41d0c830)
+
+### New Features
+
+* Integration of csv as output format (3850891d)
+* Implementing cache logic used via HTTP headers (#52)
+* Parameter timeout to define custom timeout for request (8ebec3ba)
+* Nested group-by resource: /groupBy/boundary/groupBy/tag (cb82b9f6)
+
+### Bug Fixes
+
+* Wrong response for GeoJSON boundaries lying outside of data extract (#47)
+* Request parameter usage (#48)
+* Content type header and encoding of csv response (#49)
+* Proper request encoding if encoding is not defined (#53)
+* Several other bugs (04a798b5, 01eca91f, 585933c7)
+
+### Performance and Code Quality
+
+* Faster union computation (4744e843)
+* Caching of time-independent results (aae6591d) 
+* Rework of time parameter processing (a000b598)
+* Refactoring of several code parts (e.g.: 5a8fba0c, 42064696, 67ef11fb, 5230de69)
+* Adding of csv output tests (7982338a)
+
+### Other Changes
+
+* Adding this Changelog
+* Start spring-boot application after connection with oshdb has been fully established (25ee2e15)
 
 
 ## 0.9.7
