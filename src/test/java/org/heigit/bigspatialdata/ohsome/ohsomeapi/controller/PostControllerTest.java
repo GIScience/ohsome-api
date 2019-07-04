@@ -125,13 +125,14 @@ public class PostControllerTest {
   public void simpleFeaturePolygonTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.678496,49.414931,8.679103,49.415154");
+    map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
     map.add("types", "polygon");
-    map.add("time", "2014-01-01/2019-01-01/P1Y");
-    map.add("keys", "building");
+    map.add("time", "2015-01-01/2019-01-01/P1Y");
+    map.add("keys", "leisure");
+    map.add("values", "track");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
-    assertEquals(2, StreamSupport
+    assertEquals(11, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
         .filter(
@@ -146,10 +147,11 @@ public class PostControllerTest {
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
     map.add("types", "other");
     map.add("time", "2015-01-01/2019-01-01/P1Y");
-    map.add("keys", "building");
+    map.add("keys", "type");
+    map.add("values", "restriction");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
-    assertEquals(2, StreamSupport
+    assertEquals(246, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
         .filter(

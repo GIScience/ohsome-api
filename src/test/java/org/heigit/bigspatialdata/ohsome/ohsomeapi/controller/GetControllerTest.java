@@ -724,7 +724,6 @@ public class GetControllerTest {
     assertEquals(2.0, Double.parseDouble(records.get(0).get("amenity=bbq")), 0);
   }
 
-
   @Test
   public void getElementsCountGroupByTypeCsvTest() throws IOException {
     // expect result to have 1 entry row, with one timestamp-column and one column per requested
