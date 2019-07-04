@@ -18,12 +18,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.JsonNode;
 
+/** Test class for the data extraction requests. */
 public class ElementsControllerTest {
 
   private static String port = TestProperties.PORT3;
   private String server = TestProperties.SERVER;
 
-  /** Method to start this application context. */
+  /** Starts this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT3 != null && (TestProperties.INTEGRATION == null

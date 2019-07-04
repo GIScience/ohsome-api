@@ -2,7 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.junit.BeforeClass;
@@ -21,7 +19,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /** Test class for all of the controller classes sending POST requests. */
 public class PostControllerTest {
@@ -29,7 +26,7 @@ public class PostControllerTest {
   private static String port = TestProperties.PORT2;
   private String server = TestProperties.SERVER;
 
-  /** Method to start this application context. */
+  /** Starts this application context. */
   @BeforeClass
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT2 != null && (TestProperties.INTEGRATION == null
@@ -643,7 +640,6 @@ public class PostControllerTest {
   @Test
   public void elementsLengthCsvTest() throws IOException {
     // expect result to have 1 entry rows with 2 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67508,49.37834,8.67565,49.38026");
     map.add("types", "way");
@@ -652,18 +648,16 @@ public class PostControllerTest {
     map.add("values", "platform");
     map.add("format", "csv");
     String responseBody = Helper.getPostResponseBody("/elements/length", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(2, headers.size());
-    assertEquals(378.09, Double.parseDouble(records.get(0).get("value")),
-        0.01);
+    assertEquals(378.09, Double.parseDouble(records.get(0).get("value")), 0.01);
   }
 
   @Test
   public void elementsLengthDensityGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 4 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.687782,49.412861,8.687986,49.412945");
     map.add("types", "way");
@@ -671,23 +665,20 @@ public class PostControllerTest {
     map.add("groupByKey", "highway");
     map.add("groupByValues", "path,footway");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody(
-        "/elements/length/density/groupBy/tag", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody = Helper.getPostResponseBody("/elements/length/density/groupBy/tag", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(103137.94, Double.parseDouble(records.get(0).get("highway=footway")),
-        0.01);
+    assertEquals(103137.94, Double.parseDouble(records.get(0).get("highway=footway")), 0.01);
   }
 
   @Test
   public void elementsLengthRatioGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 7 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.672343,49.413675,8.673797,49.41395|"
-        + "8.674157,49.413455,8.67465,49.413741");
+    map.add("bboxes",
+        "8.672343,49.413675,8.673797,49.41395|" + "8.674157,49.413455,8.67465,49.413741");
     map.add("types", "way");
     map.add("types2", "way");
     map.add("time", "2018-01-01");
@@ -696,20 +687,18 @@ public class PostControllerTest {
     map.add("values", "unclassified");
     map.add("values2", "service");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/length/ratio/"
-        + "groupBy/boundary", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody =
+        Helper.getPostResponseBody("/elements/length/ratio/" + "groupBy/boundary", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(7, headers.size());
-    assertEquals(1.01958, Double.parseDouble(records.get(0).get("boundary1_ratio")),
-        0.01);
+    assertEquals(1.01958, Double.parseDouble(records.get(0).get("boundary1_ratio")), 0.01);
   }
 
   @Test
   public void elementsLengthShareCsvTest() throws IOException {
     // expect result to have 1 entry rows with 3 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.664098,49.412268,70");
     map.add("types", "way");
@@ -719,18 +708,17 @@ public class PostControllerTest {
     map.add("values2", "hedge");
     map.add("format", "csv");
     String responseBody = Helper.getPostResponseBody("/elements/length/share", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(131.95, Double.parseDouble(records.get(0).get("part")),
-        0.01);
+    assertEquals(131.95, Double.parseDouble(records.get(0).get("part")), 0.01);
   }
 
+  // this test needs a fix in the OSHDB to work correctly
   /*@Test
   public void elementsLengthGroupByTypeCsvTest() throws IOException {
     // expect result to have 1 entry rows with 3 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
     map.add("types", "way,relation");
@@ -738,9 +726,9 @@ public class PostControllerTest {
     map.add("keys", "name");
     map.add("format", "csv");
     String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/type", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
     assertEquals(131.95, Double.parseDouble(records.get(0).get("part")),
         0.01);
@@ -749,7 +737,6 @@ public class PostControllerTest {
   @Test
   public void elementsPerimeterCsvTest() throws IOException {
     // expect result to have 1 entry rows with 2 columns
-    // and check results against known values
     // testing perimeter of building with a hole
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68855,49.40193,8.68979,49.40316");
@@ -759,18 +746,16 @@ public class PostControllerTest {
     map.add("values", "hospital");
     map.add("format", "csv");
     String responseBody = Helper.getPostResponseBody("/elements/perimeter", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(2, headers.size());
-    assertEquals(661.21, Double.parseDouble(records.get(0).get("value")),
-        0.01);
+    assertEquals(661.21, Double.parseDouble(records.get(0).get("value")), 0.01);
   }
 
   @Test
   public void elementsPerimeterGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.676699,"
         + "49.414781,8.678003,49.415371");
@@ -780,20 +765,18 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     map.add("groupByValues", "house");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/perimeter/"
-        + "groupBy/boundary/groupBy/tag", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody =
+        Helper.getPostResponseBody("/elements/perimeter/" + "groupBy/boundary/groupBy/tag", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(94.52, Double.parseDouble(records.get(0).get("Weststadt_building=house")),
-        0.01);
+    assertEquals(94.52, Double.parseDouble(records.get(0).get("Weststadt_building=house")), 0.01);
   }
 
   @Test
   public void elementsPerimeterDensityGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 3 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.67512, 49.40023,60|8.675659,49.39841,50");
     map.add("types", "way");
@@ -801,40 +784,35 @@ public class PostControllerTest {
     map.add("keys", "building");
     map.add("values", "yes");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/perimeter/density/"
-        + "groupBy/boundary", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody =
+        Helper.getPostResponseBody("/elements/perimeter/density/" + "groupBy/boundary", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(62587.13, Double.parseDouble(records.get(0).get("boundary2")),
-        0.01);
+    assertEquals(62587.13, Double.parseDouble(records.get(0).get("boundary2")), 0.01);
   }
 
   @Test
   public void elementsPerimeterGroupByKeyCsvTest() throws IOException {
     // expect result to have 1 entry rows with 4 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.685642,49.395621,8.687128,49.396528");
     map.add("types", "way");
     map.add("time", "2018-01-01");
     map.add("groupByKeys", "building,leisure");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/perimeter/groupBy/key",
-        map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody = Helper.getPostResponseBody("/elements/perimeter/groupBy/key", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(365.52, Double.parseDouble(records.get(0).get("building")),
-        0.01);
+    assertEquals(365.52, Double.parseDouble(records.get(0).get("building")), 0.01);
   }
 
   @Test
   public void elementsPerimeterRatioGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 7 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "8.685642,49.396078,8.687192,49.396528|8.685744,49.395621,8.687294,49.396078");
@@ -844,20 +822,18 @@ public class PostControllerTest {
     map.add("keys2", "leisure");
     map.add("values2", "pitch");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/perimeter/ratio/"
-        + "groupBy/boundary", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody =
+        Helper.getPostResponseBody("/elements/perimeter/ratio/" + "groupBy/boundary", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(7, headers.size());
-    assertEquals(0.5, Double.parseDouble(records.get(0).get("boundary2_ratio")),
-        0.01);
+    assertEquals(0.5, Double.parseDouble(records.get(0).get("boundary2_ratio")), 0.01);
   }
 
   @Test
   public void elementsPerimeterShareCsvTest() throws IOException {
     // expect result to have 1 entry rows with 3 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.677869,49.382719,8.6798,49.38466");
     map.add("types", "way");
@@ -868,34 +844,31 @@ public class PostControllerTest {
     map.add("values2", "supermarket");
     map.add("format", "csv");
     String responseBody = Helper.getPostResponseBody("/elements/perimeter/share", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(497.21, Double.parseDouble(records.get(0).get("part")),
-        0.01);
+    assertEquals(497.21, Double.parseDouble(records.get(0).get("part")), 0.01);
   }
 
   @Test
   public void elementsAreaGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
-    // and check results against known values
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "b1:8.695003,49.399594,8.695421,49.399789|"
-        + "b2:8.687788,49.402997,8.68856,49.403441");
+    map.add("bboxes",
+        "b1:8.695003,49.399594,8.695421,49.399789|" + "b2:8.687788,49.402997,8.68856,49.403441");
     map.add("types", "way");
     map.add("time", "2014-07-09");
     map.add("keys", "building");
     map.add("groupByKey", "building");
     map.add("groupByValues", "garage");
     map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/area/"
-        + "groupBy/boundary/groupBy/tag", map);
-    List<CSVRecord> records = Helper.getCSVRecords(responseBody);
-    assertEquals(1, Helper.getCSVRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCSVHeaders(responseBody);
+    String responseBody =
+        Helper.getPostResponseBody("/elements/area/" + "groupBy/boundary/groupBy/tag", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(48.36, Double.parseDouble(records.get(0).get("b1_building=garage")),
-        0.01);
+    assertEquals(48.36, Double.parseDouble(records.get(0).get("b1_building=garage")), 0.01);
   }
 }

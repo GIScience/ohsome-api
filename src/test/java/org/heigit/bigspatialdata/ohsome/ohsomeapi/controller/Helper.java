@@ -10,49 +10,39 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 
+/** Holds helper methods that are used within the various test classes. */
 public class Helper {
-  private static String portGet = TestProperties.PORT1;
   private static String portPost = TestProperties.PORT2;
   private static String server = TestProperties.SERVER;
-
-  private String getResponseBody(String urlParams) {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.getForEntity(
-        server + portGet + urlParams,
-        String.class);
-    String responseBody = response.getBody();
-    return responseBody;
-  }
 
   /** Method to get post response body as String */
   static String getPostResponseBody(String urlParams, MultiValueMap<String, String> map) {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<String> response = restTemplate.postForEntity(
-        server + portPost + urlParams, map,
-        String.class);
+    ResponseEntity<String> response =
+        restTemplate.postForEntity(server + portPost + urlParams, map, String.class);
     String responseBody = response.getBody();
     return responseBody;
   }
 
   /** Method to create CSV parser, skip comment headers */
-  static CSVParser csvParser(String responseBody) throws IOException {
-    CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';')
-        .withCommentMarker('#');
+  public static CSVParser csvParser(String responseBody) throws IOException {
+    CSVFormat csvFormat =
+        CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';').withCommentMarker('#');
     CSVParser csvParser = CSVParser.parse(responseBody, csvFormat);
     return csvParser;
   }
 
   /** Method to get CSV entries */
-  static List<CSVRecord> getCSVRecords(String responseBody) throws IOException {
+  public static List<CSVRecord> getCsvRecords(String responseBody) throws IOException {
     CSVParser csvParser = csvParser(responseBody);
     List<CSVRecord> records = csvParser.getRecords();
-    return  records;
+    return records;
   }
 
   /** Method to get CSV headers */
-  static Map<String, Integer> getCSVHeaders(String responseBody) throws IOException {
+  public static Map<String, Integer> getCsvHeaders(String responseBody) throws IOException {
     CSVParser csvParser = csvParser(responseBody);
     Map<String, Integer> headers = csvParser.getHeaderMap();
-    return  headers;
+    return headers;
   }
 }
