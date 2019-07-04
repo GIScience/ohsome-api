@@ -6,14 +6,26 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializablePredicate;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Lineal;
+import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.Puntal;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
@@ -288,6 +300,107 @@ public class InputProcessingUtils {
     return timeVals;
   }
 
+  /** Sorts the given timestamps from oldest to newest. */
+  public String[] sortTimestamps(String[] timestamps) throws BadRequestException {
+    List<String> timeStringList = new ArrayList<>();
+    for (String timestamp : timestamps) {
+      try {
+        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+        timeStringList.add(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+      } catch (Exception e) {
+        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
+      }
+    }
+    Collections.sort(timeStringList);
+    return timeStringList.toArray(timestamps);
+  }
+
+  /** Checks the given custom boundary id. At the moment only used if output format = csv. */
+  public void checkCustomBoundaryId(String id) {
+    if (id.contains(";")) {
+      throw new BadRequestException("The given custom ids cannot contain semicolons, "
+          + "if you want to use csv as output format.");
+    }
+  }
+
+  /**
+   * Checks if the given geometry is within the underlying data-polygon. Returns also true if no
+   * data-polygon is given.
+   * 
+   * @param geom <code>Geometry</code>, which is tested against the data-polygon
+   * @return <code>true</code> - if inside <br>
+   *         <code>false</code> - if not inside
+   */
+  public boolean isWithin(Geometry geom) {
+    if (ExtractMetadata.dataPoly != null) {
+      return geom.within(ExtractMetadata.dataPoly);
+    }
+    return true;
+  }
+
+  /** Checks if the given String is one of the simple feature types (point, line, polygon). */
+  public boolean isSimpleFeatureType(String type) {
+    return "point".equalsIgnoreCase(type) || "line".equalsIgnoreCase(type)
+        || "polygon".equalsIgnoreCase(type) || "other".equalsIgnoreCase(type);
+  }
+
+  /**
+   * Applies an entity filter using only planar relations (relations with an area) on the given
+   * MapReducer object. It uses the tags "type=multipolygon" and "type=boundary".
+   */
+  public <T extends OSHDBMapReducible> MapReducer<T> filterOnPlanarRelations(MapReducer<T> mapRed) {
+    // further filtering to not look at all relations
+    TagTranslator tt = DbConnData.tagTranslator;
+    OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
+    OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
+    mapRed.osmEntityFilter(entity -> {
+      return !entity.getType().equals(OSMType.RELATION)
+          || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
+          || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue());
+    });
+    return mapRed;
+  }
+
+  /**
+   * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
+   * 
+   * @return MapReducer with filtered geometries
+   */
+  @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
+  public <T extends OSHDBMapReducible> MapReducer<T> filterOnSimpleFeatures(MapReducer<T> mapRed,
+      ProcessingData processingData) {
+    MapReducer<OSMEntitySnapshot> mapReducer = (MapReducer<OSMEntitySnapshot>) mapRed;
+    Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
+    boolean containsPoint = false;
+    boolean containsLine = false;
+    boolean containsPolygon = false;
+    boolean containsOther = false;
+    for (SimpleFeatureType type : simpleFeatureTypes) {
+      if (type.equals(SimpleFeatureType.POINT)) {
+        containsPoint = true;
+      } else if (type.equals(SimpleFeatureType.LINE)) {
+        containsLine = true;
+      } else if (type.equals(SimpleFeatureType.POLYGON)) {
+        containsPolygon = true;
+      } else if (type.equals(SimpleFeatureType.OTHER)) {
+        containsOther = true;
+      }
+    }
+    final boolean hasPoly = containsPolygon;
+    final boolean hasPoint = containsPoint;
+    final boolean hasLine = containsLine;
+    final boolean hasOther = containsOther;
+    return (MapReducer<T>) mapReducer
+        .filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
+          return (hasPoly && predicate.getGeometry() instanceof Polygonal)
+              || (hasPoint && predicate.getGeometry() instanceof Puntal)
+              || (hasLine && predicate.getGeometry() instanceof Lineal)
+              || (hasOther && "GeometryCollection"
+                  .equalsIgnoreCase(predicate.getGeometry().getGeometryType()));
+        });
+  }
+
   /**
    * Checks the provided time info on its temporal extent.
    * 
@@ -354,45 +467,6 @@ public class InputProcessingUtils {
       throw new BadRequestException(
           "The interval (period) of the provided time parameter is not ISO-8601 conform.");
     }
-  }
-
-  /** Sorts the given timestamps from oldest to newest. */
-  public String[] sortTimestamps(String[] timestamps) throws BadRequestException {
-    List<String> timeStringList = new ArrayList<>();
-    for (String timestamp : timestamps) {
-      try {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
-        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-        timeStringList.add(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-      } catch (Exception e) {
-        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-      }
-    }
-    Collections.sort(timeStringList);
-    return timeStringList.toArray(timestamps);
-  }
-
-  /** Checks the given custom boundary id. At the moment only used if output format = csv. */
-  public void checkCustomBoundaryId(String id) {
-    if (id.contains(";")) {
-      throw new BadRequestException("The given custom ids cannot contain semicolons, "
-          + "if you want to use csv as output format.");
-    }
-  }
-
-  /**
-   * Checks if the given geometry is within the underlying data-polygon. Returns also true if no
-   * data-polygon is given.
-   * 
-   * @param geom <code>Geometry</code>, which is tested against the data-polygon
-   * @return <code>true</code> - if inside <br>
-   *         <code>false</code> - if not inside
-   */
-  public boolean isWithin(Geometry geom) {
-    if (ExtractMetadata.dataPoly != null) {
-      return geom.within(ExtractMetadata.dataPoly);
-    }
-    return true;
   }
 
   /**

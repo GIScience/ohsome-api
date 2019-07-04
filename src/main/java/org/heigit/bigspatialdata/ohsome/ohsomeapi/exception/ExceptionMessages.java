@@ -34,7 +34,8 @@ public class ExceptionMessages {
       "The given query is too large in respect to the given timeout. Please use a smaller region "
           + "and/or coarser time period.";
   public static final String PROPERTIES_PARAM =
-      "The properties parameter can only contain the values 'tags' and/or 'metadata'.";
+      "The properties parameter can only contain the values 'tags' and/or 'metadata' and/or "
+      + "'unclipped'.";
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";
@@ -45,6 +46,8 @@ public class ExceptionMessages {
   public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";
   public static final String TIMEOUT_FORMAT = "The given timeout does not fit to its format. Please"
       + " give one value in seconds and use a point as the decimal delimiter, if needed.";
+  public static final String TYPES_PARAM = "Parameter 'types' (and 'types2') can only have 'node' "
+      + "and/or 'way' and/or 'relation' OR 'point' and/or 'line' and/or 'polygon' and/or 'other'";
 
   private ExceptionMessages() {
     throw new IllegalStateException("Utility class");

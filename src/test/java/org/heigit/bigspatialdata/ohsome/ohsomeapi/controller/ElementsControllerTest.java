@@ -158,7 +158,7 @@ public class ElementsControllerTest {
             Spliterator.ORDERED), false)
         .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/295135436")));
-    assertEquals(7, StreamSupport
+    assertEquals(8, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
@@ -209,7 +209,7 @@ public class ElementsControllerTest {
                 response.getBody().get("features").iterator(), Spliterator.ORDERED), false)
             .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
                 .equalsIgnoreCase("2017-01-01T00:00:00Z")));
-    assertEquals(16, StreamSupport
+    assertEquals(17, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@changesetId").asText()

@@ -132,8 +132,8 @@ public class ExecutionUtils {
    * Caches the given mapper value in the user data of the <code>Geometry</code> object.
    * 
    * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
-   * @param mapper arbitrary function that returns a time-independent value from a snapshot object, for
-   *        example lenght, area, perimeter
+   * @param mapper arbitrary function that returns a time-independent value from a snapshot object,
+   *        for example lenght, area, perimeter
    * @return evaluated mapper function or cached value stored in the user data of the
    *         <code>Geometry</code> object
    */
@@ -145,7 +145,7 @@ public class ExecutionUtils {
   }
 
   /**
-   * Adapted helper function, which works like 
+   * Adapted helper function, which works like
    * {@link org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex#nest(Map) nest} but has
    * switched &lt;U&gt; and &lt;V&gt; parameters.
    *
@@ -820,6 +820,38 @@ public class ExecutionUtils {
     }
     return new ShareGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
+  }
+
+  /** Adds the respective contribution type(s) to the properties if includeMetadata=true. */
+  public Map<String, Object> addContribType(OSMContribution contribution,
+      Map<String, Object> properties, boolean includeMetadata) {
+    if (includeMetadata) {
+      properties.put("@contributionTypes", contribution.getContributionTypes());
+    }
+    return properties;
+  }
+
+  /**
+   * Extracts and returns a geometry out of the given contribution. The boolean values specify if it
+   * should be clipped/unclipped and if the geometry before/after a contribution should be taken.
+   */
+  public Geometry getGeometry(OSMContribution contribution, boolean unclippedGeometries,
+      boolean before) {
+    Geometry geom = null;
+    if (unclippedGeometries) {
+      if (before) {
+        geom = contribution.getGeometryUnclippedBefore();
+      } else {
+        geom = contribution.getGeometryUnclippedAfter();
+      }
+    } else {
+      if (before) {
+        geom = contribution.getGeometryBefore();
+      } else {
+        geom = contribution.getGeometryAfter();
+      }
+    }
+    return geom;
   }
 
   /**

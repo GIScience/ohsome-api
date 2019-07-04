@@ -24,6 +24,8 @@ public class ProcessingData {
   private Geometry requestGeom;
   private Collection<Geometry> boundaryColl;
   private GeoJsonObject[] geoJsonGeoms;
+  private boolean containsSimpleFeatureTypes;
+  private EnumSet<SimpleFeatureType> simpleFeatureTypes;
 
   public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
@@ -133,4 +135,21 @@ public class ProcessingData {
   public void setShowMetadata(boolean showMetadata) {
     this.showMetadata = showMetadata;
   }
+
+  public boolean containsSimpleFeatureTypes() {
+    return containsSimpleFeatureTypes;
+  }
+
+  public void setContainsSimpleFeatureTypes(boolean containsSimpleFeatureTypes) {
+    this.containsSimpleFeatureTypes = containsSimpleFeatureTypes;
+  }
+
+  public Set<SimpleFeatureType> getSimpleFeatureTypes() {
+    return simpleFeatureTypes;
+  }
+
+  public void setSimpleFeatureTypes(Set<SimpleFeatureType> simpleFeatureTypes) {
+    this.simpleFeatureTypes = (EnumSet<SimpleFeatureType>) simpleFeatureTypes;
+  }
+
 }
