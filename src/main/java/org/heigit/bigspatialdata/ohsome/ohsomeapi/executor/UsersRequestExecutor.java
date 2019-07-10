@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -14,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -33,6 +37,8 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygonal;
 
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
@@ -266,6 +272,55 @@ public class UsersRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
+  }
+
+  /** Performs a count calculation grouped by the OSM type. */
+  public static <P extends Geometry & Polygonal> Response executeCountGroupByBoundary(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
+    long startTime = System.currentTimeMillis();
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
+    MapReducer<OSMContribution> mapRed = null;
+    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    mapRed = inputProcessor.processParameters();
+    ProcessingData processingData = inputProcessor.getProcessingData();
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    result = mapRed.aggregateByTimestamp()
+        .aggregateByGeometry(geoms)
+        .map(OSMContribution::getContributorUserId).countUniq();
+    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
+    groupByResult = ExecutionUtils.nest(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    int count = 0;
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    Object[] boundaryIds = utils.getBoundaryIds();
+    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
+      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+          requestParameters.isDensity(), inputProcessor, df);
+      resultSet[count] = new GroupByResult(boundaryIds[count], results);
+      count++;
+    }
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+    }
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+          "FeatureCollection",
+          exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
