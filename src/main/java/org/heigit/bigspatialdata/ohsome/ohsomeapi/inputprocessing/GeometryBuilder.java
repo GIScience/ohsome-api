@@ -274,11 +274,13 @@ public class GeometryBuilder {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
     }
+    Geometry result = unifyPolys(geometryCollection);
     processingData.setGeoJsonGeoms(geoJsonGeoms);
     processingData.setBoundaryColl(geometryCollection);
+    processingData.setRequestGeom(result);
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
-    return unifyPolys(geometryCollection);
+    return result;
   }
 
   /**
