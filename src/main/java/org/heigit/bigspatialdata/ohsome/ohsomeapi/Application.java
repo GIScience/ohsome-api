@@ -55,6 +55,7 @@ public class Application implements ApplicationRunner {
     boolean caching = false;
     String dbPrefix = null;
     long timeoutInMilliseconds = 100000;
+    int numberOfClusterNodes = 12;
     // only used when tests are executed directly in Eclipse
     if (System.getProperty(dbProperty) != null) {
       DbConnData.db = new OSHDBH2(System.getProperty(dbProperty));
@@ -108,6 +109,9 @@ public class Application implements ApplicationRunner {
           case "database.timeout":
             timeoutInMilliseconds = Long.valueOf(args.getOptionValues(paramName).get(0));
             break;
+          case "cluster.servernodes.count":
+            numberOfClusterNodes = Integer.valueOf(args.getOptionValues(paramName).get(0));
+            break;
           default:
             break;
         }
@@ -119,6 +123,7 @@ public class Application implements ApplicationRunner {
       }
       ProcessingData.setTimeout(timeoutInMilliseconds / 1000);
       DbConnData.db.timeoutInMilliseconds(timeoutInMilliseconds);
+      ProcessingData.setNumberOfClusterNodes(numberOfClusterNodes);
       if (DbConnData.db instanceof OSHDBJdbc) {
         DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
       }

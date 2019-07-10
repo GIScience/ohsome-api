@@ -88,6 +88,8 @@ public class SwaggerConfig {
     responseMessages
         .add(new ResponseMessageBuilder().code(500).message("Internal server error").build());
     responseMessages.add(new ResponseMessageBuilder().code(501).message("Not implemented").build());
+    responseMessages
+        .add(new ResponseMessageBuilder().code(503).message("Service Unavailable").build());
     return responseMessages;
   }
 
