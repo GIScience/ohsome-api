@@ -26,6 +26,7 @@ public class ProcessingData {
   private GeoJsonObject[] geoJsonGeoms;
   private boolean containsSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
+  private static int numberOfClusterNodes;
 
   public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
@@ -150,6 +151,14 @@ public class ProcessingData {
 
   public void setSimpleFeatureTypes(Set<SimpleFeatureType> simpleFeatureTypes) {
     this.simpleFeatureTypes = (EnumSet<SimpleFeatureType>) simpleFeatureTypes;
+  }
+  
+  public static int getNumberOfClusterNodes() {
+    return numberOfClusterNodes;
+  }
+
+  public static void setNumberOfClusterNodes(int numberOfClusterNodes) {
+    ProcessingData.numberOfClusterNodes = numberOfClusterNodes;
   }
 
 }
