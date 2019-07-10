@@ -19,6 +19,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -65,6 +66,9 @@ public class InputProcessor {
   private boolean unclipped;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      checkClusterAvailability();
+    }
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
     processingData = new ProcessingData(
@@ -646,6 +650,21 @@ public class InputProcessor {
     }
   }
 
+  /**
+   * Checks, if the cluster still has the same amount of active server nodes, as defined on startup.
+   * Throws a 503 Service Unavailable exception, in case one or more nodes are inactive.
+   */
+  private void checkClusterAvailability() {
+    OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.db;
+    int definedNumberOfNodes = ProcessingData.getNumberOfClusterNodes();
+    int currentNumberOfNodes =
+        igniteDb.getIgnite().services().clusterGroup().metrics().getTotalNodes();
+    if (definedNumberOfNodes != currentNumberOfNodes) {
+      throw new ServiceUnavailableException("The cluster backend is currently not able to process "
+          + "your request. Please try again later.");
+    }
+  }
+  
   /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 

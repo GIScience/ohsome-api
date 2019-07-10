@@ -6,11 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ServiceUnavailableException;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -19,8 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * Adds a filter, which adds headers allowing Cross-Origin Resource Sharing (CORS), sets the
  * character encoding to utf-8, if it's undefined, as well as a header to enable caching, if
- * appropriate. Also checks for each request, if all cluster nodes are still active (only for 
- * OSHDBIgnite backends).
+ * appropriate.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -29,9 +24,6 @@ public class RequestFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      checkClusterAvailability();
-    }
     if (request.getCharacterEncoding() == null) {
       request.setCharacterEncoding("UTF-8");
     }
@@ -77,20 +69,4 @@ public class RequestFilter extends OncePerRequestFilter {
     RequestUtils.extractOSHDBMetadata();
     filterChain.doFilter(request, wrapper);
   }
-
-  /**
-   * Checks, if the cluster still has the same amount of active server nodes, as defined on startup.
-   * Throws a 503 Service Unavailable exception, in case one or more nodes are inactive.
-   */
-  private void checkClusterAvailability() {
-    OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.db;
-    int definedNumberOfNodes = ProcessingData.getNumberOfClusterNodes();
-    int currentNumberOfNodes =
-        igniteDb.getIgnite().services().clusterGroup().metrics().getTotalNodes();
-    if (definedNumberOfNodes != currentNumberOfNodes) {
-      throw new ServiceUnavailableException("The cluster backend is currently not able to process "
-          + "your request. Please try again later.");
-    }
-  }
-
 }
