@@ -11,6 +11,7 @@
 * Implementing cache logic used via HTTP headers (#52)
 * Parameter timeout to define custom timeout for request (8ebec3ba)
 * Nested group-by resource: /groupBy/boundary/groupBy/tag (cb82b9f6)
+* Implementing simple feature types support (fba76544)
 
 ### Bug Fixes
 
@@ -27,6 +28,7 @@
 * Rework of time parameter processing (a000b598)
 * Refactoring of several code parts (e.g.: 5a8fba0c, 42064696, 67ef11fb, 5230de69)
 * Adding of csv output tests (7982338a)
+* Adding of Ignite cluster nodes check on runtime (bc8e6fdf)
 
 ### Other Changes
 
