@@ -16,7 +16,8 @@ public class ParameterDescriptions {
           + "MultiPolygons are only supported in GeoJSON; no default value "
           + "(one boundary parameter must be defined)";
   public static final String TYPES_DESCR =
-      "OSM type(s) 'node' and/or 'way' and/or 'relation'; default: all three types";
+      "OSM type(s) 'node' and/or 'way' and/or 'relation' OR simple feature type(s) 'point' and/or "
+      + "'line' and/or 'polygon'; default: all three OSM types";
   public static final String KEYS_DESCR = "OSM key(s) e.g.: 'highway', 'building'; default: no key";
   public static final String GROUP_BY_KEY_DESCR = "OSM key e.g.: 'highway', 'building'; no default "
       + "value (one groupByKey parameter must be defined)";
