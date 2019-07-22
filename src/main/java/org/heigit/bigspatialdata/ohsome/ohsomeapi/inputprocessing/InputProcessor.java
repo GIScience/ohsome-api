@@ -210,7 +210,7 @@ public class InputProcessor {
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
       GeoJSONWriter writer = new GeoJSONWriter();
-      Collection<Geometry> boundaryColl = processingData.getBoundaryColl();
+      Collection<Geometry> boundaryColl = processingData.getBoundaryList();
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
       for (int i = 0; i < geoJsonGeoms.length; i++) {
         try {
@@ -278,7 +278,7 @@ public class InputProcessor {
             processingData.getSimpleFeatureTypes().add(SimpleFeatureType.OTHER);
             processingData.getOsmTypes().add(OSMType.RELATION);
             mapRed = utils.filterOnPlanarRelations(mapRed);
-          } 
+          }
         }
       }
     }
@@ -664,7 +664,7 @@ public class InputProcessor {
           + "your request. Please try again later.");
     }
   }
-  
+
   /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 

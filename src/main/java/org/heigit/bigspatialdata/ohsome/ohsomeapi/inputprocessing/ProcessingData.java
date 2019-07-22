@@ -1,6 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
 import org.geojson.GeoJsonObject;
@@ -22,7 +22,7 @@ public class ProcessingData {
   private boolean showMetadata;
   private String format;
   private Geometry requestGeom;
-  private Collection<Geometry> boundaryColl;
+  private ArrayList<Geometry> boundaryList;
   private GeoJsonObject[] geoJsonGeoms;
   private boolean containsSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
@@ -113,12 +113,12 @@ public class ProcessingData {
     this.requestGeom = requestGeom;
   }
 
-  public Collection<Geometry> getBoundaryColl() {
-    return boundaryColl;
+  public ArrayList<Geometry> getBoundaryList() {
+    return boundaryList;
   }
 
-  public void setBoundaryColl(Collection<Geometry> boundaryColl) {
-    this.boundaryColl = boundaryColl;
+  public void setBoundaryList(ArrayList<Geometry> boundaryList) {
+    this.boundaryList = boundaryList;
   }
 
   public GeoJsonObject[] getGeoJsonGeoms() {

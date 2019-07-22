@@ -236,7 +236,7 @@ public class ElementsRequestExecutor {
         currentEntity = contributions.get(0).getEntityBefore();
         currentGeom = exeUtils.getGeometry(contributions.get(0), unclippedGeometries, true);
         validFrom = startTimestamp;
-      }    
+      }
       // then for each contribution:
       for (OSMContribution contribution : contributions) {
         // set valid_to of previous row, add to output list (output.add(…))
@@ -436,7 +436,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
@@ -513,7 +513,7 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
@@ -529,7 +529,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
     for (Entry<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
@@ -854,7 +854,7 @@ public class ElementsRequestExecutor {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.processParameters();
+    mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
@@ -1076,7 +1076,7 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters();
       mapRed = mapRed.osmType(osmTypes);
     }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     ArrayList<MatchType> zeroFill = new ArrayList<>();
     for (int j = 0; j < arrGeoms.size(); j++) {
       zeroFill.add(MatchType.MATCHESBOTH);

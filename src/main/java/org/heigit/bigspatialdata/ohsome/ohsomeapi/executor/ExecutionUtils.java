@@ -382,7 +382,7 @@ public class ExecutionUtils {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());

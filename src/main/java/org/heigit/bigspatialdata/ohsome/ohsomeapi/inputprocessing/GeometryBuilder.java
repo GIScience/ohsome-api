@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -71,19 +70,19 @@ public class GeometryBuilder {
       double maxLat = Double.parseDouble(bboxes[3]);
       bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
-      Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
-      geometryCollection.add(OSHDBGeometryBuilder.getGeometry(bbox));
+      ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
+      geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
         bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
-        geometryCollection.add(OSHDBGeometryBuilder.getGeometry(bbox));
+        geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
-      Geometry result = unifyPolys(geometryCollection);
-      processingData.setBoundaryColl(geometryCollection);
+      Geometry result = unifyPolys(geometryList);
+      processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(unifiedBbox);
       return result;
     } catch (NumberFormatException e) {
@@ -113,7 +112,7 @@ public class GeometryBuilder {
     CoordinateReferenceSystem sourceCrs;
     CoordinateReferenceSystem targetCrs;
     MathTransform transform = null;
-    Collection<Geometry> geometryCollection = new LinkedHashSet<Geometry>();
+    ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
     InputProcessingUtils utils = new InputProcessingUtils();
     try {
       for (int i = 0; i < bpoints.length; i += 3) {
@@ -128,15 +127,15 @@ public class GeometryBuilder {
         transform = CRS.findMathTransform(targetCrs, sourceCrs, false);
         geom = JTS.transform(buffer, transform);
         if (bpoints.length == 3) {
-          geometryCollection.add(geom);
-          processingData.setBoundaryColl(geometryCollection);
+          geometryList.add(geom);
+          processingData.setBoundaryList(geometryList);
           processingData.setRequestGeom(geom);
           return geom;
         }
-        geometryCollection.add(geom);
+        geometryList.add(geom);
       }
-      Geometry result = unifyPolys(geometryCollection);
-      processingData.setBoundaryColl(geometryCollection);
+      Geometry result = unifyPolys(geometryList);
+      processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(result);
       return result;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
@@ -162,7 +161,7 @@ public class GeometryBuilder {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<>();
-    Collection<Geometry> geometryCollection = new LinkedHashSet<>();
+    ArrayList<Geometry> geometryList = new ArrayList<>();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -174,8 +173,8 @@ public class GeometryBuilder {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
       bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
-      geometryCollection.add(bpoly);
-      processingData.setBoundaryColl(geometryCollection);
+      geometryList.add(bpoly);
+      processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(bpoly);
       return bpoly;
     }
@@ -188,7 +187,7 @@ public class GeometryBuilder {
           coords.add(
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
           poly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
-          geometryCollection.add(poly);
+          geometryList.add(poly);
           coords.clear();
           firstPoint = null;
         } else {
@@ -200,8 +199,8 @@ public class GeometryBuilder {
           }
         }
       }
-      Geometry result = unifyPolys(geometryCollection);
-      processingData.setBoundaryColl(geometryCollection);
+      Geometry result = unifyPolys(geometryList);
+      processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(result);
       return result;
     } catch (NumberFormatException | MismatchedDimensionException e) {
@@ -231,7 +230,7 @@ public class GeometryBuilder {
    * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
-    Collection<Geometry> geometryCollection = new LinkedHashSet<>();
+    ArrayList<Geometry> geometryList = new ArrayList<>();
     JsonObject root = null;
     try (JsonReader jsonReader = Json.createReader(new StringReader(geoJson))) {
       root = jsonReader.readObject();
@@ -267,16 +266,16 @@ public class GeometryBuilder {
       try {
         GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
-        geometryCollection.add(currentResult);
+        geometryList.add(currentResult);
         geoJsonGeoms[count - 1] =
             new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
       } catch (Exception e) {
         throw new BadRequestException("The provided GeoJSON cannot be converted.");
       }
     }
-    Geometry result = unifyPolys(geometryCollection);
+    Geometry result = unifyPolys(geometryList);
     processingData.setGeoJsonGeoms(geoJsonGeoms);
-    processingData.setBoundaryColl(geometryCollection);
+    processingData.setBoundaryList(geometryList);
     processingData.setRequestGeom(result);
     InputProcessingUtils util = inputProcessor.getUtils();
     util.setBoundaryIds(boundaryIds);
