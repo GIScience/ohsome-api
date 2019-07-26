@@ -857,7 +857,6 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
@@ -889,7 +888,8 @@ public class ElementsRequestExecutor {
     EnumSet<OSMType> osmTypes1 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     if (!isShare) {
-      inputProcessor.defineTypes(servletRequest.getParameterValues("types2"), mapRed);
+      inputProcessor.defineTypes(
+          inputProcessor.splitParamOnComma(servletRequest.getParameterValues("types2")), mapRed);
     }
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
@@ -938,6 +938,7 @@ public class ElementsRequestExecutor {
       return null;
     }, Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2));
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> result = null;
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     result = exeUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     Double[] value1 = new Double[resultSize / 3];
