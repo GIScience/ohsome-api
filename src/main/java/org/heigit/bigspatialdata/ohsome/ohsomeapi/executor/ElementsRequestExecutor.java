@@ -889,7 +889,9 @@ public class ElementsRequestExecutor {
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     if (!isShare) {
       inputProcessor.defineTypes(
-          inputProcessor.splitParamOnComma(servletRequest.getParameterValues("types2")), mapRed);
+          inputProcessor.splitParamOnComma(
+              inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2"))),
+          mapRed);
     }
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
