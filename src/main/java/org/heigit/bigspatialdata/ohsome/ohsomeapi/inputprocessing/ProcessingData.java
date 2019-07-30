@@ -27,10 +27,12 @@ public class ProcessingData {
   private boolean containsSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
   private static int numberOfClusterNodes;
+  private boolean isShareRatio;
 
   public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
     this.requestUrl = requestUrl;
+    this.isShareRatio = false;
   }
 
   public static Geometry getDataPolyGeom() {
@@ -159,6 +161,14 @@ public class ProcessingData {
 
   public static void setNumberOfClusterNodes(int numberOfClusterNodes) {
     ProcessingData.numberOfClusterNodes = numberOfClusterNodes;
+  }
+  
+  public boolean isShareRatio() {
+    return isShareRatio;
+  }
+
+  public void setIsShareRatio(boolean isShareRatio) {
+    this.isShareRatio = isShareRatio;
   }
 
 }

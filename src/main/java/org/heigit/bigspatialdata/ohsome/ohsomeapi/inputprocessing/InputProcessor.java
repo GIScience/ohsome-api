@@ -224,7 +224,7 @@ public class InputProcessor {
     }
     mapRed = defineTypes(types, mapRed);
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
-    if (processingData.containsSimpleFeatureTypes()) {
+    if (processingData.containsSimpleFeatureTypes() && !processingData.isShareRatio()) {
       mapRed = utils.filterOnSimpleFeatures(mapRed, processingData);
     }
     mapRed = extractTime(mapRed, time, isSnapshot);
@@ -245,11 +245,11 @@ public class InputProcessor {
       MapReducer<T> mapRed) throws BadRequestException {
     types = createEmptyArrayIfNull(types);
     checkTypes(types);
+    processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
     if (types.length == 0 || types.length == 1 && types[0].isEmpty()) {
       processingData.setOsmTypes(EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION));
     } else {
       if (!processingData.containsSimpleFeatureTypes()) {
-        processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
         for (String type : types) {
           if ("node".equalsIgnoreCase(type)) {
             processingData.getOsmTypes().add(OSMType.NODE);
@@ -260,29 +260,35 @@ public class InputProcessor {
           }
         }
       } else {
-        processingData.setSimpleFeatureTypes(EnumSet.noneOf(SimpleFeatureType.class));
-        processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
-        for (String type : types) {
-          if ("point".equalsIgnoreCase(type)) {
-            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.POINT);
-            processingData.getOsmTypes().add(OSMType.NODE);
-          } else if ("line".equalsIgnoreCase(type)) {
-            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.LINE);
-            processingData.getOsmTypes().add(OSMType.WAY);
-          } else if ("polygon".equalsIgnoreCase(type)) {
-            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.POLYGON);
-            processingData.getOsmTypes().add(OSMType.WAY);
-            processingData.getOsmTypes().add(OSMType.RELATION);
-            mapRed = utils.filterOnPlanarRelations(mapRed);
-          } else {
-            processingData.getSimpleFeatureTypes().add(SimpleFeatureType.OTHER);
-            processingData.getOsmTypes().add(OSMType.RELATION);
-            mapRed = utils.filterOnPlanarRelations(mapRed);
-          }
+        processingData.setSimpleFeatureTypes(defineSimpleFeatureTypes(types));
+        if (!processingData.isShareRatio() && (processingData.getOsmTypes().contains(OSMType.WAY)
+            || processingData.getOsmTypes().contains(OSMType.RELATION))) {
+          mapRed = utils.filterOnPlanarRelations(mapRed);
         }
       }
     }
     return mapRed;
+  }
+
+  public EnumSet<SimpleFeatureType> defineSimpleFeatureTypes(String[] types) {
+    EnumSet<SimpleFeatureType> simpleFeatures = EnumSet.noneOf(SimpleFeatureType.class);
+    for (String type : types) {
+      if ("point".equalsIgnoreCase(type)) {
+        simpleFeatures.add(SimpleFeatureType.POINT);
+        processingData.getOsmTypes().add(OSMType.NODE);
+      } else if ("line".equalsIgnoreCase(type)) {
+        simpleFeatures.add(SimpleFeatureType.LINE);
+        processingData.getOsmTypes().add(OSMType.WAY);
+      } else if ("polygon".equalsIgnoreCase(type)) {
+        simpleFeatures.add(SimpleFeatureType.POLYGON);
+        processingData.getOsmTypes().add(OSMType.WAY);
+        processingData.getOsmTypes().add(OSMType.RELATION);
+      } else if ("other".equalsIgnoreCase(type)) {
+        simpleFeatures.add(SimpleFeatureType.OTHER);
+        processingData.getOsmTypes().add(OSMType.RELATION);
+      }
+    }
+    return simpleFeatures;
   }
 
   /**

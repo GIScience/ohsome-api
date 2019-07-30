@@ -38,6 +38,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -78,7 +79,9 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.Puntal;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
@@ -92,10 +95,40 @@ public class ExecutionUtils {
     this.processingData = processingData;
   }
 
-  /** Compares the OSM type and tag(s) of the given entity to the given types|tags. */
-  public static boolean entityMatches(OSMEntity entity, Set<OSMType> osmTypes, Integer[] keysInt,
-      Integer[] valuesInt) {
-    boolean matches = true;
+  /** Applies a filter on the given MapReducer object using the given parameters. */
+  public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
+      Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
+      Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
+      Integer[] valuesInt1, Integer[] valuesInt2) {
+    mapRed = mapRed.filter(snapshot -> {
+      if (!snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)) {
+        return snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
+      }
+      return true;
+    });
+    return mapRed;
+  }
+
+  /** Applies a filter on the given MapReducer object using the given parameters. */
+  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> snapshotFilter(
+      MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapRed,
+      Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
+      Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
+      Integer[] valuesInt1, Integer[] valuesInt2) {
+    mapRed = mapRed.filter(snapshot -> {
+      if (!snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)) {
+        return snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
+      }
+      return true;
+    });
+    return mapRed;
+  }
+
+  /** Compares the type(s) and tag(s) of the given snapshot to the given types|tags. */
+  public boolean snapshotMatches(OSMEntitySnapshot snapshot, Set<OSMType> osmTypes,
+      Set<SimpleFeatureType> simpleFeatureTypes, Integer[] keysInt, Integer[] valuesInt) {
+    boolean matchesTags = true;
+    OSMEntity entity = snapshot.getEntity();
     if (osmTypes.contains(entity.getType())) {
       for (int i = 0; i < keysInt.length; i++) {
         boolean matchesTag;
@@ -105,14 +138,22 @@ public class ExecutionUtils {
           matchesTag = entity.hasTagKey(keysInt[i]);
         }
         if (!matchesTag) {
-          matches = false;
+          matchesTags = false;
           break;
         }
       }
     } else {
-      matches = false;
+      matchesTags = false;
     }
-    return matches;
+    if (!simpleFeatureTypes.isEmpty()) {
+      boolean[] simpleFeatures = setRequestedSimpleFeatures(simpleFeatureTypes);
+      return matchesTags && ((simpleFeatures[0] && snapshot.getGeometry() instanceof Puntal)
+          || (simpleFeatures[1] && snapshot.getGeometry() instanceof Lineal)
+          || (simpleFeatures[2] && snapshot.getGeometry() instanceof Polygonal)
+          || (simpleFeatures[3]
+              && "GeometryCollection".equalsIgnoreCase(snapshot.getGeometry().getGeometryType())));
+    }
+    return matchesTags;
   }
 
   /**
@@ -311,6 +352,26 @@ public class ExecutionUtils {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Sets the boolean values for the respective simple feature type: 0 = hasPoint, 1 = hasLine, 2 =
+   * hasPolygon, 3 = hasOther.
+   */
+  public boolean[] setRequestedSimpleFeatures(Set<SimpleFeatureType> simpleFeatureTypes) {
+    boolean[] simpleFeatureArray = new boolean[] {false, false, false, false};
+    for (SimpleFeatureType type : simpleFeatureTypes) {
+      if (type.equals(SimpleFeatureType.POINT)) {
+        simpleFeatureArray[0] = true;
+      } else if (type.equals(SimpleFeatureType.LINE)) {
+        simpleFeatureArray[1] = true;
+      } else if (type.equals(SimpleFeatureType.POLYGON)) {
+        simpleFeatureArray[2] = true;
+      } else if (type.equals(SimpleFeatureType.OTHER)) {
+        simpleFeatureArray[3] = true;
+      }
+    }
+    return simpleFeatureArray;
   }
 
   /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
