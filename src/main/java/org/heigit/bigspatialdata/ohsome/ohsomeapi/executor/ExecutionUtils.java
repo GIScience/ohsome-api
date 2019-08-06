@@ -613,13 +613,12 @@ public class ExecutionUtils {
 
   /** Fills the UsersResult array with respective UsersResult objects. */
   public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
-      boolean isDensity, InputProcessor inputProcessor, DecimalFormat df) {
+      boolean isDensity, InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
     UsersResult[] results = new UsersResult[entryVal.entrySet().size()];
     int count = 0;
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
-        Geometry geom = inputProcessor.getGeometry();
         results[count] =
             new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 toTimestamps[count + 1], Double.parseDouble(

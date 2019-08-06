@@ -63,8 +63,9 @@ public class UsersRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    Geometry geom = inputProcessor.getGeometry();
     UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df);
+        exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
@@ -99,9 +100,10 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    Geometry geom = inputProcessor.getGeometry();
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df);
+          requestParameters.isDensity(), inputProcessor, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
@@ -174,6 +176,7 @@ public class UsersRequestExecutor {
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
         .map(OSMContribution::getContributorUserId).countUniq();
+    Geometry geom = inputProcessor.getGeometry();
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -182,7 +185,7 @@ public class UsersRequestExecutor {
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df);
+          requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
         groupByName = "total";
       } else if (entry.getKey().getKey() == -1 && entry.getKey().getValue() == -1) {
@@ -247,6 +250,7 @@ public class UsersRequestExecutor {
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt)).map(Pair::getValue)
         .map(OSMContribution::getContributorUserId).countUniq();
+    Geometry geom = inputProcessor.getGeometry();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -254,7 +258,7 @@ public class UsersRequestExecutor {
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df);
+          requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey() == -2) {
         groupByName = "total";
       } else if (entry.getKey() == -1) {
@@ -305,9 +309,10 @@ public class UsersRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df);
+          requestParameters.isDensity(), inputProcessor, df, boundaries.get(count));
       resultSet[count] = new GroupByResult(boundaryIds[count], results);
       count++;
     }
