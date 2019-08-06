@@ -598,6 +598,21 @@ public class GetControllerTest {
         .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
+  @Test
+  public void getUsersCountDensityGroupByBoundaryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+            + "/users/count/density/groupBy/boundary?bboxes=a:8.67452,49.40961,8.70392,49.41823|"
+            + "b:8.67,49.39941,8.69545,49.4096&types=way&time=2014-01-01,2015-01-01&showMetadata=true"
+            + "&keys=building",
+        JsonNode.class);
+    assertEquals(14.86, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+  }
+
   /*
    * csv output tests start here
    */

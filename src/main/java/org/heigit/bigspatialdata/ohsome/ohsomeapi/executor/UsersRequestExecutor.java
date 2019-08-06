@@ -281,8 +281,9 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the OSM type. */
-  public static <P extends Geometry & Polygonal> Response executeCountGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
+  public static <P extends Geometry & Polygonal> Response executeCountGroupByBoundary(
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse,
+      boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
