@@ -55,7 +55,7 @@ public class Application implements ApplicationRunner {
     boolean caching = false;
     String dbPrefix = null;
     long timeoutInMilliseconds = 100000;
-    int numberOfClusterNodes = 12;
+    int numberOfClusterNodes = 24;
     // only used when tests are executed directly in Eclipse
     if (System.getProperty(dbProperty) != null) {
       DbConnData.db = new OSHDBH2(System.getProperty(dbProperty));
