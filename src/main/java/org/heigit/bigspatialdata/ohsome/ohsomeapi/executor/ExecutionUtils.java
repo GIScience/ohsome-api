@@ -1058,7 +1058,8 @@ public class ExecutionUtils {
   /** Fills a GeoJSON Feature with the groupByBoundaryId, the time interval and the geometry. */
   private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
       String timestampFrom, String timestampTo) {
-    Feature feature = makeGeojsonFeature(results, groupByResultCount, timestampFrom + "-" + timestampTo);
+    Feature feature =
+        makeGeojsonFeature(results, groupByResultCount, timestampFrom + "-" + timestampTo);
     feature.setProperty("timestampFrom", timestampFrom);
     feature.setProperty("timestampTo", timestampTo);
     return feature;

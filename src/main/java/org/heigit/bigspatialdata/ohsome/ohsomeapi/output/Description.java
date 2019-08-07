@@ -113,6 +113,14 @@ public class Description {
     }
     return "Number of distinct active users per time interval aggregated on the key.";
   }
+  
+  public static String usersCountGroupByBoundary(boolean isDensity) {
+    if (isDensity) {
+      return "Density of distinct active users per time interval "
+          + "(number of users per square-kilometer) aggregated on the boundary.";
+    }
+    return "Number of distinct active users per time interval aggregated on the boundary.";
+  }
 
   private Description() {
     throw new IllegalStateException("Utility class");

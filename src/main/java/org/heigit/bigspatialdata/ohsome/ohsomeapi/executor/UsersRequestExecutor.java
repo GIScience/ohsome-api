@@ -284,10 +284,10 @@ public class UsersRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count calculation grouped by the OSM type. */
+  /** Performs a count calculation grouped by the boundary. */
   public static <P extends Geometry & Polygonal> Response executeCountGroupByBoundary(
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse,
-      boolean isDensity) throws Exception {
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity)
+      throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
@@ -299,8 +299,7 @@ public class UsersRequestExecutor {
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    result = mapRed.aggregateByTimestamp()
-        .aggregateByGeometry(geoms)
+    result = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms)
         .map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
@@ -319,7 +318,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity),
+      metadata = new Metadata(duration, Description.usersCountGroupByBoundary(isDensity),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {

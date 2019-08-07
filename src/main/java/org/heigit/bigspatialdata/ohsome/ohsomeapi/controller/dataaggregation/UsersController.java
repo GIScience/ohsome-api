@@ -108,10 +108,10 @@ public class UsersController {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)", nickname = "countGroupByBoundary",
-      response = GroupByResponse.class)
-  @RequestMapping(value = "/count/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
+  @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)",
+      nickname = "countGroupByBoundary", response = GroupByResponse.class)
+  @RequestMapping(value = "/count/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByBoundary(servletRequest, servletResponse, false);
@@ -178,17 +178,18 @@ public class UsersController {
   }
 
   /**
-   * Gives the count of OSM users grouped by boundary geometries.
+   * Gives the density of OSM users (number of users divided by the total area in square-kilometers)
+   * grouped by boundary geometries.
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    */
-  @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)", nickname = "countGroupByBoundary",
-      response = GroupByResponse.class)
-  @RequestMapping(value = "/count/density/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
+  @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)",
+      nickname = "countDensityGroupByBoundary", response = GroupByResponse.class)
+  @RequestMapping(value = "/count/density/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return UsersRequestExecutor.executeCountGroupByBoundary(servletRequest, servletResponse, true);
