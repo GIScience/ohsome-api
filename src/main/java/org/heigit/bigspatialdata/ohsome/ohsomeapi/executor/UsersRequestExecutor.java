@@ -295,7 +295,7 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryColl());
+    ArrayList<Geometry> arrGeoms = processingData.getBoundaryList();
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
@@ -308,10 +308,9 @@ public class UsersRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
-    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryColl());
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df, boundaries.get(count));
+          requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
       resultSet[count] = new GroupByResult(boundaryIds[count], results);
       count++;
     }
