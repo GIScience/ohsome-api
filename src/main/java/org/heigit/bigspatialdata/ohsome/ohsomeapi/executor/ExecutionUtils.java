@@ -578,11 +578,21 @@ public class ExecutionUtils {
       int nestedGroupByNextBoundaryInterval = featuresLength / geojsonGeoms.length;
       features = new Feature[featuresLength];
       for (int i = 0; i < featuresLength; i++) {
-        ElementsResult result =
-            (ElementsResult) groupByResults[groupByResultCount].getResult()[tstampCount];
-        String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-        feature.setProperty("value", result.getValue());
+        Result res = groupByResults[groupByResultCount].getResult()[tstampCount];
+        Feature feature;
+        if (res instanceof ElementsResult) {
+          ElementsResult result = (ElementsResult) res;
+          String tstamp = result.getTimestamp();
+          feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
+        } else if (res instanceof UsersResult) {
+          UsersResult result = (UsersResult) res;
+          String tstampFrom = result.getFromTimestamp();
+          String tstampTo = result.getToTimestamp();
+          feature = fillGeojsonFeature(results, groupByResultCount, tstampFrom, tstampTo);
+        } else {
+          throw new UnsupportedOperationException();
+        }
+        feature.setProperty("value", res.getValue());
         // needed for /groupBy/boundary/groupBy/tag
         if (results[groupByResultCount].getGroupByObject() instanceof Object[]) {
           feature.setGeometry(geojsonGeoms[boundaryCount]);
@@ -664,13 +674,12 @@ public class ExecutionUtils {
 
   /** Fills the UsersResult array with respective UsersResult objects. */
   public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
-      boolean isDensity, InputProcessor inputProcessor, DecimalFormat df) {
+      boolean isDensity, InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
     UsersResult[] results = new UsersResult[entryVal.entrySet().size()];
     int count = 0;
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
-        Geometry geom = inputProcessor.getGeometry();
         results[count] =
             new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 toTimestamps[count + 1], Double.parseDouble(
@@ -1082,22 +1091,38 @@ public class ExecutionUtils {
     return stream;
   }
 
-  /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
-  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
-      String timestamp) {
+  /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
+  private Feature makeGeojsonFeature(GroupByObject[] results, int groupByResultCount, String id) {
     Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
     Feature feature = new Feature();
     if (groupByBoundaryId instanceof Object[]) {
       Object[] groupByBoundaryIdArr = (Object[]) groupByBoundaryId;
       String boundaryTagId =
           groupByBoundaryIdArr[0].toString() + "_" + groupByBoundaryIdArr[1].toString();
-      feature.setId(boundaryTagId + "@" + timestamp);
+      feature.setId(boundaryTagId + "@" + id);
       feature.setProperty("groupByBoundaryId", boundaryTagId);
     } else {
-      feature.setId(groupByBoundaryId + "@" + timestamp);
+      feature.setId(groupByBoundaryId + "@" + id);
       feature.setProperty("groupByBoundaryId", groupByBoundaryId);
     }
+    return feature;
+  }
+
+  /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
+  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
+      String timestamp) {
+    Feature feature = makeGeojsonFeature(results, groupByResultCount, timestamp);
     feature.setProperty("timestamp", timestamp);
+    return feature;
+  }
+
+  /** Fills a GeoJSON Feature with the groupByBoundaryId, the time interval and the geometry. */
+  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
+      String timestampFrom, String timestampTo) {
+    Feature feature =
+        makeGeojsonFeature(results, groupByResultCount, timestampFrom + "-" + timestampTo);
+    feature.setProperty("timestampFrom", timestampFrom);
+    feature.setProperty("timestampTo", timestampTo);
     return feature;
   }
 
