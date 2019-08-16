@@ -414,8 +414,7 @@ public class ElementsRequestExecutor {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer)
-   *         computeCountLengthPerimeterAreaGbB}
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessingUtils)}
    */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
@@ -424,17 +423,18 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     mapRed = inputProcessor.processParameters();
+    InputProcessingUtils utils = inputProcessor.getUtils();
     result = exeUtils.computeCountLengthPerimeterAreaGbB(requestResource,
-        processingData.getBoundaryType(), mapRed);
+        processingData.getBoundaryType(), mapRed, utils);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     Object groupByName;
-    InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
@@ -486,13 +486,13 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}
    */
-  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -515,10 +515,16 @@ public class ElementsRequestExecutor {
       }
     }
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
+    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geoms);
+    if (processingData.containsSimpleFeatureTypes()) {
+      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+    }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
-        mapRed.aggregateByGeometry(geoms)
+        mapAgg
             .map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
             .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
@@ -527,7 +533,6 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult =
         OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
-    InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
@@ -1018,6 +1023,7 @@ public class ElementsRequestExecutor {
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.getProcessingData().setIsGroupByBoundary(true); // todo: implement filterOnSimpleFeatures logic here
     inputProcessor.getProcessingData().setIsShareRatio(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();

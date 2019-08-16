@@ -32,6 +32,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -292,6 +293,7 @@ public class UsersRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -299,14 +301,18 @@ public class UsersRequestExecutor {
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    result = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms)
-        .map(OSMContribution::getContributorUserId).countUniq();
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg
+        = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+    if (processingData.containsSimpleFeatureTypes()) {
+      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+    }
+    result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),

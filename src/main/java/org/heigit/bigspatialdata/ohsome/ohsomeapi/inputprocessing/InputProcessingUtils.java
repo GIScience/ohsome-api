@@ -12,9 +12,10 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializablePredicate;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
@@ -30,6 +31,7 @@ import org.locationtech.jts.geom.Puntal;
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
 
+  private static final String GEOMCOLLTYPE = "GeometryCollection";
   private Object[] boundaryIds;
   private String[] toTimestamps = null;
 
@@ -367,10 +369,8 @@ public class InputProcessingUtils {
    * 
    * @return MapReducer with filtered geometries
    */
-  @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> filterOnSimpleFeatures(MapReducer<T> mapRed,
+  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed,
       ProcessingData processingData) {
-    MapReducer<OSMEntitySnapshot> mapReducer = (MapReducer<OSMEntitySnapshot>) mapRed;
     Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
     boolean containsPoint = false;
     boolean containsLine = false;
@@ -391,14 +391,32 @@ public class InputProcessingUtils {
     final boolean hasPoint = containsPoint;
     final boolean hasLine = containsLine;
     final boolean hasOther = containsOther;
-    return (MapReducer<T>) mapReducer
-        .filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-          return (hasPoly && predicate.getGeometry() instanceof Polygonal)
-              || (hasPoint && predicate.getGeometry() instanceof Puntal)
-              || (hasLine && predicate.getGeometry() instanceof Lineal)
-              || (hasOther && "GeometryCollection"
-                  .equalsIgnoreCase(predicate.getGeometry().getGeometryType()));
-        });
+    //noinspection unchecked - filter always returns the same mappable type T
+    return (T) mapRed.filter(data -> {
+      if (data instanceof OSMEntitySnapshot) {
+        Geometry snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        return (hasPoly && snapshotGeom instanceof Polygonal)
+            || (hasPoint && snapshotGeom instanceof Puntal)
+            || (hasLine && snapshotGeom instanceof Lineal)
+            || (hasOther && GEOMCOLLTYPE.equalsIgnoreCase(snapshotGeom.getGeometryType()));
+      } else if (data instanceof OSMContribution) {
+        Geometry contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
+        Geometry contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        return
+            contribGeomBefore != null && (
+                (hasPoly && contribGeomBefore instanceof Polygonal)
+                || (hasPoint && contribGeomBefore instanceof Puntal)
+                || (hasLine && contribGeomBefore instanceof Lineal)
+                || (hasOther && GEOMCOLLTYPE.equalsIgnoreCase(contribGeomBefore.getGeometryType())))
+            || contribGeomAfter != null && (
+                (hasPoly && contribGeomAfter instanceof Polygonal)
+                || (hasPoint && contribGeomAfter instanceof Puntal)
+                || (hasLine && contribGeomAfter instanceof Lineal)
+                || (hasOther && GEOMCOLLTYPE.equalsIgnoreCase(contribGeomAfter.getGeometryType())));
+      } else {
+        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
+      }
+    });
   }
 
   /**

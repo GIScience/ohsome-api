@@ -224,7 +224,11 @@ public class InputProcessor {
     }
     mapRed = defineTypes(types, mapRed);
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
-    if (processingData.containsSimpleFeatureTypes() && !processingData.isShareRatio()) {
+    if (processingData.containsSimpleFeatureTypes()
+        // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
+        && !processingData.isShareRatio()
+        && !processingData.isGroupByBoundary()
+    ) {
       mapRed = utils.filterOnSimpleFeatures(mapRed, processingData);
     }
     mapRed = extractTime(mapRed, time, isSnapshot);
