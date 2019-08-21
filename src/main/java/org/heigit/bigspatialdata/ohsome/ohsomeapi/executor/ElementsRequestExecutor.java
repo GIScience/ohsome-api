@@ -1013,7 +1013,6 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
-  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity, boolean isShare)
@@ -1023,7 +1022,7 @@ public class ElementsRequestExecutor {
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true); // todo: implement filterOnSimpleFeatures logic here
+    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
     inputProcessor.getProcessingData().setIsShareRatio(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
@@ -1105,6 +1104,7 @@ public class ElementsRequestExecutor {
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, Geometry> preResult =
         null;
+    @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = arrGeoms.stream()
         .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
