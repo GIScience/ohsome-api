@@ -372,51 +372,31 @@ public class InputProcessingUtils {
   public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed,
       ProcessingData processingData) {
     Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    boolean containsPoint = false;
-    boolean containsLine = false;
-    boolean containsPolygon = false;
-    boolean containsOther = false;
-    for (SimpleFeatureType type : simpleFeatureTypes) {
-      if (type.equals(SimpleFeatureType.POINT)) {
-        containsPoint = true;
-      } else if (type.equals(SimpleFeatureType.LINE)) {
-        containsLine = true;
-      } else if (type.equals(SimpleFeatureType.POLYGON)) {
-        containsPolygon = true;
-      } else if (type.equals(SimpleFeatureType.OTHER)) {
-        containsOther = true;
-      }
-    }
-    final boolean hasPoly = containsPolygon;
-    final boolean hasPoint = containsPoint;
-    final boolean hasLine = containsLine;
-    final boolean hasOther = containsOther;
     //noinspection unchecked - filter always returns the same mappable type T
     return (T) mapRed.filter(data -> {
       if (data instanceof OSMEntitySnapshot) {
         Geometry snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
-        return (hasPoly && snapshotGeom instanceof Polygonal)
-            || (hasPoint && snapshotGeom instanceof Puntal)
-            || (hasLine && snapshotGeom instanceof Lineal)
-            || (hasOther && GEOMCOLLTYPE.equalsIgnoreCase(snapshotGeom.getGeometryType()));
+        return checkGeomType(snapshotGeom, simpleFeatureTypes);
       } else if (data instanceof OSMContribution) {
         Geometry contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
         Geometry contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
-        return
-            contribGeomBefore != null && (
-                (hasPoly && contribGeomBefore instanceof Polygonal)
-                || (hasPoint && contribGeomBefore instanceof Puntal)
-                || (hasLine && contribGeomBefore instanceof Lineal)
-                || (hasOther && GEOMCOLLTYPE.equalsIgnoreCase(contribGeomBefore.getGeometryType())))
-            || contribGeomAfter != null && (
-                (hasPoly && contribGeomAfter instanceof Polygonal)
-                || (hasPoint && contribGeomAfter instanceof Puntal)
-                || (hasLine && contribGeomAfter instanceof Lineal)
-                || (hasOther && GEOMCOLLTYPE.equalsIgnoreCase(contribGeomAfter.getGeometryType())));
+        return contribGeomBefore != null
+            && checkGeomType(contribGeomBefore, simpleFeatureTypes)
+            || contribGeomAfter != null
+            && checkGeomType(contribGeomAfter, simpleFeatureTypes);
       } else {
+        assert false: "filterOnSimpleFeatures() called on mapped entries";
         throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
       }
     });
+  }
+
+  private boolean checkGeomType(Geometry geom, Set<SimpleFeatureType> simpleFeatureTypes) {
+    return (simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal)
+        || (simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal)
+        || (simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal)
+        || (simpleFeatureTypes.contains(SimpleFeatureType.OTHER)
+            && GEOMCOLLTYPE.equalsIgnoreCase(geom.getGeometryType()));
   }
 
   /**
