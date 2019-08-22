@@ -29,12 +29,14 @@ public class ProcessingData {
   private static int numberOfClusterNodes;
   private boolean isShareRatio;
   private boolean isGroupByBoundary;
+  private boolean isFullHistory;
 
   public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
     this.requestUrl = requestUrl;
     this.isShareRatio = false;
     this.isGroupByBoundary = false;
+    this.isFullHistory = false;
   }
 
   public static Geometry getDataPolyGeom() {
@@ -173,6 +175,10 @@ public class ProcessingData {
     return isGroupByBoundary;
   }
 
+  public boolean isFullHistory() {
+    return isFullHistory;
+  }
+
   public void setIsShareRatio(boolean isShareRatio) {
     this.isShareRatio = isShareRatio;
   }
@@ -181,4 +187,7 @@ public class ProcessingData {
     this.isGroupByBoundary = isGroupByBoundary;
   }
 
+  public void setIsFullHistory(boolean isFullHistory) {
+    this.isFullHistory = isFullHistory;
+  }
 }

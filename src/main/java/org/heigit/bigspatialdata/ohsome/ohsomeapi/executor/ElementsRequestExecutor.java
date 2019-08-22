@@ -175,7 +175,9 @@ public class ElementsRequestExecutor {
   public static void executeElementsFullHistory(ElementsGeometry elemGeom,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
+    inputProcessor.getProcessingData().setIsFullHistory(true);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
+    snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -213,14 +215,17 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     inputProcessor.processPropertiesParam();
+    InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean unclippedGeometries = inputProcessor.isUnclipped();
+    final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
     String startTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
-    contributionPreResult = mapRedContribution.groupByEntity().flatMap(contributions -> {
+    MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
+    contributionPreResult = mapRedContributions.flatMap(contributions -> {
       List<Feature> output = new LinkedList<>();
       Map<String, Object> properties;
       Geometry currentGeom = null;
@@ -248,8 +253,11 @@ public class ElementsRequestExecutor {
           properties.put("@validFrom", validFrom);
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
-            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+            if (!processingData.containsSimpleFeatureTypes()
+                || utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes)) {
+              output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+                  includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+            }
           }
         }
         skipNext = false;
@@ -273,8 +281,11 @@ public class ElementsRequestExecutor {
         properties.put("@validFrom", validFrom);
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
-          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-              includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+          if (!processingData.containsSimpleFeatureTypes()
+              || utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes)) {
+            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+                includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+          }
         }
       }
       return output;
@@ -285,7 +296,7 @@ public class ElementsRequestExecutor {
         .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
             && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
                 .getVersion())
-        .map(snapshots -> snapshots.get(0)).map(snapshot -> {
+        .map(snapshots -> snapshots.get(0)).flatMap(snapshot -> {
           Map<String, Object> properties = new TreeMap<>();
           OSMEntity entity = snapshot.getEntity();
           if (includeOSMMetadata) {
@@ -296,8 +307,13 @@ public class ElementsRequestExecutor {
               TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
           properties.put("@validFrom", startTimestamp);
           properties.put("@validTo", endTimestamp);
-          return exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
-              includeOSMMetadata, elemGeom, mapTagTranslator.get());
+          if (!processingData.containsSimpleFeatureTypes()
+              || utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes)) {
+            return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
+                keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+          } else {
+            return Collections.emptyList();
+          }
         });
     Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
     Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);

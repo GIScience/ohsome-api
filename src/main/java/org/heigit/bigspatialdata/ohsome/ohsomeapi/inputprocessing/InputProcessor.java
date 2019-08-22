@@ -228,6 +228,7 @@ public class InputProcessor {
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
         && !processingData.isShareRatio()
         && !processingData.isGroupByBoundary()
+        && !processingData.isFullHistory()
     ) {
       mapRed = utils.filterOnSimpleFeatures(mapRed, processingData);
     }

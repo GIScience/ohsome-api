@@ -366,7 +366,7 @@ public class InputProcessingUtils {
 
   /**
    * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
-   * 
+   *
    * @return MapReducer with filtered geometries
    */
   public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed,
@@ -376,14 +376,14 @@ public class InputProcessingUtils {
     return (T) mapRed.filter(data -> {
       if (data instanceof OSMEntitySnapshot) {
         Geometry snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
-        return checkGeomType(snapshotGeom, simpleFeatureTypes);
+        return checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
       } else if (data instanceof OSMContribution) {
         Geometry contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
         Geometry contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
         return contribGeomBefore != null
-            && checkGeomType(contribGeomBefore, simpleFeatureTypes)
+            && checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
             || contribGeomAfter != null
-            && checkGeomType(contribGeomAfter, simpleFeatureTypes);
+            && checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
       } else {
         assert false: "filterOnSimpleFeatures() called on mapped entries";
         throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
@@ -391,7 +391,13 @@ public class InputProcessingUtils {
     });
   }
 
-  private boolean checkGeomType(Geometry geom, Set<SimpleFeatureType> simpleFeatureTypes) {
+  /**
+   * Checks whether a geometry is of given feature type (Puntal|Lineal|Polygonal).
+   *
+   * @param simpleFeatureTypes a set of feature types
+   * @return true if the geometry matches the given simpleFeatureTypes, otherwise false
+   */
+  public boolean checkGeometryOnSimpleFeatures(Geometry geom, Set<SimpleFeatureType> simpleFeatureTypes) {
     return (simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal)
         || (simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal)
         || (simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal)
