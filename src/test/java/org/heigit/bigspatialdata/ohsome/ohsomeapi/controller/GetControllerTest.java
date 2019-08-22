@@ -78,7 +78,7 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/groupBy/boundary?bboxes=8.70538,49.40891,8.70832,49.41155|"
-            + "8.68667,49.41353,8.68828,49.414&types=way&time=2017-01-01&keys=building"
+            + "8.68667,49.41353,8.68828,49.414&types=polygon&time=2017-01-01&keys=building"
             + "&values=church&showMetadata=true",
         JsonNode.class);
     assertEquals(2, StreamSupport

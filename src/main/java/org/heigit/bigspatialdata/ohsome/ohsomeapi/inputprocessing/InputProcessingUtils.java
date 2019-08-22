@@ -12,9 +12,10 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializablePredicate;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
@@ -30,6 +31,7 @@ import org.locationtech.jts.geom.Puntal;
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
 
+  private static final String GEOMCOLLTYPE = "GeometryCollection";
   private Object[] boundaryIds;
   private String[] toTimestamps = null;
 
@@ -364,41 +366,43 @@ public class InputProcessingUtils {
 
   /**
    * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
-   * 
+   *
    * @return MapReducer with filtered geometries
    */
-  @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> filterOnSimpleFeatures(MapReducer<T> mapRed,
+  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed,
       ProcessingData processingData) {
-    MapReducer<OSMEntitySnapshot> mapReducer = (MapReducer<OSMEntitySnapshot>) mapRed;
     Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    boolean containsPoint = false;
-    boolean containsLine = false;
-    boolean containsPolygon = false;
-    boolean containsOther = false;
-    for (SimpleFeatureType type : simpleFeatureTypes) {
-      if (type.equals(SimpleFeatureType.POINT)) {
-        containsPoint = true;
-      } else if (type.equals(SimpleFeatureType.LINE)) {
-        containsLine = true;
-      } else if (type.equals(SimpleFeatureType.POLYGON)) {
-        containsPolygon = true;
-      } else if (type.equals(SimpleFeatureType.OTHER)) {
-        containsOther = true;
+    //noinspection unchecked - filter always returns the same mappable type T
+    return (T) mapRed.filter(data -> {
+      if (data instanceof OSMEntitySnapshot) {
+        Geometry snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        return checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
+      } else if (data instanceof OSMContribution) {
+        Geometry contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
+        Geometry contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        return contribGeomBefore != null
+            && checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
+            || contribGeomAfter != null
+            && checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
+      } else {
+        assert false: "filterOnSimpleFeatures() called on mapped entries";
+        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
       }
-    }
-    final boolean hasPoly = containsPolygon;
-    final boolean hasPoint = containsPoint;
-    final boolean hasLine = containsLine;
-    final boolean hasOther = containsOther;
-    return (MapReducer<T>) mapReducer
-        .filter((SerializablePredicate<OSMEntitySnapshot>) predicate -> {
-          return (hasPoly && predicate.getGeometry() instanceof Polygonal)
-              || (hasPoint && predicate.getGeometry() instanceof Puntal)
-              || (hasLine && predicate.getGeometry() instanceof Lineal)
-              || (hasOther && "GeometryCollection"
-                  .equalsIgnoreCase(predicate.getGeometry().getGeometryType()));
-        });
+    });
+  }
+
+  /**
+   * Checks whether a geometry is of given feature type (Puntal|Lineal|Polygonal).
+   *
+   * @param simpleFeatureTypes a set of feature types
+   * @return true if the geometry matches the given simpleFeatureTypes, otherwise false
+   */
+  public boolean checkGeometryOnSimpleFeatures(Geometry geom, Set<SimpleFeatureType> simpleFeatureTypes) {
+    return (simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal)
+        || (simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal)
+        || (simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal)
+        || (simpleFeatureTypes.contains(SimpleFeatureType.OTHER)
+            && GEOMCOLLTYPE.equalsIgnoreCase(geom.getGeometryType()));
   }
 
   /**

@@ -36,6 +36,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeo
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -435,18 +436,23 @@ public class ExecutionUtils {
   }
 
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
-  @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
+      MapReducer<OSMEntitySnapshot> mapRed, InputProcessingUtils utils) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
+    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    preResult = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms).map(x -> x.getGeometry());
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
+        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+    if (processingData.containsSimpleFeatureTypes()) {
+      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+    }
+    preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
         return preResult.count();
