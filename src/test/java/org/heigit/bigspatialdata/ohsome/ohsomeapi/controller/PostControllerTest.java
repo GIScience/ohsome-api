@@ -487,7 +487,7 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.662714,49.413594,8.663337,49.414324");
-    map.add("types", "way");
+    map.add("types", "polygon");
     map.add("time", "2018-03-24");
     map.add("groupByKeys", "building,landuse");
     ResponseEntity<JsonNode> response =
@@ -908,9 +908,29 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(131.95, Double.parseDouble(records.get(0).get("part")),
+    assertEquals(105, Double.parseDouble(records.get(0).get("RELATION")),
         0.01);
   }*/
+
+  @Test
+  public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 9 columns
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "b1:8.69205,49.41164,8.69319,49.41287|b2:8.66785,49.40973,8.66868,49.41176");
+    map.add("types", "line");
+    map.add("time", "2017-09-02");
+    map.add("groupByKey", "highway");
+    map.add("groupByValues", "path,primary,footway");
+    map.add("format", "csv");
+    String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/boundary/"
+        + "groupBy/tag", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(9, headers.size());
+    assertEquals(226.4, Double.parseDouble(records.get(0).get("b2_highway=footway")), 0.01);
+  }
+
 
   @Test
   public void elementsPerimeterCsvTest() throws IOException {
@@ -1048,5 +1068,25 @@ public class PostControllerTest {
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
     assertEquals(48.36, Double.parseDouble(records.get(0).get("b1_building=garage")), 0.01);
+  }
+
+  @Test
+  public void elementsCountGroupByTypeSimpleFeatureCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 3 columns
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.688517,49.401936,8.68981,49.403168");
+    map.add("types", "line,polygon");
+    map.add("time", "2019-01-01");
+    map.add("keys", "wheelchair");
+    map.add("format", "csv");
+    String responseBody = Helper.getPostResponseBody("/elements/count/groupBy/type", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(3, headers.size());
+    assertEquals(1, Double.parseDouble(records.get(0).get("RELATION")),
+        0.00);
+    assertEquals(1, Double.parseDouble(records.get(0).get("WAY")),
+        0.00);
   }
 }
