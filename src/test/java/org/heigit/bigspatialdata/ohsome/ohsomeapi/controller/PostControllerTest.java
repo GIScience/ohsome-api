@@ -1050,6 +1050,28 @@ public class PostControllerTest {
   }
 
   @Test
+  public void elementsAreaRatioGroupByBoundarySimpleFeatureCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 7 columns
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bcircles",
+        "b1:8.70167,49.38686,60|b2: 8.70231,49.38952,60");
+    map.add("types", "polygon");
+    map.add("types2", "polygon");
+    map.add("time", "2018-08-09");
+    map.add("keys", "landuse");
+    map.add("keys2", "landuse");
+    map.add("values2", "meadow");
+    map.add("format", "csv");
+    String responseBody =
+        Helper.getPostResponseBody("/elements/area/ratio/groupBy/boundary", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(7, headers.size());
+    assertEquals(0.257534, Double.parseDouble(records.get(0).get("b1_ratio")), 0.01);
+  }
+
+  @Test
   public void elementsAreaGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
