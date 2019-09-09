@@ -84,9 +84,9 @@ public class PostControllerTest {
             .equalsIgnoreCase("feature2"))
         .findFirst().get().get("properties").get("value").asInt(), 1e-6);
   }
-  
+
   @Test
-  public void simpleFeaturePointTest() {
+  public void elementsCountSimpleFeaturePointTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6475,49.4002,8.7057,49.4268");
@@ -102,9 +102,28 @@ public class PostControllerTest {
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
         .findFirst().get().get("value").asInt(), 1e-6);
   }
-  
+
   @Test
-  public void simpleFeatureLineTest() {
+  public void elementsCountSimpleFeaturePointLineTest() {
+    // count SF types point and line in bbox, 2 bus_stops with key highway, 3 lines with key highway
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.663031,49.41513,8.663616,49.415451");
+    map.add("types", "point,line");
+    map.add("time", "2018-01-01");
+    map.add("keys", "highway");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(5, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(
+            jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2018-01-01T00:00:00Z"))
+        .findFirst().get().get("value").asInt(), 1e-6);
+  }
+
+  @Test
+  public void elementsCountSimpleFeatureLineTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
@@ -120,9 +139,9 @@ public class PostControllerTest {
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2014-01-01T00:00:00Z"))
         .findFirst().get().get("value").asInt(), 1e-6);
   }
-  
+
   @Test
-  public void simpleFeaturePolygonTest() {
+  public void elementsCountSimpleFeaturePolygonTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
@@ -139,9 +158,9 @@ public class PostControllerTest {
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2019-01-01T00:00:00Z"))
         .findFirst().get().get("value").asInt(), 1e-6);
   }
-  
+
   @Test
-  public void simpleFeatureOtherTest() {
+  public void elementsCountSimpleFeatureOtherTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
@@ -157,6 +176,25 @@ public class PostControllerTest {
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2018-01-01T00:00:00Z"))
         .findFirst().get().get("value").asInt(), 1e-6);
+  }
+
+  @Test
+  public void elementsCountGroupByTypeSimpleFeaturePointPolygonTest() {
+    // check count of SF types, in bbox 2 points and 1 polygon (OSM type WAY)
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.690314,49.409546,8.690861,49.409752");
+    map.add("types", "point,polygon");
+    map.add("time", "2017-03-01");
+    map.add("keys", "building");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/count/groupBy/type", map, JsonNode.class);
+    assertEquals(2.0,
+        response.getBody().get("groupByResult").get(0).get("result").get(0).get("value").asDouble(),
+        1e-6);
+    assertEquals(1.0,
+        response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
+        1e-6);
   }
 
   /*
@@ -445,6 +483,24 @@ public class PostControllerTest {
     assertEquals(10, response.getBody().get("groupByResult").size());
   }
 
+  @Test
+  public void elementsPerimeterGroupByKeySimpleFeaturePolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.662714,49.413594,8.663337,49.414324");
+    map.add("types", "polygon");
+    map.add("time", "2018-03-24");
+    map.add("groupByKeys", "building,landuse");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
+    assertEquals(77.79,
+        response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
+        1e-6);
+    assertEquals(58.71,
+        response.getBody().get("groupByResult").get(2).get("result").get(0).get("value").asDouble(),
+        1e-6);
+  }
+
   /*
    * /elements/area tests
    */
@@ -709,6 +765,57 @@ public class PostControllerTest {
     assertEquals(3, response.getBody().get("groupByResult").size());
   }
 
+  @Test
+  public void elementsAreaSimpleFeaturePolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.68815,49.41964,8.68983,49.42045");
+    map.add("time", "2019-01-01");
+    map.add("types", "polygon");
+    map.add("keys", "highway");
+    map.add("values", "pedestrian");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
+    assertEquals(1234.34, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+  }
+
+  @Test
+  public void elementsAreaRatioSimpleFeaturePolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.679789,49.409088,8.680535,49.40943");
+    map.add("time", "2018-12-01");
+    map.add("types", "polygon");
+    map.add("types2", "polygon");
+    map.add("keys", "leisure");
+    map.add("keys2", "name");
+    map.add("values", "swimming_pool");
+    map.add("values2", "Schwimmerbecken");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
+    assertEquals(0.558477, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        1e-6);
+  }
+
+  @Test
+  public void elementsAreaGroupByTagSimpleFeaturePolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "b1:8.68287,49.36967,8.68465,49.37135");
+    map.add("time", "2019-01-01");
+    map.add("types", "polygon");
+    map.add("groupByKey", "leisure");
+    map.add("groupByValues", "pitch,sports_centre");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/area/groupBy/tag", map, JsonNode.class);
+    assertEquals(4052.65, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(
+            jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("leisure=pitch"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+  }
+
   // csv output tests
 
   @Test
@@ -804,9 +911,28 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(131.95, Double.parseDouble(records.get(0).get("part")),
-        0.01);
+    assertEquals(105, Double.parseDouble(records.get(0).get("RELATION")), 0.01);
   }*/
+
+  @Test
+  public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 9 columns
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "b1:8.69205,49.41164,8.69319,49.41287|b2:8.66785,49.40973,8.66868,49.41176");
+    map.add("types", "line");
+    map.add("time", "2017-09-02");
+    map.add("groupByKey", "highway");
+    map.add("groupByValues", "path,primary,footway");
+    map.add("format", "csv");
+    String responseBody =
+        Helper.getPostResponseBody("/elements/length/groupBy/boundary/" + "groupBy/tag", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(9, headers.size());
+    assertEquals(226.4, Double.parseDouble(records.get(0).get("b2_highway=footway")), 0.01);
+  }
+
 
   @Test
   public void elementsPerimeterCsvTest() throws IOException {
@@ -926,6 +1052,26 @@ public class PostControllerTest {
   }
 
   @Test
+  public void elementsAreaRatioGroupByBoundarySimpleFeatureCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 7 columns
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bcircles", "b1:8.70167,49.38686,60|b2: 8.70231,49.38952,60");
+    map.add("types", "polygon");
+    map.add("types2", "polygon");
+    map.add("time", "2018-08-09");
+    map.add("keys", "landuse");
+    map.add("keys2", "landuse");
+    map.add("values2", "meadow");
+    map.add("format", "csv");
+    String responseBody = Helper.getPostResponseBody("/elements/area/ratio/groupBy/boundary", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(7, headers.size());
+    assertEquals(0.257534, Double.parseDouble(records.get(0).get("b1_ratio")), 0.01);
+  }
+
+  @Test
   public void elementsAreaGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -944,5 +1090,23 @@ public class PostControllerTest {
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
     assertEquals(48.36, Double.parseDouble(records.get(0).get("b1_building=garage")), 0.01);
+  }
+
+  @Test
+  public void elementsCountGroupByTypeSimpleFeatureCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 3 columns
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.688517,49.401936,8.68981,49.403168");
+    map.add("types", "line,polygon");
+    map.add("time", "2019-01-01");
+    map.add("keys", "wheelchair");
+    map.add("format", "csv");
+    String responseBody = Helper.getPostResponseBody("/elements/count/groupBy/type", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(3, headers.size());
+    assertEquals(1, Double.parseDouble(records.get(0).get("RELATION")), 0.00);
+    assertEquals(1, Double.parseDouble(records.get(0).get("WAY")), 0.00);
   }
 }
