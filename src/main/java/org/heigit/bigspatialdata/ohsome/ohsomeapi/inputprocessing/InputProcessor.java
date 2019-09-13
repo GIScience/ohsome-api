@@ -69,6 +69,7 @@ public class InputProcessor {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
+    checkContentTypeHeader(servletRequest);
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
     processingData = new ProcessingData(
@@ -676,6 +677,22 @@ public class InputProcessor {
     }
   }
 
+  /** Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or 
+   * 'multipart/form-data'. Throws a 400 - BadRequestException if an unsupported header is given.
+   */
+  private void checkContentTypeHeader(HttpServletRequest servletRequest) {
+    String contentType = servletRequest.getHeader("content-type");
+    if (contentType == null)
+    {
+      return;
+    }
+    if (!contentType.contains("application/x-www-form-urlencoded") &&
+        !contentType.contains("multipart/form-data")) {
+      throw new BadRequestException("Unsupported content-type header found. Please make sure to "
+          + "use either 'multipart/form-data' or 'application/x-www-form-urlencoded'.");
+    }
+  }
+  
   /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 
