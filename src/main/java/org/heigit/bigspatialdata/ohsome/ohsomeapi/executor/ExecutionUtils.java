@@ -21,6 +21,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -243,11 +245,9 @@ public class ExecutionUtils {
     isFirst = new AtomicReference<>(true);
     outputStream.print("\n");
     if (isFullHistory) {
-      contributionStream =
-          writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
+      writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
     }
-    snapshotStream =
-        writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
+    writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
     outputStream.print("\n  ]\n}\n");
     servletResponse.flushBuffer();
   }
@@ -1070,31 +1070,36 @@ public class ExecutionUtils {
     return new ImmutablePair<>(columnNames, rows);
   }
 
+  private static ForkJoinPool dataExtractionForkJoinPool = new ForkJoinPool(80);
   /** Fills the given stream with output data. */
-  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
+  private void writeStreamResponse(
       ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
-      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
-    stream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
-        }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    return stream;
+      ThreadLocal<ByteArrayOutputStream> outputBuffers, final ServletOutputStream outputStream)
+  throws ExecutionException, InterruptedException {
+    dataExtractionForkJoinPool.submit(() ->
+        stream.map(data -> {
+          try {
+            outputBuffers.get().reset();
+            outputJsonGen.get().writeObject(data);
+            return outputBuffers.get().toByteArray();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        }).parallel().forEach(data -> {
+          synchronized (outputStream) {
+            try {
+              if (isFirst.get()) {
+                isFirst.set(false);
+              } else {
+                outputStream.print(",");
+              }
+              outputStream.write(data);
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        })
+    ).get();
   }
 
   /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
