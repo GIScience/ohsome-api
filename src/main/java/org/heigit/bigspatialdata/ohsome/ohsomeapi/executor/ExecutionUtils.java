@@ -89,8 +89,9 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
+  private static ForkJoinPool dataExtractionForkJoinPool = new ForkJoinPool(80);
 
-  AtomicReference<Boolean> isFirst;
+  private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
 
@@ -1070,7 +1071,6 @@ public class ExecutionUtils {
     return new ImmutablePair<>(columnNames, rows);
   }
 
-  private static ForkJoinPool dataExtractionForkJoinPool = new ForkJoinPool(80);
   /** Fills the given stream with output data. */
   private void writeStreamResponse(
       ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
