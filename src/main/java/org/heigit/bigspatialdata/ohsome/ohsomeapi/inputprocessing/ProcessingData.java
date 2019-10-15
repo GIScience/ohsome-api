@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
@@ -13,6 +14,7 @@ public class ProcessingData {
 
   private static Geometry dataPolyGeom;
   private static double timeout;
+  private static ForkJoinPool dataExtractionForkJoinPool = new ForkJoinPool();
   private RequestParameters requestParameters;
   private String requestUrl;
   private BoundaryType boundaryType;
@@ -165,6 +167,15 @@ public class ProcessingData {
 
   public static void setNumberOfClusterNodes(int numberOfClusterNodes) {
     ProcessingData.numberOfClusterNodes = numberOfClusterNodes;
+  }
+
+  public static void setNumberOfDataExtractionThreads(int numberOfDataExtractionsThreads) {
+    dataExtractionForkJoinPool.shutdown();
+    dataExtractionForkJoinPool = new ForkJoinPool(numberOfDataExtractionsThreads);
+  }
+
+  public static ForkJoinPool getDataExtractionThreadPool() {
+    return dataExtractionForkJoinPool;
   }
   
   public boolean isShareRatio() {

@@ -27,6 +27,9 @@ import org.springframework.context.annotation.ComponentScan;
 public class Application implements ApplicationRunner {
 
   public static final String API_VERSION = "0.9";
+  public static final int DEFAULT_TIMEOUT_IN_MILLISECONDS = 100000;
+  public static final int DEFAULT_NUMBER_OF_CLUSTER_NODES = 24;
+  public static final int DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS = 40;
 
   /** Main method to run this SpringBootApplication. */
   public static void main(String[] args) {
@@ -54,8 +57,9 @@ public class Application implements ApplicationRunner {
     boolean multithreading = true;
     boolean caching = false;
     String dbPrefix = null;
-    long timeoutInMilliseconds = 100000;
-    int numberOfClusterNodes = 24;
+    long timeoutInMilliseconds = DEFAULT_TIMEOUT_IN_MILLISECONDS;
+    int numberOfClusterNodes = DEFAULT_NUMBER_OF_CLUSTER_NODES;
+    int numberOfDataExtractionThreads = DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
     // only used when tests are executed directly in Eclipse
     if (System.getProperty(dbProperty) != null) {
       DbConnData.db = new OSHDBH2(System.getProperty(dbProperty));
@@ -107,10 +111,13 @@ public class Application implements ApplicationRunner {
             dbPrefix = args.getOptionValues(paramName).get(0);
             break;
           case "database.timeout":
-            timeoutInMilliseconds = Long.valueOf(args.getOptionValues(paramName).get(0));
+            timeoutInMilliseconds = Long.parseLong(args.getOptionValues(paramName).get(0));
             break;
           case "cluster.servernodes.count":
-            numberOfClusterNodes = Integer.valueOf(args.getOptionValues(paramName).get(0));
+            numberOfClusterNodes = Integer.parseInt(args.getOptionValues(paramName).get(0));
+            break;
+          case "cluster.dataextraction.threadcount":
+            numberOfDataExtractionThreads = Integer.parseInt(args.getOptionValues(paramName).get(0));
             break;
           default:
             break;
@@ -124,6 +131,7 @@ public class Application implements ApplicationRunner {
       ProcessingData.setTimeout(timeoutInMilliseconds / 1000.0);
       DbConnData.db.timeoutInMilliseconds(timeoutInMilliseconds);
       ProcessingData.setNumberOfClusterNodes(numberOfClusterNodes);
+      ProcessingData.setNumberOfDataExtractionThreads(numberOfDataExtractionThreads);
       if (DbConnData.db instanceof OSHDBJdbc) {
         DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
       }

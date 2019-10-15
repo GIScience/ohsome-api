@@ -89,8 +89,6 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
-  private static ForkJoinPool dataExtractionForkJoinPool = new ForkJoinPool(80);
-
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
@@ -1076,7 +1074,7 @@ public class ExecutionUtils {
       ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
       ThreadLocal<ByteArrayOutputStream> outputBuffers, final ServletOutputStream outputStream)
   throws ExecutionException, InterruptedException {
-    dataExtractionForkJoinPool.submit(() ->
+    ProcessingData.getDataExtractionThreadPool().submit(() ->
         stream.map(data -> {
           try {
             outputBuffers.get().reset();
