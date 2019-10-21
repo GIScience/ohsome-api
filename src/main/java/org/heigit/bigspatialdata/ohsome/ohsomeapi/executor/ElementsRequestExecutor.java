@@ -970,9 +970,9 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     result = exeUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
-    Double[] value1 = new Double[resultSize / 3];
-    Double[] value2 = new Double[resultSize / 3];
-    String[] timeArray = new String[resultSize / 3];
+    Double[] value1 = new Double[resultSize / 4];
+    Double[] value2 = new Double[resultSize / 4];
+    String[] timeArray = new String[resultSize / 4];
     int value1Count = 0;
     int value2Count = 0;
     int matchesBothCount = 0;
