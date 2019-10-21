@@ -121,7 +121,7 @@ public class Application implements ApplicationRunner {
             "You have to define one of the following three database parameters: '--database.db', "
                 + "'--database.ignite', or '--database.jdbc'.");
       }
-      ProcessingData.setTimeout(timeoutInMilliseconds / 1000);
+      ProcessingData.setTimeout(timeoutInMilliseconds / 1000.0);
       DbConnData.db.timeoutInMilliseconds(timeoutInMilliseconds);
       ProcessingData.setNumberOfClusterNodes(numberOfClusterNodes);
       if (DbConnData.db instanceof OSHDBJdbc) {
