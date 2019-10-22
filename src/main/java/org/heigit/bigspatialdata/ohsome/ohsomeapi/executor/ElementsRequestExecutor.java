@@ -1127,8 +1127,8 @@ public class ElementsRequestExecutor {
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, Geometry> preResult =
         null;
-    @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already
-                                     // performed
+    // intentionally as check for P on Polygonal is already performed
+    @SuppressWarnings({"unchecked"})
     Map<Integer, P> geoms = arrGeoms.stream()
         .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
