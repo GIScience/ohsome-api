@@ -43,12 +43,14 @@ public class Application implements ApplicationRunner {
       preRun(new DefaultApplicationArguments(args));
       SpringApplication.run(Application.class, args);
     } catch (Exception e) {
+      e.printStackTrace();
       System.exit(1);
     }
   }
 
   /**
    * Reads and sets the given application arguments and makes a connection to the OSHDB.
+   * 
    * @param args Application arguments given over the commandline on startup
    * @throws Exception if the connection to the db cannot be established
    */
@@ -117,7 +119,8 @@ public class Application implements ApplicationRunner {
             numberOfClusterNodes = Integer.parseInt(args.getOptionValues(paramName).get(0));
             break;
           case "cluster.dataextraction.threadcount":
-            numberOfDataExtractionThreads = Integer.parseInt(args.getOptionValues(paramName).get(0));
+            numberOfDataExtractionThreads =
+                Integer.parseInt(args.getOptionValues(paramName).get(0));
             break;
           default:
             break;

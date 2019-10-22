@@ -160,7 +160,7 @@ public class ProcessingData {
   public void setSimpleFeatureTypes(Set<SimpleFeatureType> simpleFeatureTypes) {
     this.simpleFeatureTypes = (EnumSet<SimpleFeatureType>) simpleFeatureTypes;
   }
-  
+
   public static int getNumberOfClusterNodes() {
     return numberOfClusterNodes;
   }
@@ -177,7 +177,7 @@ public class ProcessingData {
   public static ForkJoinPool getDataExtractionThreadPool() {
     return dataExtractionForkJoinPool;
   }
-  
+
   public boolean isShareRatio() {
     return isShareRatio;
   }

@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -1070,34 +1069,31 @@ public class ExecutionUtils {
   }
 
   /** Fills the given stream with output data. */
-  private void writeStreamResponse(
-      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
-      ThreadLocal<ByteArrayOutputStream> outputBuffers, final ServletOutputStream outputStream)
-  throws ExecutionException, InterruptedException {
-    ProcessingData.getDataExtractionThreadPool().submit(() ->
-        stream.map(data -> {
-          try {
-            outputBuffers.get().reset();
-            outputJsonGen.get().writeObject(data);
-            return outputBuffers.get().toByteArray();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
+  private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
+      Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
+      final ServletOutputStream outputStream) throws ExecutionException, InterruptedException {
+    ProcessingData.getDataExtractionThreadPool().submit(() -> stream.map(data -> {
+      try {
+        outputBuffers.get().reset();
+        outputJsonGen.get().writeObject(data);
+        return outputBuffers.get().toByteArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).parallel().forEach(data -> {
+      synchronized (outputStream) {
+        try {
+          if (isFirst.get()) {
+            isFirst.set(false);
+          } else {
+            outputStream.print(",");
           }
-        }).parallel().forEach(data -> {
-          synchronized (outputStream) {
-            try {
-              if (isFirst.get()) {
-                isFirst.set(false);
-              } else {
-                outputStream.print(",");
-              }
-              outputStream.write(data);
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          }
-        })
-    ).get();
+          outputStream.write(data);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    })).get();
   }
 
   /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
