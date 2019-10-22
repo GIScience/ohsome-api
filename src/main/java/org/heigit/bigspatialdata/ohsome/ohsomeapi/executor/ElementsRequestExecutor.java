@@ -101,6 +101,7 @@ public class ElementsRequestExecutor {
     inputProcessor.processPropertiesParam();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
+    final boolean unclippedGeometries = inputProcessor.isUnclipped();
     if (DbConnData.db instanceof OSHDBIgnite) {
       // do a preflight to get an approximate result data size estimation:
       // for now just the sum of the average size of the objects versions in bytes is used
@@ -139,8 +140,12 @@ public class ElementsRequestExecutor {
       }
       properties.put("@snapshotTimestamp",
           TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
-      return exeUtils.createOSMFeature(snapshot.getEntity(), snapshot.getGeometry(), properties,
-          keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get());
+      Geometry geom = snapshot.getGeometry();
+      if (unclippedGeometries) {
+        geom = snapshot.getGeometryUnclipped();
+      }
+      return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
+          includeOSMMetadata, elemGeom, mapTagTranslator.get());
     });
     Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
@@ -303,6 +308,9 @@ public class ElementsRequestExecutor {
             properties.put("@lastEdit", entity.getTimestamp().toString());
           }
           Geometry geom = snapshot.getGeometry();
+          if (unclippedGeometries) {
+            geom = snapshot.getGeometryUnclipped();
+          }
           properties.put("@snapshotTimestamp",
               TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
           properties.put("@validFrom", startTimestamp);
@@ -540,8 +548,7 @@ public class ElementsRequestExecutor {
       mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
-        mapAgg
-            .map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+        mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
             .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, ? extends Number> result;
@@ -1120,7 +1127,8 @@ public class ElementsRequestExecutor {
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, Geometry> preResult =
         null;
-    @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already performed
+    @SuppressWarnings({"unchecked"}) // intentionally as check for P on Polygonal is already
+                                     // performed
     Map<Integer, P> geoms = arrGeoms.stream()
         .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
