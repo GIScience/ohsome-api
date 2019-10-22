@@ -43,7 +43,7 @@ To run the tests locally, you need the following:
     * -Dport.post starts data-aggregation tests using POST requests
     * -Dport.data starts data-extraction tests using GET and POST requests
 2. [heidelberg.oshb](http://downloads.ohsome.org/v0.4/heidelberg.oshdb.mv.db) file (or any other, which includes the data from Heidelberg)
-3. maven command: `mvn -Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=C:\\path-to-your-heidelberg-file\\heidelberg.oshdb" package`
+3. maven command: `mvn -Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=<path-to-your-heidelberg.oshdb-file>" test`
 
 *Note:* 
 * You can disable the integration and/or junit tests via the following properties: `-Dintegration="no" -Djunit="no"`
