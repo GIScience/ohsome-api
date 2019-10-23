@@ -179,9 +179,9 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/ratio?bboxes=8.66004,49.41184,8.68481,49.42094&types=way"
-            + "&time=2017-09-20&keys=building&types2=node&keys2=addr:housenumber",
+            + "&time=2015-01-01/2019-01-01/P1Y&keys=building&types2=node&keys2=addr:housenumber",
         JsonNode.class);
-    assertEquals(0.236186, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+    assertEquals(0.153933, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
         1e-6);
   }
 
