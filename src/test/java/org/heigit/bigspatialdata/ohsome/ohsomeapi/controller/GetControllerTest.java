@@ -503,7 +503,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/groupBy/type?bboxes=8.67,49.39941,8.69545,49.4096&types=way,relation"
         + "&time=2014-01-01,2015-01-01&keys=building", JsonNode.class);
-    assertEquals(31,
+    assertEquals(30,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -518,7 +518,7 @@ public class GetControllerTest {
         server + port + "/users/count/groupBy/key?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
             + "&time=2014-01-01,2015-01-01&groupByKeys=building",
         JsonNode.class);
-    assertEquals(31,
+    assertEquals(30,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -533,7 +533,7 @@ public class GetControllerTest {
         server + port + "/users/count/groupBy/tag?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
             + "&time=2014-01-01,2015-01-01&groupByKey=building",
         JsonNode.class);
-    assertEquals(30, StreamSupport
+    assertEquals(29, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
@@ -547,7 +547,7 @@ public class GetControllerTest {
         server + port + "/users/count/density?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
             + "&time=2014-01-01,2015-01-01&keys=building",
         JsonNode.class);
-    assertEquals(14.86, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(14.38, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -571,7 +571,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/density/groupBy/tag?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
         + "&time=2014-01-01,2015-01-01&groupByKey=building&showMetadata=true", JsonNode.class);
-    assertEquals(25.88, StreamSupport
+    assertEquals(26.84, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
@@ -585,13 +585,13 @@ public class GetControllerTest {
         + "/users/count/groupBy/boundary?bboxes=a:8.67452,49.40961,8.70392,49.41823|"
         + "b:8.67,49.39941,8.69545,49.4096&types=way&time=2014-01-01,2015-01-01&showMetadata=true"
         + "&keys=building", JsonNode.class);
-    assertEquals(30,
+    assertEquals(29,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("a"))
             .findFirst().get().get("result").get(0).get("value").asInt());
-    assertEquals(31,
+    assertEquals(30,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -606,7 +606,7 @@ public class GetControllerTest {
         + "/users/count/density/groupBy/boundary?bboxes=a:8.67452,49.40961,8.70392,49.41823|"
         + "b:8.67,49.39941,8.69545,49.4096&types=way&time=2014-01-01,2015-01-01&showMetadata=true"
         + "&keys=building", JsonNode.class);
-    assertEquals(14.86,
+    assertEquals(14.38,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
