@@ -50,7 +50,7 @@ public class Application implements ApplicationRunner {
 
   /**
    * Reads and sets the given application arguments and makes a connection to the OSHDB.
-   * 
+   *
    * @param args Application arguments given over the commandline on startup
    * @throws Exception if the connection to the db cannot be established
    */
