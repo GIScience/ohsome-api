@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Represents the result JSON object containing the spatial as GeoJSON and the
+ * Represents the result JSON object containing the spatial extent as GeoJSON, the 
  * {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.TemporalExtent
- * TemporalExtent} of the data-extract.
+ * TemporalExtent} and the replication sequence number of the data-extract.
  */
 public class ExtractRegion {
 
@@ -14,10 +14,14 @@ public class ExtractRegion {
   private JsonNode spatialExtent;
   @ApiModelProperty(notes = "Temporal extent of this extract-region", position = 2)
   private TemporalExtent temporalExtent;
+  @ApiModelProperty(notes = "Replication sequence number", position = 3)
+  private int replicationSequenceNumber;
 
-  public ExtractRegion(JsonNode spatialExtent, TemporalExtent temporalExtent) {
+  public ExtractRegion(JsonNode spatialExtent, TemporalExtent temporalExtent,
+      int replicationSequenceNumber) {
     this.spatialExtent = spatialExtent;
     this.temporalExtent = temporalExtent;
+    this.replicationSequenceNumber = replicationSequenceNumber;
   }
 
   public JsonNode getSpatialExtent() {
@@ -26,5 +30,9 @@ public class ExtractRegion {
 
   public TemporalExtent getTemporalExtent() {
     return temporalExtent;
+  }
+  
+  public int getReplicationSequenceNumber() {
+    return replicationSequenceNumber;
   }
 }

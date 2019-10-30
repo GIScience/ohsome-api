@@ -117,6 +117,10 @@ public class RequestUtils {
     } else {
       ExtractMetadata.attributionUrl = "https://ohsome.org/copyrights";
     }
+    if (db.metadata("header.osmosis_replication_sequence_number") != null) {
+      ExtractMetadata.replicationSequenceNumber =
+          Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number"));
+    }
   }
 
   /**
