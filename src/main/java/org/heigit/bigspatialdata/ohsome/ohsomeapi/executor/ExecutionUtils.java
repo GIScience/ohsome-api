@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -227,29 +230,38 @@ public class ExecutionUtils {
     jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
         .writeObject(osmData);
 
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+    String scaffold = tempStream.toString("UTF-8").replaceFirst("\\s*]\\s*}\\s*$", "");
 
     servletResponse.setContentType("application/geo+json; charset=utf-8");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
-    outputStream.write(scaffold.getBytes("UTF-8"));
+    outputStream.write(scaffold.getBytes(StandardCharsets.UTF_8));
 
     ThreadLocal<ByteArrayOutputStream> outputBuffers =
         ThreadLocal.withInitial(ByteArrayOutputStream::new);
     ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
       try {
+        DefaultPrettyPrinter.Indenter indenter = new DefaultIndenter() {
+          @Override
+          public void writeIndentation(JsonGenerator g, int level) throws IOException {
+            super.writeIndentation(g, level + 1);
+          }
+        };
+        DefaultPrettyPrinter printer = new DefaultPrettyPrinter("")
+            .withArrayIndenter(indenter)
+            .withObjectIndenter(indenter);
         return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper);
+            .setCodec(objMapper)
+            .setPrettyPrinter(printer);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     });
     isFirst = new AtomicReference<>(true);
-    outputStream.print("\n");
     if (isFullHistory) {
       writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
     }
     writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
-    outputStream.print("\n  ]\n}\n");
+    outputStream.print("]\n}\n");
     servletResponse.flushBuffer();
   }
 
@@ -1104,7 +1116,7 @@ public class ExecutionUtils {
           if (isFirst.get()) {
             isFirst.set(false);
           } else {
-            outputStream.print(",");
+            outputStream.print(", ");
           }
           // write the feature
           outputStream.write(data);
