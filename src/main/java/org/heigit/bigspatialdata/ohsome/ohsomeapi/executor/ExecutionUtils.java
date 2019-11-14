@@ -22,7 +22,10 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1068,32 +1071,54 @@ public class ExecutionUtils {
     return new ImmutablePair<>(columnNames, rows);
   }
 
-  /** Fills the given stream with output data. */
+  /** Fills the given stream with output data using multiple parallel threads. */
   private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
-      final ServletOutputStream outputStream) throws ExecutionException, InterruptedException {
-    ProcessingData.getDataExtractionThreadPool().submit(() -> stream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).parallel().forEach(data -> {
-      synchronized (outputStream) {
+      final ServletOutputStream outputStream)
+      throws ExecutionException, InterruptedException, IOException {
+    ReentrantLock lock = new ReentrantLock();
+    AtomicBoolean errored = new AtomicBoolean(false);
+    ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
+    try {
+      threadPool.submit(() -> stream.parallel().map(data -> {
+        // 1. convert features to geojson
         try {
+          outputBuffers.get().reset();
+          outputJsonGen.get().writeObject(data);
+          return outputBuffers.get().toByteArray();
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }).forEach(data -> {
+        // 2. write data out to client
+        // only 1 thread is allowed to write at once!
+        lock.lock();
+        if (errored.get()) {
+          // when any one thread experienced an exception (e.g. a client disconnects):
+          // the "errored" flag is set and all threads abort themselves by throwing an exception
+          lock.unlock();
+          throw new RuntimeException();
+        }
+        try {
+          // separate features in the result by a comma, except for the very first one
           if (isFirst.get()) {
             isFirst.set(false);
           } else {
             outputStream.print(",");
           }
+          // write the feature
           outputStream.write(data);
         } catch (IOException e) {
+          errored.set(true);
           throw new RuntimeException(e);
+        } finally {
+          lock.unlock();
         }
-      }
-    })).get();
+      })).get();
+    } finally {
+      threadPool.shutdown();
+      outputStream.flush();
+    }
   }
 
   /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
