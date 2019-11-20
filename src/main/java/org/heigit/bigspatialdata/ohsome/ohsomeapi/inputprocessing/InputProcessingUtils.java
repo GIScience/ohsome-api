@@ -212,7 +212,7 @@ public class InputProcessingUtils {
    * using of the forward slash '/' is very important.
    * 
    * @param time <code>String</code> holding the unparsed time information.
-   * @return <code>String</code> array containing the startTime at at [0], the endTime at [1] and
+   * @return <code>String</code> array containing the startTime at [0], the endTime at [1] and
    *         the period at [2].
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
    * @throws NotFoundException if the given time is not completely within the timerange of the
