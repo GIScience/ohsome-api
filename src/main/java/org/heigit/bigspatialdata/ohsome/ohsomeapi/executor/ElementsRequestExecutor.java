@@ -438,7 +438,8 @@ public class ElementsRequestExecutor {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessingUtils)}
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessor)
+   *         computeCountLengthPerimeterAreaGbB}
    */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
