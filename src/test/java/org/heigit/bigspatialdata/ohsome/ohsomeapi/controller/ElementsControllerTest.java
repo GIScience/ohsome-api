@@ -89,6 +89,27 @@ public class ElementsControllerTest {
   }
 
   @Test
+  public void getElementsGeomUnclippedSimpleFeaturesTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,line&"
+            + "keys=building&showMetadata=true&properties=unclipped&time=2019-01-02",
+        JsonNode.class);
+    assertTrue(response.getBody().get("features").size() == 0);
+  }
+
+  @Test
+  public void getElementsGeomSimpleFeaturesOtherLineTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,line&"
+        + "keys=building&showMetadata=true&time=2019-01-02", JsonNode.class);
+    assertTrue("GeometryCollection"
+        .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
+  }
+
+  @Test
   public void postElementsGeomUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();

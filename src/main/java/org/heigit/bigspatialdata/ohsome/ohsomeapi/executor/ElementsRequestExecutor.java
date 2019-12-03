@@ -454,7 +454,7 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     InputProcessingUtils utils = inputProcessor.getUtils();
     result = exeUtils.computeCountLengthPerimeterAreaGbB(requestResource,
-        processingData.getBoundaryType(), mapRed, utils);
+        processingData.getBoundaryType(), mapRed, inputProcessor);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -545,7 +545,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
         mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))

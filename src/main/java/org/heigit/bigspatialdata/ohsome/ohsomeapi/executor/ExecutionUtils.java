@@ -36,7 +36,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata.ElementsGeo
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -438,7 +437,7 @@ public class ExecutionUtils {
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, InputProcessingUtils utils) throws Exception {
+      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor iP) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -450,7 +449,7 @@ public class ExecutionUtils {
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+      mapAgg = iP.filterOnSimpleFeatures(mapAgg);
     }
     preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
