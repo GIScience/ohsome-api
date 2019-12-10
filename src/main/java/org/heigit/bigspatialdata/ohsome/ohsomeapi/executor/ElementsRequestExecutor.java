@@ -254,7 +254,8 @@ public class ElementsRequestExecutor {
         validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext) {
           properties = new TreeMap<>();
-          properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
+          // deactivating the adding of the contrib type as it could deliver false results
+          // properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
           properties.put("@validFrom", validFrom);
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
@@ -282,7 +283,8 @@ public class ElementsRequestExecutor {
         // if last contribution was not "deletion": set valid_to = t_end, add row to output list
         validTo = endTimestamp;
         properties = new TreeMap<>();
-        properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
+        // deactivating the adding of the contrib type as it could deliver false results
+        // properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
         properties.put("@validFrom", validFrom);
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
