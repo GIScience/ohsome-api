@@ -237,7 +237,8 @@ public class ElementsRequestExecutor {
         validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext) {
           properties = new TreeMap<>();
-          properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
+          // deactivating the adding of the contrib type as it could deliver false results
+          // properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
           properties.put("@validFrom", validFrom);
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
@@ -265,7 +266,8 @@ public class ElementsRequestExecutor {
         // if last contribution was not "deletion": set valid_to = t_end, add row to output list
         validTo = endTimestamp;
         properties = new TreeMap<>();
-        properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
+        // deactivating the adding of the contrib type as it could deliver false results
+        // properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
         properties.put("@validFrom", validFrom);
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
@@ -421,7 +423,8 @@ public class ElementsRequestExecutor {
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessingUtils)}
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessor)
+   *         computeCountLengthPerimeterAreaGbB}
    */
   public static Response executeCountLengthPerimeterAreaGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
@@ -437,7 +440,7 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     InputProcessingUtils utils = inputProcessor.getUtils();
     result = exeUtils.computeCountLengthPerimeterAreaGbB(requestResource,
-        processingData.getBoundaryType(), mapRed, utils);
+        processingData.getBoundaryType(), mapRed, inputProcessor);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -528,7 +531,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Geometry> preResult =
         mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))

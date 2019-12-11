@@ -13,10 +13,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
@@ -212,8 +209,8 @@ public class InputProcessingUtils {
    * using of the forward slash '/' is very important.
    * 
    * @param time <code>String</code> holding the unparsed time information.
-   * @return <code>String</code> array containing the startTime at at [0], the endTime at [1] and
-   *         the period at [2].
+   * @return <code>String</code> array containing the startTime at [0], the endTime at [1] and the
+   *         period at [2].
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
    * @throws NotFoundException if the given time is not completely within the timerange of the
    *         underlying data
@@ -365,39 +362,13 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
-   *
-   * @return MapReducer with filtered geometries
-   */
-  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed,
-      ProcessingData processingData) {
-    Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    //noinspection unchecked - filter always returns the same mappable type T
-    return (T) mapRed.filter(data -> {
-      if (data instanceof OSMEntitySnapshot) {
-        Geometry snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
-        return checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
-      } else if (data instanceof OSMContribution) {
-        Geometry contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
-        Geometry contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
-        return contribGeomBefore != null
-            && checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
-            || contribGeomAfter != null
-            && checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
-      } else {
-        assert false: "filterOnSimpleFeatures() called on mapped entries";
-        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
-      }
-    });
-  }
-
-  /**
    * Checks whether a geometry is of given feature type (Puntal|Lineal|Polygonal).
    *
    * @param simpleFeatureTypes a set of feature types
    * @return true if the geometry matches the given simpleFeatureTypes, otherwise false
    */
-  public boolean checkGeometryOnSimpleFeatures(Geometry geom, Set<SimpleFeatureType> simpleFeatureTypes) {
+  public boolean checkGeometryOnSimpleFeatures(Geometry geom,
+      Set<SimpleFeatureType> simpleFeatureTypes) {
     return (simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal)
         || (simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal)
         || (simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal)

@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -27,9 +28,12 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
@@ -227,11 +231,9 @@ public class InputProcessor {
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
     if (processingData.containsSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-        && !processingData.isShareRatio()
-        && !processingData.isGroupByBoundary()
-        && !processingData.isFullHistory()
-    ) {
-      mapRed = utils.filterOnSimpleFeatures(mapRed, processingData);
+        && !processingData.isShareRatio() && !processingData.isGroupByBoundary()
+        && !processingData.isFullHistory()) {
+      mapRed = filterOnSimpleFeatures(mapRed);
     }
     mapRed = extractTime(mapRed, time, isSnapshot);
     mapRed = extractKeysValues(mapRed, keys, values);
@@ -484,6 +486,44 @@ public class InputProcessor {
   }
 
   /**
+   * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
+   *
+   * @return MapReducer with filtered geometries
+   */
+  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed) {
+    Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
+    // noinspection unchecked - filter always returns the same mappable type T
+    return (T) mapRed.filter(data -> {
+      if (data instanceof OSMEntitySnapshot) {
+        Geometry snapshotGeom;
+        if (unclipped) {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        }
+        return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
+      } else if (data instanceof OSMContribution) {
+        Geometry contribGeomBefore;
+        Geometry contribGeomAfter;
+        if (unclipped) {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        }
+        return contribGeomBefore != null
+            && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
+            || contribGeomAfter != null
+                && utils.checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
+      } else {
+        assert false : "filterOnSimpleFeatures() called on mapped entries";
+        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
+      }
+    });
+  }
+
+  /**
    * Checks the given keys and values parameters on their length and includes them in the
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
    * or {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
@@ -677,22 +717,22 @@ public class InputProcessor {
     }
   }
 
-  /** Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or 
+  /**
+   * Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or
    * 'multipart/form-data'. Throws a 400 - BadRequestException if an unsupported header is given.
    */
   private void checkContentTypeHeader(HttpServletRequest servletRequest) {
     String contentType = servletRequest.getHeader("content-type");
-    if (contentType == null)
-    {
+    if (contentType == null) {
       return;
     }
-    if (!contentType.contains("application/x-www-form-urlencoded") &&
-        !contentType.contains("multipart/form-data")) {
+    if (!contentType.contains("application/x-www-form-urlencoded")
+        && !contentType.contains("multipart/form-data")) {
       throw new BadRequestException("Unsupported content-type header found. Please make sure to "
           + "use either 'multipart/form-data' or 'application/x-www-form-urlencoded'.");
     }
   }
-  
+
   /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 

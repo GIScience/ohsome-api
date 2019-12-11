@@ -305,7 +305,7 @@ public class UsersRequestExecutor {
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg
         = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = utils.filterOnSimpleFeatures(mapAgg, processingData);
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;

@@ -19,8 +19,10 @@ public class MetadataRequestExecutor {
   public static MetadataResponse executeGetMetadata() {
     return new MetadataResponse(
         new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.API_VERSION, new ExtractRegion(ExtractMetadata.dataPolyJson,
-            new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp)));
+        Application.API_VERSION,
+        new ExtractRegion(ExtractMetadata.dataPolyJson,
+            new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp),
+            ExtractMetadata.replicationSequenceNumber));
   }
 
   private MetadataRequestExecutor() {
