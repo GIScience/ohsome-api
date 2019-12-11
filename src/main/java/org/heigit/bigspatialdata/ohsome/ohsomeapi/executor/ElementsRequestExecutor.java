@@ -51,7 +51,6 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.impl.osh.OSHEntityImpl;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
@@ -71,7 +70,6 @@ public class ElementsRequestExecutor {
   public static final String URL = ExtractMetadata.attributionUrl;
   public static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
-  private static final double MAX_STREAM_DATA_SIZE = 1E7;
 
   private ElementsRequestExecutor() {
     throw new IllegalStateException("Utility class");
@@ -103,19 +101,10 @@ public class ElementsRequestExecutor {
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean unclippedGeometries = inputProcessor.isUnclipped();
     if (DbConnData.db instanceof OSHDBIgnite) {
-      // do a preflight to get an approximate result data size estimation:
-      // for now just the sum of the average size of the objects versions in bytes is used
-      // if that number is larger than 10MB, then fall back to the slightly slower, but much
-      // less memory intensive streaming implementation (which is currently only available on
-      // the ignite "AffinityCall" backend).
-      Number approxResultSize = inputProcessor.processParameters()
-          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity()).map(data -> (OSHEntityImpl) data)
-          .sum(data -> data.getLength() / data.getVersions().iterator().next().getVersion());
-      if (approxResultSize.doubleValue() > MAX_STREAM_DATA_SIZE) {
-        mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
-      } else {
-        mapRed = inputProcessor.processParameters();
-      }
+      // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
+      // of result data, without buffering the whole result in memory before returning the result.
+      // This allows to write data out to the client via a chunked HTTP response.
+      mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
     } else {
       mapRed = inputProcessor.processParameters();
     }
@@ -186,17 +175,11 @@ public class ElementsRequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
-      final double maxStreamDataSize = 1E7;
-      Number approxResultSize = snapshotInputProcessor.processParameters()
-          .map(data -> ((OSMEntitySnapshot) data).getOSHEntity()).map(data -> (OSHEntityImpl) data)
-          .sum(data -> data.getLength() / data.getVersions().iterator().next().getVersion());
-      if (approxResultSize.doubleValue() > maxStreamDataSize) {
-        mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
-        mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
-      } else {
-        mapRedSnapshot = snapshotInputProcessor.processParameters();
-        mapRedContribution = inputProcessor.processParameters();
-      }
+      // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
+      // of result data, without buffering the whole result in memory before returning the result.
+      // This allows to write data out to the client via a chunked HTTP response.
+      mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
+      mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
     } else {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();

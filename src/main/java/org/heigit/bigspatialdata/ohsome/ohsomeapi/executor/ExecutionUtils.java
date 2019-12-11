@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -21,7 +24,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -86,8 +93,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
-
-  AtomicReference<Boolean> isFirst;
+  private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
 
@@ -223,31 +229,38 @@ public class ExecutionUtils {
     jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
         .writeObject(osmData);
 
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("]\\r?\\n?\\W*}\\r?\\n?\\W*$", "");
+    String scaffold = tempStream.toString("UTF-8").replaceFirst("\\s*]\\s*}\\s*$", "");
 
     servletResponse.setContentType("application/geo+json; charset=utf-8");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
-    outputStream.write(scaffold.getBytes("UTF-8"));
+    outputStream.write(scaffold.getBytes(StandardCharsets.UTF_8));
 
     ThreadLocal<ByteArrayOutputStream> outputBuffers =
         ThreadLocal.withInitial(ByteArrayOutputStream::new);
     ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
       try {
+        DefaultPrettyPrinter.Indenter indenter = new DefaultIndenter() {
+          @Override
+          public void writeIndentation(JsonGenerator g, int level) throws IOException {
+            super.writeIndentation(g, level + 1);
+          }
+        };
+        DefaultPrettyPrinter printer = new DefaultPrettyPrinter("")
+            .withArrayIndenter(indenter)
+            .withObjectIndenter(indenter);
         return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper);
+            .setCodec(objMapper)
+            .setPrettyPrinter(printer);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     });
     isFirst = new AtomicReference<>(true);
-    outputStream.print("\n");
     if (isFullHistory) {
-      contributionStream =
-          writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
+      writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
     }
-    snapshotStream =
-        writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
-    outputStream.print("\n  ]\n}\n");
+    writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
+    outputStream.print("]\n}\n");
     servletResponse.flushBuffer();
   }
 
@@ -1069,31 +1082,54 @@ public class ExecutionUtils {
     return new ImmutablePair<>(columnNames, rows);
   }
 
-  /** Fills the given stream with output data. */
-  private Stream<org.wololo.geojson.Feature> writeStreamResponse(
-      ThreadLocal<JsonGenerator> outputJsonGen, Stream<org.wololo.geojson.Feature> stream,
-      ThreadLocal<ByteArrayOutputStream> outputBuffers, ServletOutputStream outputStream) {
-    stream.map(data -> {
-      try {
-        outputBuffers.get().reset();
-        outputJsonGen.get().writeObject(data);
-        return outputBuffers.get().toByteArray();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).sequential().forEach(data -> {
-      try {
-        if (isFirst.get()) {
-          isFirst.set(false);
-        } else {
-          outputStream.print(",");
+  /** Fills the given stream with output data using multiple parallel threads. */
+  private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
+      Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
+      final ServletOutputStream outputStream)
+      throws ExecutionException, InterruptedException, IOException {
+    ReentrantLock lock = new ReentrantLock();
+    AtomicBoolean errored = new AtomicBoolean(false);
+    ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
+    try {
+      threadPool.submit(() -> stream.parallel().map(data -> {
+        // 1. convert features to geojson
+        try {
+          outputBuffers.get().reset();
+          outputJsonGen.get().writeObject(data);
+          return outputBuffers.get().toByteArray();
+        } catch (IOException e) {
+          throw new RuntimeException(e);
         }
-        outputStream.write(data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    return stream;
+      }).forEach(data -> {
+        // 2. write data out to client
+        // only 1 thread is allowed to write at once!
+        lock.lock();
+        if (errored.get()) {
+          // when any one thread experienced an exception (e.g. a client disconnects):
+          // the "errored" flag is set and all threads abort themselves by throwing an exception
+          lock.unlock();
+          throw new RuntimeException();
+        }
+        try {
+          // separate features in the result by a comma, except for the very first one
+          if (isFirst.get()) {
+            isFirst.set(false);
+          } else {
+            outputStream.print(", ");
+          }
+          // write the feature
+          outputStream.write(data);
+        } catch (IOException e) {
+          errored.set(true);
+          throw new RuntimeException(e);
+        } finally {
+          lock.unlock();
+        }
+      })).get();
+    } finally {
+      threadPool.shutdown();
+      outputStream.flush();
+    }
   }
 
   /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */

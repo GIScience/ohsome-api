@@ -13,6 +13,7 @@ public class ProcessingData {
 
   private static Geometry dataPolyGeom;
   private static double timeout;
+  private static int numberOfDataExtractionThreads = 1;
   private RequestParameters requestParameters;
   private String requestUrl;
   private BoundaryType boundaryType;
@@ -158,7 +159,7 @@ public class ProcessingData {
   public void setSimpleFeatureTypes(Set<SimpleFeatureType> simpleFeatureTypes) {
     this.simpleFeatureTypes = (EnumSet<SimpleFeatureType>) simpleFeatureTypes;
   }
-  
+
   public static int getNumberOfClusterNodes() {
     return numberOfClusterNodes;
   }
@@ -166,7 +167,15 @@ public class ProcessingData {
   public static void setNumberOfClusterNodes(int numberOfClusterNodes) {
     ProcessingData.numberOfClusterNodes = numberOfClusterNodes;
   }
-  
+
+  public static void setNumberOfDataExtractionThreads(int numberOfDataExtractionsThreads) {
+    numberOfDataExtractionThreads = numberOfDataExtractionsThreads;
+  }
+
+  public static int getNumberOfDataExtractionThreads() {
+    return numberOfDataExtractionThreads;
+  }
+
   public boolean isShareRatio() {
     return isShareRatio;
   }

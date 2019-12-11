@@ -19,7 +19,7 @@
 	<properties>
 		<springboot.version>2.0.3.RELEASE</springboot.version>
 		<jsonpath.version>2.2.0</jsonpath.version>
-		<oshdb.version>0.5.4</oshdb.version>
+		<oshdb.version>0.5.5</oshdb.version>
 		<jacksondatatype.version>2.9.6</jacksondatatype.version>
 		<geotools.version>20.2</geotools.version>
 		<springfox.version>2.9.2</springfox.version>
