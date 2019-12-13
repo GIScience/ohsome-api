@@ -408,6 +408,10 @@ public class ExecutionUtils {
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
       boolean includeOSMMetadata, ElementsGeometry elemGeom, TagTranslator tt) {
+    if (geometry.isEmpty()) {
+      // skip invalid geometries (e.g. ways with 0 nodes)
+      return null;
+    }
     if (includeTags) {
       for (OSHDBTag oshdbTag : entity.getTags()) {
         OSMTag tag = tt.getOSMTagOf(oshdbTag);
