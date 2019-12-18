@@ -136,7 +136,6 @@ public class ElementsRequestExecutor {
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
           includeOSMMetadata, elemGeom, mapTagTranslator.get());
     });
-    Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.",
@@ -144,7 +143,9 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
-    exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
+    try (Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull)) {
+      exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
+    }
   }
 
   /**
@@ -308,8 +309,6 @@ public class ElementsRequestExecutor {
             return Collections.emptyList();
           }
         });
-    Stream<Feature> contributionStream = contributionPreResult.stream().filter(Objects::nonNull);
-    Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.",
@@ -317,8 +316,14 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
-    exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
-        contributionStream);
+    try (
+        Stream<Feature> contributionStream = contributionPreResult.stream()
+            .filter(Objects::nonNull);
+        Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull)
+    ) {
+      exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
+          contributionStream);
+    }
   }
 
   /**
