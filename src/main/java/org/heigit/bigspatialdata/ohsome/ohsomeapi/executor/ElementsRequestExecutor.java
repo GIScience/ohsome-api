@@ -135,7 +135,7 @@ public class ElementsRequestExecutor {
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
           includeOSMMetadata, elemGeom, mapTagTranslator.get());
-    });
+    }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "OSM data as GeoJSON features.",
@@ -143,7 +143,7 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
-    try (Stream<Feature> streamResult = preResult.stream().filter(Objects::nonNull)) {
+    try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
     }
   }
@@ -280,7 +280,7 @@ public class ElementsRequestExecutor {
         }
       }
       return output;
-    });
+    }).filter(Objects::nonNull);
     MapReducer<Feature> snapshotPreResult = null;
     // handles cases where valid_from = t_start, valid_to = t_end
     snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
@@ -308,7 +308,7 @@ public class ElementsRequestExecutor {
           } else {
             return Collections.emptyList();
           }
-        });
+        }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.",
@@ -317,9 +317,8 @@ public class ElementsRequestExecutor {
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (
-        Stream<Feature> contributionStream = contributionPreResult.stream()
-            .filter(Objects::nonNull);
-        Stream<Feature> snapshotStream = snapshotPreResult.stream().filter(Objects::nonNull)
+        Stream<Feature> contributionStream = contributionPreResult.stream();
+        Stream<Feature> snapshotStream = snapshotPreResult.stream()
     ) {
       exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
           contributionStream);
