@@ -33,7 +33,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -120,7 +119,6 @@ public class ElementsRequestExecutor {
     }
     final MapReducer<Feature> preResult;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
@@ -134,7 +132,7 @@ public class ElementsRequestExecutor {
         geom = snapshot.getGeometryUnclipped();
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
-          includeOSMMetadata, elemGeom, mapTagTranslator.get());
+          includeOSMMetadata, elemGeom);
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
@@ -164,7 +162,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
    *         parseISODateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
+   *         {@link #streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream
    *         streamElementsResponse}
    */
   public static void executeElementsFullHistory(ElementsGeometry elemGeom,
@@ -202,7 +200,6 @@ public class ElementsRequestExecutor {
     }
     MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    RemoteTagTranslator mapTagTranslator = DbConnData.mapTagTranslator;
     inputProcessor.processPropertiesParam();
     InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
@@ -246,7 +243,7 @@ public class ElementsRequestExecutor {
             if (!processingData.containsSimpleFeatureTypes()
                 || utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes)) {
               output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                  includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+                  includeTags, includeOSMMetadata, elemGeom));
             }
           }
         }
@@ -275,7 +272,7 @@ public class ElementsRequestExecutor {
           if (!processingData.containsSimpleFeatureTypes()
               || utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes)) {
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+                includeTags, includeOSMMetadata, elemGeom));
           }
         }
       }
@@ -304,7 +301,7 @@ public class ElementsRequestExecutor {
           if (!processingData.containsSimpleFeatureTypes()
               || utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes)) {
             return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
-                keysInt, includeTags, includeOSMMetadata, elemGeom, mapTagTranslator.get()));
+                keysInt, includeTags, includeOSMMetadata, elemGeom));
           } else {
             return Collections.emptyList();
           }
