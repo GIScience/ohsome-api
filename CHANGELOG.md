@@ -4,6 +4,8 @@
 
 * Remove of userids parameter and /groupBy/user resource (#51)
 * New category 'total' in response for /users/count/groupBY/tag|key (41d0c830)
+* Deactivating contribution types in full-history response (1d7a1ec7)
+* OSHDB version 0.5.5 (43dd4133)
 
 ### New Features
 
@@ -11,7 +13,7 @@
 * Implementing cache logic used via HTTP headers (#52)
 * Parameter timeout to define custom timeout for request (8ebec3ba)
 * Nested group-by resource: /groupBy/boundary/groupBy/tag (cb82b9f6)
-* Implementing simple feature types support (fba76544)
+* Implementing simple feature types support (fba76544, c2dcc837)
 
 ### Bug Fixes
 
@@ -19,7 +21,9 @@
 * Request parameter usage (#48)
 * Content type header and encoding of csv response (#49)
 * Proper request encoding if encoding is not defined (#53)
-* Several other bugs (04a798b5, 01eca91f, 585933c7)
+* Wrong response when same geometry is used for different input features (#56)
+* Not fully working unclipped property for data extraction (#62, #65)
+* Several other bugs (04a798b5, 01eca91f, 585933c7, 16aec329)
 
 ### Performance and Code Quality
 
@@ -29,6 +33,7 @@
 * Refactoring of several code parts (e.g.: 5a8fba0c, 42064696, 67ef11fb, 5230de69)
 * Adding of csv output tests (7982338a)
 * Adding of Ignite cluster nodes check on runtime (bc8e6fdf)
+* Improving data extraction processing (3401db9d, 4f438fd5, f19e5b2b)
 
 ### Other Changes
 
@@ -42,6 +47,7 @@
 
 * Springfox to 2.9.2, which results in new Swagger-UI version (93b4e55d)
 * OSHDB to 0.5.0-SNAPSHOT (b5ff6195)
+* Gzip compression for GeoJSON response (83c43fca)
 
 ### New Features
 
