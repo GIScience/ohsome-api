@@ -1,5 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
@@ -98,6 +100,12 @@ public class Application implements ApplicationRunner {
                 throw new RuntimeException(e);
               }
             });
+            HikariConfig hikariConfig = new HikariConfig();
+            hikariConfig.setJdbcUrl(jdbcParam[1]);
+            hikariConfig.setUsername(jdbcParam[2]);
+            hikariConfig.setPassword(jdbcParam[3]);
+            hikariConfig.setMaximumPoolSize(numberOfDataExtractionThreads);
+            DbConnData.keytablesDbPoolConfig = hikariConfig;
             break;
           case "database.multithreading":
             if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("false")) {

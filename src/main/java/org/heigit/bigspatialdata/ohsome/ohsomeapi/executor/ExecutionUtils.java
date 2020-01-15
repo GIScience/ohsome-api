@@ -9,10 +9,12 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
+import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -1096,8 +1098,22 @@ public class ExecutionUtils {
   private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
       final ServletOutputStream outputStream
-  ) throws ExecutionException, InterruptedException, IOException, OSHDBKeytablesNotFoundException {
-    TagTranslator tt = new TagTranslator(DbConnData.keytables.getConnection());
+  ) throws ExecutionException, InterruptedException, IOException {
+    ThreadLocal<TagTranslator> tts;
+    HikariDataSource keytablesConnectionPool;
+    if (DbConnData.keytablesDbPoolConfig != null) {
+      keytablesConnectionPool = new HikariDataSource(DbConnData.keytablesDbPoolConfig);
+      tts = ThreadLocal.withInitial(() -> {
+        try {
+          return new TagTranslator(keytablesConnectionPool.getConnection());
+        } catch (OSHDBKeytablesNotFoundException | SQLException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    } else {
+      keytablesConnectionPool = null;
+      tts = ThreadLocal.withInitial(() -> DbConnData.tagTranslator);
+    }
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean errored = new AtomicBoolean(false);
     ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
@@ -1111,7 +1127,7 @@ public class ExecutionUtils {
           String key = tag.getKey();
           if (key.charAt(0) != '@') {
             keysToDelete.add(key);
-            tagsToAdd.add(tt.getOSMTagOf((OSHDBTag) tag.getValue()));
+            tagsToAdd.add(tts.get().getOSMTagOf((OSHDBTag) tag.getValue()));
           }
         }
         tags.keySet().removeAll(keysToDelete);
@@ -1155,6 +1171,9 @@ public class ExecutionUtils {
     } finally {
       threadPool.shutdown();
       outputStream.flush();
+      if (keytablesConnectionPool != null) {
+        keytablesConnectionPool.close();
+      }
     }
   }
 

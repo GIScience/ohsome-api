@@ -146,6 +146,12 @@
 			<artifactId>commons-csv</artifactId>
 			<version>${apachecommons-csv.version}</version>
 		</dependency>
+		<!-- hikari database connection pool -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>3.4.2</version>
+		</dependency>
 
   </dependencies>
 
