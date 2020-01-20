@@ -50,7 +50,6 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
@@ -223,8 +222,7 @@ public class ExecutionUtils {
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
-      Stream<org.wololo.geojson.Feature> contributionStream
-  ) throws Exception {
+      Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -250,12 +248,10 @@ public class ExecutionUtils {
             super.writeIndentation(g, level + 1);
           }
         };
-        DefaultPrettyPrinter printer = new DefaultPrettyPrinter("")
-            .withArrayIndenter(indenter)
-            .withObjectIndenter(indenter);
+        DefaultPrettyPrinter printer =
+            new DefaultPrettyPrinter("").withArrayIndenter(indenter).withObjectIndenter(indenter);
         return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper)
-            .setPrettyPrinter(printer);
+            .setCodec(objMapper).setPrettyPrinter(printer);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -419,8 +415,6 @@ public class ExecutionUtils {
     }
     if (includeTags) {
       for (OSHDBTag oshdbTag : entity.getTags()) {
-        //OSMTag tag = tt.getOSMTagOf(oshdbTag);
-        //properties.put(tag.getKey(), tag.getValue());
         properties.put(String.valueOf(oshdbTag.getKey()), oshdbTag);
       }
     } else if (keysInt.length != 0) {
@@ -430,8 +424,6 @@ public class ExecutionUtils {
         int tagValueId = tags[i + 1];
         for (int key : keysInt) {
           if (tagKeyId == key) {
-            //OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-            //properties.put(tag.getKey(), tag.getValue());
             properties.put(String.valueOf(tagKeyId), new OSHDBTag(tagKeyId, tagValueId));
             break;
           }
@@ -1097,8 +1089,8 @@ public class ExecutionUtils {
   /** Fills the given stream with output data using multiple parallel threads. */
   private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
-      final ServletOutputStream outputStream
-  ) throws ExecutionException, InterruptedException, IOException {
+      final ServletOutputStream outputStream)
+      throws ExecutionException, InterruptedException, IOException {
     ThreadLocal<TagTranslator> tts;
     HikariDataSource keytablesConnectionPool;
     if (DbConnData.keytablesDbPoolConfig != null) {

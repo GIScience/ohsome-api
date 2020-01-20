@@ -1,7 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb;
 
 import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
