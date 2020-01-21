@@ -14,8 +14,10 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 
@@ -36,6 +38,12 @@ public class GetControllerTest {
     params.addAll(Arrays.asList(TestProperties.DB_FILE_PATH_PROPERTY.split(" ")));
     // this instance gets reused by all of the following @Test methods
     Application.main(params.toArray(new String[0]));
+  }
+
+  /** Stops this application context. */
+  @AfterClass
+  public static void applicationMainShutdown() {
+    SpringApplication.exit(Application.getApplicationContext(), () -> 0);
   }
 
   /** Method to get response body as String */
