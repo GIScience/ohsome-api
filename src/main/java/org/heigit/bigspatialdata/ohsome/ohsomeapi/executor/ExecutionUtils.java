@@ -9,10 +9,12 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
+import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.Description;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -79,6 +82,7 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
+import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
@@ -219,7 +223,6 @@ public class ExecutionUtils {
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
       Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
-
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -245,12 +248,10 @@ public class ExecutionUtils {
             super.writeIndentation(g, level + 1);
           }
         };
-        DefaultPrettyPrinter printer = new DefaultPrettyPrinter("")
-            .withArrayIndenter(indenter)
-            .withObjectIndenter(indenter);
+        DefaultPrettyPrinter printer =
+            new DefaultPrettyPrinter("").withArrayIndenter(indenter).withObjectIndenter(indenter);
         return jsonFactory.createGenerator(outputBuffers.get(), JsonEncoding.UTF8)
-            .setCodec(objMapper)
-            .setPrettyPrinter(printer);
+            .setCodec(objMapper).setPrettyPrinter(printer);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -407,15 +408,14 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
-      boolean includeOSMMetadata, ElementsGeometry elemGeom, TagTranslator tt) {
+      boolean includeOSMMetadata, ElementsGeometry elemGeom) {
     if (geometry.isEmpty()) {
       // skip invalid geometries (e.g. ways with 0 nodes)
       return null;
     }
     if (includeTags) {
       for (OSHDBTag oshdbTag : entity.getTags()) {
-        OSMTag tag = tt.getOSMTagOf(oshdbTag);
-        properties.put(tag.getKey(), tag.getValue());
+        properties.put(String.valueOf(oshdbTag.getKey()), oshdbTag);
       }
     } else if (keysInt.length != 0) {
       int[] tags = entity.getRawTags();
@@ -424,8 +424,8 @@ public class ExecutionUtils {
         int tagValueId = tags[i + 1];
         for (int key : keysInt) {
           if (tagKeyId == key) {
-            OSMTag tag = tt.getOSMTagOf(tagKeyId, tagValueId);
-            properties.put(tag.getKey(), tag.getValue());
+            properties.put(String.valueOf(tagKeyId), new OSHDBTag(tagKeyId, tagValueId));
+            break;
           }
         }
       }
@@ -1091,11 +1091,41 @@ public class ExecutionUtils {
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
       final ServletOutputStream outputStream)
       throws ExecutionException, InterruptedException, IOException {
+    ThreadLocal<TagTranslator> tts;
+    HikariDataSource keytablesConnectionPool;
+    if (DbConnData.keytablesDbPoolConfig != null) {
+      keytablesConnectionPool = new HikariDataSource(DbConnData.keytablesDbPoolConfig);
+      tts = ThreadLocal.withInitial(() -> {
+        try {
+          return new TagTranslator(keytablesConnectionPool.getConnection());
+        } catch (OSHDBKeytablesNotFoundException | SQLException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    } else {
+      keytablesConnectionPool = null;
+      tts = ThreadLocal.withInitial(() -> DbConnData.tagTranslator);
+    }
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean errored = new AtomicBoolean(false);
     ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
     try {
       threadPool.submit(() -> stream.parallel().map(data -> {
+        // 0. resolve tags
+        Map<String, Object> tags = data.getProperties();
+        List<String> keysToDelete = new LinkedList<>();
+        List<OSMTag> tagsToAdd = new LinkedList<>();
+        for (Entry<String, Object> tag : tags.entrySet()) {
+          String key = tag.getKey();
+          if (key.charAt(0) != '@') {
+            keysToDelete.add(key);
+            tagsToAdd.add(tts.get().getOSMTagOf((OSHDBTag) tag.getValue()));
+          }
+        }
+        tags.keySet().removeAll(keysToDelete);
+        for (OSMTag tag : tagsToAdd) {
+          tags.put(tag.getKey(), tag.getValue());
+        }
         // 1. convert features to geojson
         try {
           outputBuffers.get().reset();
@@ -1133,6 +1163,9 @@ public class ExecutionUtils {
     } finally {
       threadPool.shutdown();
       outputStream.flush();
+      if (keytablesConnectionPool != null) {
+        keytablesConnectionPool.close();
+      }
     }
   }
 

@@ -1,7 +1,9 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 
+import com.zaxxer.hikari.HikariConfig;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import org.springframework.context.ApplicationContext;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
@@ -31,6 +33,11 @@ public class Application implements ApplicationRunner {
   public static final int DEFAULT_NUMBER_OF_CLUSTER_NODES = 24;
   public static final int DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS = 40;
 
+  private static ApplicationContext context;
+  public static ApplicationContext getApplicationContext() {
+    return context;
+  }
+
   /** Main method to run this SpringBootApplication. */
   public static void main(String[] args) {
     if (args == null || args.length == 0) {
@@ -41,7 +48,7 @@ public class Application implements ApplicationRunner {
     }
     try {
       preRun(new DefaultApplicationArguments(args));
-      SpringApplication.run(Application.class, args);
+      context = SpringApplication.run(Application.class, args);
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
@@ -98,6 +105,12 @@ public class Application implements ApplicationRunner {
                 throw new RuntimeException(e);
               }
             });
+            HikariConfig hikariConfig = new HikariConfig();
+            hikariConfig.setJdbcUrl(jdbcParam[1]);
+            hikariConfig.setUsername(jdbcParam[2]);
+            hikariConfig.setPassword(jdbcParam[3]);
+            hikariConfig.setMaximumPoolSize(numberOfDataExtractionThreads);
+            DbConnData.keytablesDbPoolConfig = hikariConfig;
             break;
           case "database.multithreading":
             if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("false")) {
