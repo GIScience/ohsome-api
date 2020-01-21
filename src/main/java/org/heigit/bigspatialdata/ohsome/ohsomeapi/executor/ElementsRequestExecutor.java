@@ -162,7 +162,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
    *         parseISODateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link #streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream)
+   *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
    *         streamElementsResponse}
    */
   public static void executeElementsFullHistory(ElementsGeometry elemGeom,
