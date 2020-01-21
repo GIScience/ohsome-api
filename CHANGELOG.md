@@ -34,6 +34,7 @@
 * Adding of csv output tests (7982338a)
 * Adding of Ignite cluster nodes check on runtime (bc8e6fdf)
 * Improving data extraction processing (3401db9d, 4f438fd5, f19e5b2b)
+* Optimize tag translation in data extraction requests (0683ed83)
 
 ### Other Changes
 
