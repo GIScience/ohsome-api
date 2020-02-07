@@ -433,7 +433,7 @@ public class ExecutionUtils {
   /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor iP) throws Exception {
+      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -445,7 +445,7 @@ public class ExecutionUtils {
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = iP.filterOnSimpleFeatures(mapAgg);
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {

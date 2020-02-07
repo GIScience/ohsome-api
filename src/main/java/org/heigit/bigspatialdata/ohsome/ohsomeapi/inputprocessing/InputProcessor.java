@@ -278,6 +278,7 @@ public class InputProcessor {
     return mapRed;
   }
 
+  /** Defines the simple feature types and corresponding OSM types out of the given String array. */
   public EnumSet<SimpleFeatureType> defineSimpleFeatureTypes(String[] types) {
     EnumSet<SimpleFeatureType> simpleFeatures = EnumSet.noneOf(SimpleFeatureType.class);
     for (String type : types) {
@@ -478,6 +479,7 @@ public class InputProcessor {
     }
   }
 
+  /** Returns the request URL if a GET request was sent. */
   public String getRequestUrlIfGetRequest(HttpServletRequest servletRequest) {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       return this.getRequestUrl();

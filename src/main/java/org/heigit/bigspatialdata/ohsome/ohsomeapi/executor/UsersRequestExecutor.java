@@ -290,7 +290,6 @@ public class UsersRequestExecutor {
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity)
       throws Exception {
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     inputProcessor.getProcessingData().setIsGroupByBoundary(true);
@@ -302,12 +301,13 @@ public class UsersRequestExecutor {
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     InputProcessingUtils utils = inputProcessor.getUtils();
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg
-        = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg =
+        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
-    result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result =
+        mapAgg.map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];

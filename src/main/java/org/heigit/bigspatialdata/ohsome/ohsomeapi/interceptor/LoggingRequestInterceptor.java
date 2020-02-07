@@ -24,13 +24,13 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
   @Override
   public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
       Object handler, Exception ex) {
-    String requestURI;
+    String requestUri;
     if (request.getHeader("X-REQUEST-URI") != null) {
-      requestURI = request.getHeader("X-REQUEST-URI");
+      requestUri = request.getHeader("X-REQUEST-URI");
     } else {
-      requestURI = request.getRequestURL().toString();
+      requestUri = request.getRequestURL().toString();
     }
-    logger.info("accessed URI: " + requestURI);
+    logger.info("accessed URI: " + requestUri);
     logger.info("processing time: " + (System.currentTimeMillis() - startTime));
     logger.info("response code: " + response.getStatus());
   }

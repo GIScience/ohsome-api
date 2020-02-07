@@ -1,9 +1,7 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 
-import com.zaxxer.hikari.HikariConfig;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.springframework.context.ApplicationContext;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
@@ -17,7 +15,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import com.zaxxer.hikari.HikariConfig;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
@@ -34,6 +34,7 @@ public class Application implements ApplicationRunner {
   public static final int DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS = 40;
 
   private static ApplicationContext context;
+
   public static ApplicationContext getApplicationContext() {
     return context;
   }
@@ -187,5 +188,7 @@ public class Application implements ApplicationRunner {
   }
 
   @Override
-  public void run(ApplicationArguments args) throws Exception {}
+  public void run(ApplicationArguments args) throws Exception {
+
+  }
 }

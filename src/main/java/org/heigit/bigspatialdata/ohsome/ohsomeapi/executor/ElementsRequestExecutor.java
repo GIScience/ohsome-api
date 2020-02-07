@@ -313,10 +313,8 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
-    try (
-        Stream<Feature> contributionStream = contributionPreResult.stream();
-        Stream<Feature> snapshotStream = snapshotPreResult.stream()
-    ) {
+    try (Stream<Feature> contributionStream = contributionPreResult.stream();
+        Stream<Feature> snapshotStream = snapshotPreResult.stream()) {
       exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
           contributionStream);
     }
@@ -930,11 +928,12 @@ public class ElementsRequestExecutor {
           osmTypesString, new String[] {}, new String[] {},
           servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
           servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
-      ProcessingData pD =
+      ProcessingData secondProcessingData =
           new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
-      InputProcessor iP = new InputProcessor(servletRequest, isSnapshot, isDensity);
-      iP.setProcessingData(pD);
-      mapRed = iP.processParameters();
+      InputProcessor secondInputProcessor =
+          new InputProcessor(servletRequest, isSnapshot, isDensity);
+      secondInputProcessor.setProcessingData(secondProcessingData);
+      mapRed = secondInputProcessor.processParameters();
     } else {
       mapRed = inputProcessor.processParameters();
       mapRed = mapRed.osmType(osmTypes);
@@ -1095,11 +1094,12 @@ public class ElementsRequestExecutor {
           osmTypesString, new String[] {}, new String[] {},
           servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
           servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout());
-      ProcessingData pD =
+      ProcessingData secondProcessingData =
           new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
-      InputProcessor iP = new InputProcessor(servletRequest, isSnapshot, isDensity);
-      iP.setProcessingData(pD);
-      mapRed = iP.processParameters();
+      InputProcessor secondInputProcessor =
+          new InputProcessor(servletRequest, isSnapshot, isDensity);
+      secondInputProcessor.setProcessingData(secondProcessingData);
+      mapRed = secondInputProcessor.processParameters();
     } else {
       mapRed = inputProcessor.processParameters();
       mapRed = mapRed.osmType(osmTypes);
