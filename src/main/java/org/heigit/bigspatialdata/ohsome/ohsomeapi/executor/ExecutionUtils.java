@@ -268,16 +268,9 @@ public class ExecutionUtils {
   /** Writes a response in the csv format for /groupBy requests. */
   public void writeCsvResponse(GroupByObject[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
-    CSVWriter writer;
     try {
-      servletResponse.setCharacterEncoding("UTF-8");
-      servletResponse.setContentType("text/csv");
-      if (!RequestUtils.cacheNotAllowed(processingData)) {
-        servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
-      }
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
+      servletResponse = setCsvSettingsInServletResponse(servletResponse);
+      CSVWriter writer = writeComments(servletResponse, comments);
       Pair<List<String>, List<String[]>> rows;
       if (resultSet instanceof GroupByResult[]) {
         GroupByResult result = (GroupByResult) resultSet[0];
@@ -291,8 +284,8 @@ public class ExecutionUtils {
       } else {
         rows = createCsvResponseForElementsShareGroupBy(resultSet);
       }
-      writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]));
-      writer.writeAll(rows.getRight());
+      writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
+      writer.writeAll(rows.getRight(), false);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -305,32 +298,25 @@ public class ExecutionUtils {
    */
   public void writeCsvResponse(Result[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
-    CSVWriter writer;
     try {
-      servletResponse.setCharacterEncoding("UTF-8");
-      servletResponse.setContentType("text/csv");
-      if (!RequestUtils.cacheNotAllowed(processingData)) {
-        servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
-      }
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
+      servletResponse = setCsvSettingsInServletResponse(servletResponse);
+      CSVWriter writer = writeComments(servletResponse, comments);
       if (resultSet instanceof ElementsResult[]) {
-        writer.writeNext(new String[] {"timestamp", "value"});
+        writer.writeNext(new String[] {"timestamp", "value"}, false);
         for (Result result : resultSet) {
           ElementsResult elementsResult = (ElementsResult) result;
           writer.writeNext(new String[] {elementsResult.getTimestamp(),
               String.valueOf(elementsResult.getValue())});
         }
       } else if (resultSet instanceof UsersResult[]) {
-        writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"});
+        writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
         for (Result result : resultSet) {
           UsersResult usersResult = (UsersResult) result;
           writer.writeNext(new String[] {usersResult.getFromTimestamp(),
               usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
         }
       } else if (resultSet instanceof RatioResult[]) {
-        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"});
+        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
         for (Result result : resultSet) {
           RatioResult ratioResult = (RatioResult) result;
           writer.writeNext(
@@ -347,20 +333,13 @@ public class ExecutionUtils {
   /** Writes a response in the csv format for /share requests. */
   public void writeCsvResponse(ShareResult[] resultSet, HttpServletResponse servletResponse,
       List<String[]> comments) {
-    CSVWriter writer;
     try {
-      servletResponse.setCharacterEncoding("UTF-8");
-      servletResponse.setContentType("text/csv");
-      if (!RequestUtils.cacheNotAllowed(processingData)) {
-        servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
-      }
-      writer = new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.NO_QUOTE_CHARACTER,
-          CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-      writer.writeAll(comments);
-      writer.writeNext(new String[] {"timestamp", "whole", "part"});
+      servletResponse = setCsvSettingsInServletResponse(servletResponse);
+      CSVWriter writer = writeComments(servletResponse, comments);
+      writer.writeNext(new String[] {"timestamp", "whole", "part"}, false);
       for (ShareResult shareResult : resultSet) {
         writer.writeNext(new String[] {shareResult.getTimestamp(),
-            String.valueOf(shareResult.getWhole()), String.valueOf(shareResult.getPart())});
+            String.valueOf(shareResult.getWhole()), String.valueOf(shareResult.getPart())}, false);
       }
       writer.close();
     } catch (IOException e) {
@@ -1202,6 +1181,26 @@ public class ExecutionUtils {
     feature.setProperty("timestampFrom", timestampFrom);
     feature.setProperty("timestampTo", timestampTo);
     return feature;
+  }
+
+  /** Defines character encoding, content type and cache header in given servlet response object. */
+  private HttpServletResponse setCsvSettingsInServletResponse(HttpServletResponse servletResponse) {
+    servletResponse.setCharacterEncoding("UTF-8");
+    servletResponse.setContentType("text/csv");
+    if (!RequestUtils.cacheNotAllowed(processingData)) {
+      servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
+    }
+    return servletResponse;
+  }
+
+  /** Creates a new CSVWriter, writes the given comments and returns the writer object. */
+  private CSVWriter writeComments(HttpServletResponse servletResponse, List<String[]> comments)
+      throws IOException {
+    CSVWriter writer =
+        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
+            CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+    writer.writeAll(comments, false);
+    return writer;
   }
 
   /** Enum type used in /ratio computation. */
