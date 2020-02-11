@@ -705,7 +705,7 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if the cluster still has the same amount of active server nodes, as defined on startup.
+   * Checks, if the cluster has less active server nodes, than defined on startup.
    * Throws a 503 Service Unavailable exception, in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
@@ -713,7 +713,7 @@ public class InputProcessor {
     int definedNumberOfNodes = ProcessingData.getNumberOfClusterNodes();
     int currentNumberOfNodes =
         igniteDb.getIgnite().services().clusterGroup().metrics().getTotalNodes();
-    if (definedNumberOfNodes != currentNumberOfNodes) {
+    if (currentNumberOfNodes < definedNumberOfNodes) {
       throw new ServiceUnavailableException("The cluster backend is currently not able to process "
           + "your request. Please try again later.");
     }

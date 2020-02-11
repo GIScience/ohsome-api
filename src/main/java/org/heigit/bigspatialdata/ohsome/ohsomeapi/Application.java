@@ -30,7 +30,7 @@ public class Application implements ApplicationRunner {
 
   public static final String API_VERSION = "0.9";
   public static final int DEFAULT_TIMEOUT_IN_MILLISECONDS = 100000;
-  public static final int DEFAULT_NUMBER_OF_CLUSTER_NODES = 24;
+  public static final int DEFAULT_NUMBER_OF_CLUSTER_NODES = 0;
   public static final int DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS = 40;
 
   private static ApplicationContext context;
