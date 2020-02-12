@@ -1141,10 +1141,10 @@ public class ExecutionUtils {
       })).get();
     } finally {
       threadPool.shutdown();
-      outputStream.flush();
       if (keytablesConnectionPool != null) {
         keytablesConnectionPool.close();
       }
+      outputStream.flush();
     }
   }
 
