@@ -326,39 +326,6 @@ public class PostControllerTest {
   }
 
   @Test
-  public void elementsPerimeterShareTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("time", "2015-01-01");
-    map.add("keys2", "building");
-    ResponseEntity<JsonNode> response = restTemplate
-        .postForEntity(server + port + "/elements/perimeter/share", map, JsonNode.class);
-    assertEquals(64127.65, response.getBody().get("shareResult").get(0).get("part").asDouble(),
-        1e-6);
-  }
-
-  @Test
-  public void elementsPerimeterShareGroupByBoundaryTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
-        + "49.41256,8.69304,49.42331");
-    map.add("types", "way");
-    map.add("time", "2015-01-01");
-    map.add("keys2", "building");
-    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-        server + port + "/elements/perimeter/share/groupBy/boundary", map, JsonNode.class);
-    assertEquals(108415.17, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
-            false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 1e-6);
-  }
-
-  @Test
   public void elementsPerimeterRatioTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -623,39 +590,6 @@ public class PostControllerTest {
   }
 
   @Test
-  public void elementsAreaShareTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("time", "2017-01-01");
-    map.add("keys2", "building");
-    ResponseEntity<JsonNode> response =
-        restTemplate.postForEntity(server + port + "/elements/area/share", map, JsonNode.class);
-    assertEquals(263900.49, response.getBody().get("shareResult").get(0).get("part").asDouble(),
-        1e-6);
-  }
-
-  @Test
-  public void elementsAreaShareGroupByBoundaryTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
-        + "49.41256,8.69304,49.42331");
-    map.add("types", "way");
-    map.add("time", "2017-01-01");
-    map.add("keys2", "building");
-    ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-        server + port + "/elements/area/share/groupBy/boundary", map, JsonNode.class);
-    assertEquals(356090.4, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
-            false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("neuenheim"))
-        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 1e-6);
-  }
-
-  @Test
   public void elementsAreaRatioTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -885,25 +819,6 @@ public class PostControllerTest {
     assertEquals(1.01958, Double.parseDouble(records.get(0).get("boundary1_ratio")), 0.01);
   }
 
-  @Test
-  public void elementsLengthShareCsvTest() throws IOException {
-    // expect result to have 1 entry rows with 3 columns
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bcircles", "8.664098,49.412268,70");
-    map.add("types", "way");
-    map.add("time", "2017-09-02");
-    map.add("keys", "barrier");
-    map.add("keys2", "barrier");
-    map.add("values2", "hedge");
-    map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/length/share", map);
-    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
-    assertEquals(1, Helper.getCsvRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
-    assertEquals(131.95, Double.parseDouble(records.get(0).get("part")), 0.01);
-  }
-
   // this test needs a fix in the OSHDB to work correctly
   /*@Test
   public void elementsLengthGroupByTypeCsvTest() throws IOException {
@@ -1037,26 +952,6 @@ public class PostControllerTest {
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(7, headers.size());
     assertEquals(0.5, Double.parseDouble(records.get(0).get("boundary2_ratio")), 0.01);
-  }
-
-  @Test
-  public void elementsPerimeterShareCsvTest() throws IOException {
-    // expect result to have 1 entry rows with 3 columns
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.677869,49.382719,8.6798,49.38466");
-    map.add("types", "way");
-    map.add("time", "2018-01-01");
-    map.add("keys", "building");
-    map.add("keys2", "shop");
-    map.add("values", "commercial");
-    map.add("values2", "supermarket");
-    map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/perimeter/share", map);
-    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
-    assertEquals(1, Helper.getCsvRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
-    assertEquals(497.21, Double.parseDouble(records.get(0).get("part")), 0.01);
   }
 
   @Test

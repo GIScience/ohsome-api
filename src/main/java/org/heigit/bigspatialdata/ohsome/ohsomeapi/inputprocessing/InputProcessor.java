@@ -4,13 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -231,7 +227,7 @@ public class InputProcessor {
     mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
     if (processingData.containsSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-        && !processingData.isShareRatio() && !processingData.isGroupByBoundary()
+        && !processingData.isRatio() && !processingData.isGroupByBoundary()
         && !processingData.isFullHistory()) {
       mapRed = filterOnSimpleFeatures(mapRed);
     }
@@ -269,7 +265,7 @@ public class InputProcessor {
         }
       } else {
         processingData.setSimpleFeatureTypes(defineSimpleFeatureTypes(types));
-        if (!processingData.isShareRatio() && (processingData.getOsmTypes().contains(OSMType.WAY)
+        if (!processingData.isRatio() && (processingData.getOsmTypes().contains(OSMType.WAY)
             || processingData.getOsmTypes().contains(OSMType.RELATION))) {
           mapRed = utils.filterOnPlanarRelations(mapRed);
         }
@@ -356,101 +352,11 @@ public class InputProcessor {
     return (Arrays.equals(keys, keys2) && Arrays.equals(values, values2));
   }
 
-  /**
-   * Adds the filter parameters from keys and values to a list as tags. Only used in the processing
-   * of /share requests.
-   */
-  public List<Pair<String, String>> addFilterKeysVals(String[] keys, String[] values,
-      String[] keys2, String[] values2) {
-    ArrayList<Pair<String, String>> tags = new ArrayList<>();
-    for (int i = 0; i < keys.length; i++) {
-      String key = keys[i];
-      Pair<String, String> tag;
-      if (i >= values.length) {
-        tag = new ImmutablePair<>(key, "");
-      } else {
-        tag = new ImmutablePair<>(key, values[i]);
-      }
-      tags.add(tag);
-    }
-    for (int i = 0; i < keys2.length; i++) {
-      String key = keys2[i];
-      Pair<String, String> tag;
-      if (i >= values2.length) {
-        tag = new ImmutablePair<>(key, "");
-      } else {
-        tag = new ImmutablePair<>(key, values2[i]);
-      }
-      tags.add(tag);
-    }
-    // sorting to have all Pair<key,""> at the end of the list
-    Collections.sort(tags, new Comparator<Pair<String, String>>() {
-      @Override
-      public int compare(Pair<String, String> p1, Pair<String, String> p2) {
-        if ("".equals(p1.getValue()) && "".equals(p2.getValue())) {
-          return 0;
-        } else if ("".equals(p1.getValue()) && !"".equals(p2.getValue())) {
-          return 1;
-        } else if (!"".equals(p1.getValue()) && "".equals(p2.getValue())) {
-          return -1;
-        } else {
-          return 0;
-        }
-      }
-    });
-    return tags;
-  }
-
-  /**
-   * Compares the given keys arrays and adds those of the first to the second, if it has some, which
-   * the second one has not. Only used in the processing of /share requests.
-   */
-  public String[] addFilterKeys(String[] keys, String[] keys2) {
-    if (keys.length == 0) {
-      return keys2;
-    }
-    if (Arrays.equals(keys, keys2)) {
-      return keys2;
-    }
-    List<String> keysList = new ArrayList<>(Arrays.asList(keys2));
-    for (String s : keys) {
-      if (!keysList.contains(s)) {
-        keysList.add(s);
-      }
-    }
-    return keysList.toArray(new String[keysList.size()]);
-  }
-
-  /**
-   * Used in /share and /ratio requests. If isShare: includes the keys and values parameters within
-   * keys2 and values2.
-   */
+  /** Used in /ratio requests. */
   public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2,
-      boolean isShare, RequestParameters requestParams) {
+      RequestParameters requestParams) {
     keys2 = createEmptyArrayIfNull(keys2);
     values2 = createEmptyArrayIfNull(values2);
-    if (isShare) {
-      List<Pair<String, String>> keys2Vals2;
-      if (requestParams.getValues().length == 0) {
-        keys2 = addFilterKeys(requestParams.getKeys(), keys2);
-      } else if (keys2.length == 0) {
-        keys2 = requestParams.getKeys();
-        values2 = requestParams.getValues();
-      } else {
-        keys2Vals2 =
-            addFilterKeysVals(requestParams.getKeys(), requestParams.getValues(), keys2, values2);
-        String[] newKeys2 = new String[keys2Vals2.size()];
-        String[] newValues2 = new String[keys2Vals2.size()];
-        for (int i = 0; i < keys2Vals2.size(); i++) {
-          Pair<String, String> tag = keys2Vals2.get(i);
-          newKeys2[i] = tag.getKey();
-          newValues2[i] = tag.getValue();
-        }
-        keys2 = newKeys2;
-        values2 =
-            Arrays.stream(newValues2).filter(value -> !"".equals(value)).toArray(String[]::new);
-      }
-    }
     return new ImmutablePair<>(keys2, values2);
   }
 
@@ -705,8 +611,8 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if the cluster has less active server nodes, than defined on startup.
-   * Throws a 503 Service Unavailable exception, in case one or more nodes are inactive.
+   * Checks, if the cluster has less active server nodes, than defined on startup. Throws a 503
+   * Service Unavailable exception, in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
     OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.db;

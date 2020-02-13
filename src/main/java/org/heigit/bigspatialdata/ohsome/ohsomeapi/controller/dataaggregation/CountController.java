@@ -13,10 +13,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -161,58 +159,6 @@ public class CountController {
   }
 
   /**
-   * Gives the share of OSM elements satisfying keys2 and values2 within items selected by types,
-   * keys and values.
-   * 
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Share of count of elements satisfying keys2 and values2 "
-          + "within elements selected by types, keys and values",
-      nickname = "countShare", response = ShareResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = "maxspeed", paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response countShare(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false, true);
-  }
-
-  /**
-   * Gives the share of OSM elements satisfying keys2 and values2 within items selected by types,
-   * keys and values grouped by the boundary.
-   * 
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "countShareGroupByBoundary", response = ShareGroupByBoundaryResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR, defaultValue = "",
-          paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/share/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countShareGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-        RequestResource.COUNT, servletRequest, servletResponse, true, false, true);
-  }
-
-  /**
    * Gives the density of OSM elements (number of items divided by the total area in
    * square-kilometers).
    * 
@@ -346,8 +292,8 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
+        servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -375,7 +321,7 @@ public class CountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-        RequestResource.COUNT, servletRequest, servletResponse, true, false, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.COUNT, servletRequest, servletResponse, true, false);
   }
 }

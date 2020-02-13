@@ -158,31 +158,6 @@ public class GetControllerTest {
   }
 
   @Test
-  public void getElementsCountShareTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response =
-        restTemplate.getForEntity(server + port + "/elements/count/share?bboxes=8.67859,"
-            + "49.41189,8.67964,49.41263&types=way&time=2015-01-01&keys=building&keys2="
-            + "building&values2=yes", JsonNode.class);
-    assertEquals(9, response.getBody().get("shareResult").get(0).get("whole").asInt());
-  }
-
-  @Test
-  public void getElementsCountShareGroupByBoundaryTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/count/share/groupBy/boundary?bboxes=8.68242,49.4127,8.68702,49.41566|"
-        + "8.69716,49.41071,8.70534,49.41277&types=way&time=2016-08-11&keys=building"
-        + "&keys2=building&values2=residential", JsonNode.class);
-    assertEquals(11, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
-            false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
-        .findFirst().get().get("shareResult").get(0).get("part").asInt());
-  }
-
-  @Test
   public void getElementsCountRatioTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
@@ -363,33 +338,6 @@ public class GetControllerTest {
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("highway=path"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
-  }
-
-  @Test
-  public void getElementsLengthShareTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/length/share?bboxes=8.68297,49.40863,8.69121,49.41016&types=way"
-            + "&time=2016-07-25&keys2=highway",
-        JsonNode.class);
-    assertEquals(4233.37, response.getBody().get("shareResult").get(0).get("part").asDouble(),
-        1e-6);
-  }
-
-  @Test
-  public void getElementsLengthShareGroupByBoundaryTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port + "/elements"
-        + "/length/share/groupBy/boundary?bboxes=8.68297,49.40863,8.69121,49.41016|8.68477,"
-        + "49.39871,8.68949,49.40232&types=way&time=2010-02-03&keys2=highway", JsonNode.class);
-    assertTrue(response.getBody().get("shareGroupByBoundaryResult").get(1).get("shareResult").get(0)
-        .get("part").asDouble() == 3074.8);
-    assertEquals(3074.8, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("shareGroupByBoundaryResult").iterator(), Spliterator.ORDERED),
-            false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
-        .findFirst().get().get("shareResult").get(0).get("part").asDouble(), 1e-6);
   }
 
   @Test
@@ -810,33 +758,6 @@ public class GetControllerTest {
   }
 
   @Test
-  public void getElementsCountShareCsvTest() throws IOException {
-    // expect result to have 1 entry row, with 3 columns
-    String responseBody =
-        getResponseBody("/elements/count/share?" + "bboxes=8.68517,49.39356,8.68588,49.39516&"
-            + "format=csv&keys=highway&keys2=maxspeed&" + "time=2017-01-01&types=way");
-    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
-    assertEquals(1, Helper.getCsvRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
-    assertEquals(19.0, Double.parseDouble(records.get(0).get("whole")), 0);
-    assertEquals(4.0, Double.parseDouble(records.get(0).get("part")), 0);
-  }
-
-  @Test
-  public void getElementsCountShareGroupByBoundaryCsvTest() throws IOException {
-    // expect result to have 1 entry row, with columns for: timestamp + (per boundary:
-    // count of elements with key=value, count of of elements with key=value AND key2=value2)
-    String responseBody = getResponseBody(
-        "/elements/count/share/groupBy/boundary?" + "bboxes=b1:8.68593,49.39461,8.68865,49.39529|"
-            + "b2:8.68885,49.39450,8.68994,49.39536&format=csv&keys=highway&keys2=highway&"
-            + "time=2017-12-01&types=way&values2=service");
-    assertEquals(1, Helper.getCsvRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(5, headers.size());
-  }
-
-  @Test
   public void getElementsLengthGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry row, with columns for: timestamp ,(per boundary:
     // remainder , value 1 , ... , value N)
@@ -921,21 +842,6 @@ public class GetControllerTest {
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
     assertEquals(0.041629, Double.parseDouble(records.get(0).get("ratio")), 0.01);
-  }
-
-  @Test
-  public void getElementsAreaShareGroupByBoundaryCsvTest() throws IOException {
-    // expect result to have 1 entry row, with 5 columns
-    // (timestamp, per boundary 2 columns)
-    String responseBody = getResponseBody(
-        "/elements/area/share/groupBy/" + "boundary?bboxes=8.68275,49.39993,8.68722,"
-            + "49.40517|8.6874,49.39996,8.69188,49.40521&format=csv&keys=leisure&"
-            + "keys2=leisure&time=2018-01-01&types=way&types2=way&values2=playground");
-    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
-    assertEquals(1, Helper.getCsvRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(5, headers.size());
-    assertEquals(612.76, Double.parseDouble(records.get(0).get("boundary2_part")), 0.01);
   }
 
   @Test
