@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation;
 
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -13,10 +14,8 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -156,56 +155,6 @@ public class AreaController {
   }
 
   /**
-   * Gives the area of items satisfying keys, values (plus other parameters) and part of items
-   * satisfying keys2, values2 (plus other parameters).
-   * 
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(
-      value = "Share of area of elements satisfying keys2 and values2 "
-          + "within elements selected by types, keys and values",
-      nickname = "areaShare", response = ShareResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/share", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response areaShare(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.AREA,
-        servletRequest, servletResponse, true, false, true);
-  }
-
-  /**
-   * Gives the area of items satisfying keys, values (plus other parameters) and part of items
-   * satisfying keys2, values2 (plus other parameters), grouped by the boundary.
-   * 
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
-   */
-  @ApiOperation(value = "Share results of OSM elements grouped by the boundary",
-      nickname = "areaShareGroupByBoundary", response = ShareGroupByBoundaryResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = "addr:street", paramType = "query", dataType = "string", required = true),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/share/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response areaShareGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-        RequestResource.AREA, servletRequest, servletResponse, true, false, true);
-  }
-
-  /**
    * Gives the density of OSM elements (area of items divided by the total area in
    * square-kilometers).
    * 
@@ -337,8 +286,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatio(RequestResource.AREA,
-        servletRequest, servletResponse, true, false, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.AREA,
+        servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -365,7 +314,7 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
-        RequestResource.AREA, servletRequest, servletResponse, true, false, false);
+    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
+        RequestResource.AREA, servletRequest, servletResponse, true, false);
   }
 }

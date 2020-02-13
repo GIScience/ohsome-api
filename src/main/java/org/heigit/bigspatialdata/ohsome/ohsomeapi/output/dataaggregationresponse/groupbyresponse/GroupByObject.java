@@ -9,8 +9,6 @@ import io.swagger.annotations.ApiModelProperty;
  * GroupByResult}</li>
  * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult
  * RatioGroupByResult}</li>
- * <li>{@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByResult
- * ShareGroupByResult}</li>
  * </ul>
  */
 public abstract class GroupByObject {

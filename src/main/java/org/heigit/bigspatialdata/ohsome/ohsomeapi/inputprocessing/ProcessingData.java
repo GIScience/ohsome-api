@@ -28,14 +28,14 @@ public class ProcessingData {
   private boolean containsSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
   private static int numberOfClusterNodes;
-  private boolean isShareRatio;
+  private boolean isRatio;
   private boolean isGroupByBoundary;
   private boolean isFullHistory;
 
   public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
     this.requestUrl = requestUrl;
-    this.isShareRatio = false;
+    this.isRatio = false;
     this.isGroupByBoundary = false;
     this.isFullHistory = false;
   }
@@ -176,8 +176,8 @@ public class ProcessingData {
     return numberOfDataExtractionThreads;
   }
 
-  public boolean isShareRatio() {
-    return isShareRatio;
+  public boolean isRatio() {
+    return isRatio;
   }
 
   public boolean isGroupByBoundary() {
@@ -188,8 +188,8 @@ public class ProcessingData {
     return isFullHistory;
   }
 
-  public void setIsShareRatio(boolean isShareRatio) {
-    this.isShareRatio = isShareRatio;
+  public void setIsRatio(boolean isRatio) {
+    this.isRatio = isRatio;
   }
 
   public void setIsGroupByBoundary(boolean isGroupByBoundary) {

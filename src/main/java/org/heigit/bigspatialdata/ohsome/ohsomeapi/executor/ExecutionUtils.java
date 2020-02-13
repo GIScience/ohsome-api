@@ -58,14 +58,10 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ShareResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByBoundaryResponse;
-import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.ShareGroupByResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
@@ -279,11 +275,9 @@ public class ExecutionUtils {
         } else {
           rows = createCsvResponseForElementsGroupBy(resultSet);
         }
-      } else if (resultSet instanceof RatioGroupByResult[]) {
-        rows = createCsvResponseForElementsRatioGroupBy(resultSet);
       } else {
-        rows = createCsvResponseForElementsShareGroupBy(resultSet);
-      }
+        rows = createCsvResponseForElementsRatioGroupBy(resultSet);
+      } 
       writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
       writer.writeAll(rows.getRight(), false);
       writer.close();
@@ -323,23 +317,6 @@ public class ExecutionUtils {
               new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
                   String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
         }
-      }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /** Writes a response in the csv format for /share requests. */
-  public void writeCsvResponse(ShareResult[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    try {
-      servletResponse = setCsvSettingsInServletResponse(servletResponse);
-      CSVWriter writer = writeComments(servletResponse, comments);
-      writer.writeNext(new String[] {"timestamp", "whole", "part"}, false);
-      for (ShareResult shareResult : resultSet) {
-        writer.writeNext(new String[] {shareResult.getTimestamp(),
-            String.valueOf(shareResult.getWhole()), String.valueOf(shareResult.getPart())}, false);
       }
       writer.close();
     } catch (IOException e) {
@@ -610,25 +587,6 @@ public class ExecutionUtils {
         }
         features[i] = feature;
       }
-    } else if (results instanceof ShareGroupByResult[]) {
-      ShareGroupByResult[] groupByResults = (ShareGroupByResult[]) results;
-      int resultLength = groupByResults[0].getShareResult().length;
-      int featuresLength = groupByResultsLength * resultLength;
-      features = new Feature[featuresLength];
-      for (int i = 0; i < featuresLength; i++) {
-        ShareResult result = groupByResults[groupByResultCount].getShareResult()[tstampCount];
-        String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-        feature.setProperty("whole", result.getWhole());
-        feature.setProperty("part", result.getPart());
-        feature.setGeometry(geojsonGeoms[groupByResultCount]);
-        tstampCount++;
-        if (tstampCount == resultLength) {
-          tstampCount = 0;
-          groupByResultCount++;
-        }
-        features[i] = feature;
-      }
     } else {
       RatioGroupByResult[] groupByResults = (RatioGroupByResult[]) results;
       int resultLength = groupByResults[0].getRatioResult().length;
@@ -696,13 +654,13 @@ public class ExecutionUtils {
   }
 
   /**
-   * Fills the result value arrays for the share|ratio/groupBy/boundary response.
+   * Fills the result value arrays for the ratio/groupBy/boundary response.
    * 
    * @param resultSet <code>Set</code> containing the result values
    * @param df <code>DecimalFormat</code> defining the number of digits of the result values
    * @return <code>Double[]</code> containing the formatted result values
    */
-  public Double[] fillElementsShareRatioGroupByBoundaryResultValues(
+  public Double[] fillElementsRatioGroupByBoundaryResultValues(
       Set<? extends Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> resultSet,
       DecimalFormat df) {
     Double[] resultValues = new Double[resultSet.size()];
@@ -778,32 +736,6 @@ public class ExecutionUtils {
         Application.API_VERSION, metadata, resultSet);
   }
 
-  /** Creates a ShareResponse. */
-  public Response createShareResponse(String[] timeArray, Double[] value1, Double[] value2,
-      long startTime, RequestResource reqRes, String requestUrl,
-      HttpServletResponse servletResponse) {
-    ShareResult[] resultSet = new ShareResult[timeArray.length];
-    for (int i = 0; i < timeArray.length; i++) {
-      resultSet[i] = new ShareResult(timeArray[i], value1[i], value2[i]);
-    }
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          Description.countLengthPerimeterAreaShare(reqRes.getLabel(), reqRes.getUnit()),
-          requestUrl);
-    }
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(ElementsRequestExecutor.URL,
-          ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return new ShareResponse(
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.API_VERSION, metadata, resultSet);
-  }
-
   /** Creates a RatioGroupByBoundaryResponse. */
   public Response createRatioGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
       Double[] resultValues1, Double[] resultValues2, long startTime, RequestResource reqRes,
@@ -849,47 +781,6 @@ public class ExecutionUtils {
       return null;
     }
     return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
-        groupByResultSet);
-  }
-
-  /** Creates a RatioGroupByBoundaryResponse. */
-  public Response createShareGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
-      Double[] resultValues1, Double[] resultValues2, long startTime, RequestResource reqRes,
-      String requestUrl, HttpServletResponse servletResponse) {
-    Metadata metadata = null;
-    int boundaryIdsLength = boundaryIds.length;
-    int timeArrayLenth = timeArray.length;
-    ShareGroupByResult[] groupByResultSet = new ShareGroupByResult[boundaryIdsLength];
-    for (int i = 0; i < boundaryIdsLength; i++) {
-      Object groupByName = boundaryIds[i];
-      ShareResult[] shareResultSet = new ShareResult[timeArrayLenth];
-      int innerCount = 0;
-      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-        shareResultSet[innerCount] =
-            new ShareResult(timeArray[innerCount], resultValues1[j], resultValues2[j]);
-        innerCount++;
-      }
-      groupByResultSet[i] = new ShareGroupByResult(groupByName, shareResultSet);
-    }
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaShareGroupByBoundary(
-          reqRes.getLabel(), reqRes.getUnit()), requestUrl);
-    }
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    Attribution attribution =
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
-    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
-      GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
-      return ShareGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      writeCsvResponse(groupByResultSet, servletResponse,
-          createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
-              Application.API_VERSION, metadata));
-      return null;
-    }
-    return new ShareGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
   }
 
@@ -992,40 +883,6 @@ public class ExecutionUtils {
           rows.get(j)[count] = String.valueOf(ratioResult.getValue());
           rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
           rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
-        }
-      }
-    }
-    return new ImmutablePair<>(columnNames, rows);
-  }
-
-  /**
-   * Creates the csv response for /elements/_/share/groupBy requests.
-   * 
-   * @param resultSet <code>GroupByObject</code> array containing <code>ShareGroupByResult</code>
-   *        objects containing <code>ShareResult</code> objects
-   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
-   */
-  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsShareGroupBy(
-      GroupByObject[] resultSet) {
-    List<String> columnNames = new LinkedList<>();
-    columnNames.add("timestamp");
-    List<String[]> rows = new LinkedList<>();
-    for (int i = 0; i < resultSet.length; i++) {
-      ShareGroupByResult shareGroupByResult = (ShareGroupByResult) resultSet[i];
-      columnNames.add(shareGroupByResult.getGroupByObject() + "_whole");
-      columnNames.add(shareGroupByResult.getGroupByObject() + "_part");
-      for (int j = 0; j < shareGroupByResult.getShareResult().length; j++) {
-        ShareResult shareResult = shareGroupByResult.getShareResult()[j];
-        if (i == 0) {
-          String[] row = new String[resultSet.length * 2 + 1];
-          row[0] = shareResult.getTimestamp();
-          row[1] = String.valueOf(shareResult.getWhole());
-          row[2] = String.valueOf(shareResult.getPart());
-          rows.add(row);
-        } else {
-          int count = i * 2 + 1;
-          rows.get(j)[count] = String.valueOf(shareResult.getWhole());
-          rows.get(j)[count + 1] = String.valueOf(shareResult.getPart());
         }
       }
     }

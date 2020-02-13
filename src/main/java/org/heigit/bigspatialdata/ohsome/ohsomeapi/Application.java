@@ -1,5 +1,6 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi;
 
+import com.zaxxer.hikari.HikariConfig;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing.ProcessingData;
@@ -17,7 +18,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import com.zaxxer.hikari.HikariConfig;
+
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the

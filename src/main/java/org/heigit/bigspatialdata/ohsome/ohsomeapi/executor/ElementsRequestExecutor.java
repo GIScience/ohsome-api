@@ -840,7 +840,7 @@ public class ElementsRequestExecutor {
   }
 
   /**
-   * Performs a count|length|perimeter|area-share|ratio calculation.
+   * Performs a count|length|perimeter|area|ratio calculation.
    * 
    * @param requestResource
    *        {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource
@@ -852,8 +852,6 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @param isShare whether this request is accessed via the /share (true), or /ratio (false)
-   *        resource
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    * @throws Exception thrown by
@@ -862,13 +860,13 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response executeCountLengthPerimeterAreaShareRatio(RequestResource requestResource,
+  public static Response executeCountLengthPerimeterAreaRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
-      boolean isDensity, boolean isShare) throws Exception {
+      boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsShareRatio(true);
+    inputProcessor.getProcessingData().setIsRatio(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -879,7 +877,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
     inputProcessor.checkKeysValues(keys2, values2);
     Pair<String[], String[]> keys2Vals2 =
-        inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParameters);
+        inputProcessor.processKeys2Vals2(keys2, values2, requestParameters);
     keys2 = keys2Vals2.getKey();
     values2 = keys2Vals2.getValue();
     Integer[] keysInt1 = new Integer[requestParameters.getKeys().length];
@@ -908,9 +906,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
     EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
         inputProcessor.defineSimpleFeatureTypes(types1);
-    if (!isShare) {
-      inputProcessor.defineTypes(types2, mapRed);
-    }
+    inputProcessor.defineTypes(types2, mapRed);
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
@@ -990,13 +986,8 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
-    if (isShare) {
-      return exeUtils.createShareResponse(timeArray, value1, value2, startTime, requestResource,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
-    } else {
-      return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
-    }
+    return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
+        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
   }
 
   /**
@@ -1012,8 +1003,6 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @param isShare whether this request is accessed via the /share (true), or /ratio (false)
-   *        resource
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Response
    *         Response}
    * @throws Exception thrown by
@@ -1022,17 +1011,16 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
-  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaShareRatioGroupByBoundary(
+  public static <P extends Geometry & Polygonal> Response executeCountLengthPerimeterAreaRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity, boolean isShare)
-      throws Exception {
+      HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setIsGroupByBoundary(true);
-    inputProcessor.getProcessingData().setIsShareRatio(true);
+    inputProcessor.getProcessingData().setIsRatio(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -1045,7 +1033,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
     inputProcessor.checkKeysValues(keys2, values2);
     Pair<String[], String[]> keys2Vals2 =
-        inputProcessor.processKeys2Vals2(keys2, values2, isShare, requestParameters);
+        inputProcessor.processKeys2Vals2(keys2, values2, requestParameters);
     keys2 = keys2Vals2.getKey();
     values2 = keys2Vals2.getValue();
     Integer[] keysInt1 = new Integer[requestParameters.getKeys().length];
@@ -1074,9 +1062,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
     EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
         inputProcessor.defineSimpleFeatureTypes(types1);
-    if (!isShare) {
-      inputProcessor.defineTypes(types2, mapRed);
-    }
+    inputProcessor.defineTypes(types2, mapRed);
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
@@ -1181,9 +1167,9 @@ public class ElementsRequestExecutor {
         timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = exeUtils.fillElementsShareRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues2 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = exeUtils.fillElementsShareRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues1 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
@@ -1207,14 +1193,8 @@ public class ElementsRequestExecutor {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
     }
-    if (isShare) {
-      return exeUtils.createShareGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
-    } else {
-      return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-          resultValues2, startTime, requestResource,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
-    }
+    return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
+        resultValues2, startTime, requestResource,
+        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
   }
 }
