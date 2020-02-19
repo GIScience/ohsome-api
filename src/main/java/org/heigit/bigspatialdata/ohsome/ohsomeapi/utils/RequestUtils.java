@@ -62,8 +62,8 @@ public class RequestUtils {
    * @return whether it is a data-extraction request, or not
    */
   public static boolean isDataExtraction(String url) {
-    return (url.contains("elementsFullHistory") || url.contains("elements/geometry")
-        || url.contains("elements/centroid") || url.contains("elements/bbox"));
+    return url.contains("elementsFullHistory") || url.contains("elements/geometry")
+        || url.contains("elements/centroid") || url.contains("elements/bbox");
   }
 
   /**
@@ -134,7 +134,7 @@ public class RequestUtils {
     if (length != 1) {
       return false;
     }
-    return (timeParameter[0].contains("//") || timeParameter[0].endsWith("/"));
+    return timeParameter[0].contains("//") || timeParameter[0].endsWith("/");
   }
 
   /**

@@ -153,11 +153,11 @@ public class ExecutionUtils {
     }
     if (!simpleFeatureTypes.isEmpty()) {
       boolean[] simpleFeatures = setRequestedSimpleFeatures(simpleFeatureTypes);
-      return matchesTags && ((simpleFeatures[0] && snapshot.getGeometry() instanceof Puntal)
-          || (simpleFeatures[1] && snapshot.getGeometry() instanceof Lineal)
-          || (simpleFeatures[2] && snapshot.getGeometry() instanceof Polygonal)
-          || (simpleFeatures[3]
-              && "GeometryCollection".equalsIgnoreCase(snapshot.getGeometry().getGeometryType())));
+      return matchesTags && simpleFeatures[0] && snapshot.getGeometry() instanceof Puntal
+          || simpleFeatures[1] && snapshot.getGeometry() instanceof Lineal
+          || simpleFeatures[2] && snapshot.getGeometry() instanceof Polygonal
+          || simpleFeatures[3]
+              && "GeometryCollection".equalsIgnoreCase(snapshot.getGeometry().getGeometryType());
     }
     return matchesTags;
   }
@@ -277,7 +277,7 @@ public class ExecutionUtils {
         }
       } else {
         rows = createCsvResponseForElementsRatioGroupBy(resultSet);
-      } 
+      }
       writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
       writer.writeAll(rows.getRight(), false);
       writer.close();
@@ -620,11 +620,11 @@ public class ExecutionUtils {
       if (isDensity) {
         results[count] = new ElementsResult(
             TimestampFormatter.getInstance().isoDateTime(entry.getKey()), Double.parseDouble(
-                df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
+                df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001))));
       } else {
         results[count] =
             new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-                Double.parseDouble(df.format((entry.getValue().doubleValue()))));
+                Double.parseDouble(df.format(entry.getValue().doubleValue())));
       }
       count++;
     }
@@ -642,7 +642,7 @@ public class ExecutionUtils {
         results[count] =
             new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 toTimestamps[count + 1], Double.parseDouble(
-                    df.format((entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
+                    df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000))));
       } else {
         results[count] = new UsersResult(
             TimestampFormatter.getInstance().isoDateTime(entry.getKey()), toTimestamps[count + 1],

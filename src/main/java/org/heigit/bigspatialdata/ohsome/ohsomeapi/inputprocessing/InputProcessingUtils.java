@@ -68,8 +68,8 @@ public class InputProcessingUtils {
         zoneNumber = 37;
       }
     }
-    String isNorth = (lat > 0) ? "6" : "7";
-    String zone = (zoneNumber < 10) ? "0" + zoneNumber : "" + zoneNumber;
+    String isNorth = lat > 0 ? "6" : "7";
+    String zone = zoneNumber < 10 ? "0" + zoneNumber : "" + zoneNumber;
     return "EPSG:32" + isNorth + zone;
   }
 
@@ -369,11 +369,11 @@ public class InputProcessingUtils {
    */
   public boolean checkGeometryOnSimpleFeatures(Geometry geom,
       Set<SimpleFeatureType> simpleFeatureTypes) {
-    return (simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal)
-        || (simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal)
-        || (simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal)
-        || (simpleFeatureTypes.contains(SimpleFeatureType.OTHER)
-            && GEOMCOLLTYPE.equalsIgnoreCase(geom.getGeometryType()));
+    return simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal
+        || simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal
+        || simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal
+        || simpleFeatureTypes.contains(SimpleFeatureType.OTHER)
+            && GEOMCOLLTYPE.equalsIgnoreCase(geom.getGeometryType());
   }
 
   /**

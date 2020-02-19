@@ -349,7 +349,7 @@ public class InputProcessor {
    */
   public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
       String[] values2) {
-    return (Arrays.equals(keys, keys2) && Arrays.equals(values, values2));
+    return Arrays.equals(keys, keys2) && Arrays.equals(values, values2);
   }
 
   /** Used in /ratio requests. */
