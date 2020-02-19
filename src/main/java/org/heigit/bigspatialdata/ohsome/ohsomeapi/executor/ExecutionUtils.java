@@ -153,11 +153,11 @@ public class ExecutionUtils {
     }
     if (!simpleFeatureTypes.isEmpty()) {
       boolean[] simpleFeatures = setRequestedSimpleFeatures(simpleFeatureTypes);
-      return matchesTags && simpleFeatures[0] && snapshot.getGeometry() instanceof Puntal
+      return matchesTags && (simpleFeatures[0] && snapshot.getGeometry() instanceof Puntal
           || simpleFeatures[1] && snapshot.getGeometry() instanceof Lineal
           || simpleFeatures[2] && snapshot.getGeometry() instanceof Polygonal
           || simpleFeatures[3]
-              && "GeometryCollection".equalsIgnoreCase(snapshot.getGeometry().getGeometryType());
+              && "GeometryCollection".equalsIgnoreCase(snapshot.getGeometry().getGeometryType()));
     }
     return matchesTags;
   }
