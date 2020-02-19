@@ -2,7 +2,8 @@
 
 ### Prominent Changes
 
-* Remove of userids parameter and /groupBy/user resource (#51)
+* Removal of userids parameter and /groupBy/user resource (#51)
+* Removal of /share resource (452ea663)
 * New category 'total' in response for /users/count/groupBY/tag|key (41d0c830)
 * Deactivating contribution types in full-history response (1d7a1ec7)
 * OSHDB version 0.5.5 (43dd4133)
@@ -35,6 +36,7 @@
 * Adding of Ignite cluster nodes check on runtime (bc8e6fdf)
 * Improving data extraction processing (3401db9d, 4f438fd5, f19e5b2b)
 * Optimize tag translation in data extraction requests (0683ed83)
+* Applying diverse checkstyle, pmd, etc. suggestions (9de5240a, 171ebd5d)
 
 ### Other Changes
 
