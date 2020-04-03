@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.utils.RequestUtils;
@@ -64,12 +67,15 @@ public class InputProcessor {
   private boolean includeTags;
   private boolean includeOSMMetadata;
   private boolean unclipped;
+  private final String[] genericParameters = {"bboxes", "bcircles", "bpolys", "types", "keys",
+      "values", "timeout", "time", "format", "showMetadata"};
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
     checkContentTypeHeader(servletRequest);
+    checkParameters(servletRequest);
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
     processingData = new ProcessingData(
@@ -642,6 +648,81 @@ public class InputProcessor {
   }
 
   /**
+   * Checks, if the request parameters are valid. Throws a 400 - BadRequestException and suggests
+   * possible parameters based on fuzzy matching scores if the request parameters are not valid.
+   */
+  private void checkParameters(HttpServletRequest servletRequest) throws BadRequestException {
+    String[] possibleParameters;
+    for (Map.Entry<String, String[]> entry : servletRequest.getParameterMap().entrySet()) {
+      String parameterName = entry.getKey();
+      if (isGenericParameter(parameterName) == false) {
+        RequestResource resource = checkResource(servletRequest);
+        String[] specificParameters = getResourceSpecificParameters(servletRequest);
+        if (resource.equals(RequestResource.AREA)) {
+          throw new BadRequestException(
+              StringSimilarity.findSimilarParameters(parameterName, genericParameters));
+        } else {
+          possibleParameters = genericParameters;
+          List<String> arrList = new ArrayList<String>(Arrays.asList(possibleParameters));
+          for (int i = 0; i < specificParameters.length; i++) {
+            arrList.add(specificParameters[i]);
+          }
+          if (!arrList.contains(parameterName)) {
+            possibleParameters = arrList.toArray(new String[arrList.size()]);
+            throw new BadRequestException(
+                StringSimilarity.findSimilarParameters(parameterName, possibleParameters));
+          }
+        }
+      }
+    }
+  }
+
+  /** Checks, if the request parameter is a generic parameter. */
+  private boolean isGenericParameter(String parameterName) {
+    if (Arrays.asList(genericParameters).contains(parameterName)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks the kind of resource. The request resources LENGTH, PERIMETER, and COUNT are considered
+   * as AREA.
+   */
+  private RequestResource checkResource(HttpServletRequest servletRequest) {
+    String uri = servletRequest.getRequestURI();
+    if (uri.contains("/groupBy/tag")) {
+      return RequestResource.GROUPBYTAG;
+    } else if (uri.contains("/groupBy/key")) {
+      return RequestResource.GROUPBYKEY;
+    } else if (uri.contains("/ratio")) {
+      return RequestResource.RATIO;
+    } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
+      return RequestResource.DATAEXTRACTION;
+    } else {
+      return RequestResource.AREA;
+    }
+  }
+
+  /**
+   * Checks the resource and returns a list of the corresponding specific parameters. Returns an
+   * empty array if it is a generic resource (e.g. /elements/count).
+   */
+  private String[] getResourceSpecificParameters(HttpServletRequest servletRequest) {
+    String uri = servletRequest.getRequestURI();
+    if (uri.contains("/groupBy/tag")) {
+      return new String[] {"groupByKey", "groupByValues"};
+    } else if (uri.contains("/groupBy/key")) {
+      return new String[] {"groupByKeys"};
+    } else if (uri.contains("/ratio")) {
+      return new String[] {"keys2", "types2", "values2"};
+    } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
+      return new String[] {"properties"};
+    }
+    return new String[] {};
+  }
+
+  /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 
    * @return <code>Geometry</code> object of the used boundary parameter.
@@ -680,11 +761,9 @@ public class InputProcessor {
     return requestUrl;
   }
 
-
   public boolean includeTags() {
     return includeTags;
   }
-
 
   public boolean includeOSMMetadata() {
     return includeOSMMetadata;

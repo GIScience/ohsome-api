@@ -1,6 +1,8 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
+import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.Application;
+import org.heigit.bigspatialdata.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion;
@@ -16,7 +18,10 @@ public class MetadataRequestExecutor {
    * @return {@link org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse
    *         MetadataResponse}
    */
-  public static MetadataResponse executeGetMetadata() {
+  public static MetadataResponse executeGetMetadata(HttpServletRequest servletRequest) {
+    if (!servletRequest.getParameterMap().isEmpty()) {
+      throw new BadRequestException("The endpoint 'metadata' does not require parameters");
+    }
     return new MetadataResponse(
         new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
         Application.API_VERSION,

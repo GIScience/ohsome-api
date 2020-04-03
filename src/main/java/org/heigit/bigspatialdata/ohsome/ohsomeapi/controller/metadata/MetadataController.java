@@ -2,6 +2,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.MetadataRequestExecutor;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class MetadataController {
    */
   @GetMapping(produces = "application/json")
   @ApiOperation(nickname = "Metadata", value = "Metadata of the underlying OSHDB data-extract")
-  public MetadataResponse getMetadata() {
-    return MetadataRequestExecutor.executeGetMetadata();
+  public MetadataResponse getMetadata(HttpServletRequest servletRequest) {
+    return MetadataRequestExecutor.executeGetMetadata(servletRequest);
   }
 }

@@ -47,6 +47,60 @@ public class PostControllerTest {
   }
 
   /*
+   * false parameter tests
+   */
+
+  @Test
+  public void postGeneralResourceWithFalseParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("forma", "json");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count/density", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void postGeneralResourceWithSpecificParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("properties", "tags");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void postSpecificResourceWithFalseSpecificParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("sgroupByKeys", "building");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/users/count/groupBy/key", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void postSpecificResourceWithFalseGeneralParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("tim", "2014-01-01%2F2017-01-01%2FP1Y");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void postSpecificResourceWithSpecificParameterOfOtherSpecificResourceTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("groupByKeys", "building");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/users/count/groupBy/tag", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  /*
    * /elements/count tests
    */
 
@@ -820,22 +874,17 @@ public class PostControllerTest {
   }
 
   // this test needs a fix in the OSHDB to work correctly
-  /*@Test
-  public void elementsLengthGroupByTypeCsvTest() throws IOException {
-    // expect result to have 1 entry rows with 3 columns
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
-    map.add("types", "way,relation");
-    map.add("time", "2018-01-01");
-    map.add("keys", "name");
-    map.add("format", "csv");
-    String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/type", map);
-    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
-    assertEquals(1, Helper.getCsvRecords(responseBody).size());
-    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
-    assertEquals(105, Double.parseDouble(records.get(0).get("RELATION")), 0.01);
-  }*/
+  /*
+   * @Test public void elementsLengthGroupByTypeCsvTest() throws IOException { // expect result to
+   * have 1 entry rows with 3 columns MultiValueMap<String, String> map = new
+   * LinkedMultiValueMap<>(); map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
+   * map.add("types", "way,relation"); map.add("time", "2018-01-01"); map.add("keys", "name");
+   * map.add("format", "csv"); String responseBody =
+   * Helper.getPostResponseBody("/elements/length/groupBy/type", map); List<CSVRecord> records =
+   * Helper.getCsvRecords(responseBody); assertEquals(1, Helper.getCsvRecords(responseBody).size());
+   * Map<String, Integer> headers = Helper.getCsvHeaders(responseBody); assertEquals(3,
+   * headers.size()); assertEquals(105, Double.parseDouble(records.get(0).get("RELATION")), 0.01); }
+   */
 
   @Test
   public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {

@@ -21,7 +21,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 
-
 /** Test class for all of the controller classes sending GET requests. */
 public class GetControllerTest {
 
@@ -69,6 +68,62 @@ public class GetControllerTest {
   }
 
   /*
+   * False parameters tests
+   */
+
+  @Test
+  public void getGeneralResourceWithFalseParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/elements/area?type=way", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void getGeneralResourceWithSpecificParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate
+        .getForEntity(server + port + "/elements/count/density?values2=highway", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void getSpecificResourceWithFalseSpecificParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/tag?groupByKe=building", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void getSpecificResourceWithFalseGeneralParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate
+        .getForEntity(server + port + "/elements/area/groupBy/key?forma=json", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void getSpecificResourceWithSpecificParameterOfOtherSpecificResourceTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate
+        .getForEntity(server + port + "/elements/count/ratio?properties=tags", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  /*
+   * false parameter /metadata test
+   */
+
+  @Test
+  public void getMetadataParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/metadata?groupByKey=highway", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  /*
    * /elements/count tests
    */
 
@@ -80,6 +135,7 @@ public class GetControllerTest {
         + "&keys=building&values=residential&showMetadata=true", JsonNode.class);
     assertEquals(40, response.getBody().get("result").get(0).get("value").asInt());
   }
+
 
   @Test
   public void getElementsCountGroupByBoundaryTest() {
@@ -411,9 +467,9 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
             + "/elements/length/density/groupBy/boundary?bboxes=8.69079,49.40129,8.69238,49.40341|"
-            + "8.67504,49.4119,8.67813,49.41668&types=way&time=2017-05-30&key=highway",
+            + "8.67504,49.4119,8.67813,49.41668&types=way&time=2017-05-30&keys=highway",
         JsonNode.class);
-    assertEquals(74037.2, StreamSupport
+    assertEquals(48739.54, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
