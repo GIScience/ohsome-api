@@ -1,9 +1,13 @@
 package org.heigit.bigspatialdata.ohsome.ohsomeapi.executor;
 
-/** Enumeration defining the request resource (LENGTH, PERIMETER, AREA, COUNT). */
+/**
+ * Enumeration defining the request resource (LENGTH, PERIMETER, AREA, COUNT, GROUPBYTAG,
+ * GROUPBYKEY, RATIO, DATAEXTRACTION).
+ */
 public enum RequestResource {
   LENGTH("length", "meters"), PERIMETER("perimeter", "meters"), AREA("area",
-      "square meters"), COUNT("count", "absolute values");
+      "square meters"), COUNT("count", "absolute values"), GROUPBYTAG("",
+          ""), GROUPBYKEY("", ""), RATIO("", ""), DATAEXTRACTION("", "");
 
   private final String label;
   private final String unit;

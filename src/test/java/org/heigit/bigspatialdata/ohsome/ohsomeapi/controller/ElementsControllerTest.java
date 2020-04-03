@@ -3,6 +3,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /** Test class for the data extraction requests. */
 public class ElementsControllerTest {
@@ -268,5 +268,36 @@ public class ElementsControllerTest {
         .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/295135455"))
         .findFirst().get().get("properties").size());
+  }
+
+  /*
+   * false parameter tests
+   */
+  @Test
+  public void getDataExtractionWithSpecificParameterOfOtherSpecificResourceTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate
+        .getForEntity(server + port + "/elements/bbox?groupByKeys=building", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void postDataExtractionWithSpecificParameterOfOtherSpecificResourceTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("values2", "primary");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/geometry", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void postFullHistoryDataExtractionWithFalseSpecificParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("propertie", "tags");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/elementsFullHistory/geometry", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
   }
 }
