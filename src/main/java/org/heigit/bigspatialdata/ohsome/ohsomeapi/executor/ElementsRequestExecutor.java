@@ -864,10 +864,9 @@ public class ElementsRequestExecutor {
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
-    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setIsRatio(true);
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
@@ -906,7 +905,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
     EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
         inputProcessor.defineSimpleFeatureTypes(types1);
-    inputProcessor.defineTypes(types2, mapRed);
+    inputProcessor.defineTypes(types2, intermediateMapRed);
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
@@ -916,6 +915,7 @@ public class ElementsRequestExecutor {
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     ExecutionUtils tempExecutionUtils = new ExecutionUtils(processingData);
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
       RequestParameters requestParams = new RequestParameters(servletRequest.getMethod(),
@@ -932,8 +932,8 @@ public class ElementsRequestExecutor {
       mapRed = secondInputProcessor.processParameters();
     } else {
       mapRed = inputProcessor.processParameters();
-      mapRed = mapRed.osmType(osmTypes);
     }
+    mapRed = mapRed.osmType(osmTypes);
     mapRed = tempExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
         simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, OSMEntitySnapshot> preResult;
@@ -1017,11 +1017,10 @@ public class ElementsRequestExecutor {
     final long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setIsGroupByBoundary(true);
     inputProcessor.getProcessingData().setIsRatio(true);
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
@@ -1062,7 +1061,7 @@ public class ElementsRequestExecutor {
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
     EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
         inputProcessor.defineSimpleFeatureTypes(types1);
-    inputProcessor.defineTypes(types2, mapRed);
+    inputProcessor.defineTypes(types2, intermediateMapRed);
     EnumSet<OSMType> osmTypes2 =
         (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
@@ -1072,6 +1071,7 @@ public class ElementsRequestExecutor {
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
     ExecutionUtils tempExecutionUtils = new ExecutionUtils(processingData);
+    MapReducer<OSMEntitySnapshot> mapRed = null;
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
       RequestParameters requestParams = new RequestParameters(servletRequest.getMethod(),
@@ -1088,8 +1088,8 @@ public class ElementsRequestExecutor {
       mapRed = secondInputProcessor.processParameters();
     } else {
       mapRed = inputProcessor.processParameters();
-      mapRed = mapRed.osmType(osmTypes);
     }
+    mapRed = mapRed.osmType(osmTypes);
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     ArrayList<MatchType> zeroFill = new ArrayList<>();
     for (int j = 0; j < arrGeoms.size(); j++) {
