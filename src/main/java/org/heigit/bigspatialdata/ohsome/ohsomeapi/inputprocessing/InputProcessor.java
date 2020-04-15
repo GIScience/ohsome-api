@@ -230,7 +230,10 @@ public class InputProcessor {
       processingData.setGeoJsonGeoms(geoJsonGeoms);
     }
     mapRed = defineTypes(types, mapRed);
-    mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
+    // the OSM type will be set in the ratio implementation within the ElementsRequestExecutor.java
+    if (!processingData.isRatio()) {
+      mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
+    }
     if (processingData.containsSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
         && !processingData.isRatio() && !processingData.isGroupByBoundary()
