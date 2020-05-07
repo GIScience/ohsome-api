@@ -9,10 +9,10 @@
 		<version>1.2</version>
 	</parent>
 
-	<groupId>org.heigit.bigspatialdata.ohsome</groupId>
+	<groupId>org.heigit.ohsome</groupId>
 	<artifactId>ohsome-api</artifactId>
 	<name>ohsome-api</name>
-	<description>A public Web-REST-API for "ohsome" OpenStreetMap history data.</description>
+	<description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
 	<packaging>jar</packaging>
 	<version>0.9.7</version>
 
