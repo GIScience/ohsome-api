@@ -20,6 +20,9 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.heigit.ohsome.filter.FilterExpression;
+import org.heigit.ohsome.filter.FilterParser;
+import org.jparsec.error.ParserException;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
@@ -374,6 +377,19 @@ public class InputProcessingUtils {
         || simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal
         || simpleFeatureTypes.contains(SimpleFeatureType.OTHER)
             && GEOMCOLLTYPE.equalsIgnoreCase(geom.getGeometryType());
+  }
+
+  /**
+   * Tries to parse the given filter using the given parser. Catches the exception from the parser
+   * and throws a 400 BadRequestException if the filter contains wrong syntax.
+   */
+  public FilterExpression parseFilter(FilterParser fp, String filter) {
+    try {
+      return fp.parse(filter);
+    } catch (ParserException ex) {
+      throw new BadRequestException(ExceptionMessages.FILTER_SYNTAX + " Detailed error message: "
+          + ex.getMessage().replace("\n", " "));
+    }
   }
 
   /**

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,6 +39,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.filter.FilterExpression;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
@@ -53,7 +55,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation. */
-  public static Response executeCount(HttpServletRequest servletRequest,
+  public static Response count(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
@@ -70,7 +72,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCount(isDensity),
+      metadata = new Metadata(duration, Description.countUsers(isDensity),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -83,7 +85,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the OSM type. */
-  public static Response executeCountGroupByType(HttpServletRequest servletRequest,
+  public static Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
@@ -111,7 +113,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByType(isDensity),
+      metadata = new Metadata(duration, Description.countUsersGroupByType(isDensity),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -124,7 +126,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the tag. */
-  public static Response executeCountGroupByTag(HttpServletRequest servletRequest,
+  public static Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
@@ -200,7 +202,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByTag(isDensity),
+      metadata = new Metadata(duration, Description.countUsersGroupByTag(isDensity),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -213,7 +215,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the key. */
-  public static Response executeCountGroupByKey(HttpServletRequest servletRequest,
+  public static Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
@@ -273,7 +275,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByKey(isDensity),
+      metadata = new Metadata(duration, Description.countUsersGroupByKey(isDensity),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -286,7 +288,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the boundary. */
-  public static <P extends Geometry & Polygonal> Response executeCountGroupByBoundary(
+  public static <P extends Geometry & Polygonal> Response countGroupByBoundary(
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity)
       throws Exception {
     long startTime = System.currentTimeMillis();
@@ -300,11 +302,14 @@ public class UsersRequestExecutor {
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    InputProcessingUtils utils = inputProcessor.getUtils();
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
+      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result =
         mapAgg.map(OSMContribution::getContributorUserId).countUniq();
@@ -313,6 +318,7 @@ public class UsersRequestExecutor {
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
@@ -323,7 +329,7 @@ public class UsersRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.usersCountGroupByBoundary(isDensity),
+      metadata = new Metadata(duration, Description.countUsersGroupByBoundary(isDensity),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {

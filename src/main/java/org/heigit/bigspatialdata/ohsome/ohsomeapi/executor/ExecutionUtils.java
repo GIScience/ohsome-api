@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -84,6 +85,7 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.heigit.ohsome.filter.FilterExpression;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
@@ -106,28 +108,49 @@ public class ExecutionUtils {
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
-    mapRed = mapRed.filter(snapshot -> {
-      if (!snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)) {
-        return snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-      }
-      return true;
+    return mapRed.filter(snapshot -> {
+      return snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
+          || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
     });
-    return mapRed;
   }
 
-  /** Applies a filter on the given MapReducer object using the given parameters. */
+  /**
+   * Applies a filter on the given MapReducer object using the given parameters. Used in
+   * /ratio/groupBy/boundary requests.
+   */
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> snapshotFilter(
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapRed,
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
-    mapRed = mapRed.filter(snapshot -> {
-      if (!snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)) {
-        return snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-      }
-      return true;
+    return mapRed.filter(snapshot -> {
+      return snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
+          || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
     });
-    return mapRed;
+  }
+
+  /** Applies a filter on the given MapReducer object using the given filter expressions. */
+  public MapReducer<OSMEntitySnapshot> newSnapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
+      FilterExpression filterExpr1, FilterExpression filterExpr2) {
+    return mapRed.filter(snapshot -> {
+      OSMEntity entity = snapshot.getEntity();
+      return filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry())
+          || filterExpr2.applyOSMGeometry(entity, snapshot.getGeometry());
+    });
+  }
+
+  /**
+   * Applies a filter on the given MapReducer object using the given filter expressions. Used in
+   * /ratio/groupBy/boundary requests.
+   */
+  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> newSnapshotFilter(
+      MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapRed,
+      FilterExpression filterExpr1, FilterExpression filterExpr2) {
+    return mapRed.filter(snapshot -> {
+      OSMEntity entity = snapshot.getEntity();
+      return filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry())
+          || filterExpr2.applyOSMGeometry(entity, snapshot.getGeometry());
+    });
   }
 
   /** Compares the type(s) and tag(s) of the given snapshot to the given types|tags. */
@@ -155,8 +178,7 @@ public class ExecutionUtils {
       boolean[] simpleFeatures = setRequestedSimpleFeatures(simpleFeatureTypes);
       return matchesTags && (simpleFeatures[0] && snapshot.getGeometry() instanceof Puntal
           || simpleFeatures[1] && snapshot.getGeometry() instanceof Lineal
-          || simpleFeatures[2] && snapshot.getGeometry() instanceof Polygonal
-          || simpleFeatures[3]
+          || simpleFeatures[2] && snapshot.getGeometry() instanceof Polygonal || simpleFeatures[3]
               && "GeometryCollection".equalsIgnoreCase(snapshot.getGeometry().getGeometryType()));
     }
     return matchesTags;
@@ -423,6 +445,10 @@ public class ExecutionUtils {
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.containsSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
+      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
     }
     preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
@@ -722,8 +748,7 @@ public class ExecutionUtils {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.countLengthPerimeterAreaRatio(reqRes.getLabel(), reqRes.getUnit()),
-          requestUrl);
+          Description.aggregateRatio(reqRes.getLabel(), reqRes.getUnit()), requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -764,8 +789,9 @@ public class ExecutionUtils {
     }
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countLengthPerimeterAreaRatioGroupByBoundary(
-          reqRes.getLabel(), reqRes.getUnit()), requestUrl);
+      metadata = new Metadata(duration,
+          Description.aggregateRatioGroupByBoundary(reqRes.getLabel(), reqRes.getUnit()),
+          requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
     Attribution attribution =
@@ -814,6 +840,11 @@ public class ExecutionUtils {
       }
     }
     return geom;
+  }
+
+  /** Combines the two given filters with an OR operation. Used in /ratio computation. */
+  public String combineFiltersWithOr(String firstFilter, String secondFilter) {
+    return "(" + firstFilter + ") or (" + secondFilter + ")";
   }
 
   /**

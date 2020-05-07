@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.heigit.bigspatialdata</groupId>
 		<artifactId>bigspatialdata-parent</artifactId>
-		<version>1.1</version>
+		<version>1.2</version>
 	</parent>
 
 	<groupId>org.heigit.bigspatialdata.ohsome</groupId>
@@ -19,7 +19,8 @@
 	<properties>
 		<springboot.version>2.0.3.RELEASE</springboot.version>
 		<jsonpath.version>2.2.0</jsonpath.version>
-		<oshdb.version>0.5.6</oshdb.version>
+		<oshdb.version>0.5.7</oshdb.version>
+		<ohsome-filter.version>1.1.2</ohsome-filter.version>
 		<jacksondatatype.version>2.9.6</jacksondatatype.version>
 		<geotools.version>20.2</geotools.version>
 		<springfox.version>2.9.2</springfox.version>
@@ -39,7 +40,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<version>2.0.3.RELEASE</version>
+			<version>${springboot.version}</version>
 		</dependency>
 		<!-- to have a basic auth with a user+key security on first request <dependency> 
 			<groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId> 
@@ -79,6 +80,12 @@
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<!-- ohsome OSM entity filter parser + interpreter -->
+		<dependency>
+			<groupId>org.heigit.ohsome</groupId>
+			<artifactId>ohsome-filter</artifactId>
+			<version>${ohsome-filter.version}</version>
 		</dependency>
 		<!-- needed for creating a custom error reporting class -->
 		<dependency>
@@ -152,8 +159,7 @@
 			<artifactId>HikariCP</artifactId>
 			<version>3.4.2</version>
 		</dependency>
-
-  </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>

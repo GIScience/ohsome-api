@@ -39,7 +39,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.RAW, servletRequest,
+    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.RAW, servletRequest,
         servletResponse);
   }
 
@@ -61,7 +61,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.BBOX, servletRequest,
+    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.BBOX, servletRequest,
         servletResponse);
   }
 
@@ -82,7 +82,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.executeElementsFullHistory(ElementsGeometry.CENTROID, servletRequest,
+    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.CENTROID, servletRequest,
         servletResponse);
   }
 }

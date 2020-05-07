@@ -5,7 +5,7 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.output;
  */
 public class Description {
 
-  public static String countLengthPerimeterArea(boolean isDensity, String label, String unit) {
+  public static String aggregate(boolean isDensity, String label, String unit) {
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit
           + " divided by the area in square kilometers).";
@@ -13,8 +13,7 @@ public class Description {
     return "Total " + label + " of items in " + unit + ".";
   }
 
-  public static String countLengthPerimeterAreaGroupByBoundary(boolean isDensity, String label,
-      String unit) {
+  public static String aggregateGroupByBoundary(boolean isDensity, String label, String unit) {
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit
           + " divided by the area in square kilometers), aggregated on the boundary.";
@@ -22,8 +21,8 @@ public class Description {
     return "Total " + label + " of items in " + unit + ", aggregated on the boundary.";
   }
 
-  public static String countLengthPerimeterAreaGroupByBoundaryGroupByTag(boolean isDensity,
-      String label, String unit) {
+  public static String aggregateGroupByBoundaryGroupByTag(boolean isDensity, String label,
+      String unit) {
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit + " divided by the "
           + "area in square kilometers), aggregated on the boundary and on the tag.";
@@ -32,12 +31,11 @@ public class Description {
         + ", aggregated on the boundary and on the tag.";
   }
 
-  public static String countLengthPerimeterAreaGroupByUser(String label, String unit) {
+  public static String aggregateGroupByUser(String label, String unit) {
     return "Total " + label + " of items in " + unit + ", aggregated on the user.";
   }
 
-  public static String countLengthPerimeterAreaGroupByTag(boolean isDensity, String label,
-      String unit) {
+  public static String aggregateGroupByTag(boolean isDensity, String label, String unit) {
     if (isDensity) {
       return "Density of selected items (" + label + " of items in " + unit
           + " divided by the area in square kilometers), aggregated on the tag.";
@@ -53,25 +51,25 @@ public class Description {
     return "Total " + label + " of items in " + unit + ", aggregated on the type.";
   }
 
-  public static String countLengthPerimeterAreaGroupByKey(String label, String unit) {
+  public static String aggregateGroupByKey(String label, String unit) {
     return "Total " + label + " of items in " + unit + ", aggregated on the key.";
   }
 
-  public static String countLengthPerimeterAreaRatio(String label, String unit) {
+  public static String aggregateRatio(String label, String unit) {
     return "Total " + label + " of items in " + unit
         + " satisfying types2, keys2, values2 parameters (= value2 output),"
         + " as well as items selected by types, keys, values parameters (= value output) "
         + "and ratio of value2:value.";
   }
 
-  public static String countLengthPerimeterAreaRatioGroupByBoundary(String label, String unit) {
+  public static String aggregateRatioGroupByBoundary(String label, String unit) {
     return "Total " + label + " of items in " + unit
         + " satisfying types2, keys2, values2 parameters (= value2 output), as well as items"
         + " selected by types, keys, values parameters (= value output) and ratio of value2:value, "
         + "aggregated on the boundary objects.";
   }
 
-  public static String usersCount(boolean isDensity) {
+  public static String countUsers(boolean isDensity) {
     if (isDensity) {
       return "Density of distinct active users per time interval "
           + "(number of users per square-kilometer).";
@@ -79,7 +77,7 @@ public class Description {
     return "Number of distinct active users per time interval.";
   }
 
-  public static String usersCountGroupByTag(boolean isDensity) {
+  public static String countUsersGroupByTag(boolean isDensity) {
     if (isDensity) {
       return "Density of distinct active users per time interval "
           + "(number of users per square-kilometer) aggregated on the tag.";
@@ -87,7 +85,7 @@ public class Description {
     return "Number of distinct active users per time interval aggregated on the tag.";
   }
 
-  public static String usersCountGroupByType(boolean isDensity) {
+  public static String countUsersGroupByType(boolean isDensity) {
     if (isDensity) {
       return "Density of distinct active users per time interval "
           + "(number of users per square-kilometer) aggregated on the type.";
@@ -95,15 +93,15 @@ public class Description {
     return "Number of distinct active users per time interval aggregated on the type.";
   }
 
-  public static String usersCountGroupByKey(boolean isDensity) {
+  public static String countUsersGroupByKey(boolean isDensity) {
     if (isDensity) {
       return "Density of distinct active users per time interval "
           + "(number of users per square-kilometer) aggregated on the key.";
     }
     return "Number of distinct active users per time interval aggregated on the key.";
   }
-  
-  public static String usersCountGroupByBoundary(boolean isDensity) {
+
+  public static String countUsersGroupByBoundary(boolean isDensity) {
     if (isDensity) {
       return "Density of distinct active users per time interval "
           + "(number of users per square-kilometer) aggregated on the boundary.";

@@ -22,6 +22,10 @@ public class ExceptionMessages {
       "Your provided boundary parameter (bboxes, "
           + "bcircles, or bpolys) does not fit its format, or you defined more than one boundary "
           + "parameter.";
+  public static final String FILTER_PARAM = "The keys, values and types parameters must be empty, "
+      + "when you set the filter parameter.";
+  public static final String FILTER_SYNTAX = "Invalid filter syntax. Please look at the additional "
+      + "info and examples about the filter parameter at https://docs.ohsome.org/ohsome-api.";
   public static final String GROUP_BY_KEY_PARAM =
       "You need to give one groupByKey parameter, if you want to use groupBy/tag.";
   public static final String GROUP_BY_KEYS_PARAM =
@@ -35,7 +39,7 @@ public class ExceptionMessages {
           + "and/or coarser time period.";
   public static final String PROPERTIES_PARAM =
       "The properties parameter can only contain the values 'tags' and/or 'metadata' and/or "
-      + "'unclipped'.";
+          + "'unclipped'.";
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";

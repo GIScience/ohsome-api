@@ -16,10 +16,11 @@ public class RequestParameters {
   private String format;
   private String showMetadata;
   private double timeout;
+  private String filter;
 
   public RequestParameters(String requestMethod, boolean isSnapshot, boolean isDensity,
       String bboxes, String bcircles, String bpolys, String[] types, String[] keys, String[] values,
-      String[] time, String format, String showMetadata, double timeout) {
+      String[] time, String format, String showMetadata, double timeout, String filter) {
 
     this.requestMethod = requestMethod;
     this.isDensity = isDensity;
@@ -34,6 +35,7 @@ public class RequestParameters {
     this.format = format;
     this.showMetadata = showMetadata;
     this.timeout = timeout;
+    this.filter = filter;
   }
 
   public String getRequestMethod() {
@@ -86,5 +88,9 @@ public class RequestParameters {
 
   public double getTimeout() {
     return timeout;
+  }
+
+  public String getFilter() {
+    return filter;
   }
 }

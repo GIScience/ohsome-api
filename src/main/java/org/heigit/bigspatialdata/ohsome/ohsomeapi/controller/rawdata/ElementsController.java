@@ -32,7 +32,7 @@ public class ElementsController {
       produces = "application/json")
   public void elementsGeometry(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.executeElements(ElementsGeometry.RAW, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(ElementsGeometry.RAW, servletRequest, servletResponse);
   }
 
   /**
@@ -48,7 +48,7 @@ public class ElementsController {
       produces = "application/json")
   public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ElementsRequestExecutor.executeElements(ElementsGeometry.BBOX, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(ElementsGeometry.BBOX, servletRequest, servletResponse);
   }
 
   /**
@@ -64,7 +64,6 @@ public class ElementsController {
       produces = "application/json")
   public void elementsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.executeElements(ElementsGeometry.CENTROID, servletRequest,
-        servletResponse);
+    ElementsRequestExecutor.extract(ElementsGeometry.CENTROID, servletRequest, servletResponse);
   }
 }

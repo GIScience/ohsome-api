@@ -2,10 +2,17 @@ package org.heigit.bigspatialdata.ohsome.ohsomeapi.inputprocessing;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
+import org.heigit.ohsome.filter.BinaryOperator;
+import org.heigit.ohsome.filter.FilterExpression;
+import org.heigit.ohsome.filter.GeometryTypeFilter;
 import org.locationtech.jts.geom.Geometry;
 
 /** Holds the relevant objects for processing the request and creating the response. */
@@ -31,6 +38,7 @@ public class ProcessingData {
   private boolean isRatio;
   private boolean isGroupByBoundary;
   private boolean isFullHistory;
+  private FilterExpression filterExpression;
 
   public ProcessingData(RequestParameters requestParameters, String requestUrl) {
     this.requestParameters = requestParameters;
@@ -168,35 +176,60 @@ public class ProcessingData {
     ProcessingData.numberOfClusterNodes = numberOfClusterNodes;
   }
 
-  public static void setNumberOfDataExtractionThreads(int numberOfDataExtractionsThreads) {
-    numberOfDataExtractionThreads = numberOfDataExtractionsThreads;
-  }
-
   public static int getNumberOfDataExtractionThreads() {
     return numberOfDataExtractionThreads;
+  }
+
+  public static void setNumberOfDataExtractionThreads(int numberOfDataExtractionsThreads) {
+    numberOfDataExtractionThreads = numberOfDataExtractionsThreads;
   }
 
   public boolean isRatio() {
     return isRatio;
   }
 
-  public boolean isGroupByBoundary() {
-    return isGroupByBoundary;
-  }
-
-  public boolean isFullHistory() {
-    return isFullHistory;
-  }
-
   public void setIsRatio(boolean isRatio) {
     this.isRatio = isRatio;
+  }
+
+  public boolean isGroupByBoundary() {
+    return isGroupByBoundary;
   }
 
   public void setIsGroupByBoundary(boolean isGroupByBoundary) {
     this.isGroupByBoundary = isGroupByBoundary;
   }
 
+  public boolean isFullHistory() {
+    return isFullHistory;
+  }
+
   public void setIsFullHistory(boolean isFullHistory) {
     this.isFullHistory = isFullHistory;
+  }
+
+  public void setFilterExpression(FilterExpression filterExpression) {
+    this.filterExpression = filterExpression;
+  }
+
+  public Optional<FilterExpression> getFilterExpression() {
+    return Optional.ofNullable(this.filterExpression);
+  }
+
+  /**
+   * Checks if a given filter expression contains a geometry type check or not.
+   *
+   * @param expr the filter expression to check
+   * @return true if the given filter expression contains at least one geometry type check
+   */
+  public static boolean filterContainsGeometryTypeCheck(FilterExpression expr) {
+    if (expr instanceof GeometryTypeFilter) {
+      return true;
+    } else if (expr instanceof BinaryOperator) {
+      return filterContainsGeometryTypeCheck(((BinaryOperator) expr).getLeftOperand())
+          || filterContainsGeometryTypeCheck(((BinaryOperator) expr).getRightOperand());
+    } else {
+      return false;
+    }
   }
 }

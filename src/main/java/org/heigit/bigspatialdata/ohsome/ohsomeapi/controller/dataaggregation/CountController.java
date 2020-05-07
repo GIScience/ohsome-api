@@ -45,8 +45,8 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregate(RequestResource.COUNT, servletRequest, servletResponse,
+        true, false);
   }
 
   /**
@@ -63,8 +63,8 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -78,14 +78,14 @@ public class CountController {
   @ApiOperation(
       value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "countGroupByBoundary", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.COUNT, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.COUNT, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -99,17 +99,17 @@ public class CountController {
   @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
       nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
-        RequestResource.COUNT, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
+        servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -122,16 +122,15 @@ public class CountController {
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
       response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true)})
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
+      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+      dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByKey(RequestResource.COUNT, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -145,17 +144,17 @@ public class CountController {
   @ApiOperation(value = "Count of OSM elements grouped by the tag", nickname = "countGroupByTag",
       response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -175,8 +174,8 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.COUNT,
-        servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregate(RequestResource.COUNT, servletRequest, servletResponse,
+        true, true);
   }
 
   /**
@@ -193,8 +192,8 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(RequestResource.COUNT,
-        servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
+        servletResponse, true, true);
   }
 
   /**
@@ -209,14 +208,14 @@ public class CountController {
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
       nickname = "countDensityGroupByBoundary", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR, defaultValue = "",
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.COUNT, servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.COUNT, servletRequest,
+        servletResponse, true, true);
   }
 
   /**
@@ -230,17 +229,17 @@ public class CountController {
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "countDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
-        RequestResource.COUNT, servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
+        servletRequest, servletResponse, true, true);
   }
 
   /**
@@ -254,22 +253,22 @@ public class CountController {
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "countDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(RequestResource.COUNT,
-        servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
+        servletResponse, true, true);
   }
 
   /**
-   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
-   * types, keys and values.
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items
+   * selected by types, keys and values (or filter).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -277,28 +276,30 @@ public class CountController {
    *         Response}
    */
   @ApiOperation(
-      value = "Ratio of OSM elements satisfying types2, keys2 and values2 "
-          + "within items selected by types, keys and values",
+      value = "Ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) "
+          + "within items selected by types, keys and values (or filter)",
       nickname = "countRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
-          defaultValue = "node", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES, defaultValue = "node",
+          paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
           defaultValue = DefaultSwaggerParameters.HOUSENUMBER_KEY, paramType = "query",
           dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
+          paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
+          paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateRatio(RequestResource.COUNT, servletRequest,
+        servletResponse);
   }
 
   /**
-   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
-   * types, keys and values grouped by the boundary.
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items
+   * selected by types, keys and values (or filter) grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -308,20 +309,20 @@ public class CountController {
   @ApiOperation(value = "Ratio of OSM elements grouped by the boundary",
       nickname = "countRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
-          defaultValue = "node", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES, defaultValue = "node",
+          paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
           defaultValue = DefaultSwaggerParameters.HOUSENUMBER_KEY, paramType = "query",
           dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
+          paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
+          paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
-        RequestResource.COUNT, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.COUNT,
+        servletRequest, servletResponse);
   }
 }
