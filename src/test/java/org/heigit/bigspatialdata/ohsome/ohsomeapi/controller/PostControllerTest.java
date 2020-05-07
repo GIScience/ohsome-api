@@ -43,7 +43,9 @@ public class PostControllerTest {
   /** Stops this application context. */
   @AfterClass
   public static void applicationMainShutdown() {
-    SpringApplication.exit(Application.getApplicationContext(), () -> 0);
+    if (null != Application.getApplicationContext()) {
+      SpringApplication.exit(Application.getApplicationContext(), () -> 0);
+    }
   }
 
   /*
@@ -1060,5 +1062,55 @@ public class PostControllerTest {
     assertEquals(3, headers.size());
     assertEquals(1, Double.parseDouble(records.get(0).get("RELATION")), 0.00);
     assertEquals(1, Double.parseDouble(records.get(0).get("WAY")), 0.00);
+  }
+
+  /*
+   * filter tests
+   */
+  @Test
+  public void postFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.684692,49.407669,8.688061,49.410310");
+    map.add("time", "2014-01-01");
+    map.add("filter", "highway=residential");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(8, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void postOrFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.684692,49.407669,8.688061,49.410310");
+    map.add("time", "2014-01-01,2015-01-01");
+    map.add("filter", "highway=residential or highway=service");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/users/count", map, JsonNode.class);
+    assertEquals(4, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void postAndAllNotEqualsFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.684692,49.407669,8.688061,49.410310");
+    map.add("time", "2014-01-01");
+    map.add("filter", "building=* and name!=*");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
+    assertEquals(17457.09, response.getBody().get("result").get(0).get("value").asDouble(), 0.0);
+  }
+
+  @Test
+  public void postUmlautFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.690455,49.410615,8.691002,49.410416");
+    map.add("filter", "name=\"Institut für Rechtsmedizin\"");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(1, response.getBody().get("result").get(0).get("value").asInt());
   }
 }

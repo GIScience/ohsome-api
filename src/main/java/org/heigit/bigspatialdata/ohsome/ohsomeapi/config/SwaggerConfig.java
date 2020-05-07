@@ -114,46 +114,49 @@ public class SwaggerConfig {
     final String query = "query";
     List<Parameter> globalOperationParams = new ArrayList<>();
     globalOperationParams.add(new ParameterBuilder().name("bboxes")
-        .description(ParameterDescriptions.BBOXES_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.BBOXES).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue(DefaultSwaggerParameters.BBOX).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("bcircles")
-        .description(ParameterDescriptions.BCIRCLES_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.BCIRCLES).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
-        .description(ParameterDescriptions.BPOLYS_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams
-        .add(new ParameterBuilder().name("types").description(ParameterDescriptions.TYPES_DESCR)
+        .add(new ParameterBuilder().name("types").description(ParameterDescriptions.TYPES)
             .modelRef(new ModelRef(string)).allowMultiple(true).parameterType(query)
             .defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.KEYS_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.KEYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("values")
-        .description(ParameterDescriptions.VALUES_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.VALUES).modelRef(new ModelRef(string))
+        .parameterType(query).defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("filter")
+        .description(ParameterDescriptions.FILTER).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("timeout")
-        .description(ParameterDescriptions.TIMEOUT_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.TIMEOUT).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     if (!isDataExtraction) {
       globalOperationParams
-          .add(new ParameterBuilder().name("time").description(ParameterDescriptions.TIME_DESCR)
+          .add(new ParameterBuilder().name("time").description(ParameterDescriptions.TIME)
               .modelRef(new ModelRef(string)).parameterType(query)
               .defaultValue(DefaultSwaggerParameters.TIME).required(false).build());
       globalOperationParams.add(new ParameterBuilder().name("format")
-          .description(ParameterDescriptions.FORMAT_DESCR).modelRef(new ModelRef(string))
+          .description(ParameterDescriptions.FORMAT).modelRef(new ModelRef(string))
           .parameterType(query).defaultValue("json").required(false).build());
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
-          .description(ParameterDescriptions.TIME_DATA_EXTRACTION_DESCR)
+          .description(ParameterDescriptions.TIME_DATA_EXTRACTION)
           .modelRef(new ModelRef(string)).parameterType(query).defaultValue("2016-01-01,2017-01-01")
           .required(true).build());
       globalOperationParams.add(new ParameterBuilder().name("properties")
-          .description(ParameterDescriptions.PROPERTIES_DESCR).modelRef(new ModelRef(string))
+          .description(ParameterDescriptions.PROPERTIES).modelRef(new ModelRef(string))
           .parameterType(query).defaultValue("tags").required(false).build());
     }
     globalOperationParams.add(new ParameterBuilder().name("showMetadata")
-        .description(ParameterDescriptions.SHOW_METADATA_DESCR).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.SHOW_METADATA).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false)
         .build());
     return globalOperationParams;

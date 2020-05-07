@@ -41,7 +41,9 @@ public class ElementsControllerTest {
   /** Stops this application context. */
   @AfterClass
   public static void applicationMainShutdown() {
-    SpringApplication.exit(Application.getApplicationContext(), () -> 0);
+    if (null != Application.getApplicationContext()) {
+      SpringApplication.exit(Application.getApplicationContext(), () -> 0);
+    }
   }
 
   /*
@@ -271,8 +273,50 @@ public class ElementsControllerTest {
   }
 
   /*
+   * filter tests
+   */
+
+  @Test
+  public void getElementsFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/bbox?bboxes=8.684692,49.407669,8.688061,49.410310&time=2016-01-01,2017-01-01"
+        + "&filter=service=* and name!=*&properties=tags", JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/225890568")));
+    assertEquals(6, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/225890568"))
+        .findFirst().get().get("properties").size());
+  }
+
+  @Test
+  public void postElementsFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.684692,49.407669,8.688061,49.410310");
+    map.add("time", "2012-01-01");
+    map.add("filter", "oneway=yes");
+    map.add("properties", "tags");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/bbox", map, JsonNode.class);
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/4403824"))
+        .findFirst().get().get("properties").get("highway").asText().equalsIgnoreCase("tertiary"));
+  }
+
+  /*
    * false parameter tests
    */
+
   @Test
   public void getDataExtractionWithSpecificParameterOfOtherSpecificResourceTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();

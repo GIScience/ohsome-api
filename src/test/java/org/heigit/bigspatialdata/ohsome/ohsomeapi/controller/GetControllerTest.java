@@ -136,7 +136,6 @@ public class GetControllerTest {
     assertEquals(40, response.getBody().get("result").get(0).get("value").asInt());
   }
 
-
   @Test
   public void getElementsCountGroupByBoundaryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -966,5 +965,146 @@ public class GetControllerTest {
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
     assertEquals(1.0, Double.parseDouble(records.get(2).get("WAY")), 0);
+  }
+
+  /*
+   * filter tests
+   */
+
+  @Test
+  public void getElementsCountFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count?bboxes=8.67452,49.40961,"
+            + "8.70392,49.41823&time=2015-01-01&filter=building=residential and type:way",
+        JsonNode.class);
+    assertEquals(40, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void areaRatioFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/area/ratio?bboxes=8.68081,49.39821,8.69528,49.40687&time="
+            + "2018-01-01&filter=building=* and type:way&filter2=building=* and type:relation",
+        JsonNode.class);
+    assertEquals(0.060083, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        1e-6);
+  }
+
+  @Test
+  public void ratioGroupByBoundaryFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/ratio/groupBy/boundary?bboxes=b1:8.66004,49.41184,8.68481,"
+            + "49.42094|b2:8.66009,49.41180,8.68461,49.42079&time=2018-01-01&"
+            + "filter=geometry:polygon and building=*&filter2=type:node and addr:housenumber=*",
+        JsonNode.class);
+    assertEquals(0.230435, StreamSupport
+        .stream(
+            Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+            false)
+        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b2"))
+        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
+  }
+
+  @Test
+  public void getElementsCountWrongFilterTypesCombinationTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/elements/count?bboxes=8.67452,49.40961,"
+            + "8.70392,49.41823&time=2015-01-01&filter=building=*&types=way", JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void getElementsCountWrongFilterKeysCombinationTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(
+            server + port + "/elements/count?bboxes=8.67452,49.40961,"
+                + "8.70392,49.41823&time=2015-01-01&filter=building=*&keys=building",
+            JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+  }
+
+  @Test
+  public void getFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/elements/length?bboxes=8.684692,49.407669,"
+            + "8.688061,49.410310&time=2014-01-01&filter=highway=residential", JsonNode.class);
+    assertEquals(584.42, response.getBody().get("result").get(0).get("value").asDouble(), 0.0);
+  }
+
+  @Test
+  public void getAllValuesFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/elements/count?bboxes=8.67452,49.40961,"
+            + "8.70392,49.41823&time=2015-01-01&filter=building=*", JsonNode.class);
+    assertEquals(2010, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void getNotEqualsFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/perimeter?bboxes=8.684692,49.407669,8.688061,49.410310"
+            + "&time=2014-01-01&filter=building!=flats",
+        JsonNode.class);
+    assertEquals(9239.88, response.getBody().get("result").get(0).get("value").asDouble(), 0.0);
+  }
+
+  @Test
+  public void getNotEqualsAllValuesFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/elements/count?bboxes=8.67452,49.40961,"
+            + "8.70392,49.41823&time=2015-01-01&filter=building!=*", JsonNode.class);
+    assertEquals(3893, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void getBracketsFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(
+            server + port + "/elements/area?bboxes=8.684692,49.407669,8.688061,49.410310,"
+                + "&time=2014-01-01&filter=building=* and (name!=* or noname!=yes)",
+            JsonNode.class);
+    assertEquals(20834.12, response.getBody().get("result").get(0).get("value").asDouble(), 0.0);
+  }
+
+  @Test
+  public void getNotFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(
+            server + port + "/elements/count?bboxes=8.67452,49.40961,"
+                + "8.70392,49.41823&time=2015-01-01&filter=not building=residential",
+            JsonNode.class);
+    assertEquals(5863, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void getAndFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/users/count?bboxes=8.67452,49.40961,8.70392,49.41823&"
+            + "time=2014-01-01/2015-01-01&filter=highway=residential and maxspeed=*",
+        JsonNode.class);
+    assertEquals(7, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void getOrFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/users/count?bboxes=8.67452,49.40961,8.70392,49.41823&"
+            + "time=2014-01-01/2015-01-01&filter=highway=residential or maxspeed=*",
+        JsonNode.class);
+    assertEquals(19, response.getBody().get("result").get(0).get("value").asInt());
   }
 }

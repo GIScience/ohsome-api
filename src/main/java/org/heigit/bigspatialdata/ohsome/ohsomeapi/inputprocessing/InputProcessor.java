@@ -33,10 +33,21 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
+import org.heigit.ohsome.filter.AndOperator;
+import org.heigit.ohsome.filter.Filter;
+import org.heigit.ohsome.filter.FilterExpression;
+import org.heigit.ohsome.filter.FilterParser;
+import org.heigit.ohsome.filter.GeometryTypeFilter;
+import org.heigit.ohsome.filter.TagFilterEquals;
+import org.heigit.ohsome.filter.TagFilterEqualsAny;
+import org.heigit.ohsome.filter.TypeFilter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.jts2geojson.GeoJSONWriter;
@@ -68,7 +79,7 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean unclipped;
   private final String[] genericParameters = {"bboxes", "bcircles", "bpolys", "types", "keys",
-      "values", "timeout", "time", "format", "showMetadata"};
+      "values", "timeout", "time", "format", "showMetadata", "filter"};
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -78,14 +89,14 @@ public class InputProcessor {
     checkParameters(servletRequest);
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
-    processingData = new ProcessingData(
-        new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+    processingData =
+        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
             servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
             servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout()),
-        servletRequest.getRequestURL().toString());
+            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(),
+            servletRequest.getParameter("filter")), servletRequest.getRequestURL().toString());
     this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
     this.requestMethod = servletRequest.getMethod();
     this.requestTimeout = servletRequest.getParameter("timeout");
@@ -124,9 +135,11 @@ public class InputProcessor {
     String showMetadata =
         createEmptyStringIfNull(processingData.getRequestParameters().getShowMetadata());
     double timeout = defineRequestTimeout();
+    String filter = createEmptyStringIfNull(processingData.getRequestParameters().getFilter());
     // overwriting RequestParameters object with splitted/non-null parameters
-    processingData.setRequestParameters(new RequestParameters(requestMethod, isSnapshot, isDensity,
-        bboxes, bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout));
+    processingData
+        .setRequestParameters(new RequestParameters(requestMethod, isSnapshot, isDensity, bboxes,
+            bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
@@ -241,8 +254,83 @@ public class InputProcessor {
       mapRed = filterOnSimpleFeatures(mapRed);
     }
     mapRed = extractTime(mapRed, time, isSnapshot);
-    mapRed = extractKeysValues(mapRed, keys, values);
+    if (!"".equals(filter)) {
+      if (keys.length != 0 || values.length != 0 || types.length != 0) {
+        throw new BadRequestException(ExceptionMessages.FILTER_PARAM);
+      } else {
+        // call translator and add filters to mapRed
+        FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+        FilterExpression filterExpr = utils.parseFilter(fp, filter);
+        processingData.setFilterExpression(filterExpr);
+        mapRed = optimizeFilters0(mapRed, filterExpr);
+        mapRed = optimizeFilters1(mapRed, filterExpr);
+        mapRed = mapRed.osmEntityFilter(filterExpr::applyOSM);
+        // execute this only if the filter has a geometry type subfilter
+        if (ProcessingData.filterContainsGeometryTypeCheck(filterExpr)
+            // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
+            && !processingData.isRatio() && !processingData.isGroupByBoundary()
+            && !processingData.isFullHistory()) {
+          processingData.setContainsSimpleFeatureTypes(true);
+          mapRed = filterOnGeometryType(mapRed, filterExpr);
+        }
+      }
+    } else {
+      mapRed = extractKeysValues(mapRed, keys, values);
+    }
     return (MapReducer<T>) mapRed;
+  }
+
+  private MapReducer<? extends OSHDBMapReducible> optimizeFilters0(
+      MapReducer<? extends OSHDBMapReducible> mapRed, FilterExpression filter) {
+    // performs basic optimizations “low hanging fruit”:
+    // single filters, and-combination of single filters, etc.
+    if (filter instanceof TagFilterEquals) {
+      OSMTag tag = DbConnData.tagTranslator.getOSMTagOf(((TagFilterEquals) filter).getTag());
+      return mapRed.osmTag(tag);
+    }
+    if (filter instanceof TagFilterEqualsAny) {
+      OSMTagKey key =
+          DbConnData.tagTranslator.getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
+      return mapRed.osmTag(key);
+    }
+    if (filter instanceof TypeFilter) {
+      return mapRed.osmType(((TypeFilter) filter).getType());
+    }
+    if (filter instanceof AndOperator) {
+      return optimizeFilters0(optimizeFilters0(mapRed, ((AndOperator) filter).getLeftOperand()),
+          ((AndOperator) filter).getRightOperand());
+    }
+    return mapRed;
+  }
+
+  private MapReducer<? extends OSHDBMapReducible> optimizeFilters1(
+      MapReducer<? extends OSHDBMapReducible> mapRed, FilterExpression filter) {
+    // performs more advanced optimizations that rely on analyzing the DNF of a filter expression
+    // 1. convert to disjunctive normal form
+    List<List<Filter>> filterNormalized = filter.normalize();
+    // 2. collect all OSMTypes in all of the clauses
+    EnumSet<OSMType> allTypes = EnumSet.noneOf(OSMType.class);
+    for (List<Filter> andSubFilter : filterNormalized) {
+      EnumSet<OSMType> subTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
+      for (Filter subFilter : andSubFilter) {
+        if (subFilter instanceof TypeFilter) {
+          subTypes.retainAll(EnumSet.of(((TypeFilter) subFilter).getType()));
+        } else if (subFilter instanceof GeometryTypeFilter) {
+          subTypes.retainAll(((GeometryTypeFilter) subFilter).getOSMTypes());
+        }
+      }
+      allTypes.addAll(subTypes);
+    }
+    mapRed = mapRed.osmType(allTypes);
+    processingData.setOsmTypes(allTypes);
+    // 3. (todo) intelligently group queried tags
+    /*
+     * here, we could optimize a few situations further: when a specific tag or key is used in all
+     * branches of the filter: run mapRed.osmTag the set of tags which are present in any branches:
+     * run mapRed.osmTag(list) (note that for this all branches need to have at least one
+     * TagFilterEquals or TagFilterEqualsAny) related: https://github.com/GIScience/oshdb/pull/210
+     */
+    return mapRed;
   }
 
   /**
@@ -407,9 +495,10 @@ public class InputProcessor {
    *
    * @return MapReducer with filtered geometries
    */
+  // suppressed, as filter always returns the same mappable type T
+  @SuppressWarnings("unchecked")
   public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed) {
     Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    // noinspection unchecked - filter always returns the same mappable type T
     return (T) mapRed.filter(data -> {
       if (data instanceof OSMEntitySnapshot) {
         Geometry snapshotGeom;
@@ -436,6 +525,51 @@ public class InputProcessor {
       } else {
         assert false : "filterOnSimpleFeatures() called on mapped entries";
         throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
+      }
+    });
+  }
+
+  /**
+   * Applies respective Puntal|Lineal|Polygonal filter(s) from a given filter expression on features
+   * of the given MapReducer.
+   *
+   * @param mapRed the mapreducer to filter
+   * @param filterExpr the filter expression to apply
+   * @return MapReducer with filtered geometries
+   */
+  // suppressed, as filter always returns the same mappable type T
+  @SuppressWarnings("unchecked")
+  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnGeometryType(T mapRed,
+      FilterExpression filterExpr) {
+    return (T) mapRed.filter(data -> {
+      if (data instanceof OSMEntitySnapshot) {
+        OSMEntity snapshotEntity = ((OSMEntitySnapshot) data).getEntity();
+        Geometry snapshotGeom;
+        if (unclipped) {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        }
+        return filterExpr.applyOSMGeometry(snapshotEntity, snapshotGeom);
+      } else if (data instanceof OSMContribution) {
+        OSMEntity entityBefore = ((OSMContribution) data).getEntityBefore();
+        OSMEntity entityAfter = ((OSMContribution) data).getEntityAfter();
+        Geometry contribGeomBefore;
+        Geometry contribGeomAfter;
+        if (unclipped) {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        }
+        return contribGeomBefore != null
+            && filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore)
+            || contribGeomAfter != null
+                && filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
+      } else {
+        assert false : "geometry filter called on mapped entries";
+        throw new RuntimeException("geometry filter called on mapped entries");
       }
     });
   }
@@ -718,6 +852,9 @@ public class InputProcessor {
     } else if (uri.contains("/groupBy/key")) {
       return new String[] {"groupByKeys"};
     } else if (uri.contains("/ratio")) {
+      if (null != servletRequest.getParameter("filter")) {
+        return new String[] {"filter2"};
+      }
       return new String[] {"keys2", "types2", "values2"};
     } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
       return new String[] {"properties"};

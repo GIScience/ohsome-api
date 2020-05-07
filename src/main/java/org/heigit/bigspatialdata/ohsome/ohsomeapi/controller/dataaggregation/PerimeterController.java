@@ -43,8 +43,8 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeter(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregate(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -61,8 +61,8 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -82,8 +82,8 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.PERIMETER,
+        servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -97,17 +97,17 @@ public class PerimeterController {
   @ApiOperation(value = "Perimeter of OSM elements grouped by the boundary and the tag",
       nickname = "perimeterGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
+        servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -120,16 +120,15 @@ public class PerimeterController {
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
       nickname = "perimeterGroupByKey", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true)})
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
+      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+      dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByKey(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByKey(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -143,17 +142,17 @@ public class PerimeterController {
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
       nickname = "perimeterGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, false);
   }
 
   /**
@@ -174,8 +173,8 @@ public class PerimeterController {
   public Response perimeterDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
 
-    return ElementsRequestExecutor.executeCountLengthPerimeterArea(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregate(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, true);
   }
 
   /**
@@ -192,8 +191,8 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByType(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, true);
   }
 
   /**
@@ -212,8 +211,8 @@ public class PerimeterController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundary(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.PERIMETER,
+        servletRequest, servletResponse, true, true);
   }
 
   /**
@@ -227,17 +226,17 @@ public class PerimeterController {
   @ApiOperation(value = "Density of  grouped by the boundary and the tag",
       nickname = "perimeterDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByBoundaryGroupByTag(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
+        servletRequest, servletResponse, true, true);
   }
 
   /**
@@ -251,22 +250,22 @@ public class PerimeterController {
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaGroupByTag(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, true);
+    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
+        servletResponse, true, true);
   }
 
   /**
-   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 within items selected by
-   * types, keys and values.
+   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items
+   * selected by types, keys and values (or filter).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -274,30 +273,32 @@ public class PerimeterController {
    *         Response}
    */
   @ApiOperation(
-      value = "Ratio of OSM elements satisfying types2, keys2 and values2 within items "
-          + "selected by types, keys and values",
+      value = "Ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items "
+          + "selected by types, keys and values (or filter)",
       nickname = "perimeterRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
           required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES,
           defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
+          paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterRatio(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatio(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateRatio(RequestResource.PERIMETER, servletRequest,
+        servletResponse);
   }
 
   /**
-   * Gives the ratio of the perimeter of OSM elements satisfying types2, keys2 and values2 within
-   * items selected by types, keys and values grouped by the boundary.
+   * Gives the ratio of the perimeter of OSM elements satisfying types2, keys2 and values2 (or
+   * filter2) within items selected by types, keys and values (or filter) grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -307,21 +308,21 @@ public class PerimeterController {
   @ApiOperation(value = "Ratio of the perimeter of OSM elements grouped by the boundary",
       nickname = "perimeterRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES_DESCR,
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES,
           defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
           required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS_DESCR,
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES_DESCR,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
+          paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
+          paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.executeCountLengthPerimeterAreaRatioGroupByBoundary(
-        RequestResource.PERIMETER, servletRequest, servletResponse, true, false);
+    return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.PERIMETER,
+        servletRequest, servletResponse);
   }
 }

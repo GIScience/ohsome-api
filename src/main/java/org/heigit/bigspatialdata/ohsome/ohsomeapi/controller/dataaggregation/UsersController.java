@@ -36,7 +36,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return UsersRequestExecutor.executeCount(servletRequest, servletResponse, false);
+    return UsersRequestExecutor.count(servletRequest, servletResponse, false);
   }
 
   /**
@@ -53,7 +53,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByType(servletRequest, servletResponse, false);
+    return UsersRequestExecutor.countGroupByType(servletRequest, servletResponse, false);
   }
 
   /**
@@ -67,16 +67,16 @@ public class UsersController {
   @ApiOperation(value = "Count of OSM users grouped by the tag", nickname = "countGroupByTag",
       response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, servletResponse, false);
+    return UsersRequestExecutor.countGroupByTag(servletRequest, servletResponse, false);
   }
 
   /**
@@ -89,15 +89,14 @@ public class UsersController {
    */
   @ApiOperation(value = "Count of OSM users grouped by the key", nickname = "countGroupByKey",
       response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS_DESCR,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true)})
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
+      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+      dataType = "string", required = true)})
   @RequestMapping(value = "count/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByKey(servletRequest, servletResponse, false);
+    return UsersRequestExecutor.countGroupByKey(servletRequest, servletResponse, false);
   }
 
   /**
@@ -114,7 +113,7 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByBoundary(servletRequest, servletResponse, false);
+    return UsersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, false);
   }
 
   /**
@@ -134,7 +133,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCount(servletRequest, servletResponse, true);
+    return UsersRequestExecutor.count(servletRequest, servletResponse, true);
   }
 
   /**
@@ -151,7 +150,7 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByType(servletRequest, servletResponse, true);
+    return UsersRequestExecutor.countGroupByType(servletRequest, servletResponse, true);
   }
 
   /**
@@ -165,16 +164,16 @@ public class UsersController {
   @ApiOperation(value = "Density of OSM users grouped by the tag",
       nickname = "countDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY_DESCR,
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES_DESCR,
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByTag(servletRequest, servletResponse, true);
+    return UsersRequestExecutor.countGroupByTag(servletRequest, servletResponse, true);
   }
 
   /**
@@ -192,6 +191,6 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.executeCountGroupByBoundary(servletRequest, servletResponse, true);
+    return UsersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, true);
   }
 }
