@@ -99,7 +99,7 @@ public class SwaggerConfig {
         "This REST-based API aims to leverage the tools of the "
             + "<a href=\"https://github.com/GIScience/oshdb\" target=\"_blank\">OSHDB</a> "
             + "through allowing to access some of its functionalities via HTTP requests.",
-        "0.9", "",
+        "1.0", "",
         new Contact("Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
             "info@heigit.org"),
         "License of the used data", "https://ohsome.org/copyrights", Collections.emptyList());
