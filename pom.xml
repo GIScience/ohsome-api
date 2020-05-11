@@ -1,251 +1,251 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.heigit.ohsome</groupId>
-		<artifactId>ohsome-parent</artifactId>
-		<version>2.0</version>
-	</parent>
+  <parent>
+    <groupId>org.heigit.ohsome</groupId>
+    <artifactId>ohsome-parent</artifactId>
+    <version>2.0</version>
+  </parent>
 
-	<artifactId>ohsome-api</artifactId>
-	<name>ohsome API</name>
-	<description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
-	<packaging>jar</packaging>
-	<version>1.0.0</version>
+  <artifactId>ohsome-api</artifactId>
+  <name>ohsome API</name>
+  <description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
+  <packaging>jar</packaging>
+  <version>1.0.0</version>
 
-	<properties>
-		<springboot.version>2.0.3.RELEASE</springboot.version>
-		<jsonpath.version>2.2.0</jsonpath.version>
-		<oshdb.version>0.5.8</oshdb.version>
-		<ohsome-filter.version>1.1.2</ohsome-filter.version>
-		<jacksondatatype.version>2.9.6</jacksondatatype.version>
-		<geotools.version>20.2</geotools.version>
-		<springfox.version>2.9.2</springfox.version>
+  <properties>
+    <springboot.version>2.0.3.RELEASE</springboot.version>
+    <jsonpath.version>2.2.0</jsonpath.version>
+    <oshdb.version>0.5.8</oshdb.version>
+    <ohsome-filter.version>1.1.2</ohsome-filter.version>
+    <jacksondatatype.version>2.9.6</jacksondatatype.version>
+    <geotools.version>20.2</geotools.version>
+    <springfox.version>2.9.2</springfox.version>
     <apachecommons.version>3.7</apachecommons.version>
     <apachecommons-csv.version>1.6</apachecommons-csv.version>
-		<mavencheckstyle.version>3.1.0</mavencheckstyle.version>
-		<checkstyle.version>8.29</checkstyle.version>
-	</properties>
+    <mavencheckstyle.version>3.1.0</mavencheckstyle.version>
+    <checkstyle.version>8.29</checkstyle.version>
+  </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${springboot.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<version>${springboot.version}</version>
-		</dependency>
-		<!-- to have a basic auth with a user+key security on first request <dependency> 
-			<groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId> 
-			</dependency> -->
-		<dependency>
-			<groupId>com.jayway.jsonpath</groupId>
-			<artifactId>json-path</artifactId>
-			<version>${jsonpath.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.heigit.bigspatialdata</groupId>
-			<artifactId>oshdb-api</artifactId>
-			<version>${oshdb.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-simple</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.heigit.bigspatialdata</groupId>
-			<artifactId>oshdb-util</artifactId>
-			<version>${oshdb.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-simple</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<!-- ohsome OSM entity filter parser + interpreter -->
-		<dependency>
-			<groupId>org.heigit.ohsome</groupId>
-			<artifactId>ohsome-filter</artifactId>
-			<version>${ohsome-filter.version}</version>
-		</dependency>
-		<!-- needed for creating a custom error reporting class -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>${jacksondatatype.version}</version>
-		</dependency>
-		<!-- needed for creating the GeoJSON response -->
-		<dependency>
-			<groupId>de.grundid.opendatalab</groupId>
-			<artifactId>geojson-jackson</artifactId>
-			<version>1.8</version>
-		</dependency>
-		<!-- needed for creating the csv response -->
-		<dependency>
-			<groupId>com.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-			<version>4.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.wololo/jts2geojson -->
-		<dependency>
-			<groupId>org.wololo</groupId>
-			<artifactId>jts2geojson</artifactId>
-			<version>0.13.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.glassfish/javax.json -->
-		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.json</artifactId>
-			<version>1.1.4</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-geometry</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-epsg-hsql</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<!-- Springfox implementation of the Swagger specification -->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${springfox.version}</version>
-		</dependency>
-		<!-- Springfox Swagger UI -->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${springfox.version}</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${apachecommons.version}</version>
-		</dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${springboot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <version>${springboot.version}</version>
+    </dependency>
+    <!-- to have a basic auth with a user+key security on first request <dependency>
+      <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId>
+      </dependency> -->
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>${jsonpath.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.heigit.bigspatialdata</groupId>
+      <artifactId>oshdb-api</artifactId>
+      <version>${oshdb.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.heigit.bigspatialdata</groupId>
+      <artifactId>oshdb-util</artifactId>
+      <version>${oshdb.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- ohsome OSM entity filter parser + interpreter -->
+    <dependency>
+      <groupId>org.heigit.ohsome</groupId>
+      <artifactId>ohsome-filter</artifactId>
+      <version>${ohsome-filter.version}</version>
+    </dependency>
+    <!-- needed for creating a custom error reporting class -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jacksondatatype.version}</version>
+    </dependency>
+    <!-- needed for creating the GeoJSON response -->
+    <dependency>
+      <groupId>de.grundid.opendatalab</groupId>
+      <artifactId>geojson-jackson</artifactId>
+      <version>1.8</version>
+    </dependency>
+    <!-- needed for creating the csv response -->
+    <dependency>
+      <groupId>com.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>4.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.wololo/jts2geojson -->
+    <dependency>
+      <groupId>org.wololo</groupId>
+      <artifactId>jts2geojson</artifactId>
+      <version>0.13.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.glassfish/javax.json -->
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+      <version>1.1.4</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geometry</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+    <!-- Springfox implementation of the Swagger specification -->
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${springfox.version}</version>
+    </dependency>
+    <!-- Springfox Swagger UI -->
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${springfox.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${apachecommons.version}</version>
+    </dependency>
     <!-- http://commons.apache.org/proper/commons-csv/dependency-info.html -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-csv</artifactId>
-			<version>${apachecommons-csv.version}</version>
-		</dependency>
-		<!-- hikari database connection pool -->
-		<dependency>
-			<groupId>com.zaxxer</groupId>
-			<artifactId>HikariCP</artifactId>
-			<version>3.4.2</version>
-		</dependency>
-	</dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>${apachecommons-csv.version}</version>
+    </dependency>
+    <!-- hikari database connection pool -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>3.4.2</version>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${springboot.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${mavencheckstyle.version}</version>
-				<configuration>
-					<configLocation>src/main/resources/checkstyle-google-oshdb.xml</configLocation>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.puppycrawl.tools</groupId>
-						<artifactId>checkstyle</artifactId>
-						<version>${checkstyle.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${springboot.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${mavencheckstyle.version}</version>
+        <configuration>
+          <configLocation>src/main/resources/checkstyle-google-oshdb.xml</configLocation>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${checkstyle.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
 
-	<repositories>
-		<repository>
-			<id>oshdb-respository</id>
-			<name>Heigit/GIScience maven repository</name>
-			<url>http://repo.heigit.org/artifactory/main</url>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>oshdb-respository</id>
-			<name>Heigit/GIScience maven repository</name>
-			<url>http://repo.heigit.org/artifactory/main</url>
-		</pluginRepository>
-	</pluginRepositories>
+  <repositories>
+    <repository>
+      <id>oshdb-respository</id>
+      <name>Heigit/GIScience maven repository</name>
+      <url>http://repo.heigit.org/artifactory/main</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>oshdb-respository</id>
+      <name>Heigit/GIScience maven repository</name>
+      <url>http://repo.heigit.org/artifactory/main</url>
+    </pluginRepository>
+  </pluginRepositories>
 
-	<scm>
-		<!-- https://maven.apache.org/pom.html#SCM -->
-		<connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</connection>
-		<developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</developerConnection>
-		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</url>
-	</scm>
+  <scm>
+    <!-- https://maven.apache.org/pom.html#SCM -->
+    <connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</connection>
+    <developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</developerConnection>
+    <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</url>
+  </scm>
 
-	<issueManagement>
-		<system>GitLab</system>
-		<url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/issues</url>
-	</issueManagement>
+  <issueManagement>
+    <system>GitLab</system>
+    <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/issues</url>
+  </issueManagement>
 
-	<profiles>
-		<profile>
-			<id>sign</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-								<configuration>
-									<gpgArguments>
-										<arg>--pinentry-mode</arg>
-										<arg>loopback</arg>
-									</gpgArguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+  <profiles>
+    <profile>
+      <id>sign</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
