@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.heigit.ohsome</groupId>
     <artifactId>ohsome-parent</artifactId>
-    <version>2.0</version>
+    <version>2.2</version>
   </parent>
 
   <artifactId>ohsome-api</artifactId>
@@ -18,7 +18,6 @@
   <properties>
     <apachecommons-csv.version>1.6</apachecommons-csv.version>
     <apachecommons.version>3.7</apachecommons.version>
-    <checkstyle.version>8.29</checkstyle.version>
     <geojson-jackson.version>1.8</geojson-jackson.version>
     <geotools.version>20.2</geotools.version>
     <hikaricp.version>3.4.2</hikaricp.version>
@@ -26,7 +25,6 @@
     <javaxjson.version>1.1.4</javaxjson.version>
     <jsonpath.version>2.2.0</jsonpath.version>
     <jts2geojson.version>0.13.0</jts2geojson.version>
-    <mavencheckstyle.version>3.1.0</mavencheckstyle.version>
     <ohsome-filter.version>1.1.2</ohsome-filter.version>
     <opencsv.version>4.0</opencsv.version>
     <oshdb.version>0.5.8</oshdb.version>
@@ -179,21 +177,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${mavencheckstyle.version}</version>
-        <configuration>
-          <configLocation>src/main/resources/checkstyle-google-oshdb.xml</configLocation>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>com.puppycrawl.tools</groupId>
-            <artifactId>checkstyle</artifactId>
-            <version>${checkstyle.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
     </plugins>
   </build>
 
@@ -224,33 +207,4 @@
     <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/issues</url>
   </issueManagement>
 
-  <profiles>
-    <profile>
-      <id>sign</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
