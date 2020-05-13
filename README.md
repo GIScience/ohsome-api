@@ -1,7 +1,7 @@
 # OHSOME API
 
 This REST-based API aims to leverage the tools of the [OSHDB-API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests.
-The current stable beta-version is [v1.0.0](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/1.0.0).
+The current stable version is [v1.0.0](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/1.0.0).
 
 [![](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
 
