@@ -25,6 +25,7 @@
     <javaxjson.version>1.1.4</javaxjson.version>
     <jsonpath.version>2.2.0</jsonpath.version>
     <jts2geojson.version>0.13.0</jts2geojson.version>
+    <maven-jar.version>3.2.0</maven-jar.version>
     <ohsome-filter.version>1.1.3</ohsome-filter.version>
     <opencsv.version>4.0</opencsv.version>
     <oshdb.version>0.5.8</oshdb.version>
@@ -176,6 +177,18 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar.version}</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Implementation-Version>${project.version}</Implementation-Version>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
