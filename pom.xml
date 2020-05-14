@@ -11,7 +11,7 @@
 
 	<groupId>org.heigit.ohsome</groupId>
 	<artifactId>ohsome-api</artifactId>
-	<name>ohsome-api</name>
+	<name>ohsome API</name>
 	<description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
 	<packaging>jar</packaging>
 	<version>0.9.7</version>
