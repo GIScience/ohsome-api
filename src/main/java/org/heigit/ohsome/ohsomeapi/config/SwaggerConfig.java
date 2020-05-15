@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.springframework.context.annotation.Bean;
@@ -99,7 +100,7 @@ public class SwaggerConfig {
         "This REST-based API aims to leverage the tools of the "
             + "<a href=\"https://github.com/GIScience/oshdb\" target=\"_blank\">OSHDB</a> "
             + "through allowing to access some of its functionalities via HTTP requests.",
-        "1.0", "",
+        Application.API_VERSION, "",
         new Contact("Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
             "info@heigit.org"),
         "License of the used data", "https://ohsome.org/copyrights", Collections.emptyList());
@@ -122,13 +123,12 @@ public class SwaggerConfig {
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
         .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams
-        .add(new ParameterBuilder().name("types").description(ParameterDescriptions.TYPES)
-            .modelRef(new ModelRef(string)).allowMultiple(true).parameterType(query)
-            .defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("types")
+        .description(ParameterDescriptions.TYPES).modelRef(new ModelRef(string)).allowMultiple(true)
+        .parameterType(query).defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.KEYS).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
+        .description(ParameterDescriptions.KEYS).modelRef(new ModelRef(string)).parameterType(query)
+        .defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("values")
         .description(ParameterDescriptions.VALUES).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
@@ -148,17 +148,16 @@ public class SwaggerConfig {
           .parameterType(query).defaultValue("json").required(false).build());
     } else {
       globalOperationParams.add(new ParameterBuilder().name("time")
-          .description(ParameterDescriptions.TIME_DATA_EXTRACTION)
-          .modelRef(new ModelRef(string)).parameterType(query).defaultValue("2016-01-01,2017-01-01")
-          .required(true).build());
+          .description(ParameterDescriptions.TIME_DATA_EXTRACTION).modelRef(new ModelRef(string))
+          .parameterType(query).defaultValue("2016-01-01,2017-01-01").required(true).build());
       globalOperationParams.add(new ParameterBuilder().name("properties")
           .description(ParameterDescriptions.PROPERTIES).modelRef(new ModelRef(string))
           .parameterType(query).defaultValue("tags").required(false).build());
     }
-    globalOperationParams.add(new ParameterBuilder().name("showMetadata")
-        .description(ParameterDescriptions.SHOW_METADATA).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false)
-        .build());
+    globalOperationParams.add(
+        new ParameterBuilder().name("showMetadata").description(ParameterDescriptions.SHOW_METADATA)
+            .modelRef(new ModelRef(string)).parameterType(query)
+            .defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false).build());
     return globalOperationParams;
   }
 }
