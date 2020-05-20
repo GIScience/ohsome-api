@@ -162,11 +162,9 @@ http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCol
 
 * [Postman](https://www.getpostman.com/) - Software to test REST APIs (build and send HTTP requests and view the responses)
 
-## Authors
-
-
 ## License
 
+[AGPL](LICENSE).
 
 ## Acknowledgments
 
