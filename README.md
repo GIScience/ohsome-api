@@ -55,15 +55,13 @@ It lists all available resources and gives detailled information about the indiv
 
 ## Examples
 
-This section gives you some example request URLs and shows the returned JSON responses.<p>
+This section gives you some example JSON responses that also contain the respective request URL.<p>
 Please also take a look at our blog posts, where we provide more information about this API and show possible use-cases:
 * [How to build a request URL](http://k1z.blog.uni-heidelberg.de/2018/04/26/the-ohsome-api-dynamic-osm-statistics-for-real-world-applications/) 
 * [Background info about the documentation](http://k1z.blog.uni-heidelberg.de/2018/09/03/documentation-of-the-ohsome-api/) 
 * [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
 <p>
 
-http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true
-<p>
 
 ```json
 {
@@ -74,8 +72,8 @@ http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types
     "apiVersion": "0.9",
     "metadata": {
         "executionTime": 858,
-        "description": "Total length of lines in meter.",
-        "requestUrl": "http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types=way&time=2010-01-01/2016-08-01/P2Y2M2D&keys=highway&values=residential&showMetadata=true"
+        "description": "Total length of items in meters.",
+        "requestUrl": "http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&time=2010-01-01/2016-08-01/P2Y2M2D&showMetadata=true&filter=highway=residential%20and%20type:way"
     },
     "result": [
         {
@@ -98,8 +96,7 @@ http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&types
 }
 ```
 <p>
-http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"id":"Heidelberg"},"geometry":{"type":"Polygon","coordinates":[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]}},{"type":"Feature","properties":{"id":"Weinheim"},"geometry":{"type":"Polygon","coordinates":[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]}}]}&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true
-<p>
+
 
 ```json
 {
@@ -110,8 +107,8 @@ http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCol
     "apiVersion": "0.9",
     "metadata": {
         "executionTime": 670,
-        "description": "Total number of items aggregated on the boundary object.",
-        "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?bpolys=%7B%22type%22:%22FeatureCollection%22,%22features%22:[%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Heidelberg%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.684692,49.442905],[8.613625,49.43688],[8.613968,49.366726],[8.699455,49.356216],[8.731728,49.40427],[8.684692,49.442905]]]%7D%7D,%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Weinheim%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:[[[8.656197,49.571762],[8.611565,49.543034],[8.675766,49.516518],[8.698769,49.55751],[8.656197,49.571762]]]%7D%7D]%7D&types=way&time=2015-01/2017-01-01/P1Y&keys=building&showMetadata=true"
+        "description": "Total count of items in absolute values, aggregated on the boundary.",
+        "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?filter=building=%2A%20and%20type:way&time=2015-01/2017-01-01/P1Y&showMetadata=true&bpolys=%7B%22type%22:%22FeatureCollection%22,%22features%22:%5B%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Heidelberg%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B8.684692,49.442905%5D,%5B8.613625,49.43688%5D,%5B8.613968,49.366726%5D,%5B8.699455,49.356216%5D,%5B8.731728,49.40427%5D,%5B8.684692,49.442905%5D%5D%5D%7D%7D,%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Weinheim%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B8.656197,49.571762%5D,%5B8.611565,49.543034%5D,%5B8.675766,49.516518%5D,%5B8.698769,49.55751%5D,%5B8.656197,49.571762%5D%5D%5D%7D%7D%5D%7D"
     },
     "groupByBoundaryResult": [
         {
