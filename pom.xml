@@ -13,7 +13,7 @@
   <name>ohsome API</name>
   <description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
   <packaging>jar</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0-RC1</version>
 
   <properties>
     <apachecommons-csv.version>1.6</apachecommons-csv.version>
