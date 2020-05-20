@@ -1,29 +1,33 @@
 ## current master
 
+
+## 1.0.0
+
 ### Prominent Changes
 
-* Removal of userids parameter and /groupBy/user resource (#51)
+* Implement new powerful filter parameter
+* Release source code under AGPL license
+* Removal of userids parameter and /groupBy/user resource
 * Removal of /share resource (452ea663)
 * New category 'total' in response for /users/count/groupBY/tag|key (41d0c830)
 * Deactivating contribution types in full-history response (1d7a1ec7)
-* OSHDB version 0.5.5 (43dd4133)
 
 ### New Features
 
 * Integration of csv as output format (3850891d)
-* Implementing cache logic used via HTTP headers (#52)
+* Implementing cache logic used via HTTP headers
 * Parameter timeout to define custom timeout for request (8ebec3ba)
 * Nested group-by resource: /groupBy/boundary/groupBy/tag (cb82b9f6)
 * Implementing simple feature types support (fba76544, c2dcc837)
 
 ### Bug Fixes
 
-* Wrong response for GeoJSON boundaries lying outside of data extract (#47)
-* Request parameter usage (#48)
-* Content type header and encoding of csv response (#49)
-* Proper request encoding if encoding is not defined (#53)
-* Wrong response when same geometry is used for different input features (#56)
-* Not fully working unclipped property for data extraction (#62, #65)
+* Wrong response for GeoJSON boundaries lying outside of data extract
+* Request parameter usage
+* Content type header and encoding of csv response
+* Proper request encoding if encoding is not defined
+* Wrong response when same geometry is used for different input features
+* Not fully working unclipped property for data extraction
 * Several other bugs (04a798b5, 01eca91f, 585933c7, 16aec329)
 
 ### Performance and Code Quality
@@ -40,6 +44,7 @@
 
 ### Other Changes
 
+* OSHDB version 0.5.8
 * Adding this Changelog
 * Start spring-boot application after connection with oshdb has been fully established (25ee2e15)
 
