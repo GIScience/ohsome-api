@@ -160,7 +160,7 @@ pipeline {
           sh """
             source $venv_name/bin/activate
             cd docs
-            pip install -r requirements.txt
+            python3 -m pip install -r requirements.txt
             DOCS_DEPLOYMENT=${DOCS_DEPLOYMENT} make clean html
           """
           sh "mkdir -p $publish_dir && rm -rf $publish_dir* && cp -r docs/_build/html/* $publish_dir"
