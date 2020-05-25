@@ -150,24 +150,27 @@ pipeline {
             API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
           }
 
-          publish_dir="/srv/javadoc/" + reponame + "/" + API_DOCS_PATH + "/"
-          venv_name='venv-ohsome-api-apidocs'
+          publish_dir = "/srv/javadoc/" + reponame + "/" + API_DOCS_PATH + "/"
+          venv_dir = sh(returnStdout: true, script: 'mktemp -d --suffix .sphinx-docs').trim() + "/venv"
 
-          if (!fileExists("$venv_name")) {
-            sh "python3 -m venv $venv_name"
+          if (!fileExists("$venv_dir")) {
+            sh "python3 -m venv $venv_dir"
           }
 
           sh """
-            source $venv_name/bin/activate
+            source $venv_dir/bin/activate
             cd docs
+            python3 -m pip install -U pip
             python3 -m pip install -r requirements.txt
             DOCS_DEPLOYMENT=${DOCS_DEPLOYMENT} make clean html
           """
           sh "mkdir -p $publish_dir && rm -rf $publish_dir* && cp -r docs/_build/html/* $publish_dir"
+          sh "rm -rf $venv_dir"
         }
       }
       post {
         failure {
+          sh "rm -rf $venv_dir"
           rocketSend channel: 'jenkinsohsome', message: "Deployment of api docs $reponame-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${author}." , rawMessage: true
         }
       }
