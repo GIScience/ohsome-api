@@ -152,11 +152,41 @@ http://localhost:8080/elements/count/groupBy/boundary?bpolys={"type":"FeatureCol
 }
 ```
 
+## Documentation
+
+[Install Sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html) before running the following commands e.g. by using this commands:
+```bash
+cd docs
+pip3 install -r requirements.txt
+```
+
+To update the ohsome API swagger files for the documentation:
+```bash
+cd docs
+wget 'https://api.ohsome.org/v1/docs?group=Data%20Aggregation' -O _static/swagger-aggregation.json
+wget 'https://api.ohsome.org/v1/docs?group=Data%20Extraction' -O _static/swagger-extraction.json
+wget 'https://api.ohsome.org/v1/docs?group=Metadata' -O _static/swagger-metadata.json
+```
+
+The documentation can be built with the following command:
+```bash
+cd docs
+make clean # if you want to recreate all pages
+make html
+```
+
+If you want to see the release version of the ohsome API docs, use this environment variable:
+```bash
+cd docs
+DOCS_DEPLOYMENT=release make clean html
+```
+
 ## Built With
 
 * [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a) - IDE
 * [Spring Boot](https://projects.spring.io/spring-boot/) - Web framework
 * [Maven](https://maven.apache.org/) - Dependency management and project building
+* [Sphinx](https://www.sphinx-doc.org) - API documentation
 
 ## Tested With
 
