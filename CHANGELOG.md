@@ -7,6 +7,7 @@
 
 * Implement new powerful filter parameter
 * Release source code under AGPL license
+* Adding of sphinx-docs under /docs folder (55a31914)
 * Removal of userids parameter and /groupBy/user resource
 * Removal of /share resource (452ea663)
 * New category 'total' in response for /users/count/groupBY/tag|key (41d0c830)
