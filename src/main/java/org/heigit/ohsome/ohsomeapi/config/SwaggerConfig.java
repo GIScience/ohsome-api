@@ -36,7 +36,7 @@ public class SwaggerConfig {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("Data Aggregation").select()
         .apis(RequestHandlerSelectors
-            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.dataaggregation"))
+            .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(false))
         .tags(new Tag("Users", "Compute data aggregation functions on users"),
@@ -53,8 +53,8 @@ public class SwaggerConfig {
   public Docket metadataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("Metadata").select()
-        .apis(RequestHandlerSelectors
-            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.metadata"))
+        .apis(
+            RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .tags(new Tag("Metadata", "Request metadata of the underlying OSHDB"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
@@ -65,8 +65,7 @@ public class SwaggerConfig {
   public Docket rawDataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("Data Extraction").select()
-        .apis(RequestHandlerSelectors
-            .basePackage("org.heigit.bigspatialdata.ohsome.ohsomeapi.controller.rawdata"))
+        .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
         .tags(new Tag("Data Extraction", "Direct access to the OSM data"),

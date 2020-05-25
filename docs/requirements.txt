@@ -1,0 +1,8 @@
+sphinx
+sphinxcontrib-httpdomain
+sphinxcontrib-openapi
+sphinx-rtd-theme
+sphinx_tabs
+recommonmark
+m2r
+anytree

@@ -1,0 +1,34 @@
+https://api.ohsome.org
+└── v1
+    ├── elements
+    │   ├── area, count, length, perimeter
+    │   │   ├── density
+    │   │   │   ├── groupBy/boundary
+    │   │   │   │   └── groupBy/tag
+    │   │   │   ├── groupBy/tag
+    │   │   │   └── groupBy/type
+    │   │   ├── groupBy/key
+    │   │   ├── groupBy/boundary
+    │   │   │   └── groupBy/tag
+    │   │   ├── groupBy/tag
+    │   │   ├── groupBy/type
+    │   │   └── ratio
+    │   │       └── groupBy/boundary
+    │   ├── bbox
+    │   ├── centroid
+    │   └── geometry
+    ├── users
+    │   └── count
+    │       ├── density
+    │       │   ├── groupBy/boundary
+    │       │   ├── groupBy/tag
+    │       │   └── groupBy/type
+    │       ├── groupBy/boundary
+    │       ├── groupBy/key
+    │       ├── groupBy/tag
+    │       └── groupBy/type
+    ├── elementsFullHistory
+    │   ├── bbox
+    │   ├── centroid
+    │   └── geometry
+    └── metadata

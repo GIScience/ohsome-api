@@ -133,6 +133,47 @@ pipeline {
       }
     }
 
+    // START CUSTOM ohsome API
+    stage ('Publish API Docs') {
+      when {
+        expression {
+          return env.BRANCH_NAME ==~ /(^[0-9]+$)|(^(([0-9]+)(\.))+([0-9]+)?$)|(^master$)/
+        }
+      }
+      steps {
+        script {
+          DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
+          DOCS_DEPLOYMENT = "development"
+          API_DOCS_PATH = "development"
+          if(VERSION ==~ DOC_RELEASE_REGEX) {
+            DOCS_DEPLOYMENT = "release"
+            API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
+          }
+
+          publish_dir="/srv/javadoc/" + reponame + "/" + API_DOCS_PATH + "/"
+          venv_name='venv-ohsome-api-apidocs'
+
+          if (!fileExists("$venv_name")) {
+            sh "python3 -m venv $venv_name"
+          }
+
+          sh """
+            source $venv_name/bin/activate
+            cd docs
+            pip install -r requirements.txt
+            DOCS_DEPLOYMENT=${DOCS_DEPLOYMENT} make clean html
+          """
+          sh "mkdir -p $publish_dir && rm -rf $publish_dir* && cp -r docs/_build/html/* $publish_dir"
+        }
+      }
+      post {
+        failure {
+          rocketSend channel: 'jenkinsohsome', message: "Deployment of api docs $reponame-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${author}." , rawMessage: true
+        }
+      }
+    }
+    // END CUSTOM ohsome API
+
     stage ('Reports and Statistics') {
       steps {
         script {
