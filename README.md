@@ -193,5 +193,3 @@ DOCS_DEPLOYMENT=release make clean html
 
 [AGPL](LICENSE).
 
-## Acknowledgments
-
