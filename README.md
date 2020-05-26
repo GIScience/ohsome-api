@@ -69,7 +69,7 @@ Please also take a look at our blog posts, where we provide more information abo
         "url": "https://ohsome.org/copyrights",
         "text": "© OpenStreetMap contributors"
     },
-    "apiVersion": "0.9",
+    "apiVersion": "1.0.0",
     "metadata": {
         "executionTime": 858,
         "description": "Total length of items in meters.",
@@ -104,7 +104,7 @@ Please also take a look at our blog posts, where we provide more information abo
         "url": "https://ohsome.org/copyrights",
         "text": "© OpenStreetMap contributors"
     },
-    "apiVersion": "0.9",
+    "apiVersion": "1.0.0",
     "metadata": {
         "executionTime": 670,
         "description": "Total count of items in absolute values, aggregated on the boundary.",
