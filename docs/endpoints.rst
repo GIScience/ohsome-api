@@ -1061,11 +1061,11 @@ Extraction Endpoints
 
 .. http:post :: /elements/(geometryType)
 
-   Get snapshots of OSM data having the given ``geometryType`` (bbox, centroid, or geometry)
-   
+   Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
+
    :query time: required; format same as described in time_
-   :query properties: property groups added to each OSM element: ‘tags’ and/or 'metadata’ and/or 'unclipped'; default: empty
-   :query <other>: see above_
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query <other>: see above_ (except **format**)
 
 .. note:: The extraction endpoints always return a .geojson file.
 
@@ -1128,12 +1128,12 @@ Extraction Endpoints
 
 .. http:post :: /elementsFullHistory/(geometryType)
 
-   Get the full history of OSM data having the given ``geometryType``. This endpoint has the same
-   geometry types as the ``/elements`` endpoint.
+   Get the full history of OSM data as a GeoJSON feature collection. All changes to matching OSM features are included with corresponding ``validFrom`` and ``validTo`` timestamps.
+   This endpoint supports the same ``geometryType`` options as the ``/elements`` endpoint.
 
-   :query time: required; can only consist of two ISO-8601 conform timestrings defining an interval; no default value
-   :query properties: property groups added to each OSM element: ‘tags’ and/or 'metadata’ and/or 'unclipped'; default: empty
-   :query <other>: see above_
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query <other>: see above_ (except **format**)
 
 .. _above: endpoints.html#post--elements-(aggregation)
 .. _time: time.html#time
