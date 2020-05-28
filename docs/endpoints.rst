@@ -41,13 +41,13 @@ Aggregation Endpoints
 
       # How big is the area of farmland in the region Rhein-Neckar?
 
-      curl -X GET 'https://api.ohsome.org/v1/elements/area?bboxes=8.625,49.3711,8.7334,49.4397&format=json&time=2014-01-01&filter=landuse=farmland%20and%20type:way' -H  'accept: application/json'
+      curl -X GET 'https://api.ohsome.org/v1/elements/area?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&time=2014-01-01&filter=landuse%3Dfarmland%20and%20type%3Away'
 
    .. code-tab:: bash curl (POST)
 
       # How big is the area of farmland in the region Rhein-Neckar?
 
-      curl -X POST 'https://api.ohsome.org/v1/elements/area' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode  'format=json' --data-urlencode  'time=2014-01-01' --data-urlencode  'filter=landuse=farmland and type:way'
+      curl -X POST 'https://api.ohsome.org/v1/elements/area' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode 'format=json' --data-urlencode 'time=2014-01-01' --data-urlencode 'filter=landuse=farmland and type:way'
 
    .. code-tab:: python Python
 
@@ -64,7 +64,7 @@ Aggregation Endpoints
        # How big is the area of farmland in the region Rhein-Neckar?
 
        library(httr)
-       r <- POST("https://api.ohsome.org/v1/elements/area",encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397",filter = "landuse=farmland and type:way",time = "2014-01-01"))
+       r <- POST("https://api.ohsome.org/v1/elements/area", encode = "form", body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "landuse=farmland and type:way", time = "2014-01-01"))
        r
 
 
@@ -146,13 +146,13 @@ Aggregation Endpoints
 
          # What is the density of restaurants with wheelchair access in Heidelberg?
 
-         curl -X GET 'https://api.ohsome.org/v1/elements/count/density?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&filter=amenity=restaurant and wheelchair=yes and type:node&time=2019-05-07' -H  'accept: application/json'
+         curl -X GET 'https://api.ohsome.org/v1/elements/count/density?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&filter=amenity%3Drestaurant%20and%20wheelchair%3Dyes%20and%20type%3Anode&time=2019-05-07'
 
       .. code-tab:: bash curl (POST)
 
          # What is the density of restaurants with wheelchair access in Heidelberg?
 
-         curl -X POST 'https://api.ohsome.org/v1/elements/count/density' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode  'format=json' --data-urlencode  'time=2019-05-07' --data-urlencode  'filter=amenity=restaurant and wheelchair=yes and type:node'
+         curl -X POST 'https://api.ohsome.org/v1/elements/count/density' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode 'format=json' --data-urlencode 'time=2019-05-07' --data-urlencode 'filter=amenity=restaurant and wheelchair=yes and type:node'
 
       .. code-tab:: python Python
 
@@ -169,7 +169,7 @@ Aggregation Endpoints
          # What is the density of restaurants with wheelchair access in Heidelberg?
 
          library(httr)
-         r <- POST("https://api.ohsome.org/v1/elements/count/density",encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397",filter = "amenity=restaurant and wheelchair=yes and type:node",time = "2019-05-07"))
+         r <- POST("https://api.ohsome.org/v1/elements/count/density", encode = "form", body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "amenity=restaurant and wheelchair=yes and type:node", time = "2019-05-07"))
          r
 
 **Example response**:
@@ -251,33 +251,33 @@ Aggregation Endpoints
 
       .. code-tab:: bash curl (GET)
 
-          # How many oneway streets exist within living_street streets in Heidelberg over time?
+          # How many oneway streets exist within living_street streets in Heidelberg over time? And how many of them are oneway streets?
 
-          curl -X GET 'https://api.ohsome.org/v1/elements/length/ratio?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&filter=highway=living_street and type:way&filter2=oneway=yes and type:way&time=2016-01-01%2F2018-01-01%2FP1Y' -H  'accept: application/json'
+          curl -X GET 'https://api.ohsome.org/v1/elements/length/ratio?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&filter=highway%3Dliving_street%20and%20type%3Away&filter2=highway%3Dliving_street%20and%20oneway%3Dyes%20and%20type%3Away&time=2016-01-01%2F2018-01-01%2FP1Y'
 
       .. code-tab:: bash curl (POST)
 
-          # How many oneway streets exist within living_street streets in Heidelberg over time?
+          # How many oneway streets exist within living_street streets in Heidelberg over time? And how many of them are oneway streets?
 
-          curl -X POST 'https://api.ohsome.org/v1/elements/length/ratio' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode  'format=json' --data-urlencode  'time=2016-01-01/2018-01-01/P1Y' --data-urlencode  'filter=highway=living_street and type:way' --data-urlencode  'filter2=oneway=yes and type:way'
+          curl -X POST 'https://api.ohsome.org/v1/elements/length/ratio' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode 'format=json' --data-urlencode 'time=2016-01-01/2018-01-01/P1Y' --data-urlencode 'filter=highway=living_street and type:way' --data-urlencode 'filter2=highway=living_street and oneway=yes and type:way'
 
 
       .. code-tab:: python Python
 
-          # How many oneway streets exist within living_street streets in Heidelberg over time?
+          # How many oneway streets exist within living_street streets in Heidelberg over time? And how many of them are oneway streets?
 
           import requests
           URL = 'https://api.ohsome.org/v1/elements/length/ratio'
-          data = {"bboxes": "8.625,49.3711,8.7334,49.4397", "format": "json", "time": "2016-01-01/2018-01-01/P1Y", "filter": "highway=living_street and type:way", "filter2": "oneway=yes and type:way"}
+          data = {"bboxes": "8.625,49.3711,8.7334,49.4397", "format": "json", "time": "2016-01-01/2018-01-01/P1Y", "filter": "highway=living_street and type:way", "filter2": "highway=living_street and oneway=yes and type:way"}
           response = requests.post(URL, data=data)
           print(response.json())
 
       .. code-tab:: r R
 
-           # How many oneway streets exist within living_street streets in Heidelberg over time?
+           # How many oneway streets exist within living_street streets in Heidelberg over time? And how many of them are oneway streets?
 
            library(httr)
-           r <- POST("https://api.ohsome.org/v1/elements/length/ratio",encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397",time = "2016-01-01/2018-01-01/P1Y",filter = "highway=living_street and type:way",filter2 = "oneway=yes and type:way"))
+           r <- POST("https://api.ohsome.org/v1/elements/length/ratio", encode = "form", body = list(bboxes = "8.625,49.3711,8.7334,49.4397", time = "2016-01-01/2018-01-01/P1Y", filter = "highway=living_street and type:way", filter2 = "highway=living_street and oneway=yes and type:way"))
            r
 
 **Example response**:
@@ -295,18 +295,18 @@ Aggregation Endpoints
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
-                 "value2" : 177243.99000000002,
-                 "ratio" : 6.184256
+                 "value2" : 7079.26,
+                 "ratio" : 0.247004
                }, {
                  "timestamp" : "2017-01-01T00:00:00Z",
                  "value" : 29410.69,
-                 "value2" : 183803.09,
-                 "ratio" : 6.249533
+                 "value2" : 7025.94,
+                 "ratio" : 0.238891
                }, {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 30191.93,
-                 "value2" : 183180.4,
-                 "ratio" : 6.067197
+                 "value2" : 6729.34,
+                 "ratio" : 0.222885
                } ]
              }
 
@@ -322,18 +322,18 @@ Aggregation Endpoints
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
-                 "value2" : 177243.99000000002,
-                 "ratio" : 6.184256
+                 "value2" : 7079.26,
+                 "ratio" : 0.247004
                }, {
                  "timestamp" : "2017-01-01T00:00:00Z",
                  "value" : 29410.69,
-                 "value2" : 183803.09,
-                 "ratio" : 6.249533
+                 "value2" : 7025.94,
+                 "ratio" : 0.238891
                }, {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 30191.93,
-                 "value2" : 183180.4,
-                 "ratio" : 6.067197
+                 "value2" : 6729.34,
+                 "ratio" : 0.222885
                } ]
              }
 
@@ -350,18 +350,18 @@ Aggregation Endpoints
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
-                 "value2" : 177243.99000000002,
-                 "ratio" : 6.184256
+                 "value2" : 7079.26,
+                 "ratio" : 0.247004
                }, {
                  "timestamp" : "2017-01-01T00:00:00Z",
                  "value" : 29410.69,
-                 "value2" : 183803.09,
-                 "ratio" : 6.249533
+                 "value2" : 7025.94,
+                 "ratio" : 0.238891
                }, {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 30191.93,
-                 "value2" : 183180.4,
-                 "ratio" : 6.067197
+                 "value2" : 6729.34,
+                 "ratio" : 0.222885
                } ]
              }
 
@@ -376,18 +376,18 @@ Aggregation Endpoints
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
-                 "value2" : 177243.99000000002,
-                 "ratio" : 6.184256
+                 "value2" : 7079.26,
+                 "ratio" : 0.247004
                }, {
                  "timestamp" : "2017-01-01T00:00:00Z",
                  "value" : 29410.69,
-                 "value2" : 183803.09,
-                 "ratio" : 6.249533
+                 "value2" : 7025.94,
+                 "ratio" : 0.238891
                }, {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 30191.93,
-                 "value2" : 183180.4,
-                 "ratio" : 6.067197
+                 "value2" : 6729.34,
+                 "ratio" : 0.222885
                } ]
              }
 
@@ -420,13 +420,13 @@ Aggregation Endpoints
 
         # How often information about the roof of buildings is present?
 
-        curl -X GET 'https://api.ohsome.org/v1/elements/count/groupBy/key?bboxes=Heidelberg:8.625%2C49.3711%2C8.7334%2C49.4397&format=json&time=2018-01-01&filter=building=* and type:way&groupByKeys=building:roof,building:roof:colour' -H  'accept: application/json'
+        curl -X GET 'https://api.ohsome.org/v1/elements/count/groupBy/key?bboxes=Heidelberg:8.625%2C49.3711%2C8.7334%2C49.4397&format=json&time=2018-01-01&filter=building%3D*%20and%20type%3Away&groupByKeys=building%3Aroof%2Cbuilding%3Aroof%3Acolour'
 
      .. code-tab:: bash curl (POST)
 
         # How often information about the roof of buildings is present?
 
-        curl -X POST 'https://api.ohsome.org/v1/elements/count/groupBy/key' --data-urlencode 'bboxes=Heidelberg:8.625,49.3711,8.7334,49.4397' --data-urlencode  'format=json' --data-urlencode  'time=2018-01-01' --data-urlencode  'groupByKeys=building:roof,building:roof:colour'  --data-urlencode  'filter=building=* and type:way'
+        curl -X POST 'https://api.ohsome.org/v1/elements/count/groupBy/key' --data-urlencode 'bboxes=Heidelberg:8.625,49.3711,8.7334,49.4397' --data-urlencode 'format=json' --data-urlencode 'time=2018-01-01' --data-urlencode 'groupByKeys=building:roof,building:roof:colour' --data-urlencode 'filter=building=* and type:way'
 
      .. code-tab:: python Python
 
@@ -443,7 +443,7 @@ Aggregation Endpoints
         # How often information about the roof of buildings is present?
 
         library(httr)
-          r <- POST("https://api.ohsome.org/v1/elements/count/groupBy/key",encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397",filter = "building=* and type:way",time = "2018-01-01",groupByKeys = "building:roof,building:roof:colour"))
+          r <- POST("https://api.ohsome.org/v1/elements/count/groupBy/key", encode = "form", body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "building=* and type:way", time = "2018-01-01", groupByKeys = "building:roof,building:roof:colour"))
           r
 
 **Example response**:
@@ -598,14 +598,14 @@ Aggregation Endpoints
 
            # Compare length of different types of streets for two or more regions.
 
-           curl -X GET 'https://api.ohsome.org/v1/elements/length/groupBy/boundary/groupBy/tag?bboxes=Heidelberg:8.625%2C49.3711%2C8.7334%2C49.4397|Plankstadt:8.5799,49.3872,8.6015,49.4011&format=json&groupByKey=highway&time=2018-01-01&groupByValues=primary,secondary,tertiary&filter=type:way' -H  'accept: application/json'
+           curl -X GET 'https://api.ohsome.org/v1/elements/length/groupBy/boundary/groupBy/tag?bboxes=Heidelberg%3A8.625%2C49.3711%2C8.7334%2C49.4397%7CPlankstadt%3A8.5799%2C49.3872%2C8.6015%2C49.4011&format=json&groupByKey=highway&time=2018-01-01&groupByValues=primary%2Csecondary%2Ctertiary&filter=type%3Away'
 
 
         .. code-tab:: bash curl (POST)
 
            # Compare length of different types of streets for two or more regions.
 
-           curl -X POST 'https://api.ohsome.org/v1/elements/length/groupBy/boundary/groupBy/tag' --data-urlencode 'bboxes=Heidelberg:8.625,49.3711,8.7334,49.4397|Plankstadt:8.5799,49.3872,8.6015,49.4011' --data-urlencode  'format=json' --data-urlencode  'time=2018-01-01' --data-urlencode  'filter=type:way' --data-urlencode  'groupByKey=highway'  --data-urlencode  'groupByValues=primary,secondary,tertiary'
+           curl -X POST 'https://api.ohsome.org/v1/elements/length/groupBy/boundary/groupBy/tag' --data-urlencode 'bboxes=Heidelberg:8.625,49.3711,8.7334,49.4397|Plankstadt:8.5799,49.3872,8.6015,49.4011' --data-urlencode 'format=json' --data-urlencode 'time=2018-01-01' --data-urlencode 'filter=type:way' --data-urlencode 'groupByKey=highway' --data-urlencode 'groupByValues=primary,secondary,tertiary'
 
 
         .. code-tab:: python Python
@@ -623,7 +623,7 @@ Aggregation Endpoints
              # Compare length of different types of streets for two or more regions.
 
              library(httr)
-             r <- POST("https://api.ohsome.org/v1/elements/length/groupBy/boundary/groupBy/tag",encode = "form",body = list(bboxes = "Heidelberg:8.625,49.3711,8.7334,49.4397|Plankstadt:8.5799,49.3872,8.6015,49.4011",groupByKey = "highway",time = "2018-01-01",filter = "type:way",groupByValues = "primary,secondary,tertiary"))
+             r <- POST("https://api.ohsome.org/v1/elements/length/groupBy/boundary/groupBy/tag", encode = "form", body = list(bboxes = "Heidelberg:8.625,49.3711,8.7334,49.4397|Plankstadt:8.5799,49.3872,8.6015,49.4011", groupByKey = "highway", time = "2018-01-01", filter = "type:way", groupByValues = "primary,secondary,tertiary"))
              r
 
 **Example response**:
@@ -898,13 +898,13 @@ Users Aggregation Endpoints
 
        # Show number of users editing buildings before, during and after Nepal earthquake 2015.
 
-       curl -X GET 'https://api.ohsome.org/v1/users/count?bboxes=82.3055%2C6.7576%2C87.4663%2C28.7025&format=json&filter=building=* and type:way&time=2015-03-01/2015-08-01/P1M' -H  'accept: application/json'
+       curl -X GET 'https://api.ohsome.org/v1/users/count?bboxes=82.3055%2C6.7576%2C87.4663%2C28.7025&format=json&filter=building%3D*%20and%20type%3Away&time=2015-03-01%2F2015-08-01%2FP1M'
 
     .. code-tab:: bash curl (POST)
 
        # Show number of users editing buildings before, during and after Nepal earthquake 2015.
 
-       curl -X POST 'https://api.ohsome.org/v1/users/count' --data-urlencode 'bboxes=82.3055,6.7576,87.4663,28.7025' --data-urlencode  'format=json' --data-urlencode  'time=2015-03-01/2015-08-01/P1M' --data-urlencode  'filter=building=* and type:way'
+       curl -X POST 'https://api.ohsome.org/v1/users/count' --data-urlencode 'bboxes=82.3055,6.7576,87.4663,28.7025' --data-urlencode 'format=json' --data-urlencode 'time=2015-03-01/2015-08-01/P1M' --data-urlencode 'filter=building=* and type:way'
 
     .. code-tab:: python Python
 
@@ -921,7 +921,7 @@ Users Aggregation Endpoints
         # Show number of users editing buildings before, during and after Nepal earthquake 2015.
 
         library(httr)
-        r <- POST("https://api.ohsome.org/v1/users/count",encode = "form",body = list(bboxes = "82.3055,6.7576,87.4663,28.7025",filter = "building=* and type:way",time = "2015-03-01/2015-08-01/P1M"))
+        r <- POST("https://api.ohsome.org/v1/users/count", encode = "form", body = list(bboxes = "82.3055,6.7576,87.4663,28.7025", filter = "building=* and type:way", time = "2015-03-01/2015-08-01/P1M"))
         r
 
 
@@ -1077,13 +1077,13 @@ Extraction Endpoints
 
        # Get all the bike rental stations in Heidelberg.
 
-       curl -X GET 'https://api.ohsome.org/v1/elements/geometry?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&filter=amenity=bicycle_rental and type:node&time=2019-09-01' -H  'accept: application/json'
+       curl -X GET 'https://api.ohsome.org/v1/elements/geometry?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&filter=amenity%3Dbicycle_rental%20and%20type%3Anode&time=2019-09-01'
 
     .. code-tab:: bash curl (POST)
 
        # Get all the bike rental stations in Heidelberg.
 
-       curl -X POST 'https://api.ohsome.org/v1/elements/geometry' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode  'time=2019-09-01' --data-urlencode  'filter=amenity=bicycle_rental and type:node'
+       curl -X POST 'https://api.ohsome.org/v1/elements/geometry' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode 'time=2019-09-01' --data-urlencode 'filter=amenity=bicycle_rental and type:node'
 
     .. code-tab:: python Python
 
@@ -1100,7 +1100,7 @@ Extraction Endpoints
         # Get all the bike rental stations in Heidelberg.
 
         library(httr)
-        r <- POST("https://api.ohsome.org/v1/elements/geometry",encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397",filter = "amenity=bicycle_rental and type:node",time = "2019-09-01"))
+        r <- POST("https://api.ohsome.org/v1/elements/geometry", encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "amenity=bicycle_rental and type:node", time = "2019-09-01"))
         r
 
 
@@ -1146,13 +1146,13 @@ Extraction Endpoints
 
        # Extract the modifications of the blown up tower of the heidelberg castle over time
 
-       curl -X GET 'https://api.ohsome.org/v1/elementsFullHistory/geometry?bboxes=8.7137%2C49.4096%2C8.717%2C49.4119&filter=name=Krautturm and type:way&time=2008-01-01%2C2016-01-01' -H  'accept: application/json'
+       curl -X GET 'https://api.ohsome.org/v1/elementsFullHistory/geometry?bboxes=8.7137%2C49.4096%2C8.717%2C49.4119&filter=name%3DKrautturm%20and%20type%3Away&time=2008-01-01%2C2016-01-01'
 
     .. code-tab:: bash curl (POST)
 
        # Extract the modifications of the blown up tower of the heidelberg castle over time
 
-       curl -X POST 'https://api.ohsome.org/v1/elementsFullHistory/geometry' --data-urlencode 'bboxes=8.7137,49.4096,8.717,49.4119' --data-urlencode  'time=2008-01-01,2016-01-01' --data-urlencode  'filter=name=Krautturm and type:way'
+       curl -X POST 'https://api.ohsome.org/v1/elementsFullHistory/geometry' --data-urlencode 'bboxes=8.7137,49.4096,8.717,49.4119' --data-urlencode 'time=2008-01-01,2016-01-01' --data-urlencode 'filter=name=Krautturm and type:way'
 
     .. code-tab:: python Python
 
@@ -1169,7 +1169,7 @@ Extraction Endpoints
         # Extract the modifications of the blown up tower of the heidelberg castle over time
 
         library(httr)
-        r <- POST("https://api.ohsome.org/v1/elementsFullHistory/geometry",encode = "form",body = list(bboxes = "8.7137,49.4096,8.717,49.4119",time = "2008-01-01,2016-01-01",filter = "name=Krautturm and type:way"))
+        r <- POST("https://api.ohsome.org/v1/elementsFullHistory/geometry", encode = "form", body = list(bboxes = "8.7137,49.4096,8.717,49.4119", time = "2008-01-01,2016-01-01", filter = "name=Krautturm and type:way"))
         r
 
 .. note:: The following example responses only show parts of the returned .geojson file.
@@ -1363,7 +1363,7 @@ Metadata Endpoint
         # Get metadata of the underlying OSHDB data
 
         library(httr)
-        r <- GET("https://api.ohsome.org/v1/metadata",encode = "form")
+        r <- GET("https://api.ohsome.org/v1/metadata")
         r
 
 
