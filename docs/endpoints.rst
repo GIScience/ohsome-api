@@ -20,12 +20,12 @@ Aggregation Endpoints
    :query <boundary>: One of these boundary parameters: bboxes_, bcircles_, bpolys_. See boundaries_
    :query filter: combines several attributive filters: OSM type, geometry (simple feature) type, as well as the OSM tag; See filter_
    :query format: 'json' or 'csv'; default: 'json'
-   :query keys: OSM key(s) given as a list and combined with the 'AND' operator; default: empty
    :query showMetadata: add additional metadata information to the response: 'true', 'false', 'yes', 'no'; default: 'false'
    :query time: ISO-8601 conform timestring(s); default: latest timestamp in the OSHDB, see time_
    :query timeout: custom timeout to limit the processing time in seconds; default: empty
-   :query types: OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
-   :query values: OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty
+   :query types: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
+   :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
+   :query values: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty
 .. _bboxes: boundaries.html#bounding-boxes
 .. _bcircles: boundarices.html#circles
 .. _bpolys: boundaries.html#polygons
@@ -235,16 +235,15 @@ Aggregation Endpoints
 
 .. http:post :: /elements/(aggregation)/ratio
 
-   Get ratio of OSM elements satisfying ``filter2`` (or ``keys2``, ``values2``, ``types2``)
-   within ``filter`` (or ``keys``, ``values``, ``types``).
+   Get ratio of OSM elements satisfying ``filter2`` to elements satisfying ``filter``.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    
    :query <other>: see above_
    :query filter2: see filter_
-   :query keys2: see keys
-   :query types2: see types
-   :query values2: see values
+   :query keys2: Deprecated! see **filter2**
+   :query types2: Deprecated! use **filter2**
+   :query values2: Deprecated! see **filter2**
    
 **Example request**:
 
