@@ -18,10 +18,10 @@ Aggregation Endpoints
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    
    :query <boundary>: One of these boundary parameters: bboxes_, bcircles_, bpolys_. See boundaries_
+   :query time: ISO-8601 conform timestring(s); default: latest timestamp in the OSHDB, see time_
    :query filter: combines several attributive filters: OSM type, geometry (simple feature) type, as well as the OSM tag; See filter_
    :query format: 'json' or 'csv'; default: 'json'
    :query showMetadata: add additional metadata information to the response: 'true', 'false', 'yes', 'no'; default: 'false'
-   :query time: ISO-8601 conform timestring(s); default: latest timestamp in the OSHDB, see time_
    :query timeout: custom timeout to limit the processing time in seconds; default: empty
    :query types: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
    :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
