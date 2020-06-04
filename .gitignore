@@ -1,2 +1,4 @@
 /target/'.idea' 
 /target/
+.idea/*
+!.idea/checkstyle-idea.xml
