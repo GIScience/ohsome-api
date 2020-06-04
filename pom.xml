@@ -219,14 +219,14 @@
 
   <scm>
     <!-- https://maven.apache.org/pom.html#SCM -->
-    <connection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</connection>
-    <developerConnection>scm:git:git@gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</developerConnection>
-    <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api.git</url>
+    <connection>scm:git:git@github.com:GIScience/ohsome-api.git</connection>
+    <developerConnection>scm:git:git@github.com:GIScience/ohsome-api.git</developerConnection>
+    <url>https://github.com/GIScience/ohsome-api</url>
   </scm>
 
   <issueManagement>
-    <system>GitLab</system>
-    <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/issues</url>
+    <system>GitHub</system>
+    <url>https://github.com/GIScience/ohsome-api/issues</url>
   </issueManagement>
 
 
