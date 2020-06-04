@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import org.apache.commons.text.similarity.FuzzyScore;
 
@@ -11,6 +12,9 @@ import org.apache.commons.text.similarity.FuzzyScore;
  * available parameter of the given resource.
  */
 public class StringSimilarity {
+  private StringSimilarity() {
+    throw new IllegalStateException("Utility class");
+  }
 
   /**
    * Computes a string similarity (Fuzzy Score algorithm) between the requested parameter and the
@@ -19,11 +23,9 @@ public class StringSimilarity {
    * considered. If all comparisons give a fuzzy score lower than 5, it returns only a message of
    * "unknown parameter" without suggestions.
    * 
-   * <p>
-   * For example:
+   * <p>For example:
    * 
-   * <p>
-   * <ul>
+   * <p><ul>
    * <li>Given the false parameter "metadata" for the resource "groupByTag", it returns the
    * suggestions "showMetadata" and "timeout", which are the only two matches with a score higher
    * than 4.</li>
@@ -36,39 +38,40 @@ public class StringSimilarity {
    * a message of "unknown parameter" without suggestions.</li>
    * </ul>
    * 
-   * <p>
-   * <strong>Warning: Given typical mistyped parameters like "froupByKeys" or "fgroupByKeys" for the
-   * resource "groupByKey", it returns only a message of "unknown parameter" without suggestions
+   * <p><strong>Warning: Given typical mistyped parameters like "froupByKeys" or "fgroupByKeys" for
+   * the resource "groupByKey", it returns only a message of "unknown parameter" without suggestions
    * despite the similarity to the right available parameter. This is because the Fuzzy Score
    * algorithm matches the chars of the two strings from left to right.</strong>
    */
-  public static String findSimilarParameters(String parameter, String[] possibleParameters) {
-    ArrayList<FuzzyScoreObject> list = new ArrayList<FuzzyScoreObject>();
+  public static String findSimilarParameters(String parameter, List<String> possibleParameters) {
+    ArrayList<FuzzyScoreObject> scoreHigherThanFour = new ArrayList<>();
     int i = 0;
-    for (int k = 0; k < possibleParameters.length; k++) {
+    final String unknownParam = "Unknown parameter '";
+    for (String possibleParameter : possibleParameters) {
       double scoreDouble =
-          new FuzzyScore(Locale.getDefault()).fuzzyScore(possibleParameters[k], parameter);
-      BigDecimal fuzzyScore = new BigDecimal(scoreDouble);
+          new FuzzyScore(Locale.getDefault()).fuzzyScore(possibleParameter, parameter);
+      BigDecimal fuzzyScore = BigDecimal.valueOf(scoreDouble);
       if (fuzzyScore.doubleValue() > 4) {
         FuzzyScoreObject object =
-            new FuzzyScoreObject(parameter, fuzzyScore, possibleParameters[k]);
-        list.add(i, object);
+            new FuzzyScoreObject(parameter, fuzzyScore, possibleParameter);
+        scoreHigherThanFour.add(i, object);
         i++;
       }
     }
-    if (list.size() == 0) {
-      return "Unknown parameter '" + parameter + "' for this resource.";
+    if (scoreHigherThanFour.isEmpty()) {
+      return unknownParam + parameter + "' for this resource.";
     }
-    Collections.sort(list, FuzzyScoreObject.sortByScore);
-    if (list.size() == 1) {
-      String uniqueParameter = list.get(0).getPossibleParameter();
-      return "Unknown parameter '" + parameter + "' for this resource. Did you mean '"
-          + uniqueParameter + "'?";
-    } else {
-      list = sortParamsByLength(parameter, list);
-      return "Unknown parameter '" + parameter + "' for this resource. Did you mean '"
-          + list.get(0).getPossibleParameter() + "' or '" + list.get(1).getPossibleParameter()
+    Collections.sort(scoreHigherThanFour, FuzzyScoreObject.sortByScore);
+    if (scoreHigherThanFour.size() == 1) {
+      String uniqueParameter = scoreHigherThanFour.get(0).getPossibleParameter();
+      return unknownParam + parameter + "' for this resource. Did you mean '" + uniqueParameter
           + "'?";
+    } else {
+      ArrayList<FuzzyScoreObject> possibleParams =
+          sortParamsByLength(parameter, scoreHigherThanFour);
+      return unknownParam + parameter + "' for this resource. Did you mean '"
+          + possibleParams.get(0).getPossibleParameter() + "' or '"
+          + possibleParams.get(1).getPossibleParameter() + "'?";
     }
   }
 
@@ -77,32 +80,35 @@ public class StringSimilarity {
    * difference in length between the requested parameter and the suggested parameters.
    */
   private static ArrayList<FuzzyScoreObject> sortParamsByLength(String parameter,
-      ArrayList<FuzzyScoreObject> list) {
-    ArrayList<FuzzyScoreObject> list1 = new ArrayList<FuzzyScoreObject>();
-    int diff1;
-    int diff2;
-    int lastIndex = list.size() - 1;
-    if (list.get(lastIndex).getFuzzyScore() == list.get(lastIndex - 1).getFuzzyScore()) {
-      diff1 = parameter.length() - list.get(lastIndex).getPossibleParameter().length();
-      diff2 = parameter.length() - list.get(lastIndex - 1).getPossibleParameter().length();
-      if (diff1 < 0) {
-        diff1 *= -1;
+      ArrayList<FuzzyScoreObject> possibleParams) {
+    ArrayList<FuzzyScoreObject> sortedParams = new ArrayList<>();
+    int diffLastIndex;
+    int diffSecondToLastIndex;
+    int lastIndex = possibleParams.size() - 1;
+    if (possibleParams.get(lastIndex).getFuzzyScore()
+        .compareTo(possibleParams.get(lastIndex - 1).getFuzzyScore()) == 0) {
+      diffLastIndex =
+          parameter.length() - possibleParams.get(lastIndex).getPossibleParameter().length();
+      diffSecondToLastIndex =
+          parameter.length() - possibleParams.get(lastIndex - 1).getPossibleParameter().length();
+      if (diffLastIndex < 0) {
+        diffLastIndex *= -1;
       }
-      if (diff2 < 0) {
-        diff2 *= -1;
+      if (diffSecondToLastIndex < 0) {
+        diffSecondToLastIndex *= -1;
       }
-      if (diff1 <= diff2) {
-        list1.add(list.get(lastIndex));
-        list1.add(list.get(lastIndex - 1));
+      if (diffLastIndex <= diffSecondToLastIndex) {
+        sortedParams.add(possibleParams.get(lastIndex));
+        sortedParams.add(possibleParams.get(lastIndex - 1));
       } else {
-        list1.add(list.get(lastIndex - 1));
-        list1.add(list.get(lastIndex));
+        sortedParams.add(possibleParams.get(lastIndex - 1));
+        sortedParams.add(possibleParams.get(lastIndex));
       }
-      return list1;
+      return sortedParams;
     } else {
-      list1.add(list.get(lastIndex));
-      list1.add(list.get(lastIndex - 1));
-      return list1;
+      sortedParams.add(possibleParams.get(lastIndex));
+      sortedParams.add(possibleParams.get(lastIndex - 1));
+      return sortedParams;
     }
   }
 }
