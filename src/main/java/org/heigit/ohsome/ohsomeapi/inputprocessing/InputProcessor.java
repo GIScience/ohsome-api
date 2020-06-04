@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -44,7 +43,6 @@ import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
-import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
@@ -55,9 +53,8 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
  * the request. Uses geometry methods from
- * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder
- * GeometryBuilder} and inputProcessingUtils from
- * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
+ * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
+ * inputProcessingUtils from {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
  * InputProcessingUtils}. Throws exceptions depending on their validity.
  */
 public class InputProcessor {
@@ -78,8 +75,6 @@ public class InputProcessor {
   private boolean includeTags;
   private boolean includeOSMMetadata;
   private boolean unclipped;
-  private final String[] genericParameters = {"bboxes", "bcircles", "bpolys", "types", "keys",
-      "values", "timeout", "time", "format", "showMetadata", "filter"};
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -785,81 +780,18 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if the request parameters are valid. Throws a 400 - BadRequestException and suggests
-   * possible parameters based on fuzzy matching scores if the request parameters are not valid.
+   * Checks, if there are unexpected parameters in the request. Throws a 400 - BadRequestException
+   * and suggests possible parameters based on fuzzy matching scores.
    */
-  private void checkParameters(HttpServletRequest servletRequest) throws BadRequestException {
-    String[] possibleParameters;
-    for (Map.Entry<String, String[]> entry : servletRequest.getParameterMap().entrySet()) {
-      String parameterName = entry.getKey();
-      if (isGenericParameter(parameterName) == false) {
-        RequestResource resource = checkResource(servletRequest);
-        String[] specificParameters = getResourceSpecificParameters(servletRequest);
-        if (resource.equals(RequestResource.AREA)) {
-          throw new BadRequestException(
-              StringSimilarity.findSimilarParameters(parameterName, genericParameters));
-        } else {
-          possibleParameters = genericParameters;
-          List<String> arrList = new ArrayList<String>(Arrays.asList(possibleParameters));
-          for (int i = 0; i < specificParameters.length; i++) {
-            arrList.add(specificParameters[i]);
-          }
-          if (!arrList.contains(parameterName)) {
-            possibleParameters = arrList.toArray(new String[arrList.size()]);
-            throw new BadRequestException(
-                StringSimilarity.findSimilarParameters(parameterName, possibleParameters));
-          }
-        }
-      }
+  private void checkParameters(HttpServletRequest servletRequest) {
+    List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
+    List<String> unexpectedParams =
+        ResourceParameters.checkUnexpectedParams(servletRequest, possibleParameters);
+    if (!unexpectedParams.isEmpty()) {
+      String unexpectedParam = unexpectedParams.get(0);
+      throw new BadRequestException(
+          StringSimilarity.findSimilarParameters(unexpectedParam, possibleParameters));
     }
-  }
-
-  /** Checks, if the request parameter is a generic parameter. */
-  private boolean isGenericParameter(String parameterName) {
-    if (Arrays.asList(genericParameters).contains(parameterName)) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Checks the kind of resource. The request resources LENGTH, PERIMETER, and COUNT are considered
-   * as AREA.
-   */
-  private RequestResource checkResource(HttpServletRequest servletRequest) {
-    String uri = servletRequest.getRequestURI();
-    if (uri.contains("/groupBy/tag")) {
-      return RequestResource.GROUPBYTAG;
-    } else if (uri.contains("/groupBy/key")) {
-      return RequestResource.GROUPBYKEY;
-    } else if (uri.contains("/ratio")) {
-      return RequestResource.RATIO;
-    } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
-      return RequestResource.DATAEXTRACTION;
-    } else {
-      return RequestResource.AREA;
-    }
-  }
-
-  /**
-   * Checks the resource and returns a list of the corresponding specific parameters. Returns an
-   * empty array if it is a generic resource (e.g. /elements/count).
-   */
-  private String[] getResourceSpecificParameters(HttpServletRequest servletRequest) {
-    String uri = servletRequest.getRequestURI();
-    if (uri.contains("/groupBy/tag")) {
-      return new String[] {"groupByKey", "groupByValues"};
-    } else if (uri.contains("/groupBy/key")) {
-      return new String[] {"groupByKeys"};
-    } else if (uri.contains("/ratio")) {
-      if (null != servletRequest.getParameter("filter")) {
-        return new String[] {"filter2"};
-      }
-      return new String[] {"keys2", "types2", "values2"};
-    } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
-      return new String[] {"properties"};
-    }
-    return new String[] {};
   }
 
   /**

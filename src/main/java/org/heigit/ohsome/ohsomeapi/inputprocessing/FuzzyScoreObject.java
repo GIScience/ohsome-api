@@ -22,11 +22,8 @@ public class FuzzyScoreObject {
   /**
    * Sorts the request parameters by matching score.
    */
-  public static Comparator<FuzzyScoreObject> sortByScore = new Comparator<FuzzyScoreObject>() {
-    public int compare(FuzzyScoreObject o1, FuzzyScoreObject o2) {
-      return o1.fuzzyScore.compareTo(o2.fuzzyScore);
-    }
-  };
+  static Comparator<FuzzyScoreObject> sortByScore =
+      (o1, o2) -> o1.fuzzyScore.compareTo(o2.fuzzyScore);
 
   public String getQueryParameter() {
     return queryParameter;
