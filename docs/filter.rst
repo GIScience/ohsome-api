@@ -151,4 +151,4 @@ Here's some useful examples for querying some OSM features:
 Further Information
 -------------------
 
-See the Javadoc documentation: https://docs.ohsome.org/java/ohsome-filter/
+The filter parameter is powered by a separate Java module, which can be used independently as a maven library. Find the open source code here: https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-filter#readme. The corresponding Javadoc documentation is available at: https://docs.ohsome.org/java/ohsome-filter/
