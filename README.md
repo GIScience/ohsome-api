@@ -1,7 +1,7 @@
-# OHSOME API
+# ohsome API
 
 This REST-based API aims to leverage the tools of the [OSHDB-API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests.
-The current stable version is [v1.0.0](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api/tags/1.0.0).
+The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0).
 
 [![](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
 
@@ -19,7 +19,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1. checkout/download the repository
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
-3. enter the command `mvn -DskipTests=true package` to build the project (if you want to build it running the integrated tests too, look at the section [Testing](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/ohsome-api#testing))
+3. enter the command `mvn -DskipTests=true package` to build the project (if you want to build it running the integrated tests too, look at the section [Testing](#testing))
 4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
     * keytables included: `java -jar target/ohsome-api-1.0.0.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
     * keytables not included: `java -jar target/ohsome-api-1.0.0.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
