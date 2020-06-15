@@ -29,3 +29,10 @@ Welcome to the documentation of the ohsome API!
    group-by
    time
    filter
+   
+Additional Links:
+-----------------
+
+* `API Code development <https://github.com/GIScience/ohsome-api>`_
+* `Swagger API playground <https://api.ohsome.org/v1/swagger-ui.html>`_
+* `Javadoc <https://docs.ohsome.org/java/ohsome-api>`_
