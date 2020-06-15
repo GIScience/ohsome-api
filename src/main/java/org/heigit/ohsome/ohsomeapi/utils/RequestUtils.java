@@ -34,18 +34,6 @@ public class RequestUtils {
 
   /**
    * Checks, if caching will be allowed for the given query, or not.
-   * 
-   * @param processingData the {@link ProcessingData} of the request to check
-   * @return whether caching is allowed, or not
-   */
-  public static boolean cacheNotAllowed(ProcessingData processingData) {
-    String url = processingData.getRequestUrl();
-    String[] timeParameter = processingData.getRequestParameters().getTime();
-    return cacheNotAllowed(url, timeParameter);
-  }
-
-  /**
-   * Checks, if caching will be allowed for the given query, or not.
    *
    * @param url the URL of the request to check
    * @param timeParameter the "time" parameter of the request to check
@@ -127,7 +115,7 @@ public class RequestUtils {
    * @return whether it uses the default toTimestamp, or not
    */
   private static boolean usesDefaultToTimestamp(String[] timeParameter) {
-    if (timeParameter == null || timeParameter[0].replaceAll("\\s", "").length() == 0) {
+    if (timeParameter == null || timeParameter.length == 0) {
       return true;
     }
     int length = timeParameter.length;
