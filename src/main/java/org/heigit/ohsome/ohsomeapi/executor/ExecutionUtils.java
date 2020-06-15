@@ -1075,7 +1075,8 @@ public class ExecutionUtils {
   private HttpServletResponse setCsvSettingsInServletResponse(HttpServletResponse servletResponse) {
     servletResponse.setCharacterEncoding("UTF-8");
     servletResponse.setContentType("text/csv");
-    if (!RequestUtils.cacheNotAllowed(processingData)) {
+    if (!RequestUtils.cacheNotAllowed(processingData.getRequestUrl(),
+        processingData.getRequestParameters().getTime())) {
       servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     }
     return servletResponse;
