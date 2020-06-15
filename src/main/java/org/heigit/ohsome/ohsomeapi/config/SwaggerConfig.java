@@ -98,7 +98,9 @@ public class SwaggerConfig {
     return new ApiInfo("ohsome API",
         "This REST-based API aims to leverage the tools of the "
             + "<a href=\"https://github.com/GIScience/oshdb\" target=\"_blank\">OSHDB</a> "
-            + "through allowing to access some of its functionalities via HTTP requests.",
+            + "through allowing to access some of its functionalities via HTTP requests. \n" + 
+            "The official documentation can be found "
+            + "<a href=\"https://docs.ohsome.org/ohsome-api/stable\" target=\"_blank\">here</a>. ",
         Application.API_VERSION, "",
         new Contact("Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
             "info@heigit.org"),
