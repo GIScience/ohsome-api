@@ -152,5 +152,5 @@ Further Information
 -------------------
 
 The filter parameter is powered by a separate Java module, which can be used independently as a maven library.
-You can further find the `open source code <https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-filter#readme/>`_, 
+You can further find the `open source code <https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-filter#readme>`_, 
 as well as the corresponding `Javadoc documentation <https://docs.ohsome.org/java/ohsome-filter/>`_.
