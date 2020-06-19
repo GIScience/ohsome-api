@@ -97,14 +97,14 @@ Here's some useful examples for querying some OSM features:
     +------------------+--------------------------------------------------------+------------------------------+
     | **OSM Feature**  | **filter**                                             | **comment**                  |
     +==================+========================================================+==============================+
-    | | forests/woods  | | ``landuse=forest or natural=wood and``               | | Using                      |
+    | | forests/woods  | | ``(landuse=forest or natural=wood) and``             | | Using                      |
     |                  | | ``geometry:polygon``                                 | | ``geometry:polygon`` will  |
     |                  |                                                        | | select closed ways as      |
     |                  |                                                        | | well as multipolygons      |
     |                  |                                                        | | (e.g. a forest with        |
     |                  |                                                        | | clearings).                |
     +------------------+--------------------------------------------------------+------------------------------+
-    | | parks and      | | ``leisure=park and geometry:polygon or``             | | A query can also fetch     |
+    | | parks and      | | ``leisure=park and geometry:polygon or``             | | A filter can also fetch    |
     | | park benches   | | ``amenity=bench and (geometry:point or``             | | features of different      |
     |                  | | ``geometry:line)``                                   | | geometry types: this       |
     |                  |                                                        | | returns parks              |
@@ -112,7 +112,7 @@ Here's some useful examples for querying some OSM features:
     |                  |                                                        | | park benches (points or    |
     |                  |                                                        | | lines).                    |
     +------------------+--------------------------------------------------------+------------------------------+
-    | | buildings      | | ``building=* and building!=no and``                  | | This query also            |
+    | | buildings      | | ``building=* and building!=no and``                  | | This filter also           |
     |                  | | ``geometry:polygon``                                 | | excludes the (rare)        |
     |                  |                                                        | | objects marked with        |
     |                  |                                                        | | ``building=no``, which is  |
@@ -151,4 +151,6 @@ Here's some useful examples for querying some OSM features:
 Further Information
 -------------------
 
-See the Javadoc documentation: https://docs.ohsome.org/java/ohsome-filter/
+The filter parameter is powered by a separate Java module, which can be used independently as a maven library.
+You can further find the `open source code <https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-filter#readme>`_, 
+as well as the corresponding `Javadoc documentation <https://docs.ohsome.org/java/ohsome-filter/>`_.

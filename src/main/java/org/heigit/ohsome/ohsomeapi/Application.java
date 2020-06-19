@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi;
 import com.zaxxer.hikari.HikariConfig;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
@@ -19,7 +20,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
-
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
  * database on startup in the {@link #run(ApplicationArguments) run()} method using parameters
@@ -28,8 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan({"org.heigit.ohsome.ohsomeapi"})
 public class Application implements ApplicationRunner {
-
-  public static final String API_VERSION = "1.0";
+  public static final String API_VERSION = ohsomeApiVersion();
   public static final int DEFAULT_TIMEOUT_IN_MILLISECONDS = 100000;
   public static final int DEFAULT_NUMBER_OF_CLUSTER_NODES = 0;
   public static final int DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS = 40;
@@ -189,7 +188,28 @@ public class Application implements ApplicationRunner {
   }
 
   @Override
-  public void run(ApplicationArguments args) throws Exception {
+  public void run(ApplicationArguments args) {
+    // empty body on purpose. main function is used instead.
+  }
 
+  /**
+   * Get the API version. It throws a RuntimeException if the API version is null.
+   */
+  private static String ohsomeApiVersion() {
+    String apiVersion;
+    try {
+      Properties properties = new Properties();
+      properties
+          .load(Application.class.getClassLoader().getResourceAsStream("application.properties"));
+      apiVersion = properties.getProperty("project.version");
+    } catch (Exception e) {
+      return "The application.properties file could not be found";
+    }
+    if (apiVersion == null) {
+      throw new RuntimeException(
+          "The API version from the application.properties file could not be loaded.");
+    } else {
+      return apiVersion;
+    }
   }
 }
