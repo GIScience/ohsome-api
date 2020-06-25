@@ -1,5 +1,6 @@
 ## current master
 
+* update ohsome parent to version 2.3 (for building javadoc with JDK 11)
 
 ## 1.0.0
 
