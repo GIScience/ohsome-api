@@ -1,11 +1,14 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -784,6 +787,18 @@ public class InputProcessor {
    * and suggests possible parameters based on fuzzy matching scores.
    */
   private void checkParameters(HttpServletRequest servletRequest) {
+    List<String> paramsValuesList = Splitter.on("&").splitToList(servletRequest.getQueryString());
+    List<String> paramsList = new ArrayList<String>();
+    String param;
+    for (int i = 0; i < paramsValuesList.size(); i++) {
+      param = paramsValuesList.get(i).substring(0, paramsValuesList.get(i).indexOf("="));
+      paramsList.add(param);
+    }
+    for (String parameter : paramsList) {
+      if (Collections.frequency(paramsList, parameter) > 1) {
+        throw new BadRequestException("The parameter '" + parameter + "' can be present only once");
+      }
+    }
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
     List<String> unexpectedParams =
         ResourceParameters.checkUnexpectedParams(servletRequest, possibleParameters);
