@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -783,22 +782,11 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if there are unexpected parameters in the request. Throws a 400 - BadRequestException
-   * and suggests possible parameters based on fuzzy matching scores.
+   * Checks, if there are false or repeated parameters in the request. Throws a 400 -
+   * BadRequestException and, in case of false parameters, suggests possible parameters based on
+   * fuzzy matching scores.
    */
   private void checkParameters(HttpServletRequest servletRequest) {
-    List<String> paramsValuesList = Splitter.on("&").splitToList(servletRequest.getQueryString());
-    List<String> paramsList = new ArrayList<String>();
-    String param;
-    for (int i = 0; i < paramsValuesList.size(); i++) {
-      param = paramsValuesList.get(i).substring(0, paramsValuesList.get(i).indexOf("="));
-      paramsList.add(param);
-    }
-    for (String parameter : paramsList) {
-      if (Collections.frequency(paramsList, parameter) > 1) {
-        throw new BadRequestException("The parameter '" + parameter + "' can be present only once");
-      }
-    }
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
     List<String> unexpectedParams =
         ResourceParameters.checkUnexpectedParams(servletRequest, possibleParameters);
@@ -806,6 +794,27 @@ public class InputProcessor {
       String unexpectedParam = unexpectedParams.get(0);
       throw new BadRequestException(
           StringSimilarity.findSimilarParameters(unexpectedParam, possibleParameters));
+    }
+    if (servletRequest.getQueryString() != null) {
+      String queryString = servletRequest.getQueryString();
+
+      String[] queryStringArray = queryString.split("&");
+      List<String> paramsValuesList = Arrays.asList(queryStringArray);
+      List<String> paramsList = new ArrayList<String>();
+      String param;
+      for (int i = 0; i < paramsValuesList.size(); i++) {
+        if (!paramsValuesList.get(i).contains("=")) {
+          paramsValuesList.set(i, paramsValuesList.get(i).concat("="));
+        }
+        param = paramsValuesList.get(i).substring(0, paramsValuesList.get(i).indexOf("="));
+        paramsList.add(param);
+      }
+      for (String parameter : paramsList) {
+        if (Collections.frequency(paramsList, parameter) > 1) {
+          throw new BadRequestException(
+              "The parameter '" + parameter + "' can be present only once");
+        }
+      }
     }
   }
 
