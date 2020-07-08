@@ -797,10 +797,9 @@ public class InputProcessor {
     }
     if (servletRequest.getQueryString() != null) {
       String queryString = servletRequest.getQueryString();
-
       String[] queryStringArray = queryString.split("&");
       List<String> paramsValuesList = Arrays.asList(queryStringArray);
-      List<String> paramsList = new ArrayList<String>();
+      List<String> paramsList = new ArrayList<>();
       String param;
       for (int i = 0; i < paramsValuesList.size(); i++) {
         if (!paramsValuesList.get(i).contains("=")) {
