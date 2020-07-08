@@ -810,8 +810,8 @@ public class InputProcessor {
       }
       for (String parameter : paramsList) {
         if (Collections.frequency(paramsList, parameter) > 1) {
-          throw new BadRequestException(
-              "The parameter '" + parameter + "' can be present only once");
+          throw new BadRequestException("Every parameter has to be unique. "
+              + "You can't give more than one '" + parameter + "' parameter.");
         }
       }
     }
