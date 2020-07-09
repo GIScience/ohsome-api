@@ -34,8 +34,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
    */
@@ -54,8 +53,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the type", nickname = "countGroupByType",
       response = GroupByResponse.class)
@@ -72,8 +70,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -93,8 +90,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
       nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -117,8 +113,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
       response = GroupByResponse.class)
@@ -138,8 +133,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the tag", nickname = "countGroupByTag",
       response = GroupByResponse.class)
@@ -163,8 +157,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Density of OSM elements (number of elements divided by "
@@ -183,8 +176,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "countDensityGroupByType", response = GroupByResponse.class)
@@ -202,8 +194,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -223,8 +214,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "countDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -247,8 +237,7 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "countDensityGroupByTag", response = GroupByResponse.class)
@@ -272,23 +261,22 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) "
           + "within items selected by types, keys and values (or filter)",
       nickname = "countRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES, defaultValue = "node",
-          paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
-          defaultValue = DefaultSwaggerParameters.HOUSENUMBER_KEY, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
-          paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
-          paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
+          dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
@@ -303,21 +291,20 @@ public class CountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Ratio of OSM elements grouped by the boundary",
       nickname = "countRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES, defaultValue = "node",
-          paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
-          defaultValue = DefaultSwaggerParameters.HOUSENUMBER_KEY, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
-          paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
-          paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
+          dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,

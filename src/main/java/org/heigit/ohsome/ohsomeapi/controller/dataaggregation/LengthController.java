@@ -33,8 +33,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Length of OSM elements", nickname = "length",
       response = DefaultAggregationResponse.class)
@@ -51,8 +50,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the type",
       nickname = "lengthGroupByType", response = GroupByResponse.class)
@@ -70,8 +68,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -91,8 +88,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the boundary and the tag",
       nickname = "lengthGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -115,8 +111,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the key", nickname = "lengthGroupByKey",
       response = GroupByResponse.class)
@@ -136,8 +131,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag", nickname = "lengthGroupByTag",
       response = GroupByResponse.class)
@@ -161,8 +155,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Density of OSM elements (length of elements divided by "
@@ -181,8 +174,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the OSM type",
       nickname = "lengthDensityGroupByType", response = GroupByResponse.class)
@@ -199,8 +191,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -220,8 +211,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "lengthDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -244,8 +234,7 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "lengthDensityGroupByTag", response = GroupByResponse.class)
@@ -269,24 +258,22 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items "
           + "selected by types, keys and values (or filter)",
       nickname = "lengthRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES,
-          defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
-          required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES,
-          defaultValue = "primary", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
-          paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
+          dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response lengthRatio(HttpServletRequest servletRequest,
@@ -301,22 +288,20 @@ public class LengthController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Ratio of the length of OSM elements grouped by the boundary",
       nickname = "lengthRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES,
-          defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
-          required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
-          paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
-          paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
+          dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthRatioGroupByBoundary(HttpServletRequest servletRequest,

@@ -98,8 +98,8 @@ public class SwaggerConfig {
     return new ApiInfo("ohsome API",
         "This REST-based API aims to leverage the tools of the "
             + "<a href=\"https://github.com/GIScience/oshdb\" target=\"_blank\">OSHDB</a> "
-            + "through allowing to access some of its functionalities via HTTP requests. \n" + 
-            "The official documentation can be found "
+            + "through allowing to access some of its functionalities via HTTP requests. \n"
+            + "The official documentation can be found "
             + "<a href=\"https://docs.ohsome.org/ohsome-api/stable\" target=\"_blank\">here</a>. ",
         Application.API_VERSION, "",
         new Contact("Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
@@ -125,17 +125,18 @@ public class SwaggerConfig {
         .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("types")
-        .description(ParameterDescriptions.TYPES).modelRef(new ModelRef(string)).allowMultiple(true)
-        .parameterType(query).defaultValue(DefaultSwaggerParameters.TYPE).required(false).build());
+        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+        .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.KEYS).modelRef(new ModelRef(string)).parameterType(query)
-        .defaultValue("").required(false).build());
+        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+        .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("values")
-        .description(ParameterDescriptions.VALUES).modelRef(new ModelRef(string))
+        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("filter")
-        .description(ParameterDescriptions.FILTER).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
+    globalOperationParams
+        .add(new ParameterBuilder().name("filter").description(ParameterDescriptions.FILTER)
+            .modelRef(new ModelRef(string)).parameterType(query)
+            .defaultValue(DefaultSwaggerParameters.TYPE_FILTER).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("timeout")
         .description(ParameterDescriptions.TIMEOUT).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
@@ -158,7 +159,7 @@ public class SwaggerConfig {
     globalOperationParams.add(
         new ParameterBuilder().name("showMetadata").description(ParameterDescriptions.SHOW_METADATA)
             .modelRef(new ModelRef(string)).parameterType(query)
-            .defaultValue(DefaultSwaggerParameters.SHOW_METADATA).required(false).build());
+            .defaultValue("").required(false).build());
     return globalOperationParams;
   }
 }
