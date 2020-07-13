@@ -66,14 +66,17 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
       HttpServletRequest servletRequest) {
     ErrorDetails errorDetails;
     String servletRequestUrl = RequestUtils.extractRequestUrl(servletRequest);
+    if (servletRequestUrl.endsWith("?")) {
+      servletRequestUrl += "null";
+    }
     if ("No message available".equals(ex.getMessage())) {
-      if (servletRequestUrl.split("\\?").length < 2) {
+      if ("null".equals(servletRequestUrl.split("\\?")[1])) {
         servletRequestUrl = servletRequestUrl.split("\\?")[0];
       }
       errorDetails = new ErrorDetails(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
           status.value(), "Internal server error", servletRequestUrl);
     } else {
-      if (servletRequestUrl.split("\\?").length < 2) {
+      if ("null".equals(servletRequestUrl.split("\\?")[1])) {
         servletRequestUrl = servletRequestUrl.split("\\?")[0];
       }
       errorDetails = new ErrorDetails(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
