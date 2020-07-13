@@ -1,9 +1,20 @@
 # ohsome API
 
-This REST-based API aims to leverage the tools of the [OSHDB-API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests.
-The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0) and the corresponding documentation page with examples and explanations for each parameter can be found [here](https://docs.ohsome.org/ohsome-api/stable/). 
+This REST-based API aims to leverage the tools of the [OSHDB-API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests. The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0). The code is developed and maintained by [HeiGIT](https://heigit.org/).
 
 [![](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
+
+## Using the ohsome API
+
+To make your life easier, we already have a running ohsome API instance on our servers, where you can send your requests to analyze the history of the OpenStreetMap data. This instance is publicly accessible under the following URL:
+
+https://api.ohsome.org/v1 (current stable version)
+
+This URL automatically redirects you to the documentation page, where you find explanations and examples for all the different parameters and endpoints that we have already implemented in the API. Furthermore, we have a swagger UI, through which you can send simple GET requests and test the individual endpoints. This page can be accessed using the following URL:
+
+https://api.ohsome.org/v1/swagger-ui.html
+
+If you want to contribute to the code base of the ohsome API, please follow the guidline and hints in the upcoming sections.
 
 ## Getting Started
 
