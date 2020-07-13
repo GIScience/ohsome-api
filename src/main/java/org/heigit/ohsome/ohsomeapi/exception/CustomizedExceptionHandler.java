@@ -61,11 +61,18 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus.PAYLOAD_TOO_LARGE, servletRequest);
   }
 
-  /** Creates the error details based on the thrown exception. */
+  /**
+   * Creates the error details based on the thrown exception. It adds "null" to the request URL
+   * (e.g. /users/count?null), in case of a request without parameters but with the query question
+   * mark right after the endpoint (e.g. /users/count?).
+   */
   private ResponseEntity<ErrorDetails> createExceptionResponse(Exception ex, HttpStatus status,
       HttpServletRequest servletRequest) {
     ErrorDetails errorDetails;
     String servletRequestUrl = RequestUtils.extractRequestUrl(servletRequest);
+    if (servletRequestUrl.endsWith("?")) {
+      servletRequestUrl += "null";
+    }
     if ("No message available".equals(ex.getMessage())) {
       if ("null".equals(servletRequestUrl.split("\\?")[1])) {
         servletRequestUrl = servletRequestUrl.split("\\?")[0];
