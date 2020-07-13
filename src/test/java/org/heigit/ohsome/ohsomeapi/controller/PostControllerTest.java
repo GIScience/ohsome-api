@@ -1115,13 +1115,11 @@ public class PostControllerTest {
   }
 
   @Test
-  public void postQueryRequestendsByQuestionMark() {
+  public void postQueryRequestEndsByQuestionMark() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count?", map, JsonNode.class);
     assertEquals(null, response.getBody().get("error"));
-    System.out.println(response.getBody().get("error"));
-    System.out.println("rosariotest ok");
   }
 }

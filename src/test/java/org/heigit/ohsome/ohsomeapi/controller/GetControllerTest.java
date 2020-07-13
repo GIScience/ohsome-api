@@ -1114,7 +1114,5 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(server + port + "/users/count?", JsonNode.class);
     assertEquals(null, response.getBody().get("error"));
-    System.out.println(response.getBody().get("error"));
-    System.out.println("rosariotest ok");
   }
 }
