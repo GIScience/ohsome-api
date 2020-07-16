@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Main class, which is used to run this Spring boot application. Establishes a connection to the
@@ -59,15 +60,6 @@ public class Application implements ApplicationRunner {
     }
   }
   
-  @Bean
-  public ElementsRequestExecutor elementsRequestExecutorInstance() {
-    return new ElementsRequestExecutor();
-  }
-  
-  @Bean
-  public UsersRequestExecutor usersRequestExecutorInstance() {
-    return new UsersRequestExecutor();
-  }
   
 
   /**

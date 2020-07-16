@@ -64,9 +64,11 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespons
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.stereotype.Component;
 import org.wololo.geojson.Feature;
 
 /** Includes all execute methods for requests mapped to /elements. */
+@Component
 public class ElementsRequestExecutor {
 
   public static final String URL = ExtractMetadata.attributionUrl;

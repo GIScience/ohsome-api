@@ -42,8 +42,10 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespons
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.stereotype.Component;
 
 /** Includes the execute methods for requests mapped to /users. */
+@Component
 public class UsersRequestExecutor {
 
   private static final String URL = ExtractMetadata.attributionUrl;

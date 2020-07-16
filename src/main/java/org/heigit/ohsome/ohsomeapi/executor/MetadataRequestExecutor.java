@@ -8,8 +8,10 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion;
 import org.heigit.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse;
 import org.heigit.ohsome.ohsomeapi.output.metadataresponse.TemporalExtent;
+import org.springframework.stereotype.Component;
 
 /** Includes the execute method for requests mapped to /metadata. */
+@Component
 public class MetadataRequestExecutor {
 
   /**
@@ -18,7 +20,7 @@ public class MetadataRequestExecutor {
    * @return {@link org.heigit.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse
    *         MetadataResponse}
    */
-  public static MetadataResponse executeGetMetadata(HttpServletRequest servletRequest) {
+  public MetadataResponse executeGetMetadata(HttpServletRequest servletRequest) {
     if (!servletRequest.getParameterMap().isEmpty()) {
       throw new BadRequestException("The endpoint 'metadata' does not require parameters");
     }
@@ -28,9 +30,5 @@ public class MetadataRequestExecutor {
         new ExtractRegion(ExtractMetadata.dataPolyJson,
             new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp),
             ExtractMetadata.replicationSequenceNumber));
-  }
-
-  private MetadataRequestExecutor() {
-    throw new IllegalStateException("Utility class");
   }
 }
