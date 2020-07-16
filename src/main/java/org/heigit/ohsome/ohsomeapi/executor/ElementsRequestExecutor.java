@@ -106,7 +106,7 @@ public class ElementsRequestExecutor {
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean unclippedGeometries = inputProcessor.isUnclipped();
-    if (DbConnData.db instanceof OSHDBIgnite) {
+    if (inputProcessor.getOshdb() instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.
@@ -182,7 +182,7 @@ public class ElementsRequestExecutor {
     snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
-    if (DbConnData.db instanceof OSHDBIgnite) {
+    if (inputProcessor.getOshdb() instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.

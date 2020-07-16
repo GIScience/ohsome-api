@@ -17,6 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
@@ -69,6 +70,8 @@ public class InputProcessor {
   
   @Autowired
   private ExtractMetadata extractMetadata;
+  @Autowired
+  private OSHDBDatabase oshdb;
     
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
@@ -84,9 +87,6 @@ public class InputProcessor {
   private boolean unclipped;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      checkClusterAvailability();
-    }
     checkContentTypeHeader(servletRequest);
     checkParameters(servletRequest);
     this.isSnapshot = isSnapshot;
@@ -111,6 +111,15 @@ public class InputProcessor {
   
   public void setExtractMetadata(ExtractMetadata extractMetadata) {
     this.extractMetadata = extractMetadata;
+  }
+  
+
+  public void setOshdb(OSHDBDatabase oshdb) {
+    this.oshdb = oshdb;
+  }
+  
+  public OSHDBDatabase getOshdb() {
+    return oshdb;
   }
 
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
@@ -147,6 +156,11 @@ public class InputProcessor {
         .setRequestParameters(new RequestParameters(requestMethod, isSnapshot, isDensity, bboxes,
             bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
     processingData.setFormat(format);
+    
+    if (oshdb instanceof OSHDBIgnite) {
+      checkClusterAvailability();
+    }
+    
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
     geomBuilder = new GeometryBuilder(processingData);
@@ -183,8 +197,8 @@ public class InputProcessor {
       throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
 
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
+    if (oshdb instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) oshdb;
       if (forceComputeMode != null) {
         dbIgnite.computeMode(forceComputeMode);
       } else {
@@ -199,19 +213,19 @@ public class InputProcessor {
       }
     }
 
-    DbConnData.db.timeout(timeout);
+    oshdb.timeout(timeout);
 
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.db);
+        mapRed = OSMEntitySnapshotView.on(oshdb);
       } else {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.db).keytables(DbConnData.keytables);
+        mapRed = OSMEntitySnapshotView.on(oshdb).keytables(DbConnData.keytables);
       }
     } else {
       if (DbConnData.keytables == null) {
-        mapRed = OSMContributionView.on(DbConnData.db);
+        mapRed = OSMContributionView.on(oshdb);
       } else {
-        mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
+        mapRed = OSMContributionView.on(oshdb).keytables(DbConnData.keytables);
       }
     }
     if (boundary.isRectangle()) {
@@ -764,7 +778,7 @@ public class InputProcessor {
    * Service Unavailable exception, in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
-    OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.db;
+    OSHDBIgnite igniteDb = (OSHDBIgnite) oshdb;
     int definedNumberOfNodes = ProcessingData.getNumberOfClusterNodes();
     int currentNumberOfNodes =
         igniteDb.getIgnite().services().clusterGroup().metrics().getTotalNodes();

@@ -24,15 +24,7 @@ public class ExtractMetadata {
   
   public static ExtractMetadata extractOSHDBMetadata() throws IOException {
     ExtractMetadata metadata = new ExtractMetadata();
-    OSHDBDatabase db;
-    if (DbConnData.keytables != null) {
-      db = DbConnData.keytables;
-    } else {
-      if (!(DbConnData.db instanceof OSHDBJdbc)) {
-        throw new RuntimeException("Missing keytables.");
-      }
-      db = DbConnData.db;
-    }
+    OSHDBDatabase db = DbConnData.keytables;
     if (db.metadata("extract.region") != null) {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
