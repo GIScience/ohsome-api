@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi;
 
 import com.zaxxer.hikari.HikariConfig;
+import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -8,12 +9,10 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
-import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.DefaultApplicationArguments;
@@ -58,6 +57,12 @@ public class Application implements ApplicationRunner {
       e.printStackTrace();
       System.exit(1);
     }
+  }
+  
+  @Bean
+  @RequestScope
+  public ExtractMetadata extractMetadataInstance() throws IOException {
+    return ExtractMetadata.extractOSHDBMetadata();
   }
   
   
@@ -169,7 +174,7 @@ public class Application implements ApplicationRunner {
         }
         DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
       }
-      RequestUtils.extractOSHDBMetadata();
+      
       if (DbConnData.mapTagTranslator == null) {
         DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
       }

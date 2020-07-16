@@ -13,10 +13,6 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 /** Utils class containing request-specific static utility methods. */
 public class RequestUtils {
 
-  private RequestUtils() {
-    throw new IllegalStateException("Utility class");
-  }
-
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.
    * 
@@ -62,50 +58,6 @@ public class RequestUtils {
    */
   public static boolean usesCsvFormat(HttpServletRequest request) {
     return "csv".equalsIgnoreCase(request.getParameter("format"));
-  }
-
-  /**
-   * Extracts some metadata from the OSHDB keytables or db and adds it to the corresponding objects.
-   */
-  public static void extractOSHDBMetadata() throws IOException {
-    OSHDBDatabase db;
-    if (DbConnData.keytables != null) {
-      db = DbConnData.keytables;
-    } else {
-      if (!(DbConnData.db instanceof OSHDBJdbc)) {
-        throw new RuntimeException("Missing keytables.");
-      }
-      db = DbConnData.db;
-    }
-    if (db.metadata("extract.region") != null) {
-      String dataPolyString = db.metadata("extract.region");
-      ObjectMapper mapper = new ObjectMapper();
-      ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
-      GeometryBuilder geomBuilder = new GeometryBuilder();
-      geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
-      ExtractMetadata.dataPoly = ProcessingData.getDataPolyGeom();
-    }
-    if (db.metadata("extract.timerange") != null) {
-      String[] timeranges = db.metadata("extract.timerange").split(",");
-      ExtractMetadata.fromTstamp = timeranges[0];
-      ExtractMetadata.toTstamp = timeranges[1];
-    } else {
-      throw new RuntimeException("The timerange metadata could not be retrieved from the db.");
-    }
-    if (db.metadata("attribution.short") != null) {
-      ExtractMetadata.attributionShort = db.metadata("attribution.short");
-    } else {
-      ExtractMetadata.attributionShort = "© OpenStreetMap contributors";
-    }
-    if (db.metadata("attribution.url") != null) {
-      ExtractMetadata.attributionUrl = db.metadata("attribution.url");
-    } else {
-      ExtractMetadata.attributionUrl = "https://ohsome.org/copyrights";
-    }
-    if (db.metadata("header.osmosis_replication_sequence_number") != null) {
-      ExtractMetadata.replicationSequenceNumber =
-          Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number"));
-    }
   }
 
   /**

@@ -64,6 +64,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespons
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.wololo.geojson.Feature;
 
@@ -71,9 +72,14 @@ import org.wololo.geojson.Feature;
 @Component
 public class ElementsRequestExecutor {
 
-  public static final String URL = ExtractMetadata.attributionUrl;
-  public static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
+  
+  @Autowired
+  private ExtractMetadata extractMetadata;
+  
+  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+    this.extractMetadata = extractMetadata;
+  }
 
   /**
    * Performs an OSM data extraction.
@@ -140,7 +146,9 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(null, "OSM data as GeoJSON features.",
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
+    DataResponse osmData = new DataResponse(
+        new Attribution(extractMetadata.getAttributionUrl(),extractMetadata.getAttributionShort()), 
+        Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
@@ -337,7 +345,9 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.",
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
+    DataResponse osmData = new DataResponse(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> contributionStream = contributionPreResult.stream();
         Stream<Feature> snapshotStream = snapshotPreResult.stream()) {
@@ -424,10 +434,15 @@ public class ElementsRequestExecutor {
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          exeUtils.createCsvTopComments(
+              extractMetadata.getAttributionUrl(), 
+              extractMetadata.getAttributionShort(), 
+              Application.API_VERSION, metadata));
       return null;
     }
-    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
+    return DefaultAggregationResponse.of(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION,
         metadata, resultSet);
   }
 
@@ -491,15 +506,22 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
-      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+      return GroupByResponse.of(
+          new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+          Application.API_VERSION, metadata,
           "FeatureCollection",
           exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          exeUtils.createCsvTopComments(
+              extractMetadata.getAttributionUrl(), 
+              extractMetadata.getAttributionShort(), 
+              Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -604,14 +626,21 @@ public class ElementsRequestExecutor {
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          exeUtils.createCsvTopComments(
+              extractMetadata.getAttributionUrl(), 
+              extractMetadata.getAttributionShort(), 
+              Application.API_VERSION, metadata));
       return null;
     } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
-      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+      return GroupByResponse.of(
+          new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+          Application.API_VERSION, metadata,
           "FeatureCollection",
           exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -699,10 +728,15 @@ public class ElementsRequestExecutor {
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          exeUtils.createCsvTopComments(
+              extractMetadata.getAttributionUrl(), 
+              extractMetadata.getAttributionShort(), 
+              Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -766,10 +800,15 @@ public class ElementsRequestExecutor {
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          exeUtils.createCsvTopComments(
+              extractMetadata.getAttributionUrl(), 
+              extractMetadata.getAttributionShort(), 
+              Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -861,10 +900,15 @@ public class ElementsRequestExecutor {
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          exeUtils.createCsvTopComments(
+              extractMetadata.getAttributionUrl(), 
+              extractMetadata.getAttributionShort(), 
+              Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()), 
+        Application.API_VERSION, metadata,
         resultSet);
   }
 

@@ -27,13 +27,22 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
 
   private static final String GEOMCOLLTYPE = "GeometryCollection";
+  
+  @Autowired
+  private ExtractMetadata extractMetadata;
+    
   private Object[] boundaryIds;
   private String[] toTimestamps = null;
+  
+  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+    this.extractMetadata = extractMetadata;
+  }
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for
@@ -228,8 +237,8 @@ public class InputProcessingUtils {
     if (time.startsWith("/")) {
       if (time.length() == 1) {
         // only /
-        timeVals[0] = ExtractMetadata.fromTstamp;
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[0] = extractMetadata.getFromTstamp();
+        timeVals[1] = extractMetadata.getToTstamp();
         return timeVals;
       }
       if (split[0].length() == 0 && split.length == 2) {
@@ -240,7 +249,7 @@ public class InputProcessingUtils {
       } else if (split.length == 3 && split[0].length() == 0 && split[1].length() == 0) {
         // //PnYnMnD
         checkPeriodOnIsoConformity(split[2]);
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[1] = extractMetadata.getToTstamp();
         timeVals[2] = split[2];
       } else if (split.length == 3 && split[1].length() != 0) {
         // /YYYY-MM-DD/PnYnMnD
@@ -253,7 +262,7 @@ public class InputProcessingUtils {
         // invalid time parameter
         throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
-      timeVals[0] = ExtractMetadata.fromTstamp;
+      timeVals[0] = extractMetadata.getFromTstamp();
     } else if (time.endsWith("/")) {
       if (split.length != 1) {
         // invalid time parameter
@@ -263,13 +272,13 @@ public class InputProcessingUtils {
       checkTimestampsOnIsoConformity(split[0]);
       checkTemporalExtend(split[0]);
       timeVals[0] = split[0];
-      timeVals[1] = ExtractMetadata.toTstamp;
+      timeVals[1] = extractMetadata.getToTstamp();
     } else if (split.length == 3) {
       if (split[1].length() == 0) {
         // YYYY-MM-DD//PnYnMnD
         checkTimestampsOnIsoConformity(split[0]);
         checkTemporalExtend(split[0]);
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[1] = extractMetadata.getToTstamp();
         timeVals[2] = split[2];
       } else {
         // YYYY-MM-DD/YYYY-MM-DD/PnYnMnD
@@ -335,8 +344,8 @@ public class InputProcessingUtils {
    *         <code>false</code> - if not inside
    */
   public boolean isWithin(Geometry geom) {
-    if (ExtractMetadata.dataPoly != null) {
-      return geom.within(ExtractMetadata.dataPoly);
+    if (extractMetadata.getDataPoly() != null) {
+      return geom.within(extractMetadata.getDataPoly());
     }
     return true;
   }
@@ -406,8 +415,8 @@ public class InputProcessingUtils {
     long end = 0;
     long timestampLong = 0;
     try {
-      start = ISODateTimeParser.parseISODateTime(ExtractMetadata.fromTstamp).toEpochSecond();
-      end = ISODateTimeParser.parseISODateTime(ExtractMetadata.toTstamp).toEpochSecond();
+      start = ISODateTimeParser.parseISODateTime(extractMetadata.getFromTstamp()).toEpochSecond();
+      end = ISODateTimeParser.parseISODateTime(extractMetadata.getToTstamp()).toEpochSecond();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -420,7 +429,7 @@ public class InputProcessingUtils {
         if (timestampLong < start || timestampLong > end) {
           throw new NotFoundException(
               "The given time parameter is not completely within the timeframe ("
-                  + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
+                  + extractMetadata.getFromTstamp() + " to " + extractMetadata.getToTstamp()
                   + ") of the underlying osh-data.");
         }
       } catch (NotFoundException e) {

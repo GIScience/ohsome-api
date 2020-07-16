@@ -50,6 +50,7 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /**
@@ -65,6 +66,10 @@ public class InputProcessor {
    * Represents about 1/500 of 180° * 360°.
    */
   public static final int COMPUTE_MODE_THRESHOLD = 130;
+  
+  @Autowired
+  private ExtractMetadata extractMetadata;
+    
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private ProcessingData processingData;
@@ -102,6 +107,10 @@ public class InputProcessor {
 
   public InputProcessor(ProcessingData processingData) {
     this.processingData = processingData;
+  }
+  
+  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+    this.extractMetadata = extractMetadata;
   }
 
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
@@ -146,10 +155,10 @@ public class InputProcessor {
     try {
       switch (processingData.getBoundaryType()) {
         case NOBOUNDARY:
-          if (ExtractMetadata.dataPoly == null) {
+          if (extractMetadata.getDataPoly() == null) {
             throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
           }
-          boundary = ExtractMetadata.dataPoly;
+          boundary = extractMetadata.getDataPoly();
           break;
         case BBOXES:
           processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
@@ -620,10 +629,10 @@ public class InputProcessor {
     String[] timeData;
     if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
       if (!isSnapshot) {
-        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
-        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
+        toTimestamps = new String[] {extractMetadata.getFromTstamp(), extractMetadata.getToTstamp()};
+        mapRed = mapRed.timestamps(extractMetadata.getFromTstamp(), extractMetadata.getToTstamp());
       } else {
-        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
+        mapRed = mapRed.timestamps(extractMetadata.getToTstamp());
       }
     } else if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);

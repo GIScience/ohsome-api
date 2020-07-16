@@ -91,16 +91,25 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
+  
+  @Autowired
+  private ExtractMetadata extractMetadata;
+    
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
 
   public ExecutionUtils(ProcessingData processingData) {
     this.processingData = processingData;
+  }
+  
+  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+    this.extractMetadata = extractMetadata;
   }
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
@@ -752,12 +761,12 @@ public class ExecutionUtils {
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(ElementsRequestExecutor.URL,
-          ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
+      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(extractMetadata.getAttributionUrl(),
+          extractMetadata.getAttributionShort(), Application.API_VERSION, metadata));
       return null;
     }
     return new RatioResponse(
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort()),
         Application.API_VERSION, metadata, resultSet);
   }
 
@@ -795,14 +804,14 @@ public class ExecutionUtils {
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
     Attribution attribution =
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
+        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort());
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
           "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       writeCsvResponse(groupByResultSet, servletResponse,
-          createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+          createCsvTopComments(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort(),
               Application.API_VERSION, metadata));
       return null;
     }
