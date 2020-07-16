@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/elementsFullHistory")
 public class ElementsFullHistoryController {
 
+  @Autowired
+  private ElementsRequestExecutor elementsRequestExecutor;
+  
+  public void setElementsRequestExecutor(ElementsRequestExecutor elementsRequestExecutor) {
+    this.elementsRequestExecutor = elementsRequestExecutor;
+  }
+  
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
    * the geometry field.
@@ -39,7 +47,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.RAW, servletRequest,
+    elementsRequestExecutor.extractFullHistory(ElementsGeometry.RAW, servletRequest,
         servletResponse);
   }
 
@@ -61,7 +69,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.BBOX, servletRequest,
+    elementsRequestExecutor.extractFullHistory(ElementsGeometry.BBOX, servletRequest,
         servletResponse);
   }
 
@@ -82,7 +90,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.CENTROID, servletRequest,
+    elementsRequestExecutor.extractFullHistory(ElementsGeometry.CENTROID, servletRequest,
         servletResponse);
   }
 }

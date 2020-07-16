@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements")
 public class ElementsController {
+  
+  @Autowired
+  private ElementsRequestExecutor elementsRequestExecutor;
+  
+  public void setElementsRequestExecutor(ElementsRequestExecutor elementsRequestExecutor) {
+    this.elementsRequestExecutor = elementsRequestExecutor;
+  }
 
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
@@ -32,7 +40,7 @@ public class ElementsController {
       produces = "application/json")
   public void elementsGeometry(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.RAW, servletRequest, servletResponse);
+    elementsRequestExecutor.extract(ElementsGeometry.RAW, servletRequest, servletResponse);
   }
 
   /**
@@ -48,7 +56,7 @@ public class ElementsController {
       produces = "application/json")
   public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.BBOX, servletRequest, servletResponse);
+    elementsRequestExecutor.extract(ElementsGeometry.BBOX, servletRequest, servletResponse);
   }
 
   /**
@@ -64,6 +72,6 @@ public class ElementsController {
       produces = "application/json")
   public void elementsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.CENTROID, servletRequest, servletResponse);
+    elementsRequestExecutor.extract(ElementsGeometry.CENTROID, servletRequest, servletResponse);
   }
 }

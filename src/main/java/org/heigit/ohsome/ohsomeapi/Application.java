@@ -8,6 +8,8 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
@@ -18,6 +20,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -55,6 +58,17 @@ public class Application implements ApplicationRunner {
       System.exit(1);
     }
   }
+  
+  @Bean
+  public ElementsRequestExecutor elementsRequestExecutorInstance() {
+    return new ElementsRequestExecutor();
+  }
+  
+  @Bean
+  public UsersRequestExecutor usersRequestExecutorInstance() {
+    return new UsersRequestExecutor();
+  }
+  
 
   /**
    * Reads and sets the given application arguments and makes a connection to the OSHDB.

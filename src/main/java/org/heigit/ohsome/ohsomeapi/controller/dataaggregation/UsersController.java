@@ -8,10 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
+import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users")
 public class UsersController {
+  
+  @Autowired
+  private UsersRequestExecutor usersRequestExecutor;
+  
+  public void setElementsRequestExecutor(UsersRequestExecutor usersRequestExecutor) {
+    this.usersRequestExecutor = usersRequestExecutor;
+  }
 
   /**
    * Gives the count of OSM users.
@@ -36,7 +45,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return UsersRequestExecutor.count(servletRequest, servletResponse, false);
+    return usersRequestExecutor.count(servletRequest, servletResponse, false);
   }
 
   /**
@@ -53,7 +62,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByType(servletRequest, servletResponse, false);
+    return usersRequestExecutor.countGroupByType(servletRequest, servletResponse, false);
   }
 
   /**
@@ -76,7 +85,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByTag(servletRequest, servletResponse, false);
+    return usersRequestExecutor.countGroupByTag(servletRequest, servletResponse, false);
   }
 
   /**
@@ -96,7 +105,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByKey(servletRequest, servletResponse, false);
+    return usersRequestExecutor.countGroupByKey(servletRequest, servletResponse, false);
   }
 
   /**
@@ -113,7 +122,7 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, false);
+    return usersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, false);
   }
 
   /**
@@ -133,7 +142,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.count(servletRequest, servletResponse, true);
+    return usersRequestExecutor.count(servletRequest, servletResponse, true);
   }
 
   /**
@@ -150,7 +159,7 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByType(servletRequest, servletResponse, true);
+    return usersRequestExecutor.countGroupByType(servletRequest, servletResponse, true);
   }
 
   /**
@@ -173,7 +182,7 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByTag(servletRequest, servletResponse, true);
+    return usersRequestExecutor.countGroupByTag(servletRequest, servletResponse, true);
   }
 
   /**
@@ -191,6 +200,6 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, true);
+    return usersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, true);
   }
 }

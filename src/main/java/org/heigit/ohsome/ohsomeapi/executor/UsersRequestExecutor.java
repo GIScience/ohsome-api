@@ -50,12 +50,8 @@ public class UsersRequestExecutor {
   private static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
-  private UsersRequestExecutor() {
-    throw new IllegalStateException("Utility class");
-  }
-
   /** Performs a count calculation. */
-  public static Response count(HttpServletRequest servletRequest,
+  public Response count(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
@@ -85,7 +81,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the OSM type. */
-  public static Response countGroupByType(HttpServletRequest servletRequest,
+  public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
@@ -126,7 +122,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the tag. */
-  public static Response countGroupByTag(HttpServletRequest servletRequest,
+  public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
@@ -215,7 +211,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the key. */
-  public static Response countGroupByKey(HttpServletRequest servletRequest,
+  public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
@@ -288,7 +284,7 @@ public class UsersRequestExecutor {
   }
 
   /** Performs a count calculation grouped by the boundary. */
-  public static <P extends Geometry & Polygonal> Response countGroupByBoundary(
+  public <P extends Geometry & Polygonal> Response countGroupByBoundary(
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity)
       throws Exception {
     long startTime = System.currentTimeMillis();

@@ -73,10 +73,6 @@ public class ElementsRequestExecutor {
   public static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
-  private ElementsRequestExecutor() {
-    throw new IllegalStateException("Utility class");
-  }
-
   /**
    * Performs an OSM data extraction.
    * 
@@ -94,7 +90,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
    *         streamElementsResponse}
    */
-  public static void extract(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
+  public void extract(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -168,7 +164,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
    *         streamElementsResponse}
    */
-  public static void extractFullHistory(ElementsGeometry elemGeom,
+  public void extractFullHistory(ElementsGeometry elemGeom,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
     inputProcessor.getProcessingData().setIsFullHistory(true);
@@ -369,7 +365,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
-  public static Response aggregate(RequestResource requestResource,
+  public Response aggregate(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -454,7 +450,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessor)
    *         computeCountLengthPerimeterAreaGbB}
    */
-  public static Response aggregateGroupByBoundary(RequestResource requestResource,
+  public Response aggregateGroupByBoundary(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -524,7 +520,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}
    */
-  public static <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
+  public <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -638,7 +634,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response aggregateGroupByTag(RequestResource requestResource,
+  public Response aggregateGroupByTag(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -729,7 +725,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response aggregateGroupByType(RequestResource requestResource,
+  public Response aggregateGroupByType(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -796,7 +792,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response aggregateGroupByKey(RequestResource requestResource,
+  public Response aggregateGroupByKey(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -888,7 +884,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response aggregateBasicFiltersRatio(RequestResource requestResource,
+  public Response aggregateBasicFiltersRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     final long startTime = System.currentTimeMillis();
     // these 2 parameters always have these values for /ratio requests
@@ -1040,7 +1036,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
-  public static Response aggregateRatio(RequestResource requestResource,
+  public Response aggregateRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     if (null == servletRequest.getParameter("filter")) {
       return aggregateBasicFiltersRatio(requestResource, servletRequest, servletResponse);
@@ -1145,7 +1141,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
-  public static <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
+  public <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -1353,7 +1349,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
-  public static <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
+  public <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     if (null == servletRequest.getParameter("filter")) {
