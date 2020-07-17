@@ -1,14 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+
 
 /** Utils class containing request-specific static utility methods. */
 public class RequestUtils {

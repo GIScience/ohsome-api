@@ -2,13 +2,10 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
 import org.heigit.ohsome.filter.BinaryOperator;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.GeometryTypeFilter;
@@ -18,9 +15,6 @@ import org.locationtech.jts.geom.Geometry;
 /** Holds the relevant objects for processing the request and creating the response. */
 public class ProcessingData {
 
-  private static Geometry dataPolyGeom;
-  private static double timeout;
-  private static int numberOfDataExtractionThreads = 1;
   private RequestParameters requestParameters;
   private String requestUrl;
   private BoundaryType boundaryType;
@@ -34,7 +28,6 @@ public class ProcessingData {
   private GeoJsonObject[] geoJsonGeoms;
   private boolean containsSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
-  private static int numberOfClusterNodes;
   private boolean isRatio;
   private boolean isGroupByBoundary;
   private boolean isFullHistory;
@@ -48,21 +41,6 @@ public class ProcessingData {
     this.isFullHistory = false;
   }
 
-  public static Geometry getDataPolyGeom() {
-    return dataPolyGeom;
-  }
-
-  public static void setDataPolyGeom(Geometry dataPolyGeom) {
-    ProcessingData.dataPolyGeom = dataPolyGeom;
-  }
-
-  public static double getTimeout() {
-    return timeout;
-  }
-
-  public static void setTimeout(double timeout) {
-    ProcessingData.timeout = timeout;
-  }
 
   public RequestParameters getRequestParameters() {
     return requestParameters;
@@ -166,22 +144,6 @@ public class ProcessingData {
 
   public void setSimpleFeatureTypes(Set<SimpleFeatureType> simpleFeatureTypes) {
     this.simpleFeatureTypes = (EnumSet<SimpleFeatureType>) simpleFeatureTypes;
-  }
-
-  public static int getNumberOfClusterNodes() {
-    return numberOfClusterNodes;
-  }
-
-  public static void setNumberOfClusterNodes(int numberOfClusterNodes) {
-    ProcessingData.numberOfClusterNodes = numberOfClusterNodes;
-  }
-
-  public static int getNumberOfDataExtractionThreads() {
-    return numberOfDataExtractionThreads;
-  }
-
-  public static void setNumberOfDataExtractionThreads(int numberOfDataExtractionsThreads) {
-    numberOfDataExtractionThreads = numberOfDataExtractionsThreads;
   }
 
   public boolean isRatio() {

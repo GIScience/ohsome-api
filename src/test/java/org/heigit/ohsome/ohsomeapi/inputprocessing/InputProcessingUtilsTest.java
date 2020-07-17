@@ -28,8 +28,6 @@ public class InputProcessingUtilsTest {
   @Before
   public void setup() {
     inProUtils = new InputProcessingUtils();
-    ExtractMetadata.fromTstamp = "2008-01-01T00:00:00Z";
-    ExtractMetadata.toTstamp = "2018-01-01T00:00:00Z";
   }
 
   // boundary param split tests

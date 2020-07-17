@@ -15,12 +15,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class MetadataRequestExecutor {
   
-  @Autowired
-  private ExtractMetadata extractMetadata;
+  private final ExtractMetadata extractMetadata;
   
-  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+  
+  @Autowired
+  public MetadataRequestExecutor(ExtractMetadata extractMetadata) {
     this.extractMetadata = extractMetadata;
   }
+
+
 
   /**
    * Returns the metadata of the underlying extract-file.

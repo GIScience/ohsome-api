@@ -15,9 +15,11 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -38,13 +40,17 @@ public class GeometryBuilder {
 
   GeometryFactory gf;
   private final ProcessingData processingData;
+  private final ExtractMetadata extractMetadata;
+  private final TagTranslator tagTranslator;
 
-  public GeometryBuilder(ProcessingData processingData) {
+  public GeometryBuilder(ProcessingData processingData, ExtractMetadata extractMetadata, TagTranslator tagTranslator) {
     this.processingData = processingData;
+    this.extractMetadata = extractMetadata;
+    this.tagTranslator = tagTranslator;
   }
 
-  public GeometryBuilder() {
-    this.processingData = null;
+  public GeometryBuilder(ExtractMetadata extractMetadata, TagTranslator tagTranslator) {
+    this(null, extractMetadata, tagTranslator);
   }
 
   /**
@@ -113,7 +119,7 @@ public class GeometryBuilder {
     CoordinateReferenceSystem targetCrs;
     MathTransform transform = null;
     ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
-    InputProcessingUtils utils = new InputProcessingUtils();
+    InputProcessingUtils utils = new InputProcessingUtils(extractMetadata, tagTranslator);
     try {
       for (int i = 0; i < bpoints.length; i += 3) {
         sourceCrs = CRS.decode("EPSG:4326", true);
@@ -213,10 +219,10 @@ public class GeometryBuilder {
    * 
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public void createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
+  public Geometry createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
     GeoJSONReader reader = new GeoJSONReader();
     try {
-      ProcessingData.setDataPolyGeom(reader.read(geoJson));
+      return reader.read(geoJson);
     } catch (Exception e) {
       throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
           + "converted. Please use a different data file and contact an admin about this issue.");
@@ -308,7 +314,7 @@ public class GeometryBuilder {
     MultiPolygon mp = geometryFactory.createMultiPolygon(polys);
     // merge all input geometries to single (multi) polygon
     Geometry result = mp.union();
-    InputProcessingUtils utils = new InputProcessingUtils();
+    InputProcessingUtils utils = new InputProcessingUtils(extractMetadata, tagTranslator);
     if (!utils.isWithin(result)) {
       throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
     }

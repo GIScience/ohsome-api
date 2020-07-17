@@ -19,6 +19,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
@@ -32,6 +33,7 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.ohsome.filter.AndOperator;
@@ -42,11 +44,12 @@ import org.heigit.ohsome.filter.GeometryTypeFilter;
 import org.heigit.ohsome.filter.TagFilterEquals;
 import org.heigit.ohsome.filter.TagFilterEqualsAny;
 import org.heigit.ohsome.filter.TypeFilter;
+import org.heigit.ohsome.ohsomeapi.config.ClusterConfig;
+import org.heigit.ohsome.ohsomeapi.config.OSHDBConfig;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Geometry;
@@ -68,16 +71,20 @@ public class InputProcessor {
    */
   public static final int COMPUTE_MODE_THRESHOLD = 130;
   
-  @Autowired
-  private ExtractMetadata extractMetadata;
-  @Autowired
-  private OSHDBDatabase oshdb;
-    
+  
+  private final ExtractMetadata extractMetadata;
+  private final OSHDBDatabase oshdb;
+  private final TagTranslator tagTranslator;
+  private final OSHDBJdbc keytables;
+  private final ClusterConfig clusterConfig;
+  
+      
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private ProcessingData processingData;
   private boolean isSnapshot;
   private boolean isDensity;
+  private double timeout;
   private String requestUrl;
   private String requestMethod;
   private String requestTimeout;
@@ -86,18 +93,30 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean unclipped;
 
-  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+  public InputProcessor(ExtractMetadata extractMetadata,
+      OSHDBDatabase oshdb,
+      TagTranslator tagTranslator,
+      OSHDBJdbc keytables,
+      ClusterConfig clusterConfig,
+      HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity, double timeout) {
+    this.extractMetadata = extractMetadata;
+    this.oshdb = oshdb;
+    this.tagTranslator = tagTranslator;
+    this.keytables = keytables;
+    this.clusterConfig = clusterConfig;
+    
     checkContentTypeHeader(servletRequest);
     checkParameters(servletRequest);
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
+    this.timeout = timeout;
     processingData =
         new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
             servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
             servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(),
+            servletRequest.getParameter("showMetadata"), timeout,
             servletRequest.getParameter("filter")), servletRequest.getRequestURL().toString());
     this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
     this.requestMethod = servletRequest.getMethod();
@@ -105,23 +124,24 @@ public class InputProcessor {
     this.requestParameters = servletRequest.getParameterMap();
   }
 
-  public InputProcessor(ProcessingData processingData) {
-    this.processingData = processingData;
-  }
-  
-  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+  public InputProcessor(ExtractMetadata extractMetadata,
+      OSHDBDatabase oshdb,
+      TagTranslator tagTranslator,
+      OSHDBJdbc keytables,
+      ClusterConfig clusterConfig, ProcessingData processingData) {
     this.extractMetadata = extractMetadata;
-  }
-  
-
-  public void setOshdb(OSHDBDatabase oshdb) {
     this.oshdb = oshdb;
+    this.tagTranslator = tagTranslator;
+    this.keytables = keytables;
+    this.clusterConfig = clusterConfig;
+    this.processingData = processingData;
+    
   }
-  
+ 
   public OSHDBDatabase getOshdb() {
     return oshdb;
   }
-
+  
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
     return this.processParameters(null);
   }
@@ -163,8 +183,8 @@ public class InputProcessor {
     
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
-    geomBuilder = new GeometryBuilder(processingData);
-    utils = new InputProcessingUtils();
+    geomBuilder = new GeometryBuilder(processingData, extractMetadata, tagTranslator);
+    utils = newInputProcessingUtils();
     Geometry boundary;
     try {
       switch (processingData.getBoundaryType()) {
@@ -216,17 +236,10 @@ public class InputProcessor {
     oshdb.timeout(timeout);
 
     if (isSnapshot) {
-      if (DbConnData.keytables == null) {
-        mapRed = OSMEntitySnapshotView.on(oshdb);
-      } else {
-        mapRed = OSMEntitySnapshotView.on(oshdb).keytables(DbConnData.keytables);
-      }
+      mapRed = OSMEntitySnapshotView.on(oshdb).keytables(keytables);
+      
     } else {
-      if (DbConnData.keytables == null) {
-        mapRed = OSMContributionView.on(oshdb);
-      } else {
-        mapRed = OSMContributionView.on(oshdb).keytables(DbConnData.keytables);
-      }
+      mapRed = OSMContributionView.on(oshdb).keytables(keytables);
     }
     if (boundary.isRectangle()) {
       mapRed =
@@ -279,7 +292,7 @@ public class InputProcessor {
         throw new BadRequestException(ExceptionMessages.FILTER_PARAM);
       } else {
         // call translator and add filters to mapRed
-        FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+        FilterParser fp = new FilterParser(tagTranslator);
         FilterExpression filterExpr = utils.parseFilter(fp, filter);
         processingData.setFilterExpression(filterExpr);
         mapRed = optimizeFilters0(mapRed, filterExpr);
@@ -305,12 +318,12 @@ public class InputProcessor {
     // performs basic optimizations “low hanging fruit”:
     // single filters, and-combination of single filters, etc.
     if (filter instanceof TagFilterEquals) {
-      OSMTag tag = DbConnData.tagTranslator.getOSMTagOf(((TagFilterEquals) filter).getTag());
+      OSMTag tag = tagTranslator.getOSMTagOf(((TagFilterEquals) filter).getTag());
       return mapRed.osmTag(tag);
     }
     if (filter instanceof TagFilterEqualsAny) {
       OSMTagKey key =
-          DbConnData.tagTranslator.getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
+          tagTranslator.getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
       return mapRed.osmTag(key);
     }
     if (filter instanceof TypeFilter) {
@@ -726,7 +739,6 @@ public class InputProcessor {
    * @throws BadRequestException if the given timeout is larger than the predefined one
    */
   private double defineRequestTimeout() throws BadRequestException {
-    double timeout = ProcessingData.getTimeout();
     String requestTimeoutString = createEmptyStringIfNull(requestTimeout);
     if (!requestTimeoutString.isEmpty()) {
       double requestTimeoutDouble;
@@ -739,7 +751,7 @@ public class InputProcessor {
         timeout = requestTimeoutDouble;
       } else {
         throw new BadRequestException(
-            ExceptionMessages.TIMEOUT + ProcessingData.getTimeout() + " seconds");
+            ExceptionMessages.TIMEOUT + timeout + " seconds");
       }
     }
     return timeout;
@@ -779,7 +791,7 @@ public class InputProcessor {
    */
   private void checkClusterAvailability() {
     OSHDBIgnite igniteDb = (OSHDBIgnite) oshdb;
-    int definedNumberOfNodes = ProcessingData.getNumberOfClusterNodes();
+    int definedNumberOfNodes = clusterConfig.getServerNodesCount();
     int currentNumberOfNodes =
         igniteDb.getIgnite().services().clusterGroup().metrics().getTotalNodes();
     if (currentNumberOfNodes < definedNumberOfNodes) {
@@ -848,7 +860,7 @@ public class InputProcessor {
   public Geometry getGeometry() {
     Geometry geom;
     if (BoundaryType.NOBOUNDARY == processingData.getBoundaryType()) {
-      geom = ProcessingData.getDataPolyGeom();
+      geom = extractMetadata.getDataPoly();
     } else {
       geom = processingData.getRequestGeom();
     }
@@ -889,5 +901,9 @@ public class InputProcessor {
 
   public boolean isUnclipped() {
     return unclipped;
+  }
+  
+  private InputProcessingUtils newInputProcessingUtils() {
+    return new InputProcessingUtils(extractMetadata, tagTranslator);
   }
 }

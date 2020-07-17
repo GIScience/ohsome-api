@@ -20,28 +20,27 @@ import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.jparsec.error.ParserException;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils {
 
   private static final String GEOMCOLLTYPE = "GeometryCollection";
   
-  @Autowired
-  private ExtractMetadata extractMetadata;
+  private final ExtractMetadata extractMetadata;
+  private final TagTranslator tagTranslator;
     
   private Object[] boundaryIds;
   private String[] toTimestamps = null;
-  
-  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+
+  public InputProcessingUtils(ExtractMetadata extractMetadata, TagTranslator tagTranslator) {
     this.extractMetadata = extractMetadata;
+    this.tagTranslator = tagTranslator;
   }
 
   /**
@@ -362,7 +361,7 @@ public class InputProcessingUtils {
    */
   public <T extends OSHDBMapReducible> MapReducer<T> filterOnPlanarRelations(MapReducer<T> mapRed) {
     // further filtering to not look at all relations
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = tagTranslator;
     OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
     OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
     mapRed.osmEntityFilter(entity -> {

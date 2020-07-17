@@ -3,60 +3,65 @@ package org.heigit.ohsome.ohsomeapi.oshdb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
+import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
+
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 
 /** Holds the metadata that is derived from the data-extract. */
-
+@Component
+@RequestScope
 public class ExtractMetadata {
-
-  private String fromTstamp = null;
-  private String toTstamp = null;
-  private String attributionShort = null;
-  private String attributionUrl = null;
-  private Geometry dataPoly = null;
-  private JsonNode dataPolyJson = null;
-  private int replicationSequenceNumber;
   
-  public static ExtractMetadata extractOSHDBMetadata() throws IOException {
-    ExtractMetadata metadata = new ExtractMetadata();
-    OSHDBDatabase db = DbConnData.keytables;
-    if (db.metadata("extract.region") != null) {
-      String dataPolyString = db.metadata("extract.region");
+  private final String fromTstamp;
+  private final String toTstamp;
+  private final String attributionShort;
+  private final String attributionUrl;
+  private final Geometry dataPoly;
+  private final JsonNode dataPolyJson;
+  private final int replicationSequenceNumber;
+  
+  @Autowired
+  public ExtractMetadata(OSHDBJdbc keytables,ExtractMetadata extractMetadata, TagTranslator tagTranslator) throws IOException {
+    if (keytables.metadata("extract.region") != null) {
+      String dataPolyString = keytables.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
-      metadata.dataPolyJson = mapper.readTree(dataPolyString);
-      GeometryBuilder geomBuilder = new GeometryBuilder();
-      geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
-      metadata.dataPoly = ProcessingData.getDataPolyGeom();
+      dataPolyJson = mapper.readTree(dataPolyString);
+      GeometryBuilder geomBuilder = new GeometryBuilder(extractMetadata, tagTranslator);
+      dataPoly = geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
+    }else {
+      dataPolyJson = null;
+      dataPoly = null;
     }
-    if (db.metadata("extract.timerange") != null) {
-      String[] timeranges = db.metadata("extract.timerange").split(",");
-      metadata.fromTstamp = timeranges[0];
-      metadata.toTstamp = timeranges[1];
+    if (keytables.metadata("extract.timerange") != null) {
+      String[] timeranges = keytables.metadata("extract.timerange").split(",");
+      fromTstamp = timeranges[0];
+      toTstamp = timeranges[1];
     } else {
       throw new RuntimeException("The timerange metadata could not be retrieved from the db.");
     }
-    if (db.metadata("attribution.short") != null) {
-      metadata.attributionShort = db.metadata("attribution.short");
+    if (keytables.metadata("attribution.short") != null) {
+      attributionShort = keytables.metadata("attribution.short");
     } else {
-      metadata.attributionShort = "© OpenStreetMap contributors";
+      attributionShort = "© OpenStreetMap contributors";
     }
-    if (db.metadata("attribution.url") != null) {
-      metadata.attributionUrl = db.metadata("attribution.url");
+    if (keytables.metadata("attribution.url") != null) {
+      attributionUrl = keytables.metadata("attribution.url");
     } else {
-      metadata.attributionUrl = "https://ohsome.org/copyrights";
+      attributionUrl = "https://ohsome.org/copyrights";
     }
-    if (db.metadata("header.osmosis_replication_sequence_number") != null) {
-      metadata.replicationSequenceNumber =
-          Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number"));
+    if (keytables.metadata("header.osmosis_replication_sequence_number") != null) {
+      replicationSequenceNumber =
+          Integer.parseInt(keytables.metadata("header.osmosis_replication_sequence_number"));
+    }else {
+      replicationSequenceNumber = -1;
     }
-    return metadata;
   }
-
   public String getFromTstamp() {
     return fromTstamp;
   }

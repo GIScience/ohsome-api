@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
-import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +36,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.Feature;
@@ -62,6 +62,7 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.config.ClusterConfig;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -69,7 +70,6 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -91,26 +91,33 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 public class ExecutionUtils {
   
-  @Autowired
-  private ExtractMetadata extractMetadata;
+  private static final DecimalFormat ratioDf = defineDecimalFormat("#.######");
+
+  private final ExtractMetadata extractMetadata;
+ 
+  private final DataSource keytablesPool;
+  
+  private final TagTranslator tagTranslator;
+ 
+  private final ClusterConfig clusterConfig;
     
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
-  private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
 
-  public ExecutionUtils(ProcessingData processingData) {
+  public ExecutionUtils(ProcessingData processingData,ExtractMetadata extractMetadata, DataSource keytablesPool, TagTranslator tagTranslator,
+      ClusterConfig clusterConfig) {
     this.processingData = processingData;
+    this.extractMetadata = extractMetadata;
+    this.keytablesPool = keytablesPool;
+    this.tagTranslator = tagTranslator;
+    this.clusterConfig = clusterConfig;
   }
   
-  public void setExtractMetadata(ExtractMetadata extractMetadata) {
-    this.extractMetadata = extractMetadata;
-  }
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
@@ -968,23 +975,21 @@ public class ExecutionUtils {
       final ServletOutputStream outputStream)
       throws ExecutionException, InterruptedException, IOException {
     ThreadLocal<TagTranslator> tts;
-    HikariDataSource keytablesConnectionPool;
-    if (DbConnData.keytablesDbPoolConfig != null) {
-      keytablesConnectionPool = new HikariDataSource(DbConnData.keytablesDbPoolConfig);
+    
+    if (keytablesPool != null) {
       tts = ThreadLocal.withInitial(() -> {
         try {
-          return new TagTranslator(keytablesConnectionPool.getConnection());
+          return new TagTranslator(keytablesPool.getConnection());
         } catch (OSHDBKeytablesNotFoundException | SQLException e) {
           throw new RuntimeException(e);
         }
       });
     } else {
-      keytablesConnectionPool = null;
-      tts = ThreadLocal.withInitial(() -> DbConnData.tagTranslator);
+      tts = ThreadLocal.withInitial(() -> tagTranslator);
     }
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean errored = new AtomicBoolean(false);
-    ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
+    ForkJoinPool threadPool = new ForkJoinPool(clusterConfig.getDataExtractionThreadCount());
     try {
       threadPool.submit(() -> stream.parallel().map(data -> {
         // 0. resolve tags
@@ -1038,9 +1043,6 @@ public class ExecutionUtils {
       })).get();
     } finally {
       threadPool.shutdown();
-      if (keytablesConnectionPool != null) {
-        keytablesConnectionPool.close();
-      }
       outputStream.flush();
     }
   }

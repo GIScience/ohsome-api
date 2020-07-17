@@ -13,8 +13,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
+import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
@@ -25,12 +28,13 @@ import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.config.ClusterConfig;
+import org.heigit.ohsome.ohsomeapi.config.OSHDBConfig;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
@@ -51,11 +55,27 @@ public class UsersRequestExecutor {
 
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   
-  @Autowired
-  private ExtractMetadata extractMetadata;
+  private final ExtractMetadata extractMetadata;
+  private final OSHDBConfig oshdbConfig;
+  private final ClusterConfig clusterConfig;
   
-  public void setExtractMetadata(ExtractMetadata extractMetadata) {
+  private final TagTranslator tagTranslator;
+  private final DataSource keytablesPool;
+  
+  private final OSHDBDatabase oshdb;
+  private final OSHDBJdbc keytables;
+  
+  @Autowired
+  public UsersRequestExecutor(ExtractMetadata extractMetadata, OSHDBConfig oshdbConfig, ClusterConfig clusterConfig,
+      TagTranslator tagTranslator, DataSource keytablesPool,OSHDBDatabase oshdb,
+      OSHDBJdbc keytables) {
     this.extractMetadata = extractMetadata;
+    this.oshdbConfig = oshdbConfig;
+    this.clusterConfig = clusterConfig;
+    this.tagTranslator = tagTranslator;
+    this.keytablesPool = keytablesPool;
+    this.oshdb = oshdb;
+    this.keytables = keytables;
   }
 
   /** Performs a count calculation. */
@@ -64,12 +84,12 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBTimestamp, Integer> result;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor = newInputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    ExecutionUtils exeUtils = newExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     UsersResult[] results =
         exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
@@ -99,7 +119,7 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor = newInputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -111,7 +131,7 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    ExecutionUtils exeUtils = newExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
@@ -143,7 +163,7 @@ public class UsersRequestExecutor {
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor = newInputProcessor(servletRequest, false, isDensity);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -153,10 +173,10 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    ExecutionUtils exeUtils = newExecutionUtils(processingData);
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
@@ -237,7 +257,7 @@ public class UsersRequestExecutor {
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor = newInputProcessor(servletRequest, false, isDensity);
     String[] groupByKeys = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKeys")));
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -247,8 +267,8 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    TagTranslator tt = DbConnData.tagTranslator;
+    ExecutionUtils exeUtils = newExecutionUtils(processingData);
+    TagTranslator tt = tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
@@ -317,7 +337,7 @@ public class UsersRequestExecutor {
       throws Exception {
     long startTime = System.currentTimeMillis();
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    InputProcessor inputProcessor = newInputProcessor(servletRequest, false, isDensity);
     inputProcessor.getProcessingData().setIsGroupByBoundary(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
@@ -341,7 +361,7 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    ExecutionUtils exeUtils = newExecutionUtils(processingData);
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
@@ -374,5 +394,15 @@ public class UsersRequestExecutor {
         new Attribution(extractMetadata.getAttributionUrl(),extractMetadata.getAttributionShort()), 
         Application.API_VERSION, metadata,
         resultSet);
+  }
+  
+  private ExecutionUtils newExecutionUtils(ProcessingData processingData) {
+    return new ExecutionUtils(processingData, extractMetadata, keytablesPool, tagTranslator, clusterConfig);
+  }
+  
+  private InputProcessor newInputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+    return new InputProcessor(
+        extractMetadata, oshdb, tagTranslator, keytables, clusterConfig,
+        servletRequest, isSnapshot, isDensity, oshdbConfig.getTimeoutInSeconds());
   }
 }
