@@ -278,7 +278,9 @@ public class ExecutionUtils {
     if (isFullHistory) {
       writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
     }
-    writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
+    if (snapshotStream != null) {
+      writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
+    }
     outputStream.print("]\n}\n");
     servletResponse.flushBuffer();
   }

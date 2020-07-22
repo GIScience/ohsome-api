@@ -1064,7 +1064,7 @@ Extraction Endpoints
    Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
 
    :query time: required; format same as described in time_
-   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query properties: list of possible property groups added to each OSM element ('tags' and/or 'metadata'); giving unclipped features (and/or 'unclipped'); default: empty
    :query <other>: see above_ (except **format**)
 
 .. note:: The extraction endpoints always return a .geojson file.
@@ -1132,7 +1132,8 @@ Extraction Endpoints
    This endpoint supports the same ``geometryType`` options as the ``/elements`` endpoint.
 
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
-   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query properties: list of possible property groups added to each OSM element ('tags' and/or 'metadata'); giving unclipped features (and/or 'unclipped');
+    giving only data modifications for full history request (and/or 'modifications'); default: empty
    :query <other>: see above_ (except **format**)
 
 .. _above: endpoints.html#post--elements-(aggregation)

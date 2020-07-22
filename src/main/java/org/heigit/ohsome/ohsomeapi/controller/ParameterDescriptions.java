@@ -17,7 +17,7 @@ public class ParameterDescriptions {
           + "(one boundary parameter must be defined)";
   public static final String TYPES =
       "OSM type(s) 'node' and/or 'way' and/or 'relation' OR simple feature type(s) 'point' and/or "
-      + "'line' and/or 'polygon'; default: all three OSM types";
+          + "'line' and/or 'polygon'; default: all three OSM types";
   public static final String KEYS = "OSM key(s) e.g.: 'highway', 'building'; default: no key";
   public static final String GROUP_BY_KEY = "OSM key e.g.: 'highway', 'building'; no default "
       + "value (one groupByKey parameter must be defined)";
@@ -27,14 +27,14 @@ public class ParameterDescriptions {
       "ISO-8601 conform timestring(s); default: latest timestamp within dataset";
   public static final String TIME_DATA_EXTRACTION =
       "ISO-8601 conform timestring(s) defining timestamps (/elements), "
-      + "or intervals (/elementsFullHistory); no default value";
+          + "or intervals (/elementsFullHistory); no default value";
   public static final String FORMAT =
       "Output format geojson (for /groupBy/boundary resources only), csv, or json; default: json";
   public static final String PROPERTIES =
-      "List of possible property-groups added to each OSM-element: 'tags' and/or 'metadata'; "
-          + "default: no property";
-  public static final String SHOW_METADATA =
-      "Boolean operator 'true' or 'false'; default: 'false'";
+      "List of possible property groups added to each OSM element ('tags' and/or 'metadata');"
+          + "Giving unclipped features (and/or 'unclipped'); Giving only data modifications "
+          + "for full history request (and/or 'modifications'); default: no property";
+  public static final String SHOW_METADATA = "Boolean operator 'true' or 'false'; default: 'false'";
   public static final String TIMEOUT = "Custom timeout in seconds;";
   public static final String FILTER = "Combines several attributive filters, e.g. OSM type, "
       + "the geometry (simple feature) type, as well as the OSM tag; no default value";

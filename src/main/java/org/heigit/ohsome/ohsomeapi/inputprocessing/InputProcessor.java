@@ -77,6 +77,7 @@ public class InputProcessor {
   private boolean includeTags;
   private boolean includeOSMMetadata;
   private boolean unclipped;
+  private boolean modifications;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -473,6 +474,8 @@ public class InputProcessor {
         this.includeOSMMetadata = true;
       } else if ("unclipped".equalsIgnoreCase(property)) {
         this.unclipped = true;
+      } else if ("modifications".equalsIgnoreCase(property)) {
+        this.modifications = true;
       } else {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
       }
@@ -866,5 +869,9 @@ public class InputProcessor {
 
   public boolean isUnclipped() {
     return unclipped;
+  }
+  
+  public boolean modifications() {
+    return modifications;
   }
 }
