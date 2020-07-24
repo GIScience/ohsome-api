@@ -145,7 +145,7 @@ public class ElementsRequestExecutor {
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
-      exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
+      exeUtils.streamElementsResponse(servletResponse, osmData, streamResult);
     }
   }
 
@@ -307,48 +307,49 @@ public class ElementsRequestExecutor {
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
-    Stream<Feature> contributionStream = contributionPreResult.stream();
-    Stream<Feature> snapshotStream = null;
+    MapReducer<Feature> snapshotPreResult = null;
     if (!modificationsOnly) {
       // handles cases where valid_from = t_start, valid_to = t_end; i.e. non-modified data
-      MapReducer<Feature> snapshotPreResult =
-          mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
-              .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
-                  && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
-                      .getVersion())
-              .map(snapshots -> snapshots.get(0)).flatMap(snapshot -> {
-                Map<String, Object> properties = new TreeMap<>();
-                OSMEntity entity = snapshot.getEntity();
-                if (includeOSMMetadata) {
-                  properties.put("@lastEdit", entity.getTimestamp().toString());
-                }
-                Geometry geom = snapshot.getGeometry();
-                if (unclippedGeometries) {
-                  geom = snapshot.getGeometryUnclipped();
-                }
-                properties.put("@snapshotTimestamp",
-                    TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
-                properties.put("@validFrom", startTimestamp);
-                properties.put("@validTo", endTimestamp);
-                boolean addToOutput;
-                if (processingData.containsSimpleFeatureTypes()) {
-                  addToOutput = utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes);
-                } else if (requiresGeometryTypeCheck) {
-                  addToOutput = filterExpression.applyOSMGeometry(entity, geom);
-                } else {
-                  addToOutput = true;
-                }
-                if (addToOutput) {
-                  return Collections.singletonList(exeUtils.createOSMFeature(entity, geom,
-                      properties, keysInt, includeTags, includeOSMMetadata, elemGeom));
-                } else {
-                  return Collections.emptyList();
-                }
-              }).filter(Objects::nonNull);
-      snapshotStream = snapshotPreResult.stream();
-    } else {
-      exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
-          contributionStream);
+      snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
+          .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
+              && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
+                  .getVersion())
+          .map(snapshots -> snapshots.get(0)).flatMap(snapshot -> {
+            Map<String, Object> properties = new TreeMap<>();
+            OSMEntity entity = snapshot.getEntity();
+            if (includeOSMMetadata) {
+              properties.put("@lastEdit", entity.getTimestamp().toString());
+            }
+            Geometry geom = snapshot.getGeometry();
+            if (unclippedGeometries) {
+              geom = snapshot.getGeometryUnclipped();
+            }
+            properties.put("@snapshotTimestamp",
+                TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
+            properties.put("@validFrom", startTimestamp);
+            properties.put("@validTo", endTimestamp);
+            boolean addToOutput;
+            if (processingData.containsSimpleFeatureTypes()) {
+              addToOutput = utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes);
+            } else if (requiresGeometryTypeCheck) {
+              addToOutput = filterExpression.applyOSMGeometry(entity, geom);
+            } else {
+              addToOutput = true;
+            }
+            if (addToOutput) {
+              return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
+                  keysInt, includeTags, includeOSMMetadata, elemGeom));
+            } else {
+              return Collections.emptyList();
+            }
+          }).filter(Objects::nonNull);
+    }
+    try (
+        Stream<Feature> snapshotStream =
+            (snapshotPreResult != null) ? snapshotPreResult.stream() : Stream.empty();
+        Stream<Feature> contributionStream = contributionPreResult.stream()) {
+      exeUtils.streamElementsResponse(servletResponse, osmData,
+          Stream.concat(contributionStream, snapshotStream));
     }
   }
 

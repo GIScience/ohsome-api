@@ -239,8 +239,7 @@ public class ExecutionUtils {
 
   /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
-      boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
-      Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
+      Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -275,12 +274,7 @@ public class ExecutionUtils {
       }
     });
     isFirst = new AtomicReference<>(true);
-    if (isFullHistory) {
-      writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
-    }
-    if (snapshotStream != null) {
-      writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
-    }
+    writeStreamResponse(outputJsonGen, resultStream, outputBuffers, outputStream);
     outputStream.print("]\n}\n");
     servletResponse.flushBuffer();
   }
