@@ -256,16 +256,13 @@ public class CountController {
   }
 
   /**
-   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items
-   * selected by types, keys and values (or filter).
+   * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
-  @ApiOperation(
-      value = "Ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) "
-          + "within items selected by types, keys and values (or filter)",
+  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
       nickname = "countRatio", response = RatioResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
@@ -286,8 +283,8 @@ public class CountController {
   }
 
   /**
-   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items
-   * selected by types, keys and values (or filter) grouped by the boundary.
+   * Gives the ratio of OSM elements satisfying filter2 within items selected by filter grouped by
+   * the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
