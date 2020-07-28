@@ -1113,4 +1113,13 @@ public class PostControllerTest {
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(1, response.getBody().get("result").get(0).get("value").asInt());
   }
+
+  @Test
+  public void postQueryRequestEndsByQuestionMark() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count?", map, JsonNode.class);
+    assertEquals(null, response.getBody().get("error"));
+  }
 }
