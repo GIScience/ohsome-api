@@ -34,8 +34,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements", nickname = "perimeter",
       response = DefaultAggregationResponse.class)
@@ -52,8 +51,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
       nickname = "perimeterGroupByType", response = GroupByResponse.class)
@@ -71,8 +69,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Perimeter of OSM elements in grouped by the boundary "
@@ -91,8 +88,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the boundary and the tag",
       nickname = "perimeterGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -115,8 +111,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
       nickname = "perimeterGroupByKey", response = GroupByResponse.class)
@@ -136,8 +131,7 @@ public class PerimeterController {
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
       nickname = "perimeterGroupByTag", response = GroupByResponse.class)
@@ -161,8 +155,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Density of OSM elements (perimeter of elements divided by "
@@ -182,8 +175,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "perimeterDensityGroupByType", response = GroupByResponse.class)
@@ -201,8 +193,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -220,8 +211,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of  grouped by the boundary and the tag",
       nickname = "perimeterDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -244,8 +234,7 @@ public class PerimeterController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
@@ -264,30 +253,24 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items
-   * selected by types, keys and values (or filter).
+   * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
-  @ApiOperation(
-      value = "Ratio of OSM elements satisfying types2, keys2 and values2 (or filter2) within items "
-          + "selected by types, keys and values (or filter)",
+  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
       nickname = "perimeterRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES,
-          defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
-          required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES,
-          defaultValue = DefaultSwaggerParameters.RESIDENTIAL_VALUE, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
-          paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.TYPE_FILTER, paramType = "query",
+          dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response perimeterRatio(HttpServletRequest servletRequest,
@@ -297,27 +280,25 @@ public class PerimeterController {
   }
 
   /**
-   * Gives the ratio of the perimeter of OSM elements satisfying types2, keys2 and values2 (or
-   * filter2) within items selected by types, keys and values (or filter) grouped by the boundary.
+   * Gives the ratio of the perimeter of OSM elements satisfying filter2 within items selected by
+   * filter grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    */
   @ApiOperation(value = "Ratio of the perimeter of OSM elements grouped by the boundary",
       nickname = "perimeterRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.TYPES,
-          defaultValue = DefaultSwaggerParameters.TYPE, paramType = "query", dataType = "string",
-          required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.KEYS,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.VALUES, defaultValue = "",
-          paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER, defaultValue = "",
-          paramType = "query", dataType = "string", required = false)})
+      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.TYPE_FILTER, paramType = "query",
+          dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterRatioGroupByBoundary(HttpServletRequest servletRequest,
