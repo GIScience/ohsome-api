@@ -60,13 +60,28 @@ To run the tests locally, you need the following:
 
 ## Examples
 
-This section gives you some example JSON responses that also contain the respective request URL.<p>
-Please also take a look at our blog posts, where we provide more information about this API and show possible use-cases:
-* [How to build a request URL](http://k1z.blog.uni-heidelberg.de/2018/04/26/the-ohsome-api-dynamic-osm-statistics-for-real-world-applications/) 
-* [Background info about the documentation](http://k1z.blog.uni-heidelberg.de/2018/09/03/documentation-of-the-ohsome-api/) 
-* [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
+This section gives you an overview on analysis and services, that were/are using the ohsome API, as well as a JSON response example.<p>
 <p>
 
+
+<p>
+The following blog posts describe analysis, which were using the ohsome API:
+   
+* [Farm shops are ohsome](http://k1z.blog.uni-heidelberg.de/2019/07/05/farm-shops-are-ohsome/)
+* [Plausible Parrots - HeiGIT’s OSHDB Supports Research in Citizen Science Data Quality](http://k1z.blog.uni-heidelberg.de/2019/02/27/plausible-parrots-heigits-oshdb-supports-research-in-citizen-science-data-quality/)
+* [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
+* [Exploring OSM history: the example of health related amenities](http://k1z.blog.uni-heidelberg.de/2019/05/16/exploring-osm-history-the-example-of-health-realted-amenities/)
+* several posts of the [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/) series
+
+<p>
+These services are using the ohsome API:
+   
+* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/2/0/0)
+* [ohsome dashboard](https://ohsome.org/apps/dashboard/)
+* [ohsome2label](https://github.com/GIScience/ohsome2label)
+
+
+Here you see an example response giving the length of residential roads for a bounding box around the german city Heidelberg.
 
 ```json
 {
@@ -96,59 +111,6 @@ Please also take a look at our blog posts, where we provide more information abo
         {
             "timestamp": "2016-07-07T00:00:00Z",
             "value": 350577.72
-        }
-    ]
-}
-```
-<p>
-
-
-```json
-{
-    "attribution": {
-        "url": "https://ohsome.org/copyrights",
-        "text": "© OpenStreetMap contributors"
-    },
-    "apiVersion": "1.0.0",
-    "metadata": {
-        "executionTime": 670,
-        "description": "Total count of items in absolute values, aggregated on the boundary.",
-        "requestUrl": "http://localhost:8080/elements/count/groupBy/boundary?filter=building=%2A%20and%20type:way&time=2015-01/2017-01-01/P1Y&showMetadata=true&bpolys=%7B%22type%22:%22FeatureCollection%22,%22features%22:%5B%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Heidelberg%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B8.684692,49.442905%5D,%5B8.613625,49.43688%5D,%5B8.613968,49.366726%5D,%5B8.699455,49.356216%5D,%5B8.731728,49.40427%5D,%5B8.684692,49.442905%5D%5D%5D%7D%7D,%7B%22type%22:%22Feature%22,%22properties%22:%7B%22id%22:%22Weinheim%22%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B8.656197,49.571762%5D,%5B8.611565,49.543034%5D,%5B8.675766,49.516518%5D,%5B8.698769,49.55751%5D,%5B8.656197,49.571762%5D%5D%5D%7D%7D%5D%7D"
-    },
-    "groupByBoundaryResult": [
-        {
-            "groupByObject": "Heidelberg",
-            "result": [
-                {
-                    "timestamp": "2015-01-01T00:00:00Z",
-                    "value": 21914
-                },
-                {
-                    "timestamp": "2016-01-01T00:00:00Z",
-                    "value": 22584
-                },
-                {
-                    "timestamp": "2017-01-01T00:00:00Z",
-                    "value": 24815
-                }
-            ]
-        },
-        {
-            "groupByObject": "Weinheim",
-            "result": [
-                {
-                    "timestamp": "2015-01-01T00:00:00Z",
-                    "value": 6968
-                },
-                {
-                    "timestamp": "2016-01-01T00:00:00Z",
-                    "value": 9634
-                },
-                {
-                    "timestamp": "2017-01-01T00:00:00Z",
-                    "value": 11728
-                }
-            ]
         }
     ]
 }
