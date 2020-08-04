@@ -1107,4 +1107,12 @@ public class GetControllerTest {
         JsonNode.class);
     assertEquals(19, response.getBody().get("result").get(0).get("value").asInt());
   }
+
+  @Test
+  public void getRequestEndsByQuestionMark() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(server + port + "/users/count?", JsonNode.class);
+    assertEquals(null, response.getBody().get("error"));
+  }
 }
