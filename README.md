@@ -1,6 +1,6 @@
 # ohsome API
 
-This REST-based API aims to leverage the tools of the [OSHDB-API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests. The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0). The code is developed and maintained by [HeiGIT](https://heigit.org/).
+This REST-based API aims to leverage the tools of the [OSHDB API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests. The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0). The code is developed and maintained by [HeiGIT](https://heigit.org/).
 
 [![](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
 
@@ -10,9 +10,7 @@ To make your life easier, we already have a running ohsome API instance on our s
 
 https://api.ohsome.org/v1 (current stable version)
 
-This URL automatically redirects you to the documentation page, where you find explanations and examples for all the different parameters and endpoints that we have already implemented in the API. Furthermore, we have a swagger UI, through which you can send simple GET requests and test the individual endpoints. This page can be accessed using the following URL:
-
-https://api.ohsome.org/v1/swagger-ui.html
+This URL automatically redirects you to the documentation page, where you find explanations and examples for all the different parameters and endpoints that we have implemented in the API. We also have a blog post series called [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/), which gives diverse example analysis and updates on new features. Through the [swagger UI](https://api.ohsome.org/v1/swagger-ui.html) page of the ohsome API you can send simple GET requests and test the individual endpoints.
 
 If you want to contribute to the code base of the ohsome API, please follow the guidline and hints in the upcoming sections.
 
@@ -59,10 +57,6 @@ To run the tests locally, you need the following:
 *Note:* 
 * You can disable the integration and/or junit tests via the following properties: `-Dintegration="no" -Djunit="no"`
 * If you do not define the -Dport_xyz property, the corresponding test class will not be executed
-
-<p>
-To be able to test this API with your own requests, you can take a look at the description of the parameters and available resources given in the [Swagger2](http://localhost:8080/swagger-ui.html) documentation, which can be accessed while your local copy is running.
-It lists all available resources and gives detailled information about the individual input parameters and JSON responses.
 
 ## Examples
 
@@ -191,7 +185,7 @@ DOCS_DEPLOYMENT=release make clean html
 
 ## Built With
 
-* [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-java-ee-developers/oxygen1a) - IDE
+* [Eclipse](https://www.eclipse.org) - IDE
 * [Spring Boot](https://projects.spring.io/spring-boot/) - Web framework
 * [Maven](https://maven.apache.org/) - Dependency management and project building
 * [Sphinx](https://www.sphinx-doc.org) - API documentation
