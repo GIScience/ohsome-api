@@ -1,6 +1,8 @@
 # ohsome API
 
-This REST-based API aims to leverage the tools of the [OSHDB API](https://github.com/GIScience/oshdb) through allowing to access some of its functionalities via HTTP requests. The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0). The code is developed and maintained by [HeiGIT](https://heigit.org/).
+The ohsome API is a generic web API for in-depth analysis of OpenStreetMap (OSM) data with a focus on it's history. It allows to get aggregated statistics about the evolution of OSM data itself and about the contributors behind the data. Furthermore, data extraction methods are provided to access the historic development of individual OSM features.
+
+The functionalities of the ohsome API can be accessed via HTTP requests. As a basis underneath serves the [OSHDB API](https://github.com/GIScience/oshdb). The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0). Developed and maintained by [HeiGIT](https://heigit.org/).
 
 [![](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
 
@@ -147,7 +149,6 @@ DOCS_DEPLOYMENT=release make clean html
 
 ## Built With
 
-* [Eclipse](https://www.eclipse.org) - IDE
 * [Spring Boot](https://projects.spring.io/spring-boot/) - Web framework
 * [Maven](https://maven.apache.org/) - Dependency management and project building
 * [Sphinx](https://www.sphinx-doc.org) - API documentation
