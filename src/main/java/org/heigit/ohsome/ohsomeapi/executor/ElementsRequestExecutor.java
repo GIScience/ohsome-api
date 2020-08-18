@@ -1056,7 +1056,7 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = servletRequest.getParameter("filter2");
+    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
@@ -1367,7 +1367,7 @@ public class ElementsRequestExecutor {
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = servletRequest.getParameter("filter2");
+    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
