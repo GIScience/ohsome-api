@@ -875,6 +875,8 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
    * 
+   * @deprecated Will be removed in next major version update.
+   * 
    * @param requestResource
    *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
@@ -1132,6 +1134,8 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
+   * 
+   * @deprecated Will be removed in next major version update.
    * 
    * @param requestResource
    *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
