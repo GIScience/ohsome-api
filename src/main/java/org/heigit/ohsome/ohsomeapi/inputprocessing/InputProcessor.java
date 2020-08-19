@@ -212,18 +212,8 @@ public class InputProcessor {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
     }
 
-    if (showMetadata == null) {
-      processingData.setShowMetadata(false);
-    } else if ("true".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
-        || "yes".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
-      processingData.setShowMetadata(true);
-    } else if ("false".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
-        || "".equals(showMetadata.replaceAll("\\s", ""))
-        || "no".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
-      processingData.setShowMetadata(false);
-    } else {
-      throw new BadRequestException(ExceptionMessages.SHOWMETADATA_PARAM);
-    }
+    processShowMetadata(showMetadata);
+
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
       GeoJSONWriter writer = new GeoJSONWriter();
@@ -477,6 +467,17 @@ public class InputProcessor {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
       }
     }
+  }
+
+  /**
+   * Processes the unclipped parameter used in data-extraction ressources and sets the respective
+   * boolean value 'unclipped'. Note: this method is called after processPropertiesParam() so it
+   * could overwrite the previously defined value of 'unclipped'.
+   */
+  public void processIsUnclippedParam() throws BadRequestException {
+    if (null != requestParameters.get("unclipped")) {
+      this.unclipped = processBooleanParam("unclipped", requestParameters.get("unclipped")[0]);
+    }   
   }
 
   /** Returns the request URL if a GET request was sent. */
@@ -814,6 +815,35 @@ public class InputProcessor {
               + "You can't give more than one '" + parameter + "' parameter.");
         }
       }
+    }
+  }
+
+  /**
+   * Processes the given showMetadata parameter and sets the respective value in the processingData
+   * object.
+   */
+  private void processShowMetadata(String showMetadata) {
+    processingData.setShowMetadata(processBooleanParam("showMetadata", showMetadata));
+  }
+
+  /**
+   * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
+   * value of the parameter is false. Throws a 400 - BadRequestException if the content is invalid.
+   */
+  private boolean processBooleanParam(String paramName, String paramValue)
+      throws BadRequestException {
+    if (paramValue == null) {
+      return false;
+    } else if ("true".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))
+        || "yes".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))) {
+      return true;
+    } else if ("false".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))
+        || "".equals(paramValue.replaceAll("\\s", ""))
+        || "no".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))) {
+      return false;
+    } else {
+      throw new BadRequestException("The given parameter " + paramName + " can only contain the "
+          + "values 'true', 'yes', 'false', or 'no'.");
     }
   }
 

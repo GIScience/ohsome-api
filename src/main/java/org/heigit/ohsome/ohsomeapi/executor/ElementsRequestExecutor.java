@@ -99,6 +99,7 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
     MapReducer<OSMEntitySnapshot> mapRed = null;
     inputProcessor.processPropertiesParam();
+    inputProcessor.processIsUnclippedParam();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean unclippedGeometries = inputProcessor.isUnclipped();
@@ -204,6 +205,7 @@ public class ElementsRequestExecutor {
     MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     inputProcessor.processPropertiesParam();
+    inputProcessor.processIsUnclippedParam();
     InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();

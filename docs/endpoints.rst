@@ -1030,7 +1030,9 @@ Extraction Endpoints
 
    :query time: required; format same as described in time_
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query unclipped: boolean operator to apply a clipping to the geometries of the returned featues (‘true’), or not (‘false’); default: ‘false’
    :query <other>: see above_ (except **format**)
+   
 
 .. note:: The extraction endpoints always return a .geojson file.
 
@@ -1091,9 +1093,11 @@ Get all the bike rental stations in Heidelberg.
    This endpoint supports the same ``geometryType`` options as the ``/elements`` endpoint.
 
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
-   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query properties: same as for generic-extraction_
+   :query unclipped: same as for generic-extraction_
    :query <other>: see above_ (except **format**)
 
+.. _generic-extraction: endpoints.html#post--elements-(geometryType)
 .. _above: endpoints.html#post--elements-(aggregation)
 .. _time: time.html#time
 

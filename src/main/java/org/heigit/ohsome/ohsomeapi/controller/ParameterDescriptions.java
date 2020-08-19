@@ -41,6 +41,8 @@ public class ParameterDescriptions {
       + "v1.0. We encourage you to use the new parameter 'filter' instead.";
   public static final String DEPRECATED_USE_FILTER2 = "This parameter has been deprecated since "
       + "v1.0. We encourage you to use the new parameter 'filter2' instead.";
+  public static final String UNCLIPPED = "Boolean operator to apply a clipping to the geometries "
+      + "of the returned featues ('true'), or not ('false'); default: 'false'";
 
   private ParameterDescriptions() {
     throw new IllegalStateException("Utility class");

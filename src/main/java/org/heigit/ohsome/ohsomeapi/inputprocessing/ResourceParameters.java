@@ -45,6 +45,7 @@ public class ResourceParameters {
       return possibleParams;
     } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
       possibleParams.add("properties");
+      possibleParams.add("unclipped");
       return possibleParams;
     } else {
       return possibleParams;
