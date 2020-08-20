@@ -457,11 +457,13 @@ public class InputProcessor {
       throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
     }
     for (String property : properties) {
+      @Deprecated
+      boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
       if ("tags".equalsIgnoreCase(property)) {
         this.includeTags = true;
       } else if ("metadata".equalsIgnoreCase(property)) {
         this.includeOSMMetadata = true;
-      } else if ("unclipped".equalsIgnoreCase(property)) {
+      } else if (oldUnclippedParameter) {
         this.unclipped = true;
       } else {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
