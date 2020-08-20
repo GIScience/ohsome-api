@@ -173,14 +173,14 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsUnclippedParamTrueFalseTest() {
+  public void getElementsClipGeometryParamTrueFalseTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,"
         + "line&keys=building&showMetadata=true&time=2018-01-02";
     ResponseEntity<JsonNode> emptyFeatureResponse =
-        restTemplate.getForEntity(server + port + uri + "&unclipped=true", JsonNode.class);
+        restTemplate.getForEntity(server + port + uri + "&clipGeometry=false", JsonNode.class);
     ResponseEntity<JsonNode> featureResponse =
-        restTemplate.getForEntity(server + port + uri + "&unclipped=false", JsonNode.class);
+        restTemplate.getForEntity(server + port + uri + "&clipGeometry=true", JsonNode.class);
     assertTrue(emptyFeatureResponse.getBody().get("features").size() == 0);
     assertTrue(featureResponse.getBody().get("features").size() == 1);
   }

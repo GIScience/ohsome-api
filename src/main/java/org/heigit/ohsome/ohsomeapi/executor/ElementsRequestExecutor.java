@@ -102,7 +102,7 @@ public class ElementsRequestExecutor {
     inputProcessor.processIsUnclippedParam();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
-    final boolean unclippedGeometries = inputProcessor.isUnclipped();
+    final boolean clipGeometries = inputProcessor.isClipGeometry();
     if (DbConnData.db instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
@@ -132,7 +132,7 @@ public class ElementsRequestExecutor {
       properties.put("@snapshotTimestamp",
           TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
       Geometry geom = snapshot.getGeometry();
-      if (unclippedGeometries) {
+      if (!clipGeometries) {
         geom = snapshot.getGeometryUnclipped();
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
@@ -209,7 +209,7 @@ public class ElementsRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
-    final boolean unclippedGeometries = inputProcessor.isUnclipped();
+    final boolean clipGeometries = inputProcessor.isClipGeometry();
     final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
     Optional<FilterExpression> filter = processingData.getFilterExpression();
     final boolean requiresGeometryTypeCheck =
@@ -235,7 +235,7 @@ public class ElementsRequestExecutor {
       } else {
         // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
         currentEntity = contributions.get(0).getEntityBefore();
-        currentGeom = exeUtils.getGeometry(contributions.get(0), unclippedGeometries, true);
+        currentGeom = exeUtils.getGeometry(contributions.get(0), clipGeometries, true);
         validFrom = startTimestamp;
       }
       // then for each contribution:
@@ -270,7 +270,7 @@ public class ElementsRequestExecutor {
         } else {
           // else: take "after" as next row
           currentEntity = contribution.getEntityAfter();
-          currentGeom = exeUtils.getGeometry(contribution, unclippedGeometries, false);
+          currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
           validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         }
       }
@@ -314,7 +314,7 @@ public class ElementsRequestExecutor {
             properties.put("@lastEdit", entity.getTimestamp().toString());
           }
           Geometry geom = snapshot.getGeometry();
-          if (unclippedGeometries) {
+          if (!clipGeometries) {
             geom = snapshot.getGeometryUnclipped();
           }
           properties.put("@snapshotTimestamp",

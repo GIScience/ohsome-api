@@ -76,7 +76,7 @@ public class InputProcessor {
   private Map<String, String[]> requestParameters;
   private boolean includeTags;
   private boolean includeOSMMetadata;
-  private boolean unclipped;
+  private boolean clipGeometry = true;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -464,7 +464,7 @@ public class InputProcessor {
       } else if ("metadata".equalsIgnoreCase(property)) {
         this.includeOSMMetadata = true;
       } else if (oldUnclippedParameter) {
-        this.unclipped = true;
+        this.clipGeometry = false;
       } else {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
       }
@@ -472,14 +472,15 @@ public class InputProcessor {
   }
 
   /**
-   * Processes the unclipped parameter used in data-extraction ressources and sets the respective
-   * boolean value 'unclipped'. Note: this method is called after processPropertiesParam() so it
-   * could overwrite the previously defined value of 'unclipped'.
+   * Processes the clipGeometry parameter used in data-extraction ressources and sets the respective
+   * boolean value 'clipGeometry'. Note: this method is called after processPropertiesParam() so it
+   * could overwrite the previously defined value of 'clipGeometry'.
    */
   public void processIsUnclippedParam() throws BadRequestException {
-    if (null != requestParameters.get("unclipped")) {
-      this.unclipped = processBooleanParam("unclipped", requestParameters.get("unclipped")[0]);
-    }   
+    if (null != requestParameters.get("clipGeometry")) {
+      this.clipGeometry =
+          processBooleanParam("clipGeometry", requestParameters.get("clipGeometry")[0]);
+    }
   }
 
   /** Returns the request URL if a GET request was sent. */
@@ -502,21 +503,21 @@ public class InputProcessor {
     return (T) mapRed.filter(data -> {
       if (data instanceof OSMEntitySnapshot) {
         Geometry snapshotGeom;
-        if (unclipped) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        } else {
+        if (clipGeometry) {
           snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
         }
         return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
       } else if (data instanceof OSMContribution) {
         Geometry contribGeomBefore;
         Geometry contribGeomAfter;
-        if (unclipped) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        } else {
+        if (clipGeometry) {
           contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
           contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
         }
         return contribGeomBefore != null
             && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
@@ -545,10 +546,10 @@ public class InputProcessor {
       if (data instanceof OSMEntitySnapshot) {
         OSMEntity snapshotEntity = ((OSMEntitySnapshot) data).getEntity();
         Geometry snapshotGeom;
-        if (unclipped) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        } else {
+        if (clipGeometry) {
           snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
         }
         return filterExpr.applyOSMGeometry(snapshotEntity, snapshotGeom);
       } else if (data instanceof OSMContribution) {
@@ -556,12 +557,12 @@ public class InputProcessor {
         OSMEntity entityAfter = ((OSMContribution) data).getEntityAfter();
         Geometry contribGeomBefore;
         Geometry contribGeomAfter;
-        if (unclipped) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        } else {
+        if (clipGeometry) {
           contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
           contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
         }
         return contribGeomBefore != null
             && filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore)
@@ -896,7 +897,7 @@ public class InputProcessor {
     return includeOSMMetadata;
   }
 
-  public boolean isUnclipped() {
-    return unclipped;
+  public boolean isClipGeometry() {
+    return clipGeometry;
   }
 }
