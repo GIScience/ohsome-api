@@ -823,20 +823,20 @@ public class ExecutionUtils {
    * Extracts and returns a geometry out of the given contribution. The boolean values specify if it
    * should be clipped/unclipped and if the geometry before/after a contribution should be taken.
    */
-  public Geometry getGeometry(OSMContribution contribution, boolean unclippedGeometries,
+  public Geometry getGeometry(OSMContribution contribution, boolean clipGeometries,
       boolean before) {
     Geometry geom = null;
-    if (unclippedGeometries) {
-      if (before) {
-        geom = contribution.getGeometryUnclippedBefore();
-      } else {
-        geom = contribution.getGeometryUnclippedAfter();
-      }
-    } else {
+    if (clipGeometries) {
       if (before) {
         geom = contribution.getGeometryBefore();
       } else {
         geom = contribution.getGeometryAfter();
+      }
+    } else {
+      if (before) {
+        geom = contribution.getGeometryUnclippedBefore();
+      } else {
+        geom = contribution.getGeometryUnclippedAfter();
       }
     }
     return geom;

@@ -155,6 +155,9 @@ public class SwaggerConfig {
       globalOperationParams.add(new ParameterBuilder().name("properties")
           .description(ParameterDescriptions.PROPERTIES).modelRef(new ModelRef(string))
           .parameterType(query).defaultValue("tags").required(false).build());
+      globalOperationParams.add(new ParameterBuilder().name("clipGeometry")
+          .description(ParameterDescriptions.CLIP_GEOMETRY).modelRef(new ModelRef(string))
+          .parameterType(query).defaultValue("true").required(false).build());
     }
     globalOperationParams.add(
         new ParameterBuilder().name("showMetadata").description(ParameterDescriptions.SHOW_METADATA)

@@ -76,7 +76,7 @@ public class InputProcessor {
   private Map<String, String[]> requestParameters;
   private boolean includeTags;
   private boolean includeOSMMetadata;
-  private boolean unclipped;
+  private boolean clipGeometry = true;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -212,18 +212,8 @@ public class InputProcessor {
       mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
     }
 
-    if (showMetadata == null) {
-      processingData.setShowMetadata(false);
-    } else if ("true".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
-        || "yes".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
-      processingData.setShowMetadata(true);
-    } else if ("false".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))
-        || "".equals(showMetadata.replaceAll("\\s", ""))
-        || "no".equalsIgnoreCase(showMetadata.replaceAll("\\s", ""))) {
-      processingData.setShowMetadata(false);
-    } else {
-      throw new BadRequestException(ExceptionMessages.SHOWMETADATA_PARAM);
-    }
+    processShowMetadata(showMetadata);
+
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
       GeoJSONWriter writer = new GeoJSONWriter();
@@ -467,15 +457,29 @@ public class InputProcessor {
       throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
     }
     for (String property : properties) {
+      @Deprecated
+      boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
       if ("tags".equalsIgnoreCase(property)) {
         this.includeTags = true;
       } else if ("metadata".equalsIgnoreCase(property)) {
         this.includeOSMMetadata = true;
-      } else if ("unclipped".equalsIgnoreCase(property)) {
-        this.unclipped = true;
+      } else if (oldUnclippedParameter) {
+        this.clipGeometry = false;
       } else {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
       }
+    }
+  }
+
+  /**
+   * Processes the clipGeometry parameter used in data-extraction ressources and sets the respective
+   * boolean value 'clipGeometry'. Note: this method is called after processPropertiesParam() so it
+   * could overwrite the previously defined value of 'clipGeometry'.
+   */
+  public void processIsUnclippedParam() throws BadRequestException {
+    if (null != requestParameters.get("clipGeometry")) {
+      this.clipGeometry =
+          processBooleanParam("clipGeometry", requestParameters.get("clipGeometry")[0]);
     }
   }
 
@@ -499,21 +503,21 @@ public class InputProcessor {
     return (T) mapRed.filter(data -> {
       if (data instanceof OSMEntitySnapshot) {
         Geometry snapshotGeom;
-        if (unclipped) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        } else {
+        if (clipGeometry) {
           snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
         }
         return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
       } else if (data instanceof OSMContribution) {
         Geometry contribGeomBefore;
         Geometry contribGeomAfter;
-        if (unclipped) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        } else {
+        if (clipGeometry) {
           contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
           contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
         }
         return contribGeomBefore != null
             && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
@@ -542,10 +546,10 @@ public class InputProcessor {
       if (data instanceof OSMEntitySnapshot) {
         OSMEntity snapshotEntity = ((OSMEntitySnapshot) data).getEntity();
         Geometry snapshotGeom;
-        if (unclipped) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        } else {
+        if (clipGeometry) {
           snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
         }
         return filterExpr.applyOSMGeometry(snapshotEntity, snapshotGeom);
       } else if (data instanceof OSMContribution) {
@@ -553,12 +557,12 @@ public class InputProcessor {
         OSMEntity entityAfter = ((OSMContribution) data).getEntityAfter();
         Geometry contribGeomBefore;
         Geometry contribGeomAfter;
-        if (unclipped) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        } else {
+        if (clipGeometry) {
           contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
           contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
         }
         return contribGeomBefore != null
             && filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore)
@@ -818,6 +822,35 @@ public class InputProcessor {
   }
 
   /**
+   * Processes the given showMetadata parameter and sets the respective value in the processingData
+   * object.
+   */
+  private void processShowMetadata(String showMetadata) {
+    processingData.setShowMetadata(processBooleanParam("showMetadata", showMetadata));
+  }
+
+  /**
+   * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
+   * value of the parameter is false. Throws a 400 - BadRequestException if the content is invalid.
+   */
+  private boolean processBooleanParam(String paramName, String paramValue)
+      throws BadRequestException {
+    if (paramValue == null) {
+      return false;
+    } else if ("true".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))
+        || "yes".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))) {
+      return true;
+    } else if ("false".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))
+        || "".equals(paramValue.replaceAll("\\s", ""))
+        || "no".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))) {
+      return false;
+    } else {
+      throw new BadRequestException("The given parameter " + paramName + " can only contain the "
+          + "values 'true', 'yes', 'false', or 'no'.");
+    }
+  }
+
+  /**
    * Gets the geometry from the currently in-use boundary object(s).
    * 
    * @return <code>Geometry</code> object of the used boundary parameter.
@@ -864,7 +897,7 @@ public class InputProcessor {
     return includeOSMMetadata;
   }
 
-  public boolean isUnclipped() {
-    return unclipped;
+  public boolean isClipGeometry() {
+    return clipGeometry;
   }
 }
