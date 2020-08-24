@@ -291,18 +291,28 @@ public class ExecutionUtils {
       CSVWriter writer = writeComments(servletResponse, comments);
       Pair<List<String>, List<String[]>> rows;
       if (resultSet instanceof GroupByResult[]) {
-        GroupByResult result = (GroupByResult) resultSet[0];
-        if (result.getResult() instanceof UsersResult[]) {
-          rows = createCsvResponseForUsersGroupBy(resultSet);
+        if (resultSet.length == 0) {
+          List<String> column = new ArrayList<>();
+          column.add("timestamp");
+          rows = new ImmutablePair<>(column, null);
         } else {
-          rows = createCsvResponseForElementsGroupBy(resultSet);
+          GroupByResult result = (GroupByResult) resultSet[0];
+          if (result.getResult() instanceof UsersResult[]) {
+            rows = createCsvResponseForUsersGroupBy(resultSet);
+          } else {
+            rows = createCsvResponseForElementsGroupBy(resultSet);
+          }
         }
       } else {
         rows = createCsvResponseForElementsRatioGroupBy(resultSet);
       }
       writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
-      writer.writeAll(rows.getRight(), false);
-      writer.close();
+      if (rows.getRight() != null) {
+        writer.writeAll(rows.getRight(), false);
+        writer.close();
+      } else {
+        writer.close();
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
