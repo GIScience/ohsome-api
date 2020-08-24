@@ -292,9 +292,9 @@ public class ExecutionUtils {
       Pair<List<String>, List<String[]>> rows;
       if (resultSet instanceof GroupByResult[]) {
         if (resultSet.length == 0) {
-          List<String> column = new ArrayList<>();
-          column.add("timestamp");
-          rows = new ImmutablePair<>(column, null);
+          writer.writeNext(new String[] {"timestamp"}, false);
+          writer.close();
+          return;
         } else {
           GroupByResult result = (GroupByResult) resultSet[0];
           if (result.getResult() instanceof UsersResult[]) {
@@ -307,12 +307,8 @@ public class ExecutionUtils {
         rows = createCsvResponseForElementsRatioGroupBy(resultSet);
       }
       writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
-      if (rows.getRight() != null) {
-        writer.writeAll(rows.getRight(), false);
-        writer.close();
-      } else {
-        writer.close();
-      }
+      writer.writeAll(rows.getRight(), false);
+      writer.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
