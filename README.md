@@ -4,7 +4,12 @@ The ohsome API is a generic web API for in-depth analysis of OpenStreetMap (OSM)
 
 The functionalities of the ohsome API can be accessed via HTTP requests. As a basis underneath serves the [OSHDB API](https://github.com/GIScience/oshdb). The current stable version is [v1.0.0](https://github.com/GIScience/ohsome-api/releases/tag/1.0.0). Developed and maintained by [HeiGIT](https://heigit.org/).
 
-[![](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
+[![Build Status](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.heigit.ohsome/ohsome-api/badge.svg)](https://search.maven.org/artifact/org.heigit.ohsome/ohsome-api)
+[![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
+[![API docs](https://img.shields.io/badge/API-docs-blue.svg)](https://docs.ohsome.org/ohsome-api/stable)
+[![JavaDocs](https://img.shields.io/badge/Java-docs-blue.svg)](https://docs.ohsome.org/java/ohsome-api)
+[![status: active](https://github.com/GIScience/badges/raw/master/status/active.svg)](https://github.com/GIScience/badges#active)
 
 ## Using the ohsome API
 
