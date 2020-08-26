@@ -144,7 +144,7 @@ public class ElementsRequestExecutor {
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
-      exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult, null);
+      exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult);
     }
   }
 
@@ -343,8 +343,8 @@ public class ElementsRequestExecutor {
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> contributionStream = contributionPreResult.stream();
         Stream<Feature> snapshotStream = snapshotPreResult.stream()) {
-      exeUtils.streamElementsResponse(servletResponse, osmData, true, snapshotStream,
-          contributionStream);
+      exeUtils.streamElementsResponse(servletResponse, osmData, true,
+          Stream.concat(contributionStream, snapshotStream));
     }
   }
 
