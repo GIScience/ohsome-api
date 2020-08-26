@@ -28,7 +28,7 @@
     <jsonpath.version>2.2.0</jsonpath.version>
     <jts2geojson.version>0.13.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
-    <ohsome-filter.version>1.1.4</ohsome-filter.version>
+    <ohsome-filter.version>1.2.0</ohsome-filter.version>
     <opencsv.version>4.0</opencsv.version>
     <oshdb.version>0.5.9</oshdb.version>
     <springboot.version>2.0.3.RELEASE</springboot.version>

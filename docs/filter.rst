@@ -33,8 +33,21 @@ Selectors
     |                        | | have any tag with the given key  |                        |
     |                        | |                                  |                        |
     +------------------------+------------------------------------+------------------------+
+    | ``key in (value list)``| | matches all entities which do    | ``highway in           |
+    |                        | | have any tag with the given key  | (residential,          |
+    |                        | | and one of the given values      | living_street)``       |
+    +------------------------+------------------------------------+------------------------+
     | ``type:osm-type``      | | matches all entities of the      | ``type:node``          |
     |                        | | given osm type                   |                        |
+    +------------------------+------------------------------------+------------------------+
+    | ``id:osm-id``          | | matches all entities with the    | ``id:1234``            |
+    |                        | | given osm id                     |                        |
+    +------------------------+------------------------------------+------------------------+
+    | ``id:(id list)``       | | matches all entities with the    | ``id:(1, 42, 1234)``   |
+    |                        | | given osm ids                    |                        |
+    +------------------------+------------------------------------+------------------------+
+    | ``id:(id range)``      | | matches all entities with an id  | ``id:(1 .. 9999)``     |
+    |                        | | matching the given id range      |                        |
     +------------------------+------------------------------------+------------------------+
     | ``geometry:geom-type`` | | matches anything which has a     | ``geometry:polygon``   |
     |                        | | geometry of the given type       |                        |
@@ -124,18 +137,16 @@ Here's some useful examples for querying some OSM features:
     |                  |                                                        | | source), but is in reality |
     |                  |                                                        | | not one.                   |
     +------------------+--------------------------------------------------------+------------------------------+
-    | | highways       | | ``type:way and (highway=motorway or``                | | The list of used tags      |
-    |                  | | ``highway=motorway_link or highway=trunk or``        | | depends on the exact       |
-    |                  | | ``highway=trunk_link or highway=primary or``         | | definition of a            |
-    |                  | | ``highway=primary_link or highway=secondary or``     | | "highway". In a            |
-    |                  | | ``highway=secondary_link or highway=tertiary or``    | | different context, it may  |
-    |                  | | ``highway=tertiary_link or highway=unclassified or`` | | also include less or even  |
-    |                  | | ``highway=residential or highway=living_street or``  | | more tags                  |
-    |                  | | ``highway=pedestrian or (highway=service and``       | | (``highway=footway``,      |
-    |                  | | ``service=alley))``                                  | | ``highway=cycleway``,      |
-    |                  | |                                                      | | ``highway=track``,         |
-    |                  | |                                                      | | ``highway=path``, all      |
-    |                  | |                                                      | | ``highway=service``, etc.).|
+    | | highways       | | ``type:way and (highway in (motorway,``              | | The list of used tags      |
+    |                  | | ``motorway_link, trunk, trunk_link, primary,``       | | depends on the exact       |
+    |                  | | ``primary_link, secondary, secondary_link,``         | | definition of a            |
+    |                  | | ``tertiary, tertiary_link, unclassified,``           | | "highway". In a            |
+    |                  | | ``residential, living_street, pedestrian) or``       | | different context, it may  |
+    |                  | | ``(highway=service and service=alley))``             | | also include less or even  |
+    |                  |                                                        | | more tags                  |
+    |                  |                                                        | | (``footway``, ``cycleway``,|
+    |                  |                                                        | | ``track``, ``path``, all   |
+    |                  |                                                        | | ``highway=service``, etc.) |
     +------------------+--------------------------------------------------------+------------------------------+
     | | residential    | | ``type:way and highway=residential and``             | | Note that some roads       |
     | | roads missing  | | ``name!=* and noname!=yes``                          | | might be actually          |
