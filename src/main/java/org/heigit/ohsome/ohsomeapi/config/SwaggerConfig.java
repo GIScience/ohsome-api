@@ -73,6 +73,18 @@ public class SwaggerConfig {
                 "Direct access to the full-history of the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
+  
+  /** Creates the Swagger2 documentation for the contributions resources. */
+  @Bean
+  public Docket contributionsDocket() {
+    ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
+    return new Docket(DocumentationType.SWAGGER_2).groupName("Contributions").select()
+        .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.contributions"))
+        .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
+        .globalOperationParameters(defineGlobalOperationParams(true))
+        .tags(new Tag("Contributions", "Get the contributed OSM features"))
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
+  }
 
   /** Defines custom response messages for the used response codes. */
   private ArrayList<ResponseMessage> defineResponseMessages() {

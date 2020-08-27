@@ -1,11 +1,14 @@
-package org.heigit.ohsome.ohsomeapi.controller.rawdata;
+package org.heigit.ohsome.ohsomeapi.controller.contributions;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.executor.ContributionsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -99,8 +102,8 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsRequestExecutor.extractLatest(ElementsGeometry.RAW, servletRequest,
-        servletResponse);
+    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.RAW,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -121,8 +124,8 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsBboxLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsRequestExecutor.extractLatest(ElementsGeometry.BBOX, servletRequest,
-        servletResponse);
+    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.BBOX,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -143,8 +146,8 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsCentroidLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsRequestExecutor.extractLatest(ElementsGeometry.CENTROID, servletRequest,
-        servletResponse);
+    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.CENTROID,
+        servletRequest, servletResponse);
   }
 
 }

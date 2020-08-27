@@ -5,7 +5,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,8 +43,8 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.RAW, servletRequest,
-        servletResponse);
+    DataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -67,8 +68,8 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.BBOX, servletRequest,
-        servletResponse);
+    DataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -91,7 +92,7 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.CENTROID, servletRequest,
-        servletResponse);
+    DataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID,
+        servletRequest, servletResponse);
   }
 }

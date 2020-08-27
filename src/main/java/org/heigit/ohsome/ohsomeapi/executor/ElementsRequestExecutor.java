@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -27,16 +25,13 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.FilterParser;
@@ -92,8 +87,8 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream)
    *         streamElementsResponse}
    */
-  public static void extract(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
+  public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
     MapReducer<OSMEntitySnapshot> mapRed = null;
     inputProcessor.processPropertiesParam();
@@ -138,213 +133,13 @@ public class ElementsRequestExecutor {
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
-      metadata = new Metadata(null, "OSM data as GeoJSON features.",
+      metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
-      exeUtils.streamElementsResponse(servletResponse, osmData, false, streamResult);
-    }
-  }
-
-  /**
-   * Performs an OSM data extraction using the full-history of the data.
-   * 
-   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
-   *        ElementsGeometry} defining the geometry of the OSM elements
-   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
-   *        request object
-   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
-   *        outgoing response object
-   * @throws BadRequestException if the given time parameter is invalid
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
-   *         parseISODateTime},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream)
-   *         streamElementsResponse}
-   */
-  public static void extractFullHistory(ElementsGeometry elemGeom,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
-    inputProcessor.getProcessingData().setIsFullHistory(true);
-    InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
-    snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
-    MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
-    MapReducer<OSMContribution> mapRedContribution = null;
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
-      // of result data, without buffering the whole result in memory before returning the result.
-      // This allows to write data out to the client via a chunked HTTP response.
-      mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AffinityCall);
-      mapRedContribution = inputProcessor.processParameters(ComputeMode.AffinityCall);
-    } else {
-      mapRedSnapshot = snapshotInputProcessor.processParameters();
-      mapRedContribution = inputProcessor.processParameters();
-    }
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    String[] time = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
-    if (time.length != 2) {
-      throw new BadRequestException(ExceptionMessages.TIME_FORMAT_FULL_HISTORY);
-    }
-    TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys = requestParameters.getKeys();
-    int[] keysInt = new int[keys.length];
-    if (keys.length != 0) {
-      for (int i = 0; i < keys.length; i++) {
-        keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
-      }
-    }
-    MapReducer<Feature> contributionPreResult = null;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    inputProcessor.processPropertiesParam();
-    inputProcessor.processIsUnclippedParam();
-    InputProcessingUtils utils = inputProcessor.getUtils();
-    final boolean includeTags = inputProcessor.includeTags();
-    final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
-    final boolean clipGeometries = inputProcessor.isClipGeometry();
-    final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    final boolean requiresGeometryTypeCheck =
-        filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get());
-    FilterExpression filterExpression = processingData.getFilterExpression().orElse(null);
-    String startTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0])
-        .format(DateTimeFormatter.ISO_DATE_TIME);
-    String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
-        .format(DateTimeFormatter.ISO_DATE_TIME);
-    MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
-    contributionPreResult = mapRedContributions.flatMap(contributions -> {
-      List<Feature> output = new LinkedList<>();
-      Map<String, Object> properties;
-      Geometry currentGeom = null;
-      OSMEntity currentEntity = null;
-      String validFrom = null;
-      String validTo;
-      boolean skipNext = false;
-      // first contribution:
-      if (contributions.get(0).is(ContributionType.CREATION)) {
-        // if creation: skip next output
-        skipNext = true;
-      } else {
-        // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
-        currentEntity = contributions.get(0).getEntityBefore();
-        currentGeom = exeUtils.getGeometry(contributions.get(0), clipGeometries, true);
-        validFrom = startTimestamp;
-      }
-      // then for each contribution:
-      for (OSMContribution contribution : contributions) {
-        // set valid_to of previous row, add to output list (output.add(…))
-        validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-        if (!skipNext) {
-          properties = new TreeMap<>();
-          // deactivating the adding of the contrib type as it could deliver false results
-          // properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
-          properties.put("@validFrom", validFrom);
-          properties.put("@validTo", validTo);
-          if (!currentGeom.isEmpty()) {
-            boolean addToOutput;
-            if (processingData.containsSimpleFeatureTypes()) {
-              addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-            } else if (requiresGeometryTypeCheck) {
-              addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
-            } else {
-              addToOutput = true;
-            }
-            if (addToOutput) {
-              output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                  includeTags, includeOSMMetadata, elemGeom));
-            }
-          }
-        }
-        skipNext = false;
-        if (contribution.is(ContributionType.DELETION)) {
-          // if deletion: skip output of next row
-          skipNext = true;
-        } else {
-          // else: take "after" as next row
-          currentEntity = contribution.getEntityAfter();
-          currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
-          validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-        }
-      }
-      // after loop:
-      OSMContribution lastContribution = contributions.get(contributions.size() - 1);
-      if (!lastContribution.is(ContributionType.DELETION)) {
-        // if last contribution was not "deletion": set valid_to = t_end, add row to output list
-        validTo = endTimestamp;
-        properties = new TreeMap<>();
-        // deactivating the adding of the contrib type as it could deliver false results
-        // properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
-        properties.put("@validFrom", validFrom);
-        properties.put("@validTo", validTo);
-        if (!currentGeom.isEmpty()) {
-          boolean addToOutput;
-          if (processingData.containsSimpleFeatureTypes()) {
-            addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-          } else if (requiresGeometryTypeCheck) {
-            addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
-          } else {
-            addToOutput = true;
-          }
-          if (addToOutput) {
-            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, elemGeom));
-          }
-        }
-      }
-      return output;
-    }).filter(Objects::nonNull);
-    MapReducer<Feature> snapshotPreResult = null;
-    // handles cases where valid_from = t_start, valid_to = t_end
-    snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
-        .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
-            && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
-                .getVersion())
-        .map(snapshots -> snapshots.get(0)).flatMap(snapshot -> {
-          Map<String, Object> properties = new TreeMap<>();
-          OSMEntity entity = snapshot.getEntity();
-          if (includeOSMMetadata) {
-            properties.put("@lastEdit", entity.getTimestamp().toString());
-          }
-          Geometry geom = snapshot.getGeometry();
-          if (!clipGeometries) {
-            geom = snapshot.getGeometryUnclipped();
-          }
-          properties.put("@snapshotTimestamp",
-              TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
-          properties.put("@validFrom", startTimestamp);
-          properties.put("@validTo", endTimestamp);
-          boolean addToOutput;
-          if (processingData.containsSimpleFeatureTypes()) {
-            addToOutput = utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes);
-          } else if (requiresGeometryTypeCheck) {
-            addToOutput = filterExpression.applyOSMGeometry(entity, geom);
-          } else {
-            addToOutput = true;
-          }
-          if (addToOutput) {
-            return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
-                keysInt, includeTags, includeOSMMetadata, elemGeom));
-          } else {
-            return Collections.emptyList();
-          }
-        }).filter(Objects::nonNull);
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      metadata = new Metadata(null, "Full-history OSM data as GeoJSON features.",
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
-    }
-    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, "FeatureCollection", Collections.emptyList());
-    try (Stream<Feature> contributionStream = contributionPreResult.stream();
-        Stream<Feature> snapshotStream = snapshotPreResult.stream()) {
-      exeUtils.streamElementsResponse(servletResponse, osmData, true,
-          Stream.concat(contributionStream, snapshotStream));
+      exeUtils.streamElementsResponse(servletResponse, osmData, streamResult);
     }
   }
 
@@ -439,7 +234,7 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.aggregateGroupByBoundaryGroupByTag(requestParameters.isDensity(),
-              requestResource.getLabel(), requestResource.getUnit()),
+              requestResource.getDescription(), requestResource.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -527,9 +322,9 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(
-          duration, Description.aggregateGroupByTag(requestParameters.isDensity(),
-              requestResource.getLabel(), requestResource.getUnit()),
+      metadata = new Metadata(duration,
+          Description.aggregateGroupByTag(requestParameters.isDensity(),
+              requestResource.getDescription(), requestResource.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -590,7 +385,7 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(requestParameters.isDensity(),
-              requestResource.getLabel(), requestResource.getUnit()),
+              requestResource.getDescription(), requestResource.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -680,9 +475,11 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          Description.aggregateGroupByKey(requestResource.getLabel(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+      metadata =
+          new Metadata(duration,
+              Description.aggregateGroupByKey(requestResource.getDescription(),
+                  requestResource.getUnit()),
+              inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
@@ -696,8 +493,11 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
    * 
+   * <<<<<<< HEAD
+   * 
    * @deprecated Will be removed in next major version update.
    * 
+   *             ======= >>>>>>> adding of processing for /contribution/latest
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -946,8 +746,11 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
    * 
+   * <<<<<<< HEAD
+   * 
    * @deprecated Will be removed in next major version update.
    * 
+   *             ======= >>>>>>> adding of processing for /contribution/latest
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming

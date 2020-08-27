@@ -250,7 +250,7 @@ public class ExecutionUtils {
    *         writeStreamResponse}
    */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
-      boolean isFullHistory, Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
+      Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -643,7 +643,7 @@ public class ExecutionUtils {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateRatio(reqRes.getLabel(), reqRes.getUnit()), requestUrl);
+          Description.aggregateRatio(reqRes.getDescription(), reqRes.getUnit()), requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -685,7 +685,7 @@ public class ExecutionUtils {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateRatioGroupByBoundary(reqRes.getLabel(), reqRes.getUnit()),
+          Description.aggregateRatioGroupByBoundary(reqRes.getDescription(), reqRes.getUnit()),
           requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();

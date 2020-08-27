@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,7 +36,8 @@ public class ElementsController {
       produces = "application/json")
   public void elementsGeometry(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.RAW, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -54,7 +56,8 @@ public class ElementsController {
       produces = "application/json")
   public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.BBOX, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -73,6 +76,7 @@ public class ElementsController {
       produces = "application/json")
   public void elementsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.CENTROID, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID,
+        servletRequest, servletResponse);
   }
 }
