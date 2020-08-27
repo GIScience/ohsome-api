@@ -291,11 +291,17 @@ public class ExecutionUtils {
       CSVWriter writer = writeComments(servletResponse, comments);
       Pair<List<String>, List<String[]>> rows;
       if (resultSet instanceof GroupByResult[]) {
-        GroupByResult result = (GroupByResult) resultSet[0];
-        if (result.getResult() instanceof UsersResult[]) {
-          rows = createCsvResponseForUsersGroupBy(resultSet);
+        if (resultSet.length == 0) {
+          writer.writeNext(new String[] {"timestamp"}, false);
+          writer.close();
+          return;
         } else {
-          rows = createCsvResponseForElementsGroupBy(resultSet);
+          GroupByResult result = (GroupByResult) resultSet[0];
+          if (result.getResult() instanceof UsersResult[]) {
+            rows = createCsvResponseForUsersGroupBy(resultSet);
+          } else {
+            rows = createCsvResponseForElementsGroupBy(resultSet);
+          }
         }
       } else {
         rows = createCsvResponseForElementsRatioGroupBy(resultSet);
