@@ -89,7 +89,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream)
    *         streamElementsResponse}
    */
   public static void extract(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
@@ -164,7 +164,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
    *         parseISODateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream, Stream)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamElementsResponse(HttpServletResponse, DataResponse, boolean, Stream)
    *         streamElementsResponse}
    */
   public static void extractFullHistory(ElementsGeometry elemGeom,
