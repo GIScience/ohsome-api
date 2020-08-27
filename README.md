@@ -19,7 +19,7 @@ https://api.ohsome.org/v1 (current stable version)
 
 This URL automatically redirects you to the documentation page, where you find explanations and examples for all the different parameters and endpoints that we have implemented in the API. We also have a blog post series called [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/), which gives diverse example analysis and updates on new features. Through the [swagger UI](https://api.ohsome.org/v1/swagger-ui.html) page of the ohsome API you can send simple GET requests and test the individual endpoints.
 
-If you want to contribute to the code base of the ohsome API, please follow the guidline and hints in the upcoming sections.
+If you want to contribute to the code base of the ohsome API, please follow the guideline and hints in the upcoming sections.
 
 ## Getting Started
 
