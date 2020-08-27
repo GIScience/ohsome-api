@@ -30,7 +30,7 @@ public class ElementsController {
    *         extract}
    */
   @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
-      nickname = "geometry", response = DataResponse.class)
+      nickname = "elementsGeometry", response = DataResponse.class)
   @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsGeometry(HttpServletRequest servletRequest,
@@ -49,7 +49,7 @@ public class ElementsController {
    *         extract}
    */
   @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
-      nickname = "bbox", response = DataResponse.class)
+      nickname = "elementsBbox", response = DataResponse.class)
   @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
@@ -68,7 +68,7 @@ public class ElementsController {
    *         extract}
    */
   @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
-      nickname = "centroid", response = DataResponse.class)
+      nickname = "elementsCentroid", response = DataResponse.class)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsCentroid(HttpServletRequest servletRequest,

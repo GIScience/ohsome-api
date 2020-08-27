@@ -33,7 +33,7 @@ public class ElementsFullHistoryController {
    */
   @ApiOperation(
       value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
-      nickname = "fullHistory", response = DataResponse.class)
+      nickname = "elementsFullHistory", response = DataResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
       defaultValue = "2016-01-01,2017-01-01", paramType = "query", dataType = "string",
@@ -58,7 +58,7 @@ public class ElementsFullHistoryController {
    */
   @ApiOperation(
       value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
-      nickname = "bboxFullHistory", response = DataResponse.class)
+      nickname = "elementsBboxFullHistory", response = DataResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
       defaultValue = "2016-01-01,2017-01-01", paramType = "query", dataType = "string",
@@ -82,7 +82,7 @@ public class ElementsFullHistoryController {
    *         extractFullHistory}
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
-      nickname = "centroidFullHistory", response = DataResponse.class)
+      nickname = "elementsCentroidFullHistory", response = DataResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
       defaultValue = "2016-01-01,2017-01-01", paramType = "query", dataType = "string",
