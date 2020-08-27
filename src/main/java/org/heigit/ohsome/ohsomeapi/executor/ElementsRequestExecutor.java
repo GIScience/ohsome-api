@@ -986,8 +986,7 @@ public class ElementsRequestExecutor {
         assert false : "MatchType matches none.";
         return MatchType.MATCHESNONE;
       }
-    }, Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2,
-        MatchType.MATCHESNONE));
+    }, EnumSet.allOf(MatchType.class));
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> result = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     result = exeUtils.computeResult(requestResource, preResult);
@@ -1092,8 +1091,7 @@ public class ElementsRequestExecutor {
         assert false : "MatchType matches none.";
         return MatchType.MATCHESNONE;
       }
-    }, Arrays.asList(MatchType.MATCHESBOTH, MatchType.MATCHES1, MatchType.MATCHES2,
-        MatchType.MATCHESNONE));
+    }, EnumSet.allOf(MatchType.class));
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> result = null;
     result = exeUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
@@ -1229,13 +1227,6 @@ public class ElementsRequestExecutor {
     }
     mapRed = mapRed.osmType(osmTypes);
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
-    ArrayList<MatchType> zeroFill = new ArrayList<>();
-    for (int j = 0; j < arrGeoms.size(); j++) {
-      zeroFill.add(MatchType.MATCHESBOTH);
-      zeroFill.add(MatchType.MATCHES1);
-      zeroFill.add(MatchType.MATCHES2);
-      zeroFill.add(MatchType.MATCHESNONE);
-    }
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, Geometry> preResult =
         null;
     // intentionally as check for P on Polygonal is already performed
@@ -1263,7 +1254,7 @@ public class ElementsRequestExecutor {
             assert false : "MatchType matches none.";
           }
           return MatchType.MATCHESNONE;
-        }, zeroFill).map(x -> x.getGeometry());
+        }, EnumSet.allOf(MatchType.class)).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
@@ -1401,13 +1392,6 @@ public class ElementsRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
-    ArrayList<MatchType> zeroFill = new ArrayList<>();
-    for (int j = 0; j < arrGeoms.size(); j++) {
-      zeroFill.add(MatchType.MATCHESBOTH);
-      zeroFill.add(MatchType.MATCHES1);
-      zeroFill.add(MatchType.MATCHES2);
-      zeroFill.add(MatchType.MATCHESNONE);
-    }
     // intentionally as check for P on Polygonal is already performed
     @SuppressWarnings({"unchecked"})
     Map<Integer, P> geoms = arrGeoms.stream()
@@ -1431,7 +1415,7 @@ public class ElementsRequestExecutor {
             assert false : "MatchType matches none.";
           }
           return MatchType.MATCHESNONE;
-        }, zeroFill).map(x -> x.getGeometry());
+        }, EnumSet.allOf(MatchType.class)).map(x -> x.getGeometry());
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
