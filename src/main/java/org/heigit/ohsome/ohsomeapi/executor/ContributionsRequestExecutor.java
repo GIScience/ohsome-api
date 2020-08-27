@@ -11,4 +11,9 @@ public class ContributionsRequestExecutor {
     
   }
   
+  public static void extractLatest(ElementsGeometry elemGeom, HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    
+  }
+  
 }
