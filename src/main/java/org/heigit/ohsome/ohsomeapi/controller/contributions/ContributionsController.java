@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
-import org.heigit.ohsome.ohsomeapi.executor.ContributionsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
@@ -40,7 +39,7 @@ public class ContributionsController {
       produces = "application/json")
   public void contributions(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ContributionsRequestExecutor.extract(ElementsGeometry.RAW, servletRequest, servletResponse);
+    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.RAW, servletRequest, servletResponse);
   }
 
   /**
@@ -60,7 +59,7 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsBbox(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsRequestExecutor.extract(ElementsGeometry.BBOX, servletRequest, servletResponse);
+    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.BBOX, servletRequest, servletResponse);
   }
 
   /**
@@ -80,7 +79,7 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsRequestExecutor.extract(ElementsGeometry.CENTROID, servletRequest,
+    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.CENTROID, servletRequest,
         servletResponse);
   }
 

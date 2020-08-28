@@ -100,8 +100,9 @@ public class DataRequestExecutor {
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean clipGeometries = inputProcessor.isClipGeometry();
-    final boolean modificationsOnly =
-        (requestResource.equals(RequestResource.CONTRIBUTIONSLATEST)) ? true : false;
+    final boolean isContributionsEndpoint =
+        (requestResource.equals(RequestResource.CONTRIBUTIONSLATEST) || 
+            requestResource.equals(RequestResource.CONTRIBUTIONS)) ? true : false;
     final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
     Optional<FilterExpression> filter = processingData.getFilterExpression();
     final boolean requiresGeometryTypeCheck =
@@ -202,7 +203,7 @@ public class DataRequestExecutor {
         new DataResponse(new Attribution(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT),
             Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
     MapReducer<Feature> snapshotPreResult = null;
-    if (!modificationsOnly) {
+    if (!isContributionsEndpoint) {
       // handles cases where valid_from = t_start, valid_to = t_end; i.e. non-modified data
       snapshotPreResult = mapRedSnapshot.groupByEntity().filter(snapshots -> snapshots.size() == 2)
           .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
