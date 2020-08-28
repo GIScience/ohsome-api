@@ -993,6 +993,16 @@ public class GetControllerTest {
   }
 
   @Test
+  public void getElementsCountRatioEmptyFilter2Test() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/ratio?bboxes=8.685824,49.414756,8.686253,49.414955&"
+            + "filter=highway=*&time=2019-01-01",
+        JsonNode.class);
+    assertEquals(5.0, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
+  }
+  
+  @Test
   public void ratioGroupByBoundaryFilterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
