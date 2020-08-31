@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -400,8 +401,9 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
-      boolean includeOSMMetadata, ElementsGeometry elemGeom) {
-    if (geometry.isEmpty()) {
+      boolean includeOSMMetadata, boolean isContributionsEndpoint, ElementsGeometry elemGeom,
+      EnumSet<ContributionType> contributionTypes) {
+    if (geometry.isEmpty() && !contributionTypes.contains(ContributionType.DELETION)) {
       // skip invalid geometries (e.g. ways with 0 nodes)
       return null;
     }
@@ -422,12 +424,11 @@ public class ExecutionUtils {
         }
       }
     }
-    properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     if (includeOSMMetadata) {
-      properties.put("@version", entity.getVersion());
-      properties.put("@osmType", entity.getType());
-      properties.put("@changesetId", entity.getChangesetId());
+      properties =
+          addAdditionalProperties(entity, properties, isContributionsEndpoint, contributionTypes);
     }
+    properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     GeoJSONWriter gjw = new GeoJSONWriter();
     switch (elemGeom) {
       case BBOX:
@@ -746,7 +747,7 @@ public class ExecutionUtils {
     }
     return "(" + firstFilter + ") or (" + secondFilter + ")";
   }
-
+  
   /**
    * Creates the csv response for /elements/_/groupBy requests.
    * 
@@ -970,6 +971,30 @@ public class ExecutionUtils {
     return writer;
   }
 
+  /** Adds additional properties like the version or the changeset ID to the feature. */
+  private Map<String, Object> addAdditionalProperties(OSMEntity entity,
+      Map<String, Object> properties, boolean isContributionsEndpoint,
+      EnumSet<ContributionType> contributionTypes) {
+    properties.put("@version", entity.getVersion());
+    properties.put("@osmType", entity.getType());
+    properties.put("@changesetId", entity.getChangesetId());
+    if (isContributionsEndpoint) {
+      if (contributionTypes.contains(ContributionType.CREATION)) {
+        properties.put("@creation", "true");
+      }
+      if (contributionTypes.contains(ContributionType.DELETION)) {
+        properties.put("@deletion", "true");
+      }
+      if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
+        properties.put("@tagChange", "true");
+      }
+      if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
+        properties.put("@geometryChange", "true");
+      }
+    }
+    return properties;
+  }
+  
   /** Enum type used in /ratio computation. */
   public enum MatchType {
     MATCHES1, MATCHES2, MATCHESBOTH, MATCHESNONE

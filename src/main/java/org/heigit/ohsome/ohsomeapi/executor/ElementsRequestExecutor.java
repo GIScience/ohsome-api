@@ -129,7 +129,7 @@ public class ElementsRequestExecutor {
         geom = snapshot.getGeometryUnclipped();
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
-          includeOSMMetadata, elemGeom);
+          includeOSMMetadata, false, elemGeom, null);
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {

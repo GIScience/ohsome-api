@@ -100,9 +100,12 @@ public class DataRequestExecutor {
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean clipGeometries = inputProcessor.isClipGeometry();
+    final boolean isContributionsLatestEndpoint =
+        requestResource.equals(RequestResource.CONTRIBUTIONSLATEST);
     final boolean isContributionsEndpoint =
-        (requestResource.equals(RequestResource.CONTRIBUTIONSLATEST) || 
-            requestResource.equals(RequestResource.CONTRIBUTIONS)) ? true : false;
+        (isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS))
+            ? true
+            : false;
     final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
     Optional<FilterExpression> filter = processingData.getFilterExpression();
     final boolean requiresGeometryTypeCheck =
@@ -121,62 +124,76 @@ public class DataRequestExecutor {
       String validFrom = null;
       String validTo;
       boolean skipNext = false;
-      // first contribution:
-      if (contributions.get(0).is(ContributionType.CREATION)) {
-        // if creation: skip next output
-        skipNext = true;
-      } else {
-        // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
-        currentEntity = contributions.get(0).getEntityBefore();
-        currentGeom = exeUtils.getGeometry(contributions.get(0), clipGeometries, true);
-        validFrom = startTimestamp;
-      }
-      // then for each contribution:
-      for (OSMContribution contribution : contributions) {
-        // set valid_to of previous row, add to output list (output.add(…))
-        validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-        if (!skipNext) {
-          properties = new TreeMap<>();
-          // deactivating the adding of the contrib type as it could deliver false results
-          // properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
-          properties.put("@validFrom", validFrom);
-          properties.put("@validTo", validTo);
-          if (!currentGeom.isEmpty()) {
-            boolean addToOutput;
-            if (processingData.containsSimpleFeatureTypes()) {
-              addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-            } else if (requiresGeometryTypeCheck) {
-              addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
-            } else {
-              addToOutput = true;
-            }
-            if (addToOutput) {
-              output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                  includeTags, includeOSMMetadata, elemGeom));
-            }
-          }
-        }
-        skipNext = false;
-        if (contribution.is(ContributionType.DELETION)) {
-          // if deletion: skip output of next row
+      if (!isContributionsLatestEndpoint) {
+        // first contribution:
+        if (contributions.get(0).is(ContributionType.CREATION)) {
+          // if creation: skip next output
           skipNext = true;
         } else {
-          // else: take "after" as next row
-          currentEntity = contribution.getEntityAfter();
-          currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
-          validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
+          // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
+          currentEntity = contributions.get(0).getEntityBefore();
+          currentGeom = exeUtils.getGeometry(contributions.get(0), clipGeometries, true);
+          validFrom = startTimestamp;
         }
+        // then for each contribution:
+        for (OSMContribution contribution : contributions) {
+          // set valid_to of previous row, add to output list (output.add(…))
+          validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
+          if (!skipNext) {
+            properties = new TreeMap<>();
+            // deactivating the adding of the contrib type as it could deliver false results
+            // properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
+            if (!isContributionsEndpoint) {
+              properties.put("@validFrom", validFrom);
+              properties.put("@validTo", validTo);
+            } else {
+              properties.put("@timestamp", validTo);
+            }
+            if (!currentGeom.isEmpty()) {
+              boolean addToOutput;
+              if (processingData.containsSimpleFeatureTypes()) {
+                addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
+              } else if (requiresGeometryTypeCheck) {
+                addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
+              } else {
+                addToOutput = true;
+              }
+              if (addToOutput) {
+                output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+                    includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, 
+                    contribution.getContributionTypes()));
+              }
+            }
+          }
+          skipNext = false;
+          if (contribution.is(ContributionType.DELETION)) {
+            // if deletion: skip output of next row
+            skipNext = true;
+          } else {
+            // else: take "after" as next row
+            currentEntity = contribution.getEntityAfter();
+            currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
+            validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
+          }
+        } 
       }
       // after loop:
       OSMContribution lastContribution = contributions.get(contributions.size() - 1);
+      currentGeom = exeUtils.getGeometry(lastContribution, clipGeometries, false);
+      currentEntity = lastContribution.getEntityAfter();
       if (!lastContribution.is(ContributionType.DELETION)) {
         // if last contribution was not "deletion": set valid_to = t_end, add row to output list
         validTo = endTimestamp;
         properties = new TreeMap<>();
         // deactivating the adding of the contrib type as it could deliver false results
         // properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
-        properties.put("@validFrom", validFrom);
-        properties.put("@validTo", validTo);
+        if (!isContributionsEndpoint) {
+          properties.put("@validFrom", validFrom);
+          properties.put("@validTo", validTo);
+        } else {
+          properties.put("@timestamp",
+              TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
+        }
         if (!currentGeom.isEmpty()) {
           boolean addToOutput;
           if (processingData.containsSimpleFeatureTypes()) {
@@ -188,9 +205,19 @@ public class DataRequestExecutor {
           }
           if (addToOutput) {
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, elemGeom));
+                includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
+                lastContribution.getContributionTypes()));
           }
         }
+      } else if (isContributionsEndpoint) {
+        // adds the deletion feature for a /contributions request
+        currentEntity = lastContribution.getEntityBefore();
+        properties = new TreeMap<>();
+        properties.put("@timestamp",
+            TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
+          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+              false, includeOSMMetadata, isContributionsEndpoint, elemGeom,
+              lastContribution.getContributionTypes()));
       }
       return output;
     }).filter(Objects::nonNull);
@@ -233,7 +260,7 @@ public class DataRequestExecutor {
             }
             if (addToOutput) {
               return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
-                  keysInt, includeTags, includeOSMMetadata, elemGeom));
+                  keysInt, includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, null));
             } else {
               return Collections.emptyList();
             }
