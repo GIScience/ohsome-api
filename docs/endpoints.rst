@@ -27,7 +27,7 @@ Aggregation Endpoints
    :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
    :query values: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty
 .. _bboxes: boundaries.html#bounding-boxes
-.. _bcircles: boundarices.html#circles
+.. _bcircles: boundaries.html#circles
 .. _bpolys: boundaries.html#polygons
 .. _boundaries: boundaries.html#boundaries
 .. _time: time.html#time
