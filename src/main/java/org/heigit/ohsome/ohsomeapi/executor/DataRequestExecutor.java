@@ -124,19 +124,59 @@ public class DataRequestExecutor {
       String validFrom = null;
       String validTo;
       boolean skipNext = false;
+      // used for /contributions endpoint to write creation feature info to response
+      boolean wasCreation = false;
       if (!isContributionsLatestEndpoint) {
         // first contribution:
-        if (contributions.get(0).is(ContributionType.CREATION)) {
-          // if creation: skip next output
-          skipNext = true;
+        OSMContribution firstContribution = contributions.get(0);
+        if (firstContribution.is(ContributionType.CREATION)) {
+          if (isContributionsEndpoint) {
+            currentEntity = firstContribution.getEntityAfter();
+            currentGeom = exeUtils.getGeometry(firstContribution, clipGeometries, false);
+            properties = new TreeMap<>();
+            properties.put("@timestamp", TimestampFormatter.getInstance().isoDateTime(firstContribution.getTimestamp()));
+            boolean addToOutp;
+            if (processingData.containsSimpleFeatureTypes()) {
+              addToOutp = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
+            } else if (requiresGeometryTypeCheck) {
+              addToOutp = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
+            } else {
+              addToOutp = true;
+            }
+            if (addToOutp) {
+              output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+                  includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, 
+                  firstContribution.getContributionTypes()));
+            }
+            wasCreation = true;
+            skipNext = false;
+          } else {
+            skipNext = true;
+          }
         } else {
           // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
-          currentEntity = contributions.get(0).getEntityBefore();
-          currentGeom = exeUtils.getGeometry(contributions.get(0), clipGeometries, true);
+          currentEntity = firstContribution.getEntityBefore();
+          currentGeom = exeUtils.getGeometry(firstContribution, clipGeometries, true);
           validFrom = startTimestamp;
         }
+        int index = 0;
         // then for each contribution:
-        for (OSMContribution contribution : contributions) {
+        for (int i = 0; i < contributions.size(); i++) {
+          if (i == contributions.size() - 1 && isContributionsEndpoint) {
+            // end the loop when last contribution is reached as it gets added later on
+            break;
+          }
+          OSMContribution contribution = contributions.get(i);
+          if (wasCreation) {
+            wasCreation = false;
+            index++;
+            continue;
+          }
+          if (index == 1) {
+            currentEntity = contribution.getEntityAfter();
+            currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
+            index++;
+          }
           // set valid_to of previous row, add to output list (output.add(…))
           validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
           if (!skipNext) {
