@@ -134,7 +134,8 @@ public class DataRequestExecutor {
             currentEntity = firstContribution.getEntityAfter();
             currentGeom = exeUtils.getGeometry(firstContribution, clipGeometries, false);
             properties = new TreeMap<>();
-            properties.put("@timestamp", TimestampFormatter.getInstance().isoDateTime(firstContribution.getTimestamp()));
+            properties.put("@timestamp",
+                TimestampFormatter.getInstance().isoDateTime(firstContribution.getTimestamp()));
             boolean addToOutp;
             if (processingData.containsSimpleFeatureTypes()) {
               addToOutp = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
@@ -145,7 +146,7 @@ public class DataRequestExecutor {
             }
             if (addToOutp) {
               output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                  includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, 
+                  includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
                   firstContribution.getContributionTypes()));
             }
             wasCreation = true;
@@ -164,15 +165,18 @@ public class DataRequestExecutor {
         for (int i = 0; i < contributions.size(); i++) {
           if (i == contributions.size() - 1 && isContributionsEndpoint) {
             // end the loop when last contribution is reached as it gets added later on
+            // only used in /contributions endpoint
             break;
           }
           OSMContribution contribution = contributions.get(i);
           if (wasCreation) {
+            // skipping first contribution here as it got added above (only for /contributions)
             wasCreation = false;
             index++;
             continue;
           }
           if (index == 1) {
+            // as contribution was skipped before entity would be empty (only for /contributions)
             currentEntity = contribution.getEntityAfter();
             currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
             index++;
@@ -199,8 +203,8 @@ public class DataRequestExecutor {
                 addToOutput = true;
               }
               if (addToOutput) {
-                output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                    includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, 
+                output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties,
+                    keysInt, includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
                     contribution.getContributionTypes()));
               }
             }
@@ -215,7 +219,7 @@ public class DataRequestExecutor {
             currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
             validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
           }
-        } 
+        }
       }
       // after loop:
       OSMContribution lastContribution = contributions.get(contributions.size() - 1);
@@ -255,9 +259,9 @@ public class DataRequestExecutor {
         properties = new TreeMap<>();
         properties.put("@timestamp",
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
-          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-              false, includeOSMMetadata, isContributionsEndpoint, elemGeom,
-              lastContribution.getContributionTypes()));
+        output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
+            includeOSMMetadata, isContributionsEndpoint, elemGeom,
+            lastContribution.getContributionTypes()));
       }
       return output;
     }).filter(Objects::nonNull);
@@ -299,8 +303,9 @@ public class DataRequestExecutor {
               addToOutput = true;
             }
             if (addToOutput) {
-              return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
-                  keysInt, includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, null));
+              return Collections
+                  .singletonList(exeUtils.createOSMFeature(entity, geom, properties, keysInt,
+                      includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, null));
             } else {
               return Collections.emptyList();
             }
