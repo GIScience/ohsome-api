@@ -991,7 +991,7 @@ public class GetControllerTest {
     assertEquals(0.060083, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
         1e-6);
   }
-
+  
   @Test
   public void ratioGroupByBoundaryFilterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -1007,6 +1007,26 @@ public class GetControllerTest {
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b2"))
         .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
+  }
+
+  @Test
+  public void getElementsCountRatioEmptyFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/ratio?bboxes=8.685824,49.414756,8.686253,49.414955&"
+            + "filter2=highway=*&time=2019-01-01",
+        JsonNode.class);
+    assertEquals(0.2, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
+  }
+
+  @Test
+  public void ratioEmptyFilter2Test() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/ratio?bboxes=8.687337,49.415067,8.687493,49.415172&"
+            + "time=2010-01-01&filter=building=*",
+        JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
   }
 
   @Test

@@ -15,8 +15,9 @@ public class ResourceParameters {
    * Checks the resource of the request and gives back a list of available parameters for this
    * resource.
    *
-   * <p>Note that some resources don't use this method, but implement their own checks.
-   * One example for this is the metadata request in
+   * <p>
+   * Note that some resources don't use this method, but implement their own checks. One example for
+   * this is the metadata request in
    * {@link MetadataRequestExecutor#executeGetMetadata(HttpServletRequest)}.
    */
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
@@ -35,10 +36,7 @@ public class ResourceParameters {
       possibleParams.add("groupByKeys");
       return possibleParams;
     } else if (uri.contains("/ratio")) {
-      if (null != servletRequest.getParameter("filter")) {
-        possibleParams.add("filter2");
-        return possibleParams;
-      }
+      possibleParams.add("filter2");
       possibleParams.add("keys2");
       possibleParams.add("types2");
       possibleParams.add("values2");

@@ -850,6 +850,10 @@ public class ExecutionUtils {
 
   /** Combines the two given filters with an OR operation. Used in /ratio computation. */
   public String combineFiltersWithOr(String firstFilter, String secondFilter) {
+    if (firstFilter.isBlank() || secondFilter.isBlank()) {
+      // definition of an empty combined filter if filter1 or filter2 is empty
+      return "";
+    }
     return "(" + firstFilter + ") or (" + secondFilter + ")";
   }
 

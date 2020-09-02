@@ -875,6 +875,8 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
    * 
+   * @deprecated Will be removed in next major version update.
+   * 
    * @param requestResource
    *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
@@ -1043,7 +1045,9 @@ public class ElementsRequestExecutor {
    */
   public static Response aggregateRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-    if (null == servletRequest.getParameter("filter")) {
+    if (null == servletRequest.getParameter("filter")
+        && (null != servletRequest.getParameter("types")
+            || null != servletRequest.getParameter("keys"))) {
       return aggregateBasicFiltersRatio(requestResource, servletRequest, servletResponse);
     }
     final long startTime = System.currentTimeMillis();
@@ -1056,7 +1060,8 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = servletRequest.getParameter("filter2");
+    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
+    inputProcessor.checkFilter(filter2);
     String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
@@ -1129,6 +1134,8 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
+   * 
+   * @deprecated Will be removed in next major version update.
    * 
    * @param requestResource
    *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
@@ -1349,7 +1356,9 @@ public class ElementsRequestExecutor {
   public static <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    if (null == servletRequest.getParameter("filter")) {
+    if (null == servletRequest.getParameter("filter")
+        && (null != servletRequest.getParameter("types")
+            || null != servletRequest.getParameter("keys"))) {
       return aggregateBasicFiltersRatioGroupByBoundary(requestResource, servletRequest,
           servletResponse);
     }
@@ -1367,7 +1376,8 @@ public class ElementsRequestExecutor {
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = servletRequest.getParameter("filter2");
+    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
+    inputProcessor.checkFilter(filter2);
     String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
