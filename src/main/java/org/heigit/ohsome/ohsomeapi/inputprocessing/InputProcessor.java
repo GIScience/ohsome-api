@@ -576,15 +576,16 @@ public class InputProcessor {
   }
 
   /**
-   * Checks the given filter parameter if it's null or blank.
+   * Checks the given filter parameter if it's null or blank. Currently used for filter2 parameter
+   * of /ratio processing.
    * 
    * @param filter parameter to be checked
    * @throws BadRequestException if the given filter parameter is null or blank.
    */
   public void checkFilter(String filter) throws BadRequestException {
-    if (null == filter || filter.isBlank()) {
+    if (null == filter || filter.isBlank() && processingData.isRatio()) {
       throw new BadRequestException(
-          "The filter parameter has to be defined when using a /ratio endpoint.");
+          "The filter2 parameter has to be defined when using a /ratio endpoint.");
     }
   }
   
