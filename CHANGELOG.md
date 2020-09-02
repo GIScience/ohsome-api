@@ -1,6 +1,34 @@
 ## current master
 
-* update ohsome parent to version 2.3 (for building javadoc with JDK 11)
+
+## 1.1
+
+### Prominent Changes 
+
+* making filter2 parameter mandatory for /ratio requests and changing filter to be allowed to be null or empty (2dda1f8)
+* upgrading to ohsome filter 1.2 (9b061f5)
+* update of readme docs to give little intro and more usability examples (ae33581)
+
+### New Features
+
+* addition of parameter ‘clipGeometry’ for data-extraction endpoints (a0bf957)
+* restricting each parameter to be unique in the request (2183bb7)
+
+### Bug Fixes
+
+* adapting /groupBy/tag csv response to give empty result if no data matches given filters (ec4bacf)
+* Exception when no parameters were given (0691183)
+
+### Performance and Code Quality
+
+* modifying zero-fill usage (a8856c9)
+
+### Other Changes
+
+* adding badges to the readme (13931ec)
+* marking types, keys and values parameter usage as deprecated and adapting swagger docs to use filter (35a0292) 
+* update ohsome parent to version 2.4
+
 
 ## 1.0.0
 
