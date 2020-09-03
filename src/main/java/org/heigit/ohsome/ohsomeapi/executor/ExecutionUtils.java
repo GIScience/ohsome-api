@@ -108,10 +108,9 @@ public class ExecutionUtils {
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
-    return mapRed.filter(snapshot -> {
-      return snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
-          || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-    });
+    return mapRed.filter(
+        snapshot -> snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
+            || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2));
   }
 
   /**
@@ -123,10 +122,9 @@ public class ExecutionUtils {
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
-    return mapRed.filter(snapshot -> {
-      return snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
-          || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-    });
+    return mapRed.filter(
+        snapshot -> snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
+            || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2));
   }
 
   /** Applies a filter on the given MapReducer object using the given filter expressions. */
@@ -230,7 +228,7 @@ public class ExecutionUtils {
     TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
     result.forEach((index, data) -> {
       if (!ret.containsKey(index.getSecondIndex())) {
-        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
+        ret.put(index.getSecondIndex(), new TreeMap<>());
       }
       ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
     });
@@ -250,7 +248,8 @@ public class ExecutionUtils {
     jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
         .writeObject(osmData);
 
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("\\s*]\\s*}\\s*$", "");
+    String scaffold =
+        tempStream.toString(StandardCharsets.UTF_8).replaceFirst("\\s*]\\s*}\\s*$", "");
 
     servletResponse.setContentType("application/geo+json; charset=utf-8");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
@@ -468,13 +467,9 @@ public class ExecutionUtils {
           return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
       case LENGTH:
-        return preResult.sum(geom -> {
-          return cacheInUserData(geom, () -> Geo.lengthOf(geom));
-        });
+        return preResult.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
-        return preResult.sum(geom -> {
-          return cacheInUserData(geom, () -> Geo.areaOf(geom));
-        });
+        return preResult.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
@@ -494,10 +489,8 @@ public class ExecutionUtils {
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult.count();
       case LENGTH:
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return cacheInUserData(snapshot.getGeometry(),
-                  () -> Geo.lengthOf(snapshot.getGeometry()));
-            });
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> cacheInUserData(
+                snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry())));
       case PERIMETER:
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -509,10 +502,8 @@ public class ExecutionUtils {
             });
       case AREA:
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return cacheInUserData(snapshot.getGeometry(),
-                  () -> Geo.areaOf(snapshot.getGeometry()));
-            });
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> cacheInUserData(
+                snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry())));
       default:
         return null;
     }
@@ -541,14 +532,10 @@ public class ExecutionUtils {
             });
       case LENGTH:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
-            .sum(geom -> {
-              return cacheInUserData(geom, () -> Geo.lengthOf(geom));
-            });
+            .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
-            .sum(geom -> {
-              return cacheInUserData(geom, () -> Geo.areaOf(geom));
-            });
+            .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
@@ -722,17 +709,16 @@ public class ExecutionUtils {
       int tagValueId = tags[i + 1];
       if (tagKeyId == keysInt) {
         if (valuesInt.length == 0) {
-          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+          return new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f);
         }
         for (int value : valuesInt) {
           if (tagValueId == value) {
-            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                f);
+            return new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f);
           }
         }
       }
     }
-    return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+    return new ImmutablePair<>(new ImmutablePair<>(-1, -1), f);
   }
 
   /** Creates a RatioResponse. */

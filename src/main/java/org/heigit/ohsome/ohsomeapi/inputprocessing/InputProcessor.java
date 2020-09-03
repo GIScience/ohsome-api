@@ -330,7 +330,7 @@ public class InputProcessor {
    *         types, OR one or more of point/line/polygon
    */
   public <T extends OSHDBMapReducible> MapReducer<T> defineTypes(String[] types,
-      MapReducer<T> mapRed) throws BadRequestException {
+      MapReducer<T> mapRed) {
     types = createEmptyArrayIfNull(types);
     checkTypes(types);
     processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
@@ -421,7 +421,7 @@ public class InputProcessor {
   }
 
   /** Checks the given keys and values String[] on their length. */
-  public void checkKeysValues(String[] keys, String[] values) throws BadRequestException {
+  public void checkKeysValues(String[] keys, String[] values) {
     if (values != null && keys.length < values.length) {
       throw new BadRequestException(ExceptionMessages.KEYS_VALUES_RATIO_INVALID);
     }
@@ -437,8 +437,7 @@ public class InputProcessor {
   }
 
   /** Used in /ratio requests. */
-  public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2,
-      RequestParameters requestParams) {
+  public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2) {
     keys2 = createEmptyArrayIfNull(keys2);
     values2 = createEmptyArrayIfNull(values2);
     return new ImmutablePair<>(keys2, values2);
@@ -450,7 +449,7 @@ public class InputProcessor {
    * 
    * @throws BadRequestException if the properties parameter contains invalid content
    */
-  public void processPropertiesParam() throws BadRequestException {
+  public void processPropertiesParam() {
     String[] properties =
         splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
     if (properties.length > 3) {
@@ -476,7 +475,7 @@ public class InputProcessor {
    * boolean value 'clipGeometry'. Note: this method is called after processPropertiesParam() so it
    * could overwrite the previously defined value of 'clipGeometry'.
    */
-  public void processIsUnclippedParam() throws BadRequestException {
+  public void processIsUnclippedParam() {
     if (null != requestParameters.get("clipGeometry")) {
       this.clipGeometry =
           processBooleanParam("clipGeometry", requestParameters.get("clipGeometry")[0]);
@@ -582,13 +581,13 @@ public class InputProcessor {
    * @param filter parameter to be checked
    * @throws BadRequestException if the given filter parameter is null or blank.
    */
-  public void checkFilter(String filter) throws BadRequestException {
+  public void checkFilter(String filter) {
     if (null == filter || filter.isBlank() && processingData.isRatio()) {
       throw new BadRequestException(
           "The filter2 parameter has to be defined when using a /ratio endpoint.");
     }
   }
-  
+
   /**
    * Checks the given keys and values parameters on their length and includes them in the
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
@@ -602,8 +601,7 @@ public class InputProcessor {
    * @throws BadRequestException if there are more values than keys given
    */
   private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
-      MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values)
-      throws BadRequestException {
+      MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values) {
     checkKeysValues(keys, values);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
@@ -678,7 +676,7 @@ public class InputProcessor {
   }
 
   /** Checks the given type(s) String[] on its length and content. */
-  private void checkTypes(String[] types) throws BadRequestException {
+  private void checkTypes(String[] types) {
     if (types.length > 4) {
       throw new BadRequestException(
           "Parameter 'types' (and 'types2') cannot have more than 4 entries.");
@@ -704,7 +702,7 @@ public class InputProcessor {
   /**
    * Checks the content of the given format parameter.
    */
-  private void checkFormat(String format) throws BadRequestException {
+  private void checkFormat(String format) {
     if (format != null && !format.isEmpty() && !"geojson".equalsIgnoreCase(format)
         && !"json".equalsIgnoreCase(format) && !"csv".equalsIgnoreCase(format)) {
       throw new BadRequestException(
@@ -720,7 +718,7 @@ public class InputProcessor {
    * @return <code>double</code> value defining the timeout for this request
    * @throws BadRequestException if the given timeout is larger than the predefined one
    */
-  private double defineRequestTimeout() throws BadRequestException {
+  private double defineRequestTimeout() {
     double timeout = ProcessingData.getTimeout();
     String requestTimeoutString = createEmptyStringIfNull(requestTimeout);
     if (!requestTimeoutString.isEmpty()) {
@@ -753,8 +751,7 @@ public class InputProcessor {
    *        optional custom names at each first coordinate appended with a colon (:).
    * @throws BadRequestException if there is not exactly one boundary parameter defined
    */
-  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys)
-      throws BadRequestException {
+  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys) {
     if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
@@ -847,8 +844,7 @@ public class InputProcessor {
    * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
    * value of the parameter is false. Throws a 400 - BadRequestException if the content is invalid.
    */
-  private boolean processBooleanParam(String paramName, String paramValue)
-      throws BadRequestException {
+  private boolean processBooleanParam(String paramName, String paramValue) {
     if (paramValue == null) {
       return false;
     } else if ("true".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))

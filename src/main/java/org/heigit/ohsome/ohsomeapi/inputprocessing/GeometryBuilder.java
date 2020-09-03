@@ -59,7 +59,7 @@ public class GeometryBuilder {
    * @throws NotFoundException if the provided boundary parameter does not lie completely within the
    *         underlying data-extract polygon
    */
-  public Geometry createBboxes(String[] bboxes) throws BadRequestException, NotFoundException {
+  public Geometry createBboxes(String[] bboxes) {
     try {
       Geometry unifiedBbox;
       OSHDBBoundingBox bbox;
@@ -70,7 +70,7 @@ public class GeometryBuilder {
       double maxLat = Double.parseDouble(bboxes[3]);
       bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
-      ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
+      ArrayList<Geometry> geometryList = new ArrayList<>();
       geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
@@ -104,15 +104,14 @@ public class GeometryBuilder {
    * @throws NotFoundException if the provided boundary parameter does not lie completely within the
    *         underlying data-extract polygon
    */
-  public Geometry createCircularPolygons(String[] bpoints)
-      throws BadRequestException, NotFoundException {
+  public Geometry createCircularPolygons(String[] bpoints) {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     Geometry geom;
     CoordinateReferenceSystem sourceCrs;
     CoordinateReferenceSystem targetCrs;
     MathTransform transform = null;
-    ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
+    ArrayList<Geometry> geometryList = new ArrayList<>();
     InputProcessingUtils utils = new InputProcessingUtils();
     try {
       for (int i = 0; i < bpoints.length; i += 3) {
@@ -157,7 +156,7 @@ public class GeometryBuilder {
    * @throws NotFoundException if the provided boundary parameter does not lie completely within the
    *         underlying data-extract polygon
    */
-  public Geometry createBpolys(String[] bpolys) throws BadRequestException, NotFoundException {
+  public Geometry createBpolys(String[] bpolys) {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<>();
@@ -213,7 +212,7 @@ public class GeometryBuilder {
    * 
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public void createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
+  public void createGeometryFromMetadataGeoJson(String geoJson) {
     GeoJSONReader reader = new GeoJSONReader();
     try {
       ProcessingData.setDataPolyGeom(reader.read(geoJson));
@@ -291,7 +290,7 @@ public class GeometryBuilder {
    * @throws NotFoundException if the unified Geometry does not lie completely within the underlying
    *         data extract
    */
-  private Geometry unifyPolys(Collection<Geometry> geometries) throws NotFoundException {
+  private Geometry unifyPolys(Collection<Geometry> geometries) {
     GeometryFactory geometryFactory = new GeometryFactory();
     Polygon[] polys = geometries.stream().flatMap(geo -> {
       if (geo instanceof MultiPolygon) {
@@ -346,7 +345,7 @@ public class GeometryBuilder {
    * @throws BadRequestException if the given <code>JsonObject</code> is not of type Polygon or
    *         Multipolygon
    */
-  private void checkGeometryTypeOfFeature(JsonObject geomObj) throws BadRequestException {
+  private void checkGeometryTypeOfFeature(JsonObject geomObj) {
     if (!geomObj.getString("type").equals("Polygon")
         && !geomObj.getString("type").equals("MultiPolygon")) {
       throw new BadRequestException(
