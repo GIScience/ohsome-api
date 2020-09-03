@@ -6,7 +6,7 @@
 ### Prominent Changes 
 
 * making filter2 parameter mandatory for /ratio requests and changing filter to be allowed to be omitted or empty ([#27](https://github.com/GIScience/ohsome-api/pull/27))
-* upgrading to ohsome filter 1.2 ([9b061f5](https://github.com/GIScience/ohsome-api/commit/9b061f5065880137c9bde90937661ffd9b6ce463)) to be able to filter on OSM feature IDs, on a list of tags with the same key and support of empty filters
+* upgrading to ohsome filter 1.2 ([#38](https://github.com/GIScience/ohsome-api/pull/38)) to be able to filter on OSM feature IDs, on a list of tags with the same key and support of empty filters
 * update of readme docs to give little intro and more usability examples ([#15](https://github.com/GIScience/ohsome-api/pull/15))
 
 ### New Features
