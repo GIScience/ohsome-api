@@ -17,7 +17,7 @@
 ### Bug Fixes
 
 * adapting /groupBy/tag csv response to give empty result if no data matches given filters ([#33](https://github.com/GIScience/ohsome-api/pull/33))
-* Exception when no parameters were given ([#13](https://github.com/GIScience/ohsome-api/pull/13))
+* give exception when no parameters are given ([#13](https://github.com/GIScience/ohsome-api/pull/13))
 
 ### Other Changes
 
