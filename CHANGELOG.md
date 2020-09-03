@@ -1,6 +1,31 @@
 ## current master
 
-* update ohsome parent to version 2.3 (for building javadoc with JDK 11)
+
+## 1.1.0
+
+### Prominent Changes 
+
+* making filter2 parameter mandatory for /ratio requests and changing filter to be allowed to be omitted or empty ([#27](https://github.com/GIScience/ohsome-api/pull/27))
+* upgrading to ohsome filter 1.2 ([#38](https://github.com/GIScience/ohsome-api/pull/38)) to be able to filter on OSM feature IDs, on a list of tags with the same key and support of empty filters
+* update of readme docs to give little intro and more usability examples ([#15](https://github.com/GIScience/ohsome-api/pull/15))
+
+### New Features
+
+* addition of parameter ‘clipGeometry’ for data-extraction endpoints ([#29](https://github.com/GIScience/ohsome-api/pull/29))
+* restricting each parameter to be unique in the request ([#12](https://github.com/GIScience/ohsome-api/pull/12))
+
+### Bug Fixes
+
+* adapting /groupBy/tag csv response to give empty result if no data matches given filters ([#33](https://github.com/GIScience/ohsome-api/pull/33))
+* give exception when no parameters are given ([#13](https://github.com/GIScience/ohsome-api/pull/13))
+
+### Other Changes
+
+* adding badges to the readme ([#39](https://github.com/GIScience/ohsome-api/pull/39))
+* marking types, keys and values parameter usage as deprecated and adapting swagger docs to use filter ([#14](https://github.com/GIScience/ohsome-api/pull/14)) 
+* update ohsome parent to version 2.4 (Java 11 compatibility) ([#24](https://github.com/GIScience/ohsome-api/pull/24))
+* refactoring of diverse code parts, e.g. zero-fill usage ([a8856c9](https://github.com/GIScience/ohsome-api/commit/a8856c90c53a10410eaeeae91f5c31173f1e49d6)), handling of clipping the geometries ([3628d04](https://github.com/GIScience/ohsome-api/pull/29/commits/3628d042df46634d31e8f152354689ef1f1d5b08)) 
+
 
 ## 1.0.0
 
