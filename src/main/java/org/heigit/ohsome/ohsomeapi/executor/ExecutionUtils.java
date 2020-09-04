@@ -17,13 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -32,8 +30,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -63,9 +59,6 @@ import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
-import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -432,51 +425,6 @@ public class ExecutionUtils {
       case RAW:
       default:
         return new org.wololo.geojson.Feature(gjw.write(geometry), properties);
-    }
-  }
-
-  /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
-  public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
-      RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
-    if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-    }
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
-    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
-        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
-    }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
-      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
-    }
-    preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
-    switch (requestResource) {
-      case COUNT:
-        return preResult.count();
-      case PERIMETER:
-        return preResult.sum(geom -> {
-          if (!(geom instanceof Polygonal)) {
-            return 0.0;
-          }
-          return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-        });
-      case LENGTH:
-        return preResult.sum(geom -> {
-          return cacheInUserData(geom, () -> Geo.lengthOf(geom));
-        });
-      case AREA:
-        return preResult.sum(geom -> {
-          return cacheInUserData(geom, () -> Geo.areaOf(geom));
-        });
-      default:
-        return null;
     }
   }
 
