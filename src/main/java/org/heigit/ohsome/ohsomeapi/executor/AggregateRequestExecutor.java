@@ -71,15 +71,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation.
    * 
-   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
-   *        RequestResource} definition of the request resource
-   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
-   *        request object
-   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
-   *        outgoing response object
-   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
-   *        (false)
-   * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
@@ -140,20 +131,11 @@ public class AggregateRequestExecutor extends RequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
    * 
-   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
-   *        RequestResource} definition of the request resource
-   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
-   *        request object
-   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
-   *        outgoing response object
-   * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
-   *        (false)
-   * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessor)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessor)
    *         computeCountLengthPerimeterAreaGbB}
    */
   public Response aggregateGroupByBoundary() throws Exception {
