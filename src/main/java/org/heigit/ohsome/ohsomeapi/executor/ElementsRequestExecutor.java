@@ -80,8 +80,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs an OSM data extraction.
    * 
-   * @param elemGeom
-   *        {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
+   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -153,8 +152,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs an OSM data extraction using the full-history of the data.
    * 
-   * @param elemGeom
-   *        {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
+   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -353,8 +351,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -363,8 +360,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -438,8 +434,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -448,8 +443,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -510,8 +504,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary and the tag.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -520,8 +513,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}
@@ -553,7 +545,7 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
       }
     }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
+    var arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
@@ -570,10 +562,8 @@ public class ElementsRequestExecutor {
         mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
             .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
-    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, ? extends Number> result;
-    result = exeUtils.computeNestedResult(requestResource, preResult);
-    SortedMap<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult =
-        OSHDBCombinedIndex.nest(result);
+    var result = exeUtils.computeNestedResult(requestResource, preResult);
+    var groupByResult = OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
@@ -622,8 +612,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the tag.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -632,8 +621,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -713,8 +701,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the OSM type.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -723,8 +710,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -780,8 +766,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the key.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -790,8 +775,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -877,15 +861,13 @@ public class ElementsRequestExecutor {
    * 
    * @deprecated Will be removed in next major version update.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -1028,15 +1010,13 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area|ratio calculation using the filter and filter2
    * parameters.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -1137,15 +1117,13 @@ public class ElementsRequestExecutor {
    * 
    * @deprecated Will be removed in next major version update.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -1338,15 +1316,13 @@ public class ElementsRequestExecutor {
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary using the
    * filter and filter2 parameters.
    * 
-   * @param requestResource
-   *        {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
+   * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response
-   *         Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},

@@ -1,0 +1,367 @@
+package org.heigit.ohsome.ohsomeapi.executor;
+
+import static org.heigit.ohsome.ohsomeapi.utils.GroupByResponseGeoJsonGenerator.createGeoJsonFeatures;
+import com.opencsv.CSVWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
+import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
+import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.heigit.ohsome.filter.FilterExpression;
+import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
+import org.heigit.ohsome.ohsomeapi.output.Description;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
+import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygonal;
+
+/**
+ * Holds the relevant execution methods for aggregation requests under /elements and
+ * /elements/_/groupBy/boundary.
+ */
+public class AggregateRequestExecutor extends RequestExecutor {
+
+  private final RequestResource requestResource;
+  private final InputProcessor inputProcessor;
+  private final ProcessingData processingData;
+  private final long startTime = System.currentTimeMillis();
+
+  public AggregateRequestExecutor(RequestResource requestResource,
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity) {
+    super(servletRequest, servletResponse);
+    this.requestResource = requestResource;
+    inputProcessor = new InputProcessor(servletRequest, true, isDensity);
+    processingData = inputProcessor.getProcessingData();
+
+  }
+
+  public Response aggregate() throws Exception {
+    final SortedMap<OSHDBTimestamp, ? extends Number> result;
+    MapReducer<OSMEntitySnapshot> mapRed = null;
+    mapRed = inputProcessor.processParameters();
+    switch (requestResource) {
+      case COUNT:
+        result = mapRed.aggregateByTimestamp().count();
+        break;
+      case AREA:
+        result = mapRed.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.areaOf(snapshot.getGeometry()));
+            });
+        break;
+      case LENGTH:
+        result = mapRed.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                  () -> Geo.lengthOf(snapshot.getGeometry()));
+            });
+        break;
+      case PERIMETER:
+        result = mapRed.aggregateByTimestamp()
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
+              if (snapshot.getGeometry() instanceof Polygonal) {
+                return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
+                    () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
+              } else {
+                return 0.0;
+              }
+            });
+        break;
+      default:
+        throw new Exception("...");
+    }
+    Geometry geom = inputProcessor.getGeometry();
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    ElementsResult[] resultSet =
+        fillElementsResult(result, requestParameters.isDensity(), df, geom);
+    String description = Description.aggregate(requestParameters.isDensity(),
+        requestResource.getLabel(), requestResource.getUnit());
+    Metadata metadata = generateMetadata(description);
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      writeCsvResponse(resultSet, createCsvTopComments(metadata));
+      return null;
+    }
+    return DefaultAggregationResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, resultSet);
+  }
+
+  public Response aggregateGroupByBoundary() throws Exception {
+    processingData.setIsGroupByBoundary(true);
+    RequestParameters requestParameters = processingData.getRequestParameters();
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    var result = computeCountLengthPerimeterAreaGbB(requestResource,
+        processingData.getBoundaryType(), mapRed, inputProcessor);
+    SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
+    groupByResult = ExecutionUtils.nest(result);
+    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
+    Object groupByName;
+    Object[] boundaryIds = utils.getBoundaryIds();
+    int count = 0;
+    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
+    for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
+        .entrySet()) {
+      ElementsResult[] results = fillElementsResult(entry.getValue(), requestParameters.isDensity(),
+          df, boundaries.get(count));
+      groupByName = boundaryIds[count];
+      resultSet[count] = new GroupByResult(groupByName, results);
+      count++;
+    }
+    String description = Description.aggregate(requestParameters.isDensity(),
+        requestResource.getLabel(), requestResource.getUnit());
+    Metadata metadata = generateMetadata(description);
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, "FeatureCollection",
+          createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
+    }
+    return new GroupByResponse(ATTRIBUTION, Application.API_VERSION, metadata, resultSet);
+  }
+
+  private Metadata generateMetadata(String description) {
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration, description,
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+    }
+    return metadata;
+  }
+
+  /**
+   * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)
+   * requests.
+   */
+  private void writeCsvResponse(Result[] resultSet, List<String[]> comments) {
+    try {
+      setCsvSettingsInServletResponse();
+      CSVWriter writer = writeComments(comments);
+      if (resultSet instanceof ElementsResult[]) {
+        writer.writeNext(new String[] {"timestamp", "value"}, false);
+        for (Result result : resultSet) {
+          ElementsResult elementsResult = (ElementsResult) result;
+          writer.writeNext(new String[] {elementsResult.getTimestamp(),
+              String.valueOf(elementsResult.getValue())});
+        }
+      } else if (resultSet instanceof UsersResult[]) {
+        writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
+        for (Result result : resultSet) {
+          UsersResult usersResult = (UsersResult) result;
+          writer.writeNext(new String[] {usersResult.getFromTimestamp(),
+              usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
+        }
+      } else if (resultSet instanceof RatioResult[]) {
+        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
+        for (Result result : resultSet) {
+          RatioResult ratioResult = (RatioResult) result;
+          writer.writeNext(
+              new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
+                  String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+        }
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Writes a response in the csv format for /groupBy requests.
+   * 
+   * @throws IOException
+   */
+  private Consumer<CSVWriter> writeCsvResponse(GroupByResult[] resultSet) throws IOException {
+    return writer -> {
+      if (resultSet.length == 0) {
+        writer.writeNext(new String[] {"timestamp"}, false);
+      } else {
+        var rows = createCsvResponseForElementsGroupBy(resultSet);
+        writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
+        writer.writeAll(rows.getRight(), false);
+      }
+    };
+  }
+
+  /** Defines character encoding, content type and cache header in given servlet response object. */
+  private void setCsvSettingsInServletResponse() {
+    servletResponse.setCharacterEncoding("UTF-8");
+    servletResponse.setContentType("text/csv");
+    if (!RequestUtils.cacheNotAllowed(processingData.getRequestUrl(),
+        processingData.getRequestParameters().getTime())) {
+      servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
+    }
+  }
+
+  private Response writeCsv(List<String[]> comments, Consumer<CSVWriter> consumer)
+      throws IOException {
+    setCsvSettingsInServletResponse();
+    try (CSVWriter writer =
+        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
+            CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);) {
+      writer.writeAll(comments, false);
+      consumer.accept(writer);
+    }
+    // no response needed as writer has already been called
+    return null;
+  }
+
+  /** Creates a new CSVWriter, writes the given comments and returns the writer object. */
+  private CSVWriter writeComments(List<String[]> comments) throws IOException {
+    CSVWriter writer =
+        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
+            CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+    writer.writeAll(comments, false);
+    return writer;
+  }
+
+  /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
+  private List<String[]> createCsvTopComments(Metadata metadata) {
+    List<String[]> comments = new LinkedList<>();
+    comments.add(new String[] {"# Copyright URL: " + URL});
+    comments.add(new String[] {"# Copyright Text: " + TEXT});
+    comments.add(new String[] {"# API Version: " + Application.API_VERSION});
+    if (metadata != null) {
+      comments.add(new String[] {"# Execution Time: " + metadata.getExecutionTime()});
+      comments.add(new String[] {"# Description: " + metadata.getDescription()});
+      if (metadata.getRequestUrl() != null) {
+        comments.add(new String[] {"# Request URL: " + metadata.getRequestUrl()});
+      }
+    }
+    return comments;
+  }
+
+  /**
+   * Creates the csv response for /elements/_/groupBy requests.
+   * 
+   * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
+   *        containing <code>ElementsResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsGroupBy(
+      GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("timestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      GroupByResult groupByResult = (GroupByResult) resultSet[i];
+      Object groupByObject = groupByResult.getGroupByObject();
+      if (groupByObject instanceof Object[]) {
+        Object[] groupByObjectArr = (Object[]) groupByObject;
+        columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
+      } else {
+        columnNames.add(groupByObject.toString());
+      }
+      for (int j = 0; j < groupByResult.getResult().length; j++) {
+        ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
+        if (i == 0) {
+          String[] row = new String[resultSet.length + 1];
+          row[0] = elemResult.getTimestamp();
+          row[1] = String.valueOf(elemResult.getValue());
+          rows.add(row);
+        } else {
+          rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /** Fills the ElementsResult array with respective ElementsResult objects. */
+  private ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
+      boolean isDensity, DecimalFormat df, Geometry geom) {
+    ElementsResult[] results = new ElementsResult[entryVal.entrySet().size()];
+    int count = 0;
+    for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
+      if (isDensity) {
+        results[count] = new ElementsResult(
+            TimestampFormatter.getInstance().isoDateTime(entry.getKey()), Double.parseDouble(
+                df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001))));
+      } else {
+        results[count] =
+            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+                Double.parseDouble(df.format(entry.getValue().doubleValue())));
+      }
+      count++;
+    }
+    return results;
+  }
+
+  /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
+  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
+      RequestResource requestResource, BoundaryType boundaryType,
+      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
+    if (boundaryType == BoundaryType.NOBOUNDARY) {
+      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
+    }
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
+    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
+        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+    if (processingData.containsSimpleFeatureTypes()) {
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
+      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
+    }
+    preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
+    switch (requestResource) {
+      case COUNT:
+        return preResult.count();
+      case PERIMETER:
+        return preResult.sum(geom -> {
+          if (!(geom instanceof Polygonal)) {
+            return 0.0;
+          }
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+        });
+      case LENGTH:
+        return preResult.sum(geom -> {
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom));
+        });
+      case AREA:
+        return preResult.sum(geom -> {
+          return ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom));
+        });
+      default:
+        return null;
+    }
+  }
+}
