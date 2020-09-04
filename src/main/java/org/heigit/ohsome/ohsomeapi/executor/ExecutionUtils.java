@@ -78,6 +78,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespons
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -522,75 +523,6 @@ public class ExecutionUtils {
     return tags;
   }
 
-  /** Creates the GeoJson features used in the GeoJson response. */
-  public Feature[] createGeoJsonFeatures(GroupByObject[] results, GeoJsonObject[] geojsonGeoms) {
-    int groupByResultsLength = results.length;
-    int groupByResultCount = 0;
-    int tstampCount = 0;
-    int boundaryCount = 0;
-    Feature[] features;
-    if (results instanceof GroupByResult[]) {
-      GroupByResult[] groupByResults = (GroupByResult[]) results;
-      int resultLength = groupByResults[0].getResult().length;
-      int featuresLength = groupByResultsLength * resultLength;
-      int nestedGroupByNextBoundaryInterval = featuresLength / geojsonGeoms.length;
-      features = new Feature[featuresLength];
-      for (int i = 0; i < featuresLength; i++) {
-        Result res = groupByResults[groupByResultCount].getResult()[tstampCount];
-        Feature feature;
-        if (res instanceof ElementsResult) {
-          ElementsResult result = (ElementsResult) res;
-          String tstamp = result.getTimestamp();
-          feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-        } else if (res instanceof UsersResult) {
-          UsersResult result = (UsersResult) res;
-          String tstampFrom = result.getFromTimestamp();
-          String tstampTo = result.getToTimestamp();
-          feature = fillGeojsonFeature(results, groupByResultCount, tstampFrom, tstampTo);
-        } else {
-          throw new UnsupportedOperationException();
-        }
-        feature.setProperty("value", res.getValue());
-        // needed for /groupBy/boundary/groupBy/tag
-        if (results[groupByResultCount].getGroupByObject() instanceof Object[]) {
-          feature.setGeometry(geojsonGeoms[boundaryCount]);
-          if ((i + 1) % nestedGroupByNextBoundaryInterval == 0) {
-            boundaryCount++;
-          }
-        } else {
-          feature.setGeometry(geojsonGeoms[groupByResultCount]);
-        }
-        tstampCount++;
-        if (tstampCount == resultLength) {
-          tstampCount = 0;
-          groupByResultCount++;
-        }
-        features[i] = feature;
-      }
-    } else {
-      RatioGroupByResult[] groupByResults = (RatioGroupByResult[]) results;
-      int resultLength = groupByResults[0].getRatioResult().length;
-      int featuresLength = groupByResultsLength * resultLength;
-      features = new Feature[featuresLength];
-      for (int i = 0; i < featuresLength; i++) {
-        RatioResult result = groupByResults[groupByResultCount].getRatioResult()[tstampCount];
-        String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-        feature.setProperty("value", result.getValue());
-        feature.setProperty("value2", result.getValue2());
-        feature.setProperty("ratio", result.getRatio());
-        feature.setGeometry(geojsonGeoms[groupByResultCount]);
-        tstampCount++;
-        if (tstampCount == resultLength) {
-          tstampCount = 0;
-          groupByResultCount++;
-        }
-        features[i] = feature;
-      }
-    }
-    return features;
-  }
-
   /** Fills the ElementsResult array with respective ElementsResult objects. */
   public ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, DecimalFormat df, Geometry geom) {
@@ -753,7 +685,7 @@ public class ExecutionUtils {
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       writeCsvResponse(groupByResultSet, servletResponse,
           createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
@@ -1008,24 +940,6 @@ public class ExecutionUtils {
       feature.setId(groupByBoundaryId + "@" + id);
       feature.setProperty("groupByBoundaryId", groupByBoundaryId);
     }
-    return feature;
-  }
-
-  /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
-  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
-      String timestamp) {
-    Feature feature = makeGeojsonFeature(results, groupByResultCount, timestamp);
-    feature.setProperty("timestamp", timestamp);
-    return feature;
-  }
-
-  /** Fills a GeoJSON Feature with the groupByBoundaryId, the time interval and the geometry. */
-  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
-      String timestampFrom, String timestampTo) {
-    Feature feature =
-        makeGeojsonFeature(results, groupByResultCount, timestampFrom + "-" + timestampTo);
-    feature.setProperty("timestampFrom", timestampFrom);
-    feature.setProperty("timestampTo", timestampTo);
     return feature;
   }
 

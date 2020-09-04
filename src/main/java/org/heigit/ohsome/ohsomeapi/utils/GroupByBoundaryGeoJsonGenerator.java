@@ -10,12 +10,15 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespons
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 
-/** Creates the GeoJson features used in the GeoJson response for the /groupBy endpoints. */
-public class GroupByResponseGeoJsonGenerator {
-  
-  
+/**
+ * Creates the GeoJson features used in the GeoJson response for the /groupBy/boundary endpoints.
+ */
+public class GroupByBoundaryGeoJsonGenerator {
+
+
   /** Creates the GeoJson features used in the GeoJson response. */
-  public static Feature[] createGeoJsonFeatures(GroupByObject[] results, GeoJsonObject[] geojsonGeoms) {
+  public static Feature[] createGeoJsonFeatures(GroupByObject[] results,
+      GeoJsonObject[] geojsonGeoms) {
     int groupByResultsLength = results.length;
     int groupByResultCount = 0;
     int tstampCount = 0;
@@ -100,7 +103,7 @@ public class GroupByResponseGeoJsonGenerator {
     }
     return features;
   }
-  
+
   /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
   private static Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
       String timestamp) {
@@ -118,9 +121,10 @@ public class GroupByResponseGeoJsonGenerator {
     feature.setProperty("timestampTo", timestampTo);
     return feature;
   }
-  
+
   /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
-  private static Feature makeGeojsonFeature(GroupByObject[] results, int groupByResultCount, String id) {
+  private static Feature makeGeojsonFeature(GroupByObject[] results, int groupByResultCount,
+      String id) {
     Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
     Feature feature = new Feature();
     if (groupByBoundaryId instanceof Object[]) {

@@ -60,6 +60,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.Eleme
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.geojson.Feature;
@@ -446,7 +447,7 @@ public class ElementsRequestExecutor {
     } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
           "FeatureCollection",
-          exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);

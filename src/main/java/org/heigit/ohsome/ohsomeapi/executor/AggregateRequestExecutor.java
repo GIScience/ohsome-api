@@ -1,6 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
-import static org.heigit.ohsome.ohsomeapi.utils.GroupByResponseGeoJsonGenerator.createGeoJsonFeatures;
+import static org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures;
 import com.opencsv.CSVWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
