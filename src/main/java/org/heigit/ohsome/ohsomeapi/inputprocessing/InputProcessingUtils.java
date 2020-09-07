@@ -215,8 +215,6 @@ public class InputProcessingUtils {
    * @return <code>String</code> array containing the startTime at [0], the endTime at [1] and the
    *         period at [2].
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
-   * @throws NotFoundException if the given time is not completely within the timerange of the
-   *         underlying data
    */
   public String[] extractIsoTime(String time) {
     String[] split = time.split("/");
@@ -302,7 +300,11 @@ public class InputProcessingUtils {
     return timeVals;
   }
 
-  /** Sorts the given timestamps from oldest to newest. */
+  /**
+   * Sorts the given timestamps from oldest to newest.
+   * 
+   * @throws BadRequestException if the given time parameter is invalid.
+   */
   public String[] sortTimestamps(String[] timestamps) {
     List<String> timeStringList = new ArrayList<>();
     for (String timestamp : timestamps) {
@@ -445,8 +447,9 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Checks the provided period on its ISO conformity. Throws a 400 BadRequestException if it is not
-   * ISO conform.
+   * Checks the provided period on its ISO conformity.
+   * 
+   * @throws BadRequestException if the interval is not ISO conform.
    */
   protected void checkPeriodOnIsoConformity(String period) {
     try {
@@ -476,7 +479,6 @@ public class InputProcessingUtils {
    * 
    * @param boundariesArray contains the boundaries without a custom id
    * @return <code>List</code> containing the splitted boundaries
-   * @throws BadRequestException if the coordinates are invalid
    */
   private List<String> splitBoundariesWithoutIds(String[] boundariesArray,
       BoundaryType boundaryType) {

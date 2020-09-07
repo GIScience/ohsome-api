@@ -56,8 +56,6 @@ public class GeometryBuilder {
    *        top-right).
    * @return <code>Geometry</code> object representing the unified bounding boxes.
    * @throws BadRequestException if coordinates are invalid
-   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
-   *         underlying data-extract polygon
    */
   public Geometry createBboxes(String[] bboxes) {
     try {
@@ -101,8 +99,6 @@ public class GeometryBuilder {
    * @return <code>Geometry</code> object representing (a) circular polygon(s) around the given
    *         bounding point(s).
    * @throws BadRequestException if coordinates or radius are invalid
-   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
-   *         underlying data-extract polygon
    */
   public Geometry createCircularPolygons(String[] bpoints) {
     GeometryFactory geomFact = new GeometryFactory();
@@ -153,8 +149,6 @@ public class GeometryBuilder {
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
    * @throws BadRequestException if coordinates are invalid
-   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
-   *         underlying data-extract polygon
    */
   public Geometry createBpolys(String[] bpolys) {
     GeometryFactory geomFact = new GeometryFactory();

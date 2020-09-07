@@ -326,8 +326,6 @@ public class InputProcessor {
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation), or simple feature types (point, line, polygon, other). If the array is empty,
    *        all three OSM types are used.
-   * @throws BadRequestException if the content of the parameter does not represent one or more OSM
-   *         types, OR one or more of point/line/polygon
    */
   public <T extends OSHDBMapReducible> MapReducer<T> defineTypes(String[] types,
       MapReducer<T> mapRed) {
@@ -420,7 +418,11 @@ public class InputProcessor {
     return toCheck;
   }
 
-  /** Checks the given keys and values String[] on their length. */
+  /**
+   * Checks the given keys and values String[] on their length.
+   * 
+   * @throws BadRequestException if values_n must doesn't fit to keys_n.
+   */
   public void checkKeysValues(String[] keys, String[] values) {
     if (values != null && keys.length < values.length) {
       throw new BadRequestException(ExceptionMessages.KEYS_VALUES_RATIO_INVALID);
@@ -471,7 +473,7 @@ public class InputProcessor {
   }
 
   /**
-   * Processes the clipGeometry parameter used in data-extraction ressources and sets the respective
+   * Processes the clipGeometry parameter used in data-extraction resources and sets the respective
    * boolean value 'clipGeometry'. Note: this method is called after processPropertiesParam() so it
    * could overwrite the previously defined value of 'clipGeometry'.
    */
@@ -598,7 +600,6 @@ public class InputProcessor {
    *        MapReducer} object
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the filters derived from the given parameters.
-   * @throws BadRequestException if there are more values than keys given
    */
   private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values) {
@@ -675,7 +676,11 @@ public class InputProcessor {
     return mapRed;
   }
 
-  /** Checks the given type(s) String[] on its length and content. */
+  /**
+   * Checks the given type(s) String[] on its length and content.
+   * 
+   * @throws BadRequestException if the given type parameter is invalid.
+   */
   private void checkTypes(String[] types) {
     if (types.length > 4) {
       throw new BadRequestException(
@@ -701,6 +706,8 @@ public class InputProcessor {
 
   /**
    * Checks the content of the given format parameter.
+   * 
+   * @throws BadRequestException if the given format parameter is invalid.
    */
   private void checkFormat(String format) {
     if (format != null && !format.isEmpty() && !"geojson".equalsIgnoreCase(format)
@@ -797,9 +804,10 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if there are false or repeated parameters in the request. Throws a 400 -
-   * BadRequestException and, in case of false parameters, suggests possible parameters based on
-   * fuzzy matching scores.
+   * Checks, if there are false or repeated parameters in the request. It suggests possible
+   * parameters based on fuzzy matching scores.
+   * 
+   * @throws BadRequestException in case of invalid parameters,
    */
   private void checkParameters(HttpServletRequest servletRequest) {
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
@@ -842,7 +850,9 @@ public class InputProcessor {
 
   /**
    * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
-   * value of the parameter is false. Throws a 400 - BadRequestException if the content is invalid.
+   * value of the parameter is false.
+   * 
+   * @throws BadRequestException if the content is invalid.
    */
   private boolean processBooleanParam(String paramName, String paramValue) {
     if (paramValue == null) {
