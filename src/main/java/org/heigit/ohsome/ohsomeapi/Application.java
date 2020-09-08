@@ -67,7 +67,6 @@ public class Application implements ApplicationRunner {
    * Reads and sets the given application arguments and makes a connection to the OSHDB.
    *
    * @param args Application arguments given over the commandline on startup
-   * @throws Exception if the connection to the db cannot be established
    * @throws SQLException thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2#OSHDBH2(String) OSHDBH2}
    * @throws ClassNotFoundException thrown by
