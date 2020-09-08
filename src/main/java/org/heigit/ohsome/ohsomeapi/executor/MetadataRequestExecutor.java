@@ -17,6 +17,7 @@ public class MetadataRequestExecutor {
    * 
    * @return {@link org.heigit.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse
    *         MetadataResponse}
+   * @throws BadRequestException if parameters are given in the query.
    */
   public static MetadataResponse executeGetMetadata(HttpServletRequest servletRequest) {
     if (!servletRequest.getParameterMap().isEmpty()) {

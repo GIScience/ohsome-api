@@ -36,7 +36,8 @@ public class CountController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count()}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregate(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregate}
    */
   @ApiOperation(value = "Count of OSM elements", nickname = "count",
       response = DefaultAggregationResponse.class)
@@ -54,6 +55,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByType}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the type", nickname = "countGroupByType",
       response = GroupByResponse.class)
@@ -71,6 +75,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByBoundary(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByBoundary}
    */
   @ApiOperation(
       value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -91,6 +98,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
       nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -114,6 +124,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByKey}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
       response = GroupByResponse.class)
@@ -134,6 +147,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByTag}
    */
   @ApiOperation(value = "Count of OSM elements grouped by the tag", nickname = "countGroupByTag",
       response = GroupByResponse.class)
@@ -158,6 +174,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregate(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregate}
    */
   @ApiOperation(
       value = "Density of OSM elements (number of elements divided by "
@@ -177,6 +196,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByType}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "countDensityGroupByType", response = GroupByResponse.class)
@@ -195,6 +217,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByBoundary(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByBoundary}
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -215,6 +240,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "countDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -238,6 +266,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
+   *         aggregateGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "countDensityGroupByTag", response = GroupByResponse.class)
@@ -261,6 +292,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
+   *         aggregateRatio}
    */
   @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
       nickname = "countRatio", response = RatioResponse.class)
@@ -289,6 +323,9 @@ public class CountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest, HttpServletResponse)
+   *         aggregateRatioGroupByBoundary}
    */
   @ApiOperation(value = "Ratio of OSM elements grouped by the boundary",
       nickname = "countRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)

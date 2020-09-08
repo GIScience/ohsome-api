@@ -235,10 +235,29 @@ public class ExecutionUtils {
     return ret;
   }
 
-  /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
+  /**
+   * Streams the result of /elements and /elementsFullHistory respones as an outputstream.
+   * 
+   * @throws IOException thrown by {@link JsonGenerator
+   *         com.fasterxml.jackson.core.JsonFactory#createGenerator(java.io.OutputStream,
+   *         JsonEncoding) createGenerator},
+   *         {@link com.fasterxml.jackson.core.JsonGenerator#writeObject(Object) writeObject},
+   *         {@link javax.servlet.ServletResponse#getOutputStream() getOutputStream},
+   *         {@link java.io.OutputStream#write(byte[]) write},
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}, {@link javax.servlet.ServletOutputStream#print(String) print},
+   *         and {@link javax.servlet.ServletResponse#flushBuffer() flushBuffer}
+   * @throws ExecutionException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
+   * @throws InterruptedException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
+   */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
-      Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
+      Stream<org.wololo.geojson.Feature> contributionStream)
+      throws ExecutionException, InterruptedException, IOException {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -434,7 +453,15 @@ public class ExecutionUtils {
     }
   }
 
-  /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
+  /**
+   * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
+   * 
+   * @throws BadRequestException if no boundary parameter is defined.
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, and
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
+   *         sum}
+   */
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
@@ -478,6 +505,10 @@ public class ExecutionUtils {
   /**
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
+   * 
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, and
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
@@ -561,7 +592,15 @@ public class ExecutionUtils {
     return tags;
   }
 
-  /** Creates the GeoJson features used in the GeoJson response. */
+  /**
+   * Creates the GeoJson features used in the GeoJson response.
+   * 
+   * @throws UnsupportedOperationException if {@code res} isn't an instance of
+   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
+   *         ElementsResult}, or
+   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult
+   *         UsersResult}
+   */
   public Feature[] createGeoJsonFeatures(GroupByObject[] results, GeoJsonObject[] geojsonGeoms) {
     int groupByResultsLength = results.length;
     int groupByResultCount = 0;
@@ -949,7 +988,11 @@ public class ExecutionUtils {
     return new ImmutablePair<>(columnNames, rows);
   }
 
-  /** Fills the given stream with output data using multiple parallel threads. */
+  /**
+   * Fills the given stream with output data using multiple parallel threads.
+   * 
+   * @throws RuntimeException if any one thread experiences an exception
+   */
   private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
       final ServletOutputStream outputStream)
@@ -1078,7 +1121,11 @@ public class ExecutionUtils {
     return servletResponse;
   }
 
-  /** Creates a new CSVWriter, writes the given comments and returns the writer object. */
+  /**
+   * Creates a new CSVWriter, writes the given comments and returns the writer object.
+   * 
+   * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
+   */
   private CSVWriter writeComments(HttpServletResponse servletResponse, List<String[]> comments)
       throws IOException {
     CSVWriter writer =

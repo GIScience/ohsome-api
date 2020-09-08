@@ -15,8 +15,8 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
   final Logger logger = LoggerFactory.getLogger(Application.class);
   private long startTime;
 
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-      throws Exception {
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
+      Object handler) {
     startTime = System.currentTimeMillis();
     return true;
   }

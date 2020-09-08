@@ -81,7 +81,7 @@ public class InputProcessingUtils {
    * 
    * @param bboxes contains the given bounding boxes
    * @return <code>List</code> containing the splitted bounding boxes
-   * @throws BadRequestException if the bboxes parameter has invalid content
+   * @throws BadRequestException if the bboxes parameter has an invalid format
    */
   public List<String> splitBboxes(String bboxes) {
     String[] bboxesArray = splitOnHyphen(bboxes);
@@ -108,7 +108,7 @@ public class InputProcessingUtils {
    * 
    * @param bcircles contains the given bounding circles
    * @return <code>List</code> containing the splitted bounding circles
-   * @throws BadRequestException if the bcircles parameter has invalid content
+   * @throws BadRequestException if the bcircles parameter has an invalid format
    */
   public List<String> splitBcircles(String bcircles) {
     String[] bcirclesArray = splitOnHyphen(bcircles);
@@ -135,7 +135,7 @@ public class InputProcessingUtils {
    * 
    * @param bpolys contains the given bounding polygons
    * @return <code>List</code> containing the splitted bounding polygons
-   * @throws BadRequestException if the bpolys parameter has invalid content
+   * @throws BadRequestException if the bpolys parameter has an invalid format
    */
   public List<String> splitBpolys(String bpolys) {
     String[] bpolysArray = splitOnHyphen(bpolys);
@@ -303,7 +303,7 @@ public class InputProcessingUtils {
   /**
    * Sorts the given timestamps from oldest to newest.
    * 
-   * @throws BadRequestException if the given time parameter is invalid.
+   * @throws BadRequestException if the given time parameter is ISO-8601 conform
    */
   public String[] sortTimestamps(String[] timestamps) {
     List<String> timeStringList = new ArrayList<>();
@@ -320,7 +320,11 @@ public class InputProcessingUtils {
     return timeStringList.toArray(timestamps);
   }
 
-  /** Checks the given custom boundary id. At the moment only used if output format = csv. */
+  /**
+   * Checks the given custom boundary id. At the moment only used if output format = csv.
+   * 
+   * @throws BadRequestException if the custom ids contain semicolons
+   */
   public void checkCustomBoundaryId(String id) {
     if (id.contains(";")) {
       throw new BadRequestException("The given custom ids cannot contain semicolons, "
@@ -380,8 +384,9 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Tries to parse the given filter using the given parser. Catches the exception from the parser
-   * and throws a 400 BadRequestException if the filter contains wrong syntax.
+   * Tries to parse the given filter using the given parser.
+   * 
+   * @throws BadRequestException if the filter contains wrong syntax.
    */
   public FilterExpression parseFilter(FilterParser fp, String filter) {
     try {
@@ -449,7 +454,7 @@ public class InputProcessingUtils {
   /**
    * Checks the provided period on its ISO conformity.
    * 
-   * @throws BadRequestException if the interval is not ISO conform.
+   * @throws BadRequestException if the interval is not ISO-8601 conform.
    */
   protected void checkPeriodOnIsoConformity(String period) {
     try {
@@ -499,7 +504,7 @@ public class InputProcessingUtils {
    * 
    * @param bboxesArray contains the bounding boxes having a custom id
    * @return <code>List</code> containing the splitted bounding boxes
-   * @throws BadRequestException if the bboxes have invalid content
+   * @throws BadRequestException if the bboxes have invalid format
    */
   private List<String> splitBboxesWithIds(String[] bboxesArray) {
     List<String> boundaryParamValues = new ArrayList<>();
@@ -530,7 +535,7 @@ public class InputProcessingUtils {
    * 
    * @param bcirclesArray contains the bounding circles having a custom id
    * @return <code>List</code> containing the splitted bounding circles
-   * @throws BadRequestException if the bcircles have invalid content
+   * @throws BadRequestException if the bcircles have invalid format
    */
   private List<String> splitBcirclesWithIds(String[] bcirclesArray) {
     List<String> boundaryParamValues = new ArrayList<>();
@@ -556,7 +561,7 @@ public class InputProcessingUtils {
    * 
    * @param bpolysArray contains the bounding polygons having a custom id
    * @return <code>List</code> containing the splitted bounding polygons
-   * @throws BadRequestException if the bpolys have invalid content
+   * @throws BadRequestException if the bpolys have invalid format
    */
   private List<String> splitBpolysWithIds(String[] bpolysArray) {
     List<String> boundaryParamValues = new ArrayList<>();

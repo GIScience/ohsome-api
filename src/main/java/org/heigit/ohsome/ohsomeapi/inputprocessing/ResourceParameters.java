@@ -18,7 +18,10 @@ public class ResourceParameters {
    * <p>
    * Note that some resources don't use this method, but implement their own checks. One example for
    * this is the metadata request in
-   * {@link MetadataRequestExecutor#executeGetMetadata(HttpServletRequest)}.
+   * {@link MetadataRequestExecutor#executeGetMetadata(HttpServletRequest) executeGetMetadata}.
+   * 
+   * @return a list of of available parameters for the given resource.
+   * @param servletRequest
    */
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
     String uri = servletRequest.getRequestURI();
@@ -51,8 +54,11 @@ public class ResourceParameters {
   }
 
   /**
-   * Checks, if the request contains unexpected parameters for this resource and gives back such
-   * parameters.
+   * Checks, if the request contains unexpected parameters for this resource.
+   * 
+   * @return a list of unexpected parameters
+   * @param servletRequest
+   * @param resourceParams
    */
   public static List<String> checkUnexpectedParams(HttpServletRequest servletRequest,
       List<String> resourceParams) {

@@ -126,7 +126,11 @@ public class UsersRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count calculation grouped by the tag. */
+  /**
+   * Performs a count calculation grouped by the tag.
+   * 
+   * @throws BadRequestException if the groupByKey parameter is not given.
+   */
   public static Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
@@ -213,7 +217,11 @@ public class UsersRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count calculation grouped by the key. */
+  /**
+   * Performs a count calculation grouped by the key.
+   * 
+   * @throws BadRequestException if the groupByKeys parameter is not given.
+   */
   public static Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();

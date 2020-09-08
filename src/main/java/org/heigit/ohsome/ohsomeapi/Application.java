@@ -1,12 +1,14 @@
 package org.heigit.ohsome.ohsomeapi;
 
 import com.zaxxer.hikari.HikariConfig;
+import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
+import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -39,7 +41,12 @@ public class Application implements ApplicationRunner {
     return context;
   }
 
-  /** Main method to run this SpringBootApplication. */
+  /**
+   * Main method to run this SpringBootApplication.
+   * 
+   * @throws RuntimeException if database and keytables are not defined in the
+   *         '-DdbFilePathProperty=' parameter of 'mvn test'.
+   */
   public static void main(String[] args) {
     if (args == null || args.length == 0) {
       throw new RuntimeException(
@@ -61,8 +68,19 @@ public class Application implements ApplicationRunner {
    *
    * @param args Application arguments given over the commandline on startup
    * @throws Exception if the connection to the db cannot be established
+   * @throws SQLException thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2#OSHDBH2(String) OSHDBH2}
+   * @throws ClassNotFoundException thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2#OSHDBH2(String) OSHDBH2}
+   * @throws OSHDBKeytablesNotFoundException thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator#TagTranslator(java.sql.Connection)
+   *         TagTranslator}
+   * @throws IOException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils#extractOSHDBMetadata()
+   *         extractOSHDBMetadata}
    */
-  public static void preRun(ApplicationArguments args) throws Exception {
+  public static void preRun(ApplicationArguments args)
+      throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
     final String dbProperty = "database.db";
     boolean multithreading = true;
     boolean caching = false;
@@ -194,6 +212,8 @@ public class Application implements ApplicationRunner {
 
   /**
    * Get the API version. It throws a RuntimeException if the API version is null.
+   * 
+   * @throws RuntimeException if API version from the application.properties file cannot be loaded
    */
   private static String ohsomeApiVersion() {
     String apiVersion;

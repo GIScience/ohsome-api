@@ -165,7 +165,7 @@ public class GeometryBuilder {
       } catch (NumberFormatException e) {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
-      bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+      bpoly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
       geometryList.add(bpoly);
       processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(bpoly);
