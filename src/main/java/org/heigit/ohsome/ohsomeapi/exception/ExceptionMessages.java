@@ -22,6 +22,7 @@ public class ExceptionMessages {
       "Your provided boundary parameter (bboxes, "
           + "bcircles, or bpolys) does not fit its format, or you defined more than one boundary "
           + "parameter.";
+  public static final String DATABASE_ACCESS = "Keytables not found or access to database failed";
   public static final String FILTER_PARAM = "The keys, values and types parameters must be empty, "
       + "when you set the filter parameter.";
   public static final String FILTER_SYNTAX = "Invalid filter syntax. Please look at the additional "

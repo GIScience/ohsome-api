@@ -64,6 +64,7 @@ import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -238,6 +239,7 @@ public class ExecutionUtils {
   /**
    * Streams the result of /elements and /elementsFullHistory respones as an outputstream.
    * 
+   * @throws RuntimeException, which only wraps {@link IOException}
    * @throws IOException thrown by {@link JsonGenerator
    *         com.fasterxml.jackson.core.JsonFactory#createGenerator(java.io.OutputStream,
    *         JsonEncoding) createGenerator},
@@ -991,7 +993,12 @@ public class ExecutionUtils {
   /**
    * Fills the given stream with output data using multiple parallel threads.
    * 
-   * @throws RuntimeException if any one thread experiences an exception
+   * @throws RuntimeException if any one thread experiences an exception, or it only wraps
+   *         {@link IOException}
+   * @throws DatabaseAccessException if the access to keytables or database is not possible
+   * @throws ExecutionException thrown by {@link java.util.concurrent.ForkJoinTask#get() get}
+   * @throws InterruptedException thrown by {@link java.util.concurrent.ForkJoinTask#get() get}
+   * @throws IOException thrown by {@link java.io.OutputStream#flush() flush}
    */
   private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
@@ -1005,7 +1012,7 @@ public class ExecutionUtils {
         try {
           return new TagTranslator(keytablesConnectionPool.getConnection());
         } catch (OSHDBKeytablesNotFoundException | SQLException e) {
-          throw new RuntimeException(e);
+          throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
         }
       });
     } else {

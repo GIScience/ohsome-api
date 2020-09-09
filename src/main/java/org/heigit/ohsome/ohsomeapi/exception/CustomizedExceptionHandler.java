@@ -61,6 +61,12 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus.PAYLOAD_TOO_LARGE, servletRequest);
   }
 
+  @ExceptionHandler(DatabaseAccessException.class)
+  public final ResponseEntity<ErrorDetails> handleDatabaseAccessException(
+      DatabaseAccessException ex, HttpServletRequest servletRequest) {
+    return createExceptionResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, servletRequest);
+  }
+
   /**
    * Creates the error details based on the thrown exception. It adds "null" to the request URL
    * (e.g. /users/count?null), in case of a request without parameters but with the query question

@@ -403,7 +403,8 @@ public class InputProcessingUtils {
    * @param timeInfo time information to check
    * @throws NotFoundException if the given time is not completely within the timerange of the
    *         underlying data
-   * @throws BadRequestException if the timestamps are not ISO-8601 conform.
+   * @throws BadRequestException if the timestamps are not ISO-8601 conform
+   * @throws RuntimeException if the Date or DateTime Format are not supported
    */
   protected void checkTemporalExtend(String... timeInfo) {
     long start = 0;
@@ -413,7 +414,8 @@ public class InputProcessingUtils {
       start = ISODateTimeParser.parseISODateTime(ExtractMetadata.fromTstamp).toEpochSecond();
       end = ISODateTimeParser.parseISODateTime(ExtractMetadata.toTstamp).toEpochSecond();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(
+          "The ISO 8601 Date or the combined Date-Time String cannot be converted into a UTC based ZonedDateTime Object");
     }
     for (String timestamp : timeInfo) {
       try {
