@@ -239,7 +239,7 @@ public class ExecutionUtils {
   /**
    * Streams the result of /elements and /elementsFullHistory respones as an outputstream.
    * 
-   * @throws RuntimeException, which only wraps {@link IOException}
+   * @throws RuntimeException which only wraps {@link java.io.IOException IOException}
    * @throws IOException thrown by {@link JsonGenerator
    *         com.fasterxml.jackson.core.JsonFactory#createGenerator(java.io.OutputStream,
    *         JsonEncoding) createGenerator},
