@@ -122,8 +122,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
         requestResource.getLabel(), requestResource.getUnit());
     Metadata metadata = generateMetadata(description);
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      writeCsvResponse(resultSet, createCsvTopComments(metadata));
-      return null;
+      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
     }
     return DefaultAggregationResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, resultSet);
   }
@@ -183,57 +182,57 @@ public class AggregateRequestExecutor extends RequestExecutor {
   }
 
   /**
-   * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)
-   * requests.
-   */
-  private void writeCsvResponse(Result[] resultSet, List<String[]> comments) {
-    try {
-      setCsvSettingsInServletResponse();
-      CSVWriter writer = writeComments(comments);
-      if (resultSet instanceof ElementsResult[]) {
-        writer.writeNext(new String[] {"timestamp", "value"}, false);
-        for (Result result : resultSet) {
-          ElementsResult elementsResult = (ElementsResult) result;
-          writer.writeNext(new String[] {elementsResult.getTimestamp(),
-              String.valueOf(elementsResult.getValue())});
-        }
-      } else if (resultSet instanceof UsersResult[]) {
-        writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
-        for (Result result : resultSet) {
-          UsersResult usersResult = (UsersResult) result;
-          writer.writeNext(new String[] {usersResult.getFromTimestamp(),
-              usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
-        }
-      } else if (resultSet instanceof RatioResult[]) {
-        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
-        for (Result result : resultSet) {
-          RatioResult ratioResult = (RatioResult) result;
-          writer.writeNext(
-              new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
-                  String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
-        }
-      }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
    * Writes a response in the csv format for /groupBy requests.
    * 
    * @throws IOException
    */
-  private Consumer<CSVWriter> writeCsvResponse(GroupByResult[] resultSet) throws IOException {
-    return writer -> {
+//  private Consumer<CSVWriter> writeCsvResponse(GroupByResult[] resultSet) throws IOException {
+//    return writer -> writeCsvResponesGroupBy(writer, resultSet);
+//  }
+  
+  /**
+   * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)|groupBy
+   * requests.
+   * 
+   * @throws IOException
+   */
+  private Consumer<CSVWriter> writeCsvResponse(Object[] resultSet) {
+    return writer -> writeCsvResponse(writer, resultSet);
+  }
+      
+  private void writeCsvResponse(CSVWriter writer, Object[] resultSet) {
+    if (resultSet instanceof ElementsResult[]) {
+      ElementsResult[] rs = (ElementsResult[]) resultSet;
+      writer.writeNext(new String[] {"timestamp", "value"}, false);
+      for (ElementsResult elementsResult : rs) {
+        writer.writeNext(new String[] {elementsResult.getTimestamp(),
+            String.valueOf(elementsResult.getValue())});
+      }
+    } else if (resultSet instanceof UsersResult[]) {
+      UsersResult[] rs = (UsersResult[]) resultSet;
+      writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
+      for (UsersResult usersResult : rs) {
+        writer.writeNext(new String[] {usersResult.getFromTimestamp(),
+            usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
+      }
+    } else if (resultSet instanceof RatioResult[]) {
+      RatioResult[] rs = (RatioResult[]) resultSet;
+      writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
+      for (RatioResult ratioResult : rs) {
+        writer.writeNext(
+            new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
+                String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
+      }
+    } else if (resultSet instanceof GroupByResult[]) {
+      GroupByObject[] rs = (GroupByResult[]) resultSet;
       if (resultSet.length == 0) {
         writer.writeNext(new String[] {"timestamp"}, false);
       } else {
-        var rows = createCsvResponseForElementsGroupBy(resultSet);
+        var rows = createCsvResponseForElementsGroupBy(rs);
         writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
         writer.writeAll(rows.getRight(), false);
       }
-    };
+    }
   }
 
   /** Defines character encoding, content type and cache header in given servlet response object. */
@@ -257,15 +256,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
     }
     // no response needed as writer has already been called
     return null;
-  }
-
-  /** Creates a new CSVWriter, writes the given comments and returns the writer object. */
-  private CSVWriter writeComments(List<String[]> comments) throws IOException {
-    CSVWriter writer =
-        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
-            CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-    writer.writeAll(comments, false);
-    return writer;
   }
 
   /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
