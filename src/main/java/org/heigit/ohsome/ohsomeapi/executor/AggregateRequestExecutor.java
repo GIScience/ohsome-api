@@ -180,15 +180,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
     }
     return metadata;
   }
-
-  /**
-   * Writes a response in the csv format for /groupBy requests.
-   * 
-   * @throws IOException
-   */
-//  private Consumer<CSVWriter> writeCsvResponse(GroupByResult[] resultSet) throws IOException {
-//    return writer -> writeCsvResponesGroupBy(writer, resultSet);
-//  }
   
   /**
    * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)|groupBy
