@@ -54,8 +54,8 @@ Groups the result by the given tags that are defined through the ``groupByKey`` 
 
     :param aggregation: aggregation type, one of ``area``, ``count``, ``length``, ``perimeter``
     :query <params>: see query-parameters_ at /elements(aggregation) endpoint
-    :query groupByKey: OSM key e.g.: 'highway’, 'building’; no default value (one groupByKey parameter must be defined)
-    :query groupByValues: OSM value(s) given as a list and combined with the ‘AND’ operator, default: no value
+    :query groupByKey: OSM key e.g.: 'highway’; mandatory, no default value (only one groupByKey can be defined), non matching objects (if any) will be summarised in a 'remainder' category
+    :query groupByValues: OSM value(s) for the specified key given as a list and combined with the ‘AND’ operator, default: no value
 .. _query-parameters: endpoints.html#post--elements-(aggregation)
 
 Here you can find a groupBy-tag_ example. 
