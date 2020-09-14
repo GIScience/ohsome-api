@@ -34,6 +34,10 @@ Groups the result by the given keys that are defined through the ``groupByKeys``
     :query groupByKeys: OSM key(s) given as a list and combined with the ‘AND’ operator; default: empty;
 .. _query-parameters: endpoints.html#post--elements-(aggregation)
 
+Here you can find a groupBy-key_ example.
+
+.. _groupBy-key: endpoints.html#post--elements-(aggregation)-groupBy-(groupType)
+
 
 .. note:: The ``groupByKeys`` query parameter is only available for the /groupBy/key endpoint.
 
@@ -50,10 +54,15 @@ Groups the result by the given tags that are defined through the ``groupByKey`` 
 
     :param aggregation: aggregation type, one of ``area``, ``count``, ``length``, ``perimeter``
     :query <params>: see query-parameters_ at /elements(aggregation) endpoint
-    :query groupByKey: OSM key(s) given as a list and combined with the ‘AND’ operator, e.g.: 'highway’, 'building’; (one groupByKey parameter must be defined)
-    :query groupByValues: OSM value(s) given as a list and combined with the ‘AND’ operator, default: no value
+    :query groupByKey: OSM key e.g.: 'highway’; mandatory, no default value (only one groupByKey can be defined), non matching objects (if any) will be summarised in a 'remainder' category
+    :query groupByValues: OSM value(s) for the specified key given as a list and combined with the ‘AND’ operator, default: no value
 .. _query-parameters: endpoints.html#post--elements-(aggregation)
 
+Here you can find a groupBy-tag_ example. 
+
+.. _groupBy-tag: endpoints.html#post--elements-(aggregation)-groupBy-boundary-groupBy-tag
+
+.. note:: The ``groupByKey`` and the ``groupByValues`` query parameters are only available for the /groupBy/tag endpoint.
 
 |
 
@@ -81,4 +90,8 @@ Groups the result by the given boundary and the tags.
     :query groupByKey: OSM key(s) given as a list and combined with the ‘AND’ operator, e.g.: 'highway’, 'building’; (one groupByKey parameter must be defined)
     :query groupByValues: OSM value(s) given as a list and combined with the ‘AND’ operator, default: no value
 .. _query-parameters: endpoints.html#post--elements-(aggregation)
+
+Here you can find a groupBy-boundary-groupBy-tag_ example.
+
+.. _groupBy-boundary-groupBy-tag: endpoints.html#post--elements-(aggregation)-groupBy-boundary-groupBy-tag
 
