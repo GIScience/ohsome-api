@@ -41,7 +41,7 @@ Selectors
     |                        | | given osm type                   |                        |
     +------------------------+------------------------------------+------------------------+
     | ``id:osm-id``          | | matches all entities with the    | ``id:1234``            |
-    |                        | | given osm id                     |                        |
+    |                        | | given osm id [#]_                |                        |
     +------------------------+------------------------------------+------------------------+
     | ``id:(id list)``       | | matches all entities with the    | ``id:(1, 42, 1234)``   |
     |                        | | given osm ids                    |                        |
@@ -53,6 +53,7 @@ Selectors
     |                        | | geometry of the given type       |                        |
     |                        | | (point, line, polygon, or other) |                        |
     +------------------------+------------------------------------+------------------------+
+.. [#] keep in mind that osm ids are not unique between osm types. In order to exclude only a specific object the id needs to be combined with an osm type filter e.g. (not id:10905729 and type:way) 
 
 |
 
