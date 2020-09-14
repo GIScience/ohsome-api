@@ -38,7 +38,6 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggrega
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
@@ -171,6 +170,10 @@ public class AggregateRequestExecutor extends RequestExecutor {
     return new GroupByResponse(ATTRIBUTION, Application.API_VERSION, metadata, resultSet);
   }
 
+  /**
+   * Creates the metadata for the JSON response containing info like execution time, request URL and
+   * a short description of the returned data.
+   */
   private Metadata generateMetadata(String description) {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
@@ -180,17 +183,16 @@ public class AggregateRequestExecutor extends RequestExecutor {
     }
     return metadata;
   }
-  
+
   /**
    * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)|groupBy
    * requests.
-   * 
-   * @throws IOException
    */
   private Consumer<CSVWriter> writeCsvResponse(Object[] resultSet) {
     return writer -> writeCsvResponse(writer, resultSet);
   }
-      
+
+  /** Writing of the CSV response for different types of result sets. */
   private void writeCsvResponse(CSVWriter writer, Object[] resultSet) {
     if (resultSet instanceof ElementsResult[]) {
       ElementsResult[] rs = (ElementsResult[]) resultSet;
@@ -203,8 +205,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
       UsersResult[] rs = (UsersResult[]) resultSet;
       writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
       for (UsersResult usersResult : rs) {
-        writer.writeNext(new String[] {usersResult.getFromTimestamp(),
-            usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
+        writer.writeNext(new String[] {usersResult.getFromTimestamp(), usersResult.getToTimestamp(),
+            String.valueOf(usersResult.getValue())});
       }
     } else if (resultSet instanceof RatioResult[]) {
       RatioResult[] rs = (RatioResult[]) resultSet;
