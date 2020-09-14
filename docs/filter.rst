@@ -53,7 +53,7 @@ Selectors
     |                        | | geometry of the given type       |                        |
     |                        | | (point, line, polygon, or other) |                        |
     +------------------------+------------------------------------+------------------------+
-.. [#] keep in mind that osm ids are not unique between osm types. In order to exclude only a specific object the id needs to be combined with an osm type filter e.g. (not id:10905729 and type:way) 
+.. [#] keep in mind that osm ids are not unique between osm types. In order to exclude only a specific object the id needs to be combined with an osm type filter e.g. ``type:node and id:1234``
 
 |
 
