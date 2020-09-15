@@ -21,9 +21,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestFilter extends OncePerRequestFilter {
 
+
+  /**
+   * @throws IOException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils#extractOSHDBMetadata()
+   *         extractOSHDBMetadata}, and
+   *         {@link javax.servlet.ServletRequest#setCharacterEncoding(String) setCharacterEncoding}
+   * @throws ServletException thrown by
+   *         {@link javax.servlet.FilterChain#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
+   *         doFilter}
+   */
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+      FilterChain filterChain) throws IOException, ServletException {
     if (request.getCharacterEncoding() == null) {
       request.setCharacterEncoding("UTF-8");
     }

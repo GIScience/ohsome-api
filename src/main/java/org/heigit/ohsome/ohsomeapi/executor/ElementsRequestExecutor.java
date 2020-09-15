@@ -158,6 +158,7 @@ public class ElementsRequestExecutor {
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
+   * @throws BadRequestException if the given time parameter is invalid
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -511,6 +512,7 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if groupByKey parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}
@@ -622,6 +624,7 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if groupByKey parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -775,6 +778,7 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if groupByKeys parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -1123,6 +1127,7 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -1320,6 +1325,7 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -1369,7 +1375,6 @@ public class ElementsRequestExecutor {
     inputProcessorCombined.getProcessingData().setIsRatio(true);
     inputProcessorCombined.getProcessingData().setIsGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
-
     MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, Geometry> preResult =
         null;
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =

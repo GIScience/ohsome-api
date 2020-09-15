@@ -55,7 +55,7 @@ public class GeometryBuilder {
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
    * @return <code>Geometry</code> object representing the unified bounding boxes.
-   * @throws BadRequestException if coordinates are invalid
+   * @throws BadRequestException if bboxes coordinates are invalid
    */
   public Geometry createBboxes(String[] bboxes) {
     try {
@@ -98,7 +98,7 @@ public class GeometryBuilder {
    *        and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing (a) circular polygon(s) around the given
    *         bounding point(s).
-   * @throws BadRequestException if coordinates or radius are invalid
+   * @throws BadRequestException if bcircle coordinates or radius are invalid
    */
   public Geometry createCircularPolygons(String[] bpoints) {
     GeometryFactory geomFact = new GeometryFactory();
@@ -148,7 +148,7 @@ public class GeometryBuilder {
    *        polygon(s).
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
-   * @throws BadRequestException if coordinates are invalid
+   * @throws BadRequestException if bpolys coordinates are invalid
    */
   public Geometry createBpolys(String[] bpolys) {
     GeometryFactory geomFact = new GeometryFactory();
@@ -220,7 +220,9 @@ public class GeometryBuilder {
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
    * and its features must be of type 'Polygon' or 'Multipolygon'.
    * 
-   * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
+   * @throws BadRequestException if the given GeoJSON String cannot be converted to a Geometry, it
+   *         is not of the type 'FeatureCollection', or if the provided custom id(s) cannot be
+   *         parsed
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
     ArrayList<Geometry> geometryList = new ArrayList<>();

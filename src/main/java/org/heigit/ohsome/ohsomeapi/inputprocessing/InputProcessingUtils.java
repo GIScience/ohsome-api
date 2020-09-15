@@ -303,7 +303,7 @@ public class InputProcessingUtils {
   /**
    * Sorts the given timestamps from oldest to newest.
    * 
-   * @throws BadRequestException if the given time parameter is ISO-8601 conform
+   * @throws BadRequestException if the given time parameter is not ISO-8601 conform
    */
   public String[] sortTimestamps(String[] timestamps) {
     List<String> timeStringList = new ArrayList<>();

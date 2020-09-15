@@ -222,7 +222,6 @@ public class ExecutionUtils {
    * @param <U> an arbitrary data type, used for the index'es key items
    * @param <V> an arbitrary data type, used for the index'es key items
    * @return a nested data structure: for each index part there is a separate level of nested maps
-   * 
    */
   public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
       Map<OSHDBCombinedIndex<U, V>, A> result) {
@@ -458,7 +457,7 @@ public class ExecutionUtils {
   /**
    * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
    * 
-   * @throws BadRequestException if no boundary parameter is defined.
+   * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, and
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
@@ -597,7 +596,8 @@ public class ExecutionUtils {
   /**
    * Creates the GeoJson features used in the GeoJson response.
    * 
-   * @throws UnsupportedOperationException if {@code res} isn't an instance of
+   * @throws UnsupportedOperationException if the value contained in {@code res} is not an instance
+   *         of
    *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
    *         ElementsResult}, or
    *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult
