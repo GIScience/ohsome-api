@@ -493,11 +493,8 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
    * 
-   * <<<<<<< HEAD
-   * 
    * @deprecated Will be removed in next major version update.
    * 
-   *             ======= >>>>>>> adding of processing for /contribution/latest
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -746,11 +743,8 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
    * 
-   * <<<<<<< HEAD
-   * 
    * @deprecated Will be removed in next major version update.
    * 
-   *             ======= >>>>>>> adding of processing for /contribution/latest
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
