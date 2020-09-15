@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
+import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -41,8 +42,9 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.aggregate(RequestResource.LENGTH, servletRequest,
-        servletResponse, true, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, false);
+    return executor.aggregate();
   }
 
   /**
@@ -79,8 +81,9 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.LENGTH, servletRequest,
-        servletResponse, true, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, false);
+    return executor.aggregateGroupByBoundary();
   }
 
   /**
@@ -100,7 +103,7 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+  public Response lengthGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false);
@@ -165,8 +168,9 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregate(RequestResource.LENGTH, servletRequest,
-        servletResponse, true, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
+    return executor.aggregate();
   }
 
   /**
@@ -202,8 +206,9 @@ public class LengthController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.LENGTH, servletRequest,
-        servletResponse, true, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
+    return executor.aggregateGroupByBoundary();
   }
 
   /**
@@ -223,7 +228,7 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+  public Response lengthDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, true);

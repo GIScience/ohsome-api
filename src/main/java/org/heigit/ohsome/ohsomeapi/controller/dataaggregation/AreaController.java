@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
+import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -42,8 +43,9 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response area(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.aggregate(RequestResource.AREA, servletRequest, servletResponse,
-        true, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
+    return executor.aggregate();
   }
 
   /**
@@ -77,8 +79,9 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.AREA, servletRequest,
-        servletResponse, true, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
+    return executor.aggregateGroupByBoundary();
   }
 
   /**
@@ -98,7 +101,7 @@ public class AreaController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+  public Response areaGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.AREA,
         servletRequest, servletResponse, true, false);
@@ -163,8 +166,9 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregate(RequestResource.AREA, servletRequest, servletResponse,
-        true, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
+    return executor.aggregate();
   }
 
   /**
@@ -199,8 +203,9 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.AREA, servletRequest,
-        servletResponse, true, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
+    return executor.aggregateGroupByBoundary();
   }
 
   /**
@@ -220,7 +225,7 @@ public class AreaController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+  public Response areaDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.AREA,
         servletRequest, servletResponse, true, true);
