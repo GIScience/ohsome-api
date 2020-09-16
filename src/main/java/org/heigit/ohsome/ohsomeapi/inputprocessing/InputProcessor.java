@@ -433,7 +433,7 @@ public class InputProcessor {
   /**
    * Checks the given keys and values String[] on their length.
    * 
-   * @throws BadRequestException if values_n must doesn't fit to keys_n. There cannot be more input
+   * @throws BadRequestException if values_n doesn't fit to keys_n. There cannot be more input
    *         values in the values|values2 than in the keys|keys2 parameter.
    */
   public void checkKeysValues(String[] keys, String[] values) {

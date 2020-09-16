@@ -596,8 +596,8 @@ public class ExecutionUtils {
   /**
    * Creates the GeoJson features used in the GeoJson response.
    * 
-   * @throws UnsupportedOperationException if the value contained in {@code res} is not an instance
-   *         of
+   * @throws UnsupportedOperationException if one of the values contained in results is not an
+   *         instance of
    *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
    *         ElementsResult}, or
    *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult
