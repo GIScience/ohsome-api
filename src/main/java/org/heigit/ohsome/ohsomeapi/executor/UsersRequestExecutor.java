@@ -96,9 +96,10 @@ public class UsersRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     result = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> {
-          return f.getEntityAfter().getType();
-        }, processingData.getOsmTypes()).map(OSMContribution::getContributorUserId).countUniq();
+        .aggregateBy(
+            (SerializableFunction<OSMContribution, OSMType>) f -> f.getEntityAfter().getType(),
+            processingData.getOsmTypes())
+        .map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -126,7 +127,11 @@ public class UsersRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count calculation grouped by the tag. */
+  /**
+   * Performs a count calculation grouped by the tag.
+   * 
+   * @throws BadRequestException if the groupByKey parameter is not given.
+   */
   public static Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
@@ -150,7 +155,7 @@ public class UsersRequestExecutor {
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
         valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
-        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
+        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
       }
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
@@ -162,21 +167,19 @@ public class UsersRequestExecutor {
         int tagValueId = tags[i + 1];
         if (tagKeyId == keysInt) {
           if (valuesInt.length == 0) {
-            res.add(
-                new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f));
+            res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
           }
           for (int value : valuesInt) {
             if (tagValueId == value) {
-              res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                  f));
+              res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
             }
           }
         }
       }
       if (res.isEmpty()) {
-        res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f));
+        res.add(new ImmutablePair<>(new ImmutablePair<>(-1, -1), f));
       }
-      res.add(new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-2, -2), f));
+      res.add(new ImmutablePair<>(new ImmutablePair<>(-2, -2), f));
       return res;
     }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
         .map(OSMContribution::getContributorUserId).countUniq();
@@ -215,7 +218,11 @@ public class UsersRequestExecutor {
         resultSet);
   }
 
-  /** Performs a count calculation grouped by the key. */
+  /**
+   * Performs a count calculation grouped by the key.
+   * 
+   * @throws BadRequestException if the groupByKeys parameter is not given.
+   */
   public static Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
@@ -299,7 +306,7 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ArrayList<Geometry> arrGeoms = processingData.getBoundaryList();
+    List<Geometry> arrGeoms = processingData.getBoundaryList();
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));

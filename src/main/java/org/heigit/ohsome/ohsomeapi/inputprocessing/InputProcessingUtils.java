@@ -81,9 +81,9 @@ public class InputProcessingUtils {
    * 
    * @param bboxes contains the given bounding boxes
    * @return <code>List</code> containing the splitted bounding boxes
-   * @throws BadRequestException if the bboxes parameter has invalid content
+   * @throws BadRequestException if the bboxes parameter has an invalid format
    */
-  public List<String> splitBboxes(String bboxes) throws BadRequestException {
+  public List<String> splitBboxes(String bboxes) {
     String[] bboxesArray = splitOnHyphen(bboxes);
     List<String> boundaryParamValues = new ArrayList<>();
     boundaryIds = new Object[bboxesArray.length];
@@ -108,9 +108,9 @@ public class InputProcessingUtils {
    * 
    * @param bcircles contains the given bounding circles
    * @return <code>List</code> containing the splitted bounding circles
-   * @throws BadRequestException if the bcircles parameter has invalid content
+   * @throws BadRequestException if the bcircles parameter has an invalid format
    */
-  public List<String> splitBcircles(String bcircles) throws BadRequestException {
+  public List<String> splitBcircles(String bcircles) {
     String[] bcirclesArray = splitOnHyphen(bcircles);
     List<String> boundaryParamValues = new ArrayList<>();
     boundaryIds = new Object[bcirclesArray.length];
@@ -135,9 +135,9 @@ public class InputProcessingUtils {
    * 
    * @param bpolys contains the given bounding polygons
    * @return <code>List</code> containing the splitted bounding polygons
-   * @throws BadRequestException if the bpolys parameter has invalid content
+   * @throws BadRequestException if the bpolys parameter has an invalid format
    */
-  public List<String> splitBpolys(String bpolys) throws BadRequestException {
+  public List<String> splitBpolys(String bpolys) {
     String[] bpolysArray = splitOnHyphen(bpolys);
     List<String> boundaryParamValues = new ArrayList<>();
     boundaryIds = new Object[bpolysArray.length];
@@ -172,9 +172,9 @@ public class InputProcessingUtils {
       // needed to check for interval
       if (timeData[2].startsWith("P")) {
         timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
-        toTimestamps = timestamps.get().stream().map(oshdbTimestamp -> {
-          return TimestampFormatter.getInstance().isoDateTime(oshdbTimestamp);
-        }).toArray(String[]::new);
+        toTimestamps = timestamps.get().stream()
+            .map(oshdbTimestamp -> TimestampFormatter.getInstance().isoDateTime(oshdbTimestamp))
+            .toArray(String[]::new);
       } else {
         // list of timestamps
         toTimestamps = getToTimestampsFromTimestamplist(timeData);
@@ -215,10 +215,8 @@ public class InputProcessingUtils {
    * @return <code>String</code> array containing the startTime at [0], the endTime at [1] and the
    *         period at [2].
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
-   * @throws NotFoundException if the given time is not completely within the timerange of the
-   *         underlying data
    */
-  public String[] extractIsoTime(String time) throws BadRequestException, NotFoundException {
+  public String[] extractIsoTime(String time) {
     String[] split = time.split("/");
     if (split.length == 0 && !"/".equals(time)) {
       // invalid time parameter
@@ -302,8 +300,12 @@ public class InputProcessingUtils {
     return timeVals;
   }
 
-  /** Sorts the given timestamps from oldest to newest. */
-  public String[] sortTimestamps(String[] timestamps) throws BadRequestException {
+  /**
+   * Sorts the given timestamps from oldest to newest.
+   * 
+   * @throws BadRequestException if the given time parameter is not ISO-8601 conform
+   */
+  public String[] sortTimestamps(String[] timestamps) {
     List<String> timeStringList = new ArrayList<>();
     for (String timestamp : timestamps) {
       try {
@@ -318,7 +320,11 @@ public class InputProcessingUtils {
     return timeStringList.toArray(timestamps);
   }
 
-  /** Checks the given custom boundary id. At the moment only used if output format = csv. */
+  /**
+   * Checks the given custom boundary id. At the moment only used if output format = csv.
+   * 
+   * @throws BadRequestException if the custom ids contain semicolons
+   */
   public void checkCustomBoundaryId(String id) {
     if (id.contains(";")) {
       throw new BadRequestException("The given custom ids cannot contain semicolons, "
@@ -356,11 +362,9 @@ public class InputProcessingUtils {
     TagTranslator tt = DbConnData.tagTranslator;
     OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
     OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
-    mapRed.osmEntityFilter(entity -> {
-      return !entity.getType().equals(OSMType.RELATION)
-          || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
-          || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue());
-    });
+    mapRed.osmEntityFilter(entity -> !entity.getType().equals(OSMType.RELATION)
+        || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
+        || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue()));
     return mapRed;
   }
 
@@ -380,8 +384,9 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Tries to parse the given filter using the given parser. Catches the exception from the parser
-   * and throws a 400 BadRequestException if the filter contains wrong syntax.
+   * Tries to parse the given filter using the given parser.
+   * 
+   * @throws BadRequestException if the filter contains wrong syntax.
    */
   public FilterExpression parseFilter(FilterParser fp, String filter) {
     try {
@@ -398,10 +403,10 @@ public class InputProcessingUtils {
    * @param timeInfo time information to check
    * @throws NotFoundException if the given time is not completely within the timerange of the
    *         underlying data
-   * @throws BadRequestException if the timestamps are not ISO-8601 conform.
+   * @throws BadRequestException if the timestamps are not ISO-8601 conform
+   * @throws RuntimeException if the Date or DateTime Format are not supported
    */
-  protected void checkTemporalExtend(String... timeInfo)
-      throws NotFoundException, BadRequestException {
+  protected void checkTemporalExtend(String... timeInfo) {
     long start = 0;
     long end = 0;
     long timestampLong = 0;
@@ -409,7 +414,8 @@ public class InputProcessingUtils {
       start = ISODateTimeParser.parseISODateTime(ExtractMetadata.fromTstamp).toEpochSecond();
       end = ISODateTimeParser.parseISODateTime(ExtractMetadata.toTstamp).toEpochSecond();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(
+          "The ISO 8601 Date or the combined Date-Time String cannot be converted into a UTC based ZonedDateTime Object");
     }
     for (String timestamp : timeInfo) {
       try {
@@ -437,7 +443,7 @@ public class InputProcessingUtils {
    * @param timeInfo time information to check
    * @throws BadRequestException if the timestamps are not ISO-8601 conform.
    */
-  protected void checkTimestampsOnIsoConformity(String... timeInfo) throws BadRequestException {
+  protected void checkTimestampsOnIsoConformity(String... timeInfo) {
     for (String timestamp : timeInfo) {
       try {
         ISODateTimeParser.parseISODateTime(timestamp);
@@ -448,10 +454,11 @@ public class InputProcessingUtils {
   }
 
   /**
-   * Checks the provided period on its ISO conformity. Throws a 400 BadRequestException if it is not
-   * ISO conform.
+   * Checks the provided period on its ISO conformity.
+   * 
+   * @throws BadRequestException if the interval is not ISO-8601 conform.
    */
-  protected void checkPeriodOnIsoConformity(String period) throws BadRequestException {
+  protected void checkPeriodOnIsoConformity(String period) {
     try {
       ISODateTimeParser.parseISOPeriod(period);
     } catch (Exception e) {
@@ -479,10 +486,9 @@ public class InputProcessingUtils {
    * 
    * @param boundariesArray contains the boundaries without a custom id
    * @return <code>List</code> containing the splitted boundaries
-   * @throws BadRequestException if the coordinates are invalid
    */
   private List<String> splitBoundariesWithoutIds(String[] boundariesArray,
-      BoundaryType boundaryType) throws BadRequestException {
+      BoundaryType boundaryType) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < boundariesArray.length; i++) {
       String[] coords = boundariesArray[i].split("\\,");
@@ -500,9 +506,9 @@ public class InputProcessingUtils {
    * 
    * @param bboxesArray contains the bounding boxes having a custom id
    * @return <code>List</code> containing the splitted bounding boxes
-   * @throws BadRequestException if the bboxes have invalid content
+   * @throws BadRequestException if the bboxes have invalid format
    */
-  private List<String> splitBboxesWithIds(String[] bboxesArray) throws BadRequestException {
+  private List<String> splitBboxesWithIds(String[] bboxesArray) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < bboxesArray.length; i++) {
       String[] coords = bboxesArray[i].split("\\,");
@@ -531,9 +537,9 @@ public class InputProcessingUtils {
    * 
    * @param bcirclesArray contains the bounding circles having a custom id
    * @return <code>List</code> containing the splitted bounding circles
-   * @throws BadRequestException if the bcircles have invalid content
+   * @throws BadRequestException if the bcircles have invalid format
    */
-  private List<String> splitBcirclesWithIds(String[] bcirclesArray) throws BadRequestException {
+  private List<String> splitBcirclesWithIds(String[] bcirclesArray) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < bcirclesArray.length; i++) {
       String[] coords = bcirclesArray[i].split("\\,");
@@ -557,9 +563,9 @@ public class InputProcessingUtils {
    * 
    * @param bpolysArray contains the bounding polygons having a custom id
    * @return <code>List</code> containing the splitted bounding polygons
-   * @throws BadRequestException if the bpolys have invalid content
+   * @throws BadRequestException if the bpolys have invalid format
    */
-  private List<String> splitBpolysWithIds(String[] bpolysArray) throws BadRequestException {
+  private List<String> splitBpolysWithIds(String[] bpolysArray) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < bpolysArray.length; i++) {
       String[] coords = bpolysArray[i].split("\\,");
@@ -586,8 +592,7 @@ public class InputProcessingUtils {
    * @param boundaries parameter to check the length
    * @throws BadRequestException if the length is not even or divisible by three
    */
-  private void checkBoundaryParamLength(List<String> boundaries, BoundaryType boundaryType)
-      throws BadRequestException {
+  private void checkBoundaryParamLength(List<String> boundaries, BoundaryType boundaryType) {
     if ((boundaryType.equals(BoundaryType.BBOXES) || boundaryType.equals(BoundaryType.BPOLYS))
         && boundaries.size() % 2 != 0) {
       throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);

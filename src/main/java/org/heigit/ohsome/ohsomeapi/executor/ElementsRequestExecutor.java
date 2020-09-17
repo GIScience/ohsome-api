@@ -157,6 +157,7 @@ public class ElementsRequestExecutor {
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
+   * @throws BadRequestException if the given time parameter is invalid
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -360,6 +361,7 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if groupByKey parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}
@@ -388,7 +390,7 @@ public class ElementsRequestExecutor {
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
         valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
-        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
+        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
       }
     }
     var arrGeoms = new ArrayList<>(processingData.getBoundaryList());
@@ -466,6 +468,7 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if groupByKey parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -496,7 +499,7 @@ public class ElementsRequestExecutor {
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
         valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
-        zeroFill.add(new ImmutablePair<Integer, Integer>(keysInt, valuesInt[j]));
+        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
       }
     }
     var preResult = mapRed.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
@@ -613,6 +616,7 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if groupByKeys parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -651,7 +655,7 @@ public class ElementsRequestExecutor {
               }
             }
           }
-          if (res.size() == 0) {
+          if (res.isEmpty()) {
             res.add(new ImmutablePair<>(-1, f));
           }
           return res;
@@ -708,6 +712,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
    *         computeResult}
    */
+  @Deprecated(forRemoval = true)
   public static Response aggregateBasicFiltersRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -725,8 +730,7 @@ public class ElementsRequestExecutor {
     String[] values2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
     inputProcessor.checkKeysValues(keys2, values2);
-    Pair<String[], String[]> keys2Vals2 =
-        inputProcessor.processKeys2Vals2(keys2, values2, requestParameters);
+    Pair<String[], String[]> keys2Vals2 = inputProcessor.processKeys2Vals2(keys2, values2);
     keys2 = keys2Vals2.getKey();
     values2 = keys2Vals2.getValue();
     Integer[] keysInt1 = new Integer[requestParameters.getKeys().length];
@@ -952,12 +956,14 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
+  @Deprecated(forRemoval = true)
   public static <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
@@ -978,8 +984,7 @@ public class ElementsRequestExecutor {
     String[] values2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
     inputProcessor.checkKeysValues(keys2, values2);
-    Pair<String[], String[]> keys2Vals2 =
-        inputProcessor.processKeys2Vals2(keys2, values2, requestParameters);
+    Pair<String[], String[]> keys2Vals2 = inputProcessor.processKeys2Vals2(keys2, values2);
     keys2 = keys2Vals2.getKey();
     values2 = keys2Vals2.getValue();
     Integer[] keysInt1 = new Integer[requestParameters.getKeys().length];
@@ -1040,8 +1045,8 @@ public class ElementsRequestExecutor {
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed
     @SuppressWarnings({"unchecked"})
-    Map<Integer, P> geoms = arrGeoms.stream()
-        .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
+    Map<Integer, P> geoms =
+        arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     mapRed2 = exeUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
@@ -1070,9 +1075,8 @@ public class ElementsRequestExecutor {
         result = preResult.count();
         break;
       case LENGTH:
-        result = preResult.sum(geom -> {
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom));
-        });
+        result =
+            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
         break;
       case PERIMETER:
         result = preResult.sum(geom -> {
@@ -1083,9 +1087,8 @@ public class ElementsRequestExecutor {
         });
         break;
       case AREA:
-        result = preResult.sum(geom -> {
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom));
-        });
+        result =
+            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
         break;
       default:
         break;
@@ -1145,6 +1148,7 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -1194,15 +1198,12 @@ public class ElementsRequestExecutor {
     inputProcessorCombined.getProcessingData().setIsRatio(true);
     inputProcessorCombined.getProcessingData().setIsGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
-
-
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed
     @SuppressWarnings({"unchecked"})
     Map<Integer, P> geoms = arrGeoms.stream()
         .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-
     mapRed2 = exeUtils.newSnapshotFilter(mapRed2, filterExpr1, filterExpr2);
     var preResult =
         mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
@@ -1227,9 +1228,8 @@ public class ElementsRequestExecutor {
         result = preResult.count();
         break;
       case LENGTH:
-        result = preResult.sum(geom -> {
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom));
-        });
+        result =
+            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
         break;
       case PERIMETER:
         result = preResult.sum(geom -> {
@@ -1240,9 +1240,8 @@ public class ElementsRequestExecutor {
         });
         break;
       case AREA:
-        result = preResult.sum(geom -> {
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom));
-        });
+        result =
+            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
         break;
       default:
         break;

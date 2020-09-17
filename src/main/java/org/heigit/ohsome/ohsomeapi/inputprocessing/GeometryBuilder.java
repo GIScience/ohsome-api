@@ -55,11 +55,9 @@ public class GeometryBuilder {
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
    * @return <code>Geometry</code> object representing the unified bounding boxes.
-   * @throws BadRequestException if coordinates are invalid
-   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
-   *         underlying data-extract polygon
+   * @throws BadRequestException if bboxes coordinates are invalid
    */
-  public Geometry createBboxes(String[] bboxes) throws BadRequestException, NotFoundException {
+  public Geometry createBboxes(String[] bboxes) {
     try {
       Geometry unifiedBbox;
       OSHDBBoundingBox bbox;
@@ -70,7 +68,7 @@ public class GeometryBuilder {
       double maxLat = Double.parseDouble(bboxes[3]);
       bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
-      ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
+      ArrayList<Geometry> geometryList = new ArrayList<>();
       geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
       for (int i = 4; i < bboxes.length; i += 4) {
         minLon = Double.parseDouble(bboxes[i]);
@@ -100,19 +98,16 @@ public class GeometryBuilder {
    *        and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing (a) circular polygon(s) around the given
    *         bounding point(s).
-   * @throws BadRequestException if coordinates or radius are invalid
-   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
-   *         underlying data-extract polygon
+   * @throws BadRequestException if bcircle coordinates or radius are invalid
    */
-  public Geometry createCircularPolygons(String[] bpoints)
-      throws BadRequestException, NotFoundException {
+  public Geometry createCircularPolygons(String[] bpoints) {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     Geometry geom;
     CoordinateReferenceSystem sourceCrs;
     CoordinateReferenceSystem targetCrs;
     MathTransform transform = null;
-    ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
+    ArrayList<Geometry> geometryList = new ArrayList<>();
     InputProcessingUtils utils = new InputProcessingUtils();
     try {
       for (int i = 0; i < bpoints.length; i += 3) {
@@ -153,11 +148,9 @@ public class GeometryBuilder {
    *        polygon(s).
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
-   * @throws BadRequestException if coordinates are invalid
-   * @throws NotFoundException if the provided boundary parameter does not lie completely within the
-   *         underlying data-extract polygon
+   * @throws BadRequestException if bpolys coordinates are invalid
    */
-  public Geometry createBpolys(String[] bpolys) throws BadRequestException, NotFoundException {
+  public Geometry createBpolys(String[] bpolys) {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<>();
@@ -172,7 +165,7 @@ public class GeometryBuilder {
       } catch (NumberFormatException e) {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
-      bpoly = geomFact.createPolygon((Coordinate[]) coords.toArray(new Coordinate[] {}));
+      bpoly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
       geometryList.add(bpoly);
       processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(bpoly);
@@ -213,7 +206,7 @@ public class GeometryBuilder {
    * 
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public void createGeometryFromMetadataGeoJson(String geoJson) throws RuntimeException {
+  public void createGeometryFromMetadataGeoJson(String geoJson) {
     GeoJSONReader reader = new GeoJSONReader();
     try {
       ProcessingData.setDataPolyGeom(reader.read(geoJson));
@@ -227,7 +220,9 @@ public class GeometryBuilder {
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
    * and its features must be of type 'Polygon' or 'Multipolygon'.
    * 
-   * @throws BadRequestException if the given GeoJSON cannot be converted to a Geometry
+   * @throws BadRequestException if the given GeoJSON String cannot be converted to a Geometry, it
+   *         is not of the type 'FeatureCollection', or if the provided custom id(s) cannot be
+   *         parsed
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
     ArrayList<Geometry> geometryList = new ArrayList<>();
@@ -291,7 +286,7 @@ public class GeometryBuilder {
    * @throws NotFoundException if the unified Geometry does not lie completely within the underlying
    *         data extract
    */
-  private Geometry unifyPolys(Collection<Geometry> geometries) throws NotFoundException {
+  private Geometry unifyPolys(Collection<Geometry> geometries) {
     GeometryFactory geometryFactory = new GeometryFactory();
     Polygon[] polys = geometries.stream().flatMap(geo -> {
       if (geo instanceof MultiPolygon) {
@@ -346,7 +341,7 @@ public class GeometryBuilder {
    * @throws BadRequestException if the given <code>JsonObject</code> is not of type Polygon or
    *         Multipolygon
    */
-  private void checkGeometryTypeOfFeature(JsonObject geomObj) throws BadRequestException {
+  private void checkGeometryTypeOfFeature(JsonObject geomObj) {
     if (!geomObj.getString("type").equals("Polygon")
         && !geomObj.getString("type").equals("MultiPolygon")) {
       throw new BadRequestException(

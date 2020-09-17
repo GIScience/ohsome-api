@@ -23,9 +23,11 @@ public class StringSimilarity {
    * considered. If all comparisons give a fuzzy score lower than 5, it returns only a message of
    * "unknown parameter" without suggestions.
    * 
-   * <p>For example:
+   * <p>
+   * For example:
    * 
-   * <p><ul>
+   * <p>
+   * <ul>
    * <li>Given the false parameter "metadata" for the resource "groupByTag", it returns the
    * suggestions "showMetadata" and "timeout", which are the only two matches with a score higher
    * than 4.</li>
@@ -38,10 +40,15 @@ public class StringSimilarity {
    * a message of "unknown parameter" without suggestions.</li>
    * </ul>
    * 
-   * <p><strong>Warning: Given typical mistyped parameters like "froupByKeys" or "fgroupByKeys" for
-   * the resource "groupByKey", it returns only a message of "unknown parameter" without suggestions
+   * <p>
+   * <strong>Warning: Given typical mistyped parameters like "froupByKeys" or "fgroupByKeys" for the
+   * resource "groupByKey", it returns only a message of "unknown parameter" without suggestions
    * despite the similarity to the right available parameter. This is because the Fuzzy Score
    * algorithm matches the chars of the two strings from left to right.</strong>
+   * 
+   * @return a String containing up to two suggested parameter if available.
+   * @param parameter - request parameter to compare
+   * @param possibleParameters - list of possible parameters
    */
   public static String findSimilarParameters(String parameter, List<String> possibleParameters) {
     ArrayList<FuzzyScoreObject> scoreHigherThanFour = new ArrayList<>();
@@ -52,8 +59,7 @@ public class StringSimilarity {
           new FuzzyScore(Locale.getDefault()).fuzzyScore(possibleParameter, parameter);
       BigDecimal fuzzyScore = BigDecimal.valueOf(scoreDouble);
       if (fuzzyScore.doubleValue() > 4) {
-        FuzzyScoreObject object =
-            new FuzzyScoreObject(parameter, fuzzyScore, possibleParameter);
+        FuzzyScoreObject object = new FuzzyScoreObject(parameter, fuzzyScore, possibleParameter);
         scoreHigherThanFour.add(i, object);
         i++;
       }
@@ -78,6 +84,11 @@ public class StringSimilarity {
   /**
    * Sorts the suggested parameters, which are already sorted by the fuzzy matching score, by the
    * difference in length between the requested parameter and the suggested parameters.
+   * 
+   * @return an ArrayList of suggested parameters sorted by the difference in length between the
+   *         requested parameter and the suggested parameters.
+   * @param parameter - request parameter
+   * @param possibleParameters - list of possible parameters
    */
   private static ArrayList<FuzzyScoreObject> sortParamsByLength(String parameter,
       ArrayList<FuzzyScoreObject> possibleParams) {

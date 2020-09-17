@@ -1,14 +1,11 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
 import org.heigit.ohsome.filter.BinaryOperator;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.GeometryTypeFilter;
@@ -30,7 +27,7 @@ public class ProcessingData {
   private boolean showMetadata;
   private String format;
   private Geometry requestGeom;
-  private ArrayList<Geometry> boundaryList;
+  private List<Geometry> boundaryList;
   private GeoJsonObject[] geoJsonGeoms;
   private boolean containsSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
@@ -128,11 +125,11 @@ public class ProcessingData {
     this.requestGeom = requestGeom;
   }
 
-  public ArrayList<Geometry> getBoundaryList() {
+  public List<Geometry> getBoundaryList() {
     return boundaryList;
   }
 
-  public void setBoundaryList(ArrayList<Geometry> boundaryList) {
+  public void setBoundaryList(List<Geometry> boundaryList) {
     this.boundaryList = boundaryList;
   }
 

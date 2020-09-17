@@ -59,6 +59,8 @@ import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
+import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -102,10 +104,9 @@ public class ExecutionUtils {
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
-    return mapRed.filter(snapshot -> {
-      return snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
-          || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-    });
+    return mapRed.filter(
+        snapshot -> snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
+            || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2));
   }
 
   /**
@@ -117,10 +118,9 @@ public class ExecutionUtils {
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
-    return mapRed.filter(snapshot -> {
-      return snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
-          || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-    });
+    return mapRed.filter(
+        snapshot -> snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
+            || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2));
   }
 
   /** Applies a filter on the given MapReducer object using the given filter expressions. */
@@ -217,24 +217,43 @@ public class ExecutionUtils {
    * @param <U> an arbitrary data type, used for the index'es key items
    * @param <V> an arbitrary data type, used for the index'es key items
    * @return a nested data structure: for each index part there is a separate level of nested maps
-   * 
    */
   public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
       Map<OSHDBCombinedIndex<U, V>, A> result) {
     TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
     result.forEach((index, data) -> {
       if (!ret.containsKey(index.getSecondIndex())) {
-        ret.put(index.getSecondIndex(), new TreeMap<U, A>());
+        ret.put(index.getSecondIndex(), new TreeMap<>());
       }
       ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
     });
     return ret;
   }
 
-  /** Streams the result of /elements and /elementsFullHistory respones as an outputstream. */
+  /**
+   * Streams the result of /elements and /elementsFullHistory respones as an outputstream.
+   * 
+   * @throws RuntimeException which only wraps {@link java.io.IOException IOException}
+   * @throws IOException thrown by {@link JsonGenerator
+   *         com.fasterxml.jackson.core.JsonFactory#createGenerator(java.io.OutputStream,
+   *         JsonEncoding) createGenerator},
+   *         {@link com.fasterxml.jackson.core.JsonGenerator#writeObject(Object) writeObject},
+   *         {@link javax.servlet.ServletResponse#getOutputStream() getOutputStream},
+   *         {@link java.io.OutputStream#write(byte[]) write},
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}, {@link javax.servlet.ServletOutputStream#print(String) print},
+   *         and {@link javax.servlet.ServletResponse#flushBuffer() flushBuffer}
+   * @throws ExecutionException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
+   * @throws InterruptedException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
+   */
   public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
       boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
-      Stream<org.wololo.geojson.Feature> contributionStream) throws Exception {
+      Stream<org.wololo.geojson.Feature> contributionStream)
+      throws ExecutionException, InterruptedException, IOException {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -244,7 +263,8 @@ public class ExecutionUtils {
     jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
         .writeObject(osmData);
 
-    String scaffold = tempStream.toString("UTF-8").replaceFirst("\\s*]\\s*}\\s*$", "");
+    String scaffold =
+        tempStream.toString(StandardCharsets.UTF_8).replaceFirst("\\s*]\\s*}\\s*$", "");
 
     servletResponse.setContentType("application/geo+json; charset=utf-8");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
@@ -432,6 +452,10 @@ public class ExecutionUtils {
   /**
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
+   * 
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, and
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
@@ -443,10 +467,8 @@ public class ExecutionUtils {
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult.count();
       case LENGTH:
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return cacheInUserData(snapshot.getGeometry(),
-                  () -> Geo.lengthOf(snapshot.getGeometry()));
-            });
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> cacheInUserData(
+                snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry())));
       case PERIMETER:
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
             .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
@@ -458,10 +480,8 @@ public class ExecutionUtils {
             });
       case AREA:
         return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return cacheInUserData(snapshot.getGeometry(),
-                  () -> Geo.areaOf(snapshot.getGeometry()));
-            });
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> cacheInUserData(
+                snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry())));
       default:
         return null;
     }
@@ -490,14 +510,10 @@ public class ExecutionUtils {
             });
       case LENGTH:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
-            .sum(geom -> {
-              return cacheInUserData(geom, () -> Geo.lengthOf(geom));
-            });
+            .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
-            .sum(geom -> {
-              return cacheInUserData(geom, () -> Geo.areaOf(geom));
-            });
+            .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
@@ -602,17 +618,16 @@ public class ExecutionUtils {
       int tagValueId = tags[i + 1];
       if (tagKeyId == keysInt) {
         if (valuesInt.length == 0) {
-          return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId), f);
+          return new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f);
         }
         for (int value : valuesInt) {
           if (tagValueId == value) {
-            return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(tagKeyId, tagValueId),
-                f);
+            return new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f);
           }
         }
       }
     }
-    return new ImmutablePair<>(new ImmutablePair<Integer, Integer>(-1, -1), f);
+    return new ImmutablePair<>(new ImmutablePair<>(-1, -1), f);
   }
 
   /** Creates a RatioResponse. */
@@ -843,7 +858,16 @@ public class ExecutionUtils {
     return new ImmutablePair<>(columnNames, rows);
   }
 
-  /** Fills the given stream with output data using multiple parallel threads. */
+  /**
+   * Fills the given stream with output data using multiple parallel threads.
+   * 
+   * @throws RuntimeException if any one thread experiences an exception, or it only wraps
+   *         {@link IOException}
+   * @throws DatabaseAccessException if the access to keytables or database is not possible
+   * @throws ExecutionException thrown by {@link java.util.concurrent.ForkJoinTask#get() get}
+   * @throws InterruptedException thrown by {@link java.util.concurrent.ForkJoinTask#get() get}
+   * @throws IOException thrown by {@link java.io.OutputStream#flush() flush}
+   */
   private void writeStreamResponse(ThreadLocal<JsonGenerator> outputJsonGen,
       Stream<org.wololo.geojson.Feature> stream, ThreadLocal<ByteArrayOutputStream> outputBuffers,
       final ServletOutputStream outputStream)
@@ -856,7 +880,7 @@ public class ExecutionUtils {
         try {
           return new TagTranslator(keytablesConnectionPool.getConnection());
         } catch (OSHDBKeytablesNotFoundException | SQLException e) {
-          throw new RuntimeException(e);
+          throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
         }
       });
     } else {
@@ -954,7 +978,11 @@ public class ExecutionUtils {
     return servletResponse;
   }
 
-  /** Creates a new CSVWriter, writes the given comments and returns the writer object. */
+  /**
+   * Creates a new CSVWriter, writes the given comments and returns the writer object.
+   * 
+   * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
+   */
   private CSVWriter writeComments(HttpServletResponse servletResponse, List<String[]> comments)
       throws IOException {
     CSVWriter writer =

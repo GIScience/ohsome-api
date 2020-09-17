@@ -104,6 +104,11 @@ public class InputProcessor {
     this.processingData = processingData;
   }
 
+  /**
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters(ComputeMode)
+   *         processParameters}
+   */
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
     return this.processParameters(null);
   }
@@ -113,6 +118,13 @@ public class InputProcessor {
    * 
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
+   * @throws BadRequestException if the boundary parameter is not defined or it has an invalid
+   *         format, if the geometry of given boundary cannot be parsed for the creation of the
+   *         response GeoJSON or if the keys, values and types parameters are not empty, while the
+   *         filter parameter is set.
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#extractTime(MapReducer, String[], boolean)
+   *         extractTime}
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
@@ -326,11 +338,9 @@ public class InputProcessor {
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation), or simple feature types (point, line, polygon, other). If the array is empty,
    *        all three OSM types are used.
-   * @throws BadRequestException if the content of the parameter does not represent one or more OSM
-   *         types, OR one or more of point/line/polygon
    */
   public <T extends OSHDBMapReducible> MapReducer<T> defineTypes(String[] types,
-      MapReducer<T> mapRed) throws BadRequestException {
+      MapReducer<T> mapRed) {
     types = createEmptyArrayIfNull(types);
     checkTypes(types);
     processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
@@ -420,8 +430,13 @@ public class InputProcessor {
     return toCheck;
   }
 
-  /** Checks the given keys and values String[] on their length. */
-  public void checkKeysValues(String[] keys, String[] values) throws BadRequestException {
+  /**
+   * Checks the given keys and values String[] on their length.
+   * 
+   * @throws BadRequestException if values_n doesn't fit to keys_n. There cannot be more input
+   *         values in the values|values2 than in the keys|keys2 parameter.
+   */
+  public void checkKeysValues(String[] keys, String[] values) {
     if (values != null && keys.length < values.length) {
       throw new BadRequestException(ExceptionMessages.KEYS_VALUES_RATIO_INVALID);
     }
@@ -437,8 +452,7 @@ public class InputProcessor {
   }
 
   /** Used in /ratio requests. */
-  public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2,
-      RequestParameters requestParams) {
+  public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2) {
     keys2 = createEmptyArrayIfNull(keys2);
     values2 = createEmptyArrayIfNull(values2);
     return new ImmutablePair<>(keys2, values2);
@@ -448,9 +462,9 @@ public class InputProcessor {
    * Processes the properties parameter used in data-extraction ressources and sets the respective
    * boolean values includeTags, includeOSMMetadata and unclippedGeometries.
    * 
-   * @throws BadRequestException if the properties parameter contains invalid content
+   * @throws BadRequestException if the properties parameter contains invalid values
    */
-  public void processPropertiesParam() throws BadRequestException {
+  public void processPropertiesParam() {
     String[] properties =
         splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
     if (properties.length > 3) {
@@ -472,11 +486,11 @@ public class InputProcessor {
   }
 
   /**
-   * Processes the clipGeometry parameter used in data-extraction ressources and sets the respective
+   * Processes the clipGeometry parameter used in data-extraction resources and sets the respective
    * boolean value 'clipGeometry'. Note: this method is called after processPropertiesParam() so it
    * could overwrite the previously defined value of 'clipGeometry'.
    */
-  public void processIsUnclippedParam() throws BadRequestException {
+  public void processIsUnclippedParam() {
     if (null != requestParameters.get("clipGeometry")) {
       this.clipGeometry =
           processBooleanParam("clipGeometry", requestParameters.get("clipGeometry")[0]);
@@ -495,6 +509,9 @@ public class InputProcessor {
    * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
    *
    * @return MapReducer with filtered geometries
+   * @throws RuntimeException if
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnSimpleFeatures(Mappable)
+   *         filterOnSimpleFeatures} was called on mapped entries
    */
   // suppressed, as filter always returns the same mappable type T
   @SuppressWarnings("unchecked")
@@ -537,6 +554,9 @@ public class InputProcessor {
    * @param mapRed the mapreducer to filter
    * @param filterExpr the filter expression to apply
    * @return MapReducer with filtered geometries
+   * @throws RuntimeException if
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnGeometryType(Mappable, FilterExpression)
+   *         filterOnGeometryType} was called on mapped entries
    */
   // suppressed, as filter always returns the same mappable type T
   @SuppressWarnings("unchecked")
@@ -582,13 +602,13 @@ public class InputProcessor {
    * @param filter parameter to be checked
    * @throws BadRequestException if the given filter parameter is null or blank.
    */
-  public void checkFilter(String filter) throws BadRequestException {
+  public void checkFilter(String filter) {
     if (null == filter || filter.isBlank() && processingData.isRatio()) {
       throw new BadRequestException(
           "The filter2 parameter has to be defined when using a /ratio endpoint.");
     }
   }
-  
+
   /**
    * Checks the given keys and values parameters on their length and includes them in the
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
@@ -599,11 +619,9 @@ public class InputProcessor {
    *        MapReducer} object
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the filters derived from the given parameters.
-   * @throws BadRequestException if there are more values than keys given
    */
   private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
-      MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values)
-      throws BadRequestException {
+      MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values) {
     checkKeysValues(keys, values);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
@@ -630,6 +648,11 @@ public class InputProcessor {
   /**
    * Extracts the information from the given time array and fills the toTimestamps[] with content
    * (in case of isSnapshot=false).
+   * 
+   * @throws BadRequestException if the time format is invalid
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
+   *         parseISODateTime}
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
@@ -677,8 +700,12 @@ public class InputProcessor {
     return mapRed;
   }
 
-  /** Checks the given type(s) String[] on its length and content. */
-  private void checkTypes(String[] types) throws BadRequestException {
+  /**
+   * Checks the given type(s) String[] on its length and content.
+   * 
+   * @throws BadRequestException if the given types parameter is invalid.
+   */
+  private void checkTypes(String[] types) {
     if (types.length > 4) {
       throw new BadRequestException(
           "Parameter 'types' (and 'types2') cannot have more than 4 entries.");
@@ -703,8 +730,10 @@ public class InputProcessor {
 
   /**
    * Checks the content of the given format parameter.
+   * 
+   * @throws BadRequestException if the given format parameter is invalid.
    */
-  private void checkFormat(String format) throws BadRequestException {
+  private void checkFormat(String format) {
     if (format != null && !format.isEmpty() && !"geojson".equalsIgnoreCase(format)
         && !"json".equalsIgnoreCase(format) && !"csv".equalsIgnoreCase(format)) {
       throw new BadRequestException(
@@ -718,9 +747,9 @@ public class InputProcessor {
    * than the predefined value, it is used for this request.
    * 
    * @return <code>double</code> value defining the timeout for this request
-   * @throws BadRequestException if the given timeout is larger than the predefined one
+   * @throws BadRequestException if the given timeout parameter is larger than the predefined one
    */
-  private double defineRequestTimeout() throws BadRequestException {
+  private double defineRequestTimeout() {
     double timeout = ProcessingData.getTimeout();
     String requestTimeoutString = createEmptyStringIfNull(requestTimeout);
     if (!requestTimeoutString.isEmpty()) {
@@ -753,8 +782,7 @@ public class InputProcessor {
    *        optional custom names at each first coordinate appended with a colon (:).
    * @throws BadRequestException if there is not exactly one boundary parameter defined
    */
-  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys)
-      throws BadRequestException {
+  private BoundaryType setBoundaryType(String bboxes, String bcircles, String bpolys) {
     if (bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     } else if (!bboxes.isEmpty() && bcircles.isEmpty() && bpolys.isEmpty()) {
@@ -769,8 +797,9 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if the cluster has less active server nodes, than defined on startup. Throws a 503
-   * Service Unavailable exception, in case one or more nodes are inactive.
+   * Checks, if the cluster has less active server nodes, than defined on startup.
+   * 
+   * @throws ServiceUnavailableException in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
     OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.db;
@@ -785,7 +814,9 @@ public class InputProcessor {
 
   /**
    * Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or
-   * 'multipart/form-data'. Throws a 400 - BadRequestException if an unsupported header is given.
+   * 'multipart/form-data'.
+   * 
+   * @throws BadRequestException if an unsupported header is given.
    */
   private void checkContentTypeHeader(HttpServletRequest servletRequest) {
     String contentType = servletRequest.getHeader("content-type");
@@ -800,9 +831,11 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if there are false or repeated parameters in the request. Throws a 400 -
-   * BadRequestException and, in case of false parameters, suggests possible parameters based on
-   * fuzzy matching scores.
+   * Checks, if there are false or repeated parameters in the request. It suggests possible
+   * parameters based on fuzzy matching scores.
+   * 
+   * @throws BadRequestException in case of invalid parameter or if a parameter is given more than
+   *         once
    */
   private void checkParameters(HttpServletRequest servletRequest) {
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
@@ -845,10 +878,12 @@ public class InputProcessor {
 
   /**
    * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
-   * value of the parameter is false. Throws a 400 - BadRequestException if the content is invalid.
+   * value of the parameter is false.
+   * 
+   * @throws BadRequestException if the value of the parameter is not attributable to a boolean
+   *         value.
    */
-  private boolean processBooleanParam(String paramName, String paramValue)
-      throws BadRequestException {
+  private boolean processBooleanParam(String paramName, String paramValue) {
     if (paramValue == null) {
       return false;
     } else if ("true".equalsIgnoreCase(paramValue.replaceAll("\\s", ""))

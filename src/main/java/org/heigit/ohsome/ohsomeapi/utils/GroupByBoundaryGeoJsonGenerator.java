@@ -60,6 +60,14 @@ public class GroupByBoundaryGeoJsonGenerator {
     return features;
   }
 
+  /**
+   * @throws UnsupportedOperationException if one of the values contained in results is not an
+   *         instance of
+   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
+   *         ElementsResult}, or
+   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult
+   *         UserResult}
+   */
   private static Feature[] generateGroupByResultGeoJson(GroupByObject[] results,
       GeoJsonObject[] geojsonGeoms, int groupByResultsLength, int groupByResultCount,
       int tstampCount, int boundaryCount) {
