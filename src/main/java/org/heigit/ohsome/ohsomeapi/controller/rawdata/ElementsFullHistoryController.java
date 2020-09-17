@@ -29,7 +29,7 @@ public class ElementsFullHistoryController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extractFullHistory(ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extractFullHistory}
    */
   @ApiOperation(
@@ -54,7 +54,7 @@ public class ElementsFullHistoryController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extractFullHistory(ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extractFullHistory}
    */
   @ApiOperation(
@@ -79,7 +79,7 @@ public class ElementsFullHistoryController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extractFullHistory(ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extractFullHistory}
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
