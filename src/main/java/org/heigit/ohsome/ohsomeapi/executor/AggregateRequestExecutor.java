@@ -71,6 +71,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * Performs a count|length|perimeter|area calculation.
    * 
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @throws RuntimeException if an unsupported RequestResource type is used. Only COUNT, LENGTH,
+   *         PERIMETER, and AREA are permitted here
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -111,7 +113,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
             });
         break;
       default:
-        throw new Exception("...");
+        throw new RuntimeException(
+            "Unsupported RequestResource type for this processing. Only COUNT, LENGTH, PERIMETER, and AREA are permitted here");
     }
     Geometry geom = inputProcessor.getGeometry();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -238,6 +241,10 @@ public class AggregateRequestExecutor extends RequestExecutor {
     }
   }
 
+  /**
+   * 
+   * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
+   */
   private Response writeCsv(List<String[]> comments, Consumer<CSVWriter> consumer)
       throws IOException {
     setCsvSettingsInServletResponse();
@@ -323,7 +330,15 @@ public class AggregateRequestExecutor extends RequestExecutor {
     return results;
   }
 
-  /** Computes the result for the /count|length|perimeter|area/groupBy/boundary resources. */
+  /**
+   * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
+   * 
+   * @throws BadRequestException if a boundary parameter is not defined.
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
+   *         sum}
+   */
   private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
       RequestResource requestResource, BoundaryType boundaryType,
       MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
