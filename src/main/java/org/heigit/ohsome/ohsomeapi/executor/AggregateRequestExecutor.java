@@ -113,8 +113,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
             });
         break;
       default:
-        throw new RuntimeException(
-            "Unsupported RequestResource type for this processing. Only COUNT, LENGTH, PERIMETER, and AREA are permitted here");
+        throw new RuntimeException("Unsupported RequestResource type for this processing. "
+            + "Only COUNT, LENGTH, PERIMETER, and AREA are permitted here");
     }
     Geometry geom = inputProcessor.getGeometry();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -242,6 +242,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
   }
 
   /**
+   * Writes the CSV response directly and returns a null Response as writer has already been called.
    * 
    * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
    */
