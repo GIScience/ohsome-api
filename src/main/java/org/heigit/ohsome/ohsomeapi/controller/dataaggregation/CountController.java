@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
+import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
@@ -45,8 +46,9 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.aggregate(RequestResource.COUNT, servletRequest, servletResponse,
-        true, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, false);
+    return executor.aggregate();
   }
 
   /**
@@ -88,8 +90,9 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.COUNT, servletRequest,
-        servletResponse, true, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, false);
+    return executor.aggregateGroupByBoundary();
   }
 
   /**
@@ -186,8 +189,9 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregate(RequestResource.COUNT, servletRequest, servletResponse,
-        true, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, true);
+    return executor.aggregate();
   }
 
   /**
@@ -230,8 +234,9 @@ public class CountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundary(RequestResource.COUNT, servletRequest,
-        servletResponse, true, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, true);
+    return executor.aggregateGroupByBoundary();
   }
 
   /**

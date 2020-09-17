@@ -40,6 +40,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
+import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
@@ -342,7 +343,7 @@ public class UsersRequestExecutor {
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
           "FeatureCollection",
-          exeUtils.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));

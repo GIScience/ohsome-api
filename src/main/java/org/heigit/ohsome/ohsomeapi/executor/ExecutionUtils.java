@@ -17,13 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -32,8 +30,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -63,10 +59,8 @@ import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
-import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -86,6 +80,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespons
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -455,55 +450,6 @@ public class ExecutionUtils {
   }
 
   /**
-   * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
-   * 
-   * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, and
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
-   *         sum}
-   */
-  public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
-      RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
-    if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-    }
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
-    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
-        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.containsSimpleFeatureTypes()) {
-      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
-    }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
-      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
-    }
-    preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
-    switch (requestResource) {
-      case COUNT:
-        return preResult.count();
-      case PERIMETER:
-        return preResult.sum(geom -> {
-          if (!(geom instanceof Polygonal)) {
-            return 0.0;
-          }
-          return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-        });
-      case LENGTH:
-        return preResult.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
-      case AREA:
-        return preResult.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
-      default:
-        return null;
-    }
-  }
-
-  /**
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    * 
@@ -591,84 +537,6 @@ public class ExecutionUtils {
       System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
     }
     return tags;
-  }
-
-  /**
-   * Creates the GeoJson features used in the GeoJson response.
-   * 
-   * @throws UnsupportedOperationException if one of the values contained in results is not an
-   *         instance of
-   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
-   *         ElementsResult}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult
-   *         UsersResult}
-   */
-  public Feature[] createGeoJsonFeatures(GroupByObject[] results, GeoJsonObject[] geojsonGeoms) {
-    int groupByResultsLength = results.length;
-    int groupByResultCount = 0;
-    int tstampCount = 0;
-    int boundaryCount = 0;
-    Feature[] features;
-    if (results instanceof GroupByResult[]) {
-      GroupByResult[] groupByResults = (GroupByResult[]) results;
-      int resultLength = groupByResults[0].getResult().length;
-      int featuresLength = groupByResultsLength * resultLength;
-      int nestedGroupByNextBoundaryInterval = featuresLength / geojsonGeoms.length;
-      features = new Feature[featuresLength];
-      for (int i = 0; i < featuresLength; i++) {
-        Result res = groupByResults[groupByResultCount].getResult()[tstampCount];
-        Feature feature;
-        if (res instanceof ElementsResult) {
-          ElementsResult result = (ElementsResult) res;
-          String tstamp = result.getTimestamp();
-          feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-        } else if (res instanceof UsersResult) {
-          UsersResult result = (UsersResult) res;
-          String tstampFrom = result.getFromTimestamp();
-          String tstampTo = result.getToTimestamp();
-          feature = fillGeojsonFeature(results, groupByResultCount, tstampFrom, tstampTo);
-        } else {
-          throw new UnsupportedOperationException();
-        }
-        feature.setProperty("value", res.getValue());
-        // needed for /groupBy/boundary/groupBy/tag
-        if (results[groupByResultCount].getGroupByObject() instanceof Object[]) {
-          feature.setGeometry(geojsonGeoms[boundaryCount]);
-          if ((i + 1) % nestedGroupByNextBoundaryInterval == 0) {
-            boundaryCount++;
-          }
-        } else {
-          feature.setGeometry(geojsonGeoms[groupByResultCount]);
-        }
-        tstampCount++;
-        if (tstampCount == resultLength) {
-          tstampCount = 0;
-          groupByResultCount++;
-        }
-        features[i] = feature;
-      }
-    } else {
-      RatioGroupByResult[] groupByResults = (RatioGroupByResult[]) results;
-      int resultLength = groupByResults[0].getRatioResult().length;
-      int featuresLength = groupByResultsLength * resultLength;
-      features = new Feature[featuresLength];
-      for (int i = 0; i < featuresLength; i++) {
-        RatioResult result = groupByResults[groupByResultCount].getRatioResult()[tstampCount];
-        String tstamp = result.getTimestamp();
-        Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-        feature.setProperty("value", result.getValue());
-        feature.setProperty("value2", result.getValue2());
-        feature.setProperty("ratio", result.getRatio());
-        feature.setGeometry(geojsonGeoms[groupByResultCount]);
-        tstampCount++;
-        if (tstampCount == resultLength) {
-          tstampCount = 0;
-          groupByResultCount++;
-        }
-        features[i] = feature;
-      }
-    }
-    return features;
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
@@ -832,7 +700,7 @@ public class ExecutionUtils {
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-          "FeatureCollection", createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       writeCsvResponse(groupByResultSet, servletResponse,
           createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
@@ -1096,24 +964,6 @@ public class ExecutionUtils {
       feature.setId(groupByBoundaryId + "@" + id);
       feature.setProperty("groupByBoundaryId", groupByBoundaryId);
     }
-    return feature;
-  }
-
-  /** Fills a GeoJSON Feature with the groupByBoundaryId, the timestamp and the geometry. */
-  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
-      String timestamp) {
-    Feature feature = makeGeojsonFeature(results, groupByResultCount, timestamp);
-    feature.setProperty("timestamp", timestamp);
-    return feature;
-  }
-
-  /** Fills a GeoJSON Feature with the groupByBoundaryId, the time interval and the geometry. */
-  private Feature fillGeojsonFeature(GroupByObject[] results, int groupByResultCount,
-      String timestampFrom, String timestampTo) {
-    Feature feature =
-        makeGeojsonFeature(results, groupByResultCount, timestampFrom + "-" + timestampTo);
-    feature.setProperty("timestampFrom", timestampFrom);
-    feature.setProperty("timestampTo", timestampTo);
     return feature;
   }
 
