@@ -92,7 +92,6 @@ public class DataRequestExecutor {
         keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
       }
     }
-    MapReducer<Feature> contributionPreResult = null;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();
@@ -116,7 +115,7 @@ public class DataRequestExecutor {
     String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
-    contributionPreResult = mapRedContributions.flatMap(contributions -> {
+    MapReducer<Feature> contributionPreResult = mapRedContributions.flatMap(contributions -> {
       List<Feature> output = new LinkedList<>();
       Map<String, Object> properties;
       Geometry currentGeom = null;
@@ -185,8 +184,6 @@ public class DataRequestExecutor {
           validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
           if (!skipNext) {
             properties = new TreeMap<>();
-            // deactivating the adding of the contrib type as it could deliver false results
-            // properties = exeUtils.addContribType(contribution, properties, includeOSMMetadata);
             if (!isContributionsEndpoint) {
               properties.put("@validFrom", validFrom);
               properties.put("@validTo", validTo);

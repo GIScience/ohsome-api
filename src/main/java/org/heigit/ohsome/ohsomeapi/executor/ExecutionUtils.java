@@ -707,15 +707,6 @@ public class ExecutionUtils {
         groupByResultSet);
   }
 
-  /** Adds the respective contribution type(s) to the properties if includeMetadata=true. */
-  public Map<String, Object> addContribType(OSMContribution contribution,
-      Map<String, Object> properties, boolean includeMetadata) {
-    if (includeMetadata) {
-      properties.put("@contributionTypes", contribution.getContributionTypes());
-    }
-    return properties;
-  }
-
   /**
    * Extracts and returns a geometry out of the given contribution. The boolean values specify if it
    * should be clipped/unclipped and if the geometry before/after a contribution should be taken.
