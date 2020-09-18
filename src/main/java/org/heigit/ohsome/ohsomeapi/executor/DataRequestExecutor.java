@@ -159,7 +159,6 @@ public class DataRequestExecutor {
           currentGeom = exeUtils.getGeometry(firstContribution, clipGeometries, true);
           validFrom = startTimestamp;
         }
-        int index = 0;
         // then for each contribution:
         for (int i = 0; i < contributions.size(); i++) {
           if (i == contributions.size() - 1 && isContributionsEndpoint) {
@@ -171,14 +170,12 @@ public class DataRequestExecutor {
           if (wasCreation) {
             // skipping first contribution here as it got added above (only for /contributions)
             wasCreation = false;
-            index++;
             continue;
           }
-          if (index == 1) {
-            // as contribution was skipped before entity would be empty (only for /contributions)
+          if (isContributionsEndpoint) {
             currentEntity = contribution.getEntityAfter();
             currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
-            index++;
+            validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
           }
           // set valid_to of previous row, add to output list (output.add(…))
           validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
@@ -210,7 +207,7 @@ public class DataRequestExecutor {
           if (contribution.is(ContributionType.DELETION)) {
             // if deletion: skip output of next row
             skipNext = true;
-          } else {
+          } else if (!isContributionsEndpoint) {
             // else: take "after" as next row
             currentEntity = contribution.getEntityAfter();
             currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
