@@ -21,7 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /** Test class for the data extraction requests. */
-public class ElementsControllerTest {
+public class DataExtractionTest {
 
   private static String port = TestProperties.PORT3;
   private String server = TestProperties.SERVER;
@@ -51,27 +51,28 @@ public class ElementsControllerTest {
    */
 
   @Test
-  public void getElementsGeometryTest() {
+  public void elementsGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
             + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
         JsonNode.class);
+    JsonNode feature = StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
+            .equalsIgnoreCase("way/140112811"))
+        .findFirst().get();
     assertTrue(StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/140112811")));
-    assertEquals(7, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/140112811"))
-        .findFirst().get().get("properties").size());
+    assertEquals(7, feature.get("properties").size());
   }
 
   @Test
-  public void getElementsGeomUsingOneTagTest() {
+  public void elementsGeomUsingOneTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
@@ -84,7 +85,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsGeomUsingMultipleTagsTest() {
+  public void elementsGeomUsingMultipleTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
@@ -99,7 +100,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsGeomUnclippedSimpleFeaturesTest() {
+  public void elementsGeomUnclippedSimpleFeaturesTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
@@ -110,7 +111,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsGeomSimpleFeaturesOtherLineTest() {
+  public void elementsGeomSimpleFeaturesOtherLineTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,line&"
@@ -120,7 +121,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void postElementsGeomUsingNoTagsTest() {
+  public void elementsGeomUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
@@ -137,28 +138,24 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsBboxTest() {
+  public void elementsBboxTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
             + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
         JsonNode.class);
-    assertEquals("Polygon", StreamSupport
+    JsonNode featureGeom = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/294644468"))
-        .findFirst().get().get("geometry").get("type").asText());
-    assertEquals(5, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/294644468"))
-        .findFirst().get().get("geometry").get("coordinates").get(0).size());
+        .findFirst().get().get("geometry");
+    assertEquals("Polygon", featureGeom.get("type").asText());
+    assertEquals(5, featureGeom.get("coordinates").get(0).size());
   }
 
   @Test
-  public void getElementsCentroidTest() {
+  public void elementsCentroidTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
@@ -173,7 +170,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsClipGeometryParamTrueFalseTest() {
+  public void elementsClipGeometryParamTrueFalseTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,"
         + "line&keys=building&showMetadata=true&time=2018-01-02";
@@ -190,7 +187,7 @@ public class ElementsControllerTest {
    */
 
   @Test
-  public void getElementsFullHistoryGeometryTest() {
+  public void elementsFullHistoryGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elementsFullHistory/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&"
@@ -211,7 +208,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void getElementsFullHistoryGeometryWithTagsTest() {
+  public void elementsFullHistoryGeometryWithTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elementsFullHistory/geometry?bboxes=8.67494,49.417032,8.676136,49.419576&"
@@ -232,7 +229,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void postElementsFullHistoryBboxTest() {
+  public void elementsFullHistoryBboxTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67494,49.417032,8.676136,49.419576");
@@ -243,26 +240,22 @@ public class ElementsControllerTest {
     map.add("properties", "tags,metadata");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elementsFullHistory/bbox", map, JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@changesetId").asText()
-            .equalsIgnoreCase("43971880"))
-        && StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("features").iterator(), Spliterator.ORDERED), false)
-            .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
-                .equalsIgnoreCase("2017-01-01T00:00:00Z")));
-    assertEquals(16, StreamSupport
+    JsonNode feature = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@changesetId").asText()
             .equalsIgnoreCase("43971880"))
-        .findFirst().get().get("properties").size());
+        .findFirst().get();
+    assertTrue(StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
+            .equalsIgnoreCase("2017-01-01T00:00:00Z")));
+    assertEquals(16, feature.get("properties").size());
   }
 
   @Test
-  public void postElementsFullHistoryCentroidTest() {
+  public void elementsFullHistoryCentroidTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
@@ -272,17 +265,13 @@ public class ElementsControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elementsFullHistory/centroid", map, JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/295135455")));
-    assertEquals(4, StreamSupport
+    JsonNode feature = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/295135455"))
-        .findFirst().get().get("properties").size());
+        .findFirst().get();
+    assertEquals(4, feature.get("properties").size());
   }
 
   /*
@@ -295,17 +284,13 @@ public class ElementsControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/bbox?bboxes=8.684692,49.407669,8.688061,49.410310&time=2016-01-01,2017-01-01"
         + "&filter=service=* and name!=*&properties=tags", JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/225890568")));
-    assertEquals(6, StreamSupport
+    JsonNode feature = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
             .equalsIgnoreCase("way/225890568"))
-        .findFirst().get().get("properties").size());
+        .findFirst().get();
+    assertEquals(6, feature.get("properties").size());
   }
 
   @Test
@@ -349,7 +334,7 @@ public class ElementsControllerTest {
   }
 
   @Test
-  public void postFullHistoryDataExtractionWithFalseSpecificParameterTest() {
+  public void fullHistoryDataExtractionWithFalseSpecificParameterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("propertie", "tags");
@@ -357,4 +342,52 @@ public class ElementsControllerTest {
         .postForEntity(server + port + "/elementsFullHistory/geometry", map, JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());
   }
+
+  /*
+   * ./contributions tests
+   */
+
+  @Test
+  public void contributionsContributionTypesTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/geometry?bboxes=8.686017,49.406453,8.686983,49.406966&filter=building=*&"
+        + "time=2008-01-01,2009-09-01&properties=metadata,tags&clipGeometry=false", JsonNode.class);
+    JsonNode featuresArray = response.getBody().get("features");
+    assertTrue(featuresArray.get(0).get("properties").get("@creation").asText().equals("true"));
+    assertTrue(
+        featuresArray.get(1).get("properties").get("@geometryChange").asText().equals("true"));
+    assertTrue(featuresArray.get(2).get("properties").get("@tagChange").asText().equals("true"));
+  }
+
+  @Test
+  public void contributionsTwoContributionTypesTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/geometry?bboxes=8.70328,49.411926,8.70564,49.413343&filter=building=*&"
+        + "time=2010-01-01,2012-01-01&properties=metadata&clipGeometry=false", JsonNode.class);
+    JsonNode featureProperties = StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
+            Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get("properties").get("@changesetId").asInt() == 10082609)
+        .findFirst().get().get("properties");
+    assertTrue(featureProperties.get("@geometryChange").asText().equals("true")
+        && featureProperties.get("@tagChange").asText().equals("true"));
+
+  }
+
+  /*
+   * ./contributions/latest tests
+   */
+
+  @Test
+  public void contributionsLatestTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/latest/geometry?bboxes=8.687337,49.415067,8.687493,49.415172&filter="
+        + "building=*&time=2010-01-01,2016-06-01&clipGeometry=false", JsonNode.class);
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("@timestamp")
+        .asText().equals("2015-06-04T19:23:19Z"));
+  }
+
 }
