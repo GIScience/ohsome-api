@@ -4,15 +4,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import org.heigit.ohsome.ohsomeapi.controller.TestProperties;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test class for the
- * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
+ * Test class for the {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
  * InputProcessingUtils} class.
  */
 public class InputProcessingUtilsTest {
@@ -28,8 +26,8 @@ public class InputProcessingUtilsTest {
   @Before
   public void setup() {
     inProUtils = new InputProcessingUtils();
-    ExtractMetadata.fromTstamp = "2008-01-01T00:00:00Z";
-    ExtractMetadata.toTstamp = "2018-01-01T00:00:00Z";
+    ExtractMetadata.setFromTstamp("2008-01-01T00:00:00Z");
+    ExtractMetadata.setToTstamp("2018-01-01T00:00:00Z");
   }
 
   // boundary param split tests

@@ -226,8 +226,8 @@ public class InputProcessingUtils {
     if (time.startsWith("/")) {
       if (time.length() == 1) {
         // only /
-        timeVals[0] = ExtractMetadata.fromTstamp;
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[0] = ExtractMetadata.getFromTstamp();
+        timeVals[1] = ExtractMetadata.getToTstamp();
         return timeVals;
       }
       if (split[0].length() == 0 && split.length == 2) {
@@ -238,7 +238,7 @@ public class InputProcessingUtils {
       } else if (split.length == 3 && split[0].length() == 0 && split[1].length() == 0) {
         // //PnYnMnD
         checkPeriodOnIsoConformity(split[2]);
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[1] = ExtractMetadata.getToTstamp();
         timeVals[2] = split[2];
       } else if (split.length == 3 && split[1].length() != 0) {
         // /YYYY-MM-DD/PnYnMnD
@@ -251,7 +251,7 @@ public class InputProcessingUtils {
         // invalid time parameter
         throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
-      timeVals[0] = ExtractMetadata.fromTstamp;
+      timeVals[0] = ExtractMetadata.getFromTstamp();
     } else if (time.endsWith("/")) {
       if (split.length != 1) {
         // invalid time parameter
@@ -261,13 +261,13 @@ public class InputProcessingUtils {
       checkTimestampsOnIsoConformity(split[0]);
       checkTemporalExtend(split[0]);
       timeVals[0] = split[0];
-      timeVals[1] = ExtractMetadata.toTstamp;
+      timeVals[1] = ExtractMetadata.getToTstamp();
     } else if (split.length == 3) {
       if (split[1].length() == 0) {
         // YYYY-MM-DD//PnYnMnD
         checkTimestampsOnIsoConformity(split[0]);
         checkTemporalExtend(split[0]);
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[1] = ExtractMetadata.getToTstamp();
         timeVals[2] = split[2];
       } else {
         // YYYY-MM-DD/YYYY-MM-DD/PnYnMnD
@@ -341,8 +341,8 @@ public class InputProcessingUtils {
    *         <code>false</code> - if not inside
    */
   public boolean isWithin(Geometry geom) {
-    if (ExtractMetadata.dataPoly != null) {
-      return geom.within(ExtractMetadata.dataPoly);
+    if (ExtractMetadata.getDataPoly() != null) {
+      return geom.within(ExtractMetadata.getDataPoly());
     }
     return true;
   }
@@ -359,7 +359,7 @@ public class InputProcessingUtils {
    */
   public <T extends OSHDBMapReducible> MapReducer<T> filterOnPlanarRelations(MapReducer<T> mapRed) {
     // further filtering to not look at all relations
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
     OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
     mapRed.osmEntityFilter(entity -> !entity.getType().equals(OSMType.RELATION)
@@ -411,8 +411,8 @@ public class InputProcessingUtils {
     long end = 0;
     long timestampLong = 0;
     try {
-      start = ISODateTimeParser.parseISODateTime(ExtractMetadata.fromTstamp).toEpochSecond();
-      end = ISODateTimeParser.parseISODateTime(ExtractMetadata.toTstamp).toEpochSecond();
+      start = ISODateTimeParser.parseISODateTime(ExtractMetadata.getFromTstamp()).toEpochSecond();
+      end = ISODateTimeParser.parseISODateTime(ExtractMetadata.getToTstamp()).toEpochSecond();
     } catch (Exception e) {
       throw new RuntimeException(
           "The ISO 8601 Date or the combined Date-Time String cannot be converted into a UTC based ZonedDateTime Object");
@@ -426,7 +426,7 @@ public class InputProcessingUtils {
         if (timestampLong < start || timestampLong > end) {
           throw new NotFoundException(
               "The given time parameter is not completely within the timeframe ("
-                  + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
+                  + ExtractMetadata.getFromTstamp() + " to " + ExtractMetadata.getToTstamp()
                   + ") of the underlying osh-data.");
         }
       } catch (NotFoundException e) {

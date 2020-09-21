@@ -656,9 +656,8 @@ public class ExecutionUtils {
           ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return new RatioResponse(
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.API_VERSION, metadata, resultSet);
+    return new RatioResponse(new Attribution(ExtractMetadata.getAttributionUrl(),
+        ExtractMetadata.getAttributionShort()), Application.API_VERSION, metadata, resultSet);
   }
 
   /** Creates a RatioGroupByBoundaryResponse. */
@@ -694,8 +693,8 @@ public class ExecutionUtils {
           requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
-    Attribution attribution =
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
+    Attribution attribution = new Attribution(ExtractMetadata.getAttributionUrl(),
+        ExtractMetadata.getAttributionShort());
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
@@ -874,8 +873,8 @@ public class ExecutionUtils {
       throws ExecutionException, InterruptedException, IOException {
     ThreadLocal<TagTranslator> tts;
     HikariDataSource keytablesConnectionPool;
-    if (DbConnData.keytablesDbPoolConfig != null) {
-      keytablesConnectionPool = new HikariDataSource(DbConnData.keytablesDbPoolConfig);
+    if (DbConnData.getKeytablesDbPoolConfig() != null) {
+      keytablesConnectionPool = new HikariDataSource(DbConnData.getKeytablesDbPoolConfig());
       tts = ThreadLocal.withInitial(() -> {
         try {
           return new TagTranslator(keytablesConnectionPool.getConnection());
@@ -885,7 +884,7 @@ public class ExecutionUtils {
       });
     } else {
       keytablesConnectionPool = null;
-      tts = ThreadLocal.withInitial(() -> DbConnData.tagTranslator);
+      tts = ThreadLocal.withInitial(() -> DbConnData.getTagTranslator());
     }
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean errored = new AtomicBoolean(false);

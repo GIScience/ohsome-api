@@ -76,42 +76,42 @@ public class RequestUtils {
    */
   public static void extractOSHDBMetadata() throws IOException {
     OSHDBDatabase db;
-    if (DbConnData.keytables != null) {
-      db = DbConnData.keytables;
+    if (DbConnData.getKeytables() != null) {
+      db = DbConnData.getKeytables();
     } else {
-      if (!(DbConnData.db instanceof OSHDBJdbc)) {
+      if (!(DbConnData.getDb() instanceof OSHDBJdbc)) {
         throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
       }
-      db = DbConnData.db;
+      db = DbConnData.getDb();
     }
     if (db.metadata("extract.region") != null) {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
-      ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
+      ExtractMetadata.setDataPolyJson(mapper.readTree(dataPolyString));
       GeometryBuilder geomBuilder = new GeometryBuilder();
       geomBuilder.createGeometryFromMetadataGeoJson(dataPolyString);
-      ExtractMetadata.dataPoly = ProcessingData.getDataPolyGeom();
+      ExtractMetadata.setDataPoly(ProcessingData.getDataPolyGeom());
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");
-      ExtractMetadata.fromTstamp = timeranges[0];
-      ExtractMetadata.toTstamp = timeranges[1];
+      ExtractMetadata.setFromTstamp(timeranges[0]);
+      ExtractMetadata.setToTstamp(timeranges[1]);
     } else {
       throw new RuntimeException("The timerange metadata could not be retrieved from the db.");
     }
     if (db.metadata("attribution.short") != null) {
-      ExtractMetadata.attributionShort = db.metadata("attribution.short");
+      ExtractMetadata.setAttributionShort(db.metadata("attribution.short"));
     } else {
-      ExtractMetadata.attributionShort = "© OpenStreetMap contributors";
+      ExtractMetadata.setAttributionShort("© OpenStreetMap contributors");
     }
     if (db.metadata("attribution.url") != null) {
-      ExtractMetadata.attributionUrl = db.metadata("attribution.url");
+      ExtractMetadata.setAttributionUrl(db.metadata("attribution.url"));
     } else {
-      ExtractMetadata.attributionUrl = "https://ohsome.org/copyrights";
+      ExtractMetadata.setAttributionUrl("https://ohsome.org/copyrights");
     }
     if (db.metadata("header.osmosis_replication_sequence_number") != null) {
-      ExtractMetadata.replicationSequenceNumber =
-          Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number"));
+      ExtractMetadata.setReplicationSequenceNumber(
+          Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number")));
     }
   }
 

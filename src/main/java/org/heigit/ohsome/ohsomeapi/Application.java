@@ -94,31 +94,31 @@ public class Application implements ApplicationRunner {
     int numberOfDataExtractionThreads = DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
     // only used when tests are executed directly in Eclipse
     if (System.getProperty(dbProperty) != null) {
-      DbConnData.db = new OSHDBH2(System.getProperty(dbProperty));
+      DbConnData.setDb(new OSHDBH2(System.getProperty(dbProperty)));
     }
     for (String paramName : args.getOptionNames()) {
       switch (paramName) {
         case dbProperty:
-          DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
+          DbConnData.setDb(new OSHDBH2(args.getOptionValues(paramName).get(0)));
           break;
         case "database.jdbc":
           String[] jdbcParam = args.getOptionValues(paramName).get(0).split(";");
-          DbConnData.db = new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
+          DbConnData.setDb(new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]));
           break;
         case "database.ignite":
-          if (DbConnData.db != null) {
+          if (DbConnData.getDb() != null) {
             break;
           }
-          DbConnData.db = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
+          DbConnData.setDb(new OSHDBIgnite(args.getOptionValues(paramName).get(0)));
           break;
         case "database.keytables":
-          DbConnData.keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
+          DbConnData.setKeytables(new OSHDBH2(args.getOptionValues(paramName).get(0)));
           break;
         case "database.keytables.jdbc":
           jdbcParam = args.getOptionValues(paramName).get(0).split(";");
-          DbConnData.keytables =
-              new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
-          DbConnData.mapTagTranslator = new RemoteTagTranslator(() -> {
+          DbConnData
+              .setKeytables(new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]));
+          DbConnData.setMapTagTranslator(new RemoteTagTranslator(() -> {
             try {
               Class.forName(jdbcParam[0]);
               return new TagTranslator(
@@ -128,13 +128,13 @@ public class Application implements ApplicationRunner {
             } catch (OSHDBKeytablesNotFoundException | SQLException e) {
               throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
             }
-          });
+          }));
           HikariConfig hikariConfig = new HikariConfig();
           hikariConfig.setJdbcUrl(jdbcParam[1]);
           hikariConfig.setUsername(jdbcParam[2]);
           hikariConfig.setPassword(jdbcParam[3]);
           hikariConfig.setMaximumPoolSize(numberOfDataExtractionThreads);
-          DbConnData.keytablesDbPoolConfig = hikariConfig;
+          DbConnData.setKeytablesDbPoolConfig(hikariConfig);
           break;
         case "database.multithreading":
           if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("false")) {
@@ -162,36 +162,37 @@ public class Application implements ApplicationRunner {
           break;
       }
     }
-    if (DbConnData.db == null) {
+    if (DbConnData.getDb() == null) {
       throw new RuntimeException(
           "You have to define one of the following three database parameters: '--database.db', "
               + "'--database.ignite', or '--database.jdbc'.");
     }
     ProcessingData.setTimeout(timeoutInMilliseconds / 1000.0);
-    DbConnData.db.timeoutInMilliseconds(timeoutInMilliseconds);
+    DbConnData.getDb().timeoutInMilliseconds(timeoutInMilliseconds);
     ProcessingData.setNumberOfClusterNodes(numberOfClusterNodes);
     ProcessingData.setNumberOfDataExtractionThreads(numberOfDataExtractionThreads);
-    if (DbConnData.db instanceof OSHDBJdbc) {
-      DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
+    if (DbConnData.getDb() instanceof OSHDBJdbc) {
+      DbConnData.setDb(((OSHDBJdbc) DbConnData.getDb()).multithreading(multithreading));
     }
-    if (DbConnData.db instanceof OSHDBH2) {
-      DbConnData.db = ((OSHDBH2) DbConnData.db).inMemory(caching);
+    if (DbConnData.getDb() instanceof OSHDBH2) {
+      DbConnData.setDb(((OSHDBH2) DbConnData.getDb()).inMemory(caching));
     }
-    if (DbConnData.keytables != null) {
-      DbConnData.tagTranslator = new TagTranslator(DbConnData.keytables.getConnection());
+    if (DbConnData.getKeytables() != null) {
+      DbConnData.setTagTranslator1(new TagTranslator(DbConnData.getKeytables().getConnection()));
     } else {
-      if (!(DbConnData.db instanceof OSHDBJdbc)) {
+      if (!(DbConnData.getDb() instanceof OSHDBJdbc)) {
         throw new DatabaseAccessException("Missing keytables.");
       }
-      DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
+      DbConnData
+          .setTagTranslator1(new TagTranslator(((OSHDBJdbc) DbConnData.getDb()).getConnection()));
     }
     RequestUtils.extractOSHDBMetadata();
-    if (DbConnData.mapTagTranslator == null) {
-      DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
+    if (DbConnData.getMapTagTranslator() == null) {
+      DbConnData.setMapTagTranslator(new RemoteTagTranslator(DbConnData.getTagTranslator()));
     }
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      RemoteTagTranslator mtt = DbConnData.mapTagTranslator;
-      ((OSHDBIgnite) DbConnData.db).onClose(() -> {
+    if (DbConnData.getDb() instanceof OSHDBIgnite) {
+      RemoteTagTranslator mtt = DbConnData.getMapTagTranslator();
+      ((OSHDBIgnite) DbConnData.getDb()).onClose(() -> {
         try {
           if (mtt.wasEvaluated()) {
             mtt.get().getConnection().close();
@@ -202,7 +203,7 @@ public class Application implements ApplicationRunner {
       });
     }
     if (dbPrefix != null) {
-      DbConnData.db = DbConnData.db.prefix(dbPrefix);
+      DbConnData.setDb(DbConnData.getDb().prefix(dbPrefix));
     }
   }
 

@@ -68,8 +68,8 @@ import org.wololo.geojson.Feature;
 /** Includes all execute methods for requests mapped to /elements. */
 public class ElementsRequestExecutor {
 
-  public static final String URL = ExtractMetadata.attributionUrl;
-  public static final String TEXT = ExtractMetadata.attributionShort;
+  public static final String URL = ExtractMetadata.getAttributionUrl();
+  public static final String TEXT = ExtractMetadata.getAttributionShort();
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
   private ElementsRequestExecutor() {
@@ -101,7 +101,7 @@ public class ElementsRequestExecutor {
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean clipGeometries = inputProcessor.isClipGeometry();
-    if (DbConnData.db instanceof OSHDBIgnite) {
+    if (DbConnData.getDb() instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.
@@ -111,7 +111,7 @@ public class ElementsRequestExecutor {
     }
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     String[] keys = requestParameters.getKeys();
     int[] keysInt = new int[keys.length];
     if (keys.length != 0) {
@@ -175,7 +175,7 @@ public class ElementsRequestExecutor {
     snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
-    if (DbConnData.db instanceof OSHDBIgnite) {
+    if (DbConnData.getDb() instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.
@@ -192,7 +192,7 @@ public class ElementsRequestExecutor {
     if (time.length != 2) {
       throw new BadRequestException(ExceptionMessages.TIME_FORMAT_FULL_HISTORY);
     }
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     String[] keys = requestParameters.getKeys();
     int[] keysInt = new int[keys.length];
     if (keys.length != 0) {
@@ -383,7 +383,7 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
@@ -492,7 +492,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
@@ -637,7 +637,7 @@ public class ElementsRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
@@ -723,7 +723,7 @@ public class ElementsRequestExecutor {
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
     String[] values2 = inputProcessor.splitParamOnComma(
@@ -877,7 +877,7 @@ public class ElementsRequestExecutor {
     String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
     String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
-    FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+    FilterParser fp = new FilterParser(DbConnData.getTagTranslator());
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
     RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
@@ -990,7 +990,7 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
-    TagTranslator tt = DbConnData.tagTranslator;
+    TagTranslator tt = DbConnData.getTagTranslator();
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
       keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).toInt();
       if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
@@ -1180,7 +1180,7 @@ public class ElementsRequestExecutor {
     String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
     String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
-    FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+    FilterParser fp = new FilterParser(DbConnData.getTagTranslator());
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
     RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
