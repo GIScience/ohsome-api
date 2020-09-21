@@ -249,7 +249,7 @@ public class DataRequestExecutor {
         }
       } else if (isContributionsEndpoint) {
         // adds the deletion feature for a /contributions request
-        currentEntity = lastContribution.getEntityBefore();
+        currentGeom = lastContribution.getGeometryBefore();
         properties = new TreeMap<>();
         properties.put("@timestamp",
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));

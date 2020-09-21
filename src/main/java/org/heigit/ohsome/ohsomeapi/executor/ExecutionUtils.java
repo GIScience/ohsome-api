@@ -87,6 +87,9 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
+import org.wololo.geojson.LineString;
+import org.wololo.geojson.Point;
+import org.wololo.geojson.Polygon;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
@@ -94,6 +97,9 @@ public class ExecutionUtils {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
+  private static final Point emptyPoint = new Point(new double[0]);
+  private static final LineString emptyLine = new LineString(new double[0][0]);
+  private static final Polygon emptyPolygon = new Polygon(new double[0][0][0]);
 
   public ExecutionUtils(ProcessingData processingData) {
     this.processingData = processingData;
@@ -430,18 +436,30 @@ public class ExecutionUtils {
     }
     properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     GeoJSONWriter gjw = new GeoJSONWriter();
+    boolean deletionHandling =
+        isContributionsEndpoint && contributionTypes.contains(ContributionType.DELETION);
+    Geometry geom;
     switch (elemGeom) {
       case BBOX:
+        if (deletionHandling) {
+          return new org.wololo.geojson.Feature(emptyPolygon, properties);
+        }
         Envelope envelope = geometry.getEnvelopeInternal();
         OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
-            properties);
+        geom = OSHDBGeometryBuilder.getGeometry(bbox);
+        break;
       case CENTROID:
-        return new org.wololo.geojson.Feature(gjw.write(geometry.getCentroid()), properties);
+        if (deletionHandling) {
+          return new org.wololo.geojson.Feature(emptyPoint, properties);
+        }
+        geom = geometry.getCentroid();
+        break;
       case RAW:
       default:
-        return new org.wololo.geojson.Feature(gjw.write(geometry), properties);
+        //TODO think about how to handle deletions here
+        geom = geometry;
     }
+    return new org.wololo.geojson.Feature(gjw.write(geom), properties);
   }
 
   /**
@@ -738,7 +756,7 @@ public class ExecutionUtils {
     }
     return "(" + firstFilter + ") or (" + secondFilter + ")";
   }
-  
+
   /**
    * Creates the csv response for /elements/_/groupBy requests.
    * 
@@ -985,7 +1003,7 @@ public class ExecutionUtils {
     }
     return properties;
   }
-  
+
   /** Enum type used in /ratio computation. */
   public enum MatchType {
     MATCHES1, MATCHES2, MATCHESBOTH, MATCHESNONE
