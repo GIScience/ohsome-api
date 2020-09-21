@@ -408,7 +408,7 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     var preResult = mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
-        .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(x -> x.getGeometry());
+        .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(OSMEntitySnapshot::getGeometry);
     var result = exeUtils.computeNestedResult(requestResource, preResult);
     var groupByResult = OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
@@ -448,8 +448,8 @@ public class ElementsRequestExecutor {
       return null;
     } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-          "FeatureCollection",
-          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
+              processingData.getGeoJsonGeoms()));
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
@@ -571,10 +571,9 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
-    preResult = mapRed.aggregateByTimestamp()
-        .aggregateBy((SerializableFunction<OSMEntitySnapshot, OSMType>) f -> {
-          return f.getEntity().getType();
-        }, processingData.getOsmTypes());
+    preResult = mapRed.aggregateByTimestamp().aggregateBy(
+        (SerializableFunction<OSMEntitySnapshot, OSMType>) f -> f.getEntity().getType(),
+        processingData.getOsmTypes());
     var result = exeUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -1067,7 +1066,7 @@ public class ElementsRequestExecutor {
             assert false : "MatchType matches none.";
           }
           return MatchType.MATCHESNONE;
-        }, EnumSet.allOf(MatchType.class)).map(x -> x.getGeometry());
+        }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     switch (requestResource) {
@@ -1201,8 +1200,8 @@ public class ElementsRequestExecutor {
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed
     @SuppressWarnings({"unchecked"})
-    Map<Integer, P> geoms = arrGeoms.stream()
-        .collect(Collectors.toMap(geom -> arrGeoms.indexOf(geom), geom -> (P) geom));
+    Map<Integer, P> geoms =
+        arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     mapRed2 = exeUtils.newSnapshotFilter(mapRed2, filterExpr1, filterExpr2);
     var preResult =
@@ -1220,7 +1219,7 @@ public class ElementsRequestExecutor {
             assert false : "MatchType matches none.";
           }
           return MatchType.MATCHESNONE;
-        }, EnumSet.allOf(MatchType.class)).map(x -> x.getGeometry());
+        }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
         null;
     switch (requestResource) {

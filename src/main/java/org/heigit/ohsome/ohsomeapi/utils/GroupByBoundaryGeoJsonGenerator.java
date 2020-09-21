@@ -15,7 +15,6 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersRes
  */
 public class GroupByBoundaryGeoJsonGenerator {
 
-
   /** Creates the GeoJson features used in the GeoJson response. */
   public static Feature[] createGeoJsonFeatures(GroupByObject[] results,
       GeoJsonObject[] geojsonGeoms) {

@@ -35,7 +35,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
@@ -700,7 +699,8 @@ public class ExecutionUtils {
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+          "FeatureCollection",
+          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       writeCsvResponse(groupByResultSet, servletResponse,
           createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
@@ -948,23 +948,6 @@ public class ExecutionUtils {
       }
       outputStream.flush();
     }
-  }
-
-  /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
-  private Feature makeGeojsonFeature(GroupByObject[] results, int groupByResultCount, String id) {
-    Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
-    Feature feature = new Feature();
-    if (groupByBoundaryId instanceof Object[]) {
-      Object[] groupByBoundaryIdArr = (Object[]) groupByBoundaryId;
-      String boundaryTagId =
-          groupByBoundaryIdArr[0].toString() + "_" + groupByBoundaryIdArr[1].toString();
-      feature.setId(boundaryTagId + "@" + id);
-      feature.setProperty("groupByBoundaryId", boundaryTagId);
-    } else {
-      feature.setId(groupByBoundaryId + "@" + id);
-      feature.setProperty("groupByBoundaryId", groupByBoundaryId);
-    }
-    return feature;
   }
 
   /** Defines character encoding, content type and cache header in given servlet response object. */

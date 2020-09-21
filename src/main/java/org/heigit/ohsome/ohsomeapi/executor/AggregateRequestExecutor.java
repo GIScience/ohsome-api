@@ -89,17 +89,14 @@ public class AggregateRequestExecutor extends RequestExecutor {
         break;
       case AREA:
         result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
-                  () -> Geo.areaOf(snapshot.getGeometry()));
-            });
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> ExecutionUtils
+                .cacheInUserData(snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry())));
         break;
       case LENGTH:
         result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
-                  () -> Geo.lengthOf(snapshot.getGeometry()));
-            });
+            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> ExecutionUtils
+                .cacheInUserData(snapshot.getGeometry(),
+                    () -> Geo.lengthOf(snapshot.getGeometry())));
         break;
       case PERIMETER:
         result = mapRed.aggregateByTimestamp()
@@ -372,13 +369,10 @@ public class AggregateRequestExecutor extends RequestExecutor {
           return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
       case LENGTH:
-        return preResult.sum(geom -> {
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom));
-        });
+        return preResult
+            .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
-        return preResult.sum(geom -> {
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom));
-        });
+        return preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
