@@ -69,8 +69,8 @@ public class RequestUtils {
   /**
    * Extracts some metadata from the OSHDB keytables or db and adds it to the corresponding objects.
    * 
-   * @throws DatabaseAccessException if keytables are missing
-   * @throws RuntimeException the timerange metadata cannot be retrieved from the db
+   * @throws DatabaseAccessException if the keytables are missing
+   * @throws RuntimeException if the timerange metadata cannot be retrieved from the db
    * @throws IOException thrown by
    *         {@link com.fasterxml.jackson.databind.ObjectMapper#readTree(String) readTree}
    */
