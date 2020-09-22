@@ -24,11 +24,11 @@ public class MetadataRequestExecutor {
       throw new BadRequestException("The endpoint 'metadata' does not require parameters");
     }
     return new MetadataResponse(
-        new Attribution(ExtractMetadata.getAttributionUrl(), ExtractMetadata.getAttributionShort()),
+        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
         Application.API_VERSION,
-        new ExtractRegion(ExtractMetadata.getDataPolyJson(),
-            new TemporalExtent(ExtractMetadata.getFromTstamp(), ExtractMetadata.getToTstamp()),
-            ExtractMetadata.getReplicationSequenceNumber()));
+        new ExtractRegion(ExtractMetadata.dataPolyJson,
+            new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp),
+            ExtractMetadata.replicationSequenceNumber));
   }
 
   private MetadataRequestExecutor() {

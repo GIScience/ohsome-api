@@ -7,9 +7,9 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 
 public abstract class RequestExecutor {
-
-  protected static final String URL = ExtractMetadata.getAttributionUrl();
-  protected static final String TEXT = ExtractMetadata.getAttributionShort();
+  
+  protected static final String URL = ExtractMetadata.attributionUrl;
+  protected static final String TEXT = ExtractMetadata.attributionShort;
   protected static final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   protected final HttpServletRequest servletRequest;
@@ -19,5 +19,5 @@ public abstract class RequestExecutor {
     this.servletRequest = servletRequest;
     this.servletResponse = servletResponse;
   }
-
+  
 }

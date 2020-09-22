@@ -47,8 +47,8 @@ import org.locationtech.jts.geom.Polygonal;
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
 
-  private static final String URL = ExtractMetadata.getAttributionUrl();
-  private static final String TEXT = ExtractMetadata.getAttributionShort();
+  private static final String URL = ExtractMetadata.attributionUrl;
+  private static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
   private UsersRequestExecutor() {
@@ -148,7 +148,7 @@ public class UsersRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
-    TagTranslator tt = DbConnData.getTagTranslator();
+    TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
@@ -237,7 +237,7 @@ public class UsersRequestExecutor {
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    TagTranslator tt = DbConnData.getTagTranslator();
+    TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
@@ -342,8 +342,8 @@ public class UsersRequestExecutor {
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
-              processingData.getGeoJsonGeoms()));
+          "FeatureCollection",
+          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));

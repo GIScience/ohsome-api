@@ -79,7 +79,7 @@ public class InputProcessor {
   private boolean clipGeometry = true;
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
-    if (DbConnData.getDb() instanceof OSHDBIgnite) {
+    if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
     checkContentTypeHeader(servletRequest);
@@ -158,10 +158,10 @@ public class InputProcessor {
     try {
       switch (processingData.getBoundaryType()) {
         case NOBOUNDARY:
-          if (ExtractMetadata.getDataPoly() == null) {
+          if (ExtractMetadata.dataPoly == null) {
             throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
           }
-          boundary = ExtractMetadata.getDataPoly();
+          boundary = ExtractMetadata.dataPoly;
           break;
         case BBOXES:
           processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
@@ -186,8 +186,8 @@ public class InputProcessor {
       throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
 
-    if (DbConnData.getDb() instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.getDb();
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
       if (forceComputeMode != null) {
         dbIgnite.computeMode(forceComputeMode);
       } else {
@@ -202,19 +202,19 @@ public class InputProcessor {
       }
     }
 
-    DbConnData.getDb().timeout(timeout);
+    DbConnData.db.timeout(timeout);
 
     if (isSnapshot) {
-      if (DbConnData.getKeytables() == null) {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.getDb());
+      if (DbConnData.keytables == null) {
+        mapRed = OSMEntitySnapshotView.on(DbConnData.db);
       } else {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.getDb()).keytables(DbConnData.getKeytables());
+        mapRed = OSMEntitySnapshotView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     } else {
-      if (DbConnData.getKeytables() == null) {
-        mapRed = OSMContributionView.on(DbConnData.getDb());
+      if (DbConnData.keytables == null) {
+        mapRed = OSMContributionView.on(DbConnData.db);
       } else {
-        mapRed = OSMContributionView.on(DbConnData.getDb()).keytables(DbConnData.getKeytables());
+        mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
       }
     }
     if (boundary.isRectangle()) {
@@ -258,7 +258,7 @@ public class InputProcessor {
         throw new BadRequestException(ExceptionMessages.FILTER_PARAM);
       } else {
         // call translator and add filters to mapRed
-        FilterParser fp = new FilterParser(DbConnData.getTagTranslator());
+        FilterParser fp = new FilterParser(DbConnData.tagTranslator);
         FilterExpression filterExpr = utils.parseFilter(fp, filter);
         processingData.setFilterExpression(filterExpr);
         mapRed = optimizeFilters0(mapRed, filterExpr);
@@ -284,12 +284,12 @@ public class InputProcessor {
     // performs basic optimizations “low hanging fruit”:
     // single filters, and-combination of single filters, etc.
     if (filter instanceof TagFilterEquals) {
-      OSMTag tag = DbConnData.getTagTranslator().getOSMTagOf(((TagFilterEquals) filter).getTag());
+      OSMTag tag = DbConnData.tagTranslator.getOSMTagOf(((TagFilterEquals) filter).getTag());
       return mapRed.osmTag(tag);
     }
     if (filter instanceof TagFilterEqualsAny) {
       OSMTagKey key =
-          DbConnData.getTagTranslator().getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
+          DbConnData.tagTranslator.getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
       return mapRed.osmTag(key);
     }
     if (filter instanceof TypeFilter) {
@@ -661,11 +661,10 @@ public class InputProcessor {
     String[] timeData;
     if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
       if (!isSnapshot) {
-        toTimestamps =
-            new String[] {ExtractMetadata.getFromTstamp(), ExtractMetadata.getToTstamp()};
-        mapRed = mapRed.timestamps(ExtractMetadata.getFromTstamp(), ExtractMetadata.getToTstamp());
+        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
+        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
       } else {
-        mapRed = mapRed.timestamps(ExtractMetadata.getToTstamp());
+        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
       }
     } else if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);
@@ -803,7 +802,7 @@ public class InputProcessor {
    * @throws ServiceUnavailableException in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
-    OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.getDb();
+    OSHDBIgnite igniteDb = (OSHDBIgnite) DbConnData.db;
     int definedNumberOfNodes = ProcessingData.getNumberOfClusterNodes();
     int currentNumberOfNodes =
         igniteDb.getIgnite().services().clusterGroup().metrics().getTotalNodes();
