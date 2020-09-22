@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
+import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
+import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -67,8 +69,8 @@ public class RequestUtils {
   /**
    * Extracts some metadata from the OSHDB keytables or db and adds it to the corresponding objects.
    * 
-   * @throws RuntimeException if keytables are missing or the timerange metadata cannot be retrieved
-   *         from the db
+   * @throws DatabaseAccessException if the keytables are missing
+   * @throws RuntimeException if the timerange metadata cannot be retrieved from the db
    * @throws IOException thrown by
    *         {@link com.fasterxml.jackson.databind.ObjectMapper#readTree(String) readTree}
    */
@@ -78,7 +80,7 @@ public class RequestUtils {
       db = DbConnData.keytables;
     } else {
       if (!(DbConnData.db instanceof OSHDBJdbc)) {
-        throw new RuntimeException("Missing keytables.");
+        throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
       }
       db = DbConnData.db;
     }

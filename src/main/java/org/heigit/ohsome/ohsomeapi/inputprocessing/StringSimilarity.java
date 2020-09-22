@@ -59,7 +59,7 @@ public class StringSimilarity {
           new FuzzyScore(Locale.getDefault()).fuzzyScore(possibleParameter, parameter);
       BigDecimal fuzzyScore = BigDecimal.valueOf(scoreDouble);
       if (fuzzyScore.doubleValue() > 4) {
-        FuzzyScoreObject object = new FuzzyScoreObject(parameter, fuzzyScore, possibleParameter);
+        FuzzyScoreObject object = new FuzzyScoreObject(fuzzyScore, possibleParameter);
         scoreHigherThanFour.add(i, object);
         i++;
       }
