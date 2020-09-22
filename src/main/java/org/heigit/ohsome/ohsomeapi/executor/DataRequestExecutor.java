@@ -309,7 +309,7 @@ public class DataRequestExecutor {
         Stream<Feature> snapshotStream =
             (snapshotPreResult != null) ? snapshotPreResult.stream() : Stream.empty();
         Stream<Feature> contributionStream = contributionPreResult.stream()) {
-      exeUtils.streamElementsResponse(servletResponse, osmData,
+      exeUtils.streamResponse(servletResponse, osmData,
           Stream.concat(contributionStream, snapshotStream));
     }
   }

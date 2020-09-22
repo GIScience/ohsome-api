@@ -237,7 +237,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * Streams the result of /elements and /elementsFullHistory respones as an outputstream.
+   * Streams the result of /elements, /elementsFullHistory and /contributions endpoints as an
+   * outputstream.
    * 
    * @throws RuntimeException which only wraps {@link java.io.IOException IOException}
    * @throws IOException thrown by {@link JsonGenerator
@@ -256,7 +257,7 @@ public class ExecutionUtils {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
    *         writeStreamResponse}
    */
-  public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
+  public void streamResponse(HttpServletResponse servletResponse, DataResponse osmData,
       Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
