@@ -16,7 +16,7 @@ public class LoggingConfig implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(loggingRequestInterceptor).addPathPatterns("/elements/**/",
-        "/elementsFullHistory/**/", "/metadata/**/", "/users/**/");
+        "/elementsFullHistory/**/", "/metadata/**/", "/users/**/", "/contributions/**/");
   }
 
 }
