@@ -7,9 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -57,17 +54,7 @@ public class DataExtractionTest {
         server + port + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
             + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
         JsonNode.class);
-    JsonNode feature = StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/140112811"))
-        .findFirst().get();
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/140112811")));
+    JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "way/140112811");
     assertEquals(7, feature.get("properties").size());
   }
 
@@ -77,11 +64,7 @@ public class DataExtractionTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
         + "&values=residential&time=2015-12-01&properties=metadata", JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/140112811")));
+    assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/140112811") != null);
   }
 
   @Test
@@ -92,11 +75,7 @@ public class DataExtractionTest {
             + "/elements/geometry?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
             + "name,maxspeed&values=residential&time=2015-10-01&properties=metadata",
         JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/4084860")));
+    assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
   }
 
   @Test
@@ -130,11 +109,7 @@ public class DataExtractionTest {
     map.add("properties", "metadata");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/geometry", map, JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("node/135742850")));
+    assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "node/135742850") != null);
   }
 
   @Test
@@ -144,12 +119,8 @@ public class DataExtractionTest {
         server + port + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
             + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
         JsonNode.class);
-    JsonNode featureGeom = StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/294644468"))
-        .findFirst().get().get("geometry");
+    JsonNode featureGeom =
+        Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468").get("geometry");
     assertEquals("Polygon", featureGeom.get("type").asText());
     assertEquals(5, featureGeom.get("coordinates").get(0).size());
   }
@@ -161,12 +132,8 @@ public class DataExtractionTest {
         server + port + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
             + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
         JsonNode.class);
-    assertEquals(2, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/294644468"))
-        .findFirst().get().get("geometry").get("coordinates").size());
+    assertEquals(2, Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468")
+        .get("geometry").get("coordinates").size());
   }
 
   @Test
@@ -194,17 +161,9 @@ public class DataExtractionTest {
             + "types=way&keys=building&values=residential&properties=metadata&time=2015-01-01,"
             + "2015-07-01&showMetadata=true",
         JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/295135436")));
-    assertEquals(7, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
-            .equalsIgnoreCase("2015-05-05T06:59:35Z"))
-        .findFirst().get().get("properties").size());
+    assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/295135436") != null);
+    assertEquals(7, Helper.getFeatureByIdentifier(response, "@validTo", "2015-05-05T06:59:35Z")
+        .get("properties").size());
   }
 
   @Test
@@ -215,17 +174,10 @@ public class DataExtractionTest {
             + "types=way&keys=brand&values=Aldi Süd&properties=tags&time=2017-01-01,2018-01-01&"
             + "showMetadata=true",
         JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
-            .equalsIgnoreCase("2017-01-18T17:38:06Z")));
-    assertEquals(13, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@validTo").asText()
-            .equalsIgnoreCase("2017-03-03T18:51:20Z"))
-        .findFirst().get().get("properties").size());
+    assertTrue(
+        Helper.getFeatureByIdentifier(response, "@validFrom", "2017-01-18T17:38:06Z") != null);
+    assertEquals(13, Helper.getFeatureByIdentifier(response, "@validTo", "2017-03-03T18:51:20Z")
+        .get("properties").size());
   }
 
   @Test
@@ -240,18 +192,10 @@ public class DataExtractionTest {
     map.add("properties", "tags,metadata");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elementsFullHistory/bbox", map, JsonNode.class);
-    JsonNode feature = StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@changesetId").asText()
-            .equalsIgnoreCase("43971880"))
-        .findFirst().get();
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .anyMatch(jsonNode -> jsonNode.get("properties").get("@validFrom").asText()
-            .equalsIgnoreCase("2017-01-01T00:00:00Z")));
-    assertEquals(16, feature.get("properties").size());
+    assertTrue(
+        Helper.getFeatureByIdentifier(response, "@validFrom", "2017-01-01T00:00:00Z") != null);
+    assertEquals(16, Helper.getFeatureByIdentifier(response, "@changesetId", "43971880")
+        .get("properties").size());
   }
 
   @Test
@@ -265,13 +209,8 @@ public class DataExtractionTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elementsFullHistory/centroid", map, JsonNode.class);
-    JsonNode feature = StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/295135455"))
-        .findFirst().get();
-    assertEquals(4, feature.get("properties").size());
+    assertEquals(4, Helper.getFeatureByIdentifier(response, "@osmId", "way/295135455")
+        .get("properties").size());
   }
 
   /*
@@ -284,13 +223,8 @@ public class DataExtractionTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/bbox?bboxes=8.684692,49.407669,8.688061,49.410310&time=2016-01-01,2017-01-01"
         + "&filter=service=* and name!=*&properties=tags", JsonNode.class);
-    JsonNode feature = StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/225890568"))
-        .findFirst().get();
-    assertEquals(6, feature.get("properties").size());
+    assertEquals(6, Helper.getFeatureByIdentifier(response, "@osmId", "way/225890568")
+        .get("properties").size());
   }
 
   @Test
@@ -303,12 +237,8 @@ public class DataExtractionTest {
     map.add("properties", "tags");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/bbox", map, JsonNode.class);
-    assertTrue(StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@osmId").asText()
-            .equalsIgnoreCase("way/4403824"))
-        .findFirst().get().get("properties").get("highway").asText().equalsIgnoreCase("tertiary"));
+    assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4403824").get("properties")
+        .get("highway").asText().equalsIgnoreCase("tertiary"));
   }
 
   /*
@@ -366,14 +296,10 @@ public class DataExtractionTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/contributions/geometry?bboxes=8.70328,49.411926,8.70564,49.413343&filter=building=*&"
         + "time=2010-01-01,2012-01-01&properties=metadata&clipGeometry=false", JsonNode.class);
-    JsonNode featureProperties = StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
-            Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("properties").get("@changesetId").asInt() == 10082609)
-        .findFirst().get().get("properties");
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@changesetId", "10082609").get("properties");
     assertTrue(featureProperties.get("@geometryChange").asText().equals("true")
         && featureProperties.get("@tagChange").asText().equals("true"));
-
   }
 
   /*
