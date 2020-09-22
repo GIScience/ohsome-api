@@ -10,7 +10,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.wololo.geojson.Feature;
 
 /**
- * Represents the whole GeoJSON response object for the /elements resource.
+ * Represents the whole GeoJSON response object for the data-extraction endpoints.
  */
 @JsonInclude(Include.NON_NULL)
 public class DataResponse implements Response {
