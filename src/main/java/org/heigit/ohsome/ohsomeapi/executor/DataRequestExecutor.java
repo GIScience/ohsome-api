@@ -187,7 +187,7 @@ public class DataRequestExecutor {
             } else {
               properties.put("@timestamp", validTo);
             }
-            if (!currentGeom.isEmpty()) {
+            if (currentGeom != null && !currentGeom.isEmpty()) {
               boolean addToOutput;
               if (processingData.containsSimpleFeatureTypes()) {
                 addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);

@@ -438,7 +438,7 @@ public class ExecutionUtils {
     GeoJSONWriter gjw = new GeoJSONWriter();
     boolean deletionHandling =
         isContributionsEndpoint && contributionTypes.contains(ContributionType.DELETION);
-    Geometry geom;
+    Geometry outputGeometry;
     switch (elemGeom) {
       case BBOX:
         if (deletionHandling) {
@@ -446,20 +446,28 @@ public class ExecutionUtils {
         }
         Envelope envelope = geometry.getEnvelopeInternal();
         OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-        geom = OSHDBGeometryBuilder.getGeometry(bbox);
+        outputGeometry = OSHDBGeometryBuilder.getGeometry(bbox);
         break;
       case CENTROID:
         if (deletionHandling) {
           return new org.wololo.geojson.Feature(emptyPoint, properties);
         }
-        geom = geometry.getCentroid();
+        outputGeometry = geometry.getCentroid();
         break;
       case RAW:
       default:
-        //TODO think about how to handle deletions here
-        geom = geometry;
+        if (deletionHandling && geometry.getGeometryType().contains("Polygon")) {
+          return new org.wololo.geojson.Feature(emptyPolygon, properties);
+        }
+        if (deletionHandling && geometry.getGeometryType().contains("LineString")) {
+          return new org.wololo.geojson.Feature(emptyLine, properties);
+        }
+        if (deletionHandling && geometry.getGeometryType().contains("Point")) {
+          return new org.wololo.geojson.Feature(emptyPoint, properties);
+        }
+        outputGeometry = geometry;
     }
-    return new org.wololo.geojson.Feature(gjw.write(geom), properties);
+    return new org.wololo.geojson.Feature(gjw.write(outputGeometry), properties);
   }
 
   /**
