@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -302,6 +303,17 @@ public class DataExtractionTest {
         && featureProperties.get("@tagChange").asText().equals("true"));
   }
 
+  @Test
+  public void contributionsDeletionTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
+        + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata"
+        + "&clipGeometry=false", JsonNode.class);
+    assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
+        .get("geometry").get("coordinates")).size() == 0);
+  }
+
   /*
    * ./contributions/latest tests
    */
@@ -314,6 +326,17 @@ public class DataExtractionTest {
         + "building=*&time=2010-01-01,2016-06-01&clipGeometry=false", JsonNode.class);
     assertTrue(response.getBody().get("features").get(0).get("properties").get("@timestamp")
         .asText().equals("2015-06-04T19:23:19Z"));
+  }
+
+  @Test
+  public void contributionsLatestDeletionTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
+        + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
+        JsonNode.class);
+    assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
+        .get("geometry").get("coordinates")).size() == 0);
   }
 
 }
