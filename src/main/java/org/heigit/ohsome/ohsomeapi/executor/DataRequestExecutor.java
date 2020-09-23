@@ -138,7 +138,6 @@ public class DataRequestExecutor {
         for (int i = 0; i < contributions.size(); i++) {
           if (i == contributions.size() - 1 && isContributionsEndpoint) {
             // end the loop when last contribution is reached as it gets added later on
-            // only used in /contributions endpoint
             break;
           }
           OSMContribution contribution = contributions.get(i);
@@ -147,30 +146,28 @@ public class DataRequestExecutor {
             currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
             validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
           }
-          // set valid_to of previous row, add to output list (output.add(…))
+          // set valid_to of previous row
           validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-          if (!skipNext) {
-            properties = new TreeMap<>();
-            if (!isContributionsEndpoint) {
-              properties.put("@validFrom", validFrom);
-              properties.put("@validTo", validTo);
+          if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
+            boolean addToOutput;
+            if (processingData.containsSimpleFeatureTypes()) {
+              addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
+            } else if (requiresGeometryTypeCheck) {
+              addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
             } else {
-              properties.put("@timestamp", validTo);
+              addToOutput = true;
             }
-            if (currentGeom != null && !currentGeom.isEmpty()) {
-              boolean addToOutput;
-              if (processingData.containsSimpleFeatureTypes()) {
-                addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-              } else if (requiresGeometryTypeCheck) {
-                addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
+            if (addToOutput) {
+              properties = new TreeMap<>();
+              if (!isContributionsEndpoint) {
+                properties.put("@validFrom", validFrom);
+                properties.put("@validTo", validTo);
               } else {
-                addToOutput = true;
+                properties.put("@timestamp", validTo);
               }
-              if (addToOutput) {
-                output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties,
-                    keysInt, includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
-                    contribution.getContributionTypes()));
-              }
+              output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+                  includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
+                  contribution.getContributionTypes()));
             }
           }
           skipNext = false;
@@ -190,11 +187,9 @@ public class DataRequestExecutor {
       currentGeom = exeUtils.getGeometry(lastContribution, clipGeometries, false);
       currentEntity = lastContribution.getEntityAfter();
       if (!lastContribution.is(ContributionType.DELETION)) {
-        // if last contribution was not "deletion": set valid_to = t_end, add row to output list
+        // if last contribution was not "deletion": set valid_to = t_end
         validTo = endTimestamp;
         properties = new TreeMap<>();
-        // deactivating the adding of the contrib type as it could deliver false results
-        // properties = exeUtils.addContribType(lastContribution, properties, includeOSMMetadata);
         if (!isContributionsEndpoint) {
           properties.put("@validFrom", validFrom);
           properties.put("@validTo", validTo);
@@ -229,7 +224,6 @@ public class DataRequestExecutor {
       }
       return output;
     }).filter(Objects::nonNull);
-
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, requestResource.getDescription(),
