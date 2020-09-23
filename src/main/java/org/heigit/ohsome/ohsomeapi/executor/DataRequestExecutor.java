@@ -123,36 +123,11 @@ public class DataRequestExecutor {
       String validFrom = null;
       String validTo;
       boolean skipNext = false;
-      // used for /contributions endpoint to write creation feature info to response
-      boolean wasCreation = false;
       if (!isContributionsLatestEndpoint) {
         // first contribution:
         OSMContribution firstContribution = contributions.get(0);
-        if (firstContribution.is(ContributionType.CREATION)) {
-          if (isContributionsEndpoint) {
-            currentEntity = firstContribution.getEntityAfter();
-            currentGeom = exeUtils.getGeometry(firstContribution, clipGeometries, false);
-            properties = new TreeMap<>();
-            properties.put("@timestamp",
-                TimestampFormatter.getInstance().isoDateTime(firstContribution.getTimestamp()));
-            boolean addToOutp;
-            if (processingData.containsSimpleFeatureTypes()) {
-              addToOutp = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-            } else if (requiresGeometryTypeCheck) {
-              addToOutp = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
-            } else {
-              addToOutp = true;
-            }
-            if (addToOutp) {
-              output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                  includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
-                  firstContribution.getContributionTypes()));
-            }
-            wasCreation = true;
-            skipNext = false;
-          } else {
-            skipNext = true;
-          }
+        if (firstContribution.is(ContributionType.CREATION) && !isContributionsEndpoint) {
+          skipNext = true;
         } else {
           // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
           currentEntity = firstContribution.getEntityBefore();
@@ -167,11 +142,6 @@ public class DataRequestExecutor {
             break;
           }
           OSMContribution contribution = contributions.get(i);
-          if (wasCreation) {
-            // skipping first contribution here as it got added above (only for /contributions)
-            wasCreation = false;
-            continue;
-          }
           if (isContributionsEndpoint) {
             currentEntity = contribution.getEntityAfter();
             currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
@@ -259,6 +229,7 @@ public class DataRequestExecutor {
       }
       return output;
     }).filter(Objects::nonNull);
+
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, requestResource.getDescription(),
