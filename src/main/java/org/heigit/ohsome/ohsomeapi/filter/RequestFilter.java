@@ -76,7 +76,6 @@ public class RequestFilter extends OncePerRequestFilter {
         setHeader(name, value);
       }
     };
-    RequestUtils.extractOSHDBMetadata();
     filterChain.doFilter(request, wrapper);
   }
 }

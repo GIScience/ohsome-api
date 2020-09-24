@@ -206,10 +206,12 @@ public class GeometryBuilder {
    * 
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public void createGeometryFromMetadataGeoJson(String geoJson) {
+  public Geometry createGeometryFromMetadataGeoJson(String geoJson) {
     GeoJSONReader reader = new GeoJSONReader();
     try {
-      ProcessingData.setDataPolyGeom(reader.read(geoJson));
+      Geometry geom = reader.read(geoJson);
+      ProcessingData.setDataPolyGeom(geom);
+      return geom;
     } catch (Exception e) {
       throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
           + "converted. Please use a different data file and contact an admin about this issue.");
