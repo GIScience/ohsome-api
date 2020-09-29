@@ -338,5 +338,16 @@ public class DataExtractionTest {
     assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
         .get("geometry").get("coordinates")).size() == 0);
   }
+  
+  @Test
+  public void contributionsLatestCreationTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/latest/geometry?bboxes=8.679253,49.424025,8.679623,49.424185&filter="
+        + "building=*&time=2010-01-01,2011-01-17&properties=metadata,tags&clipGeometry=false",
+        JsonNode.class);
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("@creation")
+        .asText().equals("true"));
+  }
 
 }
