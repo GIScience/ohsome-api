@@ -29,8 +29,7 @@ public class ContributionsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(value = "OSM contributions having the raw geometry of each OSM object as geometry",
       nickname = "contributionsGeometry", response = DataResponse.class)
@@ -42,8 +41,9 @@ public class ContributionsController {
       produces = "application/json")
   public void contributions(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.RAW, servletRequest,
-        servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
+        ElementsGeometry.RAW, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -53,8 +53,7 @@ public class ContributionsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(value = "OSM contributions having the bounding box of each OSM object as geometry",
       nickname = "contributionsBbox", response = DataResponse.class)
@@ -66,8 +65,9 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsBbox(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.BBOX,
-        servletRequest, servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
+        ElementsGeometry.BBOX, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -77,8 +77,7 @@ public class ContributionsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(value = "OSM contributions having the centroid of each OSM object as geometry",
       nickname = "contributionsCentroid", response = DataResponse.class)
@@ -90,8 +89,9 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.CENTROID,
-        servletRequest, servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
+        ElementsGeometry.CENTROID, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -101,8 +101,7 @@ public class ContributionsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(
       value = "Latest OSM contributions having the raw geometry of each OSM object as geometry",
@@ -115,8 +114,9 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.RAW,
-        servletRequest, servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
+        ElementsGeometry.RAW, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -125,6 +125,8 @@ public class ContributionsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(
       value = "Latest OSM contributions having the bounding box of each OSM object as geometry",
@@ -137,8 +139,9 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsBboxLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.BBOX,
-        servletRequest, servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
+        ElementsGeometry.BBOX, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -147,6 +150,8 @@ public class ContributionsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(
       value = "Latest OSM contributions having the centroid of each OSM object as geometry",
@@ -159,8 +164,9 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsCentroidLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.CENTROID,
-        servletRequest, servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
+        ElementsGeometry.CENTROID, servletRequest, servletResponse);
+    executor.extract();
   }
 
 }

@@ -32,24 +32,31 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.geojson.Feature;
 
 /** Holds executor methods for the following endpoints: /elementsFullHistory, /contributions. */
-public class DataRequestExecutor {
+public class DataRequestExecutor extends RequestExecutor {
+
+  private final RequestResource requestResource;
+  private final InputProcessor inputProcessor;
+  private final ProcessingData processingData;
+  private final ElementsGeometry elementsGeometry;
+
+  public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry,
+      HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+    super(servletRequest, servletResponse);
+    this.requestResource = requestResource;
+    this.elementsGeometry = elementsGeometry;
+    inputProcessor = new InputProcessor(servletRequest, false, false);
+    processingData = inputProcessor.getProcessingData();
+  }
 
   /**
    * Performs an OSM data extraction using the full-history of the data.
    * 
-   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
-   *        ElementsGeometry} defining the geometry of the OSM elements
-   * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
-   *        request object
-   * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
-   *        outgoing response object
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
@@ -59,9 +66,7 @@ public class DataRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, DataResponse, Stream)
    *         streamElementsResponse}
    */
-  public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
+  public void extract() throws Exception {
     inputProcessor.getProcessingData().setIsFullHistory(true);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
     snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
@@ -77,7 +82,6 @@ public class DataRequestExecutor {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
     }
-    ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
@@ -149,14 +153,8 @@ public class DataRequestExecutor {
           // set valid_to of previous row
           validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
           if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
-            boolean addToOutput;
-            if (processingData.containsSimpleFeatureTypes()) {
-              addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-            } else if (requiresGeometryTypeCheck) {
-              addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
-            } else {
-              addToOutput = true;
-            }
+            boolean addToOutput = addEntityToOutput(processingData, utils, simpleFeatureTypes,
+                requiresGeometryTypeCheck, filterExpression, currentGeom, currentEntity);
             if (addToOutput) {
               properties = new TreeMap<>();
               if (!isContributionsEndpoint) {
@@ -166,7 +164,7 @@ public class DataRequestExecutor {
                 properties.put("@timestamp", validTo);
               }
               output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                  includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
+                  includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
                   contribution.getContributionTypes()));
             }
           }
@@ -198,17 +196,11 @@ public class DataRequestExecutor {
               TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
         }
         if (!currentGeom.isEmpty()) {
-          boolean addToOutput;
-          if (processingData.containsSimpleFeatureTypes()) {
-            addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-          } else if (requiresGeometryTypeCheck) {
-            addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
-          } else {
-            addToOutput = true;
-          }
+          boolean addToOutput = addEntityToOutput(processingData, utils, simpleFeatureTypes,
+              requiresGeometryTypeCheck, filterExpression, currentGeom, currentEntity);
           if (addToOutput) {
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom,
+                includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
                 lastContribution.getContributionTypes()));
           }
         }
@@ -219,7 +211,7 @@ public class DataRequestExecutor {
         properties.put("@timestamp",
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
         output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
-            includeOSMMetadata, isContributionsEndpoint, elemGeom,
+            includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
             lastContribution.getContributionTypes()));
       }
       return output;
@@ -229,9 +221,8 @@ public class DataRequestExecutor {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    DataResponse osmData =
-        new DataResponse(new Attribution(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT),
-            Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
+    DataResponse osmData = new DataResponse(ATTRIBUTION, Application.API_VERSION, metadata,
+        "FeatureCollection", Collections.emptyList());
     MapReducer<Feature> snapshotPreResult = null;
     if (!isContributionsEndpoint) {
       // handles cases where valid_from = t_start, valid_to = t_end; i.e. non-modified data
@@ -253,18 +244,12 @@ public class DataRequestExecutor {
                 TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
             properties.put("@validFrom", startTimestamp);
             properties.put("@validTo", endTimestamp);
-            boolean addToOutput;
-            if (processingData.containsSimpleFeatureTypes()) {
-              addToOutput = utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes);
-            } else if (requiresGeometryTypeCheck) {
-              addToOutput = filterExpression.applyOSMGeometry(entity, geom);
-            } else {
-              addToOutput = true;
-            }
+            boolean addToOutput = addEntityToOutput(processingData, utils, simpleFeatureTypes,
+                requiresGeometryTypeCheck, filterExpression, geom, entity);
             if (addToOutput) {
-              return Collections
-                  .singletonList(exeUtils.createOSMFeature(entity, geom, properties, keysInt,
-                      includeTags, includeOSMMetadata, isContributionsEndpoint, elemGeom, null));
+              return Collections.singletonList(
+                  exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
+                      includeOSMMetadata, isContributionsEndpoint, elementsGeometry, null));
             } else {
               return Collections.emptyList();
             }
@@ -279,5 +264,19 @@ public class DataRequestExecutor {
     }
   }
 
+  /** Checks whether the given entity should be added to the output (true) or not (false). */
+  private boolean addEntityToOutput(ProcessingData processingData, InputProcessingUtils utils,
+      final Set<SimpleFeatureType> simpleFeatureTypes, final boolean requiresGeometryTypeCheck,
+      FilterExpression filterExpression, Geometry currentGeom, OSMEntity currentEntity) {
+    boolean addToOutput;
+    if (processingData.containsSimpleFeatureTypes()) {
+      addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
+    } else if (requiresGeometryTypeCheck) {
+      addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
+    } else {
+      addToOutput = true;
+    }
+    return addToOutput;
+  }
 
 }
