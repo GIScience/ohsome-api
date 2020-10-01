@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -304,6 +305,54 @@ public class DataExtractionTest {
   }
 
   @Test
+  public void contributionsCreationTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/geometry?bboxes=8.70606,49.412150,8.70766,49.413686"
+        + "&filter=building=*&time=2011-06-01,2012-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@changesetId", "8371765").get("properties");
+    assertEquals("true", featureProperties.get("@creation").asText());
+  }
+
+  @Test
+  public void contributionsIsNotCreationTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/centroid?bboxes=8.70500,49.412004,8.70666,49.413445"
+        + "&filter=building=*&time=2015-01-01,2017-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@changesetId", "36337061").get("properties");
+    assertNull(featureProperties.get("@creation"));
+  }
+
+  @Test
+  public void contributionsWithoutGeometryChangeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/bbox?bboxes=8.70400,49.411004,8.70566,49.413345"
+        + "&filter=building=*&time=2012-01-01,2014-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@changesetId", "10696832").get("properties");
+    assertNull(featureProperties.get("@geometryChange"));
+  }
+
+  @Test
+  public void contributionsWithoutTagChangeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/geometry?bboxes=8.70600,49.412104,8.70766,49.413666"
+        + "&filter=building=*&time=2015-01-01,2017-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@changesetId", "36337061").get("properties");
+    assertNull(featureProperties.get("@tagChange"));
+  }
+
+  @Test
   public void contributionsDeletionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
@@ -312,6 +361,30 @@ public class DataExtractionTest {
         + "&clipGeometry=false", JsonNode.class);
     assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
         .get("geometry").get("coordinates")).size() == 0);
+  }
+
+  @Test
+  public void contributionsVersionTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/centroid?bboxes=8.70785,49.412222,8.70766,49.413759&filter=building=*"
+        + "&time=2010-01-01,2014-01-01&properties=metadata&clipGeometry=false", JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@osmId", "way/248975559").get("properties");
+    assertEquals(1, featureProperties.get("@version").asInt());
+  }
+
+  @Test
+  public void contributionsAssociationChangeSetIdWithOsmIdAndVersion() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/bbox?bboxes=8.70606,49.412150,8.70766,49.413686"
+        + "&filter=building=*&time=2011-06-01,2012-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@changesetId", "7042867").get("properties");
+    assertTrue(featureProperties.get("@version").asInt() == 2
+        && featureProperties.get("@osmId").asText().equals("way/96054443"));
   }
 
   /*
@@ -338,16 +411,17 @@ public class DataExtractionTest {
     assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
         .get("geometry").get("coordinates")).size() == 0);
   }
-  
+
   @Test
   public void contributionsLatestCreationTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/contributions/latest/geometry?bboxes=8.679253,49.424025,8.679623,49.424185&filter="
-        + "building=*&time=2010-01-01,2011-01-17&properties=metadata,tags&clipGeometry=false",
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/contributions/latest/geometry?bboxes=8.679253,49.424025,8.679623,49.424185&filter="
+            + "building=*&time=2010-01-01,2011-01-17&properties=metadata,tags&clipGeometry=false",
         JsonNode.class);
-    assertTrue(response.getBody().get("features").get(0).get("properties").get("@creation")
-        .asText().equals("true"));
+    assertTrue(response.getBody().get("features").get(0).get("properties").get("@creation").asText()
+        .equals("true"));
   }
 
 }
