@@ -434,6 +434,23 @@ public class DataExtractionTest {
   }
 
   @Test
+  public void contributionsLatestPostTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.70606,49.412150,8.70766,49.413686");
+    map.add("time", "2011-06-01,2012-01-01");
+    map.add("filter", "building=*");
+    map.add("properties", "metadata");
+    map.add("clipGeometry", "false");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/contributions/latest/centroid", map, JsonNode.class);
+    JsonNode featureProperties =
+        Helper.getFeatureByIdentifier(response, "@osmId", "relation/1387943").get("properties");
+    assertTrue(featureProperties.get("@timestamp").asText().equals("2011-06-07T16:45:11Z")
+        && featureProperties.get("@changesetId").asInt() == 7052829);
+  }
+
+  @Test
   public void contributionsLatestDeletionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
