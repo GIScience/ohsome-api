@@ -34,7 +34,7 @@ public class SwaggerConfig {
   @Bean
   public Docket dataAggregationDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Data Aggregation").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("1 - Data Aggregation").select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
@@ -52,7 +52,7 @@ public class SwaggerConfig {
   @Bean
   public Docket metadataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Metadata").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("4 - Metadata").select()
         .apis(
             RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
@@ -64,7 +64,7 @@ public class SwaggerConfig {
   @Bean
   public Docket rawDataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Data Extraction").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("2 - Data Extraction").select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
@@ -78,7 +78,7 @@ public class SwaggerConfig {
   @Bean
   public Docket contributionsDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Contributions").select()
+    return new Docket(DocumentationType.SWAGGER_2).groupName("3 - Contributions").select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.contributions"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
