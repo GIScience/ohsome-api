@@ -73,16 +73,18 @@ public class SwaggerConfig {
                 "Direct access to the full-history of the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
-  
+
   /** Creates the Swagger2 documentation for the contributions resources. */
   @Bean
   public Docket contributionsDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2).groupName("3 - Contributions").select()
-        .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.contributions"))
+        .apis(RequestHandlerSelectors
+            .basePackage("org.heigit.ohsome.ohsomeapi.controller.contributions"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
-        .tags(new Tag("Contributions", "Get the contributed OSM features"))
+        .tags(
+            new Tag("Contributions", "Direct access to all contributions provided to the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
@@ -171,10 +173,9 @@ public class SwaggerConfig {
           .description(ParameterDescriptions.CLIP_GEOMETRY).modelRef(new ModelRef(string))
           .parameterType(query).defaultValue("true").required(false).build());
     }
-    globalOperationParams.add(
-        new ParameterBuilder().name("showMetadata").description(ParameterDescriptions.SHOW_METADATA)
-            .modelRef(new ModelRef(string)).parameterType(query)
-            .defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("showMetadata")
+        .description(ParameterDescriptions.SHOW_METADATA).modelRef(new ModelRef(string))
+        .parameterType(query).defaultValue("").required(false).build());
     return globalOperationParams;
   }
 }
