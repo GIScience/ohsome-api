@@ -1294,9 +1294,14 @@ Contribution Endpoints
 
 .. http:post :: /contributions/(geometryType)
 
-   Direct access to all contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
    It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
 
+   
+.. http:post :: /contributions/latest/(geometryType)
+
+   Get the the latest state of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
 
 
 Metadata Endpoint
