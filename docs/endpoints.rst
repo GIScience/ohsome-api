@@ -1287,6 +1287,16 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
         ...
         ]
       }
+   
+      
+Contribution Endpoints
+----------------------
+
+.. http:post :: /contributions/(geometryType)
+
+   Direct access to all contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
+
 
 
 Metadata Endpoint
