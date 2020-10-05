@@ -6,7 +6,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.heigit.ohsome.ohsomeapi.Application;
@@ -451,6 +453,20 @@ public class DataExtractionTest {
   }
 
   @Test
+  public void contributionsLatestOnlyOneEntryTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/latest/geometry?bboxes=8.70606,49.412150,8.70766,49.413686&filter="
+        + "building=*&time=2011-06-01,2012-01-01&clipGeometry=false", JsonNode.class);
+    JsonNode featuresArray = response.getBody().get("features");
+    List<String> osmIds = new ArrayList<String>();
+    for (JsonNode feature : featuresArray) {
+      osmIds.add(feature.get("properties").get("@osmId").asText());
+    }
+    assertEquals(1, Collections.frequency(osmIds, "relation/1387943"));
+  }
+
+  @Test
   public void contributionsLatestDeletionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
@@ -472,5 +488,4 @@ public class DataExtractionTest {
     assertTrue(response.getBody().get("features").get(0).get("properties").get("@creation").asText()
         .equals("true"));
   }
-
 }
