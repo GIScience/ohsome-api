@@ -780,7 +780,7 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      Object groupByObject = groupByResult.getGroupByObjectValue();
+      Object groupByObject = groupByResult.getGroupByObject();
       if (groupByObject instanceof Object[]) {
         Object[] groupByObjectArr = (Object[]) groupByObject;
         columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
@@ -816,9 +816,9 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
-      columnNames.add(ratioGroupByResult.getGroupByObjectValue() + "_value");
-      columnNames.add(ratioGroupByResult.getGroupByObjectValue() + "_value2");
-      columnNames.add(ratioGroupByResult.getGroupByObjectValue() + "_ratio");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
       for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
         RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
         if (i == 0) {
@@ -854,7 +854,7 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      columnNames.add(groupByResult.getGroupByObjectValue().toString());
+      columnNames.add(groupByResult.getGroupByObject().toString());
       for (int j = 0; j < groupByResult.getResult().length; j++) {
         UsersResult usersResult = (UsersResult) groupByResult.getResult()[j];
         if (i == 0) {
