@@ -137,7 +137,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
    *         computeCountLengthPerimeterAreaGbB}
    */
   public Response aggregateGroupByBoundary() throws Exception {
-    processingData.setIsGroupByBoundary(true);
+    processingData.setGroupByBoundary(true);
     RequestParameters requestParameters = processingData.getRequestParameters();
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -286,7 +286,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      Object groupByObject = groupByResult.getGroupByObject();
+      Object groupByObject = groupByResult.getGroupByObjectValue();
       if (groupByObject instanceof Object[]) {
         Object[] groupByObjectArr = (Object[]) groupByObject;
         columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
@@ -350,7 +350,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.containsSimpleFeatureTypes()) {
+    if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     Optional<FilterExpression> filter = processingData.getFilterExpression();

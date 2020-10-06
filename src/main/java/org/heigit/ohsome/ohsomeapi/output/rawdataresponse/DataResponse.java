@@ -8,11 +8,13 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.wololo.geojson.Feature;
+import lombok.Getter;
 
 /**
  * Represents the whole GeoJSON response object for the /elements resource.
  */
 @JsonInclude(Include.NON_NULL)
+@Getter
 public class DataResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
@@ -33,28 +35,5 @@ public class DataResponse implements Response {
     this.metadata = metadata;
     this.type = type;
     this.features = features;
-  }
-
-  @Override
-  public Attribution getAttribution() {
-    return attribution;
-  }
-
-  @Override
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  @Override
-  public Metadata getMetadata() {
-    return metadata;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public List<Feature> getFeatures() {
-    return features;
   }
 }

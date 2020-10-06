@@ -302,7 +302,7 @@ public class UsersRequestExecutor {
     long startTime = System.currentTimeMillis();
     MapReducer<OSMContribution> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -312,7 +312,7 @@ public class UsersRequestExecutor {
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.containsSimpleFeatureTypes()) {
+    if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     Optional<FilterExpression> filter = processingData.getFilterExpression();
@@ -342,8 +342,8 @@ public class UsersRequestExecutor {
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-          "FeatureCollection",
-          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
+              processingData.getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));

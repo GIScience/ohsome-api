@@ -4,15 +4,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 import org.geojson.Feature;
+import lombok.Getter;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
  * /groupBy resource. It contains attribution info, the version of the api, optional
- * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
- * Metadata} and the
+ * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata Metadata} and the
  * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
  * ElementsResult} objects.
  */
+@Getter
 @JsonInclude(Include.NON_NULL)
 public class DefaultAggregationResponse implements Response {
 
@@ -60,29 +61,5 @@ public class DefaultAggregationResponse implements Response {
     response.type = type;
     response.features = features;
     return response;
-  }
-
-  public Attribution getAttribution() {
-    return attribution;
-  }
-
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  public Metadata getMetadata() {
-    return metadata;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public Feature[] getFeatures() {
-    return features;
-  }
-
-  public Result[] getResult() {
-    return result;
   }
 }

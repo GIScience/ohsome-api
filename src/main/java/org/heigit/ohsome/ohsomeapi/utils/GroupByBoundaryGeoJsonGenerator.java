@@ -93,7 +93,7 @@ public class GroupByBoundaryGeoJsonGenerator {
       }
       feature.setProperty("value", res.getValue());
       // needed for /groupBy/boundary/groupBy/tag
-      if (results[groupByResultCount].getGroupByObject() instanceof Object[]) {
+      if (results[groupByResultCount].getGroupByObjectValue() instanceof Object[]) {
         feature.setGeometry(geojsonGeoms[boundaryCount]);
         if ((i + 1) % nestedGroupByNextBoundaryInterval == 0) {
           boundaryCount++;
@@ -132,7 +132,7 @@ public class GroupByBoundaryGeoJsonGenerator {
   /** Fills a GeoJSON Feature with the groupByBoundaryId and the geometry. */
   private static Feature makeGeojsonFeature(GroupByObject[] results, int groupByResultCount,
       String id) {
-    Object groupByBoundaryId = results[groupByResultCount].getGroupByObject();
+    Object groupByBoundaryId = results[groupByResultCount].getGroupByObjectValue();
     Feature feature = new Feature();
     if (groupByBoundaryId instanceof Object[]) {
       Object[] groupByBoundaryIdArr = (Object[]) groupByBoundaryId;

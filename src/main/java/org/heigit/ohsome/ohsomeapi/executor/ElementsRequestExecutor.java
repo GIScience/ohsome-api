@@ -170,9 +170,9 @@ public class ElementsRequestExecutor {
   public static void extractFullHistory(ElementsGeometry elemGeom,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, false);
-    inputProcessor.getProcessingData().setIsFullHistory(true);
+    inputProcessor.getProcessingData().setFullHistory(true);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
-    snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
+    snapshotInputProcessor.getProcessingData().setFullHistory(true);
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -248,7 +248,7 @@ public class ElementsRequestExecutor {
           properties.put("@validTo", validTo);
           if (!currentGeom.isEmpty()) {
             boolean addToOutput;
-            if (processingData.containsSimpleFeatureTypes()) {
+            if (processingData.isContainingSimpleFeatureTypes()) {
               addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
             } else if (requiresGeometryTypeCheck) {
               addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
@@ -284,7 +284,7 @@ public class ElementsRequestExecutor {
         properties.put("@validTo", validTo);
         if (!currentGeom.isEmpty()) {
           boolean addToOutput;
-          if (processingData.containsSimpleFeatureTypes()) {
+          if (processingData.isContainingSimpleFeatureTypes()) {
             addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
           } else if (requiresGeometryTypeCheck) {
             addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
@@ -320,7 +320,7 @@ public class ElementsRequestExecutor {
           properties.put("@validFrom", startTimestamp);
           properties.put("@validTo", endTimestamp);
           boolean addToOutput;
-          if (processingData.containsSimpleFeatureTypes()) {
+          if (processingData.isContainingSimpleFeatureTypes()) {
             addToOutput = utils.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes);
           } else if (requiresGeometryTypeCheck) {
             addToOutput = filterExpression.applyOSMGeometry(entity, geom);
@@ -372,7 +372,7 @@ public class ElementsRequestExecutor {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -398,7 +398,7 @@ public class ElementsRequestExecutor {
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geoms);
-    if (processingData.containsSimpleFeatureTypes()) {
+    if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     Optional<FilterExpression> filter = processingData.getFilterExpression();
@@ -719,7 +719,7 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -869,7 +869,7 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
@@ -970,8 +970,8 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
+    inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -1168,8 +1168,8 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
+    inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
@@ -1194,8 +1194,8 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessorCombined =
         new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessorCombined.setProcessingData(processingDataCombined);
-    inputProcessorCombined.getProcessingData().setIsRatio(true);
-    inputProcessorCombined.getProcessingData().setIsGroupByBoundary(true);
+    inputProcessorCombined.getProcessingData().setRatio(true);
+    inputProcessorCombined.getProcessingData().setGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed
