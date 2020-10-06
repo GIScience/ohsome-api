@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
+import lombok.Getter;
 
 /**
  * Represents the result JSON object for the /users resource containing the from timestamp together
  * with the corresponding value.
  */
+@Getter
 @JsonInclude(Include.NON_NULL)
 public class UsersResult implements Result {
 
@@ -23,18 +25,5 @@ public class UsersResult implements Result {
     this.fromTimestamp = fromTimestamp;
     this.toTimestamp = toTimestamp;
     this.value = value;
-  }
-
-  public String getFromTimestamp() {
-    return fromTimestamp;
-  }
-
-  public String getToTimestamp() {
-    return toTimestamp;
-  }
-
-  @Override
-  public double getValue() {
-    return value;
   }
 }

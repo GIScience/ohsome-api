@@ -7,18 +7,23 @@ import org.geojson.Feature;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
  * /ratio/groupBy/boundary resource. It contains an optional
- * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
- * Metadata} object, the requested
+ * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata Metadata} object, the
+ * requested
  * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult
  * RatioGroupByResult} for a JSON response and an identifier of the object. If the output format is
  * GeoJSON, the response includes a {@link org.geojson.Feature Feature} array, which holds the
  * respective objects with their timestamp-value pairs.
  */
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonInclude(Include.NON_NULL)
 public class RatioGroupByBoundaryResponse implements Response {
 
@@ -35,8 +40,6 @@ public class RatioGroupByBoundaryResponse implements Response {
   @ApiModelProperty(notes = "RatioGroupByResult array holding the respective objects "
       + "with their timestamp-value-value2-ratio values", required = true)
   private RatioGroupByResult[] groupByBoundaryResult;
-
-  private RatioGroupByBoundaryResponse() {}
 
   public RatioGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
       RatioGroupByResult[] groupByBoundaryResult) {
@@ -56,29 +59,5 @@ public class RatioGroupByBoundaryResponse implements Response {
     response.type = type;
     response.features = features;
     return response;
-  }
-
-  public Attribution getAttribution() {
-    return attribution;
-  }
-
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  public Metadata getMetadata() {
-    return metadata;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public Feature[] getFeatures() {
-    return features;
-  }
-
-  public RatioGroupByResult[] getGroupByBoundaryResult() {
-    return groupByBoundaryResult;
   }
 }

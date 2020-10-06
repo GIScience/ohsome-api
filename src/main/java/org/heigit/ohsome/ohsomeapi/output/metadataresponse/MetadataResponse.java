@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import lombok.Getter;
 
 /**
  * Represents the JSON response object for the /metadata request. It contains information about the
  * attribution, the version of the API and the
- * {@link org.heigit.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion
- * ExtractRegion}.
+ * {@link org.heigit.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion ExtractRegion}.
  */
+@Getter
 @JsonInclude(Include.NON_NULL)
 public class MetadataResponse {
 
@@ -27,17 +28,5 @@ public class MetadataResponse {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
     this.extractRegion = extractRegion;
-  }
-
-  public Attribution getAttribution() {
-    return attribution;
-  }
-
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  public ExtractRegion getExtractRegion() {
-    return extractRegion;
   }
 }

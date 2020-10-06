@@ -1,9 +1,12 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import lombok.Getter;
+
 /**
  * Enumeration defining the request resource (LENGTH, PERIMETER, AREA, COUNT, GROUPBYTAG,
  * GROUPBYKEY, RATIO, DATAEXTRACTION, CONTRIBUTION).
  */
+@Getter
 public enum RequestResource {
   LENGTH("length", "meters"), PERIMETER("perimeter", "meters"), AREA("area",
       "square meters"), COUNT("count", "absolute values"), GROUPBYTAG("", ""), GROUPBYKEY("",
@@ -18,13 +21,5 @@ public enum RequestResource {
   RequestResource(String description, String unit) {
     this.description = description;
     this.unit = unit;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public String getUnit() {
-    return unit;
   }
 }

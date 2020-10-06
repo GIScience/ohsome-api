@@ -3,11 +3,13 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
 
 /**
- * Represents the metadata JSON object containing the execution time, a description of the
- * result values, as well as the request URL.
+ * Represents the metadata JSON object containing the execution time, a description of the result
+ * values, as well as the request URL.
  */
+@Getter
 @JsonInclude(Include.NON_NULL)
 public class Metadata {
 
@@ -23,17 +25,5 @@ public class Metadata {
     this.executionTime = executionTime;
     this.description = description;
     this.requestUrl = requestUrl;
-  }
-
-  public Long getExecutionTime() {
-    return executionTime;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public String getRequestUrl() {
-    return requestUrl;
   }
 }

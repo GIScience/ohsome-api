@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -25,13 +27,16 @@ import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
+import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.FilterParser;
@@ -167,7 +172,7 @@ public class ElementsRequestExecutor {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -193,7 +198,7 @@ public class ElementsRequestExecutor {
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geoms);
-    if (processingData.containsSimpleFeatureTypes()) {
+    if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     Optional<FilterExpression> filter = processingData.getFilterExpression();
@@ -516,7 +521,7 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -666,7 +671,7 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
@@ -767,8 +772,8 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
+    inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -965,8 +970,8 @@ public class ElementsRequestExecutor {
     final boolean isSnapshot = true;
     final boolean isDensity = false;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setIsGroupByBoundary(true);
-    inputProcessor.getProcessingData().setIsRatio(true);
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
+    inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
@@ -991,8 +996,8 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessorCombined =
         new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessorCombined.setProcessingData(processingDataCombined);
-    inputProcessorCombined.getProcessingData().setIsRatio(true);
-    inputProcessorCombined.getProcessingData().setIsGroupByBoundary(true);
+    inputProcessorCombined.getProcessingData().setRatio(true);
+    inputProcessorCombined.getProcessingData().setGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed

@@ -1,11 +1,13 @@
 package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
 
 /**
  * Represents the result JSON object for the /ratio resource containing the timestamp together with
  * two values and their resulting ratio.
  */
+@Getter
 public class RatioResult implements Result {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
@@ -23,21 +25,5 @@ public class RatioResult implements Result {
     this.value = value;
     this.value2 = value2;
     this.ratio = ratio;
-  }
-
-  public String getTimestamp() {
-    return timestamp;
-  }
-
-  public double getValue() {
-    return value;
-  }
-
-  public double getValue2() {
-    return value2;
-  }
-
-  public double getRatio() {
-    return ratio;
   }
 }
