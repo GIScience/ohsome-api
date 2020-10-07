@@ -30,7 +30,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.wololo.jts2geojson.GeoJSONReader;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -40,7 +39,6 @@ import lombok.RequiredArgsConstructor;
 public class GeometryBuilder {
 
   GeometryFactory gf;
-  @NonNull
   private final ProcessingData processingData;
 
   public GeometryBuilder() {

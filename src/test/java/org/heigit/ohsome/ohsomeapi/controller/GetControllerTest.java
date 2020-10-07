@@ -991,7 +991,7 @@ public class GetControllerTest {
     assertEquals(0.060083, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
         1e-6);
   }
-  
+
   @Test
   public void ratioGroupByBoundaryFilterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
