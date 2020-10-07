@@ -10,8 +10,6 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 
 /**
@@ -26,18 +24,14 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@RequiredArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class RatioGroupByBoundaryResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
-  @NonNull
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
-  @NonNull
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
-  @NonNull
   private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
   private String type;
@@ -45,8 +39,15 @@ public class RatioGroupByBoundaryResponse implements Response {
   private Feature[] features;
   @ApiModelProperty(notes = "RatioGroupByResult array holding the respective objects "
       + "with their timestamp-value-value2-ratio values", required = true)
-  @NonNull
   private RatioGroupByResult[] groupByBoundaryResult;
+
+  public RatioGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
+      RatioGroupByResult[] groupByBoundaryResult) {
+    this.attribution = attribution;
+    this.apiVersion = apiVersion;
+    this.metadata = metadata;
+    this.groupByBoundaryResult = groupByBoundaryResult;
+  }
 
   /** Static factory method returning the whole GeoJSON response. */
   public static RatioGroupByBoundaryResponse of(Attribution attribution, String apiVersion,
