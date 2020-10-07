@@ -8,6 +8,7 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.wololo.geojson.Feature;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -15,6 +16,7 @@ import lombok.Getter;
  */
 @JsonInclude(Include.NON_NULL)
 @Getter
+@AllArgsConstructor
 public class DataResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
@@ -27,13 +29,4 @@ public class DataResponse implements Response {
   private String type;
   @ApiModelProperty(notes = "List of GeoJSON features containing the OSM data")
   private List<Feature> features;
-
-  public DataResponse(Attribution attribution, String apiVersion, Metadata metadata, String type,
-      List<Feature> features) {
-    this.attribution = attribution;
-    this.apiVersion = apiVersion;
-    this.metadata = metadata;
-    this.type = type;
-    this.features = features;
-  }
 }

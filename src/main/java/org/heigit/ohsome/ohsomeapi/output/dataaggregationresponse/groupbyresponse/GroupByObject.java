@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -13,12 +14,9 @@ import lombok.Getter;
  * </ul>
  */
 @Getter
+@AllArgsConstructor
 public abstract class GroupByObject {
 
   @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
   protected Object groupByObject;
-
-  public GroupByObject(Object groupByObject) {
-    this.groupByObject = groupByObject;
-  }
 }

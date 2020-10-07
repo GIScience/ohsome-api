@@ -2,6 +2,7 @@ package org.heigit.ohsome.ohsomeapi.output.metadataresponse;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -10,6 +11,7 @@ import lombok.Getter;
  * replication sequence number of the data-extract.
  */
 @Getter
+@AllArgsConstructor
 public class ExtractRegion {
 
   @ApiModelProperty(notes = "Spatial extent of this extract-region", required = true, position = 1)
@@ -18,11 +20,4 @@ public class ExtractRegion {
   private TemporalExtent temporalExtent;
   @ApiModelProperty(notes = "Replication sequence number", position = 3)
   private int replicationSequenceNumber;
-
-  public ExtractRegion(JsonNode spatialExtent, TemporalExtent temporalExtent,
-      int replicationSequenceNumber) {
-    this.spatialExtent = spatialExtent;
-    this.temporalExtent = temporalExtent;
-    this.replicationSequenceNumber = replicationSequenceNumber;
-  }
 }

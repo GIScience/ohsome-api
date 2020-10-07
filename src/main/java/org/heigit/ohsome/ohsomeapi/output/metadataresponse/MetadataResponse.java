@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -12,6 +13,7 @@ import lombok.Getter;
  * {@link org.heigit.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion ExtractRegion}.
  */
 @Getter
+@AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class MetadataResponse {
 
@@ -23,10 +25,4 @@ public class MetadataResponse {
       notes = "Extract region object holding the spatial|temporal extend + attribution",
       required = true)
   private ExtractRegion extractRegion;
-
-  public MetadataResponse(Attribution attribution, String apiVersion, ExtractRegion extractRegion) {
-    this.attribution = attribution;
-    this.apiVersion = apiVersion;
-    this.extractRegion = extractRegion;
-  }
 }

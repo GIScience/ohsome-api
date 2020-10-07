@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -10,6 +11,7 @@ import lombok.Getter;
  * values, as well as the request URL.
  */
 @Getter
+@AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class Metadata {
 
@@ -20,10 +22,4 @@ public class Metadata {
   @ApiModelProperty(notes = "Request URL to which this whole output JSON was generated",
       required = true)
   private String requestUrl;
-
-  public Metadata(Long executionTime, String description, String requestUrl) {
-    this.executionTime = executionTime;
-    this.description = description;
-    this.requestUrl = requestUrl;
-  }
 }
