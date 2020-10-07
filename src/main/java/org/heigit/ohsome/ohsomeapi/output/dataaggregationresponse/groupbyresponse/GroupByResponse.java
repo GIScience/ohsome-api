@@ -10,6 +10,8 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 
 /**
@@ -24,14 +26,18 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class GroupByResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
+  @NonNull
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
+  @NonNull
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
+  @NonNull
   private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
   private String type;
@@ -39,15 +45,8 @@ public class GroupByResponse implements Response {
   private Feature[] features;
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
+  @NonNull
   private GroupByResult[] groupByResult;
-
-  public GroupByResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      GroupByResult[] groupByUserResult) {
-    this.attribution = attribution;
-    this.apiVersion = apiVersion;
-    this.metadata = metadata;
-    this.groupByResult = groupByUserResult;
-  }
 
   /** Static factory method returning the whole GeoJSON response. */
   public static GroupByResponse of(Attribution attribution, String apiVersion, Metadata metadata,

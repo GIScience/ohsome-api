@@ -1,5 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -7,6 +9,7 @@ import lombok.Getter;
  * GROUPBYKEY, RATIO, DATAEXTRACTION).
  */
 @Getter
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public enum RequestResource {
   LENGTH("length", "meters"), PERIMETER("perimeter", "meters"), AREA("area",
       "square meters"), COUNT("count", "absolute values"), GROUPBYTAG("",
@@ -14,9 +17,4 @@ public enum RequestResource {
 
   private final String label;
   private final String unit;
-
-  RequestResource(String label, String unit) {
-    this.label = label;
-    this.unit = unit;
-  }
 }

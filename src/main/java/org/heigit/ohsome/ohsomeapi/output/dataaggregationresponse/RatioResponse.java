@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -14,6 +15,7 @@ import lombok.Getter;
  * objects.
  */
 @Getter
+@AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class RatioResponse implements Response {
 
@@ -25,12 +27,4 @@ public class RatioResponse implements Response {
   private Metadata metadata;
   @ApiModelProperty(notes = "ElementsResult for /ratio requests", required = true)
   private RatioResult[] ratioResult;
-
-  public RatioResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      RatioResult[] ratioResult) {
-    this.attribution = attribution;
-    this.apiVersion = apiVersion;
-    this.metadata = metadata;
-    this.ratioResult = ratioResult;
-  }
 }

@@ -64,7 +64,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
     this.requestResource = requestResource;
     inputProcessor = new InputProcessor(servletRequest, true, isDensity);
     processingData = inputProcessor.getProcessingData();
-
   }
 
   /**

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 import org.geojson.Feature;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
@@ -14,6 +15,7 @@ import lombok.Getter;
  * ElementsResult} objects.
  */
 @Getter
+@NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class DefaultAggregationResponse implements Response {
 
@@ -29,8 +31,6 @@ public class DefaultAggregationResponse implements Response {
   private Feature[] features;
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
   private Result[] result;
-
-  private DefaultAggregationResponse() {}
 
   /** Static factory method returning the whole JSON response. */
   public static DefaultAggregationResponse of(Attribution attribution, String apiVersion,

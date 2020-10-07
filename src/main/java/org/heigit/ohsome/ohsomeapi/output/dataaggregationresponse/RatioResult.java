@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Getter;
  * two values and their resulting ratio.
  */
 @Getter
+@AllArgsConstructor
 public class RatioResult implements Result {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
@@ -19,11 +21,4 @@ public class RatioResult implements Result {
   private double value2;
   @ApiModelProperty(notes = "Ratio of value2/value", required = true)
   private double ratio;
-
-  public RatioResult(String timestamp, double value, double value2, double ratio) {
-    this.timestamp = timestamp;
-    this.value = value;
-    this.value2 = value2;
-    this.ratio = ratio;
-  }
 }

@@ -87,16 +87,16 @@ import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /** Holds helper methods that are used by the executor classes. */
+@RequiredArgsConstructor
 public class ExecutionUtils {
   private AtomicReference<Boolean> isFirst;
+  @NonNull
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
-
-  public ExecutionUtils(ProcessingData processingData) {
-    this.processingData = processingData;
-  }
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,

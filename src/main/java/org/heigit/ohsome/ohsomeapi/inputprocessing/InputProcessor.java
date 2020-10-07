@@ -51,6 +51,8 @@ import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.jts2geojson.GeoJSONWriter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
@@ -59,6 +61,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
  * inputProcessingUtils from {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
  * InputProcessingUtils}. Throws exceptions depending on their validity.
  */
+@RequiredArgsConstructor
 public class InputProcessor {
 
   /*
@@ -67,6 +70,7 @@ public class InputProcessor {
   public static final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
+  @NonNull
   private ProcessingData processingData;
   private boolean isSnapshot;
   private boolean isDensity;
@@ -98,10 +102,6 @@ public class InputProcessor {
     this.requestMethod = servletRequest.getMethod();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
-  }
-
-  public InputProcessor(ProcessingData processingData) {
-    this.processingData = processingData;
   }
 
   /**
