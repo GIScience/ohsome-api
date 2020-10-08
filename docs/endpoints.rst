@@ -1341,7 +1341,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1417,7 +1417,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1493,7 +1493,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1569,7 +1569,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1647,24 +1647,24 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
 
     .. code-tab:: bash curl (GET)
 
-       curl -X GET 'https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644%2C49.4010%2C8.6663%2C49.4027&filter=landuse=construction%20and%20type:way&time=2020-06-29%2C2014-07-01&showMetadata=yes&properties=metadata%2Ctags&clipGeometry=false'
+       curl -X GET 'https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644%2C49.4010%2C8.6663%2C49.4027&filter=landuse=construction%20and%20type:way&time=2014-07-01%2C2020-06-29&showMetadata=yes&properties=metadata%2Ctags&clipGeometry=false'
 
     .. code-tab:: bash curl (POST)
 
-       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/geometry' --data-urlencode 'bboxes=8.6644,49.4010,8.6663,49.4027' --data-urlencode 'time=2020-06-29,2014-07-01' --data-urlencode 'filter=landuse=construction and type:way' --data-urlencode 'showMetadata=yes' --data-urlencode 'properties=metadata,tags' --data-urlencode 'clipGeometry=false'
+       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/geometry' --data-urlencode 'bboxes=8.6644,49.4010,8.6663,49.4027' --data-urlencode 'time=2014-07-01,2020-06-29' --data-urlencode 'filter=landuse=construction and type:way' --data-urlencode 'showMetadata=yes' --data-urlencode 'properties=metadata,tags' --data-urlencode 'clipGeometry=false'
 
     .. code-tab:: python Python
 
         import requests
         URL = 'https://api.ohsome.org/v1/contributions/latest/geometry'
-        data = {"bboxes": "8.6644,49.4010,8.6663,49.4027", "time": "2020-06-29,2014-07-01", "filter": "landuse=construction and type:way", "showMetadata": "yes", "properties": "metadata,tags", "clipGeometry": "false"}
+        data = {"bboxes": "8.6644,49.4010,8.6663,49.4027", "time": "2014-07-01,2020-06-29", "filter": "landuse=construction and type:way", "showMetadata": "yes", "properties": "metadata,tags", "clipGeometry": "false"}
         response = requests.post(URL, data=data)
         print(response.json())
 
     .. code-tab:: r R
 
         library(httr)
-        r <- POST("https://api.ohsome.org/v1/contributions/latest/geometry", encode = "form", body = list(bboxes = "8.6644,49.4010,8.6663,49.4027", time = "2020-06-29,2014-07-01", filter = "landuse=construction and type:way", showMetadata = "yes", properties = "metadata,tags", clipGeometry = "false"))
+        r <- POST("https://api.ohsome.org/v1/contributions/latest/geometry", encode = "form", body = list(bboxes = "8.6644,49.4010,8.6663,49.4027", time = "2014-07-01,2020-06-29", filter = "landuse=construction and type:way", showMetadata = "yes", properties = "metadata,tags", clipGeometry = "false"))
         r
 
 .. note:: The following example responses only show parts of the returned .geojson file.
@@ -1683,7 +1683,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1699,7 +1699,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-           "@geometryChange" : "true",
+            "@geometryChange" : "true",
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1734,7 +1734,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1750,7 +1750,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-           "@geometryChange" : "true",
+            "@geometryChange" : "true",
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1785,7 +1785,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1801,7 +1801,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-           "@geometryChange" : "true",
+            "@geometryChange" : "true",
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1836,7 +1836,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
         "apiVersion" : "1.2.0-SNAPSHOT",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
-          "requestUrl" : "http://localhost:8080/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
+          "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
         },
         "type" : "FeatureCollection",
         "features" : [{
@@ -1852,7 +1852,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-           "@geometryChange" : "true",
+            "@geometryChange" : "true",
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
