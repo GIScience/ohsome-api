@@ -51,8 +51,6 @@ import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
@@ -61,7 +59,6 @@ import lombok.RequiredArgsConstructor;
  * inputProcessingUtils from {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
  * InputProcessingUtils}. Throws exceptions depending on their validity.
  */
-@RequiredArgsConstructor
 public class InputProcessor {
 
   /*
@@ -70,7 +67,6 @@ public class InputProcessor {
   public static final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
-  @NonNull
   private ProcessingData processingData;
   private boolean isSnapshot;
   private boolean isDensity;
@@ -81,6 +77,10 @@ public class InputProcessor {
   private boolean includeTags;
   private boolean includeOSMMetadata;
   private boolean clipGeometry = true;
+
+  public InputProcessor(ProcessingData processingData) {
+    this.processingData = processingData;
+  }
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
