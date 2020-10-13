@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 /** Test class for all of the controller classes sending GET requests. */
 public class GetControllerTest {
 
+  private static final String GROUP_BY_OBJECT_ID = "groupByObjectId";
   private static String port = TestProperties.PORT1;
   private String server = TestProperties.SERVER;
 
@@ -147,7 +148,7 @@ public class GetControllerTest {
     assertEquals(2, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -158,13 +159,15 @@ public class GetControllerTest {
         + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
         + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes",
         JsonNode.class);
-    assertEquals(43, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(
-            jsonNode -> "boundary1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
-                && "remainder".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-        .findFirst().get().get("result").get(0).get("value").asInt(), 0);
+    assertEquals(43,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> "boundary1"
+                .equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(0).asText())
+                && "remainder".equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(1).asText()))
+            .findFirst().get().get("result").get(0).get("value").asInt(),
+        0);
   }
 
   @Test
@@ -178,7 +181,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("way"))
             .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -192,7 +195,8 @@ public class GetControllerTest {
     assertEquals(8, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
+        .filter(
+            jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("building=yes"))
         .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -204,12 +208,11 @@ public class GetControllerTest {
             server + port + "/elements/count/groupBy/key?bboxes=8.67859,49.41189,8.67964,49.41263"
                 + "&types=way&time=2012-01-01&groupByKeys=building&showMetadata=true",
             JsonNode.class);
-    assertEquals(7,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
-            .findFirst().get().get("result").get(0).get("value").asInt());
+    assertEquals(7, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("building"))
+        .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -236,7 +239,7 @@ public class GetControllerTest {
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
   }
 
@@ -261,7 +264,7 @@ public class GetControllerTest {
     assertEquals(334.85, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("boundary2"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
@@ -275,7 +278,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("way"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
         0);
   }
@@ -289,7 +292,7 @@ public class GetControllerTest {
     assertEquals(61.48, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("remainder"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
@@ -303,8 +306,8 @@ public class GetControllerTest {
     assertEquals(2.83, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> "b2".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
-            && "building=church".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
+        .filter(jsonNode -> "b2".equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(0).asText())
+            && "building=church".equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(1).asText()))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
@@ -333,7 +336,7 @@ public class GetControllerTest {
     assertEquals(25.5, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
@@ -343,13 +346,16 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/length/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609"
         + "&types=way&time=2017-11-25&keys=highway&groupByKey=highway", JsonNode.class);
-    assertEquals(670.61, StreamSupport
-        .stream(Spliterators.spliteratorUnknownSize(
-            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> "boundary1"
-            .equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
-            && "highway=secondary".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(670.61,
+        StreamSupport
+            .stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode -> "boundary1"
+                .equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(0).asText())
+                && "highway=secondary"
+                    .equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(1).asText()))
+            .findFirst().get().get("result").get(0).get("value").asDouble(),
+        1e-6);
   }
 
   @Test
@@ -363,7 +369,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("way"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
         0);
   }
@@ -378,7 +384,7 @@ public class GetControllerTest {
     assertEquals(3132.95, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("remainder"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
@@ -391,7 +397,8 @@ public class GetControllerTest {
     assertEquals(372.78, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("highway=path"))
+        .filter(
+            jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("highway=path"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
@@ -418,7 +425,7 @@ public class GetControllerTest {
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("boundary1"))
         .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
   }
 
@@ -442,7 +449,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("way"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
         0);
   }
@@ -456,7 +463,8 @@ public class GetControllerTest {
     assertEquals(20495.63, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("railway=tram"))
+        .filter(
+            jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("railway=tram"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
@@ -471,7 +479,7 @@ public class GetControllerTest {
     assertEquals(48739.54, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary2"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("boundary2"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 0);
   }
 
@@ -482,14 +490,12 @@ public class GetControllerTest {
         + "/elements/length/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401"
         + ",49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2017-10-08&keys=highway&"
         + "groupByKey=highway", JsonNode.class);
-    assertEquals(73.71,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> "b1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
-                && "highway=steps".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        1e-6);
+    assertEquals(73.71, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> "b1".equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(0).asText())
+            && "highway=steps".equalsIgnoreCase(jsonNode.get(GROUP_BY_OBJECT_ID).get(1).asText()))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   /*
@@ -518,7 +524,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("way"))
             .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -529,12 +535,11 @@ public class GetControllerTest {
         server + port + "/users/count/groupBy/key?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
             + "&time=2014-01-01,2015-01-01&groupByKeys=building",
         JsonNode.class);
-    assertEquals(30,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
-            .findFirst().get().get("result").get(0).get("value").asInt());
+    assertEquals(30, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("building"))
+        .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
   @Test
@@ -547,7 +552,8 @@ public class GetControllerTest {
     assertEquals(29, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
+        .filter(
+            jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("building=yes"))
         .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -567,13 +573,11 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/density/groupBy/type?bboxes=8.67,49.39941,8.69545,49.4096&types=way,"
         + "relation&time=2014-01-01,2015-01-01&keys=building", JsonNode.class);
-    assertEquals(3.83,
-        StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("relation"))
-            .findFirst().get().get("result").get(0).get("value").asDouble(),
-        1e-6);
+    assertEquals(3.83, StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("relation"))
+        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
   @Test
@@ -585,7 +589,7 @@ public class GetControllerTest {
     assertEquals(26.84, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("remainder"))
         .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
   }
 
@@ -600,13 +604,13 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("a"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("a"))
             .findFirst().get().get("result").get(0).get("value").asInt());
     assertEquals(30,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("b"))
             .findFirst().get().get("result").get(0).get("value").asInt());
   }
 
@@ -621,7 +625,7 @@ public class GetControllerTest {
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
-            .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b"))
+            .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("b"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
         1e-6);
   }
@@ -1005,7 +1009,7 @@ public class GetControllerTest {
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
-        .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b2"))
+        .filter(jsonNode -> jsonNode.get(GROUP_BY_OBJECT_ID).asText().equalsIgnoreCase("b2"))
         .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
   }
 
