@@ -285,7 +285,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      Object groupByObject = groupByResult.getGroupByObject();
+      Object groupByObject = groupByResult.getGroupByObjectId();
       if (groupByObject instanceof Object[]) {
         Object[] groupByObjectArr = (Object[]) groupByObject;
         columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());

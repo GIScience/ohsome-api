@@ -16,8 +16,8 @@ public class RatioGroupByResult extends GroupByObject {
       required = true)
   private RatioResult[] ratioResult;
 
-  public RatioGroupByResult(Object groupByObject, RatioResult[] ratioResult) {
-    super(groupByObject);
+  public RatioGroupByResult(Object groupByObjectId, RatioResult[] ratioResult) {
+    super(groupByObjectId);
     this.ratioResult = ratioResult;
   }
 }
