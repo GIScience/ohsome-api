@@ -1,5 +1,11 @@
 ## current master
 
+## 1.1.1
+
+### Bug Fixes
+
+* allowing not encoded pipe sign in GET requests ([#60](https://github.com/GIScience/ohsome-api/pull/60))
+
 
 ## 1.1.0
 
