@@ -22,7 +22,7 @@
     <geotools.version>20.2</geotools.version>
     <gitcommitplugin.version>2.2.6</gitcommitplugin.version>
     <hikaricp.version>3.4.2</hikaricp.version>
-    <jacksondatatype.version>2.9.6</jacksondatatype.version>
+    <jacksondatatype.version>2.9.8</jacksondatatype.version>
     <jacoco.version>0.8.5</jacoco.version>
     <javaxjson.version>1.1.4</javaxjson.version>
     <jsonpath.version>2.2.0</jsonpath.version>
