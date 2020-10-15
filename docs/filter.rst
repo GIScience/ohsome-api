@@ -41,19 +41,34 @@ Selectors
     |                        | | given osm type                   |                        |
     +------------------------+------------------------------------+------------------------+
     | ``id:osm-id``          | | matches all entities with the    | ``id:1234``            |
-    |                        | | given osm id [#]_                |                        |
+    |                        | | given osm id [1]_                |                        |
+    +------------------------+------------------------------------+------------------------+
+    | ``id:osm-type/osm-id`` | | matches the entity with the given| ``id:node/1234``       |
+    |                        | | osm type and id                  |                        |
     +------------------------+------------------------------------+------------------------+
     | ``id:(id list)``       | | matches all entities with the    | ``id:(1, 42, 1234)``   |
-    |                        | | given osm ids                    |                        |
+    |                        | | given osm ids [1]_               |                        |
+    +------------------------+------------------------------------+------------------------+
+    | ``id:(id list)``       | | matches all entities with the    | ``id:(node/1, way/3)`` |
+    |                        | | given osm types and ids          |                        |
     +------------------------+------------------------------------+------------------------+
     | ``id:(id range)``      | | matches all entities with an id  | ``id:(1 .. 9999)``     |
-    |                        | | matching the given id range      |                        |
+    |                        | | matching the given id range [2]_ |                        |
     +------------------------+------------------------------------+------------------------+
     | ``geometry:geom-type`` | | matches anything which has a     | ``geometry:polygon``   |
     |                        | | geometry of the given type       |                        |
     |                        | | (point, line, polygon, or other) |                        |
     +------------------------+------------------------------------+------------------------+
-.. [#] keep in mind that osm ids are not unique between osm types. In order to exclude only a specific object the id needs to be combined with an osm type filter e.g. ``type:node and id:1234``
+    | ``area:(from..to)``    | | matches features with a geometry | ``area:(1.0 .. 1E6)``  |
+    |                        | | having an area (measured in m²)  |                        |
+    |                        | | in the given range [2]_          |                        |
+    +------------------------+------------------------------------+------------------------+
+    | ``length:(from..to)``  | | matches features with a geometry | ``length:( .. 100)``   |
+    |                        | | having a length (measured in m)  |                        |
+    |                        | | in the given range [2]_          |                        |
+    +------------------------+------------------------------------+------------------------+
+.. [1] Keep in mind that osm ids are not unique between osm types. In order to include only a specific object the id needs to be used together with an osm type filter. Alternatively, one can also use the combined type+id filter (e.g. `id:node/1234`).
+.. [2] The lower or upper bound of a range may be omitted to indicate that the values are only to be limited to be "up to" or "starting from" the given value, respectively. For example: `id:(10..)` will accept all entities with an id of 10 or higher.
 
 |
 
@@ -156,6 +171,11 @@ Here's some useful examples for querying some OSM features:
     | | assurance)     |                                                        | | marked as unnamed          |
     |                  |                                                        | | with the ``noname`` tag    |
     |                  |                                                        | | in OSM.                    |
+    +------------------+--------------------------------------------------------+------------------------------+
+    | | implausibly    | | ``geometry:polygon and building=* and building!=no`` | | The currently largest      |
+    | | large          | | ``and area:(1E6..)``                                 | | building by footprint area |
+    | | buildings      |                                                        | | is a car factory building  |
+    |                  |                                                        | | measuring about 887,800 m².|
     +------------------+--------------------------------------------------------+------------------------------+
      
 |
