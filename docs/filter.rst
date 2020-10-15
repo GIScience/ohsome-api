@@ -172,6 +172,11 @@ Here's some useful examples for querying some OSM features:
     |                  |                                                        | | with the ``noname`` tag    |
     |                  |                                                        | | in OSM.                    |
     +------------------+--------------------------------------------------------+------------------------------+
+    | | implausibly    | | ``geometry:polygon and building=* and building!=no`` | | The currently largest      |
+    | | large          | | ``and area:(1E6..)``                                 | | building by footprint area |
+    | | buildings      |                                                        | | is a car factory building  |
+    |                  |                                                        | | measuring about 887,800 m².|
+    +------------------+--------------------------------------------------------+------------------------------+
      
 |
 
