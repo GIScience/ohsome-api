@@ -21,14 +21,17 @@ Welcome to the documentation of the ohsome API!
 ..   autodocs
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Additional Information:
-   :hidden:
-
+   
    boundaries
    group-by
    time
    filter
+   response-parameters
+   http-response-status
+   
+..   autodocs
    
 Additional Links:
 -----------------
