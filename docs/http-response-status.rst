@@ -1,7 +1,7 @@
-HTTP response status of the ohsome API
-======================================
+HTTP Response Status
+====================
 
-List of HTTP status codes and respective descriptions of the ohsome API.
+List of HTTP status codes and respective descriptions.
 
 2xx success
 -----------
