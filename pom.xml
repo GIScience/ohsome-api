@@ -30,7 +30,7 @@
     <mavenjar.version>3.2.0</mavenjar.version>
     <ohsome-filter.version>1.3.0</ohsome-filter.version>
     <opencsv.version>4.0</opencsv.version>
-    <oshdb.version>0.5.9</oshdb.version>
+    <oshdb.version>0.5.10</oshdb.version>
     <springboot.version>2.0.3.RELEASE</springboot.version>
     <springfox.version>2.9.2</springfox.version>
   </properties>

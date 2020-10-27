@@ -1,5 +1,7 @@
 ## current master
 
+* update to oshdb version 0.5.10 (including an Ignite update to 2.9.0)
+
 
 ## 1.1.0
 
