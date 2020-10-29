@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
@@ -91,7 +92,6 @@ import org.wololo.geojson.LineString;
 import org.wololo.geojson.Point;
 import org.wololo.geojson.Polygon;
 import org.wololo.jts2geojson.GeoJSONWriter;
-import lombok.RequiredArgsConstructor;
 
 /** Holds helper methods that are used by the executor classes. */
 @RequiredArgsConstructor
