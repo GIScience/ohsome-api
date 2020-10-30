@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.wololo.geojson.Feature;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * Represents the whole GeoJSON response object for the data-extraction endpoints.

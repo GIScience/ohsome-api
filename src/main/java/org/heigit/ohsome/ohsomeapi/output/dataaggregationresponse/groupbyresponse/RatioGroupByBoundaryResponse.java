@@ -3,13 +3,13 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespon
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.geojson.Feature;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 
 /**
