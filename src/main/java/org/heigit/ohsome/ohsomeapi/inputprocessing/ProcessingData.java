@@ -3,6 +3,8 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.ohsome.filter.BinaryOperator;
@@ -10,8 +12,6 @@ import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.GeometryTypeFilter;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.locationtech.jts.geom.Geometry;
-import lombok.Getter;
-import lombok.Setter;
 
 /** Holds the relevant objects for processing the request and creating the response. */
 @Getter

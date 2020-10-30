@@ -3,9 +3,9 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 
 /**
  * Represents the result JSON object for the /users resource containing the from timestamp together

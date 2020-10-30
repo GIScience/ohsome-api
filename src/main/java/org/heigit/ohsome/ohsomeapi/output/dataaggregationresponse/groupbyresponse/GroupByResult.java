@@ -1,8 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import lombok.Getter;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 
 /**
  * Represents the groupBy result JSON object containing the groupBy value and the respective

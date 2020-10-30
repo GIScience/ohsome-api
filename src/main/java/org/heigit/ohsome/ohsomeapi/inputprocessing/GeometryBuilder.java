@@ -10,6 +10,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+import lombok.RequiredArgsConstructor;
 import org.geojson.GeoJsonObject;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -30,7 +31,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.wololo.jts2geojson.GeoJSONReader;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.

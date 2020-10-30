@@ -3,9 +3,9 @@ package org.heigit.ohsome.ohsomeapi.output.metadataresponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 
 /**
  * Represents the JSON response object for the /metadata request. It contains information about the

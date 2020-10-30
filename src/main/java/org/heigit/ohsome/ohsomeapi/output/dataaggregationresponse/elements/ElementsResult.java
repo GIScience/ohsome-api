@@ -1,9 +1,9 @@
 package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
 
 
 /**

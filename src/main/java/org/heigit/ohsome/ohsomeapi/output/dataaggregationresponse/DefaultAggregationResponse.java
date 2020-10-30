@@ -3,10 +3,10 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
-import org.geojson.Feature;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.geojson.Feature;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
