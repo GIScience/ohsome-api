@@ -29,6 +29,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 11](https://openjdk.java.net/projects/jdk/11/) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
+* [Lombok 1.18.16](https://projectlombok.org/download) or higher. Please check the [requirements](https://projectlombok.org/setup/overview) for your IDE 
 * data: [download](http://downloads.ohsome.org/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-tool/etl/README.md)
 
 ### Setting-up/Running
