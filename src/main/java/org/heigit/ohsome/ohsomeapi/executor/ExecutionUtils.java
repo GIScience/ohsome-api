@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -86,6 +87,9 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
+import org.wololo.geojson.LineString;
+import org.wololo.geojson.Point;
+import org.wololo.geojson.Polygon;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
@@ -93,6 +97,9 @@ public class ExecutionUtils {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
+  private static final Point emptyPoint = new Point(new double[0]);
+  private static final LineString emptyLine = new LineString(new double[0][0]);
+  private static final Polygon emptyPolygon = new Polygon(new double[0][0][0]);
 
   public ExecutionUtils(ProcessingData processingData) {
     this.processingData = processingData;
@@ -230,7 +237,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * Streams the result of /elements and /elementsFullHistory respones as an outputstream.
+   * Streams the result of /elements, /elementsFullHistory and /contributions endpoints as an
+   * outputstream.
    * 
    * @throws RuntimeException which only wraps {@link java.io.IOException IOException}
    * @throws IOException thrown by {@link JsonGenerator
@@ -249,10 +257,8 @@ public class ExecutionUtils {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
    *         writeStreamResponse}
    */
-  public void streamElementsResponse(HttpServletResponse servletResponse, DataResponse osmData,
-      boolean isFullHistory, Stream<org.wololo.geojson.Feature> snapshotStream,
-      Stream<org.wololo.geojson.Feature> contributionStream)
-      throws ExecutionException, InterruptedException, IOException {
+  public void streamResponse(HttpServletResponse servletResponse, DataResponse osmData,
+      Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
 
@@ -288,10 +294,7 @@ public class ExecutionUtils {
       }
     });
     isFirst = new AtomicReference<>(true);
-    if (isFullHistory) {
-      writeStreamResponse(outputJsonGen, contributionStream, outputBuffers, outputStream);
-    }
-    writeStreamResponse(outputJsonGen, snapshotStream, outputBuffers, outputStream);
+    writeStreamResponse(outputJsonGen, resultStream, outputBuffers, outputStream);
     outputStream.print("]\n}\n");
     servletResponse.flushBuffer();
   }
@@ -405,8 +408,9 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, int[] keysInt, boolean includeTags,
-      boolean includeOSMMetadata, ElementsGeometry elemGeom) {
-    if (geometry.isEmpty()) {
+      boolean includeOSMMetadata, boolean isContributionsEndpoint, ElementsGeometry elemGeom,
+      EnumSet<ContributionType> contributionTypes) {
+    if (geometry.isEmpty() && !contributionTypes.contains(ContributionType.DELETION)) {
       // skip invalid geometries (e.g. ways with 0 nodes)
       return null;
     }
@@ -427,25 +431,44 @@ public class ExecutionUtils {
         }
       }
     }
-    properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     if (includeOSMMetadata) {
-      properties.put("@version", entity.getVersion());
-      properties.put("@osmType", entity.getType());
-      properties.put("@changesetId", entity.getChangesetId());
+      properties =
+          addAdditionalProperties(entity, properties, isContributionsEndpoint, contributionTypes);
     }
+    properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     GeoJSONWriter gjw = new GeoJSONWriter();
+    boolean deletionHandling =
+        isContributionsEndpoint && contributionTypes.contains(ContributionType.DELETION);
+    Geometry outputGeometry;
     switch (elemGeom) {
       case BBOX:
+        if (deletionHandling) {
+          return new org.wololo.geojson.Feature(emptyPolygon, properties);
+        }
         Envelope envelope = geometry.getEnvelopeInternal();
         OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
-        return new org.wololo.geojson.Feature(gjw.write(OSHDBGeometryBuilder.getGeometry(bbox)),
-            properties);
+        outputGeometry = OSHDBGeometryBuilder.getGeometry(bbox);
+        break;
       case CENTROID:
-        return new org.wololo.geojson.Feature(gjw.write(geometry.getCentroid()), properties);
+        if (deletionHandling) {
+          return new org.wololo.geojson.Feature(emptyPoint, properties);
+        }
+        outputGeometry = geometry.getCentroid();
+        break;
       case RAW:
       default:
-        return new org.wololo.geojson.Feature(gjw.write(geometry), properties);
+        if (deletionHandling && geometry.getGeometryType().contains("Polygon")) {
+          return new org.wololo.geojson.Feature(emptyPolygon, properties);
+        }
+        if (deletionHandling && geometry.getGeometryType().contains("LineString")) {
+          return new org.wololo.geojson.Feature(emptyLine, properties);
+        }
+        if (deletionHandling && geometry.getGeometryType().contains("Point")) {
+          return new org.wololo.geojson.Feature(emptyPoint, properties);
+        }
+        outputGeometry = geometry;
     }
+    return new org.wololo.geojson.Feature(gjw.write(outputGeometry), properties);
   }
 
   /**
@@ -648,7 +671,7 @@ public class ExecutionUtils {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateRatio(reqRes.getLabel(), reqRes.getUnit()), requestUrl);
+          Description.aggregateRatio(reqRes.getDescription(), reqRes.getUnit()), requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
@@ -690,7 +713,7 @@ public class ExecutionUtils {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateRatioGroupByBoundary(reqRes.getLabel(), reqRes.getUnit()),
+          Description.aggregateRatioGroupByBoundary(reqRes.getDescription(), reqRes.getUnit()),
           requestUrl);
     }
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -709,15 +732,6 @@ public class ExecutionUtils {
     }
     return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
         groupByResultSet);
-  }
-
-  /** Adds the respective contribution type(s) to the properties if includeMetadata=true. */
-  public Map<String, Object> addContribType(OSMContribution contribution,
-      Map<String, Object> properties, boolean includeMetadata) {
-    if (includeMetadata) {
-      properties.put("@contributionTypes", contribution.getContributionTypes());
-    }
-    return properties;
   }
 
   /**
@@ -973,6 +987,30 @@ public class ExecutionUtils {
             CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
     writer.writeAll(comments, false);
     return writer;
+  }
+
+  /** Adds additional properties like the version or the changeset ID to the feature. */
+  private Map<String, Object> addAdditionalProperties(OSMEntity entity,
+      Map<String, Object> properties, boolean isContributionsEndpoint,
+      EnumSet<ContributionType> contributionTypes) {
+    properties.put("@version", entity.getVersion());
+    properties.put("@osmType", entity.getType());
+    properties.put("@changesetId", entity.getChangesetId());
+    if (isContributionsEndpoint) {
+      if (contributionTypes.contains(ContributionType.CREATION)) {
+        properties.put("@creation", "true");
+      }
+      if (contributionTypes.contains(ContributionType.DELETION)) {
+        properties.put("@deletion", "true");
+      }
+      if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
+        properties.put("@tagChange", "true");
+      }
+      if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
+        properties.put("@geometryChange", "true");
+      }
+    }
+    return properties;
   }
 
   /** Enum type used in /ratio computation. */

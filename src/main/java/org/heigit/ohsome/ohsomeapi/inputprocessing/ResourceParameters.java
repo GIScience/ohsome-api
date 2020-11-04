@@ -47,6 +47,12 @@ public class ResourceParameters {
     } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
       possibleParams.add("properties");
       possibleParams.add("clipGeometry");
+      // removing deprecated params from newly implemented endpoint
+      if (uri.contains("/contributions")) {
+        possibleParams.remove("types");
+        possibleParams.remove("keys");
+        possibleParams.remove("values");
+      }        
       return possibleParams;
     } else {
       return possibleParams;

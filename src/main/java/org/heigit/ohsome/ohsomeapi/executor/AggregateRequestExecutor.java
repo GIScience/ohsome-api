@@ -64,7 +64,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
     this.requestResource = requestResource;
     inputProcessor = new InputProcessor(servletRequest, true, isDensity);
     processingData = inputProcessor.getProcessingData();
-
   }
 
   /**
@@ -118,7 +117,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     ElementsResult[] resultSet =
         fillElementsResult(result, requestParameters.isDensity(), df, geom);
     String description = Description.aggregate(requestParameters.isDensity(),
-        requestResource.getLabel(), requestResource.getUnit());
+        requestResource.getDescription(), requestResource.getUnit());
     Metadata metadata = generateMetadata(description);
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
@@ -159,7 +158,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
       count++;
     }
     String description = Description.aggregate(requestParameters.isDensity(),
-        requestResource.getLabel(), requestResource.getUnit());
+        requestResource.getDescription(), requestResource.getUnit());
     Metadata metadata = generateMetadata(description);
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, "FeatureCollection",

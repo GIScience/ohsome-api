@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,16 +27,17 @@ public class ElementsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extract}
    */
   @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
-      nickname = "geometry", response = DataResponse.class)
+      nickname = "elementsGeometry", response = DataResponse.class)
   @RequestMapping(value = "/geometry", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsGeometry(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.RAW, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -45,16 +47,17 @@ public class ElementsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extract}
    */
   @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
-      nickname = "bbox", response = DataResponse.class)
+      nickname = "elementsBbox", response = DataResponse.class)
   @RequestMapping(value = "/bbox", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.BBOX, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX,
+        servletRequest, servletResponse);
   }
 
   /**
@@ -64,15 +67,16 @@ public class ElementsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extract}
    */
   @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",
-      nickname = "centroid", response = DataResponse.class)
+      nickname = "elementsCentroid", response = DataResponse.class)
   @RequestMapping(value = "/centroid", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void elementsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(ElementsGeometry.CENTROID, servletRequest, servletResponse);
+    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID,
+        servletRequest, servletResponse);
   }
 }

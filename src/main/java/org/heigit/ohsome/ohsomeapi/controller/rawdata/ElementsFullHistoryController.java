@@ -5,7 +5,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,12 +29,11 @@ public class ElementsFullHistoryController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extractFullHistory(ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(
       value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
-      nickname = "fullHistory", response = DataResponse.class)
+      nickname = "elementsFullHistory", response = DataResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
       defaultValue = "2016-01-01,2017-01-01", paramType = "query", dataType = "string",
@@ -42,8 +42,9 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.RAW, servletRequest,
-        servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
+        ElementsGeometry.RAW, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -53,12 +54,11 @@ public class ElementsFullHistoryController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extractFullHistory(ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(
       value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
-      nickname = "bboxFullHistory", response = DataResponse.class)
+      nickname = "elementsBboxFullHistory", response = DataResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
       defaultValue = "2016-01-01,2017-01-01", paramType = "query", dataType = "string",
@@ -67,8 +67,9 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.BBOX, servletRequest,
-        servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
+        ElementsGeometry.BBOX, servletRequest, servletResponse);
+    executor.extract();
   }
 
   /**
@@ -78,11 +79,10 @@ public class ElementsFullHistoryController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extractFullHistory(ElementsGeometry, HttpServletRequest, HttpServletResponse)
-   *         extractFullHistory}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
-      nickname = "centroidFullHistory", response = DataResponse.class)
+      nickname = "elementsCentroidFullHistory", response = DataResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
       defaultValue = "2016-01-01,2017-01-01", paramType = "query", dataType = "string",
@@ -91,7 +91,8 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extractFullHistory(ElementsGeometry.CENTROID, servletRequest,
-        servletResponse);
+    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
+        ElementsGeometry.CENTROID, servletRequest, servletResponse);
+    executor.extract();
   }
 }

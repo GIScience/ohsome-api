@@ -6,8 +6,8 @@ ISO-8601 conform timestring(s).
 
 .. note:: The ohsome API only supports the UTC time zone (Z).
 
-Supported time formats:
------------------------
+Supported time formats
+----------------------
 
 * timestamp: ``2014-01-01``
 * list of timestamps: ``2014-01-01,2015-07-01,2018-10-10``

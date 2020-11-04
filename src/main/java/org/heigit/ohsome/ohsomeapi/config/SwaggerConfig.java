@@ -2,12 +2,18 @@ package org.heigit.ohsome.ohsomeapi.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ParameterBuilder;
@@ -22,23 +28,62 @@ import springfox.documentation.service.ResponseMessage;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.InMemorySwaggerResourcesProvider;
+import springfox.documentation.swagger.web.SwaggerResource;
+import springfox.documentation.swagger.web.SwaggerResourcesProvider;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /** Swagger configuration class. */
 @Configuration
 @EnableSwagger2
 @PropertySource("classpath:application.properties")
-public class SwaggerConfig {
+@Primary
+public class SwaggerConfig implements SwaggerResourcesProvider {
+  private enum OhsomeApiResourceSpec {
+    DATA_AGGREGATION("Data Aggregation", 1),
+    DATA_EXTRACTION("Data Extraction", 2),
+    CONTRIBUTIONS("Contributions", 3),
+    METADATA("Metadata", 9);
+
+    private final String name;
+    private final int sorting;
+    OhsomeApiResourceSpec(String name, int sorting) {
+      this.name = name;
+      this.sorting = sorting;
+    }
+  }
+
+  private final InMemorySwaggerResourcesProvider resourcesProvider;
+  private final Map<String, Integer> resourcesSorting = new HashMap<>();
+
+  /**
+   * Creates swagger configuration object, initializes internal specs sorting table.
+   */
+  @Autowired
+  public SwaggerConfig(InMemorySwaggerResourcesProvider resourcesProvider) {
+    this.resourcesProvider = resourcesProvider;
+    for (OhsomeApiResourceSpec spec : OhsomeApiResourceSpec.values()) {
+      resourcesSorting.put(spec.name, spec.sorting);
+    }
+  }
+
+  @Override
+  public List<SwaggerResource> get() {
+    return resourcesProvider.get().stream()
+        .sorted(Comparator.comparing(r -> resourcesSorting.getOrDefault(r.getName(), 99)))
+        .collect(Collectors.toList());
+  }
 
   /** Creates the Swagger2 documentation for the dataAggregation resources. */
   @Bean
   public Docket dataAggregationDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Data Aggregation").select()
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName(OhsomeApiResourceSpec.DATA_AGGREGATION.name).select()
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams(false))
+        .globalOperationParameters(defineGlobalOperationParams(false, false))
         .tags(new Tag("Users", "Compute data aggregation functions on users"),
             new Tag("Area", "Compute the area of polygonal OSM elements"),
             new Tag("Length", "Compute the length of linear OSM elements"),
@@ -52,7 +97,8 @@ public class SwaggerConfig {
   @Bean
   public Docket metadataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Metadata").select()
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName(OhsomeApiResourceSpec.METADATA.name).select()
         .apis(
             RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
@@ -64,13 +110,29 @@ public class SwaggerConfig {
   @Bean
   public Docket rawDataDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2).groupName("Data Extraction").select()
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName(OhsomeApiResourceSpec.DATA_EXTRACTION.name).select()
         .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.rawdata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams(true))
+        .globalOperationParameters(defineGlobalOperationParams(true, false))
         .tags(new Tag("Data Extraction", "Direct access to the OSM data"),
             new Tag("Full-History Data Extraction",
                 "Direct access to the full-history of the OSM data"))
+        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
+  }
+
+  /** Creates the Swagger2 documentation for the contributions resources. */
+  @Bean
+  public Docket contributionsDocket() {
+    ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName(OhsomeApiResourceSpec.CONTRIBUTIONS.name).select()
+        .apis(RequestHandlerSelectors
+            .basePackage("org.heigit.ohsome.ohsomeapi.controller.contributions"))
+        .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
+        .globalOperationParameters(defineGlobalOperationParams(true, true))
+        .tags(
+            new Tag("Contributions", "Direct access to all contributions provided to the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
@@ -111,7 +173,8 @@ public class SwaggerConfig {
    * Defines the description of each parameter, which are used in all resources for the Swagger2
    * documentation.
    */
-  private List<Parameter> defineGlobalOperationParams(boolean isDataExtraction) {
+  private List<Parameter> defineGlobalOperationParams(boolean isDataExtraction,
+      boolean isContributions) {
     final String string = "string";
     final String query = "query";
     List<Parameter> globalOperationParams = new ArrayList<>();
@@ -124,15 +187,17 @@ public class SwaggerConfig {
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
         .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("types")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("values")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
+    if (!isContributions) {
+      globalOperationParams.add(new ParameterBuilder().name("types")
+          .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+          .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
+      globalOperationParams.add(new ParameterBuilder().name("keys")
+          .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+          .parameterType(query).defaultValue("").required(false).build());
+      globalOperationParams.add(new ParameterBuilder().name("values")
+          .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+          .parameterType(query).defaultValue("").required(false).build());
+    }
     globalOperationParams
         .add(new ParameterBuilder().name("filter").description(ParameterDescriptions.FILTER)
             .modelRef(new ModelRef(string)).parameterType(query)
@@ -159,10 +224,9 @@ public class SwaggerConfig {
           .description(ParameterDescriptions.CLIP_GEOMETRY).modelRef(new ModelRef(string))
           .parameterType(query).defaultValue("true").required(false).build());
     }
-    globalOperationParams.add(
-        new ParameterBuilder().name("showMetadata").description(ParameterDescriptions.SHOW_METADATA)
-            .modelRef(new ModelRef(string)).parameterType(query)
-            .defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("showMetadata")
+        .description(ParameterDescriptions.SHOW_METADATA).modelRef(new ModelRef(string))
+        .parameterType(query).defaultValue("").required(false).build());
     return globalOperationParams;
   }
 }
