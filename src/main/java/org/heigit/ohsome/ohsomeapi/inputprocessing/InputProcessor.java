@@ -78,6 +78,10 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean clipGeometry = true;
 
+  public InputProcessor(ProcessingData processingData) {
+    this.processingData = processingData;
+  }
+
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
@@ -98,10 +102,6 @@ public class InputProcessor {
     this.requestMethod = servletRequest.getMethod();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
-  }
-
-  public InputProcessor(ProcessingData processingData) {
-    this.processingData = processingData;
   }
 
   /**
@@ -246,7 +246,7 @@ public class InputProcessor {
     if (!processingData.isRatio()) {
       mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
     }
-    if (processingData.containsSimpleFeatureTypes()
+    if (processingData.isContainingSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
         && !processingData.isRatio() && !processingData.isGroupByBoundary()
         && !processingData.isFullHistory()) {
@@ -269,7 +269,7 @@ public class InputProcessor {
             // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
             && !processingData.isRatio() && !processingData.isGroupByBoundary()
             && !processingData.isFullHistory()) {
-          processingData.setContainsSimpleFeatureTypes(true);
+          processingData.setContainingSimpleFeatureTypes(true);
           mapRed = filterOnGeometryType(mapRed, filterExpr);
         }
       }
@@ -347,7 +347,7 @@ public class InputProcessor {
     if (types.length == 0 || types.length == 1 && types[0].isEmpty()) {
       processingData.setOsmTypes(EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION));
     } else {
-      if (!processingData.containsSimpleFeatureTypes()) {
+      if (!processingData.isContainingSimpleFeatureTypes()) {
         for (String type : types) {
           if ("node".equalsIgnoreCase(type)) {
             processingData.getOsmTypes().add(OSMType.NODE);
@@ -712,15 +712,15 @@ public class InputProcessor {
     } else if (types.length == 0 || types.length == 1 && types[0].isEmpty()) {
       // do nothing
     } else {
-      processingData.setContainsSimpleFeatureTypes(!"node".equalsIgnoreCase(types[0])
+      processingData.setContainingSimpleFeatureTypes(!"node".equalsIgnoreCase(types[0])
           && !"way".equalsIgnoreCase(types[0]) && !"relation".equalsIgnoreCase(types[0]));
       for (String type : types) {
         if (utils.isSimpleFeatureType(type)) {
-          if (!processingData.containsSimpleFeatureTypes()) {
+          if (!processingData.isContainingSimpleFeatureTypes()) {
             throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
           }
         } else {
-          if (processingData.containsSimpleFeatureTypes()) {
+          if (processingData.isContainingSimpleFeatureTypes()) {
             throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
           }
         }

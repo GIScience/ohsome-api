@@ -67,9 +67,9 @@ public class DataRequestExecutor extends RequestExecutor {
    *         streamElementsResponse}
    */
   public void extract() throws Exception {
-    inputProcessor.getProcessingData().setIsFullHistory(true);
+    inputProcessor.getProcessingData().setFullHistory(true);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
-    snapshotInputProcessor.getProcessingData().setIsFullHistory(true);
+    snapshotInputProcessor.getProcessingData().setFullHistory(true);
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
     if (DbConnData.db instanceof OSHDBIgnite) {
@@ -269,7 +269,7 @@ public class DataRequestExecutor extends RequestExecutor {
       final Set<SimpleFeatureType> simpleFeatureTypes, final boolean requiresGeometryTypeCheck,
       FilterExpression filterExpression, Geometry currentGeom, OSMEntity currentEntity) {
     boolean addToOutput;
-    if (processingData.containsSimpleFeatureTypes()) {
+    if (processingData.isContainingSimpleFeatureTypes()) {
       addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
     } else if (requiresGeometryTypeCheck) {
       addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);

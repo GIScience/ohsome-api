@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
@@ -93,6 +94,7 @@ import org.wololo.geojson.Polygon;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
+@RequiredArgsConstructor
 public class ExecutionUtils {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
@@ -100,10 +102,6 @@ public class ExecutionUtils {
   private static final Point emptyPoint = new Point(new double[0]);
   private static final LineString emptyLine = new LineString(new double[0][0]);
   private static final Polygon emptyPolygon = new Polygon(new double[0][0][0]);
-
-  public ExecutionUtils(ProcessingData processingData) {
-    this.processingData = processingData;
-  }
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
@@ -780,7 +778,7 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      Object groupByObject = groupByResult.getGroupByObject();
+      Object groupByObject = groupByResult.getGroupByObjectId();
       if (groupByObject instanceof Object[]) {
         Object[] groupByObjectArr = (Object[]) groupByObject;
         columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
@@ -816,9 +814,9 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
-      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
-      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
-      columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
+      columnNames.add(ratioGroupByResult.getGroupByObjectId() + "_value");
+      columnNames.add(ratioGroupByResult.getGroupByObjectId() + "_value2");
+      columnNames.add(ratioGroupByResult.getGroupByObjectId() + "_ratio");
       for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
         RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
         if (i == 0) {
@@ -854,7 +852,7 @@ public class ExecutionUtils {
     List<String[]> rows = new LinkedList<>();
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      columnNames.add(groupByResult.getGroupByObject().toString());
+      columnNames.add(groupByResult.getGroupByObjectId().toString());
       for (int j = 0; j < groupByResult.getResult().length; j++) {
         UsersResult usersResult = (UsersResult) groupByResult.getResult()[j];
         if (i == 0) {

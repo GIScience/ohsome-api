@@ -3,6 +3,9 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyrespon
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.geojson.Feature;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
@@ -12,13 +15,15 @@ import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 /**
  * Represents the whole JSON response object for the data aggregation response using the
  * count|length|area|perimeter/groupBy resource. It contains an optional
- * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
- * Metadata}, the requested
+ * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata Metadata}, the
+ * requested
  * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult
  * GroupByResult} for a JSON response and an identifier of the object. If the output format is
  * GeoJSON, the response includes a {@link org.geojson.Feature Feature} array, which holds the
  * respective objects with their timestamp-value pairs.
  */
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonInclude(Include.NON_NULL)
 public class GroupByResponse implements Response {
 
@@ -35,8 +40,6 @@ public class GroupByResponse implements Response {
   @ApiModelProperty(notes = "GroupByResult array holding the respective objects "
       + "with their timestamp-value pairs", required = true)
   private GroupByResult[] groupByResult;
-
-  private GroupByResponse() {}
 
   public GroupByResponse(Attribution attribution, String apiVersion, Metadata metadata,
       GroupByResult[] groupByUserResult) {
@@ -56,29 +59,5 @@ public class GroupByResponse implements Response {
     response.type = type;
     response.features = features;
     return response;
-  }
-
-  public Attribution getAttribution() {
-    return attribution;
-  }
-
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  public Metadata getMetadata() {
-    return metadata;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public Feature[] getFeatures() {
-    return features;
-  }
-
-  public GroupByResult[] getGroupByResult() {
-    return groupByResult;
   }
 }

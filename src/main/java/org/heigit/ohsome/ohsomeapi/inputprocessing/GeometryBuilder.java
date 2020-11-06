@@ -10,6 +10,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+import lombok.RequiredArgsConstructor;
 import org.geojson.GeoJsonObject;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -34,14 +35,11 @@ import org.wololo.jts2geojson.GeoJSONReader;
 /**
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.
  */
+@RequiredArgsConstructor
 public class GeometryBuilder {
 
   GeometryFactory gf;
   private final ProcessingData processingData;
-
-  public GeometryBuilder(ProcessingData processingData) {
-    this.processingData = processingData;
-  }
 
   public GeometryBuilder() {
     this.processingData = null;

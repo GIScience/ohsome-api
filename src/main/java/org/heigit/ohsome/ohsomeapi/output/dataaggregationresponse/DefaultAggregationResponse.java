@@ -3,16 +3,20 @@ package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.geojson.Feature;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
  * /groupBy resource. It contains attribution info, the version of the api, optional
- * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata
- * Metadata} and the
+ * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata Metadata} and the
  * {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
  * ElementsResult} objects.
  */
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonInclude(Include.NON_NULL)
 public class DefaultAggregationResponse implements Response {
 
@@ -28,8 +32,6 @@ public class DefaultAggregationResponse implements Response {
   private Feature[] features;
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
   private Result[] result;
-
-  private DefaultAggregationResponse() {}
 
   /** Static factory method returning the whole JSON response. */
   public static DefaultAggregationResponse of(Attribution attribution, String apiVersion,
@@ -60,29 +62,5 @@ public class DefaultAggregationResponse implements Response {
     response.type = type;
     response.features = features;
     return response;
-  }
-
-  public Attribution getAttribution() {
-    return attribution;
-  }
-
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  public Metadata getMetadata() {
-    return metadata;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public Feature[] getFeatures() {
-    return features;
-  }
-
-  public Result[] getResult() {
-    return result;
   }
 }

@@ -1,6 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Abstract class used by the groupByResult classes:
@@ -11,16 +13,10 @@ import io.swagger.annotations.ApiModelProperty;
  * RatioGroupByResult}</li>
  * </ul>
  */
+@Getter
+@AllArgsConstructor
 public abstract class GroupByObject {
 
   @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
-  protected Object groupByObjectValue;
-
-  public GroupByObject(Object groupByObjectValue) {
-    this.groupByObjectValue = groupByObjectValue;
-  }
-
-  public Object getGroupByObject() {
-    return groupByObjectValue;
-  }
+  protected Object groupByObjectId;
 }
