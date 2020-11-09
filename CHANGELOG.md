@@ -1,7 +1,29 @@
 ## current master
 
-* update to oshdb version 0.5.10 (including an Ignite update to 2.9.0)
+### Prominent Changes 
 
+* several improvements to the docs, e.g. ([#49](https://github.com/GIScience/ohsome-api/pull/49)) and partially in ([#34](https://github.com/GIScience/ohsome-api/pull/34)) 
+* upgrade to ohsome-filter 1.3 ([#62](https://github.com/GIScience/ohsome-api/pull/62))
+
+### New Features
+
+* adding new endpoint /contributions ([#34](https://github.com/GIScience/ohsome-api/pull/34))
+
+### Bug Fixes
+
+* fixing not-encoded pipe sign in GET requests ([#60](https://github.com/GIScience/ohsome-api/pull/60)) ([#61](https://github.com/GIScience/ohsome-api/pull/61))
+
+### Other Changes
+
+* update to oshdb version 0.5.10 (including an Ignite update to 2.9.0) ([#67](https://github.com/GIScience/ohsome-api/pull/67)) 
+* diverse code refactoring improvements, e.g. ([#46](https://github.com/GIScience/ohsome-api/pull/46)), ([#47](https://github.com/GIScience/ohsome-api/pull/47)), ([#51](https://github.com/GIScience/ohsome-api/pull/51)), ([#57](https://github.com/GIScience/ohsome-api/pull/57))
+* include test directory in checkstyle ([#69](https://github.com/GIScience/ohsome-api/pull/69))
+
+## 1.1.1
+
+### Bug Fixes
+
+* allowing not encoded pipe sign in GET requests ([#60](https://github.com/GIScience/ohsome-api/pull/60))
 
 ## 1.1.0
 
