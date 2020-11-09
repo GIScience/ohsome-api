@@ -1,5 +1,8 @@
 ## current master
 
+
+## 1.2.0
+
 ### Prominent Changes 
 
 * several improvements to the docs, e.g. ([#49](https://github.com/GIScience/ohsome-api/pull/49)) and partially in ([#34](https://github.com/GIScience/ohsome-api/pull/34)) 
@@ -19,11 +22,13 @@
 * diverse code refactoring improvements, e.g. ([#46](https://github.com/GIScience/ohsome-api/pull/46)), ([#47](https://github.com/GIScience/ohsome-api/pull/47)), ([#51](https://github.com/GIScience/ohsome-api/pull/51)), ([#57](https://github.com/GIScience/ohsome-api/pull/57))
 * include test directory in checkstyle ([#69](https://github.com/GIScience/ohsome-api/pull/69))
 
+
 ## 1.1.1
 
 ### Bug Fixes
 
 * allowing not encoded pipe sign in GET requests ([#60](https://github.com/GIScience/ohsome-api/pull/60))
+
 
 ## 1.1.0
 
