@@ -1,5 +1,10 @@
 ## current master
 
+## 1.2.1
+
+### Bug Fixes
+
+* fixing bug Ignite trying to load non-serializable objects within lambda functions ([#75](https://github.com/GIScience/ohsome-api/pull/75))
 
 ## 1.2.0
 
