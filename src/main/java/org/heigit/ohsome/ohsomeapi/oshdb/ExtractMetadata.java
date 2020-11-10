@@ -13,6 +13,7 @@ public class ExtractMetadata {
   public static Geometry dataPoly = null;
   public static JsonNode dataPolyJson = null;
   public static int replicationSequenceNumber;
+  public static final int TIMEOUT_IN_MS = 600000;
 
   private ExtractMetadata() {
     throw new IllegalStateException("Utility class");
