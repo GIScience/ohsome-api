@@ -21,7 +21,7 @@ public class MetadataResponse {
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
   private String apiVersion;
-  @ApiModelProperty(notes = "Maximal timeout response in milliseconds", required = true,
+  @ApiModelProperty(notes = "Maximal response timeout in milliseconds", required = true,
       position = 2)
   private int timeOutInMs;
   @ApiModelProperty(
