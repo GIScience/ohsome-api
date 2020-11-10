@@ -21,9 +21,8 @@ public class MetadataResponse {
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
   private String apiVersion;
-  @ApiModelProperty(notes = "Maximal response timeout in milliseconds", required = true,
-      position = 2)
-  private int timeOutInMs;
+  @ApiModelProperty(notes = "Maximal response timeout in seconds", required = true, position = 2)
+  private double timeOutInSeconds;
   @ApiModelProperty(
       notes = "Extract region object holding the spatial|temporal extend + attribution",
       required = true, position = 3)

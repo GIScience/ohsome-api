@@ -25,7 +25,7 @@ public class MetadataRequestExecutor {
     }
     return new MetadataResponse(
         new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.API_VERSION, ExtractMetadata.TIMEOUT_IN_MS,
+        Application.API_VERSION, ExtractMetadata.timeOutInSeconds,
         new ExtractRegion(ExtractMetadata.dataPolyJson,
             new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp),
             ExtractMetadata.replicationSequenceNumber));
