@@ -1,6 +1,8 @@
 ## current master
 
-* provide contributions response as a downloadable file
+## 1.2.2
+
+* provide contributions response as a downloadable file ([#78](https://github.com/GIScience/ohsome-api/pull/78))
 
 ## 1.2.1
 
