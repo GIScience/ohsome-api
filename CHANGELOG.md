@@ -1,5 +1,7 @@
 ## current master
 
+* provide contributions response as a downloadable file
+
 ## 1.2.1
 
 ### Bug Fixes
