@@ -46,14 +46,31 @@ public class RequestUtils {
   }
 
   /**
-   * Checks if the given request is requesting a data-extraction.
-   * 
+   * Checks if the given request is requesting a data extraction that can potentially return a
+   * bigger amount of GeoJSON data. This can either be through using the
+   * /elements/geometry|bbox|centroid, or the /elementsFullHistory endpoint.
+   *
    * @param url the url of the request to check
    * @return whether it is a data-extraction request, or not
    */
   public static boolean isDataExtraction(String url) {
     return url.contains("elementsFullHistory") || url.contains("elements/geometry")
         || url.contains("elements/centroid") || url.contains("elements/bbox");
+  }
+
+  /**
+   * Checks if the given request is requesting a contributions extraction that can potentially
+   * return a bigger amount of GeoJSON data. This can be through using the
+   * /contributions/(latest)/geometry|bbox|centroid endpoint.
+   *
+   * @param url the url of the request to check
+   * @return whether it is a contributions-extraction request, or not
+   */
+  public static boolean isContributionsExtraction(String url) {
+    return url.contains("contributions/geometry") || url.contains("contributions/centroid")
+        || url.contains("contributions/bbox") || url.contains("contributions/latest/geometry")
+        || url.contains("contributions/latest/centroid")
+        || url.contains("contributions/latest/bbox");
   }
 
   /**

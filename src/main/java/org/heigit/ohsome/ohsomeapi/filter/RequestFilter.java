@@ -21,7 +21,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestFilter extends OncePerRequestFilter {
 
-
   /**
    * @throws IOException thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils#extractOSHDBMetadata()
@@ -45,7 +44,9 @@ public class RequestFilter extends OncePerRequestFilter {
     response.setHeader("Access-Control-Allow-Headers",
         "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,"
             + "Access-Control-Request-Headers,Authorization");
-    if (RequestUtils.isDataExtraction(request.getRequestURL().toString())) {
+    String requestUrl = request.getRequestURL().toString();
+    if (RequestUtils.isDataExtraction(requestUrl)
+        || RequestUtils.isContributionsExtraction(requestUrl)) {
       response.setHeader("Content-disposition", "attachment;filename=ohsome.geojson");
     }
     if (RequestUtils.usesCsvFormat(request)) {
