@@ -11,11 +11,13 @@ import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
+import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {
+  
+  @Autowired
+  //TODO try to inject this object into the following classes (RequestExecutor, InputProcessor, etc)
+  private DbConnData dbConnData;
 
   /**
    * Gives the count of OSM objects.
@@ -346,5 +352,12 @@ public class CountController {
       HttpServletResponse servletResponse) throws Exception {
     return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.COUNT,
         servletRequest, servletResponse);
+  }
+
+  /**
+   * @param dbConnData the dbConnData to set
+   */
+  public void setDbConnData(DbConnData dbConnData) {
+    this.dbConnData = dbConnData;
   }
 }
