@@ -18,5 +18,5 @@ import lombok.Getter;
 public abstract class GroupByObject {
 
   @ApiModelProperty(notes = "Object on which the results are grouped on", required = true)
-  protected Object groupByObjectId;
+  protected Object groupByObject;
 }

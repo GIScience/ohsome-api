@@ -1,4 +1,8 @@
-## current master
+## 1.2.3
+
+### Bug Fixes
+
+* fix a regression in version 1.2.0: `groupBy` requests return the property `groupByObjectId` instead of `groupByObject` as documented.
 
 
 ## 1.2.2
