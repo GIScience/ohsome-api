@@ -1,8 +1,10 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Arrays;
@@ -45,7 +47,7 @@ public class GetControllerTest {
     SpringApplication.exit(Application.getApplicationContext(), () -> 0);
   }
 
-  /** Method to get response body as String */
+  /** Method to get response body as String. */
   private String getResponseBody(String urlParams) {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<String> response =
@@ -848,10 +850,10 @@ public class GetControllerTest {
     String responseBody =
         getResponseBody("/elements/area/density/groupBy/type?" + "bcircles=8.68250,49.39384,300"
             + "&format=csv&keys=leisure&time=2018-01-01&types=way,relation");
-    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    final List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertTrue(!headers.containsKey("NODE"));
+    assertFalse(headers.containsKey("NODE"));
     assertEquals(3, headers.size());
     assertEquals(264812.45, Double.parseDouble(records.get(0).get("WAY")), 0.01);
     assertEquals(46838.97, Double.parseDouble(records.get(0).get("RELATION")), 0.01);
