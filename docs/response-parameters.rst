@@ -1,20 +1,28 @@
 Response Parameters
 ===================
 
-Descriptions of the custom response parameters that are marked with a leading ``@`` for the 
-data extraction and contributions endpoints.
+Description of the response parameters.
 
 General Parameters
 ------------------
+
+Description of parameters that are present in every response.
+
+* ``attribution`` - copyrights and attribution
+* ``apiVersion`` - version of the ohsome API
+
+Aggregation Parameters
+----------------------
+
+Extraction Parameters
+---------------------
+
+Descriptions of the custom response parameters that are marked with a leading ``@``.
 
 * ``@osmId`` - id of the OSM feature with its type (node/way/relation)
 * ``@version`` - version of the feature
 * ``@changesetId``- id assigned to a changeset
 * ``@osmType``- type (node/way/relation) of OSM feature
-
-
-Extraction Parameters
----------------------
 
 **specific for /elements**
 
@@ -29,8 +37,28 @@ Extraction Parameters
 Contribution Parameters
 -----------------------
 
+Descriptions of the custom response parameters that are marked with a leading ``@``.
+
+* ``@osmId`` - id of the OSM feature with its type (node/way/relation)
+* ``@version`` - version of the feature
+* ``@changesetId``- id assigned to a changeset
+* ``@osmType``- type (node/way/relation) of OSM feature
+
 * ``@timestamp`` - indicates when this contribution occurred
 * ``@creation``	- contribution type; indicates if this feature is newly created (true); cannot occur in combination with other contribution types
 * ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
 * ``@tagChange``- contribution type; indicates if the tag of this feature has changed (true); can occur in combination with @geometryChange
 * ``@deletion`` - contribution type; indicates if the feature is deleted (true); cannot occur in combination with other contribution types
+
+Metadata
+--------
+
+* ``timeout`` - limit of the processing time in seconds
+* ``extractRegion`` - considered region
+* ``spatialExtent`` - spatial respresentation of the region
+* ``type`` - indicates the type of OSM elements
+* ``coordinates`` - coordinates of the OSM elements
+* ``temporalExtent`` - represents the temporal range
+* ``fromTimestamp`` - indicates the temporal starting point
+* ``toTimestamp`` - indicates the temporal ending point
+* ``replicationSequenceNumber`` - sequence number of the change/state file
