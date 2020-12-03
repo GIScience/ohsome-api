@@ -1919,6 +1919,7 @@ Get metadata of the underlying OSHDB data
           "text" : "© OpenStreetMap contributors"
         },
         "apiVersion" : "1.2.3",
+        "timeout": 100,
         "extractRegion" : {
           "spatialExtent" : {
             "type" : "Polygon",
