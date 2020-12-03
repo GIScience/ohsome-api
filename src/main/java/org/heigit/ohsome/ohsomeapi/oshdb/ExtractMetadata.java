@@ -14,7 +14,7 @@ public class ExtractMetadata {
   public static Geometry dataPoly = null;
   public static JsonNode dataPolyJson = null;
   public static int replicationSequenceNumber;
-  public static double timeoutInSeconds = ProcessingData.getTimeout();
+  public static double timeout = ProcessingData.getTimeout();
 
   private ExtractMetadata() {
     throw new IllegalStateException("Utility class");
