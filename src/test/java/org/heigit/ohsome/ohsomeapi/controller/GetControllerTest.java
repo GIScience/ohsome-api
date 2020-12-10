@@ -17,6 +17,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class GetControllerTest {
         restTemplate.getForEntity(server + port + "/metadata", JsonNode.class);
     assertEquals("https://ohsome.org/copyrights",
         response.getBody().get("attribution").get("url").asText());
-    assertEquals(JsonNodeType.NUMBER, response.getBody().get("timeout").getNodeType());
+    assertEquals(ProcessingData.getTimeout(), response.getBody().get("timeout").asDouble(), 1e-3);
     assertEquals(JsonNodeType.OBJECT,
         response.getBody().get("extractRegion").get("spatialExtent").getNodeType());
     assertTrue(response.getBody().get("extractRegion").get("temporalExtent").isContainerNode());
