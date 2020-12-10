@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -65,8 +66,13 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(server + port + "/metadata", JsonNode.class);
-    assertTrue(!response.getBody().get("extractRegion").get("temporalExtent").get("toTimestamp")
-        .asText().equals("2018-01-01T00:00:00"));
+    assertEquals("https://ohsome.org/copyrights",
+        response.getBody().get("attribution").get("url").asText());
+    assertEquals(JsonNodeType.NUMBER, response.getBody().get("timeout").getNodeType());
+    assertEquals(JsonNodeType.OBJECT,
+        response.getBody().get("extractRegion").get("spatialExtent").getNodeType());
+    assertTrue(response.getBody().get("extractRegion").get("temporalExtent").isContainerNode());
+    assertTrue(response.getBody().get("extractRegion").get("replicationSequenceNumber").isInt());
   }
 
   /*
