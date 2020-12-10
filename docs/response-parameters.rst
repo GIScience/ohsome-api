@@ -43,7 +43,6 @@ Descriptions of the custom response parameters that are marked with a leading ``
 * ``@version`` - version of the feature
 * ``@changesetId``- id assigned to a changeset
 * ``@osmType``- type (node/way/relation) of OSM feature
-
 * ``@timestamp`` - indicates when this contribution occurred
 * ``@creation``	- contribution type; indicates if this feature is newly created (true); cannot occur in combination with other contribution types
 * ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
@@ -54,11 +53,8 @@ Metadata
 --------
 
 * ``timeout`` - limit of the processing time in seconds
-* ``extractRegion`` - considered region
-* ``spatialExtent`` - spatial respresentation of the region
-* ``type`` - indicates the type of OSM elements
-* ``coordinates`` - coordinates of the OSM elements
-* ``temporalExtent`` - represents the temporal range
-* ``fromTimestamp`` - indicates the temporal starting point
-* ``toTimestamp`` - indicates the temporal ending point
-* ``replicationSequenceNumber`` - sequence number of the change/state file
+* ``spatialExtent`` - spatial boundary of the OSM data in the underlying OSHDB
+* ``temporalExtent`` - temporal boundary of the OSM data in the underlying OSHDB
+* ``fromTimestamp`` - temporal starting point
+* ``toTimestamp`` - temporal ending point
+* ``replicationSequenceNumber`` - hourly id of the diff files from planet.openstreetmap.org
