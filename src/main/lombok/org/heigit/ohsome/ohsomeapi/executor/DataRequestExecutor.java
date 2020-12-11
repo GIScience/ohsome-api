@@ -15,7 +15,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
+import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
@@ -52,12 +52,12 @@ public class DataRequestExecutor extends RequestExecutor {
    * 
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
+   *         processParameters}, {@link
+   *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
    *         parseISODateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, DataResponse, Stream)
-   *         streamElementsResponse}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(
+   *         HttpServletResponse, DataResponse, Stream) streamElementsResponse}
    */
   public void extract() throws Exception {
     inputProcessor.getProcessingData().setFullHistory(true);
@@ -100,9 +100,9 @@ public class DataRequestExecutor extends RequestExecutor {
     final boolean requiresGeometryTypeCheck =
         filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get());
     FilterExpression filterExpression = processingData.getFilterExpression().orElse(null);
-    String startTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0])
+    String startTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
-    String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
+    String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
     final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();

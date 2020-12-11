@@ -1,8 +1,10 @@
 ## current master
 
+* update OSHDB to version 0.6.0 ([#86](https://github.com/GIScience/ohsome-api/pull/86))
 * data extraction: escape tags with `@` characters ([#40](https://github.com/GIScience/ohsome-api/issues/40))
 * extend info on response parameters ([#73](https://github.com/GIScience/ohsome-api/pull/73))
 * delombok code to enable working javadoc ([#90](https://github.com/GIScience/ohsome-api/pull/90))
+
 
 ## 1.2.3
 

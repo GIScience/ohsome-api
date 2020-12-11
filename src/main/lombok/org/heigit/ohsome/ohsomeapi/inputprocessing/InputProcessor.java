@@ -31,7 +31,7 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
+import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.ohsome.filter.AndOperator;
 import org.heigit.ohsome.filter.Filter;
@@ -650,9 +650,9 @@ public class InputProcessor {
    * (in case of isSnapshot=false).
    * 
    * @throws BadRequestException if the time format is invalid
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
-   *         parseISODateTime}
+   * @throws Exception thrown by {@link
+   *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
+   *         parseIsoDateTime}
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
@@ -685,7 +685,7 @@ public class InputProcessor {
     } else {
       utils.checkTimestampsOnIsoConformity(time);
       for (String timestamp : time) {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
         utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       }
       timeData = utils.sortTimestamps(time);

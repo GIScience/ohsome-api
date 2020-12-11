@@ -28,9 +28,8 @@
     <jsonpath.version>2.2.0</jsonpath.version>
     <jts2geojson.version>0.13.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
-    <ohsome-filter.version>1.3.0</ohsome-filter.version>
     <opencsv.version>4.0</opencsv.version>
-    <oshdb.version>0.5.10</oshdb.version>
+    <oshdb.version>0.6.0</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <springboot.version>2.0.3.RELEASE</springboot.version>
     <springfox.version>2.9.2</springfox.version>
@@ -58,7 +57,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.heigit.bigspatialdata</groupId>
+      <groupId>org.heigit.ohsome</groupId>
       <artifactId>oshdb-api</artifactId>
       <version>${oshdb.version}</version>
       <exclusions>
@@ -73,7 +72,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.heigit.bigspatialdata</groupId>
+      <groupId>org.heigit.ohsome</groupId>
       <artifactId>oshdb-util</artifactId>
       <version>${oshdb.version}</version>
       <exclusions>
@@ -86,12 +85,6 @@
           <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <!-- ohsome OSM entity filter parser + interpreter -->
-    <dependency>
-      <groupId>org.heigit.ohsome</groupId>
-      <artifactId>ohsome-filter</artifactId>
-      <version>${ohsome-filter.version}</version>
     </dependency>
     <!-- needed for creating a custom error reporting class -->
     <dependency>
