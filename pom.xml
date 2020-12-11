@@ -209,7 +209,7 @@
 
   <repositories>
     <repository>
-      <!--This will resolve artefacts of Osgeo, Boundless and potentially others through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
+      <!--This will resolve artefacts of Osgeo, Boundless and potentially others through our own repository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
       <id>HeiGIT main</id>
       <name>Central Repository for OSHDB dependency related artefacts</name>
       <url>https://repo.heigit.org/artifactory/main</url>
