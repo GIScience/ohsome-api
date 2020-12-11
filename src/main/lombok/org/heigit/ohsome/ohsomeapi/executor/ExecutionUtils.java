@@ -137,8 +137,8 @@ public class ExecutionUtils {
       FilterExpression filterExpr1, FilterExpression filterExpr2) {
     return mapRed.filter(snapshot -> {
       OSMEntity entity = snapshot.getEntity();
-      return filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry())
-          || filterExpr2.applyOSMGeometry(entity, snapshot.getGeometry());
+      return filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry)
+          || filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
     });
   }
 
@@ -152,8 +152,8 @@ public class ExecutionUtils {
       FilterExpression filterExpr1, FilterExpression filterExpr2) {
     return mapRed.filter(snapshot -> {
       OSMEntity entity = snapshot.getEntity();
-      return filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry())
-          || filterExpr2.applyOSMGeometry(entity, snapshot.getGeometry());
+      return filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry)
+          || filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
     });
   }
 

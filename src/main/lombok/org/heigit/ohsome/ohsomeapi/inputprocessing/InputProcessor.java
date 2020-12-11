@@ -12,6 +12,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -28,6 +29,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
+import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
@@ -554,9 +556,9 @@ public class InputProcessor {
    * @param mapRed the mapreducer to filter
    * @param filterExpr the filter expression to apply
    * @return MapReducer with filtered geometries
-   * @throws RuntimeException if
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnGeometryType(Mappable, FilterExpression)
-   *         filterOnGeometryType} was called on mapped entries
+   * @throws RuntimeException if {@link
+   *         org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnGeometryType(
+   *         Mappable, FilterExpression) filterOnGeometryType} was called on mapped entries
    */
   // suppressed, as filter always returns the same mappable type T
   @SuppressWarnings("unchecked")
@@ -564,30 +566,36 @@ public class InputProcessor {
       FilterExpression filterExpr) {
     return (T) mapRed.filter(data -> {
       if (data instanceof OSMEntitySnapshot) {
-        OSMEntity snapshotEntity = ((OSMEntitySnapshot) data).getEntity();
-        Geometry snapshotGeom;
+        OSMEntitySnapshot snapshot = (OSMEntitySnapshot) data;
+        OSMEntity snapshotEntity = snapshot.getEntity();
+        Supplier<Geometry> snapshotGeom;
         if (clipGeometry) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+          snapshotGeom = snapshot::getGeometry;
         } else {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
+          snapshotGeom = snapshot::getGeometryUnclipped;
         }
         return filterExpr.applyOSMGeometry(snapshotEntity, snapshotGeom);
       } else if (data instanceof OSMContribution) {
-        OSMEntity entityBefore = ((OSMContribution) data).getEntityBefore();
-        OSMEntity entityAfter = ((OSMContribution) data).getEntityAfter();
-        Geometry contribGeomBefore;
-        Geometry contribGeomAfter;
+        OSMContribution contribution = (OSMContribution) data;
+        OSMEntity entityBefore = contribution.getEntityBefore();
+        OSMEntity entityAfter = contribution.getEntityAfter();
+        Supplier<Geometry> contribGeomBefore;
+        Supplier<Geometry> contribGeomAfter;
         if (clipGeometry) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+          contribGeomBefore = contribution::getGeometryBefore;
+          contribGeomAfter = contribution::getGeometryAfter;
         } else {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
+          contribGeomBefore = contribution::getGeometryUnclippedBefore;
+          contribGeomAfter = contribution::getGeometryUnclippedAfter;
         }
-        return contribGeomBefore != null
-            && filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore)
-            || contribGeomAfter != null
-                && filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
+        if (contribution.is(ContributionType.CREATION)) {
+          return filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
+        } else if (contribution.is(ContributionType.DELETION)) {
+          return filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore);
+        } else {
+          return filterExpr.applyOSMGeometry(entityAfter, contribGeomBefore)
+              && filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
+        }
       } else {
         assert false : "geometry filter called on mapped entries";
         throw new RuntimeException("geometry filter called on mapped entries");

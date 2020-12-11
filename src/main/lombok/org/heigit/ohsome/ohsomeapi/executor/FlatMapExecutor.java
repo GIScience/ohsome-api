@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -96,8 +98,9 @@ public class FlatMapExecutor implements Serializable {
         // set valid_to of previous row
         validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
+          final Geometry geomToCheck = currentGeom;
           boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-              simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, currentGeom,
+              simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, () -> geomToCheck,
               currentEntity);
           if (addToOutput) {
             properties = new TreeMap<>();
@@ -140,8 +143,9 @@ public class FlatMapExecutor implements Serializable {
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
       }
       if (!currentGeom.isEmpty()) {
+        final Geometry geomToCheck = currentGeom;
         boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-            simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, currentGeom,
+            simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, () -> geomToCheck,
             currentEntity);
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
@@ -168,9 +172,11 @@ public class FlatMapExecutor implements Serializable {
     if (includeOSMMetadata) {
       properties.put("@lastEdit", entity.getTimestamp().toString());
     }
-    Geometry geom = snapshot.getGeometry();
-    if (!clipGeometries) {
-      geom = snapshot.getGeometryUnclipped();
+    Supplier<Geometry> geom;
+    if (clipGeometries) {
+      geom = snapshot::getGeometry;
+    } else {
+      geom = snapshot::getGeometryUnclipped;
     }
     properties.put("@snapshotTimestamp",
         TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
@@ -180,7 +186,7 @@ public class FlatMapExecutor implements Serializable {
         simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, geom, entity);
     if (addToOutput) {
       return Collections.singletonList(
-          exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
+          exeUtils.createOSMFeature(entity, geom.get(), properties, keysInt, includeTags,
               includeOSMMetadata, isContributionsEndpoint, elementsGeometry, null));
     } else {
       return Collections.emptyList();
@@ -188,13 +194,17 @@ public class FlatMapExecutor implements Serializable {
   }
 
   /** Checks whether the given entity should be added to the output (true) or not (false). */
-  public static boolean addEntityToOutput(boolean isContainingSimpleFeatureTypes,
+  public static boolean addEntityToOutput(
+      boolean isContainingSimpleFeatureTypes,
       InputProcessingUtils utils,
-      final Set<SimpleFeatureType> simpleFeatureTypes, final boolean requiresGeometryTypeCheck,
-      FilterExpression filterExpression, Geometry currentGeom, OSMEntity currentEntity) {
+      final Set<SimpleFeatureType> simpleFeatureTypes,
+      final boolean requiresGeometryTypeCheck,
+      FilterExpression filterExpression,
+      Supplier<Geometry> currentGeom,
+      OSMEntity currentEntity) {
     boolean addToOutput;
     if (isContainingSimpleFeatureTypes) {
-      addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
+      addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom.get(), simpleFeatureTypes);
     } else if (requiresGeometryTypeCheck) {
       addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
     } else {
