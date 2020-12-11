@@ -263,75 +263,12 @@ public class InputProcessor {
         FilterParser fp = new FilterParser(DbConnData.tagTranslator);
         FilterExpression filterExpr = utils.parseFilter(fp, filter);
         processingData.setFilterExpression(filterExpr);
-        mapRed = optimizeFilters0(mapRed, filterExpr);
-        mapRed = optimizeFilters1(mapRed, filterExpr);
-        mapRed = mapRed.osmEntityFilter(filterExpr::applyOSM);
-        // execute this only if the filter has a geometry type subfilter
-        if (ProcessingData.filterContainsGeometryTypeCheck(filterExpr)
-            // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-            && !processingData.isRatio() && !processingData.isGroupByBoundary()
-            && !processingData.isFullHistory()) {
-          processingData.setContainingSimpleFeatureTypes(true);
-          mapRed = filterOnGeometryType(mapRed, filterExpr);
-        }
+        mapRed = mapRed.filter(filterExpr);
       }
     } else {
       mapRed = extractKeysValues(mapRed, keys, values);
     }
     return (MapReducer<T>) mapRed;
-  }
-
-  private MapReducer<? extends OSHDBMapReducible> optimizeFilters0(
-      MapReducer<? extends OSHDBMapReducible> mapRed, FilterExpression filter) {
-    // performs basic optimizations “low hanging fruit”:
-    // single filters, and-combination of single filters, etc.
-    if (filter instanceof TagFilterEquals) {
-      OSMTag tag = DbConnData.tagTranslator.getOSMTagOf(((TagFilterEquals) filter).getTag());
-      return mapRed.osmTag(tag);
-    }
-    if (filter instanceof TagFilterEqualsAny) {
-      OSMTagKey key =
-          DbConnData.tagTranslator.getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
-      return mapRed.osmTag(key);
-    }
-    if (filter instanceof TypeFilter) {
-      return mapRed.osmType(((TypeFilter) filter).getType());
-    }
-    if (filter instanceof AndOperator) {
-      return optimizeFilters0(optimizeFilters0(mapRed, ((AndOperator) filter).getLeftOperand()),
-          ((AndOperator) filter).getRightOperand());
-    }
-    return mapRed;
-  }
-
-  private MapReducer<? extends OSHDBMapReducible> optimizeFilters1(
-      MapReducer<? extends OSHDBMapReducible> mapRed, FilterExpression filter) {
-    // performs more advanced optimizations that rely on analyzing the DNF of a filter expression
-    // 1. convert to disjunctive normal form
-    List<List<Filter>> filterNormalized = filter.normalize();
-    // 2. collect all OSMTypes in all of the clauses
-    EnumSet<OSMType> allTypes = EnumSet.noneOf(OSMType.class);
-    for (List<Filter> andSubFilter : filterNormalized) {
-      EnumSet<OSMType> subTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
-      for (Filter subFilter : andSubFilter) {
-        if (subFilter instanceof TypeFilter) {
-          subTypes.retainAll(EnumSet.of(((TypeFilter) subFilter).getType()));
-        } else if (subFilter instanceof GeometryTypeFilter) {
-          subTypes.retainAll(((GeometryTypeFilter) subFilter).getOSMTypes());
-        }
-      }
-      allTypes.addAll(subTypes);
-    }
-    mapRed = mapRed.osmType(allTypes);
-    processingData.setOsmTypes(allTypes);
-    // 3. (todo) intelligently group queried tags
-    /*
-     * here, we could optimize a few situations further: when a specific tag or key is used in all
-     * branches of the filter: run mapRed.osmTag the set of tags which are present in any branches:
-     * run mapRed.osmTag(list) (note that for this all branches need to have at least one
-     * TagFilterEquals or TagFilterEqualsAny) related: https://github.com/GIScience/oshdb/pull/210
-     */
-    return mapRed;
   }
 
   /**
@@ -545,60 +482,6 @@ public class InputProcessor {
       } else {
         assert false : "filterOnSimpleFeatures() called on mapped entries";
         throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
-      }
-    });
-  }
-
-  /**
-   * Applies respective Puntal|Lineal|Polygonal filter(s) from a given filter expression on features
-   * of the given MapReducer.
-   *
-   * @param mapRed the mapreducer to filter
-   * @param filterExpr the filter expression to apply
-   * @return MapReducer with filtered geometries
-   * @throws RuntimeException if {@link
-   *         org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnGeometryType(
-   *         Mappable, FilterExpression) filterOnGeometryType} was called on mapped entries
-   */
-  // suppressed, as filter always returns the same mappable type T
-  @SuppressWarnings("unchecked")
-  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnGeometryType(T mapRed,
-      FilterExpression filterExpr) {
-    return (T) mapRed.filter(data -> {
-      if (data instanceof OSMEntitySnapshot) {
-        OSMEntitySnapshot snapshot = (OSMEntitySnapshot) data;
-        OSMEntity snapshotEntity = snapshot.getEntity();
-        Supplier<Geometry> snapshotGeom;
-        if (clipGeometry) {
-          snapshotGeom = snapshot::getGeometry;
-        } else {
-          snapshotGeom = snapshot::getGeometryUnclipped;
-        }
-        return filterExpr.applyOSMGeometry(snapshotEntity, snapshotGeom);
-      } else if (data instanceof OSMContribution) {
-        OSMContribution contribution = (OSMContribution) data;
-        OSMEntity entityBefore = contribution.getEntityBefore();
-        OSMEntity entityAfter = contribution.getEntityAfter();
-        Supplier<Geometry> contribGeomBefore;
-        Supplier<Geometry> contribGeomAfter;
-        if (clipGeometry) {
-          contribGeomBefore = contribution::getGeometryBefore;
-          contribGeomAfter = contribution::getGeometryAfter;
-        } else {
-          contribGeomBefore = contribution::getGeometryUnclippedBefore;
-          contribGeomAfter = contribution::getGeometryUnclippedAfter;
-        }
-        if (contribution.is(ContributionType.CREATION)) {
-          return filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
-        } else if (contribution.is(ContributionType.DELETION)) {
-          return filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore);
-        } else {
-          return filterExpr.applyOSMGeometry(entityAfter, contribGeomBefore)
-              && filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
-        }
-      } else {
-        assert false : "geometry filter called on mapped entries";
-        throw new RuntimeException("geometry filter called on mapped entries");
       }
     });
   }

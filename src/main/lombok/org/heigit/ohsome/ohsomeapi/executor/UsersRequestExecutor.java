@@ -315,10 +315,6 @@ public class UsersRequestExecutor {
     if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
-      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
-    }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result =
         mapAgg.map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;

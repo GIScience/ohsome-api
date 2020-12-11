@@ -192,10 +192,6 @@ public class ElementsRequestExecutor {
     if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
-      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
-    }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     var preResult = mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)

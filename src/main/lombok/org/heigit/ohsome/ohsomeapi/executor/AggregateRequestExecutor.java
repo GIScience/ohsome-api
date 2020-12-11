@@ -352,10 +352,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
     if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get())) {
-      mapAgg = inputProcessor.filterOnGeometryType(mapAgg, filter.get());
-    }
     preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
