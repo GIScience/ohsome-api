@@ -22,7 +22,7 @@ Aggregation Endpoints
    :query filter: combines several attributive filters: OSM type, geometry (simple feature) type, as well as the OSM tag; See filter_
    :query format: 'json' or 'csv'; default: 'json'
    :query showMetadata: add additional metadata information to the response: 'true', 'false', 'yes', 'no'; default: 'false'
-   :query timeout: custom timeout to limit the processing time in seconds; default: dependent on server settings, retrieveable through a /metadata request
+   :query timeout: custom timeout to limit the processing time in seconds; default: dependent on server settings, retrievable via the /metadata request
    :query types: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
    :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
    :query values: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty

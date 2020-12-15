@@ -24,7 +24,7 @@ public class MetadataResponse {
   @ApiModelProperty(notes = "Maximal response timeout in seconds", required = true, position = 2)
   private double timeout;
   @ApiModelProperty(
-      notes = "Extract region object holding the spatial|temporal extend + attribution",
+      notes = "Extract region object holding the spatial|temporal extent + attribution",
       required = true, position = 3)
   private ExtractRegion extractRegion;
 }

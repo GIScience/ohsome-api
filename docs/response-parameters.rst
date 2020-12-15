@@ -19,10 +19,10 @@ Extraction Parameters
 
 Descriptions of the custom response parameters that are marked with a leading ``@``.
 
-* ``@osmId`` - id of the OSM feature with its type (node/way/relation)
-* ``@version`` - version of the feature
-* ``@changesetId``- id assigned to a changeset
-* ``@osmType``- type (node/way/relation) of OSM feature
+* ``@osmId`` - id of the OSM element, including its type (e.g. node/1)
+* ``@version`` - version number of the OSM element
+* ``@changesetId`` - id of the OSM changeset which last increased the version of this OSM element
+* ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
 
 **specific for /elements**
 
@@ -39,10 +39,10 @@ Contribution Parameters
 
 Descriptions of the custom response parameters that are marked with a leading ``@``.
 
-* ``@osmId`` - id of the OSM feature with its type (node/way/relation)
-* ``@version`` - version of the feature
-* ``@changesetId``- id assigned to a changeset
-* ``@osmType``- type (node/way/relation) of OSM feature
+* ``@osmId`` - id of the OSM element, including its type (e.g. node/1)
+* ``@version`` - version of the OSM element
+* ``@changesetId`` - id of the OSM changeset where the contribution was performed
+* ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
 * ``@timestamp`` - indicates when this contribution occurred
 * ``@creation``	- contribution type; indicates if this feature is newly created (true); cannot occur in combination with other contribution types
 * ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
@@ -57,4 +57,4 @@ Metadata
 * ``temporalExtent`` - temporal boundary of the OSM data in the underlying OSHDB
 * ``fromTimestamp`` - temporal starting point
 * ``toTimestamp`` - temporal ending point
-* ``replicationSequenceNumber`` - id of the hourly diff files from planet.openstreetmap.org
+* ``replicationSequenceNumber`` - precise state of the OSM data contained in the underlying OSHDB, expressed as the id of the last applied (hourly) diff file from planet.openstreetmap.org
