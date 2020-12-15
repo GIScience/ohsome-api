@@ -54,7 +54,7 @@ Metadata
 
 * ``timeout`` - limit of the processing time in seconds
 * ``spatialExtent`` - spatial boundary of the OSM data in the underlying OSHDB
-* ``temporalExtent`` - temporal boundary of the OSM data in the underlying OSHDB
+* ``temporalExtent`` - timeframe of the OSM data in the underlying OSHDB
 * ``fromTimestamp`` - temporal starting point
 * ``toTimestamp`` - temporal ending point
 * ``replicationSequenceNumber`` - precise state of the OSM data contained in the underlying OSHDB, expressed as the id of the last applied (hourly) diff file from planet.openstreetmap.org
