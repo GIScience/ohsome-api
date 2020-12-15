@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,8 +67,13 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(server + port + "/metadata", JsonNode.class);
-    assertTrue(!response.getBody().get("extractRegion").get("temporalExtent").get("toTimestamp")
-        .asText().equals("2018-01-01T00:00:00"));
+    assertEquals("https://ohsome.org/copyrights",
+        response.getBody().get("attribution").get("url").asText());
+    assertEquals(ProcessingData.getTimeout(), response.getBody().get("timeout").asDouble(), 1e-3);
+    assertEquals(JsonNodeType.OBJECT,
+        response.getBody().get("extractRegion").get("spatialExtent").getNodeType());
+    assertTrue(response.getBody().get("extractRegion").get("temporalExtent").isContainerNode());
+    assertTrue(response.getBody().get("extractRegion").get("replicationSequenceNumber").isInt());
   }
 
   /*

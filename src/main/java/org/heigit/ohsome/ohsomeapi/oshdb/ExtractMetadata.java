@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.oshdb;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.locationtech.jts.geom.Geometry;
 
 /** Holds the metadata that is derived from the data-extract. */
@@ -13,6 +14,7 @@ public class ExtractMetadata {
   public static Geometry dataPoly = null;
   public static JsonNode dataPolyJson = null;
   public static int replicationSequenceNumber;
+  public static double timeout = ProcessingData.getTimeout();
 
   private ExtractMetadata() {
     throw new IllegalStateException("Utility class");
