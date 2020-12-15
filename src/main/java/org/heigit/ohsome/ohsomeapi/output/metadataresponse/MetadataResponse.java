@@ -19,7 +19,7 @@ public class MetadataResponse {
 
   @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
   private Attribution attribution;
-  @ApiModelProperty(notes = "Version of this api", required = true, position = 1)
+  @ApiModelProperty(notes = "Specific version of this API", required = true, position = 1)
   private String apiVersion;
   @ApiModelProperty(notes = "Maximal response timeout in seconds", required = true, position = 2)
   private double timeout;
