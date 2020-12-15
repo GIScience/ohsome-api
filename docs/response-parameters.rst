@@ -57,4 +57,4 @@ Metadata
 * ``temporalExtent`` - temporal boundary of the OSM data in the underlying OSHDB
 * ``fromTimestamp`` - temporal starting point
 * ``toTimestamp`` - temporal ending point
-* ``replicationSequenceNumber`` - hourly id of the diff files from planet.openstreetmap.org
+* ``replicationSequenceNumber`` - id of the hourly diff files from planet.openstreetmap.org
