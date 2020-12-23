@@ -7,21 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.geojson.Feature;
 
-public class FlatMapExecutor implements Serializable {
+public class DataExtractionTransformer implements Serializable {
 
   private final boolean isContributionsLatestEndpoint;
   private final boolean isContributionsEndpoint;
@@ -30,8 +28,6 @@ public class FlatMapExecutor implements Serializable {
   private final String startTimestamp;
   private final InputProcessingUtils utils;
   private final Set<SimpleFeatureType> simpleFeatureTypes;
-  private final boolean requiresGeometryTypeCheck;
-  private final FilterExpression filterExpression;
   private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
@@ -39,13 +35,11 @@ public class FlatMapExecutor implements Serializable {
   private final String endTimestamp;
   private final boolean isContainingSimpleFeatureTypes;
 
-  public FlatMapExecutor(boolean isContributionsLatestEndpoint, boolean isContributionsEndpoint,
-      ExecutionUtils exeUtils, boolean clipGeometries, String startTimestamp,
-      InputProcessingUtils utils,
-      Set<SimpleFeatureType> simpleFeatureTypes, boolean requiresGeometryTypeCheck,
-      FilterExpression filterExpression, Set<Integer> keysInt, boolean includeTags,
-      boolean includeOSMMetadata,
-      ElementsGeometry elementsGeometry, String endTimestamp,
+  public DataExtractionTransformer(boolean isContributionsLatestEndpoint,
+      boolean isContributionsEndpoint, ExecutionUtils exeUtils,
+      boolean clipGeometries, String startTimestamp, InputProcessingUtils utils,
+      Set<SimpleFeatureType> simpleFeatureTypes, Set<Integer> keysInt, boolean includeTags,
+      boolean includeOSMMetadata, ElementsGeometry elementsGeometry, String endTimestamp,
       boolean isContainingSimpleFeatureTypes) {
     this.isContributionsLatestEndpoint = isContributionsLatestEndpoint;
     this.isContributionsEndpoint = isContributionsEndpoint;
@@ -54,8 +48,6 @@ public class FlatMapExecutor implements Serializable {
     this.startTimestamp = startTimestamp;
     this.utils = utils;
     this.simpleFeatureTypes = simpleFeatureTypes;
-    this.requiresGeometryTypeCheck = requiresGeometryTypeCheck;
-    this.filterExpression = filterExpression;
     this.keysInt = keysInt;
     this.includeTags = includeTags;
     this.includeOSMMetadata = includeOSMMetadata;
@@ -100,8 +92,7 @@ public class FlatMapExecutor implements Serializable {
         if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
           final Geometry geomToCheck = currentGeom;
           boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-              simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, () -> geomToCheck,
-              currentEntity);
+              simpleFeatureTypes, () -> geomToCheck);
           if (addToOutput) {
             properties = new TreeMap<>();
             if (!isContributionsEndpoint) {
@@ -145,8 +136,7 @@ public class FlatMapExecutor implements Serializable {
       if (!currentGeom.isEmpty()) {
         final Geometry geomToCheck = currentGeom;
         boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-            simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, () -> geomToCheck,
-            currentEntity);
+            simpleFeatureTypes, () -> geomToCheck);
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
               includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
@@ -183,7 +173,7 @@ public class FlatMapExecutor implements Serializable {
     properties.put("@validFrom", startTimestamp);
     properties.put("@validTo", endTimestamp);
     boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-        simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, geom, entity);
+        simpleFeatureTypes, geom);
     if (addToOutput) {
       return Collections.singletonList(
           exeUtils.createOSMFeature(entity, geom.get(), properties, keysInt, includeTags,
@@ -198,15 +188,10 @@ public class FlatMapExecutor implements Serializable {
       boolean isContainingSimpleFeatureTypes,
       InputProcessingUtils utils,
       final Set<SimpleFeatureType> simpleFeatureTypes,
-      final boolean requiresGeometryTypeCheck,
-      FilterExpression filterExpression,
-      Supplier<Geometry> currentGeom,
-      OSMEntity currentEntity) {
+      Supplier<Geometry> currentGeom) {
     boolean addToOutput;
     if (isContainingSimpleFeatureTypes) {
       addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom.get(), simpleFeatureTypes);
-    } else if (requiresGeometryTypeCheck) {
-      addToOutput = filterExpression.applyOSMGeometry(currentEntity, currentGeom);
     } else {
       addToOutput = true;
     }

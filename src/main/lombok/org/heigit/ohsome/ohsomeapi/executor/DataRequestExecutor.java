@@ -96,22 +96,23 @@ public class DataRequestExecutor extends RequestExecutor {
     final boolean isContributionsEndpoint =
         isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS);
     final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    final boolean requiresGeometryTypeCheck =
-        filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get());
-    FilterExpression filterExpression = processingData.getFilterExpression().orElse(null);
     String startTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent()) {
+      mapRedSnapshot = mapRedSnapshot.filter(filter.get());
+      mapRedContributions = mapRedContributions.filter(filter.get());
+    }
     final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
-    FlatMapExecutor flatMapExecutor = new FlatMapExecutor(isContributionsLatestEndpoint,
-        isContributionsEndpoint, exeUtils, clipGeometries, startTimestamp, utils,
-        simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, keysInt, includeTags,
-        includeOSMMetadata, elementsGeometry, endTimestamp, isContainingSimpleFeatureTypes);
+    DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
+        isContributionsLatestEndpoint, isContributionsEndpoint, exeUtils, clipGeometries,
+        startTimestamp, utils, simpleFeatureTypes, keysInt, includeTags, includeOSMMetadata,
+        elementsGeometry, endTimestamp, isContainingSimpleFeatureTypes);
     MapReducer<Feature> contributionPreResult = mapRedContributions
-        .flatMap(flatMapExecutor::buildChangedFeatures)
+        .flatMap(dataExtractionTransformer::buildChangedFeatures)
         .filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
@@ -130,7 +131,7 @@ public class DataRequestExecutor extends RequestExecutor {
               && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
                   .getVersion())
           .map(snapshots -> snapshots.get(0))
-          .flatMap(flatMapExecutor::buildUnchangedFeatures)
+          .flatMap(dataExtractionTransformer::buildUnchangedFeatures)
           .filter(Objects::nonNull);
     }
     try (

@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.geojson.GeoJsonObject;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.ohsome.filter.BinaryOperator;
 import org.heigit.ohsome.filter.FilterExpression;
-import org.heigit.ohsome.filter.GeometryTypeFilter;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.locationtech.jts.geom.Geometry;
 
@@ -60,20 +58,4 @@ public class ProcessingData {
     return Optional.ofNullable(this.filterExpression);
   }
 
-  /**
-   * Checks if a given filter expression contains a geometry type check or not.
-   *
-   * @param expr the filter expression to check
-   * @return true if the given filter expression contains at least one geometry type check
-   */
-  public static boolean filterContainsGeometryTypeCheck(FilterExpression expr) {
-    if (expr instanceof GeometryTypeFilter) {
-      return true;
-    } else if (expr instanceof BinaryOperator) {
-      return filterContainsGeometryTypeCheck(((BinaryOperator) expr).getLeftOperand())
-          || filterContainsGeometryTypeCheck(((BinaryOperator) expr).getRightOperand());
-    } else {
-      return false;
-    }
-  }
 }

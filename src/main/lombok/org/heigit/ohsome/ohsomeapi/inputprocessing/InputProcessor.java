@@ -263,7 +263,12 @@ public class InputProcessor {
         FilterParser fp = new FilterParser(DbConnData.tagTranslator);
         FilterExpression filterExpr = utils.parseFilter(fp, filter);
         processingData.setFilterExpression(filterExpr);
-        mapRed = mapRed.filter(filterExpr);
+        if (!(processingData.isRatio()
+            || processingData.isGroupByBoundary()
+            || processingData.isFullHistory())) {
+          // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
+          mapRed = mapRed.filter(filterExpr);
+        }
       }
     } else {
       mapRed = extractKeysValues(mapRed, keys, values);
