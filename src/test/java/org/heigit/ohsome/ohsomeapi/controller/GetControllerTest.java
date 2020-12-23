@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.io.IOException;
@@ -68,9 +69,6 @@ public class GetControllerTest {
         restTemplate.getForEntity(server + port + "/metadata", JsonNode.class);
     assertEquals("https://ohsome.org/copyrights",
         response.getBody().get("attribution").get("url").asText());
-    System.out.println("rosariotest: " + ProcessingData.getTimeout());
-    System.out.println(response.getBody().get("timeout"));
-    System.out.println(response.getBody().get("timeout").asDouble());
     assertEquals(ProcessingData.getTimeout(), response.getBody().get("timeout").asDouble(), 1e-3);
     assertEquals(JsonNodeType.OBJECT,
         response.getBody().get("extractRegion").get("spatialExtent").getNodeType());
