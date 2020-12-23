@@ -10,4 +10,5 @@ public class TestProperties {
   public static final String JUNIT = System.getProperty("junit");
   public static final String INTEGRATION = System.getProperty("integration");
   public static final String SERVER = "http://localhost:";
+  public static final double DELTA_PERCENTAGE = 0.5 / 100; // 0.5 %
 }
