@@ -28,6 +28,7 @@ public class PostControllerTest {
 
   private static String port = TestProperties.PORT2;
   private String server = TestProperties.SERVER;
+  private double deltaPercentage = TestProperties.DELTA_PERCENTAGE;
 
   /** Starts this application context. */
   @BeforeClass
@@ -123,7 +124,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 1e-6);
+        .findFirst().get().get("value").asInt());
   }
 
   @Test
@@ -147,7 +148,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("properties").get("groupByBoundaryId").asText()
             .equalsIgnoreCase("feature2"))
-        .findFirst().get().get("properties").get("value").asInt(), 1e-6);
+        .findFirst().get().get("properties").get("value").asInt());
   }
 
   @Test
@@ -165,7 +166,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 1e-6);
+        .findFirst().get().get("value").asInt());
   }
 
   @Test
@@ -184,7 +185,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2018-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 1e-6);
+        .findFirst().get().get("value").asInt());
   }
 
   @Test
@@ -202,7 +203,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2014-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 1e-6);
+        .findFirst().get().get("value").asInt());
   }
 
   @Test
@@ -221,7 +222,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2019-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 1e-6);
+        .findFirst().get().get("value").asInt());
   }
 
   @Test
@@ -240,7 +241,7 @@ public class PostControllerTest {
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2018-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asInt(), 1e-6);
+        .findFirst().get().get("value").asInt());
   }
 
   @Test
@@ -254,12 +255,10 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/count/groupBy/type", map, JsonNode.class);
-    assertEquals(2.0,
-        response.getBody().get("groupByResult").get(0).get("result").get(0).get("value").asDouble(),
-        1e-6);
-    assertEquals(1.0,
-        response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
-        1e-6);
+    assertEquals(2,
+        response.getBody().get("groupByResult").get(0).get("result").get(0).get("value").asInt());
+    assertEquals(1,
+        response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asInt());
   }
 
   /*
@@ -268,6 +267,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterTest() {
+    double expectedValue = 571.84;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -277,16 +277,17 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
-    assertEquals(571.84, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("timestamp").asText().equalsIgnoreCase("2015-01-01T00:00:00Z"))
-        .findFirst().get().get("value").asDouble(), 1e-6);
+        .findFirst().get().get("value").asDouble(), expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByBoundaryTest() {
+    double expectedValue = 2476.29;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
@@ -297,15 +298,17 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/boundary", map, JsonNode.class);
-    assertEquals(2476.29, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Weststadt"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByBoundaryGroupByTagTest() {
+    double expectedValue = 3051.72;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
@@ -324,11 +327,13 @@ public class PostControllerTest {
             jsonNode -> "Weststadt".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
                 && "building=residential"
                     .equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByTypeTest() {
+    double expectedValue = 65283.12;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -337,17 +342,18 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/type", map, JsonNode.class);
-    assertEquals(65283.12,
+    assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("way"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByKeyTest() {
+    double expectedValue = 65283.12;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -356,17 +362,18 @@ public class PostControllerTest {
     map.add("groupByKeys", "building,highway");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
-    assertEquals(65283.12,
+    assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByTagTest() {
+    double expectedValue = 20513.5;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -375,15 +382,17 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/tag", map, JsonNode.class);
-    assertEquals(20513.5, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterRatioTest() {
+    double expectedValue = 0.01558;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -394,12 +403,14 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/ratio", map, JsonNode.class);
-    assertEquals(0.01558, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
-        1e-6);
+    assertEquals(expectedValue,
+        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterRatioGroupByBoundaryTest() {
+    double expectedValue = 0.008612;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -413,17 +424,19 @@ public class PostControllerTest {
     map.add("values2", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/ratio/groupBy/boundary", map, JsonNode.class);
-    assertEquals(0.008612, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(), 1e-6);
+        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterDensityTest() {
+    double expectedValue = 2130.19;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -433,11 +446,13 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/density", map, JsonNode.class);
-    assertEquals(2130.19, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterDensityGroupByTypeTest() {
+    double expectedValue = 990.97;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -446,17 +461,18 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/type", map, JsonNode.class);
-    assertEquals(990.97,
+    assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("relation"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterDensityGroupByTagTest() {
+    double expectedValue = 5073.93;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -471,11 +487,13 @@ public class PostControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterDensityGroupByBoundaryTest() {
+    double expectedValue = 455.0;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -486,15 +504,17 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/boundary", map, JsonNode.class);
-    assertEquals(455, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterDensityGroupByBoundaryGroupByTagTest() {
+    double expectedValue = 93.75;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687");
@@ -505,18 +525,21 @@ public class PostControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/boundary/groupBy/tag", map,
         JsonNode.class);
-    assertEquals(93.75, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(
             jsonNode -> "Weststadt".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
                 && "building=house".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
     assertEquals(10, response.getBody().get("groupByResult").size());
   }
 
   @Test
   public void elementsPerimeterGroupByKeySimpleFeaturePolygonTest() {
+    double expectedValue1 = 77.79;
+    double expectedValue2 = 58.71;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.662714,49.413594,8.663337,49.414324");
@@ -525,12 +548,12 @@ public class PostControllerTest {
     map.add("groupByKeys", "building,landuse");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
-    assertEquals(77.79,
+    assertEquals(expectedValue1,
         response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
-        1e-6);
-    assertEquals(58.71,
+        expectedValue1 * deltaPercentage);
+    assertEquals(expectedValue2,
         response.getBody().get("groupByResult").get(2).get("result").get(0).get("value").asDouble(),
-        1e-6);
+        expectedValue2 * deltaPercentage);
   }
 
   /*
@@ -539,6 +562,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaTest() {
+    double expectedValue = 1845.85;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -548,11 +572,13 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
-    assertEquals(1845.85, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaGroupByBoundaryTest() {
+    double expectedValue = 1861.71;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -563,15 +589,17 @@ public class PostControllerTest {
     map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/boundary", map, JsonNode.class);
-    assertEquals(1861.71, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaGroupByBoundaryGroupByTagTest() {
+    double expectedValue = 639.63;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68081,49.39821,8.69528,49.40687");
@@ -582,17 +610,19 @@ public class PostControllerTest {
     map.add("groupByValues", "residential,garage");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/groupBy/boundary/groupBy/tag", map, JsonNode.class);
-    assertEquals(639.63, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> "b1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText())
             && "building=garage".equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
     assertEquals(3, response.getBody().get("groupByResult").size());
   }
 
   @Test
   public void elementsAreaGroupByTypeTest() {
+    double expectedValue = 15969.39;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -601,17 +631,18 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/type", map, JsonNode.class);
-    assertEquals(15969.39,
+    assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("relation"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaGroupByKeyTest() {
+    double expectedValue = 263900.49;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -620,17 +651,18 @@ public class PostControllerTest {
     map.add("groupByKeys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/key", map, JsonNode.class);
-    assertEquals(263900.49,
+    assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
             .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building"))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
-        0);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaGroupByTagTest() {
+    double expectedValue = 244076.11;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -639,15 +671,17 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/tag", map, JsonNode.class);
-    assertEquals(244076.11, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaRatioTest() {
+    double expectedValue = 0.060513;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -658,12 +692,14 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
-    assertEquals(0.060513, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
-        1e-6);
+    assertEquals(expectedValue,
+        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaRatioGroupByBoundaryTest() {
+    double expectedValue = 0.060513;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Neuenheim:8.67691,49.41256,8.69304,49.42331|"
@@ -675,12 +711,13 @@ public class PostControllerTest {
     map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
-    assertEquals(0.060513, response.getBody().get("groupByBoundaryResult").get(1).get("ratioResult")
-        .get(0).get("ratio").asDouble(), 1e-6);
+    assertEquals(expectedValue, response.getBody().get("groupByBoundaryResult").get(1)
+        .get("ratioResult").get(0).get("ratio").asDouble(), expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaDensityTest() {
+    double expectedValue = 404281.84;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -690,11 +727,13 @@ public class PostControllerTest {
     map.add("values", "yes");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/density", map, JsonNode.class);
-    assertEquals(404281.84, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaDensityGroupByTypeTest() {
+    double expectedValue = 22225.48;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -703,13 +742,14 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/density/groupBy/type", map, JsonNode.class);
-    assertEquals(22225.48,
+    assertEquals(expectedValue,
         response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
-        1e-6);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaDensityGroupByTagTest() {
+    double expectedValue = 404281.84;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -718,15 +758,17 @@ public class PostControllerTest {
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/density/groupBy/tag", map, JsonNode.class);
-    assertEquals(404281.84, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaDensityGroupByBoundaryTest() {
+    double expectedValue = 261743.53;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -736,13 +778,14 @@ public class PostControllerTest {
     map.add("keys", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/density/groupBy/boundary", map, JsonNode.class);
-    assertEquals(261743.53,
+    assertEquals(expectedValue,
         response.getBody().get("groupByResult").get(0).get("result").get(0).get("value").asDouble(),
-        1e-6);
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaDensityGroupByBoundaryGroupByTagTest() {
+    double expectedValue = 7568.03;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68081,49.39821,8.69528,49.40687");
@@ -752,7 +795,7 @@ public class PostControllerTest {
     map.add("groupByValues", "residential,garage");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/density/groupBy/boundary/groupBy/tag", map, JsonNode.class);
-    assertEquals(7568.03,
+    assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -760,12 +803,13 @@ public class PostControllerTest {
                 && "building=residential"
                     .equalsIgnoreCase(jsonNode.get("groupByObject").get(1).asText()))
             .findFirst().get().get("result").get(0).get("value").asDouble(),
-        1e-6);
+        expectedValue * deltaPercentage);
     assertEquals(3, response.getBody().get("groupByResult").size());
   }
 
   @Test
   public void elementsAreaSimpleFeaturePolygonTest() {
+    double expectedValue = 1234.4;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68815,49.41964,8.68983,49.42045");
@@ -775,11 +819,13 @@ public class PostControllerTest {
     map.add("values", "pedestrian");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
-    assertEquals(1234.34, response.getBody().get("result").get(0).get("value").asDouble(), 1e-6);
+    assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaRatioSimpleFeaturePolygonTest() {
+    double expectedValue = 0.558477;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.679789,49.409088,8.680535,49.40943");
@@ -792,12 +838,14 @@ public class PostControllerTest {
     map.add("values2", "Schwimmerbecken");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
-    assertEquals(0.558477, response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
-        1e-6);
+    assertEquals(expectedValue,
+        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaGroupByTagSimpleFeaturePolygonTest() {
+    double expectedValue = 4052.65;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68287,49.36967,8.68465,49.37135");
@@ -807,18 +855,20 @@ public class PostControllerTest {
     map.add("groupByValues", "pitch,sports_centre");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/tag", map, JsonNode.class);
-    assertEquals(4052.65, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(
             jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("leisure=pitch"))
-        .findFirst().get().get("result").get(0).get("value").asDouble(), 1e-6);
+        .findFirst().get().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   // csv output tests
 
   @Test
   public void elementsLengthCsvTest() throws IOException {
+    double expectedValue = 378.09;
     // expect result to have 1 entry rows with 2 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67508,49.37834,8.67565,49.38026");
@@ -832,11 +882,13 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(2, headers.size());
-    assertEquals(378.09, Double.parseDouble(records.get(0).get("value")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("value")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsLengthDensityGroupByTagCsvTest() throws IOException {
+    double expectedValue = 103137.94;
     // expect result to have 1 entry rows with 4 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.687782,49.412861,8.687986,49.412945");
@@ -850,11 +902,13 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(103137.94, Double.parseDouble(records.get(0).get("highway=footway")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("highway=footway")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsLengthRatioGroupByBoundaryCsvTest() throws IOException {
+    double expectedValue = 1.01958;
     // expect result to have 1 entry rows with 7 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
@@ -873,25 +927,36 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(7, headers.size());
-    assertEquals(1.01958, Double.parseDouble(records.get(0).get("boundary1_ratio")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("boundary1_ratio")),
+        expectedValue * deltaPercentage);
   }
 
   // this test needs a fix in the OSHDB to work correctly
-  /*
-   * @Test public void elementsLengthGroupByTypeCsvTest() throws IOException { // expect result to
-   * have 1 entry rows with 3 columns MultiValueMap<String, String> map = new
-   * LinkedMultiValueMap<>(); map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
-   * map.add("types", "way,relation"); map.add("time", "2018-01-01"); map.add("keys", "name");
-   * map.add("format", "csv"); String responseBody =
-   * Helper.getPostResponseBody("/elements/length/groupBy/type", map); List<CSVRecord> records =
-   * Helper.getCsvRecords(responseBody); assertEquals(1, Helper.getCsvRecords(responseBody).size());
-   * Map<String, Integer> headers = Helper.getCsvHeaders(responseBody); assertEquals(3,
-   * headers.size()); assertEquals(105, Double.parseDouble(records.get(0).get("RELATION")), 0.01); }
-   */
+  // TODO
+  // @Test
+  // public void elementsLengthGroupByTypeCsvTest() throws IOException {
+  // // expect result to have 1 entry rows with 3 columns
+  // double expectedValue = 105.0; //actual value 106.16
+  // MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+  // map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
+  // map.add("types", "way,relation");
+  // map.add("time", "2018-01-01");
+  // map.add("keys", "name");
+  // map.add("format", "csv");
+  // String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/type", map);
+  // List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+  // assertEquals(1, Helper.getCsvRecords(responseBody).size());
+  // Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+  // assertEquals(3, headers.size());
+  // assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
+  // expectedValue * deltaPercentage);
+  // }
+
 
   @Test
   public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {
     // expect result to have 1 entry rows with 9 columns
+    double expectedValue = 226.4;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.69205,49.41164,8.69319,49.41287|b2:8.66785,49.40973,8.66868,49.41176");
     map.add("types", "line");
@@ -905,7 +970,8 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(9, headers.size());
-    assertEquals(226.4, Double.parseDouble(records.get(0).get("b2_highway=footway")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("b2_highway=footway")),
+        expectedValue * deltaPercentage);
   }
 
 
@@ -913,6 +979,7 @@ public class PostControllerTest {
   public void elementsPerimeterCsvTest() throws IOException {
     // expect result to have 1 entry rows with 2 columns
     // testing perimeter of building with a hole
+    double expectedValue = 661.21;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68855,49.40193,8.68979,49.40316");
     map.add("types", "relation");
@@ -925,12 +992,14 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(2, headers.size());
-    assertEquals(661.21, Double.parseDouble(records.get(0).get("value")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("value")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
+    double expectedValue = 94.52;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.676699,"
         + "49.414781,8.678003,49.415371");
@@ -946,12 +1015,14 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(94.52, Double.parseDouble(records.get(0).get("Weststadt_building=house")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("Weststadt_building=house")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterDensityGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 3 columns
+    double expectedValue = 62587.13;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.67512, 49.40023,60|8.675659,49.39841,50");
     map.add("types", "way");
@@ -965,12 +1036,14 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(62587.13, Double.parseDouble(records.get(0).get("boundary2")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("boundary2")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterGroupByKeyCsvTest() throws IOException {
     // expect result to have 1 entry rows with 4 columns
+    double expectedValue = 365.52;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.685642,49.395621,8.687128,49.396528");
     map.add("types", "way");
@@ -982,12 +1055,14 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(365.52, Double.parseDouble(records.get(0).get("building")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("building")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsPerimeterRatioGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 7 columns
+    double expectedValue = 0.5;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "8.685642,49.396078,8.687192,49.396528|8.685744,49.395621,8.687294,49.396078");
@@ -1003,12 +1078,14 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(7, headers.size());
-    assertEquals(0.5, Double.parseDouble(records.get(0).get("boundary2_ratio")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("boundary2_ratio")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaRatioGroupByBoundarySimpleFeatureCsvTest() throws IOException {
     // expect result to have 1 entry rows with 7 columns
+    double expectedValue = 0.257534;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "b1:8.70167,49.38686,60|b2: 8.70231,49.38952,60");
     map.add("types", "polygon");
@@ -1023,12 +1100,14 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(7, headers.size());
-    assertEquals(0.257534, Double.parseDouble(records.get(0).get("b1_ratio")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("b1_ratio")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
   public void elementsAreaGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
+    double expectedValue = 48.36;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "b1:8.695003,49.399594,8.695421,49.399789|" + "b2:8.687788,49.402997,8.68856,49.403441");
@@ -1044,7 +1123,8 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(48.36, Double.parseDouble(records.get(0).get("b1_building=garage")), 0.01);
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("b1_building=garage")),
+        expectedValue * deltaPercentage);
   }
 
   @Test
@@ -1061,8 +1141,8 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(3, headers.size());
-    assertEquals(1, Double.parseDouble(records.get(0).get("RELATION")), 0.00);
-    assertEquals(1, Double.parseDouble(records.get(0).get("WAY")), 0.00);
+    assertEquals(1.0, Double.parseDouble(records.get(0).get("RELATION")), 0.0);
+    assertEquals(1.0, Double.parseDouble(records.get(0).get("WAY")), 0.0);
   }
 
   /*
@@ -1094,6 +1174,7 @@ public class PostControllerTest {
 
   @Test
   public void postAndAllNotEqualsFilterTest() {
+    double expectedValue = 17457.09;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.684692,49.407669,8.688061,49.410310");
@@ -1101,7 +1182,8 @@ public class PostControllerTest {
     map.add("filter", "building=* and name!=*");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
-    assertEquals(17457.09, response.getBody().get("result").get(0).get("value").asDouble(), 0.0);
+    assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
+        expectedValue * deltaPercentage);
   }
 
   @Test
