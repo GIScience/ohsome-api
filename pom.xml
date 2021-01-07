@@ -31,6 +31,7 @@
     <ohsome-filter.version>1.3.0</ohsome-filter.version>
     <opencsv.version>4.0</opencsv.version>
     <oshdb.version>0.5.10</oshdb.version>
+    <projectlombok.version>1.18.16</projectlombok.version>
     <springboot.version>2.0.3.RELEASE</springboot.version>
     <springfox.version>2.9.2</springfox.version>
   </properties>
@@ -167,7 +168,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.16</version>
+      <version>${projectlombok.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -197,6 +198,19 @@
             </manifestEntries>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok-maven-plugin</artifactId>
+        <version>${projectlombok.version}.0</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>delombok</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <resources>
