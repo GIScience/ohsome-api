@@ -209,6 +209,11 @@
             <goals>
               <goal>delombok</goal>
             </goals>
+            <configuration>
+              <formatPreferences>
+                <generateDelombokComment>skip</generateDelombokComment>
+              </formatPreferences>
+            </configuration>
           </execution>
         </executions>
       </plugin>
