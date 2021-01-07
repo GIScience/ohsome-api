@@ -11,6 +11,13 @@ Description of parameters that are present in every response.
 * ``attribution`` - copyrights and attribution
 * ``apiVersion`` - version of the ohsome API
 
+OSM Tags
+--------
+
+When requested, the result will contain OSM elements' tags as individual GeoJSON properties.
+
+.. note:: Any OSM tag with a key starting with the special `@` character (e.g.: `@osmId`), will be modified through the addition of another `@` at the start (the example would be changed to `@@osmId`).
+
 Aggregation Parameters
 ----------------------
 

@@ -30,7 +30,7 @@ public class FlatMapExecutor implements Serializable {
   private final Set<SimpleFeatureType> simpleFeatureTypes;
   private final boolean requiresGeometryTypeCheck;
   private final FilterExpression filterExpression;
-  private final int[] keysInt;
+  private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
   private final ElementsGeometry elementsGeometry;
@@ -41,7 +41,7 @@ public class FlatMapExecutor implements Serializable {
       ExecutionUtils exeUtils, boolean clipGeometries, String startTimestamp,
       InputProcessingUtils utils,
       Set<SimpleFeatureType> simpleFeatureTypes, boolean requiresGeometryTypeCheck,
-      FilterExpression filterExpression, int[] keysInt, boolean includeTags,
+      FilterExpression filterExpression, Set<Integer> keysInt, boolean includeTags,
       boolean includeOSMMetadata,
       ElementsGeometry elementsGeometry, String endTimestamp,
       boolean isContainingSimpleFeatureTypes) {

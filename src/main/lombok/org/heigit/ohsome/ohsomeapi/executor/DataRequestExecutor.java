@@ -83,12 +83,7 @@ public class DataRequestExecutor extends RequestExecutor {
     }
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParameters.getKeys();
-    int[] keysInt = new int[keys.length];
-    if (keys.length != 0) {
-      for (int i = 0; i < keys.length; i++) {
-        keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
-      }
-    }
+    final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();

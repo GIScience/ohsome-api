@@ -1,5 +1,7 @@
 ## current master
 
+* data extraction: escape tags with `@` characters ([#40](https://github.com/GIScience/ohsome-api/issues/40))
+
 ## 1.2.3
 
 ### Bug Fixes

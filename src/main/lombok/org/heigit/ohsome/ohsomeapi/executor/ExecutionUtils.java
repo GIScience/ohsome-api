@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import com.opencsv.CSVWriter;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayOutputStream;
@@ -17,7 +19,9 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -408,7 +412,7 @@ public class ExecutionUtils {
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
-      Map<String, Object> properties, int[] keysInt, boolean includeTags,
+      Map<String, Object> properties, Set<Integer> keysInt, boolean includeTags,
       boolean includeOSMMetadata, boolean isContributionsEndpoint, ElementsGeometry elemGeom,
       EnumSet<ContributionType> contributionTypes) {
     if (geometry.isEmpty() && !contributionTypes.contains(ContributionType.DELETION)) {
@@ -416,21 +420,10 @@ public class ExecutionUtils {
       return null;
     }
     if (includeTags) {
-      for (OSHDBTag oshdbTag : entity.getTags()) {
-        properties.put(String.valueOf(oshdbTag.getKey()), oshdbTag);
-      }
-    } else if (keysInt.length != 0) {
-      int[] tags = entity.getRawTags();
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
-        int tagValueId = tags[i + 1];
-        for (int key : keysInt) {
-          if (tagKeyId == key) {
-            properties.put(String.valueOf(tagKeyId), new OSHDBTag(tagKeyId, tagValueId));
-            break;
-          }
-        }
-      }
+      properties.put("@tags", Iterables.toArray(entity.getTags(), OSHDBTag.class));
+    } else if (!keysInt.isEmpty()) {
+      properties.put("@tags", Streams.stream(entity.getTags())
+          .filter(t -> keysInt.contains(t.getKey())).toArray(OSHDBTag[]::new));
     }
     if (includeOSMMetadata) {
       properties =
@@ -912,19 +905,14 @@ public class ExecutionUtils {
     try {
       threadPool.submit(() -> stream.parallel().map(data -> {
         // 0. resolve tags
-        Map<String, Object> tags = data.getProperties();
-        List<String> keysToDelete = new LinkedList<>();
-        List<OSMTag> tagsToAdd = new LinkedList<>();
-        for (Entry<String, Object> tag : tags.entrySet()) {
-          String key = tag.getKey();
-          if (key.charAt(0) != '@') {
-            keysToDelete.add(key);
-            tagsToAdd.add(tts.get().getOSMTagOf((OSHDBTag) tag.getValue()));
+        Map<String, Object> props = data.getProperties();
+        OSHDBTag[] tags = (OSHDBTag[]) props.remove("@tags");
+        if (tags != null) {
+          for (OSHDBTag tag : tags) {
+            OSMTag osmTag = tts.get().getOSMTagOf(tag);
+            String key = osmTag.getKey();
+            props.put(key.startsWith("@") ? "@" + key : key, osmTag.getValue());
           }
-        }
-        tags.keySet().removeAll(keysToDelete);
-        for (OSMTag tag : tagsToAdd) {
-          tags.put(tag.getKey(), tag.getValue());
         }
         // 1. convert features to geojson
         try {
@@ -1016,6 +1004,19 @@ public class ExecutionUtils {
       }
     }
     return properties;
+  }
+
+  static Set<Integer> keysToKeysInt(String[] keys, TagTranslator tt) {
+    final Set<Integer> keysInt;
+    if (keys.length != 0) {
+      keysInt = new HashSet<>(keys.length);
+      for (int i = 0; i < keys.length; i++) {
+        keysInt.add(tt.getOSHDBTagKeyOf(keys[i]).toInt());
+      }
+    } else {
+      keysInt = Collections.emptySet();
+    }
+    return keysInt;
   }
 
   /** Enum type used in /ratio computation. */

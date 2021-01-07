@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -108,12 +109,7 @@ public class ElementsRequestExecutor {
     RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParameters.getKeys();
-    int[] keysInt = new int[keys.length];
-    if (keys.length != 0) {
-      for (int i = 0; i < keys.length; i++) {
-        keysInt[i] = tt.getOSHDBTagKeyOf(keys[i]).toInt();
-      }
-    }
+    final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     final MapReducer<Feature> preResult;
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     preResult = mapRed.map(snapshot -> {
