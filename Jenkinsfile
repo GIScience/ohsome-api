@@ -187,7 +187,7 @@ pipeline {
           jacoco(
               execPattern      : '**/target/jacoco.exec',
               classPattern     : '**/target/classes',
-              sourcePattern    : '**/src/main/java',
+              sourcePattern    : '**/**/target/generated-sources/delombok',
               inclusionPattern : '/org/heigit/**'
           )
           sh "mkdir -p $report_dir && rm -Rf $report_dir* && find . -path '*/target/site/jacoco' -exec cp -R --parents {} $report_dir \\; && find $report_dir -path '*/target/site/jacoco' | while read line; do echo \$line; neu=\${line/target\\/site\\/jacoco/} ;  mv \$line/* \$neu ; done && find $report_dir -type d -empty -delete"
