@@ -88,7 +88,7 @@ public class StringSimilarity {
    * @return an ArrayList of suggested parameters sorted by the difference in length between the
    *         requested parameter and the suggested parameters.
    * @param parameter - request parameter
-   * @param possibleParameters - list of possible parameters
+   * @param possibleParams - list of possible parameters
    */
   private static ArrayList<FuzzyScoreObject> sortParamsByLength(String parameter,
       ArrayList<FuzzyScoreObject> possibleParams) {
