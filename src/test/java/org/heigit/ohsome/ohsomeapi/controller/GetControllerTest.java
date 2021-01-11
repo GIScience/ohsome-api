@@ -255,7 +255,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsCountDensityTest() {
-    double expectedValue = 3880.74;
+    double expectedValue = 3868.09;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/density?bboxes=8.68794,49.41434,8.69021,49.41585"
@@ -267,7 +267,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsCountDensityGroupByBoundaryTest() {
-    double expectedValue = 334.85;
+    double expectedValue = 333.76;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
@@ -284,7 +284,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsCountDensityGroupByTypeTest() {
-    double expectedValue = 893.67;
+    double expectedValue = 890.76;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/type?bboxes=8.68086,49.39948,8.69401,49.40609"
@@ -300,7 +300,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsCountDensityGroupByTagTest() {
-    double expectedValue = 61.48;
+    double expectedValue = 61.28;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&types=way"
@@ -315,7 +315,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsCountDensityGroupByBoundaryGroupByTagTest() {
-    double expectedValue = 2.83;
+    double expectedValue = 2.82;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401,"
@@ -336,7 +336,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthTest() {
-    double expectedValue = 15171.81;
+    double expectedValue = 15198.89;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/length?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
@@ -348,7 +348,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthGroupByBoundaryTest() {
-    double expectedValue = 25.5;
+    double expectedValue = 25.52;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
@@ -365,7 +365,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthGroupByBoundaryGroupByTagTest() {
-    double expectedValue = 670.61;
+    double expectedValue = 672.24;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/length/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609"
@@ -382,7 +382,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthGroupByTypeTest() {
-    double expectedValue = 540.52;
+    double expectedValue = 541.85;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/length/groupBy/type?bboxes=8.701665,49.408802,8.703999,49.409553"
@@ -399,7 +399,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthGroupByKeyTest() {
-    double expectedValue = 3132.95;
+    double expectedValue = 3139.77;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/length/groupBy/key?bboxes=8.67181,49.40434,8.67846,49.40878"
@@ -415,7 +415,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthGroupByTagTest() {
-    double expectedValue = 372.78;
+    double expectedValue = 373.51;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/length/groupBy/tag?bboxes=8.70773,49.40832,8.71413,49.41092&types=way"
@@ -430,7 +430,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthRatioTest() {
-    double expectedValue = 0.135225;
+    double expectedValue = 0.135294;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/length/ratio?bboxes=8.67567,49.40695,8.69434,49.40882"
@@ -443,13 +443,13 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthRatioGroupByBoundaryTest() {
-    double expectedValue = 0.47867;
+    double expectedValue = 0.478598;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port + "/elements"
         + "/length/ratio/groupBy/boundary?bboxes=8.67829,49.39807,8.69061,49.40578|"
         + "8.68306,49.42407,8.68829,49.42711&types=way&time=2012-12-22&keys=highway&keys2=railway",
         JsonNode.class);
-    assertEquals(0.47867, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
                 response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
@@ -461,7 +461,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthDensityTest() {
-    double expectedValue = 29022.41;
+    double expectedValue = 28990.48;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/length/density?bboxes=8.70538,49.40464,8.71264,49.41042"
@@ -473,7 +473,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthDensityGroupByTypeTest() {
-    double expectedValue = 47849.51;
+    double expectedValue = 47782.05;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/length/density/groupBy/type?bboxes=8.68242,49.40059,8.68732,49.4059"
@@ -489,7 +489,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthDensityGroupByTagTest() {
-    double expectedValue = 20495.63;
+    double expectedValue = 20460.96;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/length/density/groupBy/tag?bboxes=8.66972,49.40453,8.67564,49.4076"
@@ -504,7 +504,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthDensityGroupByBoundaryTest() {
-    double expectedValue = 48739.54;
+    double expectedValue = 48648.22;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
@@ -521,7 +521,7 @@ public class GetControllerTest {
 
   @Test
   public void getElementsLengthDensityGroupByBoundaryGroupByTagTest() {
-    double expectedValue = 73.71;
+    double expectedValue = 73.67;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/length/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401"
@@ -598,7 +598,7 @@ public class GetControllerTest {
 
   @Test
   public void getUsersCountDensityTest() {
-    double expectedValue = 14.38;
+    double expectedValue = 14.33;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/users/count/density?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
@@ -610,7 +610,7 @@ public class GetControllerTest {
 
   @Test
   public void getUsersCountDensityGroupByTypeTest() {
-    double expectedValue = 3.83;
+    double expectedValue = 3.82;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/density/groupBy/type?bboxes=8.67,49.39941,8.69545,49.4096&types=way,"
@@ -626,7 +626,7 @@ public class GetControllerTest {
 
   @Test
   public void getUsersCountDensityGroupByTagTest() {
-    double expectedValue = 26.84;
+    double expectedValue = 26.75;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/density/groupBy/tag?bboxes=8.67,49.39941,8.69545,49.4096&types=way"
@@ -662,7 +662,7 @@ public class GetControllerTest {
 
   @Test
   public void getUsersCountDensityGroupByBoundaryTest() {
-    double expectedValue = 14.38;
+    double expectedValue = 14.33;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/density/groupBy/boundary?bboxes=a:8.67452,49.40961,8.70392,49.41823|"
@@ -698,7 +698,7 @@ public class GetControllerTest {
   public void getElementsCountDensityCsvTest() throws IOException {
     // expect result to have 1 entry row, with 2 columns
     // bbox contains 2 shops(bbox 1 ~ 0.01km²)
-    double expectedValue = 216.58;
+    double expectedValue = 215.87;
     String responseBody =
         getResponseBody("/elements/count/density?" + "bboxes=8.6889,49.39281,8.69025,49.39366&"
             + "types=node&time=2017-01-01&keys=shop&format=csv");
@@ -714,7 +714,7 @@ public class GetControllerTest {
   public void getElementsCountDensityGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry row, with 3 columns
     // bbox 1 contains 3, bbox 2 contains 0 residential buildings (bbox 1 ~ 1km²)
-    double expectedValue = 3.77;
+    double expectedValue = 3.76;
     String responseBody = getResponseBody("/elements/count/density/groupBy/boundary?"
         + "bboxes=8.678,49.41254,8.69074,49.4203|8.67959,49.41039,8.68092,49.41125&"
         + "types=way&time=2017-07-01&keys=building&values=residential&format=csv");
@@ -730,7 +730,7 @@ public class GetControllerTest {
   public void getElementsCountDensityGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry row, with 5 columns
     // each bbox contains 2 garages and 2 residential buildings
-    double expectedValue = 1460.52;
+    double expectedValue = 1455.77;
     String responseBody = getResponseBody("/elements/count/density/groupBy/boundary/"
         + "groupBy/tag?bboxes=b1:8.692826,49.399133,8.693497,49.399388"
         + "|b2:8.69376,49.398376,8.69443,49.39863&types=way&time=2016-11-09&keys=building&"
@@ -747,7 +747,7 @@ public class GetControllerTest {
   public void getElementsCountDensityGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry row, with 4 columns
     // bbox contains 1 church and 1 synagogue
-    double expectedValue = 35.19;
+    double expectedValue = 35.08;
     String responseBody = getResponseBody("/elements/count/density/groupBy/tag?"
         + "bboxes=8.687208,49.403608,8.690481,49.404687&format=csv&"
         + "groupByKey=building&groupByValues=church,synagogue&time=2019-01-01&types=way");
@@ -763,7 +763,7 @@ public class GetControllerTest {
   public void getElementsCountDensityGroupByTypeCsvTest() throws IOException {
     // expect result to have 1 entry row, with 3 columns
     // bbox contains 1 way and 1 relation with highway=pedestrian
-    double expectedValue = 2564.57;
+    double expectedValue = 2556.22;
     String responseBody = getResponseBody("/elements/count/density/groupBy/type?"
         + "bboxes=8.694322,49.409853,8.694584,49.410038&keys=highway&values=pedestrian"
         + "&types=way,relation&time=2015-01-01&format=csv");
@@ -892,7 +892,7 @@ public class GetControllerTest {
   public void getElementsLengthGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry row, with columns for: timestamp ,(per boundary:
     // remainder , value 1 , ... , value N)
-    double expectedValue = 44.37;
+    double expectedValue = 44.5;
     String responseBody = getResponseBody("/elements/length/groupBy/boundary/groupBy/tag?"
         + "bboxes=bboxes=b1:8.68593,49.39461,8.68865,49.39529|b2:8.68885,49.39450,8.68994,49.39536"
         + "&types=way&time=2017-11-25&keys=highway&groupByKey=highway&format=csv&groupByValues="
@@ -909,7 +909,7 @@ public class GetControllerTest {
   public void getElementsLengthDensityGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry row, with columns for: timestamp , (per boundary:
     // remainder , value 1 , ... , value N)
-    double expectedValue = 3195.93;
+    double expectedValue = 3190.17;
     String responseBody = getResponseBody("/elements/length/density/groupBy/boundary"
         + "/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401"
         + ",49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2017-10-08&keys=highway&"
@@ -925,7 +925,7 @@ public class GetControllerTest {
   @Test
   public void getElementsAreaDensityGroupByTypeCsvTest() throws IOException {
     // group by type: expect result to have one column per requested type
-    double expectedValue1 = 264812.45;
+    double expectedValue1 = 264812.41;
     double expectedValue2 = 46838.97;
     String responseBody =
         getResponseBody("/elements/area/density/groupBy/type?" + "bcircles=8.68250,49.39384,300"
@@ -959,7 +959,7 @@ public class GetControllerTest {
   @Test
   public void getElementsAreaGroupByTypeCsvTest() throws IOException {
     // expect result to have 1 entry row, with 3 columns
-    double expectedValue = 1978.12;
+    double expectedValue = 1984.58;
     String responseBody =
         getResponseBody("/elements/area/groupBy/type?" + "bcircles=8.689054,49.402481,80&"
             + "format=csv&keys=building&time=2018-01-01&types=way,relation");
@@ -1007,7 +1007,7 @@ public class GetControllerTest {
   @Test
   public void getUsersCountDensityCsvTest() throws IOException {
     // expect result to have 3 entry rows (1 row per time interval), with 3 columns
-    double expectedValue = 28.94;
+    double expectedValue = 28.85;
     String responseBody = getResponseBody(
         "users/count/density?" + "bcircles=8.68628,49.41117,200|8.68761,49.40819,200"
             + "&format=csv&keys=wheelchair&time=2014-01-01/2017-01-01/P1Y&types=way&values=yes");
@@ -1022,7 +1022,7 @@ public class GetControllerTest {
   @Test
   public void getUsersCountDensityGroupByTypeCsvTest() throws IOException {
     // expect result to have 3 entry rows (1 row per time interval)
-    double expectedValue = 3866.95;
+    double expectedValue = 3854.35;
     String responseBody = getResponseBody(
         "users/count/density/groupBy/type?" + "bboxes=8.691773,49.413804,8.692149,49.413975"
             + "&format=csv&keys=addr:housenumber&time=2014-01-01/2017-01-01/P1Y"
@@ -1158,7 +1158,7 @@ public class GetControllerTest {
 
   @Test
   public void getFilterTest() {
-    double expectedValue = 584.42;
+    double expectedValue = 585.48;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(server + port + "/elements/length?bboxes=8.684692,49.407669,"
@@ -1178,7 +1178,7 @@ public class GetControllerTest {
 
   @Test
   public void getNotEqualsFilterTest() {
-    double expectedValue = 9239.88;
+    double expectedValue = 9257.4;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/perimeter?bboxes=8.684692,49.407669,8.688061,49.410310"
@@ -1199,7 +1199,7 @@ public class GetControllerTest {
 
   @Test
   public void getBracketsFilterTest() {
-    double expectedValue = 20834.12;
+    double expectedValue = 20902.2;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(

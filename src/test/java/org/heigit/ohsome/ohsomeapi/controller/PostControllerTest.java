@@ -267,7 +267,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterTest() {
-    double expectedValue = 571.84;
+    double expectedValue = 572.95;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -287,7 +287,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterGroupByBoundaryTest() {
-    double expectedValue = 2476.29;
+    double expectedValue = 2480.68;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
@@ -308,7 +308,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterGroupByBoundaryGroupByTagTest() {
-    double expectedValue = 3051.72;
+    double expectedValue = 3057.18;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
@@ -320,7 +320,7 @@ public class PostControllerTest {
     map.add("groupByValues", "residential,garage");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/groupBy/boundary/groupBy/tag", map, JsonNode.class);
-    assertEquals(3051.72, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(
@@ -333,7 +333,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterGroupByTypeTest() {
-    double expectedValue = 65283.12;
+    double expectedValue = 65402.39;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -353,7 +353,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterGroupByKeyTest() {
-    double expectedValue = 65283.12;
+    double expectedValue = 65402.39;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -373,7 +373,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterGroupByTagTest() {
-    double expectedValue = 20513.5;
+    double expectedValue = 20555.77;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -392,7 +392,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterRatioTest() {
-    double expectedValue = 0.01558;
+    double expectedValue = 0.015582;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -436,7 +436,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterDensityTest() {
-    double expectedValue = 2130.19;
+    double expectedValue = 2127.38;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -452,7 +452,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterDensityGroupByTypeTest() {
-    double expectedValue = 990.97;
+    double expectedValue = 989.64;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -472,7 +472,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterDensityGroupByTagTest() {
-    double expectedValue = 5073.93;
+    double expectedValue = 5066.28;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -483,7 +483,7 @@ public class PostControllerTest {
     map.add("groupByValues", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/tag", map, JsonNode.class);
-    assertEquals(5073.93, StreamSupport
+    assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("remainder"))
@@ -493,7 +493,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterDensityGroupByBoundaryTest() {
-    double expectedValue = 455.0;
+    double expectedValue = 454.41;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -514,7 +514,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterDensityGroupByBoundaryGroupByTagTest() {
-    double expectedValue = 93.75;
+    double expectedValue = 93.61;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687");
@@ -538,8 +538,8 @@ public class PostControllerTest {
 
   @Test
   public void elementsPerimeterGroupByKeySimpleFeaturePolygonTest() {
-    double expectedValue1 = 77.79;
-    double expectedValue2 = 58.71;
+    double expectedValue1 = 77.9;
+    double expectedValue2 = 58.85;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.662714,49.413594,8.663337,49.414324");
@@ -562,7 +562,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaTest() {
-    double expectedValue = 1845.85;
+    double expectedValue = 1851.88;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -578,7 +578,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaGroupByBoundaryTest() {
-    double expectedValue = 1861.71;
+    double expectedValue = 1867.8;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -599,7 +599,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaGroupByBoundaryGroupByTagTest() {
-    double expectedValue = 639.63;
+    double expectedValue = 641.72;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68081,49.39821,8.69528,49.40687");
@@ -622,7 +622,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaGroupByTypeTest() {
-    double expectedValue = 15969.39;
+    double expectedValue = 16021.55;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -642,7 +642,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaGroupByKeyTest() {
-    double expectedValue = 263900.49;
+    double expectedValue = 264762.38;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -662,7 +662,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaGroupByTagTest() {
-    double expectedValue = 244076.11;
+    double expectedValue = 244873.26;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
@@ -717,7 +717,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaDensityTest() {
-    double expectedValue = 404281.84;
+    double expectedValue = 404281.85;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -733,7 +733,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaDensityGroupByTypeTest() {
-    double expectedValue = 22225.48;
+    double expectedValue = 22225.47;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -749,7 +749,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaDensityGroupByTagTest() {
-    double expectedValue = 404281.84;
+    double expectedValue = 404281.85;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
@@ -768,7 +768,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaDensityGroupByBoundaryTest() {
-    double expectedValue = 261743.53;
+    double expectedValue = 261743.56;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
@@ -809,7 +809,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaSimpleFeaturePolygonTest() {
-    double expectedValue = 1234.4;
+    double expectedValue = 1238.37;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68815,49.41964,8.68983,49.42045");
@@ -845,7 +845,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsAreaGroupByTagSimpleFeaturePolygonTest() {
-    double expectedValue = 4052.65;
+    double expectedValue = 4065.86;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68287,49.36967,8.68465,49.37135");
@@ -868,7 +868,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsLengthCsvTest() throws IOException {
-    double expectedValue = 378.09;
+    double expectedValue = 378.39;
     // expect result to have 1 entry rows with 2 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67508,49.37834,8.67565,49.38026");
@@ -888,7 +888,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsLengthDensityGroupByTagCsvTest() throws IOException {
-    double expectedValue = 103137.94;
+    double expectedValue = 103070.01;
     // expect result to have 1 entry rows with 4 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.687782,49.412861,8.687986,49.412945");
@@ -908,7 +908,7 @@ public class PostControllerTest {
 
   @Test
   public void elementsLengthRatioGroupByBoundaryCsvTest() throws IOException {
-    double expectedValue = 1.01958;
+    double expectedValue = 1.019428;
     // expect result to have 1 entry rows with 7 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
@@ -956,7 +956,7 @@ public class PostControllerTest {
   @Test
   public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {
     // expect result to have 1 entry rows with 9 columns
-    double expectedValue = 226.4;
+    double expectedValue = 226.58;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.69205,49.41164,8.69319,49.41287|b2:8.66785,49.40973,8.66868,49.41176");
     map.add("types", "line");
@@ -979,7 +979,7 @@ public class PostControllerTest {
   public void elementsPerimeterCsvTest() throws IOException {
     // expect result to have 1 entry rows with 2 columns
     // testing perimeter of building with a hole
-    double expectedValue = 661.21;
+    double expectedValue = 662.23;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68855,49.40193,8.68979,49.40316");
     map.add("types", "relation");
@@ -999,7 +999,7 @@ public class PostControllerTest {
   @Test
   public void elementsPerimeterGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
-    double expectedValue = 94.52;
+    double expectedValue = 94.69;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.676699,"
         + "49.414781,8.678003,49.415371");
@@ -1022,7 +1022,7 @@ public class PostControllerTest {
   @Test
   public void elementsPerimeterDensityGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 3 columns
-    double expectedValue = 62587.13;
+    double expectedValue = 62501.18;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.67512, 49.40023,60|8.675659,49.39841,50");
     map.add("types", "way");
@@ -1043,7 +1043,7 @@ public class PostControllerTest {
   @Test
   public void elementsPerimeterGroupByKeyCsvTest() throws IOException {
     // expect result to have 1 entry rows with 4 columns
-    double expectedValue = 365.52;
+    double expectedValue = 366.12;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.685642,49.395621,8.687128,49.396528");
     map.add("types", "way");
@@ -1062,7 +1062,7 @@ public class PostControllerTest {
   @Test
   public void elementsPerimeterRatioGroupByBoundaryCsvTest() throws IOException {
     // expect result to have 1 entry rows with 7 columns
-    double expectedValue = 0.5;
+    double expectedValue = 0.500029;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "8.685642,49.396078,8.687192,49.396528|8.685744,49.395621,8.687294,49.396078");
@@ -1085,7 +1085,7 @@ public class PostControllerTest {
   @Test
   public void elementsAreaRatioGroupByBoundarySimpleFeatureCsvTest() throws IOException {
     // expect result to have 1 entry rows with 7 columns
-    double expectedValue = 0.257534;
+    double expectedValue = 0.257533;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "b1:8.70167,49.38686,60|b2: 8.70231,49.38952,60");
     map.add("types", "polygon");
@@ -1107,7 +1107,7 @@ public class PostControllerTest {
   @Test
   public void elementsAreaGroupByBoundaryGroupByTagCsvTest() throws IOException {
     // expect result to have 1 entry rows with 5 columns
-    double expectedValue = 48.36;
+    double expectedValue = 48.52;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "b1:8.695003,49.399594,8.695421,49.399789|" + "b2:8.687788,49.402997,8.68856,49.403441");
@@ -1174,7 +1174,7 @@ public class PostControllerTest {
 
   @Test
   public void postAndAllNotEqualsFilterTest() {
-    double expectedValue = 17457.09;
+    double expectedValue = 17514.13;
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.684692,49.407669,8.688061,49.410310");
