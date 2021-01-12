@@ -931,26 +931,24 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-  // this test needs a fix in the OSHDB to work correctly
-  // TODO
-  // @Test
-  // public void elementsLengthGroupByTypeCsvTest() throws IOException {
-  // // expect result to have 1 entry rows with 3 columns
-  // double expectedValue = 105.0; //actual value 106.16
-  // MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-  // map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
-  // map.add("types", "way,relation");
-  // map.add("time", "2018-01-01");
-  // map.add("keys", "name");
-  // map.add("format", "csv");
-  // String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/type", map);
-  // List<CSVRecord> records = Helper.getCsvRecords(responseBody);
-  // assertEquals(1, Helper.getCsvRecords(responseBody).size());
-  // Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-  // assertEquals(3, headers.size());
-  // assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
-  // expectedValue * deltaPercentage);
-  // }
+  @Test
+  public void elementsLengthGroupByTypeCsvTest() throws IOException {
+    // expect result to have 1 entry rows with 3 columns
+    double expectedValue = 106.16;
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
+    map.add("types", "way,relation");
+    map.add("time", "2018-01-01");
+    map.add("keys", "name");
+    map.add("format", "csv");
+    String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/type", map);
+    List<CSVRecord> records = Helper.getCsvRecords(responseBody);
+    assertEquals(1, Helper.getCsvRecords(responseBody).size());
+    Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
+    assertEquals(3, headers.size());
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
+        expectedValue * deltaPercentage);
+  }
 
 
   @Test
