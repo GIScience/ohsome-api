@@ -54,7 +54,7 @@ public class DataRequestExecutor extends RequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters}, {@link
    *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
-   *         parseISODateTime},
+   *         parseIsoDateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(
    *         HttpServletResponse, DataResponse, Stream) streamElementsResponse}
