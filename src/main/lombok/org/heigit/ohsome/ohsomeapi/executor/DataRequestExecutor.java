@@ -15,7 +15,7 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
+import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
@@ -52,12 +52,12 @@ public class DataRequestExecutor extends RequestExecutor {
    * 
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
-   *         parseISODateTime},
+   *         processParameters}, {@link
+   *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
+   *         parseIsoDateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, DataResponse, Stream)
-   *         streamElementsResponse}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(
+   *         HttpServletResponse, DataResponse, Stream) streamElementsResponse}
    */
   public void extract() throws Exception {
     inputProcessor.getProcessingData().setFullHistory(true);
@@ -96,22 +96,23 @@ public class DataRequestExecutor extends RequestExecutor {
     final boolean isContributionsEndpoint =
         isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS);
     final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    final boolean requiresGeometryTypeCheck =
-        filter.isPresent() && ProcessingData.filterContainsGeometryTypeCheck(filter.get());
-    FilterExpression filterExpression = processingData.getFilterExpression().orElse(null);
-    String startTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[0])
+    String startTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
-    String endTimestamp = ISODateTimeParser.parseISODateTime(requestParameters.getTime()[1])
+    String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent()) {
+      mapRedSnapshot = mapRedSnapshot.filter(filter.get());
+      mapRedContributions = mapRedContributions.filter(filter.get());
+    }
     final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
-    FlatMapExecutor flatMapExecutor = new FlatMapExecutor(isContributionsLatestEndpoint,
-        isContributionsEndpoint, exeUtils, clipGeometries, startTimestamp, utils,
-        simpleFeatureTypes, requiresGeometryTypeCheck, filterExpression, keysInt, includeTags,
-        includeOSMMetadata, elementsGeometry, endTimestamp, isContainingSimpleFeatureTypes);
+    DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
+        isContributionsLatestEndpoint, isContributionsEndpoint, exeUtils, clipGeometries,
+        startTimestamp, utils, simpleFeatureTypes, keysInt, includeTags, includeOSMMetadata,
+        elementsGeometry, endTimestamp, isContainingSimpleFeatureTypes);
     MapReducer<Feature> contributionPreResult = mapRedContributions
-        .flatMap(flatMapExecutor::buildChangedFeatures)
+        .flatMap(dataExtractionTransformer::buildChangedFeatures)
         .filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
@@ -130,7 +131,7 @@ public class DataRequestExecutor extends RequestExecutor {
               && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()
                   .getVersion())
           .map(snapshots -> snapshots.get(0))
-          .flatMap(flatMapExecutor::buildUnchangedFeatures)
+          .flatMap(dataExtractionTransformer::buildUnchangedFeatures)
           .filter(Objects::nonNull);
     }
     try (

@@ -12,7 +12,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
+import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
@@ -309,7 +309,7 @@ public class InputProcessingUtils {
     List<String> timeStringList = new ArrayList<>();
     for (String timestamp : timestamps) {
       try {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
         checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
         timeStringList.add(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       } catch (Exception e) {
@@ -411,15 +411,15 @@ public class InputProcessingUtils {
     long end = 0;
     long timestampLong = 0;
     try {
-      start = ISODateTimeParser.parseISODateTime(ExtractMetadata.fromTstamp).toEpochSecond();
-      end = ISODateTimeParser.parseISODateTime(ExtractMetadata.toTstamp).toEpochSecond();
+      start = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.fromTstamp).toEpochSecond();
+      end = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.toTstamp).toEpochSecond();
     } catch (Exception e) {
       throw new RuntimeException(
           "The ISO 8601 Date or the combined Date-Time String cannot be converted into a UTC based ZonedDateTime Object");
     }
     for (String timestamp : timeInfo) {
       try {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
         timestampLong =
             DateTimeFormatter.ISO_DATE_TIME.parse(zdt.format(DateTimeFormatter.ISO_DATE_TIME))
                 .getLong(ChronoField.INSTANT_SECONDS);
@@ -446,7 +446,7 @@ public class InputProcessingUtils {
   protected void checkTimestampsOnIsoConformity(String... timeInfo) {
     for (String timestamp : timeInfo) {
       try {
-        ISODateTimeParser.parseISODateTime(timestamp);
+        IsoDateTimeParser.parseIsoDateTime(timestamp);
       } catch (Exception e) {
         throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
@@ -460,7 +460,7 @@ public class InputProcessingUtils {
    */
   protected void checkPeriodOnIsoConformity(String period) {
     try {
-      ISODateTimeParser.parseISOPeriod(period);
+      IsoDateTimeParser.parseIsoPeriod(period);
     } catch (Exception e) {
       throw new BadRequestException(
           "The interval (period) of the provided time parameter is not ISO-8601 conform.");
@@ -608,7 +608,7 @@ public class InputProcessingUtils {
     for (int i = 0; i < timeData.length; i++) {
       try {
         toTimestamps[i] =
-            ISODateTimeParser.parseISODateTime(timeData[i]).format(DateTimeFormatter.ISO_DATE_TIME);
+            IsoDateTimeParser.parseIsoDateTime(timeData[i]).format(DateTimeFormatter.ISO_DATE_TIME);
       } catch (Exception e) {
         // time gets checked earlier already, so no exception should appear here
       }

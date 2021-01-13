@@ -26,21 +26,12 @@ import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTagKey;
-import org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser;
+import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
-import org.heigit.ohsome.filter.AndOperator;
-import org.heigit.ohsome.filter.Filter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.FilterParser;
-import org.heigit.ohsome.filter.GeometryTypeFilter;
-import org.heigit.ohsome.filter.TagFilterEquals;
-import org.heigit.ohsome.filter.TagFilterEqualsAny;
-import org.heigit.ohsome.filter.TypeFilter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
@@ -261,75 +252,17 @@ public class InputProcessor {
         FilterParser fp = new FilterParser(DbConnData.tagTranslator);
         FilterExpression filterExpr = utils.parseFilter(fp, filter);
         processingData.setFilterExpression(filterExpr);
-        mapRed = optimizeFilters0(mapRed, filterExpr);
-        mapRed = optimizeFilters1(mapRed, filterExpr);
-        mapRed = mapRed.osmEntityFilter(filterExpr::applyOSM);
-        // execute this only if the filter has a geometry type subfilter
-        if (ProcessingData.filterContainsGeometryTypeCheck(filterExpr)
-            // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-            && !processingData.isRatio() && !processingData.isGroupByBoundary()
-            && !processingData.isFullHistory()) {
-          processingData.setContainingSimpleFeatureTypes(true);
-          mapRed = filterOnGeometryType(mapRed, filterExpr);
+        if (!(processingData.isRatio()
+            || processingData.isGroupByBoundary()
+            || processingData.isFullHistory())) {
+          // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
+          mapRed = mapRed.filter(filterExpr);
         }
       }
     } else {
       mapRed = extractKeysValues(mapRed, keys, values);
     }
     return (MapReducer<T>) mapRed;
-  }
-
-  private MapReducer<? extends OSHDBMapReducible> optimizeFilters0(
-      MapReducer<? extends OSHDBMapReducible> mapRed, FilterExpression filter) {
-    // performs basic optimizations “low hanging fruit”:
-    // single filters, and-combination of single filters, etc.
-    if (filter instanceof TagFilterEquals) {
-      OSMTag tag = DbConnData.tagTranslator.getOSMTagOf(((TagFilterEquals) filter).getTag());
-      return mapRed.osmTag(tag);
-    }
-    if (filter instanceof TagFilterEqualsAny) {
-      OSMTagKey key =
-          DbConnData.tagTranslator.getOSMTagKeyOf(((TagFilterEqualsAny) filter).getTag());
-      return mapRed.osmTag(key);
-    }
-    if (filter instanceof TypeFilter) {
-      return mapRed.osmType(((TypeFilter) filter).getType());
-    }
-    if (filter instanceof AndOperator) {
-      return optimizeFilters0(optimizeFilters0(mapRed, ((AndOperator) filter).getLeftOperand()),
-          ((AndOperator) filter).getRightOperand());
-    }
-    return mapRed;
-  }
-
-  private MapReducer<? extends OSHDBMapReducible> optimizeFilters1(
-      MapReducer<? extends OSHDBMapReducible> mapRed, FilterExpression filter) {
-    // performs more advanced optimizations that rely on analyzing the DNF of a filter expression
-    // 1. convert to disjunctive normal form
-    List<List<Filter>> filterNormalized = filter.normalize();
-    // 2. collect all OSMTypes in all of the clauses
-    EnumSet<OSMType> allTypes = EnumSet.noneOf(OSMType.class);
-    for (List<Filter> andSubFilter : filterNormalized) {
-      EnumSet<OSMType> subTypes = EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION);
-      for (Filter subFilter : andSubFilter) {
-        if (subFilter instanceof TypeFilter) {
-          subTypes.retainAll(EnumSet.of(((TypeFilter) subFilter).getType()));
-        } else if (subFilter instanceof GeometryTypeFilter) {
-          subTypes.retainAll(((GeometryTypeFilter) subFilter).getOSMTypes());
-        }
-      }
-      allTypes.addAll(subTypes);
-    }
-    mapRed = mapRed.osmType(allTypes);
-    processingData.setOsmTypes(allTypes);
-    // 3. (todo) intelligently group queried tags
-    /*
-     * here, we could optimize a few situations further: when a specific tag or key is used in all
-     * branches of the filter: run mapRed.osmTag the set of tags which are present in any branches:
-     * run mapRed.osmTag(list) (note that for this all branches need to have at least one
-     * TagFilterEquals or TagFilterEqualsAny) related: https://github.com/GIScience/oshdb/pull/210
-     */
-    return mapRed;
   }
 
   /**
@@ -548,54 +481,6 @@ public class InputProcessor {
   }
 
   /**
-   * Applies respective Puntal|Lineal|Polygonal filter(s) from a given filter expression on features
-   * of the given MapReducer.
-   *
-   * @param mapRed the mapreducer to filter
-   * @param filterExpr the filter expression to apply
-   * @return MapReducer with filtered geometries
-   * @throws RuntimeException if
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnGeometryType(Mappable, FilterExpression)
-   *         filterOnGeometryType} was called on mapped entries
-   */
-  // suppressed, as filter always returns the same mappable type T
-  @SuppressWarnings("unchecked")
-  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnGeometryType(T mapRed,
-      FilterExpression filterExpr) {
-    return (T) mapRed.filter(data -> {
-      if (data instanceof OSMEntitySnapshot) {
-        OSMEntity snapshotEntity = ((OSMEntitySnapshot) data).getEntity();
-        Geometry snapshotGeom;
-        if (clipGeometry) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
-        } else {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        }
-        return filterExpr.applyOSMGeometry(snapshotEntity, snapshotGeom);
-      } else if (data instanceof OSMContribution) {
-        OSMEntity entityBefore = ((OSMContribution) data).getEntityBefore();
-        OSMEntity entityAfter = ((OSMContribution) data).getEntityAfter();
-        Geometry contribGeomBefore;
-        Geometry contribGeomAfter;
-        if (clipGeometry) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
-        } else {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        }
-        return contribGeomBefore != null
-            && filterExpr.applyOSMGeometry(entityBefore, contribGeomBefore)
-            || contribGeomAfter != null
-                && filterExpr.applyOSMGeometry(entityAfter, contribGeomAfter);
-      } else {
-        assert false : "geometry filter called on mapped entries";
-        throw new RuntimeException("geometry filter called on mapped entries");
-      }
-    });
-  }
-
-  /**
    * Checks the given filter parameter if it's null or blank. Currently used for filter2 parameter
    * of /ratio processing.
    * 
@@ -650,9 +535,9 @@ public class InputProcessor {
    * (in case of isSnapshot=false).
    * 
    * @throws BadRequestException if the time format is invalid
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.util.time.ISODateTimeParser#parseISODateTime(String)
-   *         parseISODateTime}
+   * @throws Exception thrown by {@link
+   *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
+   *         parseIsoDateTime}
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
@@ -685,7 +570,7 @@ public class InputProcessor {
     } else {
       utils.checkTimestampsOnIsoConformity(time);
       for (String timestamp : time) {
-        ZonedDateTime zdt = ISODateTimeParser.parseISODateTime(timestamp);
+        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
         utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       }
       timeData = utils.sortTimestamps(time);

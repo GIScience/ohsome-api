@@ -1,8 +1,13 @@
 ## current master
 
+* update OSHDB to version 0.6.0 ([#86](https://github.com/GIScience/ohsome-api/pull/86))
+  * returned values of `length`, `area` and `perimeter` requests are more precise now: The previously used formulas could be off by a few of % in some cases, now all returned values are within half a percent from the real value. ([OSHDB#193](https://github.com/GIScience/oshdb/issues/193))
+  * adjusted unit tests accordingly, from now on allowing up to 0.5% discrepancy in all affected tests
+  * improved performance of `groupBy/boundary` requests ([OSHDB#272](https://github.com/GIScience/oshdb/issues/272)) and processing of complex multipolygon relations ([OSHDB#249](https://github.com/GIScience/oshdb/issues/249) and [OSHDB#287](https://github.com/GIScience/oshdb/issues/287))
 * data extraction: escape tags with `@` characters ([#40](https://github.com/GIScience/ohsome-api/issues/40))
 * extend info on response parameters ([#73](https://github.com/GIScience/ohsome-api/pull/73))
 * delombok code to enable working javadoc ([#90](https://github.com/GIScience/ohsome-api/pull/90))
+
 
 ## 1.2.3
 
