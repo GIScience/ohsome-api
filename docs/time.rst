@@ -4,7 +4,7 @@ Time
 The temporal filter is defined via the ``time`` query parameter. It consists of one or more
 ISO-8601 conform timestring(s).
 
-.. note:: The ohsome API only supports the UTC time zone (Z).
+.. note:: The ohsome API only supports the UTC time zone: ``Z``
 
 Supported time formats
 ----------------------
@@ -25,5 +25,5 @@ detailed information on timestamp formats and how to use the earliest/latest tim
     * ``/``: #/# where # equals the earliest and latest timestamp in the OSHDB
     * ``//PnYnMnD``: #/#/period where # equals the earliest and latest timestamp in the OSHDB
 
-.. note:: If '-MM-DD' or just '-DD' is not given, '01' is used as default for month and day. If 'Thh:mm:ss' is not given, '00:00:00Z' is used as a default for the time.
-			If the time parameter is undefined, the latest available timestamp within the underlying OSHDB is used per default. It reflects the time of the last edit in the current data set.
+.. note:: If ``-MM-DD`` or just ``-DD`` is not given, ``01`` is used as default for month and day. If ``Thh:mm:ss`` is not given, ``00:00:00Z`` is used as a default for the time.
+          If the time parameter is undefined, the latest available timestamp within the underlying OSHDB is used per default. It reflects the time of the last edit in the current data set.
