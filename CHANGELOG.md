@@ -45,7 +45,7 @@
 
 ### Prominent Changes 
 
-* several improvements to the docs, e.g. ([#49]) and partially in ([#34])
+* several improvements to the docs (e.g. [#49] and partially in [#34])
 * upgrade to ohsome-filter 1.3 ([#62])
 
 ### New Features
@@ -54,12 +54,12 @@
 
 ### Bug Fixes
 
-* fixing not-encoded pipe sign in GET requests ([#60]) ([#61])
+* fixing not-encoded pipe sign in GET requests ([#60], [#61])
 
 ### Other Changes
 
 * update to oshdb version 0.5.10 (including an Ignite update to 2.9.0) ([#67])
-* diverse code refactoring improvements, e.g. ([#46]), ([#47]), ([#51]), ([#57])
+* diverse code refactoring improvements (e.g. [#46], [#47], [#51], [#57])
 * include test directory in checkstyle ([#69])
 
 [#34]: https://github.com/GIScience/ohsome-api/pull/34
@@ -158,7 +158,7 @@
 * Faster union computation ([4744e843])
 * Caching of time-independent results ([aae6591d])
 * Rework of time parameter processing ([a000b598])
-* Refactoring of several code parts (e.g.: [5a8fba0c], [42064696], [67ef11fb], [5230de69])
+* Refactoring of several code parts (e.g. [5a8fba0c], [42064696], [67ef11fb], [5230de69])
 * Adding of csv output tests ([7982338a])
 * Adding of Ignite cluster nodes check on runtime ([bc8e6fdf])
 * Improving data extraction processing ([3401db9d], [4f438fd5], [f19e5b2b])
@@ -214,7 +214,7 @@
 
 * Adding GeoJSON output format to all /groupBy/boundary resources ([5bd6f4c2], [5a416395])
 * Parameter 'format' ([1aaba309], [97e984e7])
-* New resources e.g. /density/groupBy/boundary ([541ebe01], [86756acc])
+* New resources, e.g. /density/groupBy/boundary ([541ebe01], [86756acc])
 * OSM data-extraction via /elements and /elementsFullHistory (e.g. [57f3540f], [dd7d2a9e], [f40f91d8])
      * Streams the response on Ignite, if it is bigger than 10MB ([d7107bcc])
 * New startup-parameters
@@ -279,7 +279,7 @@
 ### Performance and Code Quality
 
 * Faster /ratio computation ([0a991edb], [31ecae11])
-* Removed duplicated code (e.g.: [e6958eb8], [87a84d4b], [3a815731])
+* Removed duplicated code (e.g. [e6958eb8], [87a84d4b], [3a815731])
 * Including of /share computation in /ratio processing ([6164ef85])
 * Improving/fixing Javadoc comments and paths
 

@@ -13,7 +13,7 @@ List of HTTP status codes and respective descriptions.
 
 * ``400 Bad Request`` - the ohsome API cannot or will not process the request due to a client error (e.g. malformed request syntax)
 * ``401 Unauthorized`` - the client does not have valid authentication credentials for the target resource
-* ``404 Not Found``-  the requested resource coud not be found
+* ``404 Not Found``-  the requested resource could not be found
 * ``405 Method not allowed`` - the requested method is not supported (e.g. a POST request for resources which accept only GET requests)
 * ``413 Payload Too Large`` - the request is larger than the ohsome API is willing or able to process
 
