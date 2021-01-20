@@ -84,7 +84,7 @@ public class GetControllerTest {
   public void getGeneralResourceWithFalseParameterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
-        restTemplate.getForEntity(server + port + "/elements/area?type=way", JsonNode.class);
+        restTemplate.getForEntity(server + port + "/elements/area?filterr=type:way", JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());
   }
 
@@ -92,7 +92,7 @@ public class GetControllerTest {
   public void getGeneralResourceWithSpecificParameterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate
-        .getForEntity(server + port + "/elements/count/density?values2=highway", JsonNode.class);
+        .getForEntity(server + port + "/elements/count/density?filter2=highway", JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());
   }
 
@@ -140,8 +140,8 @@ public class GetControllerTest {
   public void getElementsCountTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/count?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&time=2015-01-01"
-        + "&keys=building&values=residential&showMetadata=true", JsonNode.class);
+        + "/elements/count?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01&"
+        + "filter=type:way and building=residential", JsonNode.class);
     assertEquals(40, response.getBody().get("result").get(0).get("value").asInt());
   }
 
@@ -150,8 +150,8 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/groupBy/boundary?bboxes=8.70538,49.40891,8.70832,49.41155|"
-            + "8.68667,49.41353,8.68828,49.414&types=polygon&time=2017-01-01&keys=building"
-            + "&values=church&showMetadata=true",
+            + "8.68667,49.41353,8.68828,49.414&time=2017-01-01&showMetadata=true&"
+            + "filter=geometry:polygon and building=church",
         JsonNode.class);
     assertEquals(2, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
@@ -165,7 +165,7 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
-        + "types=way&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes",
+        + "time=2016-11-09&groupByKey=building&groupByValues=yes&filter=type:way and building=*",
         JsonNode.class);
     assertEquals(43, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
@@ -180,8 +180,8 @@ public class GetControllerTest {
   public void getElementsCountGroupByTypeTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/count/groupBy/type?bboxes=8.67038,49.40341,8.69197,49.40873"
-            + "&types=way,relation&time=2017-01-01&keys=building&showMetadata=true",
+        server + port + "/elements/count/groupBy/type?bboxes=8.67038,49.40341,8.69197,49.40873&"
+            + "time=2017-01-01&filter=building=* and (type:way or type:relation)",
         JsonNode.class);
     assertEquals(967,
         StreamSupport
@@ -195,8 +195,8 @@ public class GetControllerTest {
   public void getElementsCountGroupByTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/count/groupBy/tag?bboxes=8.67859,49.41189,8.67964,49.41263"
-            + "&types=way&time=2017-01-01&keys=building&groupByKey=building&showMetadata=true",
+        server + port + "/elements/count/groupBy/tag?bboxes=8.67859,49.41189,8.67964,49.41263&"
+            + "time=2017-01-01&groupByKey=building&filter=building=* and type:way",
         JsonNode.class);
     assertEquals(8, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
@@ -210,8 +210,8 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(
-            server + port + "/elements/count/groupBy/key?bboxes=8.67859,49.41189,8.67964,49.41263"
-                + "&types=way&time=2012-01-01&groupByKeys=building&showMetadata=true",
+            server + port + "/elements/count/groupBy/key?bboxes=8.67859,49.41189,8.67964,49.41263&"
+                + "time=2012-01-01&groupByKeys=building&filter=type:way",
             JsonNode.class);
     assertEquals(7,
         StreamSupport
@@ -226,8 +226,9 @@ public class GetControllerTest {
     final double expectedValue = 0.153933;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/count/ratio?bboxes=8.66004,49.41184,8.68481,49.42094&types=way"
-            + "&time=2015-01-01/2019-01-01/P1Y&keys=building&types2=node&keys2=addr:housenumber",
+        server + port + "/elements/count/ratio?bboxes=8.66004,49.41184,8.68481,49.42094&time="
+            + "2015-01-01/2019-01-01/P1Y&filter=type:way and building=*&filter2=type:node and "
+            + "addr:housenumber=*",
         JsonNode.class);
     assertEquals(expectedValue,
         response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
@@ -240,8 +241,8 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port + "/elements/count/ratio/groupBy/boundary?bcircles=8.66906,49.4167,100|"
-            + "8.69013,49.40223,100&types=way&time=2017-09-20&keys=building"
-            + "&types2=node&keys2=addr:housenumber",
+            + "8.69013,49.40223,100&time=2017-09-20&filter=type:way and building=*&"
+            + "filter2=type:node and addr:housenumber=*",
         JsonNode.class);
     assertEquals(expectedValue, StreamSupport
         .stream(
@@ -258,8 +259,8 @@ public class GetControllerTest {
     final double expectedValue = 3868.09;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/count/density?bboxes=8.68794,49.41434,8.69021,49.41585"
-            + "&types=way&time=2017-08-11&keys=building&showMetadata=true",
+        server + port + "/elements/count/density?bboxes=8.68794,49.41434,8.69021,49.41585&"
+            + "time=2017-08-11&filter=type:way and building=*",
         JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
         expectedValue * deltaPercentage);
@@ -272,7 +273,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
             + "/elements/count/density/groupBy/boundary?bboxes=8.68794,49.41434,8.69021,49.41585|"
-            + "8.67933,49.40505,8.6824,49.40638&types=way&time=2017-08-19&keys=building",
+            + "8.67933,49.40505,8.6824,49.40638&time=2017-08-19&filter=type:way and building=*",
         JsonNode.class);
     assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
@@ -287,8 +288,8 @@ public class GetControllerTest {
     final double expectedValue = 890.76;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/count/density/groupBy/type?bboxes=8.68086,49.39948,8.69401,49.40609"
-        + "&types=way,node&time=2016-11-09&keys=addr:housenumber", JsonNode.class);
+        + "/elements/count/density/groupBy/type?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "time=2016-11-09&filter=addr:housenumber=* and (type:way or type:node)", JsonNode.class);
     assertEquals(expectedValue,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
@@ -303,8 +304,9 @@ public class GetControllerTest {
     final double expectedValue = 61.28;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/count/density/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&types=way"
-        + "&time=2016-11-09&keys=building&groupByKey=building&groupByValues=yes", JsonNode.class);
+        + "/elements/count/density/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "time=2016-11-09&groupByKey=building&groupByValues=yes&filter=type:way and building=*",
+        JsonNode.class);
     assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
@@ -319,8 +321,8 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/count/density/groupBy/boundary/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401,"
-        + "49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2016-11-09&keys=building&"
-        + "groupByKey=building", JsonNode.class);
+        + "49.40609|b2:8.68081,49.39943,8.69408,49.40605&time=2016-11-09&groupByKey=building&"
+        + "filter=type:way and building=*", JsonNode.class);
     assertEquals(expectedValue, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
