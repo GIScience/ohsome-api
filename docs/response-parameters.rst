@@ -21,6 +21,19 @@ When requested, the result will contain OSM elements' tags as individual GeoJSON
 Aggregation Parameters
 ----------------------
 
+**specific for all groupBy endpoints**
+
+* ``groupByResult`` - GroupBy result object containing the groupBy value and the respective objects. In the /ratio/groupBy/boundary endpoint, this parameter is replaced by ``groupByBoundaryResult``
+* ``groupByObject`` - Object on which the results are grouped on
+
+**specific for all ratio endpoints**
+
+* ``ratioResult`` - Result JSON object containing the timestamp together with two values and their resulting ratio.
+
+**specific for the /ratio/groupBy/boundary endpoint**
+
+* ``groupByBoundaryResult`` - Result grouped by boundary containing groupByObject and ratioResult objects
+
 Extraction Parameters
 ---------------------
 
