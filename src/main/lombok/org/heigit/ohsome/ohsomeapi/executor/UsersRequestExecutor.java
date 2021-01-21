@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,6 +23,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -312,6 +314,10 @@ public class UsersRequestExecutor {
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent()) {
+      mapAgg = mapAgg.filter(filter.get());
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result =
         mapAgg.map(OSMContribution::getContributorUserId).countUniq();
