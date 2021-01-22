@@ -2,8 +2,12 @@
 
 ### Bug Fixes
 
+* fix crash when `elementsFullHistory` requests use the `filter` parameter ([#97])
+* fix a bug where `groupBy/boundary` requests do ignore a given `filter` ([#99])
 * update to OSHDB version 0.6.2, fixing a crash when building certain invalid multipolygon relations ([OSHDB#334])
 
+[#97]: https://github.com/GIScience/ohsome-api/pull/97
+[#99]: https://github.com/GIScience/ohsome-api/issues/99
 [OSHDB#334]: https://github.com/GIScience/oshdb/issues/334
 
 
@@ -44,6 +48,8 @@
 
 ## 1.2.2
 
+### Bug Fixes
+
 * provide contributions response as a downloadable file ([#78])
 
 [#78]: https://github.com/GIScience/ohsome-api/pull/78
@@ -60,7 +66,7 @@
 
 ## 1.2.0
 
-### Prominent Changes 
+### Prominent Changes
 
 * several improvements to the docs (e.g. [#49] and partially in [#34])
 * upgrade to ohsome-filter 1.3 ([#62])
