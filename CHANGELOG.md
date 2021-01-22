@@ -1,3 +1,12 @@
+## 1.3.1
+
+### Bug Fixes
+
+* update to OSHDB version 0.6.2, fixing a crash when building certain invalid multipolygon relations ([OSHDB#334])
+
+[OSHDB#334]: https://github.com/GIScience/oshdb/issues/334
+
+
 ## 1.3.0
 
 ### Prominent Changes
