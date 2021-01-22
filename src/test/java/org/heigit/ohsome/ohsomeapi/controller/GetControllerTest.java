@@ -1,10 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.io.IOException;
@@ -648,7 +646,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/groupBy/boundary?bboxes=a:8.67452,49.40961,8.70392,49.41823|"
         + "b:8.67,49.39941,8.69545,49.4096&time=2014-01-01,2015-01-01"
-        + "&filter=highway=* and type:way", JsonNode.class);
+        + "&filter=building=* and type:way", JsonNode.class);
     assertEquals(29,
         StreamSupport
             .stream(Spliterators.spliteratorUnknownSize(
@@ -772,7 +770,7 @@ public class GetControllerTest {
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
+    assertEquals(4, headers.size());
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
         expectedValue * deltaPercentage);
   }
@@ -784,7 +782,7 @@ public class GetControllerTest {
     String responseBody = getResponseBody("/elements/count/groupBy/boundary?"
         + "bboxes=8.672445,49.418337,8.673196,49.419087|"
         + "8.670868,49.418892,8.672188,49.419216&time=2017-05-01&format=csv"
-        + "&filter=type:node and bycicle_parking=stands");
+        + "&filter=type:node and bicycle_parking=stands");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
@@ -852,7 +850,7 @@ public class GetControllerTest {
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
+    assertEquals(4, headers.size());
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("WAY")),
         expectedValue * deltaPercentage);
   }
@@ -934,8 +932,7 @@ public class GetControllerTest {
     final List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertFalse(headers.containsKey("NODE"));
-    assertEquals(3, headers.size());
+    assertEquals(4, headers.size());
     assertEquals(expectedValue1, Double.parseDouble(records.get(0).get("WAY")),
         expectedValue1 * deltaPercentage);
     assertEquals(expectedValue2, Double.parseDouble(records.get(0).get("RELATION")),
@@ -959,17 +956,17 @@ public class GetControllerTest {
 
   @Test
   public void getElementsAreaGroupByTypeCsvTest() throws IOException {
-    // expect result to have 1 entry row, with 3 columns
+    // expect result to have 1 entry row, with 4 columns
     final double expectedValue = 1984.58;
     String responseBody =
         getResponseBody("/elements/area/groupBy/type?bcircles=8.689054,49.402481,80&"
-            + "format=csv&time=2018-01-01&filter=highway=* and (type:way or type:relation)");
+            + "format=csv&time=2018-01-01&filter=building=* and (type:way or type:relation)");
     // way in geojson.io sq meters: 23.97
     // relation in geojson.io sq meters: 5399.27; in response:6448.93; in qgis 5393.5
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
+    assertEquals(4, headers.size());
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("WAY")),
         expectedValue * deltaPercentage);
   }
@@ -1029,7 +1026,7 @@ public class GetControllerTest {
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(4, headers.size());
+    assertEquals(5, headers.size());
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("NODE")),
         expectedValue * deltaPercentage);
   }
@@ -1056,11 +1053,11 @@ public class GetControllerTest {
     final double expectedValue = 1.0;
     String responseBody = getResponseBody("users/count/groupBy/type?"
         + "bboxes=8.700609,49.409336,8.701488,49.409591&format=csv&time=2010-01-01/2013-01-01/P1Y"
-        + "&filter=(type:way or type:node) and addr:housenumber=* and addr:street=Plöck");
+        + "&filter=(type:way or type:node) and addr:housenumber=* and addr:street=\"Plöck\"");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(4, headers.size());
+    assertEquals(5, headers.size());
     assertEquals(expectedValue, Double.parseDouble(records.get(2).get("WAY")),
         expectedValue * deltaPercentage);
   }
