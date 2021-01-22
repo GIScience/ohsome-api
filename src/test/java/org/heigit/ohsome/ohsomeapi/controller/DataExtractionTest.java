@@ -167,7 +167,7 @@ public class DataExtractionTest {
             + "&filter=type:way and building=residential",
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/295135436") != null);
-    assertEquals(7, Helper.getFeatureByIdentifier(response, "@validTo", "2015-05-05T06:59:35Z")
+    assertEquals(6, Helper.getFeatureByIdentifier(response, "@validTo", "2015-05-05T06:59:35Z")
         .get("properties").size());
   }
 
@@ -209,7 +209,7 @@ public class DataExtractionTest {
     map.add("time", "2017-01-01,2017-07-01");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elementsFullHistory/centroid", map, JsonNode.class);
-    assertEquals(4, Helper.getFeatureByIdentifier(response, "@osmId", "way/295135455")
+    assertEquals(3, Helper.getFeatureByIdentifier(response, "@osmId", "way/295135455")
         .get("properties").size());
   }
 
