@@ -101,9 +101,10 @@ public class DataRequestExecutor extends RequestExecutor {
     String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
+    MapReducer<List<OSMEntitySnapshot>> mapRedSnapshots = mapRedSnapshot.groupByEntity();
     Optional<FilterExpression> filter = processingData.getFilterExpression();
     if (filter.isPresent()) {
-      mapRedSnapshot = mapRedSnapshot.filter(filter.get());
+      mapRedSnapshots = mapRedSnapshots.filter(filter.get());
       mapRedContributions = mapRedContributions.filter(filter.get());
     }
     final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
@@ -124,8 +125,7 @@ public class DataRequestExecutor extends RequestExecutor {
     MapReducer<Feature> snapshotPreResult = null;
     if (!isContributionsEndpoint) {
       // handles cases where valid_from = t_start, valid_to = t_end; i.e. non-modified data
-      snapshotPreResult = mapRedSnapshot
-          .groupByEntity()
+      snapshotPreResult = mapRedSnapshots
           .filter(snapshots -> snapshots.size() == 2)
           .filter(snapshots -> snapshots.get(0).getGeometry() == snapshots.get(1).getGeometry()
               && snapshots.get(0).getEntity().getVersion() == snapshots.get(1).getEntity()

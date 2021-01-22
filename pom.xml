@@ -13,7 +13,7 @@
   <name>ohsome API</name>
   <description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
   <packaging>jar</packaging>
-  <version>1.3.0</version>
+  <version>1.3.1</version>
 
   <properties>
     <apachecommons-csv.version>1.6</apachecommons-csv.version>
@@ -29,7 +29,7 @@
     <jts2geojson.version>0.13.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>4.0</opencsv.version>
-    <oshdb.version>0.6.1</oshdb.version>
+    <oshdb.version>0.6.2</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <springboot.version>2.0.3.RELEASE</springboot.version>
     <springfox.version>2.9.2</springfox.version>

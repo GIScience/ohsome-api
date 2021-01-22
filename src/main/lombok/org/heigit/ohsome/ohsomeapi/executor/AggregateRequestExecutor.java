@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -350,6 +352,10 @@ public class AggregateRequestExecutor extends RequestExecutor {
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     if (processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    if (filter.isPresent()) {
+      mapAgg = mapAgg.filter(filter.get());
     }
     preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
