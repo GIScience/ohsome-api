@@ -157,7 +157,6 @@ public class PostControllerTest {
     map.add("filter", "geometry:point and building=*");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
-    System.out.println("rosariotest: " + response.getBody().get("result"));
     assertEquals(64, StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
