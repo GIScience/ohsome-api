@@ -1,3 +1,13 @@
+Changelog
+=========
+
+## 1.3.2
+
+* update OSHDB to 0.6.3 to fix a bug where certain invalid multipolygons cause an infinite loop ([OSHDB#343])
+
+[OSHDB#343]: https://github.com/GIScience/oshdb/pull/343
+
+
 ## 1.3.1
 
 ### Bug Fixes
