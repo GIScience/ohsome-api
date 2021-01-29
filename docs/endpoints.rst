@@ -78,7 +78,7 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.1",
+       "apiVersion" : "1.3.2",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 1.020940258E7
@@ -92,7 +92,7 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.1",
+       "apiVersion" : "1.3.2",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 1.020940258E7
@@ -107,7 +107,7 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.1",
+       "apiVersion" : "1.3.2",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 10209402.58
@@ -121,7 +121,7 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.1",
+       "apiVersion" : "1.3.2",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 1.020940258E7
@@ -175,7 +175,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -189,7 +189,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -204,7 +204,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -218,7 +218,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -276,7 +276,7 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
@@ -303,7 +303,7 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
@@ -331,7 +331,7 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
@@ -357,7 +357,7 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.1",
+               "apiVersion" : "1.3.2",
                "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
@@ -436,7 +436,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.1",
+              "apiVersion" : "1.3.2",
               "groupByResult" : [ {
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
@@ -466,7 +466,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.1",
+              "apiVersion" : "1.3.2",
               "groupByResult" : [ {
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
@@ -495,7 +495,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.1",
+              "apiVersion" : "1.3.2",
               "groupByResult" : [ {
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
@@ -524,7 +524,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.1",
+              "apiVersion" : "1.3.2",
               "groupByResult" : [ {
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
@@ -608,7 +608,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.1",
+             "apiVersion" : "1.3.2",
              "groupByResult" : [ {
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
@@ -668,7 +668,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.1",
+             "apiVersion" : "1.3.2",
              "groupByResult" : [ {
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
@@ -727,7 +727,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.1",
+             "apiVersion" : "1.3.2",
              "groupByResult" : [ {
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
@@ -786,7 +786,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.1",
+             "apiVersion" : "1.3.2",
              "groupByResult" : [ {
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
@@ -901,7 +901,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -933,7 +933,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -965,7 +965,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -996,7 +996,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -1142,7 +1142,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1180,7 +1180,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1219,7 +1219,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1257,7 +1257,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1338,7 +1338,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1414,7 +1414,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1490,7 +1490,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1566,7 +1566,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1680,7 +1680,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1731,7 +1731,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1782,7 +1782,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1833,7 +1833,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1918,7 +1918,7 @@ Get metadata of the underlying OSHDB data
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "timeout": 600.0,
         "extractRegion" : {
           "spatialExtent" : {
@@ -1940,7 +1940,7 @@ Get metadata of the underlying OSHDB data
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "extractRegion" : {
           "spatialExtent" : {
             "type" : "Polygon",
@@ -1961,7 +1961,7 @@ Get metadata of the underlying OSHDB data
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.1",
+        "apiVersion" : "1.3.2",
         "extractRegion" : {
           "spatialExtent" : {
             "type" : "Polygon",
