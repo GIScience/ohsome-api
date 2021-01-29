@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.io.IOException;
@@ -81,8 +82,8 @@ public class GetControllerTest {
   @Test
   public void getGeneralResourceWithFalseParameterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response =
-        restTemplate.getForEntity(server + port + "/elements/area?filterr=type:way", JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate
+        .getForEntity(server + port + "/elements/area?filterr=type:way", JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());
   }
 
