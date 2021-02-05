@@ -3,7 +3,7 @@ package org.heigit.ohsome.ohsomeapi.controller;
 /** Holds the default values for the parameters to run test-requests in Swagger. */
 public class DefaultSwaggerParameters {
 
-  public static final String BBOX = "8.625,49.3711,8.7334,49.4397";
+  public static final String BBOX = "8.67,49.39,8.71,49.42";
   public static final String HIGHWAY_KEY = "highway";
   public static final String BUILDING_KEY = "building";
   public static final String GENERIC_FILTER = "type:way and natural=*";
