@@ -132,31 +132,6 @@ public class ExecutionUtils {
             || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2));
   }
 
-  /** Applies a filter on the given MapReducer object using the given filter expressions. */
-  public MapReducer<OSMEntitySnapshot> newSnapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
-      FilterExpression filterExpr1, FilterExpression filterExpr2) {
-    return mapRed.filter(snapshot -> {
-      OSMEntity entity = snapshot.getEntity();
-      return filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry)
-          || filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
-    });
-  }
-
-  /**
-   * Applies a filter on the given MapReducer object using the given filter expressions. Used in
-   * /ratio/groupBy/boundary requests.
-   */
-  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>
-      newSnapshotFilter(
-      MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapRed,
-      FilterExpression filterExpr1, FilterExpression filterExpr2) {
-    return mapRed.filter(snapshot -> {
-      OSMEntity entity = snapshot.getEntity();
-      return filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry)
-          || filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
-    });
-  }
-
   /** Compares the type(s) and tag(s) of the given snapshot to the given types|tags. */
   public boolean snapshotMatches(OSMEntitySnapshot snapshot, Set<OSMType> osmTypes,
       Set<SimpleFeatureType> simpleFeatureTypes, Integer[] keysInt, Integer[] valuesInt) {

@@ -685,8 +685,7 @@ public class ElementsRequestExecutor {
         new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessorCombined.setProcessingData(processingDataCombined);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
-
-    mapRed = exeUtils.newSnapshotFilter(mapRed, filterExpr1, filterExpr2);
+    mapRed = mapRed.filter(combinedFilter);
     var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
       OSMEntity entity = snapshot.getEntity();
       boolean matches1 = filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry());
@@ -996,7 +995,7 @@ public class ElementsRequestExecutor {
     Map<Integer, P> geoms =
         arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    mapRed2 = exeUtils.newSnapshotFilter(mapRed2, filterExpr1, filterExpr2);
+    mapRed2 = mapRed2.filter(combinedFilter);
     var preResult =
         mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
           OSMEntity entity = snapshot.getEntity();
