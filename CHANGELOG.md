@@ -3,8 +3,16 @@ Changelog
 
 ## 1.4.0-SNAPSHOT (current master)
 
+### Bug Fixes
+
+* fix some invalid filters in the default swagger examples ([#111])
+
+[#111]: https://github.com/GIScience/ohsome-api/issues/111
+
 
 ## 1.3.2
+
+### Bug Fixes
 
 * update OSHDB to 0.6.3 to fix a bug where certain invalid multipolygons cause an infinite loop ([OSHDB#343])
 
