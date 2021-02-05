@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.ArrayList;
@@ -54,30 +55,29 @@ public class DataExtractionTest {
   @Test
   public void elementsGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
-            + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+        + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823"
+        + "&time=2015-01-01&properties=metadata&filter=type:way and building=residential",
         JsonNode.class);
     JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "way/140112811");
-    assertEquals(7, feature.get("properties").size());
+    assertEquals(6, feature.get("properties").size());
   }
 
   @Test
   public void elementsGeomUsingOneTagTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&types=way&keys=building"
-        + "&values=residential&time=2015-12-01&properties=metadata", JsonNode.class);
+        + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-12-01"
+        + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/140112811") != null);
   }
 
   @Test
   public void elementsGeomUsingMultipleTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port
-            + "/elements/geometry?bboxes=8.67559,49.40853,8.69379,49.4231&types=way&keys=highway,"
-            + "name,maxspeed&values=residential&time=2015-10-01&properties=metadata",
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+        + "/elements/geometry?bboxes=8.67559,49.40853,8.69379,49.4231&time=2015-10-01"
+        + "&properties=metadata&filter=type:way and highway=residential and maxspeed=* and name=*",
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
   }
@@ -85,30 +85,32 @@ public class DataExtractionTest {
   @Test
   public void elementsGeomUnclippedSimpleFeaturesTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port
-            + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,line&"
-            + "keys=building&showMetadata=true&properties=unclipped&time=2019-01-02",
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&properties=unclipped"
+        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
         JsonNode.class);
     assertTrue(response.getBody().get("features").size() == 0);
   }
 
-  @Test
-  public void elementsGeomSimpleFeaturesOtherLineTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,line&"
-        + "keys=building&showMetadata=true&time=2019-01-02", JsonNode.class);
-    assertTrue("GeometryCollection"
-        .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
-  }
+  // this needs a fix in the OSHDB to work
+  // see https://github.com/GIScience/oshdb/issues/338
+  //  @Test
+  //  public void elementsGeomSimpleFeaturesOtherLineTest() {
+  //    TestRestTemplate restTemplate = new TestRestTemplate();
+  //    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+  //        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994"
+  //        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
+  //        JsonNode.class);
+  //    assertTrue("GeometryCollection"
+  //        .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
+  //  }
 
   @Test
   public void elementsGeomUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
-    map.add("types", "node");
+    map.add("filter", "type:node");
     map.add("time", "2016-02-05");
     map.add("properties", "metadata");
     ResponseEntity<JsonNode> response =
@@ -119,10 +121,9 @@ public class DataExtractionTest {
   @Test
   public void elementsBboxTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
-            + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
-        JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+        + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
+        + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     JsonNode featureGeom =
         Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468").get("geometry");
     assertEquals("Polygon", featureGeom.get("type").asText());
@@ -132,26 +133,27 @@ public class DataExtractionTest {
   @Test
   public void elementsCentroidTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&types=way"
-            + "&keys=building&values=residential&time=2015-01-01&properties=metadata",
-        JsonNode.class);
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity( server + port 
+        + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
+        + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     assertEquals(2, Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468")
         .get("geometry").get("coordinates").size());
   }
 
-  @Test
-  public void elementsClipGeometryParamTrueFalseTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&types=other,"
-        + "line&keys=building&showMetadata=true&time=2018-01-02";
-    ResponseEntity<JsonNode> emptyFeatureResponse =
-        restTemplate.getForEntity(server + port + uri + "&clipGeometry=false", JsonNode.class);
-    ResponseEntity<JsonNode> featureResponse =
-        restTemplate.getForEntity(server + port + uri + "&clipGeometry=true", JsonNode.class);
-    assertTrue(emptyFeatureResponse.getBody().get("features").size() == 0);
-    assertTrue(featureResponse.getBody().get("features").size() == 1);
-  }
+  // this needs a fix in the OSHDB to work
+  // see https://github.com/GIScience/oshdb/issues/338
+  //  @Test
+  //  public void elementsClipGeometryParamTrueFalseTest() {
+  //    TestRestTemplate restTemplate = new TestRestTemplate();
+  //    String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&time=2018-01-02"
+  //        + "&filter=building=* and (geometry:other or geometry:line)";
+  //    ResponseEntity<JsonNode> emptyFeatureResponse =
+  //        restTemplate.getForEntity(server + port + uri + "&clipGeometry=false", JsonNode.class);
+  //    ResponseEntity<JsonNode> featureResponse =
+  //        restTemplate.getForEntity(server + port + uri + "&clipGeometry=true", JsonNode.class);
+  //    assertTrue(emptyFeatureResponse.getBody().get("features").size() == 0);
+  //    assertTrue(featureResponse.getBody().get("features").size() == 1);
+  //  }
 
   /*
    * ./elementsFullHistory/geometry|bbox|centroid tests
@@ -161,12 +163,12 @@ public class DataExtractionTest {
   public void elementsFullHistoryGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elementsFullHistory/geometry?bboxes=8.67452,49.40961,8.70392,49.41823&"
-            + "types=way&keys=building&values=residential&properties=metadata&time=2015-01-01,"
-            + "2015-07-01&showMetadata=true",
+        server + port + "/elementsFullHistory/geometry?bboxes=8.67452,49.40961,8.70392,49.41823"
+            + "&properties=metadata&time=2015-01-01,2015-07-01"
+            + "&filter=type:way and building=residential",
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/295135436") != null);
-    assertEquals(7, Helper.getFeatureByIdentifier(response, "@validTo", "2015-05-05T06:59:35Z")
+    assertEquals(6, Helper.getFeatureByIdentifier(response, "@validTo", "2015-05-05T06:59:35Z")
         .get("properties").size());
   }
 
@@ -174,9 +176,8 @@ public class DataExtractionTest {
   public void elementsFullHistoryGeometryWithTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
-        server + port + "/elementsFullHistory/geometry?bboxes=8.67494,49.417032,8.676136,49.419576&"
-            + "types=way&keys=brand&values=Aldi Süd&properties=tags&time=2017-01-01,2018-01-01&"
-            + "showMetadata=true",
+        server + port + "/elementsFullHistory/geometry?bboxes=8.67494,49.417032,8.676136,49.419576"
+            + "&properties=tags&time=2017-01-01,2018-01-01&filter=type:way and brand=\"Aldi Süd\"",
         JsonNode.class);
     assertTrue(
         Helper.getFeatureByIdentifier(response, "@validFrom", "2017-01-18T17:38:06Z") != null);
@@ -189,9 +190,7 @@ public class DataExtractionTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67494,49.417032,8.676136,49.419576");
-    map.add("types", "way");
-    map.add("keys", "brand");
-    map.add("values", "Aldi Süd");
+    map.add("filter", "type:way and brand=\"Aldi Süd\"");
     map.add("time", "2017-01-01,2018-01-01");
     map.add("properties", "tags,metadata");
     ResponseEntity<JsonNode> response = restTemplate
@@ -207,13 +206,11 @@ public class DataExtractionTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
-    map.add("types", "way");
+    map.add("filter", "type:way and building=residential");
     map.add("time", "2017-01-01,2017-07-01");
-    map.add("keys", "building");
-    map.add("values", "residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elementsFullHistory/centroid", map, JsonNode.class);
-    assertEquals(4, Helper.getFeatureByIdentifier(response, "@osmId", "way/295135455")
+    assertEquals(3, Helper.getFeatureByIdentifier(response, "@osmId", "way/295135455")
         .get("properties").size());
   }
 
@@ -261,7 +258,7 @@ public class DataExtractionTest {
   public void postDataExtractionWithSpecificParameterOfOtherSpecificResourceTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("values2", "primary");
+    map.add("filter2", "highway=primary");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/geometry", map, JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());

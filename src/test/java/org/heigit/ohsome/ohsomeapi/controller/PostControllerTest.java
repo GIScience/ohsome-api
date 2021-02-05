@@ -113,10 +113,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67452,49.40961,8.70392,49.41823");
-    map.add("types", "way");
     map.add("time", "2013-01-01/2016-01-01/P1Y");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(40, StreamSupport
@@ -137,9 +135,8 @@ public class PostControllerTest {
             + "[8.67902,49.41460],[8.69009,49.41527],[8.68494,49.41951]]]}},{\"type\":\"Feature\","
             + "\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[8.68812,"
             + "49.40466],[8.68091,49.40058],[8.69121,49.40069],[8.68812,49.40466]]]}}]}");
-    map.add("types", "way");
     map.add("time", "2016-01-01");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
     map.add("format", "geojson");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/count/groupBy/boundary", map, JsonNode.class);
@@ -156,9 +153,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6475,49.4002,8.7057,49.4268");
-    map.add("types", "point");
     map.add("time", "2013-01-01/2016-01-01/P1Y");
-    map.add("keys", "building");
+    map.add("filter", "geometry:point and building=*");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(64, StreamSupport
@@ -175,9 +171,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.663031,49.41513,8.663616,49.415451");
-    map.add("types", "point,line");
     map.add("time", "2018-01-01");
-    map.add("keys", "highway");
+    map.add("filter", "(geometry:point or geometry:line) and highway=*");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(5, StreamSupport
@@ -193,9 +188,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
-    map.add("types", "line");
     map.add("time", "2013-01-01/2016-01-01/P1Y");
-    map.add("keys", "building");
+    map.add("filter", "geometry:line and building=*");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(2, StreamSupport
@@ -211,10 +205,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
-    map.add("types", "polygon");
     map.add("time", "2015-01-01/2019-01-01/P1Y");
-    map.add("keys", "leisure");
-    map.add("values", "track");
+    map.add("filter", "geometry:polygon and leisure=track");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(11, StreamSupport
@@ -230,10 +222,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.6519,49.3758,8.721,49.4301");
-    map.add("types", "other");
     map.add("time", "2015-01-01/2019-01-01/P1Y");
-    map.add("keys", "type");
-    map.add("values", "restriction");
+    map.add("filter", "geometry:other and type=restriction");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(246, StreamSupport
@@ -250,9 +240,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.690314,49.409546,8.690861,49.409752");
-    map.add("types", "point,polygon");
     map.add("time", "2017-03-01");
-    map.add("keys", "building");
+    map.add("filter", "building=* and (geometry:polygon or geometry:point)");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/count/groupBy/type", map, JsonNode.class);
     assertEquals(2,
@@ -271,10 +260,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
-    map.add("types", "way");
     map.add("time", "2013-01-01/2016-01-01/P1Y");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -292,10 +279,8 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
         + "49.41256,8.69304,49.42331");
-    map.add("types", "way");
     map.add("time", "2016-01-01");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -313,9 +298,8 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,"
         + "49.41256,8.69304,49.42331");
-    map.add("types", "way");
     map.add("time", "2016-07-01");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
     map.add("groupByKey", "building");
     map.add("groupByValues", "residential,garage");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
@@ -337,9 +321,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way,relation");
     map.add("time", "2016-01-01");
-    map.add("keys", "building");
+    map.add("filter", "(type:way or type:relation) and building=*");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/type", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -357,9 +340,9 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
     map.add("time", "2016-01-01");
     map.add("groupByKeys", "building,highway");
+    map.add("filter", "type:way");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -377,9 +360,9 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
     map.add("time", "2015-01-01");
     map.add("groupByKey", "building");
+    map.add("filter", "type:way");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/tag", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -396,11 +379,9 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
+    map.add("filter2", "type:relation and building=*");
     map.add("time", "2015-01-01");
-    map.add("types2", "relation");
-    map.add("keys2", "building");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/ratio", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -415,13 +396,9 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
         + "8.69304,49.42331");
-    map.add("types", "way");
-    map.add("keys", "building");
     map.add("time", "2015-01-01");
-    map.add("values", "yes");
-    map.add("types2", "relation");
-    map.add("keys2", "building");
-    map.add("values2", "yes");
+    map.add("filter", "type:way and building=yes");
+    map.add("filter2", "type:relation and building=yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/ratio/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -440,10 +417,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
-    map.add("types", "way");
     map.add("time", "2015-01-01");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/density", map, JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
@@ -456,9 +431,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way,relation");
     map.add("time", "2015-01-01");
-    map.add("keys", "building");
+    map.add("filter", "(type:way or type:relation) and building=*");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/type", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -476,9 +450,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
     map.add("time", "2015-01-01");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
     map.add("groupByKey", "building");
     map.add("groupByValues", "yes");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
@@ -498,10 +471,8 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
         + "8.69304,49.42331");
-    map.add("types", "way");
     map.add("time", "2015-01-01");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -518,9 +489,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
     map.add("time", "2016-07-09");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/perimeter/density/groupBy/boundary/groupBy/tag", map,
@@ -543,8 +513,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.662714,49.413594,8.663337,49.414324");
-    map.add("types", "polygon");
     map.add("time", "2018-03-24");
+    map.add("filter", "geometry:polygon");
     map.add("groupByKeys", "building,landuse");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/groupBy/key", map, JsonNode.class);
@@ -566,10 +536,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
-    map.add("types", "way");
     map.add("time", "2015-01-01");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
@@ -583,10 +551,8 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
         + "8.69304,49.42331");
-    map.add("types", "way");
     map.add("time", "2015-01-01");
-    map.add("keys", "building");
-    map.add("values", "residential");
+    map.add("filter", "type:way and building=residential");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -603,9 +569,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
     map.add("time", "2014-07-09");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
     map.add("groupByKey", "building");
     map.add("groupByValues", "residential,garage");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
@@ -626,9 +591,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way,relation");
     map.add("time", "2017-01-01");
-    map.add("keys", "building");
+    map.add("filter", "(type:way or type:relation) and building=*");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/groupBy/type", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -646,7 +610,7 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
+    map.add("filter", "type:way");
     map.add("time", "2017-01-01");
     map.add("groupByKeys", "building");
     ResponseEntity<JsonNode> response = restTemplate
@@ -666,7 +630,7 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
+    map.add("filter", "type:way");
     map.add("time", "2017-01-01");
     map.add("groupByKey", "building");
     ResponseEntity<JsonNode> response = restTemplate
@@ -685,11 +649,9 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("keys", "building");
     map.add("time", "2017-01-01");
-    map.add("types2", "relation");
-    map.add("keys2", "building");
+    map.add("filter", "type:way and building=*");
+    map.add("filter2", "type:relation and building=*");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -704,11 +666,9 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Neuenheim:8.67691,49.41256,8.69304,49.42331|"
         + "Weststadt:8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
-    map.add("keys", "building");
     map.add("time", "2017-01-01");
-    map.add("types2", "relation");
-    map.add("keys2", "building");
+    map.add("filter", "type:way and building=*");
+    map.add("filter2", "type:relation and building=*");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("groupByBoundaryResult").get(1)
@@ -721,10 +681,8 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
-    map.add("types", "way");
     map.add("time", "2017-01-01");
-    map.add("keys", "building");
-    map.add("values", "yes");
+    map.add("filter", "type:way and building=yes");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/density", map, JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
@@ -737,15 +695,15 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
-    map.add("types", "way,relation");
     map.add("time", "2017-01-01");
-    map.add("keys", "building");
+    map.add("filter", "building=* and (type:way or type:relation)");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/density/groupBy/type", map, JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("groupByResult").get(1).get("result").get(0).get("value").asDouble(),
+        response.getBody().get("groupByResult").get(2).get("result").get(0).get("value").asDouble(),
         expectedValue * deltaPercentage);
   }
+
 
   @Test
   public void elementsAreaDensityGroupByTagTest() {
@@ -753,9 +711,9 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.69416,49.40969,8.71154,49.41161");
-    map.add("types", "way");
     map.add("time", "2017-01-01");
     map.add("groupByKey", "building");
+    map.add("filter", "type:way");
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/area/density/groupBy/tag", map, JsonNode.class);
     assertEquals(expectedValue, StreamSupport
@@ -773,9 +731,8 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.67691,49.41256,"
         + "8.69304,49.42331");
-    map.add("types", "way");
     map.add("time", "2017-01-01");
-    map.add("keys", "building");
+    map.add("filter", "type:way and building=*");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/density/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -789,7 +746,7 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68081,49.39821,8.69528,49.40687");
-    map.add("types", "way");
+    map.add("filter", "type:way");
     map.add("time", "2014-07-09");
     map.add("groupByKey", "building");
     map.add("groupByValues", "residential,garage");
@@ -814,9 +771,7 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68815,49.41964,8.68983,49.42045");
     map.add("time", "2019-01-01");
-    map.add("types", "polygon");
-    map.add("keys", "highway");
-    map.add("values", "pedestrian");
+    map.add("filter", "geometry:polygon and highway=pedestrian");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area", map, JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("result").get(0).get("value").asDouble(),
@@ -830,12 +785,8 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.679789,49.409088,8.680535,49.40943");
     map.add("time", "2018-12-01");
-    map.add("types", "polygon");
-    map.add("types2", "polygon");
-    map.add("keys", "leisure");
-    map.add("keys2", "name");
-    map.add("values", "swimming_pool");
-    map.add("values2", "Schwimmerbecken");
+    map.add("filter", "geometry:polygon and leisure=swimming_pool");
+    map.add("filter2", "geometry:polygon and name=Schwimmerbecken");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
     assertEquals(expectedValue,
@@ -850,7 +801,7 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.68287,49.36967,8.68465,49.37135");
     map.add("time", "2019-01-01");
-    map.add("types", "polygon");
+    map.add("filter", "geometry:polygon");
     map.add("groupByKey", "leisure");
     map.add("groupByValues", "pitch,sports_centre");
     ResponseEntity<JsonNode> response = restTemplate
@@ -872,11 +823,9 @@ public class PostControllerTest {
     // expect result to have 1 entry rows with 2 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.67508,49.37834,8.67565,49.38026");
-    map.add("types", "way");
     map.add("time", "2019-01-11");
-    map.add("keys", "railway");
-    map.add("values", "platform");
     map.add("format", "csv");
+    map.add("filter", "type:way and railway=platform");
     String responseBody = Helper.getPostResponseBody("/elements/length", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
@@ -892,11 +841,11 @@ public class PostControllerTest {
     // expect result to have 1 entry rows with 4 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.687782,49.412861,8.687986,49.412945");
-    map.add("types", "way");
     map.add("time", "2017-08-04");
     map.add("groupByKey", "highway");
     map.add("groupByValues", "path,footway");
     map.add("format", "csv");
+    map.add("filter", "type:way");
     String responseBody = Helper.getPostResponseBody("/elements/length/density/groupBy/tag", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
@@ -913,14 +862,10 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "8.672343,49.413675,8.673797,49.41395|" + "8.674157,49.413455,8.67465,49.413741");
-    map.add("types", "way");
-    map.add("types2", "way");
     map.add("time", "2018-01-01");
-    map.add("keys", "highway");
-    map.add("keys2", "highway");
-    map.add("values", "unclassified");
-    map.add("values2", "service");
     map.add("format", "csv");
+    map.add("filter", "type:way and highway=unclassified");
+    map.add("filter2", "type:way and highway=service");
     String responseBody =
         Helper.getPostResponseBody("/elements/length/ratio/" + "groupBy/boundary", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -933,22 +878,22 @@ public class PostControllerTest {
 
   @Test
   public void elementsLengthGroupByTypeCsvTest() throws IOException {
-    // expect result to have 1 entry rows with 3 columns
+    // expect result to have 1 entry rows with 4 columns
     final double expectedValue = 106.16;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.675873,49.412488,8.676082,49.412701");
-    map.add("types", "way,relation");
     map.add("time", "2018-01-01");
-    map.add("keys", "name");
     map.add("format", "csv");
+    map.add("filter", "(type:way or type:relation) and name=*");
     String responseBody = Helper.getPostResponseBody("/elements/length/groupBy/type", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
+    assertEquals(4, headers.size());
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
         expectedValue * deltaPercentage);
   }
+
 
 
   @Test
@@ -957,7 +902,7 @@ public class PostControllerTest {
     final double expectedValue = 226.58;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "b1:8.69205,49.41164,8.69319,49.41287|b2:8.66785,49.40973,8.66868,49.41176");
-    map.add("types", "line");
+    map.add("filter", "geometry:line");
     map.add("time", "2017-09-02");
     map.add("groupByKey", "highway");
     map.add("groupByValues", "path,primary,footway");
@@ -980,11 +925,9 @@ public class PostControllerTest {
     final double expectedValue = 662.23;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.68855,49.40193,8.68979,49.40316");
-    map.add("types", "relation");
     map.add("time", "2017-01-01");
-    map.add("keys", "building");
-    map.add("values", "hospital");
     map.add("format", "csv");
+    map.add("filter", "type:relation and building=hospital");
     String responseBody = Helper.getPostResponseBody("/elements/perimeter", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
@@ -1001,12 +944,11 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "Weststadt:8.68081,49.39821,8.69528,49.40687|Neuenheim:8.676699,"
         + "49.414781,8.678003,49.415371");
-    map.add("types", "way");
     map.add("time", "2016-07-01");
-    map.add("keys", "building");
     map.add("groupByKey", "building");
     map.add("groupByValues", "house");
     map.add("format", "csv");
+    map.add("filter", "type:way and building=*");
     String responseBody =
         Helper.getPostResponseBody("/elements/perimeter/" + "groupBy/boundary/groupBy/tag", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1023,11 +965,9 @@ public class PostControllerTest {
     final double expectedValue = 62501.18;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "8.67512, 49.40023,60|8.675659,49.39841,50");
-    map.add("types", "way");
     map.add("time", "2017-03-01");
-    map.add("keys", "building");
-    map.add("values", "yes");
     map.add("format", "csv");
+    map.add("filter", "type:way and building=yes");
     String responseBody =
         Helper.getPostResponseBody("/elements/perimeter/density/" + "groupBy/boundary", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1044,7 +984,7 @@ public class PostControllerTest {
     final double expectedValue = 366.12;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.685642,49.395621,8.687128,49.396528");
-    map.add("types", "way");
+    map.add("filter", "type:way");
     map.add("time", "2018-01-01");
     map.add("groupByKeys", "building,leisure");
     map.add("format", "csv");
@@ -1064,12 +1004,10 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "8.685642,49.396078,8.687192,49.396528|8.685744,49.395621,8.687294,49.396078");
-    map.add("types", "way");
     map.add("time", "2018-01-01");
-    map.add("keys", "leisure");
-    map.add("keys2", "leisure");
-    map.add("values2", "pitch");
     map.add("format", "csv");
+    map.add("filter", "type:way and leisure=*");
+    map.add("filter2", "leisure=pitch");
     String responseBody =
         Helper.getPostResponseBody("/elements/perimeter/ratio/" + "groupBy/boundary", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1086,13 +1024,10 @@ public class PostControllerTest {
     final double expectedValue = 0.257533;
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bcircles", "b1:8.70167,49.38686,60|b2: 8.70231,49.38952,60");
-    map.add("types", "polygon");
-    map.add("types2", "polygon");
     map.add("time", "2018-08-09");
-    map.add("keys", "landuse");
-    map.add("keys2", "landuse");
-    map.add("values2", "meadow");
     map.add("format", "csv");
+    map.add("filter", "geometry:polygon and landuse=*");
+    map.add("filter2", "geometry:polygon and landuse=meadow");
     String responseBody = Helper.getPostResponseBody("/elements/area/ratio/groupBy/boundary", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
@@ -1109,12 +1044,11 @@ public class PostControllerTest {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes",
         "b1:8.695003,49.399594,8.695421,49.399789|" + "b2:8.687788,49.402997,8.68856,49.403441");
-    map.add("types", "way");
     map.add("time", "2014-07-09");
-    map.add("keys", "building");
     map.add("groupByKey", "building");
     map.add("groupByValues", "garage");
     map.add("format", "csv");
+    map.add("filter", "type:way and building=*");
     String responseBody =
         Helper.getPostResponseBody("/elements/area/" + "groupBy/boundary/groupBy/tag", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1127,18 +1061,17 @@ public class PostControllerTest {
 
   @Test
   public void elementsCountGroupByTypeSimpleFeatureCsvTest() throws IOException {
-    // expect result to have 1 entry rows with 3 columns
+    // expect result to have 1 entry rows with 4 columns
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("bboxes", "8.688517,49.401936,8.68981,49.403168");
-    map.add("types", "line,polygon");
     map.add("time", "2019-01-01");
-    map.add("keys", "wheelchair");
     map.add("format", "csv");
+    map.add("filter", "(geometry:line or geometry:polygon) and wheelchair=*");
     String responseBody = Helper.getPostResponseBody("/elements/count/groupBy/type", map);
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
-    assertEquals(3, headers.size());
+    assertEquals(4, headers.size());
     assertEquals(1.0, Double.parseDouble(records.get(0).get("RELATION")), 0.0);
     assertEquals(1.0, Double.parseDouble(records.get(0).get("WAY")), 0.0);
   }
