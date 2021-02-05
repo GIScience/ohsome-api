@@ -305,6 +305,9 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER2, paramType = "query",
+          dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
           dataType = "string", required = false)})
@@ -336,6 +339,9 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER2, paramType = "query",
+          dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
           dataType = "string", required = false)})
