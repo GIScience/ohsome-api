@@ -3,14 +3,18 @@ Changelog
 
 ## 1.4.0-SNAPSHOT (current master)
 
-
 ### Bug Fixes
 
 * update all tests using the filter parameter instead of deprecated types, keys, values ([#98])
 * fix some invalid filters in the default swagger examples ([#111])
 
+### Performance and Code Quality
+
+* improve performance of ratio requests ([#114])
+
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
+[#114]: https://github.com/GIScience/ohsome-api/pull/114
 
 
 ## 1.3.2
