@@ -62,6 +62,9 @@ public class CountController {
    */
   @ApiOperation(value = "Count of OSM elements grouped by the type", nickname = "countGroupByType",
       response = GroupByResponse.class)
+  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+      dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
@@ -203,6 +206,9 @@ public class CountController {
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "countDensityGroupByType", response = GroupByResponse.class)
+  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+      dataType = "string", required = false)
   @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
@@ -306,6 +312,9 @@ public class CountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
           dataType = "string", required = false)})
@@ -337,6 +346,9 @@ public class CountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
           dataType = "string", required = false)})

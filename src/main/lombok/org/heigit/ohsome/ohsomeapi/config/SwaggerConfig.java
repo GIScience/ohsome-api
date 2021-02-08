@@ -201,7 +201,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
     globalOperationParams
         .add(new ParameterBuilder().name("filter").description(ParameterDescriptions.FILTER)
             .modelRef(new ModelRef(string)).parameterType(query)
-            .defaultValue(DefaultSwaggerParameters.TYPE_FILTER).required(false).build());
+            .defaultValue(DefaultSwaggerParameters.GENERIC_FILTER).required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("timeout")
         .description(ParameterDescriptions.TIMEOUT).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());

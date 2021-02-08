@@ -62,6 +62,9 @@ public class AreaController {
    */
   @ApiOperation(value = "Area of OSM elements grouped by the type", nickname = "areaGroupByType",
       response = GroupByResponse.class)
+  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+      dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response areaGroupByType(HttpServletRequest servletRequest,
@@ -203,6 +206,9 @@ public class AreaController {
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "areaDensityGroupByType", response = GroupByResponse.class)
+  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+      dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response areaDensityGroupByType(HttpServletRequest servletRequest,
@@ -307,8 +313,11 @@ public class AreaController {
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-          defaultValue = "type:relation and " + DefaultSwaggerParameters.BUILDING_FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2,
           paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
@@ -338,8 +347,11 @@ public class AreaController {
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
           dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
