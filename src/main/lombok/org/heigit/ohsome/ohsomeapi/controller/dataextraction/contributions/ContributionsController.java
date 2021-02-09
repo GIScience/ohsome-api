@@ -6,9 +6,11 @@ import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
+import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,6 +72,25 @@ public class ContributionsController {
     executor.extract();
   }
 
+  /**
+   * Gives the count of OSM contributions as JSON.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
+   */
+  @ApiOperation(value = "count of OSM contributions",
+      nickname = "contributionsCount", response = Response.class)
+  @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public void contributionsCount(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    ContributionsExecutor executor = new ContributionsExecutor(servletRequest, servletResponse, 
+        false);
+    executor.count();
+  }
+  
   /**
    * Gives the contributions as GeoJSON features, which have the centroid of the respective objects
    * in the geometry field.
