@@ -14,10 +14,10 @@ public class RatioGroupByResult extends GroupByObject {
 
   @ApiModelProperty(notes = "RatioResult array holding timestamp, whole and part values",
       required = true)
-  private RatioResult[] ratioResult;
+  private RatioResult[] result;
 
-  public RatioGroupByResult(Object groupByObject, RatioResult[] ratioResult) {
+  public RatioGroupByResult(Object groupByObject, RatioResult[] result) {
     super(groupByObject);
-    this.ratioResult = ratioResult;
+    this.result = result;
   }
 }

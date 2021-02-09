@@ -38,11 +38,11 @@ public class GroupByBoundaryGeoJsonGenerator {
       int tstampCount) {
     Feature[] features;
     RatioGroupByResult[] groupByResults = (RatioGroupByResult[]) results;
-    int resultLength = groupByResults[0].getRatioResult().length;
+    int resultLength = groupByResults[0].getResult().length;
     int featuresLength = groupByResultsLength * resultLength;
     features = new Feature[featuresLength];
     for (int i = 0; i < featuresLength; i++) {
-      RatioResult result = groupByResults[groupByResultCount].getRatioResult()[tstampCount];
+      RatioResult result = groupByResults[groupByResultCount].getResult()[tstampCount];
       String tstamp = result.getTimestamp();
       Feature feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
       feature.setProperty("value", result.getValue());
