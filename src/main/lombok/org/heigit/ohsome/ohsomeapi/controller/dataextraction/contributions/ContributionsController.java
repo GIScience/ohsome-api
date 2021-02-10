@@ -9,6 +9,7 @@ import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGe
 import org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
+import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -104,14 +105,14 @@ public class ContributionsController {
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
    */
-  @ApiOperation(value = "count of OSM contributions",
-      nickname = "contributionsCount", response = Response.class)
+  @ApiOperation(value = "count of OSM contributions", nickname = "contributionsCount",
+      response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response contributionsCount(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor = new ContributionsExecutor(servletRequest, servletResponse, 
-        false);
+    ContributionsExecutor executor =
+        new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count();
   }
   
@@ -123,17 +124,17 @@ public class ContributionsController {
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
    */
-  @ApiOperation(value = "density of OSM contributions",
-      nickname = "contributionsDensity", response = DataResponse.class)
+  @ApiOperation(value = "density of OSM contributions", nickname = "contributionsCountDensity",
+      response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
+      produces = {"application/json", "text/csv"})
   public Response contributionsCountDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor = new ContributionsExecutor(servletRequest, servletResponse, 
-        true);
+    ContributionsExecutor executor =
+        new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.count();
   }
-
+  
   /**
    * Gives the latest contributions as GeoJSON features, which have the geometry of the respective
    * objects in the geometry field.
