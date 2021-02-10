@@ -114,6 +114,25 @@ public class ContributionsController {
         false);
     return executor.count();
   }
+  
+  /**
+   * Gives the density of OSM contributions as JSON.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
+   */
+  @ApiOperation(value = "density of OSM contributions",
+      nickname = "contributionsDensity", response = DataResponse.class)
+  @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response contributionsCountDensity(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    ContributionsExecutor executor = new ContributionsExecutor(servletRequest, servletResponse, 
+        true);
+    return executor.count();
+  }
 
   /**
    * Gives the latest contributions as GeoJSON features, which have the geometry of the respective
