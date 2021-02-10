@@ -75,7 +75,7 @@ import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
-import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
@@ -287,7 +287,7 @@ public class ExecutionUtils {
           return;
         } else {
           GroupByResult result = (GroupByResult) resultSet[0];
-          if (result.getResult() instanceof UsersResult[]) {
+          if (result.getResult() instanceof ContributionsResult[]) {
             rows = createCsvResponseForUsersGroupBy(resultSet);
           } else {
             rows = createCsvResponseForElementsGroupBy(resultSet);
@@ -320,12 +320,12 @@ public class ExecutionUtils {
           writer.writeNext(new String[] {elementsResult.getTimestamp(),
               String.valueOf(elementsResult.getValue())});
         }
-      } else if (resultSet instanceof UsersResult[]) {
+      } else if (resultSet instanceof ContributionsResult[]) {
         writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
         for (Result result : resultSet) {
-          UsersResult usersResult = (UsersResult) result;
-          writer.writeNext(new String[] {usersResult.getFromTimestamp(),
-              usersResult.getToTimestamp(), String.valueOf(usersResult.getValue())});
+          ContributionsResult ContributionsResult = (ContributionsResult) result;
+          writer.writeNext(new String[] {ContributionsResult.getFromTimestamp(),
+              ContributionsResult.getToTimestamp(), String.valueOf(ContributionsResult.getValue())});
         }
       } else if (resultSet instanceof RatioResult[]) {
         writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
@@ -534,20 +534,20 @@ public class ExecutionUtils {
     return results;
   }
 
-  /** Fills the UsersResult array with respective UsersResult objects. */
-  public UsersResult[] fillUsersResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
+  /** Fills the ContributionsResult array with respective ContributionsResult objects. */
+  public ContributionsResult[] fillContributionsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
       boolean isDensity, InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
-    UsersResult[] results = new UsersResult[entryVal.entrySet().size()];
+    ContributionsResult[] results = new ContributionsResult[entryVal.entrySet().size()];
     int count = 0;
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
         results[count] =
-            new UsersResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+            new ContributionsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 toTimestamps[count + 1], Double.parseDouble(
                     df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000))));
       } else {
-        results[count] = new UsersResult(
+        results[count] = new ContributionsResult(
             TimestampFormatter.getInstance().isoDateTime(entry.getKey()), toTimestamps[count + 1],
             Double.parseDouble(df.format(entry.getValue().doubleValue())));
       }
@@ -797,7 +797,7 @@ public class ExecutionUtils {
    * Creates the csv response for /users/_/groupBy requests.
    * 
    * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
-   *        containing <code>UsersResult</code> objects
+   *        containing <code>ContributionsResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
    */
   private ImmutablePair<List<String>, List<String[]>> createCsvResponseForUsersGroupBy(
@@ -810,16 +810,16 @@ public class ExecutionUtils {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
       columnNames.add(groupByResult.getGroupByObject().toString());
       for (int j = 0; j < groupByResult.getResult().length; j++) {
-        UsersResult usersResult = (UsersResult) groupByResult.getResult()[j];
+        ContributionsResult ContributionsResult = (ContributionsResult) groupByResult.getResult()[j];
         if (i == 0) {
           String[] row = new String[resultSet.length + 2];
-          row[0] = usersResult.getFromTimestamp();
-          row[1] = usersResult.getToTimestamp();
-          row[2] = String.valueOf(usersResult.getValue());
+          row[0] = ContributionsResult.getFromTimestamp();
+          row[1] = ContributionsResult.getToTimestamp();
+          row[2] = String.valueOf(ContributionsResult.getValue());
           rows.add(row);
         } else {
           int count = i + 2;
-          rows.get(j)[count] = String.valueOf(usersResult.getValue());
+          rows.get(j)[count] = String.valueOf(ContributionsResult.getValue());
         }
       }
     }

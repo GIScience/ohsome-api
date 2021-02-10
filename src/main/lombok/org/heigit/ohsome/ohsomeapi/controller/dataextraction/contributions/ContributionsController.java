@@ -71,25 +71,6 @@ public class ContributionsController {
         ElementsGeometry.BBOX, servletRequest, servletResponse);
     executor.extract();
   }
-
-  /**
-   * Gives the count of OSM contributions as JSON.
-   * 
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
-   */
-  @ApiOperation(value = "count of OSM contributions",
-      nickname = "contributionsCount", response = Response.class)
-  @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = "application/json")
-  public void contributionsCount(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor = new ContributionsExecutor(servletRequest, servletResponse, 
-        false);
-    executor.count();
-  }
   
   /**
    * Gives the contributions as GeoJSON features, which have the centroid of the respective objects
@@ -113,6 +94,25 @@ public class ContributionsController {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
         ElementsGeometry.CENTROID, servletRequest, servletResponse);
     executor.extract();
+  }
+  
+  /**
+   * Gives the count of OSM contributions as JSON.
+   * 
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
+   */
+  @ApiOperation(value = "count of OSM contributions",
+      nickname = "contributionsCount", response = Response.class)
+  @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = "application/json")
+  public Response contributionsCount(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    ContributionsExecutor executor = new ContributionsExecutor(servletRequest, servletResponse, 
+        false);
+    return executor.count();
   }
 
   /**

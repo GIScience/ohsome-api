@@ -37,7 +37,7 @@ import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
-import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
@@ -68,8 +68,8 @@ public class UsersRequestExecutor {
     result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
-    UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
+    ContributionsResult[] results =
+        exeUtils.fillContributionsResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
@@ -107,7 +107,7 @@ public class UsersRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
@@ -191,7 +191,7 @@ public class UsersRequestExecutor {
     int count = 0;
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
         groupByName = "total";
@@ -268,7 +268,7 @@ public class UsersRequestExecutor {
     String groupByName = "";
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey() == -2) {
         groupByName = "total";
@@ -329,7 +329,7 @@ public class UsersRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
       resultSet[count] = new GroupByResult(boundaryIds[count], results);
       count++;

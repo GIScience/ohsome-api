@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import static org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures;
-
 import com.opencsv.CSVWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -38,7 +37,7 @@ import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
-import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
@@ -200,12 +199,12 @@ public class AggregateRequestExecutor extends RequestExecutor {
         writer.writeNext(new String[] {elementsResult.getTimestamp(),
             String.valueOf(elementsResult.getValue())});
       }
-    } else if (resultSet instanceof UsersResult[]) {
-      UsersResult[] rs = (UsersResult[]) resultSet;
+    } else if (resultSet instanceof ContributionsResult[]) {
+      ContributionsResult[] rs = (ContributionsResult[]) resultSet;
       writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
-      for (UsersResult usersResult : rs) {
-        writer.writeNext(new String[] {usersResult.getFromTimestamp(), usersResult.getToTimestamp(),
-            String.valueOf(usersResult.getValue())});
+      for (ContributionsResult ContributionsResult : rs) {
+        writer.writeNext(new String[] {ContributionsResult.getFromTimestamp(), ContributionsResult.getToTimestamp(),
+            String.valueOf(ContributionsResult.getValue())});
       }
     } else if (resultSet instanceof RatioResult[]) {
       RatioResult[] rs = (RatioResult[]) resultSet;
