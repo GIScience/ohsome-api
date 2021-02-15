@@ -37,7 +37,7 @@ import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.elements.features.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
@@ -48,14 +48,14 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.output.Attribution;
+import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.ohsome.ohsomeapi.output.Metadata;
+import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
@@ -75,7 +75,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs an OSM data extraction.
    * 
-   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry
+   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.elements.features.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
@@ -85,7 +85,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, DataResponse, Stream)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
    */
   public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,
@@ -132,7 +132,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    DataResponse osmData = new DataResponse(new Attribution(URL, TEXT), Application.API_VERSION,
+    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamResponse(servletResponse, osmData, streamResult);
@@ -151,7 +151,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKey parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
@@ -258,7 +258,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKey parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
@@ -344,7 +344,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -405,7 +405,7 @@ public class ElementsRequestExecutor {
    * @param isSnapshot whether this request uses the snapshot-view (true), or contribution-view
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKeys parameter is not given
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
@@ -497,7 +497,7 @@ public class ElementsRequestExecutor {
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -643,7 +643,7 @@ public class ElementsRequestExecutor {
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
@@ -746,7 +746,7 @@ public class ElementsRequestExecutor {
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
@@ -938,7 +938,7 @@ public class ElementsRequestExecutor {
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()

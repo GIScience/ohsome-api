@@ -18,7 +18,7 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.elements.features.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
@@ -26,8 +26,8 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
+import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.wololo.geojson.Feature;
 
 /** Holds executor methods for the following endpoints: /elementsFullHistory, /contributions. */
@@ -57,7 +57,7 @@ public class DataRequestExecutor extends RequestExecutor {
    *         parseIsoDateTime},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(
-   *         HttpServletResponse, DataResponse, Stream) streamElementsResponse}
+   *         HttpServletResponse, ExtractionResponse, Stream) streamElementsResponse}
    */
   public void extract() throws Exception {
     inputProcessor.getProcessingData().setFullHistory(true);
@@ -120,7 +120,7 @@ public class DataRequestExecutor extends RequestExecutor {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    DataResponse osmData = new DataResponse(ATTRIBUTION, Application.API_VERSION, metadata,
+    ExtractionResponse osmData = new ExtractionResponse(ATTRIBUTION, Application.API_VERSION, metadata,
         "FeatureCollection", Collections.emptyList());
     MapReducer<Feature> snapshotPreResult = null;
     if (!isContributionsEndpoint) {

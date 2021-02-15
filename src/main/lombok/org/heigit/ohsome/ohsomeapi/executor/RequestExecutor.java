@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
+import org.heigit.ohsome.ohsomeapi.output.Attribution;
 
 @RequiredArgsConstructor
 public abstract class RequestExecutor {

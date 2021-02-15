@@ -34,16 +34,16 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
+import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.DefaultAggregationResponse;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResponse;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.Metadata;
+import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
@@ -70,7 +70,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation.
    * 
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws RuntimeException if an unsupported RequestResource type is used. Only COUNT, LENGTH,
    *         PERIMETER, and AREA are permitted here
    * @throws Exception thrown by
@@ -129,7 +129,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
    * 
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters} and
