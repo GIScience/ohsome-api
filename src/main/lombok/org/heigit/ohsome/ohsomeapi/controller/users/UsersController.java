@@ -27,7 +27,7 @@ public class UsersController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor#count(HttpServletRequest, HttpServletResponse, boolean)
    *         count}
@@ -132,7 +132,7 @@ public class UsersController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor#count(HttpServletRequest, HttpServletResponse, boolean)
    *         count}
