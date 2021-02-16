@@ -8,8 +8,8 @@ API Endpoints
     The usage of the parameters **types**, **keys** and **values** is not recommended as they are deprecated. Please use the 
     filter_ parameter for your requests.
 
-Aggregation Endpoints
----------------------
+Elements Aggregation
+--------------------
 
 .. http:post :: /elements/(aggregation)
 
@@ -846,8 +846,8 @@ Compare length of different types of streets for two or more regions.
    * aggregation type: same as for **/elements/(aggregation)/groupBy/boundary/groupBy/tag**.
 
 
-Users Aggregation Endpoints
----------------------------
+Users Aggregation
+-----------------
 
 .. http:post :: /users/count
 
@@ -1021,9 +1021,87 @@ Show number of users editing buildings before, during and after Nepal earthquake
       }
 
 
-Extraction Endpoints
---------------------
+Contributions Aggregation
+-------------------------
+      
+.. http:post :: /contributions/count
 
+   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+info-text
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.6720%2C49.3988%2C8.7026%2C49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01%2C2020-06-29&showMetadata=yes&properties=metadata%2Ctags&clipGeometry=false'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.6720,49.3988,8.7026,49.4274' --data-urlencode 'time=2020-02-01,2020-06-29' --data-urlencode 'filter=amenity=pharmacy and opening_hours=* and type:node' --data-urlencode 'showMetadata=yes' --data-urlencode 'properties=metadata,tags' --data-urlencode 'clipGeometry=false'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count'
+        data = {"bboxes": "8.6720,49.3988,8.7026,49.4274", "time": "2020-02-01,2020-06-29", "filter": "amenity=pharmacy and opening_hours=* and type:node", "showMetadata": "yes", "properties": "metadata,tags", "clipGeometry": "false"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.6720,49.3988,8.7026,49.4274", time = "2020-02-01,2020-06-29", filter = "amenity=pharmacy and opening_hours=* and type:node", showMetadata = "yes", properties = "metadata,tags", clipGeometry = "false"))
+        r
+
+.. note:: The following example responses only show parts of the returned .geojson file.
+
+**Example response**:
+
+
+
+.. http:post :: /contributions/count/density
+
+   Get the density of the count of contributions divided by the total area in square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+info-text
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.6720%2C49.3988%2C8.7026%2C49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01%2C2020-06-29&showMetadata=yes&properties=metadata%2Ctags&clipGeometry=false'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.6720,49.3988,8.7026,49.4274' --data-urlencode 'time=2020-02-01,2020-06-29' --data-urlencode 'filter=amenity=pharmacy and opening_hours=* and type:node' --data-urlencode 'showMetadata=yes' --data-urlencode 'properties=metadata,tags' --data-urlencode 'clipGeometry=false'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count'
+        data = {"bboxes": "8.6720,49.3988,8.7026,49.4274", "time": "2020-02-01,2020-06-29", "filter": "amenity=pharmacy and opening_hours=* and type:node", "showMetadata": "yes", "properties": "metadata,tags", "clipGeometry": "false"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.6720,49.3988,8.7026,49.4274", time = "2020-02-01,2020-06-29", filter = "amenity=pharmacy and opening_hours=* and type:node", showMetadata = "yes", properties = "metadata,tags", clipGeometry = "false"))
+        r
+
+.. note:: The following example responses only show parts of the returned .geojson file.
+
+**Example response**:
+
+
+
+Elements Extraction
+-------------------
 .. http:post :: /elements/(geometryType)
 
    Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
@@ -1289,8 +1367,8 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
       }
    
       
-Contribution Endpoints
-----------------------
+Contributions Extraction
+------------------------
 
 .. http:post :: /contributions/(geometryType)
 
@@ -1863,9 +1941,10 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }]
       }
-
-Metadata Endpoint
------------------
+      
+      
+Metadata
+--------
 
 .. http:get :: /metadata
 
