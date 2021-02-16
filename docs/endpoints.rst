@@ -1030,36 +1030,105 @@ Contributions Aggregation
 
 **Example request**:
 
-info-text
+Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and 2020.
 
   .. tabs::
 
     .. code-tab:: bash curl (GET)
 
-       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.6720%2C49.3988%2C8.7026%2C49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01%2C2020-06-29&showMetadata=yes&properties=metadata%2Ctags&clipGeometry=false'
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.699053,49.411842,8.701311,49.412893&filter=id:way/140112810&time=2010-01-01,2020-01-01
 
     .. code-tab:: bash curl (POST)
 
-       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.6720,49.3988,8.7026,49.4274' --data-urlencode 'time=2020-02-01,2020-06-29' --data-urlencode 'filter=amenity=pharmacy and opening_hours=* and type:node' --data-urlencode 'showMetadata=yes' --data-urlencode 'properties=metadata,tags' --data-urlencode 'clipGeometry=false'
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.699053,49.411842,8.701311,49.412893' --data-urlencode 'time=2010-01-01,2020-01-01' --data-urlencode 'filter=id:way/140112810'
 
     .. code-tab:: python Python
 
         import requests
         URL = 'https://api.ohsome.org/v1/contributions/count'
-        data = {"bboxes": "8.6720,49.3988,8.7026,49.4274", "time": "2020-02-01,2020-06-29", "filter": "amenity=pharmacy and opening_hours=* and type:node", "showMetadata": "yes", "properties": "metadata,tags", "clipGeometry": "false"}
+        data = {"bboxes": "8.699053,49.411842,8.701311,49.412893", "time": "2010-01-01,2020-01-01", "filter": "id:way/140112810"}
         response = requests.post(URL, data=data)
         print(response.json())
 
     .. code-tab:: r R
 
         library(httr)
-        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.6720,49.3988,8.7026,49.4274", time = "2020-02-01,2020-06-29", filter = "amenity=pharmacy and opening_hours=* and type:node", showMetadata = "yes", properties = "metadata,tags", clipGeometry = "false"))
+        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.699053,49.411842,8.701311,49.412893", time = "2010-01-01,2020-01-01", filter = "id:way/140112810"))
         r
 
-.. note:: The following example responses only show parts of the returned .geojson file.
 
 **Example response**:
 
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
 
 
 .. http:post :: /contributions/count/density
@@ -1068,36 +1137,105 @@ info-text
 
 **Example request**:
 
-info-text
+Density of contributions to shops within the oldtown area of Heidelberg between 2012 and 2016.
 
   .. tabs::
 
     .. code-tab:: bash curl (GET)
 
-       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.6720%2C49.3988%2C8.7026%2C49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01%2C2020-06-29&showMetadata=yes&properties=metadata%2Ctags&clipGeometry=false'
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count/density?bboxes=8.69282,49.40766,8.71673,49.4133&filter=shop=*%20and%20type:node&time=2012-01-01,2016-01-01'
 
     .. code-tab:: bash curl (POST)
 
-       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.6720,49.3988,8.7026,49.4274' --data-urlencode 'time=2020-02-01,2020-06-29' --data-urlencode 'filter=amenity=pharmacy and opening_hours=* and type:node' --data-urlencode 'showMetadata=yes' --data-urlencode 'properties=metadata,tags' --data-urlencode 'clipGeometry=false'
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count/density' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlencode 'time=2012-01-01,2016-01-01' --data-urlencode 'filter=shop=* and type:node'
 
     .. code-tab:: python Python
 
         import requests
-        URL = 'https://api.ohsome.org/v1/contributions/count'
-        data = {"bboxes": "8.6720,49.3988,8.7026,49.4274", "time": "2020-02-01,2020-06-29", "filter": "amenity=pharmacy and opening_hours=* and type:node", "showMetadata": "yes", "properties": "metadata,tags", "clipGeometry": "false"}
+        URL = 'https://api.ohsome.org/v1/contributions/count/density'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "time": "2012-01-01,2016-01-01", "filter": "shop=* and type:node"}
         response = requests.post(URL, data=data)
         print(response.json())
 
     .. code-tab:: r R
 
         library(httr)
-        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.6720,49.3988,8.7026,49.4274", time = "2020-02-01,2020-06-29", filter = "amenity=pharmacy and opening_hours=* and type:node", showMetadata = "yes", properties = "metadata,tags", clipGeometry = "false"))
+        r <- POST("https://api.ohsome.org/v1/contributions/count/density", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node"))
         r
 
-.. note:: The following example responses only show parts of the returned .geojson file.
 
 **Example response**:
 
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.3.2",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
 
 
 Elements Extraction
