@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.controller.elements.features;
+package org.heigit.ohsome.ohsomeapi.controller.dataextraction.features;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

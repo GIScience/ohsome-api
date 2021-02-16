@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.controller.elements.dataaggregation;
+package org.heigit.ohsome.ohsomeapi.controller.dataaggregation.elements;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,18 +20,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
- * Controller containing the GET and POST servletRequest handling methods, which are mapped to
- * "/elements/perimeter".
+ * Controller containing the GET and POST request handling methods, which are mapped to
+ * "/elements/length".
  */
-@Api(tags = "Perimeter")
+@Api(tags = "Length")
 @RestController
-@RequestMapping("/elements/perimeter")
-public class PerimeterController {
+@RequestMapping("/elements/length")
+public class LengthController {
 
   /**
-   * Gives the perimeter of polygonal OSM objects.
+   * Gives the length of OSM elements.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -39,19 +38,19 @@ public class PerimeterController {
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
-  @ApiOperation(value = "Perimeter of OSM elements", nickname = "perimeter",
+  @ApiOperation(value = "Length of OSM elements", nickname = "length",
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeter(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+  public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-        servletRequest, servletResponse, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, false);
     return executor.aggregate();
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the OSM type.
+   * Gives the length of OSM elements grouped by the OSM type.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -60,21 +59,18 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
    *         aggregateGroupByType}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
-      nickname = "perimeterGroupByType", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-      dataType = "string", required = false)
+  @ApiOperation(value = "Length of OSM elements grouped by the type",
+      nickname = "lengthGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByType(HttpServletRequest servletRequest,
+  public Response lengthGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
+    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
         servletResponse, true, false);
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the boundary parameter (bounding
+   * Gives the length of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -84,20 +80,21 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
   @ApiOperation(
-      value = "Perimeter of OSM elements in grouped by the boundary "
-          + "(bboxes, bcircles, or bpolys)",
-      nickname = "perimeterGroupByBoundary", response = GroupByResponse.class)
+      value = "Length of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "lengthGroupByBoundary", response = GroupByResponse.class)
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByBoundary(HttpServletRequest servletRequest,
+  public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-        servletRequest, servletResponse, false);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, false);
     return executor.aggregateGroupByBoundary();
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the boundary and the tag.
+   * Gives the length of OSM elements grouped by the boundary and the tag.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -106,8 +103,8 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
    *         aggregateGroupByBoundaryGroupByTag}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the boundary and the tag",
-      nickname = "perimeterGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiOperation(value = "Length of OSM elements grouped by the boundary and the tag",
+      nickname = "lengthGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -116,14 +113,14 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+  public Response lengthGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false);
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the key.
+   * Gives the length of OSM elements grouped by the key.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -132,22 +129,22 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
    *         aggregateGroupByKey}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
-      nickname = "perimeterGroupByKey", response = GroupByResponse.class)
+  @ApiOperation(value = "Length of OSM elements grouped by the key", nickname = "lengthGroupByKey",
+      response = GroupByResponse.class)
   @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
-      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-      dataType = "string", required = true)})
+      defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query", dataType = "string",
+      required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByKey(HttpServletRequest servletRequest,
+  public Response lengthGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByKey(RequestResource.PERIMETER, servletRequest,
+    return ElementsRequestExecutor.aggregateGroupByKey(RequestResource.LENGTH, servletRequest,
         servletResponse, true, false);
   }
 
   /**
-   * Gives the perimeter of polygonal OSM objects grouped by the tag.
-   *
+   * Gives the length of OSM elements grouped by the tag.
+   * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -155,24 +152,24 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
    *         aggregateGroupByTag}
    */
-  @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
-      nickname = "perimeterGroupByTag", response = GroupByResponse.class)
+  @ApiOperation(value = "Length of OSM elements grouped by the tag", nickname = "lengthGroupByTag",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByTag(HttpServletRequest servletRequest,
+  public Response lengthGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
+    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
         servletResponse, true, false);
   }
 
   /**
-   * Gives the density of OSM elements (perimeter of items divided by the total area in
+   * Gives the density of OSM elements (length of items divided by the total area in
    * square-kilometers).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -182,15 +179,15 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
   @ApiOperation(
-      value = "Density of OSM elements (perimeter of elements divided by "
+      value = "Density of OSM elements (length of elements divided by "
           + "the total area in square-kilometers)",
-      nickname = "perimeterDensity", response = DefaultAggregationResponse.class)
+      nickname = "lengthDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterDensity(HttpServletRequest servletRequest,
+  public Response lengthDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
     return executor.aggregate();
   }
 
@@ -204,22 +201,18 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
    *         aggregateGroupByType}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the type",
-      nickname = "perimeterDensityGroupByType", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-      dataType = "string", required = false)
-  @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
+  @ApiOperation(value = "Density of OSM elements grouped by the OSM type",
+      nickname = "lengthDensityGroupByType", response = GroupByResponse.class)
+  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByType(HttpServletRequest servletRequest,
+  public Response lengthDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
+    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
         servletResponse, true, true);
   }
 
   /**
-   * Gives the density of OSM elements grouped by the boundary parameter (bounding
-   * box/circle/polygon).
+   * Gives density of OSM elements grouped by the boundary parameter (bounding box/circle/polygon).
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -229,13 +222,15 @@ public class PerimeterController {
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "perimeterDensityGroupByBoundary", response = GroupByResponse.class)
+      nickname = "lengthDensityGroupByBoundary", response = GroupByResponse.class)
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByBoundary(HttpServletRequest servletRequest,
+  public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-        servletRequest, servletResponse, true);
+    AggregateRequestExecutor executor =
+        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
     return executor.aggregateGroupByBoundary();
   }
 
@@ -249,8 +244,8 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean, boolean)
    *         aggregateGroupByBoundaryGroupByTag}
    */
-  @ApiOperation(value = "Density of  grouped by the boundary and the tag",
-      nickname = "perimeterDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
+      nickname = "lengthDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
@@ -259,9 +254,9 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+  public Response lengthDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, true);
   }
 
@@ -276,18 +271,18 @@ public class PerimeterController {
    *         aggregateGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
-      nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
+      nickname = "lengthDensityGroupByTag", response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByTag(HttpServletRequest servletRequest,
+  public Response lengthDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
+    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
         servletResponse, true, true);
   }
 
@@ -302,7 +297,7 @@ public class PerimeterController {
    *         aggregateRatio}
    */
   @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
-      nickname = "perimeterRatio", response = RatioResponse.class)
+      nickname = "lengthRatio", response = RatioResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
@@ -311,21 +306,21 @@ public class PerimeterController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER2, paramType = "query",
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
           dataType = "string", required = false)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterRatio(HttpServletRequest servletRequest,
+  public Response lengthRatio(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateRatio(RequestResource.PERIMETER, servletRequest,
+    return ElementsRequestExecutor.aggregateRatio(RequestResource.LENGTH, servletRequest,
         servletResponse);
   }
 
   /**
-   * Gives the ratio of the perimeter of OSM elements satisfying filter2 within items selected by
+   * Gives the ratio of the length of OSM elements satisfying filter2 within items selected by
    * filter grouped by the boundary.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -335,8 +330,8 @@ public class PerimeterController {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest, HttpServletResponse)
    *         aggregateRatioGroupByBoundary}
    */
-  @ApiOperation(value = "Ratio of the perimeter of OSM elements grouped by the boundary",
-      nickname = "perimeterRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
+  @ApiOperation(value = "Ratio of the length of OSM elements grouped by the boundary",
+      nickname = "lengthRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
@@ -345,16 +340,16 @@ public class PerimeterController {
       @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
           defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER2, paramType = "query",
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
+          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
           dataType = "string", required = false)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterRatioGroupByBoundary(HttpServletRequest servletRequest,
+  public Response lengthRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.PERIMETER,
+    return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.LENGTH,
         servletRequest, servletResponse);
   }
 }

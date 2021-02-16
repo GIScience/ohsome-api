@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.controller.elements.dataaggregation;
+package org.heigit.ohsome.ohsomeapi.controller.dataaggregation.elements;
 
 
 import io.swagger.annotations.Api;

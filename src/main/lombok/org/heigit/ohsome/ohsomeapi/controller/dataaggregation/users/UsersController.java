@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.controller.users;
+package org.heigit.ohsome.ohsomeapi.controller.dataaggregation.users;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

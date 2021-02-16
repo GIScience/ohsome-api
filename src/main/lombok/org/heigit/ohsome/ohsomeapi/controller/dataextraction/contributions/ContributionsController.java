@@ -1,11 +1,11 @@
-package org.heigit.ohsome.ohsomeapi.controller.contributions;
+package org.heigit.ohsome.ohsomeapi.controller.dataextraction.contributions;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.ohsome.ohsomeapi.controller.elements.features.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.dataextraction.features.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;

@@ -18,7 +18,7 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.controller.elements.features.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.dataextraction.features.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
