@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.controller.dataextraction.features;
+package org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller containing the methods, which are mapped to "/elements" and used to return OSM
  * data.
  */
-@Api(tags = "Data Extraction")
+@Api(tags = "Elements Extraction")
 @RestController
 @RequestMapping("/elements")
 public class ElementsController {

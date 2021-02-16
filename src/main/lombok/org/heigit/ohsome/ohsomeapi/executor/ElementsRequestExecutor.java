@@ -37,7 +37,7 @@ import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.controller.dataextraction.features.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
@@ -75,7 +75,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs an OSM data extraction.
    * 
-   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.dataextraction.features.ElementsGeometry
+   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object

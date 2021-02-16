@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.ohsome.ohsomeapi.controller.dataextraction.features.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller containing the methods, which are mapped to "/contributions" and used to return
  * each contribution (creation, modification, deletion) of the OSM data.
  */
-@Api(tags = "Contributions")
+@Api(tags = "Contributions Extraction")
 @RestController
 @RequestMapping("/contributions")
 public class ContributionsController {

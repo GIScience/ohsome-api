@@ -42,7 +42,6 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
   private enum OhsomeApiResourceSpec {
     DATA_AGGREGATION("Data Aggregation", 1),
     DATA_EXTRACTION("Data Extraction", 2),
-    CONTRIBUTIONS("Contributions", 3),
     METADATA("Metadata", 9);
 
     private final String name;
@@ -74,7 +73,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
         .collect(Collectors.toList());
   }
 
-  /** Creates the Swagger2 documentation for the dataAggregation resources. */
+  /** Creates the Swagger2 documentation for the data aggregation resources. */
   @Bean
   public Docket dataAggregationDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
@@ -83,7 +82,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
         .apis(RequestHandlerSelectors
             .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams(false, false))
+        .globalOperationParameters(defineGlobalOperationParams(false))
         .tags(new Tag("Users", "Compute data aggregation functions on users"),
             new Tag("Area", "Compute the area of polygonal OSM elements"),
             new Tag("Length", "Compute the length of linear OSM elements"),
@@ -108,31 +107,19 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
 
   /** Creates the Swagger2 documentation for the data extraction resources. */
   @Bean
-  public Docket rawDataDocket() {
+  public Docket dataExtractionDocket() {
     ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
     return new Docket(DocumentationType.SWAGGER_2)
         .groupName(OhsomeApiResourceSpec.DATA_EXTRACTION.name).select()
-        .apis(RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.rawdata"))
-        .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams(true, false))
-        .tags(new Tag("Data Extraction", "Direct access to the OSM data"),
-            new Tag("Full-History Data Extraction",
-                "Direct access to the full-history of the OSM data"))
-        .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
-  }
-
-  /** Creates the Swagger2 documentation for the contributions resources. */
-  @Bean
-  public Docket contributionsDocket() {
-    ArrayList<ResponseMessage> responseMessages = defineResponseMessages();
-    return new Docket(DocumentationType.SWAGGER_2)
-        .groupName(OhsomeApiResourceSpec.CONTRIBUTIONS.name).select()
         .apis(RequestHandlerSelectors
-            .basePackage("org.heigit.ohsome.ohsomeapi.controller.contributions"))
+            .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataextraction"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .globalOperationParameters(defineGlobalOperationParams(true, true))
-        .tags(
-            new Tag("Contributions", "Direct access to all contributions provided to the OSM data"))
+        .globalOperationParameters(defineGlobalOperationParams(true))
+        .tags(new Tag("Elements Extraction", "Direct access to the OSM data"),
+            new Tag("Full-History Elements Extraction",
+                "Direct access to the full-history of the OSM data"),
+            new Tag("Contributions Extraction",
+                "Direct access to all contributions provided to the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
@@ -173,8 +160,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
    * Defines the description of each parameter, which are used in all resources for the Swagger2
    * documentation.
    */
-  private List<Parameter> defineGlobalOperationParams(boolean isDataExtraction,
-      boolean isContributions) {
+  private List<Parameter> defineGlobalOperationParams(boolean isDataExtraction) {
     final String string = "string";
     final String query = "query";
     List<Parameter> globalOperationParams = new ArrayList<>();
@@ -187,17 +173,15 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
         .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
-    if (!isContributions) {
-      globalOperationParams.add(new ParameterBuilder().name("types")
-          .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-          .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
-      globalOperationParams.add(new ParameterBuilder().name("keys")
-          .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-          .parameterType(query).defaultValue("").required(false).build());
-      globalOperationParams.add(new ParameterBuilder().name("values")
-          .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-          .parameterType(query).defaultValue("").required(false).build());
-    }
+    globalOperationParams.add(new ParameterBuilder().name("types")
+        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+        .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("keys")
+        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+        .parameterType(query).defaultValue("").required(false).build());
+    globalOperationParams.add(new ParameterBuilder().name("values")
+        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
+        .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams
         .add(new ParameterBuilder().name("filter").description(ParameterDescriptions.FILTER)
             .modelRef(new ModelRef(string)).parameterType(query)

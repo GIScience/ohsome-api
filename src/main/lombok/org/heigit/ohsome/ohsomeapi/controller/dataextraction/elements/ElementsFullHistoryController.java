@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.controller.dataextraction.features;
+package org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller containing the methods, which are mapped to "/elementsFullHistory" and used to
  * return the full history of the requested OSM data.
  */
-@Api(tags = "Full-History Data Extraction")
+@Api(tags = "Full-History Elements Extraction")
 @RestController
 @RequestMapping("/elementsFullHistory")
 public class ElementsFullHistoryController {
