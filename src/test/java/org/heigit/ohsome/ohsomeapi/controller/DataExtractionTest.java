@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -390,8 +390,8 @@ public class DataExtractionTest {
         + "/contributions/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
         + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata"
         + "&clipGeometry=false", JsonNode.class);
-    assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
-        .get("geometry").get("coordinates")).size() == 0);
+    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
+        .get("geometry").getNodeType(), JsonNodeType.NULL);
   }
 
   @Test
@@ -470,8 +470,8 @@ public class DataExtractionTest {
         + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
         + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
         JsonNode.class);
-    assertTrue(((ArrayNode) Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
-        .get("geometry").get("coordinates")).size() == 0);
+    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
+        .get("geometry").getNodeType(), JsonNodeType.NULL);
   }
 
   @Test
