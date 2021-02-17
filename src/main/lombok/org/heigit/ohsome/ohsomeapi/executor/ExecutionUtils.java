@@ -397,29 +397,21 @@ public class ExecutionUtils {
     }
     properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     GeoJSONWriter gjw = new GeoJSONWriter();
-    boolean deletionHandling =
-        isContributionsEndpoint && contributionTypes.contains(ContributionType.DELETION);
+    if (isContributionsEndpoint && contributionTypes.contains(ContributionType.DELETION)) {
+      return new org.wololo.geojson.Feature(null, properties);
+    }
     Geometry outputGeometry;
     switch (elemGeom) {
       case BBOX:
-        if (deletionHandling) {
-          return new org.wololo.geojson.Feature(null, properties);
-        }
         Envelope envelope = geometry.getEnvelopeInternal();
         OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
         outputGeometry = OSHDBGeometryBuilder.getGeometry(bbox);
         break;
       case CENTROID:
-        if (deletionHandling) {
-          return new org.wololo.geojson.Feature(null, properties);
-        }
         outputGeometry = geometry.getCentroid();
         break;
       case RAW:
       default:
-        if (deletionHandling) {
-          return new org.wololo.geojson.Feature(null, properties);
-        }
         outputGeometry = geometry;
     }
     return new org.wololo.geojson.Feature(gjw.write(outputGeometry), properties);
