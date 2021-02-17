@@ -17,6 +17,7 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
 import org.locationtech.jts.geom.Geometry;
 
+/** Includes the execute method for requests mapped to /contributions/couht and /users/count. */
 public class ContributionsExecutor extends RequestExecutor{
   
   private final InputProcessor inputProcessor;
@@ -31,7 +32,8 @@ public class ContributionsExecutor extends RequestExecutor{
   }
   
   /**
-   * Performs a count calculation.
+   * Performs a count calculation using contributions for the /contributions/count or the
+   * /users/count endpoint.
    * 
    * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
@@ -39,11 +41,14 @@ public class ContributionsExecutor extends RequestExecutor{
    *         processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}
    */
-  public Response count() throws Exception {
+  public Response count(boolean isUsersRequest) throws Exception {
+    MapReducer<OSMContribution> mapRed = inputProcessor.processParameters();
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
-    MapReducer<OSMContribution> mapRed = null;
-    mapRed = inputProcessor.processParameters();
-    result = mapRed.aggregateByTimestamp().count();
+    if (isUsersRequest) {
+      result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
+    } else {
+      result = mapRed.aggregateByTimestamp().count();
+    }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -52,9 +57,14 @@ public class ContributionsExecutor extends RequestExecutor{
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata =
-          new Metadata(duration, Description.countContributions(requestParameters.isDensity()),
-              inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+      String description;
+      if (isUsersRequest) {
+        description = Description.countUsers(requestParameters.isDensity());
+      } else {
+        description = Description.countContributions(requestParameters.isDensity());
+      }
+      metadata = new Metadata(duration, description,
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       exeUtils.writeCsvResponse(results, servletResponse,

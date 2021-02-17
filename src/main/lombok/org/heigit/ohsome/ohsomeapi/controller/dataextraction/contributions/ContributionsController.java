@@ -102,8 +102,9 @@ public class ContributionsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count() count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
   @ApiOperation(value = "count of OSM contributions", nickname = "contributionsCount",
       response = DefaultAggregationResponse.class)
@@ -113,7 +114,7 @@ public class ContributionsController {
       HttpServletResponse servletResponse) throws Exception {
     ContributionsExecutor executor =
         new ContributionsExecutor(servletRequest, servletResponse, false);
-    return executor.count();
+    return executor.count(false);
   }
   
   /**
@@ -121,8 +122,9 @@ public class ContributionsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count() count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
   @ApiOperation(value = "density of OSM contributions", nickname = "contributionsCountDensity",
       response = DefaultAggregationResponse.class)
@@ -132,7 +134,7 @@ public class ContributionsController {
       HttpServletResponse servletResponse) throws Exception {
     ContributionsExecutor executor =
         new ContributionsExecutor(servletRequest, servletResponse, true);
-    return executor.count();
+    return executor.count(false);
   }
   
   /**

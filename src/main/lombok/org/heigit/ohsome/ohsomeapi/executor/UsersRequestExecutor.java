@@ -33,7 +33,6 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
@@ -53,36 +52,6 @@ public class UsersRequestExecutor {
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
-  }
-
-  /** Performs a count calculation. */
-  public static Response count(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    mapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    Geometry geom = inputProcessor.getGeometry();
-    ContributionsResult[] results =
-        exeUtils.fillContributionsResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countUsers(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
-    }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      exeUtils.writeCsvResponse(results, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, results);
   }
 
   /** Performs a count calculation grouped by the OSM type. */
