@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.NullNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -391,6 +390,17 @@ public class DataExtractionTest {
         + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata"
         + "&clipGeometry=false", JsonNode.class);
     assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673").get("geometry")
+        .getNodeType(), JsonNodeType.NULL);
+  }
+
+  @Test
+  public void contributionsGeometryCollectionDeletionTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/contributions/geometry?bboxes=8.66589,49.37737,8.6688,49.37861&"
+            + "filter=id:relation/3326519&properties=tags,metadata&time=2018-01-01,2019-01-01",
+        JsonNode.class);
+    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "61636634").get("geometry")
         .getNodeType(), JsonNodeType.NULL);
   }
 
