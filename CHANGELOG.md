@@ -6,6 +6,7 @@ Changelog
 ### Bug Fixes
 
 * fix some invalid filters in the default swagger examples ([#111])
+* fix returning invalid GeoJSON using empty coordinates for deletion contributions ([#129], [#131])
 
 ### Performance and Code Quality
 
@@ -20,6 +21,8 @@ Changelog
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
 [#113]: https://github.com/GIScience/ohsome-api/issues/113
 [#114]: https://github.com/GIScience/ohsome-api/pull/114
+[#129]: https://github.com/GIScience/ohsome-api/issues/129
+[#131]: https://github.com/GIScience/ohsome-api/issues/131
 
 
 ## 1.3.2

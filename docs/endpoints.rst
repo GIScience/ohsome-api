@@ -1708,10 +1708,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }, {
           "type" : "Feature",
-          "geometry" : {
-            "type" : "Polygon",
-            "coordinates" : [ ]
-          },
+          "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
             "@deletion" : "true",
@@ -1759,10 +1756,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }, {
           "type" : "Feature",
-          "geometry" : {
-            "type" : "Polygon",
-            "coordinates" : [ ]
-          },
+          "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
             "@deletion" : "true",
@@ -1810,10 +1804,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }, {
           "type" : "Feature",
-          "geometry" : {
-            "type" : "Polygon",
-            "coordinates" : [ ]
-          },
+          "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
             "@deletion" : "true",
@@ -1861,10 +1852,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }, {
           "type" : "Feature",
-          "geometry" : {
-            "type" : "Polygon",
-            "coordinates" : [ ]
-          },
+          "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
             "@deletion" : "true",
