@@ -417,13 +417,7 @@ public class ExecutionUtils {
         break;
       case RAW:
       default:
-        if (deletionHandling && geometry.getGeometryType().contains("Polygon")) {
-          return new org.wololo.geojson.Feature(null, properties);
-        }
-        if (deletionHandling && geometry.getGeometryType().contains("LineString")) {
-          return new org.wololo.geojson.Feature(null, properties);
-        }
-        if (deletionHandling && geometry.getGeometryType().contains("Point")) {
+        if (deletionHandling) {
           return new org.wololo.geojson.Feature(null, properties);
         }
         outputGeometry = geometry;
