@@ -103,7 +103,7 @@ public class ContributionsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count() count}
    */
   @ApiOperation(value = "count of OSM contributions", nickname = "contributionsCount",
       response = DefaultAggregationResponse.class)
@@ -122,7 +122,7 @@ public class ContributionsController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#count() count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count() count}
    */
   @ApiOperation(value = "density of OSM contributions", nickname = "contributionsCountDensity",
       response = DefaultAggregationResponse.class)
