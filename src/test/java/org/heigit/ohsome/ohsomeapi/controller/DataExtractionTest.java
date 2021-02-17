@@ -390,8 +390,8 @@ public class DataExtractionTest {
         + "/contributions/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
         + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata"
         + "&clipGeometry=false", JsonNode.class);
-    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
-        .get("geometry").getNodeType(), JsonNodeType.NULL);
+    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673").get("geometry")
+        .getNodeType(), JsonNodeType.NULL);
   }
 
   @Test
@@ -470,8 +470,8 @@ public class DataExtractionTest {
         + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
         + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
         JsonNode.class);
-    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673")
-        .get("geometry").getNodeType(), JsonNodeType.NULL);
+    assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673").get("geometry")
+        .getNodeType(), JsonNodeType.NULL);
   }
 
   @Test
