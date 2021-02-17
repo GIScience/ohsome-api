@@ -54,8 +54,8 @@ public class Helper {
    * Gets the feature from a data-extraction endpoint via the given identifier and corresponding
    * value.
    */
-  public static JsonNode getFeatureByIdentifier(ResponseEntity<JsonNode> response, String identifier,
-      String value) {
+  public static JsonNode getFeatureByIdentifier(ResponseEntity<JsonNode> response,
+      String identifier, String value) {
     return StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("features").iterator(),
             Spliterator.ORDERED), false)
