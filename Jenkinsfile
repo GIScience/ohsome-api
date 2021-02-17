@@ -9,6 +9,7 @@ pipeline {
 
     // START CUSTOM ohsome API
     MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
+    DOC_BRANCH_REGEX = /(^[0-9]+$)|(^(([0-9]+)(\.))+([0-9]+)?$)|(^master$)/
     // END CUSTOM ohsome API
     INFER_BRANCH_REGEX = /(^master$)/
     SNAPSHOT_BRANCH_REGEX = /(^master$)/
@@ -136,7 +137,7 @@ pipeline {
     stage ('Publish API Docs') {
       when {
         expression {
-          return env.BRANCH_NAME ==~ /(^[0-9]+$)|(^(([0-9]+)(\.))+([0-9]+)?$)|(^master$)/
+          return env.BRANCH_NAME ==~ DOC_BRANCH_REGEX
         }
       }
       steps {
@@ -149,28 +150,28 @@ pipeline {
             API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
           }
 
-          publish_dir = "/srv/javadoc/" + reponame + "/" + API_DOCS_PATH + "/"
+          publish_dir = "/srv/javadoc/${REPO_NAME}/${API_DOCS_PATH}/"
           venv_dir = sh(returnStdout: true, script: 'mktemp -d --suffix .sphinx-docs').trim() + "/venv"
 
-          if (!fileExists("$venv_dir")) {
-            sh "python3 -m venv $venv_dir"
+          if (!fileExists("${venv_dir}")) {
+            sh "python3 -m venv ${venv_dir}"
           }
 
           sh """
-            source $venv_dir/bin/activate
+            source ${venv_dir}/bin/activate
             cd docs
             python3 -m pip install -U pip
             python3 -m pip install -r requirements.txt
             DOCS_DEPLOYMENT=${DOCS_DEPLOYMENT} make clean html
           """
-          sh "mkdir -p $publish_dir && rm -rf $publish_dir* && cp -r docs/_build/html/* $publish_dir"
-          sh "rm -rf $venv_dir"
+          sh "mkdir -p ${publish_dir} && rm -rf ${publish_dir}* && cp -r docs/_build/html/* ${publish_dir}"
+          sh "rm -rf ${venv_dir}"
         }
       }
       post {
         failure {
-          sh "rm -rf $venv_dir"
-          rocketSend channel: 'jenkinsohsome', message: "Deployment of api docs $reponame-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${author}." , rawMessage: true
+          sh "rm -rf ${venv_dir}"
+          rocketSend channel: 'jenkinsohsome', emoji: ':unamused:', message: "Deployment of api docs ${REPO_NAME}-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${LATEST_AUTHOR}." , rawMessage: true
         }
       }
     }
