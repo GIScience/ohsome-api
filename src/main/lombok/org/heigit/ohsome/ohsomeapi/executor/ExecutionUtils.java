@@ -1,6 +1,5 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -61,7 +60,6 @@ import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
@@ -92,9 +90,6 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
-import org.wololo.geojson.LineString;
-import org.wololo.geojson.Point;
-import org.wololo.geojson.Polygon;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
@@ -103,9 +98,6 @@ public class ExecutionUtils {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
-  private static final Point emptyPoint = new Point(new double[0]);
-  private static final LineString emptyLine = new LineString(new double[0][0]);
-  private static final Polygon emptyPolygon = new Polygon(new double[0][0][0]);
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
@@ -244,7 +236,6 @@ public class ExecutionUtils {
 
     ObjectMapper objMapper = new ObjectMapper();
     objMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objMapper.setSerializationInclusion(Include.NON_NULL);
     jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
         .writeObject(osmData);
 
@@ -412,7 +403,7 @@ public class ExecutionUtils {
     switch (elemGeom) {
       case BBOX:
         if (deletionHandling) {
-          return new org.wololo.geojson.Feature(emptyPolygon, properties);
+          return new org.wololo.geojson.Feature(null, properties);
         }
         Envelope envelope = geometry.getEnvelopeInternal();
         OSHDBBoundingBox bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
@@ -420,20 +411,20 @@ public class ExecutionUtils {
         break;
       case CENTROID:
         if (deletionHandling) {
-          return new org.wololo.geojson.Feature(emptyPoint, properties);
+          return new org.wololo.geojson.Feature(null, properties);
         }
         outputGeometry = geometry.getCentroid();
         break;
       case RAW:
       default:
         if (deletionHandling && geometry.getGeometryType().contains("Polygon")) {
-          return new org.wololo.geojson.Feature(emptyPolygon, properties);
+          return new org.wololo.geojson.Feature(null, properties);
         }
         if (deletionHandling && geometry.getGeometryType().contains("LineString")) {
-          return new org.wololo.geojson.Feature(emptyLine, properties);
+          return new org.wololo.geojson.Feature(null, properties);
         }
         if (deletionHandling && geometry.getGeometryType().contains("Point")) {
-          return new org.wololo.geojson.Feature(emptyPoint, properties);
+          return new org.wololo.geojson.Feature(null, properties);
         }
         outputGeometry = geometry;
     }
