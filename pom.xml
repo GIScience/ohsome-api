@@ -210,6 +210,16 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <sourceDirectories>
+            <sourceDirectory>src/main/java</sourceDirectory>
+            <sourceDirectory>src/main/lombok</sourceDirectory>
+          </sourceDirectories>
+        </configuration>
+      </plugin>
     </plugins>
     <resources>
       <resource>
