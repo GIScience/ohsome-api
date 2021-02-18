@@ -2,13 +2,13 @@ package org.heigit.ohsome.ohsomeapi.utils;
 
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.Result;
+import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 
 /**
  * Creates the GeoJson features used in the GeoJson response for the /groupBy/boundary endpoints.
@@ -62,9 +62,9 @@ public class GroupByBoundaryGeoJsonGenerator {
   /**
    * @throws UnsupportedOperationException if one of the values contained in results is not an
    *         instance of
-   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult
+   *         {@link org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult
    *         ElementsResult}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult
+   *         {@link org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult
    *         UserResult}
    */
   private static Feature[] generateGroupByResultGeoJson(GroupByObject[] results,

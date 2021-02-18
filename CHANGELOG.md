@@ -16,11 +16,13 @@ Changelog
 
 * update all tests using the filter parameter instead of deprecated types, keys, values ([#98])
 * update some default parameter values in swagger UI to slightly more sensible examples ([#113])
+* restructure packages and classes within the controller and output packages ([#117])
 
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
 [#113]: https://github.com/GIScience/ohsome-api/issues/113
 [#114]: https://github.com/GIScience/ohsome-api/pull/114
+[#117]: https://github.com/GIScience/ohsome-api/issues/117
 [#129]: https://github.com/GIScience/ohsome-api/issues/129
 [#131]: https://github.com/GIScience/ohsome-api/issues/131
 

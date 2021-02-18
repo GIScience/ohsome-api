@@ -61,7 +61,7 @@ import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.controller.rawdata.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -69,20 +69,20 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.output.Attribution;
+import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResponse;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.RatioResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Result;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.elements.ElementsResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByObject;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByBoundaryResponse;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.groupbyresponse.RatioGroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.UsersResult;
-import org.heigit.ohsome.ohsomeapi.output.rawdataresponse.DataResponse;
+import org.heigit.ohsome.ohsomeapi.output.Metadata;
+import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.output.Result;
+import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Envelope;
@@ -229,7 +229,7 @@ public class ExecutionUtils {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(
    *         ThreadLocal, Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
    */
-  public void streamResponse(HttpServletResponse servletResponse, DataResponse osmData,
+  public void streamResponse(HttpServletResponse servletResponse, ExtractionResponse osmData,
       Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();

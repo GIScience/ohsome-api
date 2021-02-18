@@ -4,10 +4,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.metadataresponse.ExtractRegion;
-import org.heigit.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse;
-import org.heigit.ohsome.ohsomeapi.output.metadataresponse.TemporalExtent;
+import org.heigit.ohsome.ohsomeapi.output.Attribution;
+import org.heigit.ohsome.ohsomeapi.output.metadata.ExtractRegion;
+import org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse;
+import org.heigit.ohsome.ohsomeapi.output.metadata.TemporalExtent;
 
 /** Includes the execute method for requests mapped to /metadata. */
 public class MetadataRequestExecutor {
@@ -15,7 +15,7 @@ public class MetadataRequestExecutor {
   /**
    * Returns the metadata of the underlying extract-file.
    * 
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.metadataresponse.MetadataResponse
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse
    *         MetadataResponse}
    * @throws BadRequestException if parameters are given in the query.
    */
