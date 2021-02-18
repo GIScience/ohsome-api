@@ -814,7 +814,9 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-  // csv output tests
+  /*
+   * csv output tests
+   */
 
   @Test
   public void elementsLengthCsvTest() throws IOException {
@@ -1075,6 +1077,7 @@ public class PostControllerTest {
   /*
    * filter tests
    */
+  
   @Test
   public void postFilterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -1132,4 +1135,21 @@ public class PostControllerTest {
         restTemplate.postForEntity(server + port + "/elements/count?", map, JsonNode.class);
     assertEquals(null, response.getBody().get("error"));
   }
+
+  /*
+   * /contributions/count tests
+   */
+  
+  @Test
+  public void countContributionsToHeidelbergCastleTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.7137,49.40916,8.71694,49.41198");
+    map.add("time", "2015-01-01,2019-01-01");
+    map.add("filter", "id:way/254154168");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/contributions/count", map, JsonNode.class);
+    assertEquals(16, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
 }
