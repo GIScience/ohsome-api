@@ -704,7 +704,6 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-
   @Test
   public void elementsAreaDensityGroupByTagTest() {
     final double expectedValue = 404281.85;
@@ -894,8 +893,6 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-
-
   @Test
   public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {
     // expect result to have 1 entry rows with 9 columns
@@ -916,7 +913,6 @@ public class PostControllerTest {
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("b2_highway=footway")),
         expectedValue * deltaPercentage);
   }
-
 
   @Test
   public void elementsPerimeterCsvTest() throws IOException {
