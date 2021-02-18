@@ -25,7 +25,8 @@ public class ContributionsCountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
@@ -45,7 +46,8 @@ public class ContributionsCountController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
