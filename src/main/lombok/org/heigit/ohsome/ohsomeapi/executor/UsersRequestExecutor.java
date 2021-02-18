@@ -36,7 +36,7 @@ import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;

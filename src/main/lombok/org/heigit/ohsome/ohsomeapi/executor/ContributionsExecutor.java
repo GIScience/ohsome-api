@@ -14,7 +14,7 @@ import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.locationtech.jts.geom.Geometry;
 
 /** Includes the execute method for requests mapped to /contributions/couht and /users/count. */
@@ -35,7 +35,7 @@ public class ContributionsExecutor extends RequestExecutor{
    * Performs a count calculation using contributions for the /contributions/count or the
    * /users/count endpoint.
    * 
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.Response Response}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},

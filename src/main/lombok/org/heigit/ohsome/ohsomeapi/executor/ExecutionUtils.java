@@ -75,7 +75,7 @@ import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;

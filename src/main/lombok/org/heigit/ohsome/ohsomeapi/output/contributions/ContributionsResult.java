@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users;
+package org.heigit.ohsome.ohsomeapi.output.contributions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

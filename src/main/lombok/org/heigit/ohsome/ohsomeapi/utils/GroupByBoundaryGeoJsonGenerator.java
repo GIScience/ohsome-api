@@ -3,7 +3,7 @@ package org.heigit.ohsome.ohsomeapi.utils;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.output.Result;
-import org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
@@ -62,9 +62,10 @@ public class GroupByBoundaryGeoJsonGenerator {
 
   /**
    * @throws UnsupportedOperationException if one of the values contained in results is not an
-   *         instance of {@link org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult
-   *         ElementsResult}, or {@link
-   *         org.heigit.ohsome.ohsomeapi.output.dataaggregationresponse.users.ContributionsResult
+   *         instance of
+   *         {@link org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult
+   *         ElementsResult}, or
+   *         {@link org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult
    *         ContributionsResult}
    */
   private static Feature[] generateGroupByResultGeoJson(GroupByObject[] results,
