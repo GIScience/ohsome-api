@@ -294,10 +294,9 @@ public class DataExtractionTest {
         + "/contributions/geometry?bboxes=8.686017,49.406453,8.686983,49.406966&filter=building=*&"
         + "time=2008-01-01,2009-09-01&properties=metadata,tags&clipGeometry=false", JsonNode.class);
     JsonNode featuresArray = response.getBody().get("features");
-    assertTrue(featuresArray.get(0).get("properties").get("@creation").asText().equals("true"));
-    assertTrue(
-        featuresArray.get(1).get("properties").get("@geometryChange").asText().equals("true"));
-    assertTrue(featuresArray.get(2).get("properties").get("@tagChange").asText().equals("true"));
+    assertTrue(featuresArray.get(0).get("properties").get("@creation").asBoolean());
+    assertTrue(featuresArray.get(1).get("properties").get("@geometryChange").asBoolean());
+    assertTrue(featuresArray.get(2).get("properties").get("@tagChange").asBoolean());
   }
 
   @Test
@@ -340,8 +339,8 @@ public class DataExtractionTest {
         + "time=2010-01-01,2012-01-01&properties=metadata&clipGeometry=false", JsonNode.class);
     JsonNode featureProperties =
         Helper.getFeatureByIdentifier(response, "@changesetId", "10082609").get("properties");
-    assertTrue(featureProperties.get("@geometryChange").asText().equals("true")
-        && featureProperties.get("@tagChange").asText().equals("true"));
+    assertTrue(featureProperties.get("@geometryChange").asBoolean()
+        && featureProperties.get("@tagChange").asBoolean());
   }
 
   @Test
@@ -353,7 +352,7 @@ public class DataExtractionTest {
         JsonNode.class);
     JsonNode featureProperties =
         Helper.getFeatureByIdentifier(response, "@changesetId", "8371765").get("properties");
-    assertEquals("true", featureProperties.get("@creation").asText());
+    assertTrue(featureProperties.get("@creation").asBoolean());
   }
 
   @Test
@@ -512,7 +511,7 @@ public class DataExtractionTest {
             + "/contributions/latest/geometry?bboxes=8.679253,49.424025,8.679623,49.424185&filter="
             + "building=*&time=2010-01-01,2011-01-17&properties=metadata,tags&clipGeometry=false",
         JsonNode.class);
-    assertTrue(response.getBody().get("features").get(0).get("properties").get("@creation").asText()
-        .equals("true"));
+    assertTrue(
+        response.getBody().get("features").get(0).get("properties").get("@creation").asBoolean());
   }
 }
