@@ -1152,4 +1152,17 @@ public class PostControllerTest {
     assertEquals(16, response.getBody().get("result").get(0).get("value").asInt());
   }
 
+  @Test
+  public void countDensityOfContributionsToShopsInOldtownHeidelbergTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69282,49.40766,8.71673,49.4133");
+    map.add("time", "2018-01-01,2019-01-01");
+    map.add("filter", "shop=* and type:node");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/contributions/count/density", map, JsonNode.class);
+    assertEquals(85.45, response.getBody().get("result").get(0).get("value").asDouble(),
+        deltaPercentage);
+  }
+  
 }
