@@ -83,11 +83,12 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
             .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(false))
-        .tags(new Tag("Users", "Compute data aggregation functions on users"),
-            new Tag("Area", "Compute the area of polygonal OSM elements"),
-            new Tag("Length", "Compute the length of linear OSM elements"),
-            new Tag("Count", "Compute the count of point/linear/polygonal OSM elements"),
-            new Tag("Perimeter", "Compute the perimeter of polygonal OSM elements"))
+        .tags(new Tag("Users Count", "Compute the count of OSM users"),
+            new Tag("Elements Area", "Compute the area of polygonal OSM elements"),
+            new Tag("Elements Length", "Compute the length of linear OSM elements"),
+            new Tag("Elements Count", "Compute the count of point/linear/polygonal OSM elements"),
+            new Tag("Elements Perimeter", "Compute the perimeter of polygonal OSM elements"), 
+            new Tag("Contributions Count", "Compute the count of OSM contributions"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
@@ -116,8 +117,8 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
         .tags(new Tag("Elements Extraction", "Direct access to the OSM data"),
-            new Tag("Full-History Elements Extraction",
-                "Direct access to the full-history of the OSM data"),
+            new Tag("Full History Elements Extraction",
+                "Direct access to the full history of the OSM data"),
             new Tag("Contributions Extraction",
                 "Direct access to all contributions provided to the OSM data"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);

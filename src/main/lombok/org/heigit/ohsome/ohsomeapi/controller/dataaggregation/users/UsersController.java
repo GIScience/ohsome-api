@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Controller containing the GET and POST servletRequests, which enter through "/users". */
-@Api(tags = "Users")
+@Api(tags = "Users Count")
 @RestController
 @RequestMapping("/users")
 public class UsersController {

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
  */
-@Api(tags = "Count")
+@Api(tags = "Elements Count")
 @RestController
 @RequestMapping("/elements/count")
 public class CountController {

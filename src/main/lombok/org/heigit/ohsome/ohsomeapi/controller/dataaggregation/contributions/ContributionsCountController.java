@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller containing the methods, which are mapped to "/contributions/count" and used to
  * return the count of each contribution (creation, modification, deletion) of the OSM data.
  */
-@Api(tags = "ContributionsCount")
+@Api(tags = "Contributions Count")
 @RestController
 @RequestMapping("/contributions/count")
 public class ContributionsCountController {
 
   /**
-   * Gives the count of OSM contributions as JSON.
+   * Gives the count of OSM contributions.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -30,7 +30,7 @@ public class ContributionsCountController {
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
-  @ApiOperation(value = "count of OSM contributions", nickname = "contributionsCount",
+  @ApiOperation(value = "Count of OSM contributions", nickname = "contributionsCount",
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
@@ -42,7 +42,7 @@ public class ContributionsCountController {
   }
   
   /**
-   * Gives the density of OSM contributions as JSON.
+   * Gives the density of OSM contributions.
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -51,8 +51,10 @@ public class ContributionsCountController {
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
-  @ApiOperation(value = "density of OSM contributions", nickname = "contributionsCountDensity",
-      response = DefaultAggregationResponse.class)
+  @ApiOperation(
+      value = "Density of OSM contributions (number of contributions divided by the "
+          + "total area in square-kilometers)",
+      nickname = "contributionsCountDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response contributionsCountDensity(HttpServletRequest servletRequest,

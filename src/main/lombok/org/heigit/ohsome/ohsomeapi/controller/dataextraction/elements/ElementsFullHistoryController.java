@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller containing the methods, which are mapped to "/elementsFullHistory" and used to
  * return the full history of the requested OSM data.
  */
-@Api(tags = "Full-History Elements Extraction")
+@Api(tags = "Full History Elements Extraction")
 @RestController
 @RequestMapping("/elementsFullHistory")
 public class ElementsFullHistoryController {
@@ -32,7 +32,7 @@ public class ElementsFullHistoryController {
    *         #extract() extract}
    */
   @ApiOperation(
-      value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
+      value = "Full history OSM data having the raw geometry of each OSM object as geometry",
       nickname = "elementsFullHistory", response = ExtractionResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
@@ -57,7 +57,7 @@ public class ElementsFullHistoryController {
    *         #extract() extract}
    */
   @ApiOperation(
-      value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
+      value = "Full history OSM data having the bounding box of each OSM object as geometry",
       nickname = "elementsBboxFullHistory", response = ExtractionResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",
@@ -81,7 +81,7 @@ public class ElementsFullHistoryController {
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
    *         #extract() extract}
    */
-  @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
+  @ApiOperation(value = "Full history OSM data having the centroid of each OSM object as geometry",
       nickname = "elementsCentroidFullHistory", response = ExtractionResponse.class)
   @ApiImplicitParam(name = "time",
       value = "Two ISO-8601 conform timestrings defining an interval; no default value",

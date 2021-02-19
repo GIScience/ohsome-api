@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/area".
  */
-@Api(tags = "Area")
+@Api(tags = "Elements Area")
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {

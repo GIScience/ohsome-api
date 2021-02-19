@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/length".
  */
-@Api(tags = "Length")
+@Api(tags = "Elements Length")
 @RestController
 @RequestMapping("/elements/length")
 public class LengthController {
