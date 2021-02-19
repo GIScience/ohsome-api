@@ -40,7 +40,7 @@ public class ContributionsCountController {
         new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count(false);
   }
-  
+
   /**
    * Gives the density of OSM contributions.
    * 
@@ -63,5 +63,5 @@ public class ContributionsCountController {
         new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.count(false);
   }
-  
+
 }

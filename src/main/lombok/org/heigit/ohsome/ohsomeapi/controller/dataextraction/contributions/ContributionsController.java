@@ -69,7 +69,7 @@ public class ContributionsController {
         ElementsGeometry.BBOX, servletRequest, servletResponse);
     executor.extract();
   }
-  
+
   /**
    * Gives the contributions as GeoJSON features, which have the centroid of the respective objects
    * in the geometry field.
@@ -93,7 +93,7 @@ public class ContributionsController {
         ElementsGeometry.CENTROID, servletRequest, servletResponse);
     executor.extract();
   }
-  
+
   /**
    * Gives the latest contributions as GeoJSON features, which have the geometry of the respective
    * objects in the geometry field.
