@@ -18,7 +18,7 @@ import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.locationtech.jts.geom.Geometry;
 
 /** Includes the execute method for requests mapped to /contributions/couht and /users/count. */
-public class ContributionsExecutor extends RequestExecutor{
+public class ContributionsExecutor extends RequestExecutor {
   
   private final InputProcessor inputProcessor;
   private final ProcessingData processingData;
