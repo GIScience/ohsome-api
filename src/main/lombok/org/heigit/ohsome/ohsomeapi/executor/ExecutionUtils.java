@@ -70,8 +70,8 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
+import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
@@ -89,7 +89,9 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.Puntal;
+import org.locationtech.jts.precision.GeometryPrecisionReducer;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
@@ -113,8 +115,7 @@ public class ExecutionUtils {
    * Applies a filter on the given MapReducer object using the given parameters. Used in
    * /ratio/groupBy/boundary requests.
    */
-  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>
-      snapshotFilter(
+  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> snapshotFilter(
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapRed,
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
@@ -195,8 +196,8 @@ public class ExecutionUtils {
    * @param <V> an arbitrary data type, used for the index'es key items
    * @return a nested data structure: for each index part there is a separate level of nested maps
    */
-  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable>
-      SortedMap<V, SortedMap<U, A>> nest(Map<OSHDBCombinedIndex<U, V>, A> result) {
+  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable> SortedMap<V, SortedMap<U, A>> nest(
+      Map<OSHDBCombinedIndex<U, V>, A> result) {
     TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
     result.forEach((index, data) -> {
       if (!ret.containsKey(index.getSecondIndex())) {
@@ -218,16 +219,15 @@ public class ExecutionUtils {
    *         {@link com.fasterxml.jackson.core.JsonGenerator#writeObject(Object) writeObject},
    *         {@link javax.servlet.ServletResponse#getOutputStream() getOutputStream},
    *         {@link java.io.OutputStream#write(byte[]) write},
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
-   *         #writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils #writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
    *         writeStreamResponse}, {@link javax.servlet.ServletOutputStream#print(String) print},
    *         and {@link javax.servlet.ServletResponse#flushBuffer() flushBuffer}
    * @throws ExecutionException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(
-   *         ThreadLocal, Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse( ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
    * @throws InterruptedException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(
-   *         ThreadLocal, Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse( ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
    */
   public void streamResponse(HttpServletResponse servletResponse, ExtractionResponse osmData,
       Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
@@ -414,7 +414,8 @@ public class ExecutionUtils {
       default:
         outputGeometry = geometry;
     }
-    return new org.wololo.geojson.Feature(gjw.write(outputGeometry), properties);
+    return new org.wololo.geojson.Feature(gjw.write(roundCoordsOfGeomToSevenDigits(outputGeometry)),
+        properties);
   }
 
   /**
@@ -426,8 +427,7 @@ public class ExecutionUtils {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public <K extends Comparable<K> & Serializable, V extends Number>
-      SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
       RequestResource requestResource,
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> preResult)
       throws Exception {
@@ -461,30 +461,28 @@ public class ExecutionUtils {
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public <K extends Comparable<K> & Serializable, V extends Number>
-      SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>
-      computeNestedResult(
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> computeNestedResult(
       RequestResource requestResource,
-      MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, Geometry>
-          preResult) throws Exception {
+      MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, Geometry> preResult)
+      throws Exception {
     switch (requestResource) {
       case COUNT:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.count();
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .count();
       case PERIMETER:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.sum(geom -> {
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .sum(geom -> {
               if (!(geom instanceof Polygonal)) {
                 return 0.0;
               }
               return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
             });
       case LENGTH:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
+        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) preResult
+            .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
@@ -564,8 +562,7 @@ public class ExecutionUtils {
       DecimalFormat df) {
     Double[] resultValues = new Double[resultSet.size()];
     int valueCount = 0;
-    for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry :
-        resultSet) {
+    for (Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> innerEntry : resultSet) {
       resultValues[valueCount] = Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
       valueCount++;
     }
@@ -704,7 +701,7 @@ public class ExecutionUtils {
         geom = contribution.getGeometryUnclippedAfter();
       }
     }
-    return geom;
+    return roundCoordsOfGeomToSevenDigits(geom);
   }
 
   /** Combines the two given filters with an OR operation. Used in /ratio computation. */
@@ -958,6 +955,12 @@ public class ExecutionUtils {
     return properties;
   }
 
+  /** returns a new geometry out of the rounded coordinates of the given one */
+  private Geometry roundCoordsOfGeomToSevenDigits(Geometry oldGeom) {
+    PrecisionModel pm = new PrecisionModel(1E7);
+    return GeometryPrecisionReducer.reduce(oldGeom, pm);
+  }
+  
   static Set<Integer> keysToKeysInt(String[] keys, TagTranslator tt) {
     final Set<Integer> keysInt;
     if (keys.length != 0) {
