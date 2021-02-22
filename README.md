@@ -38,7 +38,12 @@ These instructions will get you a copy of the project up and running on your loc
 ### IDE Settings
 
 * [Code style](/CONTRIBUTING.md#code-style): For some popular IDEs and code linting tools you can find configuration files of the used code style in the OSHDB repository: [config/ide](https://github.com/GIScience/oshdb/tree/master/config/ide).
-* [Lombok](https://projectlombok.org/): Please check the [setup instructions](https://projectlombok.org/setup/overview) for your IDE. Note that you might have to mark the `src/main/lombok` directory as a _sources_ directory and _unmark_/_exclude_ `target/generated-sources/delombok`.
+* [Lombok](https://projectlombok.org/): Please check the [setup instructions](https://projectlombok.org/setup/overview) for your IDE.
+* In some cases you have to mark some directories manually by their type:
+   * `src/main/lombok` as a _source_ directory,
+   * `src/test/java` as a _test-source_ directory,
+   * `src/main/resources` as a _resources_ directory, and
+   * `target`, `target/generated-sources/delombok`, `docs/_build`, and `ignite` as _unmarked_/_excluded_ directories.
 
 ### Setting-up/Running
 
