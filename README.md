@@ -33,8 +33,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 11](https://openjdk.java.net/projects/jdk/11/) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* [Lombok 1.18.16](https://projectlombok.org/download) or higher. Please check the [setup instructions](https://projectlombok.org/setup/overview) for your IDE. Note that in IntelliJ IDEA you might have to mark the `src/main/lombok` directory as a _sources_ directory and _unmark_/_exclude_ `target/generated-sources/delombok`.
 * data: [download](http://downloads.ohsome.org/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-tool/etl/README.md)
+
+### IDE Settings
+
+* [Code style](/CONTRIBUTING.md#code-style): For some popular IDEs and code linting tools you can find configuration files of the used code style in the OSHDB repository: [config/ide](https://github.com/GIScience/oshdb/tree/master/config/ide).
+* [Lombok](https://projectlombok.org/): Please check the [setup instructions](https://projectlombok.org/setup/overview) for your IDE. Note that you might have to mark the `src/main/lombok` directory as a _sources_ directory and _unmark_/_exclude_ `target/generated-sources/delombok`.
 
 ### Setting-up/Running
 
