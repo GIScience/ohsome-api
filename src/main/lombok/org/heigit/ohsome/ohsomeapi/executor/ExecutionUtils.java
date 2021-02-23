@@ -100,6 +100,7 @@ public class ExecutionUtils {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
+  private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
@@ -416,7 +417,7 @@ public class ExecutionUtils {
       default:
         outputGeometry = geometry;
     }
-    return new org.wololo.geojson.Feature(gjw.write(roundCoordsOfGeomToSevenDigits(outputGeometry)),
+    return new org.wololo.geojson.Feature(gjw.write(gpr.reduce(outputGeometry)),
         properties);
   }
 
@@ -961,10 +962,15 @@ public class ExecutionUtils {
     return properties;
   }
 
-  /** returns a new geometry out of the rounded coordinates of the given one */
-  private Geometry roundCoordsOfGeomToSevenDigits(Geometry oldGeom) {
-    PrecisionModel pm = new PrecisionModel(1E7);
-    return GeometryPrecisionReducer.reduce(oldGeom, pm);
+  /**
+   * returns a new geometry precision reducer using a precision of 7 digits, having an activated
+   * point-wise mode and a deactivated remove-collapsed-components mode
+   */
+  private GeometryPrecisionReducer createGeometryPrecisionReducer() {
+    var gpr = new GeometryPrecisionReducer(new PrecisionModel(1E7));
+    gpr.setPointwise(true);
+    gpr.setRemoveCollapsedComponents(false);
+    return gpr;
   }
   
   static Set<Integer> keysToKeysInt(String[] keys, TagTranslator tt) {
