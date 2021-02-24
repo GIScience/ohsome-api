@@ -159,6 +159,16 @@ public class DataExtractionTest {
    */
 
   @Test
+  public void elementsGeometryCoordinateTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/geometry?bboxes=8.68641,49.41642,8.69499,49.42112&filter=id:node/3429511451&"
+        + "time=2019-01-01", JsonNode.class);
+    JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "node/3429511451");
+    assertEquals(49.418466, feature.get("geometry").get("coordinates").get(1).asDouble(), 0);
+  }
+
+  @Test
   public void elementsFullHistoryGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
@@ -426,6 +436,16 @@ public class DataExtractionTest {
         Helper.getFeatureByIdentifier(response, "@changesetId", "7042867").get("properties");
     assertTrue(featureProperties.get("@version").asInt() == 2
         && featureProperties.get("@osmId").asText().equals("way/96054443"));
+  }
+
+  @Test
+  public void contributionsGeometryCoordinateTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/geometry?bboxes=8.68641,49.41642,8.69499,49.42112"
+        + "&filter=id:node/3429511451&time=2017-01-01,2019-01-01", JsonNode.class);
+    JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "node/3429511451");
+    assertEquals(49.418466, feature.get("geometry").get("coordinates").get(1).asDouble(), 0);
   }
 
   /*

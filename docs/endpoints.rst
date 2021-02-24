@@ -1350,7 +1350,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "type" : "Point",
             "coordinates" : [
               8.6902451,
-              49.408015899999995
+              49.4080159
             ]
           },
           "properties" : {
@@ -1426,7 +1426,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "type" : "Point",
             "coordinates" : [
               8.6902451,
-              49.408015899999995
+              49.4080159
             ]
           },
           "properties" : {
@@ -1502,7 +1502,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "type" : "Point",
             "coordinates" : [
               8.6902451,
-              49.408015899999995
+              49.4080159
             ]
           },
           "properties" : {
@@ -1578,7 +1578,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "type" : "Point",
             "coordinates" : [
               8.6902451,
-              49.408015899999995
+              49.4080159
             ]
           },
           "properties" : {

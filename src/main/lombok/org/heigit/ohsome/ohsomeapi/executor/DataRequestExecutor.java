@@ -120,8 +120,8 @@ public class DataRequestExecutor extends RequestExecutor {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    ExtractionResponse osmData = new ExtractionResponse(ATTRIBUTION, Application.API_VERSION, metadata,
-        "FeatureCollection", Collections.emptyList());
+    ExtractionResponse osmData = new ExtractionResponse(ATTRIBUTION, Application.API_VERSION,
+        metadata, "FeatureCollection", Collections.emptyList());
     MapReducer<Feature> snapshotPreResult = null;
     if (!isContributionsEndpoint) {
       // handles cases where valid_from = t_start, valid_to = t_end; i.e. non-modified data

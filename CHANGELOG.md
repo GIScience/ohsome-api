@@ -17,6 +17,7 @@ Changelog
 * update all tests using the filter parameter instead of deprecated types, keys, values ([#98])
 * update some default parameter values in swagger UI to slightly more sensible examples ([#113])
 * restructure packages and classes within the controller and output packages ([#117])
+* round coordinates of returned OSM features to 7 decimal places ([#138])
 
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
@@ -25,6 +26,7 @@ Changelog
 [#117]: https://github.com/GIScience/ohsome-api/issues/117
 [#129]: https://github.com/GIScience/ohsome-api/issues/129
 [#131]: https://github.com/GIScience/ohsome-api/issues/131
+[#138]: https://github.com/GIScience/ohsome-api/issues/138
 
 
 ## 1.3.2
