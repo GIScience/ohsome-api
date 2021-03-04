@@ -31,6 +31,7 @@ import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.osm.OSMType;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
 import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
@@ -125,7 +126,7 @@ public class ElementsRequestExecutor {
         geom = snapshot.getGeometryUnclipped();
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
-          includeOSMMetadata, false, elemGeom, null);
+          includeOSMMetadata, false, elemGeom, EnumSet.noneOf(ContributionType.class));
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {

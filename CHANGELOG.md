@@ -8,6 +8,7 @@ Changelog
 * fix some invalid filters in the default swagger examples ([#111])
 * fix returning invalid GeoJSON using empty coordinates for deletion contributions ([#129], [#131])
 * fix using a proper boolean data type instead of a string for contributionType in response ([#135])
+* fix NPE with createOSMFeature ([#141])
 
 ### Performance and Code Quality
 
@@ -29,6 +30,7 @@ Changelog
 [#131]: https://github.com/GIScience/ohsome-api/issues/131
 [#135]: https://github.com/GIScience/ohsome-api/pull/135
 [#138]: https://github.com/GIScience/ohsome-api/issues/138
+[#141]: https://github.com/GIScience/ohsome-api/issues/141
 
 
 ## 1.3.2
