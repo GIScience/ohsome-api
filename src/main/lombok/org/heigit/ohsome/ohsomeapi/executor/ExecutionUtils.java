@@ -947,16 +947,16 @@ public class ExecutionUtils {
     properties.put("@changesetId", entity.getChangesetId());
     if (isContributionsEndpoint) {
       if (contributionTypes.contains(ContributionType.CREATION)) {
-        properties.put("@creation", "true");
+        properties.put("@creation", true);
       }
       if (contributionTypes.contains(ContributionType.DELETION)) {
-        properties.put("@deletion", "true");
+        properties.put("@deletion", true);
       }
       if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
-        properties.put("@tagChange", "true");
+        properties.put("@tagChange", true);
       }
       if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
-        properties.put("@geometryChange", "true");
+        properties.put("@geometryChange", true);
       }
     }
     return properties;
