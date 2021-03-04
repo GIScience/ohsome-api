@@ -30,6 +30,7 @@ Changelog
 [#131]: https://github.com/GIScience/ohsome-api/issues/131
 [#135]: https://github.com/GIScience/ohsome-api/pull/135
 [#138]: https://github.com/GIScience/ohsome-api/issues/138
+[#141]: https://github.com/GIScience/ohsome-api/issues/141
 
 
 ## 1.3.2
