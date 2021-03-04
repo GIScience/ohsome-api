@@ -8,6 +8,7 @@ Changelog
 * fix some invalid filters in the default swagger examples ([#111])
 * fix returning invalid GeoJSON using empty coordinates for deletion contributions ([#129], [#131])
 * fix using a proper boolean data type instead of a string for contributionType in response ([#135])
+* fix NPE with createOSMFeature ([#141])
 
 ### Performance and Code Quality
 
