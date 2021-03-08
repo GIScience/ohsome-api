@@ -1,9 +1,5 @@
 # ohsome API
 
-> :information_source: 2021 User Survey :information_source:<br>
-> The organisation behind the ohsome API (<a href="https://heigit.org">HeiGIT</a>) will be having an organisational review. To ensure that we can continue to provide developing software and providing services in the future, we would like to invite you to take part in a <a href="https://survey.heigit.org/653841" target="_blank">user survey</a>. Thanks for your participation!
-
-
 [![Build Status](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.heigit.ohsome/ohsome-api/badge.svg)](https://search.maven.org/artifact/org.heigit.ohsome/ohsome-api)
 [![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
