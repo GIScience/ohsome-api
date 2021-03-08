@@ -11,11 +11,9 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the /ratio
- * resource. It contains the license and copyright, optional
- * {@link org.heigit.ohsome.ohsomeapi.output.Metadata Metadata}, as well as
- * the results section showing
- * {@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult RatioResult}
- * objects.
+ * resource. It contains the license and copyright, optional {@link 
+ * org.heigit.ohsome.ohsomeapi.output.Metadata Metadata}, as well as the results section showing
+ * {@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult RatioResult} objects.
  */
 @Getter
 @AllArgsConstructor

@@ -26,8 +26,8 @@ public class ElementsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
+   *         #extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extract}
    */
   @ApiOperation(value = "OSM Data having the raw geometry of each OSM object as geometry",
@@ -46,8 +46,8 @@ public class ElementsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
+   *         #extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extract}
    */
   @ApiOperation(value = "OSM Data, having the bounding box of each OSM object as geometry",
@@ -66,8 +66,8 @@ public class ElementsController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor#extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
+   *         #extract(RequestResource, ElementsGeometry, HttpServletRequest, HttpServletResponse)
    *         extract}
    */
   @ApiOperation(value = "OSM Data, having the centroid of each OSM object as geometry",

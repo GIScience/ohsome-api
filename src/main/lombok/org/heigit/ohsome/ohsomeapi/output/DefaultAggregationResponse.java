@@ -10,10 +10,9 @@ import org.geojson.Feature;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
- * /groupBy resource. It contains attribution info, the version of the api, optional
- * {@link org.heigit.ohsome.ohsomeapi.output.Metadata Metadata} and the
- * {@link org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult
- * ElementsResult} objects.
+ * /groupBy resource. It contains attribution info, the version of the api, optional {@link 
+ * org.heigit.ohsome.ohsomeapi.output.Metadata Metadata} and the {@link 
+ * org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult ElementsResult} objects.
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

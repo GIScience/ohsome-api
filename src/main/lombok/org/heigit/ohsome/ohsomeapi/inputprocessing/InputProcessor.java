@@ -45,10 +45,11 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
- * the request. Uses geometry methods from
- * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
- * inputProcessingUtils from {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
- * InputProcessingUtils}. Throws exceptions depending on their validity.
+ * the request. Uses geometry methods from {@link 
+ * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
+ * inputProcessingUtils from {@link 
+ * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws 
+ * exceptions depending on their validity.
  */
 public class InputProcessor {
 
@@ -96,9 +97,8 @@ public class InputProcessor {
   }
 
   /**
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters(ComputeMode)
-   *         processParameters}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters(ComputeMode) processParameters}
    */
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
     return this.processParameters(null);
@@ -113,9 +113,8 @@ public class InputProcessor {
    *         format, if the geometry of given boundary cannot be parsed for the creation of the
    *         response GeoJSON or if the keys, values and types parameters are not empty, while the
    *         filter parameter is set.
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#extractTime(MapReducer, String[], boolean)
-   *         extractTime}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #extractTime(MapReducer, String[], boolean) extractTime}
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
@@ -442,9 +441,8 @@ public class InputProcessor {
    * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
    *
    * @return MapReducer with filtered geometries
-   * @throws RuntimeException if
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnSimpleFeatures(Mappable)
-   *         filterOnSimpleFeatures} was called on mapped entries
+   * @throws RuntimeException if {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #filterOnSimpleFeatures(Mappable) filterOnSimpleFeatures} was called on mapped entries
    */
   // suppressed, as filter always returns the same mappable type T
   @SuppressWarnings("unchecked")
@@ -535,9 +533,8 @@ public class InputProcessor {
    * (in case of isSnapshot=false).
    * 
    * @throws BadRequestException if the time format is invalid
-   * @throws Exception thrown by {@link
-   *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
-   *         parseIsoDateTime}
+   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser
+   *         #parseIsoDateTime(String) parseIsoDateTime}
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
       MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)

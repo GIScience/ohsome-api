@@ -50,8 +50,8 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
+import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
@@ -76,17 +76,18 @@ public class ElementsRequestExecutor {
   /**
    * Performs an OSM data extraction.
    * 
-   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry
+   * @param elemGeom {@link 
+   *        org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, ExtractionResponse, Stream)
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream) 
    *         streamElementsResponse}
    */
   public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,
@@ -154,9 +155,8 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKey parameter is not given
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters}
    */
   public static <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
@@ -261,11 +261,10 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKey parameter is not given
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateGroupByTag(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
@@ -346,11 +345,10 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateGroupByType(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
@@ -408,11 +406,10 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKeys parameter is not given
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapiputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateGroupByKey(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
@@ -499,11 +496,10 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   @Deprecated(forRemoval = true)
   public static Response aggregateBasicFiltersRatio(RequestResource requestResource,
@@ -645,11 +641,10 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
@@ -749,9 +744,8 @@ public class ElementsRequestExecutor {
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
@@ -941,9 +935,8 @@ public class ElementsRequestExecutor {
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */

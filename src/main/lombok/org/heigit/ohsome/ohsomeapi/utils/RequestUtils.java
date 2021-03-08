@@ -88,8 +88,8 @@ public class RequestUtils {
    * 
    * @throws DatabaseAccessException if the keytables are missing
    * @throws RuntimeException if the timerange metadata cannot be retrieved from the db
-   * @throws IOException thrown by
-   *         {@link com.fasterxml.jackson.databind.ObjectMapper#readTree(String) readTree}
+   * @throws IOException thrown by {@link com.fasterxml.jackson.databind.ObjectMapper
+   *         #readTree(String) readTree}
    */
   public static void extractOSHDBMetadata() throws IOException {
     OSHDBDatabase db;
