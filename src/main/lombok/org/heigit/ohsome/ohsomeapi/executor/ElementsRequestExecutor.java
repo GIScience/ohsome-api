@@ -134,8 +134,8 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, "FeatureCollection", Collections.emptyList());
+    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT), 
+        Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamResponse(servletResponse, osmData, streamResult);
     }

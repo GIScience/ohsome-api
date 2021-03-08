@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.util.ArrayList;
@@ -132,7 +133,7 @@ public class DataExtractionTest {
   @Test
   public void elementsCentroidTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity( server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
         + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
         + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     assertEquals(2, Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468")

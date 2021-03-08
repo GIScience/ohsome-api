@@ -44,8 +44,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, false);
+    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH, 
+        servletRequest, servletResponse, false);
     return executor.aggregate();
   }
 
@@ -89,8 +89,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, false);
+    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH, 
+        servletRequest, servletResponse, false);
     return executor.aggregateGroupByBoundary();
   }
 

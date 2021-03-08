@@ -336,9 +336,10 @@ public class AggregateRequestExecutor extends RequestExecutor {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
    *         #sum(SerializableFunction) sum}
    */
-  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
-      RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
+  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, 
+        ? extends Number> computeCountLengthPerimeterAreaGbB(RequestResource requestResource, 
+        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed, 
+        InputProcessor inputProcessor) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
