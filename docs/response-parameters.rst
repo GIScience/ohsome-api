@@ -51,7 +51,7 @@ Descriptions of the custom response parameters that are marked with a leading ``
 * ``@changesetId`` - id of the OSM changeset where the contribution was performed
 * ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
 * ``@timestamp`` - indicates when this contribution occurred
-* ``@creation``	- contribution type; indicates if a new feature gets created OR moved into your requested area of interest OR is now fitting to your defined filter parameter (true); cannot occur in combination with other contribution types
+* ``@creation`` - contribution type; indicates if the OSM element newly fits the query's requirements: either because it is freshly created, moved into the query's area of interest, or is now matching the defined filter parameter (true); cannot occur in combination with other contribution types
 * ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
 * ``@tagChange``- contribution type; indicates if the tag(s) of this feature has/have changed (true); can occur in combination with @geometryChange
 * ``@deletion`` - contribution type; indicates if a feature gets deleted OR moved outside of your requested area of interest OR is not fitting anymore to your defined filter parameter (true); cannot occur in combination with other contribution types
