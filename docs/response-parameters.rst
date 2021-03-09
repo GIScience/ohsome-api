@@ -52,7 +52,7 @@ Descriptions of the custom response parameters that are marked with a leading ``
 * ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
 * ``@timestamp`` - indicates when this contribution occurred
 * ``@creation`` - contribution type; indicates if the OSM element newly fits the query's requirements: either because it is freshly created, moved into the query's area of interest, or is now matching the defined filter parameter (true); cannot occur in combination with other contribution types
-* ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
+* ``@geometryChange`` - contribution type; indicates if the geometry of the OSM element has changed (true); can occur in combination with @tagChange
 * ``@tagChange``- contribution type; indicates if the tags of this OSM element have changed (true); can occur in combination with @geometryChange
 * ``@deletion`` - contribution type; indicates if the OSM element does not match the query requirements anymore: either because it got deleted, moved outside of the query area of interest, or is not matching the defined filter anymore (true); cannot occur in combination with other contribution types
 
