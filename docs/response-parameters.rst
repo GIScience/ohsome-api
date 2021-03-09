@@ -53,7 +53,7 @@ Descriptions of the custom response parameters that are marked with a leading ``
 * ``@timestamp`` - indicates when this contribution occurred
 * ``@creation`` - contribution type; indicates if the OSM element newly fits the query's requirements: either because it is freshly created, moved into the query's area of interest, or is now matching the defined filter parameter (true); cannot occur in combination with other contribution types
 * ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
-* ``@tagChange``- contribution type; indicates if the tag(s) of this feature has/have changed (true); can occur in combination with @geometryChange
+* ``@tagChange``- contribution type; indicates if the tags of this OSM element have changed (true); can occur in combination with @geometryChange
 * ``@deletion`` - contribution type; indicates if a feature gets deleted OR moved outside of your requested area of interest OR is not fitting anymore to your defined filter parameter (true); cannot occur in combination with other contribution types
 
 .. note:: No `contribution type` can occur with having ``false`` as a value. If any of them is present, the value is always ``true``.
