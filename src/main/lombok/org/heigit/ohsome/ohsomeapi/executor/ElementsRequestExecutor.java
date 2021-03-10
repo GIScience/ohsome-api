@@ -406,7 +406,7 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKeys parameter is not given
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapiputprocessing.InputProcessor
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters} and
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
