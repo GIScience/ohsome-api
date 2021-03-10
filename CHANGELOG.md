@@ -8,7 +8,7 @@ Changelog
 * fix some invalid filters in the default swagger examples ([#111])
 * fix returning invalid GeoJSON using empty coordinates for deletion contributions ([#129], [#131])
 * fix using a proper boolean data type instead of a string for contributionType in response ([#135])
-* fix null pointer exception with createOSMFeature ([#141], [#145])
+* fix a null pointer exception in data extraction requests ([#141], [#145])
 * make sure geometry filters are applied to all returned features of elementsFullHistory requests ([#109])
 
 ### Performance and Code Quality
