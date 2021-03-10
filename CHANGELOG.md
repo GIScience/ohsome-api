@@ -21,7 +21,7 @@ Changelog
 * restructure packages and classes within the controller and output packages ([#117])
 * extend docs on contribution types ([#134])
 * round coordinates of returned OSM features to 7 decimal places ([#138])
-* wrap all lines longer than 100 characters ([#83])
+* improve code style by wrapping all code lines longer than 100 characters ([#83])
 
 [#83]: https://github.com/GIScience/ohsome-api/issues/83
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
