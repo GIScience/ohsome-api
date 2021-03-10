@@ -39,14 +39,14 @@ public class RatioGroupByBoundaryResponse implements Response {
   private Feature[] features;
   @ApiModelProperty(notes = "RatioGroupByResult array holding the respective objects "
       + "with their timestamp-value-value2-ratio values", required = true)
-  private RatioGroupByResult[] groupByBoundaryResult;
+  private RatioGroupByResult[] groupByResult;
 
   public RatioGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      RatioGroupByResult[] groupByBoundaryResult) {
+      RatioGroupByResult[] groupByResult) {
     this.attribution = attribution;
     this.apiVersion = apiVersion;
     this.metadata = metadata;
-    this.groupByBoundaryResult = groupByBoundaryResult;
+    this.groupByResult = groupByResult;
   }
 
   /** Static factory method returning the whole GeoJSON response. */
