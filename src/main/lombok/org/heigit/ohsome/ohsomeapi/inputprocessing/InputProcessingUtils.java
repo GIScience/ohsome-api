@@ -412,8 +412,8 @@ public class InputProcessingUtils {
       start = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.fromTstamp).toEpochSecond();
       end = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.toTstamp).toEpochSecond();
     } catch (Exception e) {
-      throw new RuntimeException(
-          "The ISO 8601 Date or the combined Date-Time String cannot be converted into a UTC based ZonedDateTime Object");
+      throw new RuntimeException("The ISO 8601 Date or the combined Date-Time String cannot be"
+          + " converted into a UTC based ZonedDateTime Object");
     }
     for (String timestamp : timeInfo) {
       try {

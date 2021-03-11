@@ -854,8 +854,8 @@ public class ElementsRequestExecutor {
           }
           return MatchType.MATCHESNONE;
         }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
-    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
-        null;
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
+        Number> result = null;
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
@@ -1006,8 +1006,8 @@ public class ElementsRequestExecutor {
           }
           return MatchType.MATCHESNONE;
         }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
-    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
-        null;
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
+        Number> result = null;
     switch (requestResource) {
       case COUNT:
         result = preResult.count();

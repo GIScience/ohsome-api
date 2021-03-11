@@ -497,8 +497,8 @@ public class DataExtractionTest {
   public void contributionsLatestDeletionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
-        + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
+        + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter="
+        + "building=* and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
         JsonNode.class);
     assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673").get("geometry")
         .getNodeType(), JsonNodeType.NULL);
