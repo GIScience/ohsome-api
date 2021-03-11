@@ -28,8 +28,8 @@ public class ElementsFullHistoryController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(
       value = "Full-history OSM data having the raw geometry of each OSM object as geometry",
@@ -53,8 +53,8 @@ public class ElementsFullHistoryController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(
       value = "Full-history OSM data, having the bounding box of each OSM object as geometry",
@@ -78,8 +78,8 @@ public class ElementsFullHistoryController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(value = "Full-history OSM data, having the centroid of each OSM object as geometry",
       nickname = "elementsCentroidFullHistory", response = ExtractionResponse.class)

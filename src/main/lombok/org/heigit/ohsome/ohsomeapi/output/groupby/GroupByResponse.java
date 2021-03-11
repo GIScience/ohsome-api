@@ -48,7 +48,7 @@ public class GroupByResponse implements Response {
     this.groupByResult = groupByUserResult;
   }
 
-  /** Static factory method returning the whole GeoJSON response. */
+  /** Static factory method returning the whole GeoJSON response.*/
   public static GroupByResponse of(Attribution attribution, String apiVersion, Metadata metadata,
       String type, Feature[] features) {
     GroupByResponse response = new GroupByResponse();

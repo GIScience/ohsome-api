@@ -110,7 +110,7 @@ public class UsersController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor
-   *         #countGroupByBoundary(HttpServletRequest, HttpServletResponse, boolean) 
+   *         #countGroupByBoundary(HttpServletRequest, HttpServletResponse, boolean)
    *         countGroupByBoundary}
    */
   @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)",
@@ -193,7 +193,7 @@ public class UsersController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor
-   *         #countGroupByBoundary(HttpServletRequest, HttpServletResponse, boolean) 
+   *         #countGroupByBoundary(HttpServletRequest, HttpServletResponse, boolean)
    *         countGroupByBoundary}
    */
   @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)",

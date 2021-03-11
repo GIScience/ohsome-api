@@ -312,7 +312,7 @@ public class GeometryBuilder {
    * Creates a boundary ID value from the 'id' field in the given <code>JsonObject</code>.
    * 
    * @param jsonObject <code>JsonObject</code> where the 'id' value is extracted from
-   * @param inputProcessor used for {@link 
+   * @param inputProcessor used for {@link
    *        org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
    *        #checkCustomBoundaryId(String) checkCustomBoundaryId}
    * @return <code>Object</code> having the custom id of type <code>String</code> or

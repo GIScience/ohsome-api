@@ -15,7 +15,7 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
  */
 public class GroupByBoundaryGeoJsonGenerator {
 
-  /** Creates the GeoJson features used in the GeoJson response. */
+  /** Creates the GeoJson features used in the GeoJson response.*/
   public static Feature[] createGeoJsonFeatures(GroupByObject[] results,
       GeoJsonObject[] geojsonGeoms) {
     int groupByResultsLength = results.length;

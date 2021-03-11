@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * Represents the result JSON object containing the spatial extent as GeoJSON, the {@link 
- * org.heigit.ohsome.ohsomeapi.output.metadata.TemporalExtent TemporalExtent} and the replication 
+ * Represents the result JSON object containing the spatial extent as GeoJSON, the {@link
+ * org.heigit.ohsome.ohsomeapi.output.metadata.TemporalExtent TemporalExtent} and the replication
  * sequence number of the data-extract.
  */
 @Getter

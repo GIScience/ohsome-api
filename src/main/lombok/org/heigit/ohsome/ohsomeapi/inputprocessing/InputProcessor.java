@@ -45,10 +45,10 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
- * the request. Uses geometry methods from {@link 
+ * the request. Uses geometry methods from {@link
  * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
- * inputProcessingUtils from {@link 
- * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws 
+ * inputProcessingUtils from {@link
+ * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws
  * exceptions depending on their validity.
  */
 public class InputProcessor {

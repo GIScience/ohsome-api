@@ -36,8 +36,8 @@ public class InputProcessingUtils {
   private String[] toTimestamps = null;
 
   /**
-   * Finds and returns the EPSG code of the given point, which is needed for {@link 
-   * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder#createCircularPolygons(String[] 
+   * Finds and returns the EPSG code of the given point, which is needed for {@link
+   * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder#createCircularPolygons(String[]
    * bcircles) createCircularPolygons}.
    * 
    * <p>Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)

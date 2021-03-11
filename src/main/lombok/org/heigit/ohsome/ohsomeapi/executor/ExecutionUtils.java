@@ -226,10 +226,10 @@ public class ExecutionUtils {
    *         writeStreamResponse}, {@link javax.servlet.ServletOutputStream#print(String) print},
    *         and {@link javax.servlet.ServletResponse#flushBuffer() flushBuffer}
    * @throws ExecutionException thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
-   *         #writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream) 
+   *         #writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
    *         writeStreamResponse}
-   * @throws InterruptedException thrown by {@link 
-   *         org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal, 
+   * @throws InterruptedException thrown by {@link
+   *         org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal,
    *         Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
    */
   public void streamResponse(HttpServletResponse servletResponse, ExtractionResponse osmData,
@@ -963,8 +963,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * returns a new geometry precision reducer using a precision of 7 digits, having an activated
-   * point-wise mode and a deactivated remove-collapsed-components mode
+   * Returns a new geometry precision reducer using a precision of 7 digits, having an activated
+   * point-wise mode and a deactivated remove-collapsed-components mode.
    */
   private GeometryPrecisionReducer createGeometryPrecisionReducer() {
     var gpr = new GeometryPrecisionReducer(new PrecisionModel(1E7));

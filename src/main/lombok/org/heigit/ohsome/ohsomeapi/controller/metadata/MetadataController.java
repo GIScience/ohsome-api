@@ -20,8 +20,7 @@ public class MetadataController {
   /**
    * GET request giving the metadata of the underlying extract-region(s).
    * 
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse
-   *         MetadataResponse}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse MetadataResponse}
    */
   @GetMapping(produces = "application/json")
   @ApiOperation(nickname = "Metadata", value = "Metadata of the underlying OSHDB data-extract")

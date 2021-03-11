@@ -132,7 +132,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters} and
    *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
-   *         #computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, 
+   *         #computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer,
    *         InputProcessor) computeCountLengthPerimeterAreaGbB}
    */
   public Response aggregateGroupByBoundary() throws Exception {

@@ -35,7 +35,7 @@ public class LengthController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
   @ApiOperation(value = "Length of OSM elements", nickname = "length",
@@ -56,7 +56,7 @@ public class LengthController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the type",
@@ -76,7 +76,7 @@ public class LengthController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
@@ -101,7 +101,7 @@ public class LengthController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, 
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the boundary and the tag",
@@ -127,8 +127,8 @@ public class LengthController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, 
-   *         boolean, boolean) aggregateGroupByKey}
+   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByKey}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the key", nickname = "lengthGroupByKey",
       response = GroupByResponse.class)
@@ -150,8 +150,8 @@ public class LengthController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, 
-   *         boolean, boolean) aggregateGroupByTag}
+   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByTag}
    */
   @ApiOperation(value = "Length of OSM elements grouped by the tag", nickname = "lengthGroupByTag",
       response = GroupByResponse.class)
@@ -176,7 +176,7 @@ public class LengthController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
   @ApiOperation(
@@ -199,7 +199,7 @@ public class LengthController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the OSM type",
@@ -218,7 +218,7 @@ public class LengthController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
@@ -329,7 +329,7 @@ public class LengthController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest, 
+   *         #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest,
    *         HttpServletResponse) aggregateRatioGroupByBoundary}
    */
   @ApiOperation(value = "Ratio of the length of OSM elements grouped by the boundary",

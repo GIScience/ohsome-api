@@ -46,7 +46,7 @@ public class Application implements ApplicationRunner {
   /**
    * Main method to run this SpringBootApplication.
    * 
-   * @throws RuntimeException if database and keytables are not defined in the 
+   * @throws RuntimeException if database and keytables are not defined in the
    *         '-DdbFilePathProperty=' parameter of 'mvn test'.
    */
   public static void main(String[] args) {
@@ -76,7 +76,7 @@ public class Application implements ApplicationRunner {
    *         #OSHDBH2(String) OSHDBH2}
    * @throws ClassNotFoundException thrown by {@link org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2
    *         #OSHDBH2(String) OSHDBH2}
-   * @throws OSHDBKeytablesNotFoundException thrown by {@link 
+   * @throws OSHDBKeytablesNotFoundException thrown by {@link
    *         org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator
    *         #TagTranslator(java.sql.Connection) TagTranslator}
    * @throws IOException thrown by {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils

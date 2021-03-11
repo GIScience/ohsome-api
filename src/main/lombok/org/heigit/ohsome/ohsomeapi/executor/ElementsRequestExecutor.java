@@ -87,7 +87,7 @@ public class ElementsRequestExecutor {
    *         #processParameters() processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
-   *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream) 
+   *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
    */
   public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,

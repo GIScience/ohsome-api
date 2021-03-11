@@ -36,7 +36,7 @@ public class PerimeterController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
   @ApiOperation(value = "Perimeter of OSM elements", nickname = "perimeter",
@@ -57,7 +57,7 @@ public class PerimeterController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the type",
@@ -80,7 +80,7 @@ public class PerimeterController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
@@ -179,7 +179,7 @@ public class PerimeterController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
   @ApiOperation(
@@ -202,7 +202,7 @@ public class PerimeterController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
@@ -225,7 +225,7 @@ public class PerimeterController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link 
+   * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
@@ -248,7 +248,7 @@ public class PerimeterController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, 
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Density of  grouped by the boundary and the tag",
@@ -274,8 +274,8 @@ public class PerimeterController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, 
-   *         boolean, boolean) aggregateGroupByTag}
+   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
@@ -334,7 +334,7 @@ public class PerimeterController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest, 
+   *         #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest,
    *         HttpServletResponse) aggregateRatioGroupByBoundary}
    */
   @ApiOperation(value = "Ratio of the perimeter of OSM elements grouped by the boundary",
