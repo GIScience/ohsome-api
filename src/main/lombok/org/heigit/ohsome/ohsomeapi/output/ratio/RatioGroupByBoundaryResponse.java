@@ -14,13 +14,12 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
- * /ratio/groupBy/boundary resource. It contains an optional
- * {@link org.heigit.ohsome.ohsomeapi.output.Metadata Metadata} object, the
- * requested
- * {@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult
- * RatioGroupByResult} for a JSON response and an identifier of the object. If the output format is
- * GeoJSON, the response includes a {@link org.geojson.Feature Feature} array, which holds the
- * respective objects with their timestamp-value pairs.
+ * /ratio/groupBy/boundary resource. It contains an optional {@link
+ * org.heigit.ohsome.ohsomeapi.output.Metadata Metadata} object, the requested {@link
+ * org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult RatioGroupByResult} for a JSON
+ * response and an identifier of the object. If the output format is GeoJSON, the response includes
+ * a {@link org.geojson.Feature Feature} array, which holds the respective objects with their
+ * timestamp-value pairs.
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

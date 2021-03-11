@@ -225,12 +225,12 @@ public class ExecutionUtils {
    *         #writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
    *         writeStreamResponse}, {@link javax.servlet.ServletOutputStream#print(String) print},
    *         and {@link javax.servlet.ServletResponse#flushBuffer() flushBuffer}
-   * @throws ExecutionException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(
-   *         ThreadLocal, Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
-   * @throws InterruptedException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(
-   *         ThreadLocal, Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
+   * @throws ExecutionException thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #writeStreamResponse(ThreadLocal, Stream, ThreadLocal, ServletOutputStream)
+   *         writeStreamResponse}
+   * @throws InterruptedException thrown by {@link
+   *         org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#writeStreamResponse(ThreadLocal,
+   *         Stream, ThreadLocal, ServletOutputStream) writeStreamResponse}
    */
   public void streamResponse(HttpServletResponse servletResponse, ExtractionResponse osmData,
       Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
@@ -425,8 +425,8 @@ public class ExecutionUtils {
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    * 
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, and
+   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   *         #count() count}, and
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
@@ -963,8 +963,8 @@ public class ExecutionUtils {
   }
 
   /**
-   * returns a new geometry precision reducer using a precision of 7 digits, having an activated
-   * point-wise mode and a deactivated remove-collapsed-components mode
+   * Returns a new geometry precision reducer using a precision of 7 digits, having an activated
+   * point-wise mode and a deactivated remove-collapsed-components mode.
    */
   private GeometryPrecisionReducer createGeometryPrecisionReducer() {
     var gpr = new GeometryPrecisionReducer(new PrecisionModel(1E7));

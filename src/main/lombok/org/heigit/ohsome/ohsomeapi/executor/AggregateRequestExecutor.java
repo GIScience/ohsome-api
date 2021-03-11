@@ -73,9 +73,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws RuntimeException if an unsupported RequestResource type is used. Only COUNT, LENGTH,
    *         PERIMETER, and AREA are permitted here
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
@@ -130,11 +129,11 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
    * 
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer, InputProcessor)
-   *         computeCountLengthPerimeterAreaGbB}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
+   *         #computeCountLengthPerimeterAreaGbB(RequestResource, BoundaryType, MapReducer,
+   *         InputProcessor) computeCountLengthPerimeterAreaGbB}
    */
   public Response aggregateGroupByBoundary() throws Exception {
     processingData.setGroupByBoundary(true);
@@ -332,14 +331,15 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
    * 
    * @throws BadRequestException if a boundary parameter is not defined.
-   * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
-   *         sum}
+   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   *         #count() count}, or
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   *         #sum(SerializableFunction) sum}
    */
-  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number> computeCountLengthPerimeterAreaGbB(
-      RequestResource requestResource, BoundaryType boundaryType,
-      MapReducer<OSMEntitySnapshot> mapRed, InputProcessor inputProcessor) throws Exception {
+  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, 
+        ? extends Number> computeCountLengthPerimeterAreaGbB(RequestResource requestResource, 
+        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed, 
+        InputProcessor inputProcessor) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }

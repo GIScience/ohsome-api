@@ -11,7 +11,7 @@ import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.locationtech.jts.geom.Geometry;
 
-/** Holds the relevant objects for processing the request and creating the response. */
+/** Holds the relevant objects for processing the request and creating the response.*/
 @Getter
 @Setter
 public class ProcessingData {

@@ -36,12 +36,11 @@ public class InputProcessingUtils {
   private String[] toTimestamps = null;
 
   /**
-   * Finds and returns the EPSG code of the given point, which is needed for
-   * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder#createCircularPolygons(String[] bcircles)
-   * createCircularPolygons}.
+   * Finds and returns the EPSG code of the given point, which is needed for {@link
+   * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder#createCircularPolygons(String[]
+   * bcircles) createCircularPolygons}.
    * 
-   * <p>
-   * Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
+   * <p>Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
    * 
    * @param lon Longitude coordinate of the point.
    * @param lat Latitude coordinate of the point.
@@ -206,8 +205,7 @@ public class InputProcessingUtils {
    * <li><strong>invalid</strong>: throws BadRequestException</li>
    * </ul>
    * 
-   * <p>
-   * For clarification: the format YYYY-MM-DDThh:mm:ss can be applied to any format, where a
+   * <p>For clarification: the format YYYY-MM-DDThh:mm:ss can be applied to any format, where a
    * timestamp is used and # is a replacement holder for "no value". Note that the positioning and
    * using of the forward slash '/' is very important.
    * 
@@ -414,8 +412,8 @@ public class InputProcessingUtils {
       start = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.fromTstamp).toEpochSecond();
       end = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.toTstamp).toEpochSecond();
     } catch (Exception e) {
-      throw new RuntimeException(
-          "The ISO 8601 Date or the combined Date-Time String cannot be converted into a UTC based ZonedDateTime Object");
+      throw new RuntimeException("The ISO 8601 Date or the combined Date-Time String cannot be"
+          + " converted into a UTC based ZonedDateTime Object");
     }
     for (String timestamp : timeInfo) {
       try {

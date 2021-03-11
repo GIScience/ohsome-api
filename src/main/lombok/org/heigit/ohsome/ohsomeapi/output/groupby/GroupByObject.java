@@ -7,10 +7,8 @@ import lombok.Getter;
 /**
  * Abstract class used by the groupByResult classes:
  * <ul>
- * <li>{@link org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult
- * GroupByResult}</li>
- * <li>{@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult
- * RatioGroupByResult}</li>
+ * <li>{@link org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult GroupByResult}</li>
+ * <li>{@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult RatioGroupByResult}</li>
  * </ul>
  */
 @Getter
