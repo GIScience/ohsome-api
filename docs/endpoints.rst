@@ -1036,7 +1036,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 
     .. code-tab:: bash curl (GET)
 
-       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.699053,49.411842,8.701311,49.412893&filter=id:way/140112810&time=2010-01-01,2020-01-01
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.699053,49.411842,8.701311,49.412893&filter=id:way/140112810&time=2010-01-01,2020-01-01'
 
     .. code-tab:: bash curl (POST)
 
