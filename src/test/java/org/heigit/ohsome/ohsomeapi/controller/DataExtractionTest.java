@@ -426,7 +426,7 @@ public class DataExtractionTest {
   }
 
   @Test
-  public void contributionsAssociationChangeSetIdWithOsmIdAndVersion() {
+  public void contributionsAssociationChangeSetIdWithOsmIdAndVersionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/contributions/bbox?bboxes=8.70606,49.412150,8.70766,49.413686"

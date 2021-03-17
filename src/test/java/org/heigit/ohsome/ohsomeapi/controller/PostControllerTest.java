@@ -1129,7 +1129,7 @@ public class PostControllerTest {
   }
 
   @Test
-  public void postQueryRequestEndsByQuestionMark() {
+  public void postQueryRequestEndsByQuestionMarkTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     ResponseEntity<JsonNode> response =
