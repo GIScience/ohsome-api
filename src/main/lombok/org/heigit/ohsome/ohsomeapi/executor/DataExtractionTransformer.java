@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
@@ -30,7 +29,7 @@ public class DataExtractionTransformer implements Serializable {
   private final String startTimestamp;
   private final InputProcessingUtils utils;
   private final Set<SimpleFeatureType> simpleFeatureTypes;
-  private Optional<FilterExpression> filter;
+  private final Optional<FilterExpression> filter;
   private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
@@ -95,8 +94,7 @@ public class DataExtractionTransformer implements Serializable {
         // set valid_to of previous row
         validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
-          final Geometry geomToCheck = currentGeom;
-          boolean addToOutput = addEntityToOutput(currentEntity, () -> geomToCheck);
+          boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
           if (addToOutput) {
             properties = new TreeMap<>();
             if (!isContributionsEndpoint) {
@@ -138,8 +136,7 @@ public class DataExtractionTransformer implements Serializable {
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
       }
       if (!currentGeom.isEmpty()) {
-        final Geometry geomToCheck = currentGeom;
-        boolean addToOutput = addEntityToOutput(currentEntity, () -> geomToCheck);
+        boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
               includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
@@ -165,11 +162,11 @@ public class DataExtractionTransformer implements Serializable {
     if (includeOSMMetadata) {
       properties.put("@lastEdit", entity.getTimestamp().toString());
     }
-    Supplier<Geometry> geom;
+    Geometry geom;
     if (clipGeometries) {
-      geom = snapshot::getGeometry;
+      geom = snapshot.getGeometry();
     } else {
-      geom = snapshot::getGeometryUnclipped;
+      geom = snapshot.getGeometryUnclipped();
     }
     properties.put("@snapshotTimestamp",
         TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
@@ -178,7 +175,7 @@ public class DataExtractionTransformer implements Serializable {
     boolean addToOutput = addEntityToOutput(entity, geom);
     if (addToOutput) {
       return Collections.singletonList(
-          exeUtils.createOSMFeature(entity, geom.get(), properties, keysInt, includeTags,
+          exeUtils.createOSMFeature(entity, geom, properties, keysInt, includeTags,
               includeOSMMetadata, isContributionsEndpoint, elementsGeometry, null));
     } else {
       return Collections.emptyList();
@@ -186,9 +183,9 @@ public class DataExtractionTransformer implements Serializable {
   }
 
   /** Checks whether the given entity should be added to the output (true) or not (false). */
-  public boolean addEntityToOutput(OSMEntity currentEntity, Supplier<Geometry> currentGeom) {
+  public boolean addEntityToOutput(OSMEntity currentEntity, Geometry currentGeom) {
     if (isContainingSimpleFeatureTypes) {
-      return utils.checkGeometryOnSimpleFeatures(currentGeom.get(), simpleFeatureTypes);
+      return utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
     } else {
       return filter.map(f -> f.applyOSMGeometry(currentEntity, currentGeom)).orElse(true);
     }
