@@ -515,4 +515,16 @@ public class DataExtractionTest {
     assertTrue(
         response.getBody().get("features").get(0).get("properties").get("@creation").asBoolean());
   }
+
+  @Test
+  public void issue109Test() {
+    // see https://github.com/GIScience/ohsome-api/issues/109
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/elementsFullHistory/centroid?bboxes=8.69525,49.40938,8.70461,49.41203&"
+            + "time=2011-09-05,2011-09-06&filter=geometry:polygon and id:relation/1391838",
+        JsonNode.class);
+    assertEquals(1, response.getBody().get("features").size());
+  }
 }
