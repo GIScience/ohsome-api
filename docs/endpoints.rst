@@ -1028,6 +1028,8 @@ Contributions Aggregation
 
    Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
 
+.. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
+
 **Example request**:
 
 Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and 2020.
