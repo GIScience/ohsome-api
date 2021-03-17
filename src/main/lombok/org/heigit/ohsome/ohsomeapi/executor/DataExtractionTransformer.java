@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Supplier;
@@ -13,6 +14,7 @@ import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
 import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
 import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
+import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -28,6 +30,7 @@ public class DataExtractionTransformer implements Serializable {
   private final String startTimestamp;
   private final InputProcessingUtils utils;
   private final Set<SimpleFeatureType> simpleFeatureTypes;
+  private Optional<FilterExpression> filter;
   private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
@@ -38,8 +41,9 @@ public class DataExtractionTransformer implements Serializable {
   public DataExtractionTransformer(boolean isContributionsLatestEndpoint,
       boolean isContributionsEndpoint, ExecutionUtils exeUtils,
       boolean clipGeometries, String startTimestamp, InputProcessingUtils utils,
-      Set<SimpleFeatureType> simpleFeatureTypes, Set<Integer> keysInt, boolean includeTags,
-      boolean includeOSMMetadata, ElementsGeometry elementsGeometry, String endTimestamp,
+      Set<SimpleFeatureType> simpleFeatureTypes, Optional<FilterExpression> filter,
+      Set<Integer> keysInt, boolean includeTags, boolean includeOSMMetadata,
+      ElementsGeometry elementsGeometry, String endTimestamp,
       boolean isContainingSimpleFeatureTypes) {
     this.isContributionsLatestEndpoint = isContributionsLatestEndpoint;
     this.isContributionsEndpoint = isContributionsEndpoint;
@@ -48,6 +52,7 @@ public class DataExtractionTransformer implements Serializable {
     this.startTimestamp = startTimestamp;
     this.utils = utils;
     this.simpleFeatureTypes = simpleFeatureTypes;
+    this.filter = filter;
     this.keysInt = keysInt;
     this.includeTags = includeTags;
     this.includeOSMMetadata = includeOSMMetadata;
@@ -91,8 +96,7 @@ public class DataExtractionTransformer implements Serializable {
         validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
           final Geometry geomToCheck = currentGeom;
-          boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-              simpleFeatureTypes, () -> geomToCheck);
+          boolean addToOutput = addEntityToOutput(currentEntity, () -> geomToCheck);
           if (addToOutput) {
             properties = new TreeMap<>();
             if (!isContributionsEndpoint) {
@@ -135,8 +139,7 @@ public class DataExtractionTransformer implements Serializable {
       }
       if (!currentGeom.isEmpty()) {
         final Geometry geomToCheck = currentGeom;
-        boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-            simpleFeatureTypes, () -> geomToCheck);
+        boolean addToOutput = addEntityToOutput(currentEntity, () -> geomToCheck);
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
               includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
@@ -172,8 +175,7 @@ public class DataExtractionTransformer implements Serializable {
         TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
     properties.put("@validFrom", startTimestamp);
     properties.put("@validTo", endTimestamp);
-    boolean addToOutput = addEntityToOutput(isContainingSimpleFeatureTypes, utils,
-        simpleFeatureTypes, geom);
+    boolean addToOutput = addEntityToOutput(entity, geom);
     if (addToOutput) {
       return Collections.singletonList(
           exeUtils.createOSMFeature(entity, geom.get(), properties, keysInt, includeTags,
@@ -184,17 +186,11 @@ public class DataExtractionTransformer implements Serializable {
   }
 
   /** Checks whether the given entity should be added to the output (true) or not (false). */
-  public static boolean addEntityToOutput(
-      boolean isContainingSimpleFeatureTypes,
-      InputProcessingUtils utils,
-      final Set<SimpleFeatureType> simpleFeatureTypes,
-      Supplier<Geometry> currentGeom) {
-    boolean addToOutput;
+  public boolean addEntityToOutput(OSMEntity currentEntity, Supplier<Geometry> currentGeom) {
     if (isContainingSimpleFeatureTypes) {
-      addToOutput = utils.checkGeometryOnSimpleFeatures(currentGeom.get(), simpleFeatureTypes);
+      return utils.checkGeometryOnSimpleFeatures(currentGeom.get(), simpleFeatureTypes);
     } else {
-      addToOutput = true;
+      return filter.map(f -> f.applyOSMGeometry(currentEntity, currentGeom)).orElse(true);
     }
-    return addToOutput;
   }
 }

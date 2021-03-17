@@ -110,7 +110,7 @@ public class DataRequestExecutor extends RequestExecutor {
     final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
     DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
         isContributionsLatestEndpoint, isContributionsEndpoint, exeUtils, clipGeometries,
-        startTimestamp, utils, simpleFeatureTypes, keysInt, includeTags, includeOSMMetadata,
+        startTimestamp, utils, simpleFeatureTypes, filter, keysInt, includeTags, includeOSMMetadata,
         elementsGeometry, endTimestamp, isContainingSimpleFeatureTypes);
     MapReducer<Feature> contributionPreResult = mapRedContributions
         .flatMap(dataExtractionTransformer::buildChangedFeatures)
