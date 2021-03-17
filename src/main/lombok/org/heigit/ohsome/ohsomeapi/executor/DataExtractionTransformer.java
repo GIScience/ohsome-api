@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
@@ -29,7 +28,7 @@ public class DataExtractionTransformer implements Serializable {
   private final String startTimestamp;
   private final InputProcessingUtils utils;
   private final Set<SimpleFeatureType> simpleFeatureTypes;
-  private final Optional<FilterExpression> filter;
+  private final FilterExpression filter;
   private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
@@ -40,7 +39,7 @@ public class DataExtractionTransformer implements Serializable {
   public DataExtractionTransformer(boolean isContributionsLatestEndpoint,
       boolean isContributionsEndpoint, ExecutionUtils exeUtils,
       boolean clipGeometries, String startTimestamp, InputProcessingUtils utils,
-      Set<SimpleFeatureType> simpleFeatureTypes, Optional<FilterExpression> filter,
+      Set<SimpleFeatureType> simpleFeatureTypes, FilterExpression filter,
       Set<Integer> keysInt, boolean includeTags, boolean includeOSMMetadata,
       ElementsGeometry elementsGeometry, String endTimestamp,
       boolean isContainingSimpleFeatureTypes) {
@@ -187,7 +186,7 @@ public class DataExtractionTransformer implements Serializable {
     if (isContainingSimpleFeatureTypes) {
       return utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
     } else {
-      return filter.map(f -> f.applyOSMGeometry(currentEntity, currentGeom)).orElse(true);
+      return filter == null || filter.applyOSMGeometry(currentEntity, currentGeom);
     }
   }
 }
