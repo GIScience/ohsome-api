@@ -9,6 +9,7 @@ Changelog
 * fix returning invalid GeoJSON using empty coordinates for deletion contributions ([#129], [#131])
 * fix using a proper boolean data type instead of a string for contributionType in response ([#135])
 * fix NPE with createOSMFeature ([#141])
+* make sure geometry filters are applied to all returned features of elementsFullHistory requests ([#109])
 
 ### Performance and Code Quality
 
@@ -25,6 +26,7 @@ Changelog
 
 [#83]: https://github.com/GIScience/ohsome-api/issues/83
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
+[#109]: https://github.com/GIScience/ohsome-api/issues/109
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
 [#113]: https://github.com/GIScience/ohsome-api/issues/113
 [#114]: https://github.com/GIScience/ohsome-api/pull/114
