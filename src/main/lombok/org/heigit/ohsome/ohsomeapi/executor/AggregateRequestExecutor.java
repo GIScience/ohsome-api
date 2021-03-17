@@ -48,8 +48,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
 /**
- * Holds the relevant execution methods for aggregation requests under /elements and
- * /elements/_/groupBy/boundary.
+ * Holds relevant execution methods for various aggregation requests.
  */
 public class AggregateRequestExecutor extends RequestExecutor {
 
