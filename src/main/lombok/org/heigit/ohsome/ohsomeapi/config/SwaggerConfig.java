@@ -87,7 +87,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
             new Tag("Elements Area", "Compute the area of polygonal OSM elements"),
             new Tag("Elements Length", "Compute the length of linear OSM elements"),
             new Tag("Elements Count", "Compute the count of point/linear/polygonal OSM elements"),
-            new Tag("Elements Perimeter", "Compute the perimeter of polygonal OSM elements"), 
+            new Tag("Elements Perimeter", "Compute the perimeter of polygonal OSM elements"),
             new Tag("Contributions Count", "Compute the count of OSM contributions"))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
