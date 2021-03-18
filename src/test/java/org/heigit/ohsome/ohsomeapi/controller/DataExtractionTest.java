@@ -520,6 +520,8 @@ public class DataExtractionTest {
   public void issue109Test() {
     // see https://github.com/GIScience/ohsome-api/issues/109
     TestRestTemplate restTemplate = new TestRestTemplate();
+    // this uses the centroid endpoint to make sure that geometry filters are even applied to
+    // the geometries before being transformed to, e.g., centroid points
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
         server + port
             + "/elementsFullHistory/centroid?bboxes=8.69525,49.40938,8.70461,49.41203&"
