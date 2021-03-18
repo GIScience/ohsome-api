@@ -10,7 +10,6 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 
-
 /**
  * Creates the GeoJson features used in the GeoJson response for the /groupBy/boundary endpoints.
  */
