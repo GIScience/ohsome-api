@@ -1238,7 +1238,7 @@ public class GetControllerTest {
   }
 
   @Test
-  public void getRequestEndsByQuestionMark() {
+  public void getRequestEndsByQuestionMarkTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.getForEntity(server + port + "/users/count?", JsonNode.class);
