@@ -33,29 +33,24 @@ public class ResourceParameters {
     if (uri.contains("/groupBy/tag")) {
       possibleParams.add("groupByKey");
       possibleParams.add("groupByValues");
-      return possibleParams;
     } else if (uri.contains("/groupBy/key")) {
       possibleParams.add("groupByKeys");
-      return possibleParams;
     } else if (uri.contains("/ratio")) {
       possibleParams.add("filter2");
       possibleParams.add("keys2");
       possibleParams.add("types2");
       possibleParams.add("values2");
-      return possibleParams;
     } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
       possibleParams.add("properties");
       possibleParams.add("clipGeometry");
-      // removing deprecated params from newly implemented endpoint
-      if (uri.contains("/contributions")) {
-        possibleParams.remove("types");
-        possibleParams.remove("keys");
-        possibleParams.remove("values");
-      }        
-      return possibleParams;
-    } else {
-      return possibleParams;
     }
+    // removing deprecated params from newer endpoint
+    if (uri.contains("/contributions")) {
+      possibleParams.remove("types");
+      possibleParams.remove("keys");
+      possibleParams.remove("values");
+    }
+    return possibleParams;
   }
 
   /**
