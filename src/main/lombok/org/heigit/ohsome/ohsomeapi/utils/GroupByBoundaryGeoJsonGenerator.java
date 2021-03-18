@@ -62,9 +62,8 @@ public class GroupByBoundaryGeoJsonGenerator {
 
   /**
    * @throws UnsupportedOperationException if one of the values contained in results is not an
-   *         instance of
-   *         {@link org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult
-   *         ElementsResult}, or
+   *         instance of {@link
+   *         org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult ElementsResult}, or
    *         {@link org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult
    *         ContributionsResult}
    */
