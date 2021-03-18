@@ -23,6 +23,7 @@ Changelog
 * extend docs on contribution types ([#134])
 * round coordinates of returned OSM features to 7 decimal places ([#138])
 * improve code style by wrapping all code lines longer than 100 characters ([#83])
+* update ohsome parent to version 2.8 ([#152])
 
 [#83]: https://github.com/GIScience/ohsome-api/issues/83
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
@@ -38,6 +39,7 @@ Changelog
 [#138]: https://github.com/GIScience/ohsome-api/issues/138
 [#141]: https://github.com/GIScience/ohsome-api/issues/141
 [#145]: https://github.com/GIScience/ohsome-api/pull/145
+[#152]: https://github.com/GIScience/ohsome-api/pull/152
 
 
 ## 1.3.2
