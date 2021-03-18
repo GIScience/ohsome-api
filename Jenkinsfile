@@ -131,6 +131,9 @@ pipeline {
       }
       steps {
         script {
+          withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean javadoc:jar source:jar package -P sign,git -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          }
           rtMaven.deployer.deployArtifacts buildInfo
           server.publishBuildInfo buildInfo
           RELEASE_DEPLOY = true
