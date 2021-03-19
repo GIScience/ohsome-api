@@ -131,7 +131,7 @@ How big is the area of farmland in the region Rhein-Neckar?
 
 .. http:post :: /elements/(aggregation)/density
 
-   Get density of ``aggregation`` of OSM elements divided by the total area in square-kilometers.
+   Get density of ``aggregation`` of OSM elements in the total query area per square-kilometers.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    
@@ -1135,7 +1135,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 
 .. http:post :: /contributions/count/density
 
-   Get the density of the count of contributions divided by the total area in square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the density of the count of contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
 
 **Example request**:
 
