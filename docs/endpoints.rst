@@ -1070,7 +1070,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2010-01-01T00:00:00Z",
@@ -1087,7 +1087,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2010-01-01T00:00:00Z",
@@ -1105,7 +1105,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2010-01-01T00:00:00Z",
@@ -1122,7 +1122,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2010-01-01T00:00:00Z",
@@ -1177,7 +1177,7 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2012-01-01T00:00:00Z",
@@ -1194,7 +1194,7 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2012-01-01T00:00:00Z",
@@ -1212,7 +1212,7 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2012-01-01T00:00:00Z",
@@ -1229,7 +1229,7 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	    "url":"https://ohsome.org/copyrights",
 	    "text":"© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.3.2",
+	  "apiVersion":"1.4.0",
 	  "result":[
 	    {
 	      "fromTimestamp":"2012-01-01T00:00:00Z",
