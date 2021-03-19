@@ -8,13 +8,14 @@ import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.output.Result;
 
 /**
- * Represents the result JSON object for the /users resource containing the from timestamp together
- * with the corresponding value.
+ * Represents the result JSON object for the resources working with contributions (currently: 
+ * /users and /contributions/count) containing the from timestamp together with the corresponding 
+ * value.
  */
 @Getter
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class UsersResult implements Result {
+public class ContributionsResult implements Result {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
   private String fromTimestamp;

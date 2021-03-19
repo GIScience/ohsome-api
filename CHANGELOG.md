@@ -3,6 +3,10 @@ Changelog
 
 ## 1.4.0-SNAPSHOT (current master)
 
+### New Features
+
+* add new endpoint /contributions/count/{density} ([#115])
+
 ### Bug Fixes
 
 * fix some invalid filters in the default swagger examples ([#111])
@@ -31,6 +35,7 @@ Changelog
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
 [#113]: https://github.com/GIScience/ohsome-api/issues/113
 [#114]: https://github.com/GIScience/ohsome-api/pull/114
+[#115]: https://github.com/GIScience/ohsome-api/issues/115
 [#117]: https://github.com/GIScience/ohsome-api/issues/117
 [#129]: https://github.com/GIScience/ohsome-api/issues/129
 [#131]: https://github.com/GIScience/ohsome-api/issues/131

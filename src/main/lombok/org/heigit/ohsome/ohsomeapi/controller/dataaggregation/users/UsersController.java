@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
+import org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Controller containing the GET and POST servletRequests, which enter through "/users". */
-@Api(tags = "Users")
+@Api(tags = "Users Count")
 @RestController
 @RequestMapping("/users")
 public class UsersController {
@@ -27,9 +28,10 @@ public class UsersController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output Response}
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor
-   *         #count(HttpServletRequest, HttpServletResponse, boolean) count}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
+   * @throws Exception thrown by {@link
+   *         org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
   @ApiOperation(value = "Count of OSM users", nickname = "count",
       response = DefaultAggregationResponse.class)
@@ -37,7 +39,9 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return UsersRequestExecutor.count(servletRequest, servletResponse, false);
+    ContributionsExecutor executor =
+        new ContributionsExecutor(servletRequest, servletResponse, false);
+    return executor.count(true);
   }
 
   /**
@@ -128,9 +132,10 @@ public class UsersController {
    * 
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output Response}
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.UsersRequestExecutor
-   *          #count(HttpServletRequest, HttpServletResponse, boolean) count}
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
+   * @throws Exception thrown by {@link
+   *         org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
    */
   @ApiOperation(
       value = "Density of OSM users (number of users divided "
@@ -140,7 +145,9 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.count(servletRequest, servletResponse, true);
+    ContributionsExecutor executor =
+        new ContributionsExecutor(servletRequest, servletResponse, true);
+    return executor.count(true);
   }
 
   /**

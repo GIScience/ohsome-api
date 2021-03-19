@@ -8,8 +8,8 @@ API Endpoints
     The usage of the parameters **types**, **keys** and **values** is not recommended as they are deprecated. Please use the 
     filter_ parameter for your requests.
 
-Aggregation Endpoints
----------------------
+Elements Aggregation
+--------------------
 
 .. http:post :: /elements/(aggregation)
 
@@ -131,7 +131,7 @@ How big is the area of farmland in the region Rhein-Neckar?
 
 .. http:post :: /elements/(aggregation)/density
 
-   Get density of ``aggregation`` of OSM elements divided by the total area in square-kilometers.
+   Get density of ``aggregation`` of OSM elements in the total query area per square-kilometers.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    
@@ -846,8 +846,8 @@ Compare length of different types of streets for two or more regions.
    * aggregation type: same as for **/elements/(aggregation)/groupBy/boundary/groupBy/tag**.
 
 
-Users Aggregation Endpoints
----------------------------
+Users Aggregation
+-----------------
 
 .. http:post :: /users/count
 
@@ -1021,9 +1021,227 @@ Show number of users editing buildings before, during and after Nepal earthquake
       }
 
 
-Extraction Endpoints
---------------------
+Contributions Aggregation
+-------------------------
+      
+.. http:post :: /contributions/count
 
+   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+.. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
+
+**Example request**:
+
+Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and 2020.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.699053,49.411842,8.701311,49.412893&filter=id:way/140112810&time=2010-01-01,2020-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.699053,49.411842,8.701311,49.412893' --data-urlencode 'time=2010-01-01,2020-01-01' --data-urlencode 'filter=id:way/140112810'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count'
+        data = {"bboxes": "8.699053,49.411842,8.701311,49.412893", "time": "2010-01-01,2020-01-01", "filter": "id:way/140112810"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.699053,49.411842,8.701311,49.412893", time = "2010-01-01,2020-01-01", filter = "id:way/140112810"))
+        r
+
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2010-01-01T00:00:00Z",
+	      "toTimestamp":"2020-01-01T00:00:00Z",
+	      "value":15.0
+	    }
+	  ]
+	}
+
+
+.. http:post :: /contributions/count/density
+
+   Get the density of the count of contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Density of contributions to shops within the oldtown area of Heidelberg between 2012 and 2016.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count/density?bboxes=8.69282,49.40766,8.71673,49.4133&filter=shop=*%20and%20type:node&time=2012-01-01,2016-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count/density' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlencode 'time=2012-01-01,2016-01-01' --data-urlencode 'filter=shop=* and type:node'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count/density'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "time": "2012-01-01,2016-01-01", "filter": "shop=* and type:node"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count/density", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node"))
+        r
+
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.4.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2012-01-01T00:00:00Z",
+	      "toTimestamp":"2016-01-01T00:00:00Z",
+	      "value":417.13
+	    }
+	  ]
+	}
+
+
+Elements Extraction
+-------------------
 .. http:post :: /elements/(geometryType)
 
    Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
@@ -1289,8 +1507,8 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
       }
    
       
-Contribution Endpoints
-----------------------
+Contributions Extraction
+------------------------
 
 .. http:post :: /contributions/(geometryType)
 
@@ -1863,9 +2081,10 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }]
       }
-
-Metadata Endpoint
------------------
+      
+      
+Metadata
+--------
 
 .. http:get :: /metadata
 

@@ -108,6 +108,14 @@ public class Description {
     }
     return "Number of distinct active users per time interval aggregated on the boundary.";
   }
+  
+  public static String countContributions(boolean isDensity) {
+    if (isDensity) {
+      return "Density of performed contributions per time interval "
+          + "(number of contributions per square-kilometer).";
+    }
+    return "Number of performed contributions per time interval.";
+  }
 
   private Description() {
     throw new IllegalStateException("Utility class");

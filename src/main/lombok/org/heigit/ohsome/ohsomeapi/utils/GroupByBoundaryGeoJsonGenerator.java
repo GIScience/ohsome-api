@@ -3,7 +3,7 @@ package org.heigit.ohsome.ohsomeapi.utils;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.output.Result;
-import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
@@ -61,9 +61,10 @@ public class GroupByBoundaryGeoJsonGenerator {
 
   /**
    * @throws UnsupportedOperationException if one of the values contained in results is not an
-   *         instance of {@link org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult
-   *         ElementsResult}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult UserResult}
+   *         instance of {@link
+   *         org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult ElementsResult}, or
+   *         {@link org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult
+   *         ContributionsResult}
    */
   private static Feature[] generateGroupByResultGeoJson(GroupByObject[] results,
       GeoJsonObject[] geojsonGeoms, int groupByResultsLength, int groupByResultCount,
@@ -81,8 +82,8 @@ public class GroupByBoundaryGeoJsonGenerator {
         ElementsResult result = (ElementsResult) res;
         String tstamp = result.getTimestamp();
         feature = fillGeojsonFeature(results, groupByResultCount, tstamp);
-      } else if (res instanceof UsersResult) {
-        UsersResult result = (UsersResult) res;
+      } else if (res instanceof ContributionsResult) {
+        ContributionsResult result = (ContributionsResult) res;
         String tstampFrom = result.getFromTimestamp();
         String tstampTo = result.getToTimestamp();
         feature = fillGeojsonFeature(results, groupByResultCount, tstampFrom, tstampTo);

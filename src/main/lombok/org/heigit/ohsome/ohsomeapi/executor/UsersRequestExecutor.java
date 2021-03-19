@@ -33,11 +33,10 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
-import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
@@ -53,36 +52,6 @@ public class UsersRequestExecutor {
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
-  }
-
-  /** Performs a count calculation. */
-  public static Response count(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    mapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    Geometry geom = inputProcessor.getGeometry();
-    UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countUsers(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
-    }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      exeUtils.writeCsvResponse(results, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, results);
   }
 
   /** Performs a count calculation grouped by the OSM type. */
@@ -107,7 +76,7 @@ public class UsersRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
@@ -191,7 +160,7 @@ public class UsersRequestExecutor {
     int count = 0;
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
         groupByName = "total";
@@ -268,7 +237,7 @@ public class UsersRequestExecutor {
     String groupByName = "";
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey() == -2) {
         groupByName = "total";
@@ -329,7 +298,7 @@ public class UsersRequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = exeUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
       resultSet[count] = new GroupByResult(boundaryIds[count], results);
       count++;

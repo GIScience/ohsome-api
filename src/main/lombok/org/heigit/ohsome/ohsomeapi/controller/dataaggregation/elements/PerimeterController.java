@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/perimeter".
  */
-@Api(tags = "Perimeter")
+@Api(tags = "Elements Perimeter")
 @RestController
 @RequestMapping("/elements/perimeter")
 public class PerimeterController {
