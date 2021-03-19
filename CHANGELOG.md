@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 1.4.0-SNAPSHOT (current master)
+## 1.4.0
 
 ### New Features
 
