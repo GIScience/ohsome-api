@@ -16,5 +16,5 @@ Describe the solution you'd like
 ### Alternative Solutions
 Describe alternatives you've considered
 
-### Additional information
+### Additional Information
 Add any other information, examples, screenshots, etc. about the feature request here.
