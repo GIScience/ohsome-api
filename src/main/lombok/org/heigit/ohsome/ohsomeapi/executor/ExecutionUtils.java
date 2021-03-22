@@ -76,7 +76,6 @@ import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
-import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.function.SerializableSupplier;
 import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
@@ -443,28 +442,26 @@ public class ExecutionUtils implements Serializable {
   public static <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
       RequestResource requestResource,
-      MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> preResult)
+      MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAgg)
       throws Exception {
+    var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult.count();
-      case LENGTH:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> cacheInUserData(
-                snapshot.getGeometry(), () -> Geo.lengthOf(snapshot.getGeometry())));
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAgg.count();
       case PERIMETER:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal) {
-                return cacheInUserData(snapshot.getGeometry(),
-                    () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
+            .sum(geom -> {
+              if (!(geom instanceof Polygonal)) {
+                return 0.0;
               }
-              return 0.0;
+              return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
             });
+      case LENGTH:
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
+            .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) preResult
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> cacheInUserData(
-                snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry())));
+        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
+            .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
@@ -479,15 +476,16 @@ public class ExecutionUtils implements Serializable {
       SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>
       computeNestedResult(
       RequestResource requestResource,
-      MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, Geometry>
-          preResult) throws Exception {
+      MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
+          OSMEntitySnapshot> mapAgg) throws Exception {
+    var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.count();
+            mapAgg.count();
       case PERIMETER:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.sum(geom -> {
+            mapAggGeom.sum(geom -> {
               if (!(geom instanceof Polygonal)) {
                 return 0.0;
               }
@@ -495,10 +493,10 @@ public class ExecutionUtils implements Serializable {
             });
       case LENGTH:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+            mapAggGeom.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
         return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            preResult.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
+            mapAggGeom.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
