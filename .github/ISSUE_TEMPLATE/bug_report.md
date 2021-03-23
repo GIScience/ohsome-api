@@ -19,7 +19,7 @@ A clear and concise description of what the bug is.
 ### How to Reproduce
 Steps [e.g.] to reproduce the behaviour:
 1. Start locally the ohsome API
-2. Query this [URL] (http://localhost:8080/contributions/count?bboxes=8.67%2C49.39%2C8.71%2C49.42&time=2017-01-01%2F2017-01-02%2FP1Y)
+2. Send this request [URL] (http://localhost:8080/contributions/count?bboxes=8.67%2C49.39%2C8.71%2C49.42&time=2017-01-01%2F2017-01-02%2FP1Y)
 3. See error message 'Unable to find...'
 
 ### Expected Behaviour
