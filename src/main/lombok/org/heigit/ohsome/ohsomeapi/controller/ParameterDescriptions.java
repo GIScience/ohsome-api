@@ -31,8 +31,8 @@ public class ParameterDescriptions {
   public static final String FORMAT =
       "Output format geojson (for /groupBy/boundary resources only), csv, or json; default: json";
   public static final String PROPERTIES =
-      "List of possible property-groups added to each OSM-element: 'tags' and/or 'metadata'; "
-          + "default: no property";
+      "List of possible property-groups added to each OSM-element: 'tags' and/or 'metadata' " +
+      "and/or 'contributionTypes'; default: no property";
   public static final String SHOW_METADATA = "Boolean operator 'true' or 'false'; default: 'false'";
   public static final String TIMEOUT = "Custom timeout in seconds; no default value";
   public static final String FILTER = "Combines several attributive filters, e.g. OSM type, "
