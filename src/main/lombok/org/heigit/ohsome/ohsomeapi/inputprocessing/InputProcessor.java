@@ -68,6 +68,7 @@ public class InputProcessor {
   private Map<String, String[]> requestParameters;
   private boolean includeTags;
   private boolean includeOSMMetadata;
+  private boolean includeContributionTypes;
   private boolean clipGeometry = true;
 
   public InputProcessor(ProcessingData processingData) {
@@ -391,8 +392,9 @@ public class InputProcessor {
   }
 
   /**
-   * Processes the properties parameter used in data-extraction ressources and sets the respective
-   * boolean values includeTags, includeOSMMetadata and unclippedGeometries.
+   * Processes the properties parameter used in data-extraction resources and sets the respective
+   * boolean values includeTags, includeOSMMetadata, includeContributionTypes and
+   * unclippedGeometries.
    * 
    * @throws BadRequestException if the properties parameter contains invalid values
    */
@@ -409,6 +411,8 @@ public class InputProcessor {
         this.includeTags = true;
       } else if ("metadata".equalsIgnoreCase(property)) {
         this.includeOSMMetadata = true;
+      } else if("contributionTypes".equalsIgnoreCase(property)) {
+        this.includeContributionTypes = true;
       } else if (oldUnclippedParameter) {
         this.clipGeometry = false;
       } else {
@@ -828,6 +832,10 @@ public class InputProcessor {
     return includeOSMMetadata;
   }
 
+  public boolean includeContributionTypes() {
+    return includeContributionTypes;
+  }
+  
   public boolean isClipGeometry() {
     return clipGeometry;
   }

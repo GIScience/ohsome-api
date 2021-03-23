@@ -40,7 +40,7 @@ public class ExceptionMessages {
           + "and/or coarser time period.";
   public static final String PROPERTIES_PARAM =
       "The properties parameter can only contain the values 'tags' and/or 'metadata' and/or "
-          + "'unclipped'.";
+          + "'contributionTypes' and/or 'unclipped'.";
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";

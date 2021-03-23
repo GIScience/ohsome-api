@@ -98,6 +98,7 @@ public class ElementsRequestExecutor {
     inputProcessor.processIsUnclippedParam();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
+    final boolean includeContributionTypes = inputProcessor.includeContributionTypes();
     final boolean clipGeometries = inputProcessor.isClipGeometry();
     if (DbConnData.db instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
@@ -127,7 +128,8 @@ public class ElementsRequestExecutor {
         geom = snapshot.getGeometryUnclipped();
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
-          includeOSMMetadata, false, elemGeom, EnumSet.noneOf(ContributionType.class));
+          includeOSMMetadata, includeContributionTypes, false, elemGeom,
+          EnumSet.noneOf(ContributionType.class));
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
