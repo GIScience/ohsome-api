@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ### Problem Description
-Is your feature request related to a problem? Please add a clear and concise description of what the problem is. [e.g. "I'm always frustrated when..."
+Please add a clear and concise description of what the problem is, e.g. "I'm always frustrated when..., because..."
 
 ### Expected Solution
 Describe the solution you'd like
