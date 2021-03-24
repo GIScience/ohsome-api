@@ -28,7 +28,7 @@
     <jts2geojson.version>0.13.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>4.0</opencsv.version>
-    <oshdb.version>0.6.3</oshdb.version>
+    <oshdb.version>0.6.4</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <springboot.version>2.0.3.RELEASE</springboot.version>
     <springfox.version>2.9.2</springfox.version>
