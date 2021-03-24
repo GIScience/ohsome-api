@@ -11,19 +11,16 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 ### General Information
+Please include the following general information about the issue and list any additional steps needed to reproduce the bug.
+ - Version of the ohsome API [e.g. `1.4.0`]
+ - Which API instance was requested [e.g. `https://api.ohsome.org/v1`]
  - Affected endpoint(s) [e.g. /contributions/count]
- - Affected parameter(s) [e.g. bpolys, format]
- - HTTP method used [e.g. POST]
- - Used tool/library for the request [e.g. cURL, Postman]
-
-### How to Reproduce
-Steps [e.g.] to reproduce the behaviour:
-1. Start locally the ohsome API
-2. Send this request [URL] (http://localhost:8080/contributions/count?bboxes=8.67%2C49.39%2C8.71%2C49.42&time=2017-01-01%2F2017-01-02%2FP1Y)
-3. See error message 'Unable to find...'
+ - URL of your request
+ - Used HTTP method [GET or POST]
+ - Utilized tool/library for the request [e.g. cURL, Postman, ohsome-py, etc.]
 
 ### Expected Behaviour
-A clear and concise description of what you expected to happen [e.g. "The error message should be..."]
+A clear and concise description of what you expected to happen.
 
 ### Further Information
 
@@ -33,12 +30,5 @@ If applicable, add printed error messages, log files or screenshots to help expl
 #### Additional information
 Add any other further information about the problem here.
 
-### System Information
-Please complete the following information:
- - OS: [e.g. Ubuntu 20.04 LTS]
- - Java Version: [e.g. openjdk version "11.0.9.1"]
- - ohsome API Version: [e.g. 1.4.0]
- - Maven version: [e.g. 3.6.3]
-
 ### Notes
-Please consider to upload a file if embedded request URLs, responses, error messages or logs are too long or bad displayed in your post.
+Please consider to upload a file if request parameters, responses, error messages or logs are too long or poorly displayed in your bug report.

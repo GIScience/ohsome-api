@@ -7,14 +7,14 @@ assignees: ''
 
 ---
 
-### Problem Description
-Please add a clear and concise description of what the problem is, e.g. "I'm always frustrated when..., because..."
+### Feature Description
+Please add a clear and concise description of what your idea is, what use cases it solves.
 
 ### Expected Solution
-Describe the solution you'd like
+Describe the solution you would like to see.
 
 ### Alternative Solutions
-Describe alternatives you've considered
+Describe alternatives you have considered.
 
 ### Additional Information
 Add any other information, examples, screenshots, etc. about the feature request here.
