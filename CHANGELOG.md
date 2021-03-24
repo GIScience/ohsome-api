@@ -4,6 +4,17 @@ Changelog
 ## 1.5.0-SNAPSHOT (current master)
 
 
+## 1.4.1
+
+* ugrade OSHDB to version [OSHDB#0.6.4], fixes thw following two bugs:
+* fix crash when a non-existent tag is used in a filter ([#154])
+* fix crash in `groupBy/boundary` queries caused by invalid OSM geometries ([OSHDB#362])
+
+[OSHDB#0.6.4]: https://github.com/GIScience/oshdb/releases/tag/0.6.4
+[OSHDB#362]: https://github.com/GIScience/oshdb/pull/362
+[#154]: https://github.com/GIScience/ohsome-api/issues/154
+
+
 ## 1.4.0
 
 ### New Features
