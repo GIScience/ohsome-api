@@ -254,9 +254,9 @@ public class GeometryBuilder {
       } catch (Exception e) {
         throw new BadRequestException("The provided custom id(s) could not be parsed.");
       }
-      JsonObject geomObj = feature.getJsonObject("geometry");
-      checkGeometryTypeOfFeature(geomObj);
       try {
+        JsonObject geomObj = feature.getJsonObject("geometry");
+        checkGeometryTypeOfFeature(geomObj);
         GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
         geometryList.add(currentResult);
