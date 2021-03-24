@@ -393,30 +393,43 @@ public class InputProcessor {
 
   /**
    * Processes the properties parameter used in data-extraction resources and sets the respective
-   * boolean values includeTags, includeOSMMetadata, includeContributionTypes and
-   * unclippedGeometries.
+   * boolean values includeTags, includeOSMMetadata and unclippedGeometries. It sets also the
+   * boolean value includeContributionTypes for the contribution endpoints.
    * 
    * @throws BadRequestException if the properties parameter contains invalid values
    */
   public void processPropertiesParam() {
     String[] properties =
         splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
-    if (properties.length > 3) {
-      throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
-    }
-    for (String property : properties) {
-      @Deprecated
-      boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
-      if ("tags".equalsIgnoreCase(property)) {
-        this.includeTags = true;
-      } else if ("metadata".equalsIgnoreCase(property)) {
-        this.includeOSMMetadata = true;
-      } else if("contributionTypes".equalsIgnoreCase(property)) {
-        this.includeContributionTypes = true;
-      } else if (oldUnclippedParameter) {
-        this.clipGeometry = false;
-      } else {
-        throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
+    if (!RequestUtils.isContributionsExtraction(requestUrl)) {
+      for (String property : properties) {
+        @Deprecated
+        boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
+        if ("tags".equalsIgnoreCase(property)) {
+          this.includeTags = true;
+        } else if ("metadata".equalsIgnoreCase(property)) {
+          this.includeOSMMetadata = true;
+        } else if (oldUnclippedParameter) {
+          this.clipGeometry = false;
+        } else {
+          throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
+        }
+      }
+    } else {
+      for (String property : properties) {
+        @Deprecated
+        boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
+        if ("tags".equalsIgnoreCase(property)) {
+          this.includeTags = true;
+        } else if ("metadata".equalsIgnoreCase(property)) {
+          this.includeOSMMetadata = true;
+        } else if (oldUnclippedParameter) {
+          this.clipGeometry = false;
+        } else if ("contributionTypes".equalsIgnoreCase(property)) {
+          this.includeContributionTypes = true;
+        } else {
+          throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM_CONTR);
+        }
       }
     }
   }

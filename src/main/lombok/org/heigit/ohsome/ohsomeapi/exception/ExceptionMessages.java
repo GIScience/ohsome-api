@@ -39,8 +39,11 @@ public class ExceptionMessages {
       "The given query is too large in respect to the given timeout. Please use a smaller region "
           + "and/or coarser time period.";
   public static final String PROPERTIES_PARAM =
-      "The properties parameter can only contain the values 'tags' and/or 'metadata' and/or "
-          + "'contributionTypes' and/or 'unclipped'.";
+      "The properties parameter of this resource can only contain the values 'tags' and/or "
+          + "'metadata' and/or 'unclipped'.";
+  public static final String PROPERTIES_PARAM_CONTR =
+      "The properties parameter of this resource can only contain the values 'tags' and/or "
+          + "'metadata' and/or 'contributionTypes' and/or 'unclipped'.";
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";
