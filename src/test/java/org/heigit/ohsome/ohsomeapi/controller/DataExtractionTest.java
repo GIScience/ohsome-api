@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
@@ -446,7 +447,19 @@ public class DataExtractionTest {
         + "&filter=id:node/3429511451&time=2017-01-01,2019-01-01", JsonNode.class);
     JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "node/3429511451");
     assertEquals(49.418466, feature.get("geometry").get("coordinates").get(1).asDouble(), 0);
+    
   }
+    @Test
+    public void contributionTypesTest() {
+      TestRestTemplate restTemplate = new TestRestTemplate();
+      ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+          + "/contributions/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
+          + "filter=type:way and natural=*&properties=contributionTypes&time=2016-04-20,2016-04-21",
+          JsonNode.class);      
+      JsonNode featuresArray = response.getBody().get("features");
+      assertTrue(featuresArray.get(0).get("properties").has("@geometryChange"));
+      assertFalse(featuresArray.get(0).get("properties").has("@changesetId"));
+    }
 
   /*
    * ./contributions/latest tests
