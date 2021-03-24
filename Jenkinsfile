@@ -9,7 +9,6 @@ pipeline {
 
     // START CUSTOM ohsome API
     MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
-    DOC_BRANCH_REGEX = /(^[0-9]+$)|(^(([0-9]+)(\.))+([0-9]+)?$)|(^master$)/
     // END CUSTOM ohsome API
     INFER_BRANCH_REGEX = /(^master$)/
     SNAPSHOT_BRANCH_REGEX = /(^master$)/
@@ -183,8 +182,9 @@ pipeline {
     // START CUSTOM ohsome API
     stage ('Publish API Docs') {
       when {
-        expression {
-          return env.BRANCH_NAME ==~ DOC_BRANCH_REGEX
+        anyOf {
+          equals expected: true, actual: RELEASE_DEPLOY
+          equals expected: true, actual: SNAPSHOT_DEPLOY
         }
       }
       steps {
@@ -192,7 +192,7 @@ pipeline {
           DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
           DOCS_DEPLOYMENT = "development"
           API_DOCS_PATH = "development"
-          if(VERSION ==~ DOC_RELEASE_REGEX) {
+          if (VERSION ==~ DOC_RELEASE_REGEX) {
             DOCS_DEPLOYMENT = "release"
             API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
           }
