@@ -307,12 +307,6 @@ public class CountController {
   @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
       nickname = "countRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
           dataType = "string", required = false),
@@ -341,12 +335,6 @@ public class CountController {
   @ApiOperation(value = "Ratio of OSM elements grouped by the boundary",
       nickname = "countRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
           dataType = "string", required = false),

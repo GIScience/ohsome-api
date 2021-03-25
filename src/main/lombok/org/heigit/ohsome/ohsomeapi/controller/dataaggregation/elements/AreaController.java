@@ -305,12 +305,6 @@ public class AreaController {
           + "filter",
       nickname = "areaRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
           dataType = "string", required = false),
@@ -339,12 +333,6 @@ public class AreaController {
   @ApiOperation(value = "Ratio of the area of OSM elements grouped by the boundary",
       nickname = "areaRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
           dataType = "string", required = false),

@@ -177,15 +177,6 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
         .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("types")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("values")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams
         .add(new ParameterBuilder().name("filter").description(ParameterDescriptions.FILTER)
             .modelRef(new ModelRef(string)).parameterType(query)
