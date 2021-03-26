@@ -11,7 +11,7 @@ public class ExceptionMessages {
       + "input could not be parsed for the creation of the response GeoJSON.";
   public static final String BOUNDARY_PARAM_FORMAT =
       "Error in processing the boundary parameter. Please "
-          + "remember to follow the format, where you separate every coordinate with a semicolon, "
+          + "remember to follow the format, where you separate every coordinate with a comma, "
           + "each boundary object with a pipe-sign "
           + "and add optional custom ids to every first coordinate with a colon.";
   public static final String BOUNDARY_IDS_FORMAT =
