@@ -138,6 +138,13 @@ public class GeometryBuilderTest {
     InputProcessor inputProcessor = new InputProcessor(processingData);
     geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
   }
+  
+  @Test(expected = BadRequestException.class)
+  public void createGeometryFromInvalidInputGeoJson() {
+    String geoJson = "{\"type\": \"FeatureCollection\"}";
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
+  }
 
   @Test
   public void createPolygonFromGeoJson() {
