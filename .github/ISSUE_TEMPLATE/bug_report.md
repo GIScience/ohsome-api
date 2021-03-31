@@ -24,10 +24,10 @@ A clear and concise description of what you expected to happen.
 
 ### Further Information
 
-#### Error messages, logs, screenshots
+#### Error Messages, Logs, Screenshots
 If applicable, add printed error messages, log files or screenshots to help explain your problem.
 
-#### Additional information
+#### Additional Information
 Add any other further information about the problem here.
 
 ### Notes

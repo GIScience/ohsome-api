@@ -1,20 +1,17 @@
 ---
 name: Feature request
-about: Suggest an idea or enhancement to the ohsome API.
+about: Suggest an enhancement to the ohsome API.
 title: ''
 labels: 'feature request'
 assignees: ''
 
 ---
 
-### Feature Description
-Please add a clear and concise description of what your idea is, what use cases it solves.
+### Describe Use Case
+Describe the use case which would benefit from this enhancement.
 
-### Expected Solution
-Describe the solution you would like to see.
-
-### Alternative Solutions
-Describe alternatives you have considered.
+### Request Description
+Add a clear description of what enhancement you would like to have. Please be specific about the features you would like to have.
 
 ### Additional Information
 Add any other information, examples, screenshots, etc. about the feature request here.
