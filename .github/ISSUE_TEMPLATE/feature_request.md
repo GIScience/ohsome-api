@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-### Describe Use Case
+### Use Case Description
 Describe the use case which would benefit from this enhancement.
 
 ### Request Description
