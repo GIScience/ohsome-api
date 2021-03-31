@@ -11,7 +11,7 @@ assignees: ''
 Describe the use case which would benefit from this enhancement.
 
 ### Request Description
-Add a clear description of what enhancement you would like to have. Please be specific about the features you would like to have.
+Add a clear description about the enhancement. Please be specific about the features you would like to have.
 
 ### Additional Information
 Add any other information, examples, screenshots, etc. about the feature request here.
