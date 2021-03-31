@@ -132,14 +132,14 @@ public class DataExtractionTest {
   }
   
   @Test
-  public void contributionTypesValueElementsBboxTest() {
+  public void checkResponseMessageForWrongPropertiesParam() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
         + "filter=type:way and natural=*&properties=contributionTypes&time=2016-04-20,2016-04-21",
         JsonNode.class);      
     assertEquals("\"The properties parameter of this resource can only contain the values 'tags' "
-        + "and/or 'metadata' and/or 'unclipped'.\"", response.getBody().get("message").toString());
+        + "and/or 'metadata' and/or 'unclipped'.\"", response.getBody().get("message").toString());   
   }
   
   @Test

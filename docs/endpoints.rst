@@ -1518,10 +1518,11 @@ Contributions Extraction
    It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
 
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
-   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; default: empty
-   :query clipGeometry:  boolean operator to specify whether the returned geometries of the features should be clipped to the query’s spatial boundary (‘true’), or not (‘false’); default: ‘true’
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
+   :query clipGeometry:  same as for generic-extraction_
    :query <other>: see above_ (except **format**)
 
+.. _generic-extraction: endpoints.html#post--elements-(geometryType)
 .. _above: endpoints.html#post--elements-(aggregation)
 
 **Example request**:
