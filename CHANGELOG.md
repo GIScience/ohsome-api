@@ -19,7 +19,7 @@ Changelog
 
 * add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
 
-[#166]: https://github.com/GIScience/ohsome-api/issues/154
+[#166]: https://github.com/GIScience/ohsome-api/issues/166
 [#136]: https://github.com/GIScience/ohsome-api/issues/136
 
 
