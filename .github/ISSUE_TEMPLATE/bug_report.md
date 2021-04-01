@@ -31,4 +31,5 @@ If applicable, add printed error messages, log files or screenshots to help expl
 Add any other further information about the problem here.
 
 ### Notes
-Please consider to upload a file if request parameters, responses, error messages or logs are too long or poorly displayed in your bug report.
+1. Please consider to upload a file if request parameters, responses, error messages or logs are too long or poorly displayed in your bug report.
+2. Please consider to label your bug report [e.g. priority:high, upstream, etc.].

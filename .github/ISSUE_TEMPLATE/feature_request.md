@@ -15,3 +15,6 @@ Add a clear description about the enhancement. Please be specific about the feat
 
 ### Additional Information
 Add any other information, examples, screenshots, etc. about the feature request here.
+
+### Notes
+Please consider to label your enhancement request [e.g. priority:low, documentation, etc.].
