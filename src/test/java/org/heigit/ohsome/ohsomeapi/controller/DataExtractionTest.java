@@ -461,7 +461,7 @@ public class DataExtractionTest {
     
   }
     @Test
-    public void contributionTypesTest() {
+    public void contributionTypesPropertiesParameterTest() {
       TestRestTemplate restTemplate = new TestRestTemplate();
       ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
           + "/contributions/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
