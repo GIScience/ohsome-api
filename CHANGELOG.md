@@ -3,11 +3,24 @@ Changelog
 
 ## 1.5.0-SNAPSHOT (current master)
 
+### New Features
+
+* add new `contributionTypes` property to `properties` parameter ([#136])
+
+### Bug Fixes
+
+
+
+### Performance and Code Quality
+
+
+
 ### Other Changes
 
 * add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
 
-[#166]: https://github.com/GIScience/ohsome-api/issues/154
+[#166]: https://github.com/GIScience/ohsome-api/issues/166
+[#136]: https://github.com/GIScience/ohsome-api/issues/136
 
 
 ## 1.4.1

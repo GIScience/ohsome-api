@@ -90,6 +90,7 @@ public class DataRequestExecutor extends RequestExecutor {
     InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
+    final boolean includeContributionTypes = inputProcessor.includeContributionTypes();
     final boolean clipGeometries = inputProcessor.isClipGeometry();
     final boolean isContributionsLatestEndpoint =
         requestResource.equals(RequestResource.CONTRIBUTIONSLATEST);
@@ -111,7 +112,8 @@ public class DataRequestExecutor extends RequestExecutor {
     DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
         isContributionsLatestEndpoint, isContributionsEndpoint, exeUtils, clipGeometries,
         startTimestamp, utils, simpleFeatureTypes, filter.orElse(null), keysInt, includeTags,
-        includeOSMMetadata, elementsGeometry, endTimestamp, isContainingSimpleFeatureTypes);
+        includeOSMMetadata, includeContributionTypes, elementsGeometry, endTimestamp,
+        isContainingSimpleFeatureTypes);
     MapReducer<Feature> contributionPreResult = mapRedContributions
         .flatMap(dataExtractionTransformer::buildChangedFeatures)
         .filter(Objects::nonNull);

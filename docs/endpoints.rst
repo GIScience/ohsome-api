@@ -1517,6 +1517,14 @@ Contributions Extraction
    Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
    It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
 
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
+   :query clipGeometry:  same as for generic-extraction_
+   :query <other>: see above_ (except **format**)
+
+.. _generic-extraction: endpoints.html#post--elements-(geometryType)
+.. _above: endpoints.html#post--elements-(aggregation)
+
 **Example request**:
 
 Get the changes of pharmacies with opening hours in a certain area of Heidelberg in times of COVID-19

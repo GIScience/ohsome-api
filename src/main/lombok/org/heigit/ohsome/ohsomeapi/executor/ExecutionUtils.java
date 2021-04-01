@@ -382,8 +382,8 @@ public class ExecutionUtils {
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, Set<Integer> keysInt, boolean includeTags,
-      boolean includeOSMMetadata, boolean isContributionsEndpoint, ElementsGeometry elemGeom,
-      EnumSet<ContributionType> contributionTypes) {
+      boolean includeOSMMetadata, boolean includeContributionTypes, boolean isContributionsEndpoint,
+      ElementsGeometry elemGeom, EnumSet<ContributionType> contributionTypes) {
     if (geometry.isEmpty() && !contributionTypes.contains(ContributionType.DELETION)) {
       // skip invalid geometries (e.g. ways with 0 nodes)
       return null;
@@ -395,8 +395,15 @@ public class ExecutionUtils {
           .filter(t -> keysInt.contains(t.getKey())).toArray(OSHDBTag[]::new));
     }
     if (includeOSMMetadata) {
-      properties =
-          addAdditionalProperties(entity, properties, isContributionsEndpoint, contributionTypes);
+      properties.put("@version", entity.getVersion());
+      properties.put("@osmType", entity.getType());
+      properties.put("@changesetId", entity.getChangesetId());
+      if (isContributionsEndpoint) {
+      properties = addContributionTypes(properties, contributionTypes);
+    }
+    }
+    if (includeContributionTypes && !includeOSMMetadata) {
+      properties = addContributionTypes(properties, contributionTypes);
     }
     properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     GeoJSONWriter gjw = new GeoJSONWriter();
@@ -938,14 +945,9 @@ public class ExecutionUtils {
     return writer;
   }
 
-  /** Adds additional properties like the version or the changeset ID to the feature. */
-  private Map<String, Object> addAdditionalProperties(OSMEntity entity,
-      Map<String, Object> properties, boolean isContributionsEndpoint,
+  /** Adds contribution types properties like creation to the feature. */
+  private Map<String, Object> addContributionTypes(Map<String, Object> properties,
       EnumSet<ContributionType> contributionTypes) {
-    properties.put("@version", entity.getVersion());
-    properties.put("@osmType", entity.getType());
-    properties.put("@changesetId", entity.getChangesetId());
-    if (isContributionsEndpoint) {
       if (contributionTypes.contains(ContributionType.CREATION)) {
         properties.put("@creation", true);
       }
@@ -958,7 +960,6 @@ public class ExecutionUtils {
       if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
         properties.put("@geometryChange", true);
       }
-    }
     return properties;
   }
 

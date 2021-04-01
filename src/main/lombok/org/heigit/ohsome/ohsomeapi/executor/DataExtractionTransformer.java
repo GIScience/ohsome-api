@@ -33,16 +33,16 @@ public class DataExtractionTransformer implements Serializable {
   private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
+  private final boolean includeContributionTypes;
   private final ElementsGeometry elementsGeometry;
   private final String endTimestamp;
   private final boolean isContainingSimpleFeatureTypes;
 
   public DataExtractionTransformer(boolean isContributionsLatestEndpoint,
-      boolean isContributionsEndpoint, ExecutionUtils exeUtils,
-      boolean clipGeometries, String startTimestamp, InputProcessingUtils utils,
-      Set<SimpleFeatureType> simpleFeatureTypes, FilterExpression filter,
-      Set<Integer> keysInt, boolean includeTags, boolean includeOSMMetadata,
-      ElementsGeometry elementsGeometry, String endTimestamp,
+      boolean isContributionsEndpoint, ExecutionUtils exeUtils, boolean clipGeometries,
+      String startTimestamp, InputProcessingUtils utils, Set<SimpleFeatureType> simpleFeatureTypes,
+      FilterExpression filter, Set<Integer> keysInt, boolean includeTags, boolean includeOSMMetadata,
+      boolean includeContributionTypes, ElementsGeometry elementsGeometry, String endTimestamp,
       boolean isContainingSimpleFeatureTypes) {
     this.isContributionsLatestEndpoint = isContributionsLatestEndpoint;
     this.isContributionsEndpoint = isContributionsEndpoint;
@@ -55,6 +55,7 @@ public class DataExtractionTransformer implements Serializable {
     this.keysInt = keysInt;
     this.includeTags = includeTags;
     this.includeOSMMetadata = includeOSMMetadata;
+    this.includeContributionTypes = includeContributionTypes;
     this.elementsGeometry = elementsGeometry;
     this.endTimestamp = endTimestamp;
     this.isContainingSimpleFeatureTypes = isContainingSimpleFeatureTypes;
@@ -104,8 +105,8 @@ public class DataExtractionTransformer implements Serializable {
               properties.put("@timestamp", validTo);
             }
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
-                contribution.getContributionTypes()));
+                includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
+                elementsGeometry, contribution.getContributionTypes()));
           }
         }
         skipNext = false;
@@ -139,8 +140,8 @@ public class DataExtractionTransformer implements Serializable {
         boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-              includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
-              lastContribution.getContributionTypes()));
+              includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
+              elementsGeometry, lastContribution.getContributionTypes()));
         }
       }
     } else if (isContributionsEndpoint) {
@@ -150,7 +151,7 @@ public class DataExtractionTransformer implements Serializable {
       properties.put("@timestamp",
           TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
       output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
-          includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
+          includeOSMMetadata, includeContributionTypes, isContributionsEndpoint, elementsGeometry,
           lastContribution.getContributionTypes()));
     }
     return output;
@@ -175,8 +176,8 @@ public class DataExtractionTransformer implements Serializable {
     boolean addToOutput = addEntityToOutput(entity, geom);
     if (addToOutput) {
       return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
-          keysInt, includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
-          EnumSet.noneOf(ContributionType.class)));
+          keysInt, includeTags, includeOSMMetadata, includeContributionTypes,
+          isContributionsEndpoint, elementsGeometry, EnumSet.noneOf(ContributionType.class)));
     } else {
       return Collections.emptyList();
     }
