@@ -19,7 +19,7 @@ public class ResourceParameters {
    * for this is the metadata request in {@link MetadataRequestExecutor
    * #executeGetMetadata(HttpServletRequest) executeGetMetadata}.
    * 
-   * @param servletRequest
+   * @param servletRequest represents the HttpServlet request.
    * @return a list of of available parameters for the given resource.
    */
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
@@ -56,8 +56,8 @@ public class ResourceParameters {
   /**
    * Checks, if the request contains unexpected parameters for this resource.
    * 
-   * @param servletRequest
-   * @param resourceParams
+   * @param servletRequest represents the HttpServlet request.
+   * @param resourceParams represents a list of all possible parameters for the requested resource.
    * @return a list of unexpected parameters
    */
   public static List<String> checkUnexpectedParams(HttpServletRequest servletRequest,

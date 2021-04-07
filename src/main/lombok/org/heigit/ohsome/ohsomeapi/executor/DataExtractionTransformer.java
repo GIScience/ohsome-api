@@ -41,8 +41,9 @@ public class DataExtractionTransformer implements Serializable {
   public DataExtractionTransformer(boolean isContributionsLatestEndpoint,
       boolean isContributionsEndpoint, ExecutionUtils exeUtils, boolean clipGeometries,
       String startTimestamp, InputProcessingUtils utils, Set<SimpleFeatureType> simpleFeatureTypes,
-      FilterExpression filter, Set<Integer> keysInt, boolean includeTags, boolean includeOSMMetadata,
-      boolean includeContributionTypes, ElementsGeometry elementsGeometry, String endTimestamp,
+      FilterExpression filter, Set<Integer> keysInt, boolean includeTags,
+      boolean includeOSMMetadata, boolean includeContributionTypes,
+      ElementsGeometry elementsGeometry, String endTimestamp,
       boolean isContainingSimpleFeatureTypes) {
     this.isContributionsLatestEndpoint = isContributionsLatestEndpoint;
     this.isContributionsEndpoint = isContributionsEndpoint;

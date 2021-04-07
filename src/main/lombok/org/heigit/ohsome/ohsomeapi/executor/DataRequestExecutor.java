@@ -84,7 +84,7 @@ public class DataRequestExecutor extends RequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParameters.getKeys();
     final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    final ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();
     InputProcessingUtils utils = inputProcessor.getUtils();

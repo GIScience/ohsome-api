@@ -323,9 +323,12 @@ public class ExecutionUtils {
       } else if (resultSet instanceof ContributionsResult[]) {
         writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
         for (Result result : resultSet) {
-          ContributionsResult ContributionsResult = (ContributionsResult) result;
-          writer.writeNext(new String[] {ContributionsResult.getFromTimestamp(),
-              ContributionsResult.getToTimestamp(), String.valueOf(ContributionsResult.getValue())});
+          ContributionsResult contributionsResult = (ContributionsResult) result;
+          writer.writeNext(new String[] {
+              contributionsResult.getFromTimestamp(),
+              contributionsResult.getToTimestamp(),
+              String.valueOf(contributionsResult.getValue())
+          });
         }
       } else if (resultSet instanceof RatioResult[]) {
         writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
@@ -399,8 +402,8 @@ public class ExecutionUtils {
       properties.put("@osmType", entity.getType());
       properties.put("@changesetId", entity.getChangesetId());
       if (isContributionsEndpoint) {
-      properties = addContributionTypes(properties, contributionTypes);
-    }
+        properties = addContributionTypes(properties, contributionTypes);
+      }
     }
     if (includeContributionTypes && !includeOSMMetadata) {
       properties = addContributionTypes(properties, contributionTypes);
@@ -542,8 +545,9 @@ public class ExecutionUtils {
   }
 
   /** Fills the ContributionsResult array with respective ContributionsResult objects. */
-  public ContributionsResult[] fillContributionsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
-      boolean isDensity, InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
+  public ContributionsResult[] fillContributionsResult(
+      SortedMap<OSHDBTimestamp, ? extends Number> entryVal, boolean isDensity,
+      InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
     ContributionsResult[] results = new ContributionsResult[entryVal.entrySet().size()];
     int count = 0;
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
@@ -817,16 +821,17 @@ public class ExecutionUtils {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
       columnNames.add(groupByResult.getGroupByObject().toString());
       for (int j = 0; j < groupByResult.getResult().length; j++) {
-        ContributionsResult ContributionsResult = (ContributionsResult) groupByResult.getResult()[j];
+        ContributionsResult contributionsResult =
+            (ContributionsResult) groupByResult.getResult()[j];
         if (i == 0) {
           String[] row = new String[resultSet.length + 2];
-          row[0] = ContributionsResult.getFromTimestamp();
-          row[1] = ContributionsResult.getToTimestamp();
-          row[2] = String.valueOf(ContributionsResult.getValue());
+          row[0] = contributionsResult.getFromTimestamp();
+          row[1] = contributionsResult.getToTimestamp();
+          row[2] = String.valueOf(contributionsResult.getValue());
           rows.add(row);
         } else {
           int count = i + 2;
-          rows.get(j)[count] = String.valueOf(ContributionsResult.getValue());
+          rows.get(j)[count] = String.valueOf(contributionsResult.getValue());
         }
       }
     }
@@ -948,18 +953,18 @@ public class ExecutionUtils {
   /** Adds contribution types properties like creation to the feature. */
   private Map<String, Object> addContributionTypes(Map<String, Object> properties,
       EnumSet<ContributionType> contributionTypes) {
-      if (contributionTypes.contains(ContributionType.CREATION)) {
-        properties.put("@creation", true);
-      }
-      if (contributionTypes.contains(ContributionType.DELETION)) {
-        properties.put("@deletion", true);
-      }
-      if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
-        properties.put("@tagChange", true);
-      }
-      if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
-        properties.put("@geometryChange", true);
-      }
+    if (contributionTypes.contains(ContributionType.CREATION)) {
+      properties.put("@creation", true);
+    }
+    if (contributionTypes.contains(ContributionType.DELETION)) {
+      properties.put("@deletion", true);
+    }
+    if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
+      properties.put("@tagChange", true);
+    }
+    if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
+      properties.put("@geometryChange", true);
+    }
     return properties;
   }
 
