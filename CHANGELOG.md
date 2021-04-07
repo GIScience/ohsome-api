@@ -18,7 +18,7 @@ Changelog
 ### Other Changes
 
 * add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
-* properly skip GetControllerTest class if no port1 parameter is set ([#164])
+* properly skip `GetControllerTest` class if `port1` parameter is absent ([#164])
 
 [#166]: https://github.com/GIScience/ohsome-api/issues/166
 [#136]: https://github.com/GIScience/ohsome-api/issues/136
