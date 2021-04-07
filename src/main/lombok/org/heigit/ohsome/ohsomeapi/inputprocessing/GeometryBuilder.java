@@ -234,12 +234,9 @@ public class GeometryBuilder {
       boundaryIds = new Object[features.size()];
       geoJsonGeoms = new GeoJsonObject[features.size()];
     } catch (Exception e) {
-      throw new BadRequestException("Error in reading the provided GeoJSON. Please take a look at "
-          + "the documentation page for the bpolys parameter to see an example of a fitting "
-          + "GeoJSON input file.");
-    }
-    if (!"FeatureCollection".equals(root.getString("type"))) {
-      throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
+      throw new BadRequestException("Error in reading the provided GeoJSON. The given GeoJSON has "
+          + "to be of the type 'FeatureCollection'. Please take a look at the documentation page "
+          + "for the bpolys parameter to see an example of a fitting GeoJSON input file.");
     }
     int count = 0;
     for (JsonValue featureVal : features) {
