@@ -236,9 +236,9 @@ What is the density of restaurants with wheelchair access in Heidelberg?
    :query keys2: Deprecated! see **filter2**
    :query types2: Deprecated! use **filter2**
    :query values2: Deprecated! see **filter2**
-   
-.. note:: The result of a **ratio request** may contain the value **"NaN"**, for example when dividing `0` by `0`. 
-   
+
+.. note:: The result of a **ratio request** may contain the value **"NaN"**, when the ratio calculation involves a division of zero by zero.
+
 **Example request**:
 
 How many oneway streets exist within living_street streets in Heidelberg over time? And how many of them are oneway streets?
