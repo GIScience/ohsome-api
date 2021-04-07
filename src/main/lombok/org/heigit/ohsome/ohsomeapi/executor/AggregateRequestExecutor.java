@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import static org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures;
+
 import com.opencsv.CSVWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -201,9 +202,12 @@ public class AggregateRequestExecutor extends RequestExecutor {
     } else if (resultSet instanceof ContributionsResult[]) {
       ContributionsResult[] rs = (ContributionsResult[]) resultSet;
       writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
-      for (ContributionsResult ContributionsResult : rs) {
-        writer.writeNext(new String[] {ContributionsResult.getFromTimestamp(), ContributionsResult.getToTimestamp(),
-            String.valueOf(ContributionsResult.getValue())});
+      for (ContributionsResult contributionsResult : rs) {
+        writer.writeNext(new String[] {
+            contributionsResult.getFromTimestamp(),
+            contributionsResult.getToTimestamp(),
+            String.valueOf(contributionsResult.getValue())
+        });
       }
     } else if (resultSet instanceof RatioResult[]) {
       RatioResult[] rs = (RatioResult[]) resultSet;
