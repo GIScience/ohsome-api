@@ -399,8 +399,8 @@ public class ExecutionUtils {
       properties.put("@osmType", entity.getType());
       properties.put("@changesetId", entity.getChangesetId());
       if (isContributionsEndpoint) {
-      properties = addContributionTypes(properties, contributionTypes);
-    }
+        properties = addContributionTypes(properties, contributionTypes);
+      }
     }
     if (includeContributionTypes && !includeOSMMetadata) {
       properties = addContributionTypes(properties, contributionTypes);
@@ -948,18 +948,18 @@ public class ExecutionUtils {
   /** Adds contribution types properties like creation to the feature. */
   private Map<String, Object> addContributionTypes(Map<String, Object> properties,
       EnumSet<ContributionType> contributionTypes) {
-      if (contributionTypes.contains(ContributionType.CREATION)) {
-        properties.put("@creation", true);
-      }
-      if (contributionTypes.contains(ContributionType.DELETION)) {
-        properties.put("@deletion", true);
-      }
-      if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
-        properties.put("@tagChange", true);
-      }
-      if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
-        properties.put("@geometryChange", true);
-      }
+    if (contributionTypes.contains(ContributionType.CREATION)) {
+      properties.put("@creation", true);
+    }
+    if (contributionTypes.contains(ContributionType.DELETION)) {
+      properties.put("@deletion", true);
+    }
+    if (contributionTypes.contains(ContributionType.TAG_CHANGE)) {
+      properties.put("@tagChange", true);
+    }
+    if (contributionTypes.contains(ContributionType.GEOMETRY_CHANGE)) {
+      properties.put("@geometryChange", true);
+    }
     return properties;
   }
 
