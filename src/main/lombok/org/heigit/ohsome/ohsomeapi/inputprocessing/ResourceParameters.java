@@ -19,7 +19,7 @@ public class ResourceParameters {
    * for this is the metadata request in {@link MetadataRequestExecutor
    * #executeGetMetadata(HttpServletRequest) executeGetMetadata}.
    * 
-   * @param servletRequest represents the request.
+   * @param servletRequest represents the HttpServlet request.
    * @return a list of of available parameters for the given resource.
    */
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
