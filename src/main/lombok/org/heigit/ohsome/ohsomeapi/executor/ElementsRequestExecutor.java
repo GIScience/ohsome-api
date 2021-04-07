@@ -512,8 +512,8 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    final ProcessingData processingData = inputProcessor.getProcessingData();
+    final RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
@@ -761,8 +761,8 @@ public class ElementsRequestExecutor {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    final ProcessingData processingData = inputProcessor.getProcessingData();
+    final RequestParameters requestParameters = processingData.getRequestParameters();
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -963,13 +963,14 @@ public class ElementsRequestExecutor {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
+    final String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
+    final String filter2 =
+        inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
-    String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
-    FilterParser fp = new FilterParser(DbConnData.tagTranslator);
-    FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
-    FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
+    final String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
+    final FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+    final FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
+    final FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
     RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
         isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
         servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
