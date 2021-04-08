@@ -13,9 +13,9 @@ A clear and concise description of what the bug is.
 ### General Information
 Please include the following general information about the issue and list any additional steps needed to reproduce the bug.
  - Version of the ohsome API [e.g. `1.4.0`]
- - Which API instance was requested [e.g. `https://api.ohsome.org/v1`]
+ - Which API instance was requested [e.g. remote instance, local instance with an h2 file or to the cluster connected, ohsome dashboard, etc.]
  - Affected endpoint(s) [e.g. /contributions/count]
- - URL of your request
+ - URL of your request (and request body if applicable)
  - Used HTTP method [GET or POST]
  - Utilized tool/library for the request [e.g. cURL, Postman, ohsome-py, etc.]
 
