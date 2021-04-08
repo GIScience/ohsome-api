@@ -126,6 +126,25 @@ public class GeometryBuilderTest {
     InputProcessor inputProcessor = new InputProcessor(processingData);
     geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
   }
+  
+  @Test(expected = BadRequestException.class)
+  public void createPolygonFromGeoJsonWithWrongFormat() {
+    String geoJson =
+        "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"MultiPolygon\",\"coordinates\":"
+            + "[[[[8.2944706,49.4313443],[8.2943343,49.4311946],[8.2942287,49.4313051],"
+            + "[8.2942929,49.4313993],[8.2940648,49.4314931],[8.2931602,49.4328216],"
+            + "[8.2933214,49.4329125],[8.2936734,49.4330121],[8.2940745,49.4331354],"
+            + "[8.2950478,49.4317345],[8.2944706,49.4313443]]]]}]}";
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
+  }
+  
+  @Test(expected = BadRequestException.class)
+  public void createGeometryFromInvalidInputGeoJson() {
+    String geoJson = "{\"type\": \"FeatureCollection\"}";
+    InputProcessor inputProcessor = new InputProcessor(processingData);
+    geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor);
+  }
 
   @Test
   public void createPolygonFromGeoJson() {

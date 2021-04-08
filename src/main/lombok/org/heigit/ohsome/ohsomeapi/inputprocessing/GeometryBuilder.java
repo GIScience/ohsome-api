@@ -225,17 +225,19 @@ public class GeometryBuilder {
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
     ArrayList<Geometry> geometryList = new ArrayList<>();
     JsonObject root = null;
+    JsonArray features;
+    Object[] boundaryIds;
+    GeoJsonObject[] geoJsonGeoms;
     try (JsonReader jsonReader = Json.createReader(new StringReader(geoJson))) {
       root = jsonReader.readObject();
+      features = root.getJsonArray("features");
+      boundaryIds = new Object[features.size()];
+      geoJsonGeoms = new GeoJsonObject[features.size()];
     } catch (Exception e) {
-      throw new BadRequestException("Error in reading of the given GeoJSON.");
+      throw new BadRequestException("Error in reading the provided GeoJSON. The given GeoJSON has "
+          + "to be of the type 'FeatureCollection'. Please take a look at the documentation page "
+          + "for the bpolys parameter to see an example of a fitting GeoJSON input file.");
     }
-    if (!"FeatureCollection".equals(root.getString("type"))) {
-      throw new BadRequestException("The given GeoJSON has to be of the type 'FeatureCollection'.");
-    }
-    JsonArray features = root.getJsonArray("features");
-    Object[] boundaryIds = new Object[features.size()];
-    GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[features.size()];
     int count = 0;
     for (JsonValue featureVal : features) {
       JsonObject feature = featureVal.asJsonObject();
@@ -254,16 +256,18 @@ public class GeometryBuilder {
       } catch (Exception e) {
         throw new BadRequestException("The provided custom id(s) could not be parsed.");
       }
-      JsonObject geomObj = feature.getJsonObject("geometry");
-      checkGeometryTypeOfFeature(geomObj);
       try {
+        JsonObject geomObj = feature.getJsonObject("geometry");
+        checkGeometryTypeOfFeature(geomObj);
         GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
         geometryList.add(currentResult);
         geoJsonGeoms[count - 1] =
             new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
       } catch (Exception e) {
-        throw new BadRequestException("The provided GeoJSON cannot be converted.");
+        throw new BadRequestException("The provided GeoJSON cannot be converted. Please take a "
+            + "look at the documentation page for the bpolys parameter to see an example of a "
+            + "fitting GeoJSON input file.");
       }
     }
     Geometry result = unifyPolys(geometryList);

@@ -9,7 +9,7 @@ Changelog
 
 ### Bug Fixes
 
-
+* fix uncaught GeoJSON parsing exception ([#55])
 
 ### Performance and Code Quality
 
@@ -18,14 +18,17 @@ Changelog
 ### Other Changes
 
 * add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
+* properly skip `GetControllerTest` class if `port1` parameter is absent ([#164])
 
 [#166]: https://github.com/GIScience/ohsome-api/issues/166
 [#136]: https://github.com/GIScience/ohsome-api/issues/136
+[#55]: https://github.com/GIScience/ohsome-api/issues/55
+[#164]: https://github.com/GIScience/ohsome-api/pull/164
 
 
 ## 1.4.1
 
-* ugrade OSHDB to version [OSHDB#0.6.4], fixes thw following two bugs:
+* upgrade OSHDB to version [OSHDB#0.6.4], fixes the following two bugs:
 * fix crash when a non-existent tag is used in a filter ([#154])
 * fix crash in `groupBy/boundary` queries caused by invalid OSM geometries ([OSHDB#362])
 

@@ -46,7 +46,9 @@ public class GetControllerTest {
   /** Stops this application context. */
   @AfterClass
   public static void applicationMainShutdown() {
-    SpringApplication.exit(Application.getApplicationContext(), () -> 0);
+    if (Application.getApplicationContext() != null) {
+      SpringApplication.exit(Application.getApplicationContext(), () -> 0);
+    }
   }
 
   /** Method to get response body as String. */

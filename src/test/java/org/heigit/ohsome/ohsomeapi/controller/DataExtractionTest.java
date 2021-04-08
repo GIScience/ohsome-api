@@ -44,7 +44,7 @@ public class DataExtractionTest {
   /** Stops this application context. */
   @AfterClass
   public static void applicationMainShutdown() {
-    if (null != Application.getApplicationContext()) {
+    if (Application.getApplicationContext() != null) {
       SpringApplication.exit(Application.getApplicationContext(), () -> 0);
     }
   }

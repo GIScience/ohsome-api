@@ -143,7 +143,6 @@ public class InputProcessingUtils {
     try {
       if (bpolysArray[0].contains(":")) {
         boundaryParamValues = splitBpolysWithIds(bpolysArray);
-
       } else if (bpolysArray[0].contains(",")) {
         boundaryParamValues = splitBoundariesWithoutIds(bpolysArray, BoundaryType.BPOLYS);
       } else {
