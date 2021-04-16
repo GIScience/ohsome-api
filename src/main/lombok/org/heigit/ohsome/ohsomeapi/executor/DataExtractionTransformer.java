@@ -24,6 +24,9 @@ import org.wololo.geojson.Feature;
  * Used by data extraction requests to create GeoJSON features from OSM entities.
  */
 public class DataExtractionTransformer implements Serializable {
+  private static final String VALID_TO_PROPERTY = "@validTo";
+  private static final String VALID_FROM_PROPERTY = "@validFrom";
+  private static final String TIMESTAMP_PROPERTY = "@timestamp";
 
   private final String startTimestamp;
   private final String endTimestamp;
@@ -146,10 +149,10 @@ public class DataExtractionTransformer implements Serializable {
           if (addToOutput) {
             properties = new TreeMap<>();
             if (!isContributionsEndpoint) {
-              properties.put("@validFrom", validFrom);
-              properties.put("@validTo", validTo);
+              properties.put(VALID_FROM_PROPERTY, validFrom);
+              properties.put(VALID_TO_PROPERTY, validTo);
             } else {
-              properties.put("@timestamp", validTo);
+              properties.put(TIMESTAMP_PROPERTY, validTo);
             }
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
                 includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
@@ -177,10 +180,10 @@ public class DataExtractionTransformer implements Serializable {
       validTo = endTimestamp;
       properties = new TreeMap<>();
       if (!isContributionsEndpoint) {
-        properties.put("@validFrom", validFrom);
-        properties.put("@validTo", validTo);
+        properties.put(VALID_FROM_PROPERTY, validFrom);
+        properties.put(VALID_TO_PROPERTY, validTo);
       } else {
-        properties.put("@timestamp",
+        properties.put(TIMESTAMP_PROPERTY,
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
       }
       if (!currentGeom.isEmpty()) {
@@ -195,7 +198,7 @@ public class DataExtractionTransformer implements Serializable {
       // adds the deletion feature for a /contributions request
       currentGeom = exeUtils.getGeometry(lastContribution, clipGeometries, true);
       properties = new TreeMap<>();
-      properties.put("@timestamp",
+      properties.put(TIMESTAMP_PROPERTY,
           TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
       output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
           includeOSMMetadata, includeContributionTypes, isContributionsEndpoint, outputGeometry,
@@ -231,8 +234,8 @@ public class DataExtractionTransformer implements Serializable {
     }
     properties.put("@snapshotTimestamp",
         TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
-    properties.put("@validFrom", startTimestamp);
-    properties.put("@validTo", endTimestamp);
+    properties.put(VALID_FROM_PROPERTY, startTimestamp);
+    properties.put(VALID_TO_PROPERTY, endTimestamp);
     boolean addToOutput = addEntityToOutput(entity, geom);
     if (addToOutput) {
       return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
