@@ -73,7 +73,7 @@ To run the tests locally, you need the following:
 
 *Note:* 
 * You can disable the integration and/or junit tests via the following properties: `-Dintegration="no" -Djunit="no"`
-* If you do not define the -Dport_xyz property, the corresponding test class will not be executed
+* If you do not define the `port_get`, `port_post`, and/or `port_data` properties, the respective test classes will not be executed
 
 ## Examples
 
