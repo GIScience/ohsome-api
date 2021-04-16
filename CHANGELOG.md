@@ -10,6 +10,7 @@ Changelog
 ### Bug Fixes
 
 * fix uncaught GeoJSON parsing exception ([#55])
+* fix a bug where `getMetadataTest` unit test fails in certain setups ([#175])
 
 ### Performance and Code Quality
 
