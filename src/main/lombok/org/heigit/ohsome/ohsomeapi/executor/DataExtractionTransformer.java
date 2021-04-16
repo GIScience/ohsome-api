@@ -20,6 +20,9 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.geojson.Feature;
 
+/**
+ * Used by data extraction requests to create GeoJSON features from OSM entities.
+ */
 public class DataExtractionTransformer implements Serializable {
 
   private final boolean isContributionsLatestEndpoint;
@@ -28,16 +31,49 @@ public class DataExtractionTransformer implements Serializable {
   private final boolean clipGeometries;
   private final String startTimestamp;
   private final InputProcessingUtils utils;
+  @Deprecated
   private final Set<SimpleFeatureType> simpleFeatureTypes;
   private final FilterExpression filter;
+  @Deprecated
   private final Set<Integer> keysInt;
   private final boolean includeTags;
   private final boolean includeOSMMetadata;
   private final boolean includeContributionTypes;
   private final ElementsGeometry elementsGeometry;
   private final String endTimestamp;
+  @Deprecated
   private final boolean isContainingSimpleFeatureTypes;
 
+  /**
+   * Creates a new data extraction transformer, adhering to the given parameters.
+   *
+   * @param isContributionsLatestEndpoint set true if the requested resource is a
+   *                                      `/contributions/latest` endpoint
+   * @param isContributionsEndpoint set true if the requested resource is a
+   *                                `/contributions` endpoint
+   * @param exeUtils the execution utils object
+   * @param clipGeometries whether or not the output geometries should be clipped to the query
+   *                       area-of-interest or not
+   * @param startTimestamp start timestamp of the query
+   * @param utils input processing utility object
+   * @param simpleFeatureTypes if the query uses the (deprecated) types parameter, and it contains
+   *                           simple feature "geometry" types, specify the set of to be returned
+   *                           geometry types here
+   * @param filter the filter of the query
+   * @param keysInt (for the deprecated `keys` filter parameter) set the list of always to be
+   *                returned OSM tags in the GeoJSON's features' properties
+   * @param includeTags set true if the result should include all OSM entity's tags as GeoJSON
+   *                    feature properties
+   * @param includeOSMMetadata set true if the result should include the OSM entity metadata (e.g.
+   *                           cahngeset id, timestamp, version number)
+   * @param includeContributionTypes set true if the result should include the contribution type
+   *                                 for `/elements/contributions` resources
+   * @param elementsGeometry specifies what should be returned as the GeoJSON feature's geometry:
+   *                         either the full geometry, its bbox or its centroid.
+   * @param endTimestamp end timestamp of the query
+   * @param isContainingSimpleFeatureTypes set true if the query uses the (deprecated) types
+   *                                       parameter and it contains simple feature "geometry" types
+   */
   public DataExtractionTransformer(boolean isContributionsLatestEndpoint,
       boolean isContributionsEndpoint, ExecutionUtils exeUtils, boolean clipGeometries,
       String startTimestamp, InputProcessingUtils utils, Set<SimpleFeatureType> simpleFeatureTypes,
@@ -62,6 +98,19 @@ public class DataExtractionTransformer implements Serializable {
     this.isContainingSimpleFeatureTypes = isContainingSimpleFeatureTypes;
   }
 
+  /**
+   * Returns a list of GeoJSON features representing the given OSM contributions.
+   *
+   * <p>
+   *   The output is slightly different between the `/contributions` endpoint and the full history
+   *   data extraction, but always one GeoJSON feature for each modification of an OSM entity is
+   *   returned. Contribution endpoints optionally return the contribution type annotated in the
+   *   resulting GeoJSON properties, while full history endpoints include validFrom-validTo dates.
+   * </p>
+   *
+   * @param contributions The list of modifications of a single OSMEntity.
+   * @return A list of GeoJSON features corresponding to the given OSM entity's modifications.
+   */
   public List<Feature> buildChangedFeatures(List<OSMContribution> contributions) {
     List<Feature> output = new LinkedList<>();
     Map<String, Object> properties;
@@ -158,6 +207,19 @@ public class DataExtractionTransformer implements Serializable {
     return output;
   }
 
+  /**
+   * Returns either a singleton of the given OSM entity (snapshot), or an empty list, if it doesn't
+   * match the given (simple feature type) filter.
+   *
+   * <p>
+   *   This is only used by full history data extraction requests, to also include entities in the
+   *   result which don't change at all during the given start and end times.
+   * </p>
+   *
+   * @param snapshot The osm entity to return.
+   * @return Either a singleton of a GeoJSON feature representing this OSM entity, or an
+   *         empty collection if it doesn't fit the given (simple feature types) filter.
+   */
   public List<Feature> buildUnchangedFeatures(OSMEntitySnapshot snapshot) {
     Map<String, Object> properties = new TreeMap<>();
     OSMEntity entity = snapshot.getEntity();
@@ -185,7 +247,7 @@ public class DataExtractionTransformer implements Serializable {
   }
 
   /** Checks whether the given entity should be added to the output (true) or not (false). */
-  public boolean addEntityToOutput(OSMEntity currentEntity, Geometry currentGeom) {
+  private boolean addEntityToOutput(OSMEntity currentEntity, Geometry currentGeom) {
     if (isContainingSimpleFeatureTypes) {
       return utils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
     } else {
