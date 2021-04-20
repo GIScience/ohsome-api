@@ -60,6 +60,9 @@ pipeline {
     stage ('Reports and Statistics') {
       steps {
         script {
+          withSonarQubeEnv('sonarcloud GIScience/ohsome') {
+            sh "mvn sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME}"
+          }
           report_basedir = "/srv/reports/${REPO_NAME}/${VERSION}_${env.BRANCH_NAME}/${env.BUILD_NUMBER}_${LATEST_COMMIT_ID}"
 
           // jacoco
