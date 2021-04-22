@@ -159,14 +159,12 @@ These services use the ohsome API:
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
 * [ohsome quality analyst](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
 
-<p>
 This is a list of clients for the ohsome API:
    
 * [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py)
 * [ohsome2x](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome2x)
 * [QGIS plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin)
 
-<p>
 You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
 
 ## Built With
