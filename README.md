@@ -107,9 +107,6 @@ DOCS_DEPLOYMENT=release make clean html
 
 ## Examples
 
-This section gives you an overview on analysis using the ohsome API as well as a JSON response example.
-
-<p>
 The following blog posts describe analysis, which were using the ohsome API:
    
 * [Farm shops are ohsome](http://k1z.blog.uni-heidelberg.de/2019/07/05/farm-shops-are-ohsome/)
@@ -160,14 +157,14 @@ These services use the ohsome API:
 * [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/3/0/0)
 * [ohsome dashboard](https://ohsome.org/apps/dashboard/)
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
-* [ohsome quality analyst] (https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
+* [ohsome quality analyst](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
 
 <p>
 This is a list of clients for the ohsome API:
    
 * [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py)
 * [ohsome2x](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome2x)
-* [QGIS plugin] (https://github.com/MichaelsJP/ohsome-qgis-plugin)
+* [QGIS plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin)
 
 ## Built With
 
