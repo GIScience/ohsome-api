@@ -76,11 +76,38 @@ To run the tests locally, you need the following:
 * You can disable the integration and/or junit tests via the following properties: `-Dintegration="no" -Djunit="no"`
 * If you do not define the `port_get`, `port_post`, and/or `port_data` properties, the respective test classes will not be executed
 
+## Documentation
+
+[Install Sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html) before running the following commands e.g. by using this commands:
+```bash
+cd docs
+pip3 install -r requirements.txt
+```
+
+To update the ohsome API swagger files for the documentation:
+```bash
+cd docs
+wget 'https://api.ohsome.org/v1/docs?group=Data%20Aggregation' -O _static/swagger-aggregation.json
+wget 'https://api.ohsome.org/v1/docs?group=Data%20Extraction' -O _static/swagger-extraction.json
+wget 'https://api.ohsome.org/v1/docs?group=Metadata' -O _static/swagger-metadata.json
+```
+
+The documentation can be built with the following command:
+```bash
+cd docs
+make clean # if you want to recreate all pages
+make html
+```
+
+If you want to see the release version of the ohsome API docs, use this environment variable:
+```bash
+cd docs
+DOCS_DEPLOYMENT=release make clean html
+```
+
 ## Examples
 
-This section gives you an overview on analysis and services, that were/are using the ohsome API, as well as a JSON response example.<p>
-<p>
-
+This section gives you an overview on analysis using the ohsome API as well as a JSON response example.
 
 <p>
 The following blog posts describe analysis, which were using the ohsome API:
@@ -90,14 +117,6 @@ The following blog posts describe analysis, which were using the ohsome API:
 * [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
 * [Exploring OSM history: the example of health related amenities](http://k1z.blog.uni-heidelberg.de/2019/05/16/exploring-osm-history-the-example-of-health-realted-amenities/)
 * several posts of the [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/) series
-
-<p>
-These services are using the ohsome API:
-   
-* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/2/0/0)
-* [ohsome dashboard](https://ohsome.org/apps/dashboard/)
-* [ohsome2label](https://github.com/GIScience/ohsome2label)
-
 
 Here you see an example response giving the length of residential roads for a bounding box around the german city Heidelberg.
 
@@ -134,34 +153,21 @@ Here you see an example response giving the length of residential roads for a bo
 }
 ```
 
-## Documentation
+# Services/Clients
 
-[Install Sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html) before running the following commands e.g. by using this commands:
-```bash
-cd docs
-pip3 install -r requirements.txt
-```
+These services use the ohsome API:
+   
+* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/3/0/0)
+* [ohsome dashboard](https://ohsome.org/apps/dashboard/)
+* [ohsome2label](https://github.com/GIScience/ohsome2label)
+* [ohsome quality analyst] (https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
 
-To update the ohsome API swagger files for the documentation:
-```bash
-cd docs
-wget 'https://api.ohsome.org/v1/docs?group=Data%20Aggregation' -O _static/swagger-aggregation.json
-wget 'https://api.ohsome.org/v1/docs?group=Data%20Extraction' -O _static/swagger-extraction.json
-wget 'https://api.ohsome.org/v1/docs?group=Metadata' -O _static/swagger-metadata.json
-```
-
-The documentation can be built with the following command:
-```bash
-cd docs
-make clean # if you want to recreate all pages
-make html
-```
-
-If you want to see the release version of the ohsome API docs, use this environment variable:
-```bash
-cd docs
-DOCS_DEPLOYMENT=release make clean html
-```
+<p>
+This is a list of clients for the ohsome API:
+   
+* [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py)
+* [ohsome2x](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome2x)
+* [QGIS plugin] (https://github.com/MichaelsJP/ohsome-qgis-plugin)
 
 ## Built With
 
