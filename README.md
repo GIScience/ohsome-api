@@ -150,7 +150,7 @@ Here you see an example response giving the length of residential roads for a bo
 }
 ```
 
-# Services/Clients
+# Services, Clients and Dockerized Version
 
 These services use the ohsome API:
    
@@ -165,6 +165,9 @@ This is a list of clients for the ohsome API:
 * [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py)
 * [ohsome2x](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome2x)
 * [QGIS plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin)
+
+<p>
+You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized)
 
 ## Built With
 
