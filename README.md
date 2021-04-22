@@ -107,7 +107,7 @@ DOCS_DEPLOYMENT=release make clean html
 
 ## Examples
 
-The following blog posts describe analysis, which were using the ohsome API:
+The following blog posts describe analysis which were using the ohsome API:
    
 * [Farm shops are ohsome](http://k1z.blog.uni-heidelberg.de/2019/07/05/farm-shops-are-ohsome/)
 * [Plausible Parrots - HeiGIT’s OSHDB Supports Research in Citizen Science Data Quality](http://k1z.blog.uni-heidelberg.de/2019/02/27/plausible-parrots-heigits-oshdb-supports-research-in-citizen-science-data-quality/)
@@ -167,7 +167,7 @@ This is a list of clients for the ohsome API:
 * [QGIS plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin)
 
 <p>
-You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized)
+You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
 
 ## Built With
 
