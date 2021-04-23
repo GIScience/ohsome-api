@@ -113,7 +113,7 @@ public class ElementsRequestExecutor {
     String[] keys = requestParameters.getKeys();
     final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     final MapReducer<Feature> preResult;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    final ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
@@ -198,11 +198,10 @@ public class ElementsRequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    var preResult = mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+    var preResult = mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
         .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(OSMEntitySnapshot::getGeometry);
-    var result = exeUtils.computeNestedResult(requestResource, preResult);
+    var result = ExecutionUtils.computeNestedResult(requestResource, preResult);
     var groupByResult = OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -211,8 +210,8 @@ public class ElementsRequestExecutor {
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
     for (var entry : groupByResult.entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
-      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
-          requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
       int tagValue = entry.getKey().getSecondIndex().getValue();
       String tagIdentifier;
       // check for non-remainder objects (which do have the defined key and value)
@@ -236,8 +235,9 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -281,7 +281,6 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -294,17 +293,17 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
       }
     }
-    var preResult = mapRed.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+    var preResult = mapRed.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     Geometry geom = inputProcessor.getGeometry();
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, geom);
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -325,8 +324,9 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -360,19 +360,18 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(
         (SerializableFunction<OSMEntitySnapshot, OSMType>) f -> f.getEntity().getType(),
         processingData.getOsmTypes());
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     Geometry geom = inputProcessor.getGeometry();
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, geom);
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
@@ -385,8 +384,9 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -426,7 +426,6 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -450,14 +449,14 @@ public class ElementsRequestExecutor {
           return res;
         }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
             .map(Pair::getValue);
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, null);
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -477,8 +476,9 @@ public class ElementsRequestExecutor {
               inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -558,7 +558,6 @@ public class ElementsRequestExecutor {
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    ExecutionUtils tempExecutionUtils = new ExecutionUtils(processingData);
     MapReducer<OSMEntitySnapshot> mapRed = null;
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
@@ -579,12 +578,12 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters();
     }
     mapRed = mapRed.osmType(osmTypes);
-    mapRed = tempExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
+    mapRed = ExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
         simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
     var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
-      boolean matches1 = tempExecutionUtils.snapshotMatches(snapshot, osmTypes1,
+      boolean matches1 = ExecutionUtils.snapshotMatches(snapshot, osmTypes1,
           simpleFeatureTypes1, keysInt1, valuesInt1);
-      boolean matches2 = tempExecutionUtils.snapshotMatches(snapshot, osmTypes2,
+      boolean matches2 = ExecutionUtils.snapshotMatches(snapshot, osmTypes2,
           simpleFeatureTypes2, keysInt2, valuesInt2);
       if (matches1 && matches2) {
         return MatchType.MATCHESBOTH;
@@ -598,8 +597,7 @@ public class ElementsRequestExecutor {
         return MatchType.MATCHESNONE;
       }
     }, EnumSet.allOf(MatchType.class));
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     Double[] value1 = new Double[resultSize / 4];
     Double[] value2 = new Double[resultSize / 4];
@@ -627,6 +625,7 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
   }
@@ -661,12 +660,11 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    final ProcessingData processingData = inputProcessor.getProcessingData();
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
     String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
-    String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
+    String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
@@ -699,7 +697,7 @@ public class ElementsRequestExecutor {
         return MatchType.MATCHESNONE;
       }
     }, EnumSet.allOf(MatchType.class));
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     int matchTypeSize = 4;
     Double[] value1 = new Double[resultSize / matchTypeSize];
@@ -728,6 +726,7 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
   }
@@ -834,16 +833,15 @@ public class ElementsRequestExecutor {
     @SuppressWarnings({"unchecked"})
     Map<Integer, P> geoms =
         arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    mapRed2 = exeUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
+    mapRed2 = ExecutionUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
         simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
     var preResult =
         mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
-          boolean matches1 = exeUtils.snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1,
-              keysInt1, valuesInt1);
-          boolean matches2 = exeUtils.snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2,
-              keysInt2, valuesInt2);
+          boolean matches1 = ExecutionUtils.snapshotMatches(snapshot,
+              osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1);
+          boolean matches2 = ExecutionUtils.snapshotMatches(snapshot,
+              osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
           if (matches1 && matches2) {
             return MatchType.MATCHESBOTH;
           } else if (matches1) {
@@ -893,9 +891,9 @@ public class ElementsRequestExecutor {
         timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues2 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues1 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
@@ -919,6 +917,7 @@ public class ElementsRequestExecutor {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
         resultValues2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
@@ -962,12 +961,11 @@ public class ElementsRequestExecutor {
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     final String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
     final String filter2 =
         inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
-    final String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
+    final String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
     final FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     final FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     final FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
@@ -1046,9 +1044,9 @@ public class ElementsRequestExecutor {
         timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues2 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues1 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
@@ -1072,6 +1070,7 @@ public class ElementsRequestExecutor {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
         resultValues2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);

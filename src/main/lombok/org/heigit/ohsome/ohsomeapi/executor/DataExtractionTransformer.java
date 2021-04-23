@@ -127,7 +127,7 @@ public class DataExtractionTransformer implements Serializable {
       } else {
         // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
         currentEntity = firstContribution.getEntityBefore();
-        currentGeom = exeUtils.getGeometry(firstContribution, clipGeometries, true);
+        currentGeom = ExecutionUtils.getGeometry(firstContribution, clipGeometries, true);
         validFrom = startTimestamp;
       }
       // then for each contribution:
@@ -139,7 +139,7 @@ public class DataExtractionTransformer implements Serializable {
         OSMContribution contribution = contributions.get(i);
         if (isContributionsEndpoint) {
           currentEntity = contribution.getEntityAfter();
-          currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
+          currentGeom = ExecutionUtils.getGeometry(contribution, clipGeometries, false);
           validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         }
         // set valid_to of previous row
@@ -166,14 +166,14 @@ public class DataExtractionTransformer implements Serializable {
         } else if (!isContributionsEndpoint) {
           // else: take "after" as next row
           currentEntity = contribution.getEntityAfter();
-          currentGeom = exeUtils.getGeometry(contribution, clipGeometries, false);
+          currentGeom = ExecutionUtils.getGeometry(contribution, clipGeometries, false);
           validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
         }
       }
     }
     // after loop:
     OSMContribution lastContribution = contributions.get(contributions.size() - 1);
-    currentGeom = exeUtils.getGeometry(lastContribution, clipGeometries, false);
+    currentGeom = ExecutionUtils.getGeometry(lastContribution, clipGeometries, false);
     currentEntity = lastContribution.getEntityAfter();
     if (!lastContribution.is(ContributionType.DELETION)) {
       // if last contribution was not "deletion": set valid_to = t_end
@@ -196,7 +196,7 @@ public class DataExtractionTransformer implements Serializable {
       }
     } else if (isContributionsEndpoint) {
       // adds the deletion feature for a /contributions request
-      currentGeom = exeUtils.getGeometry(lastContribution, clipGeometries, true);
+      currentGeom = ExecutionUtils.getGeometry(lastContribution, clipGeometries, true);
       properties = new TreeMap<>();
       properties.put(TIMESTAMP_PROPERTY,
           TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));

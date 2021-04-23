@@ -49,10 +49,9 @@ public class ContributionsExecutor extends RequestExecutor {
     } else {
       result = mapRed.aggregateByTimestamp().count();
     }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ContributionsResult[] results = exeUtils.fillContributionsResult(result,
+    ContributionsResult[] results = ExecutionUtils.fillContributionsResult(result,
         requestParameters.isDensity(), inputProcessor, df, geom);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
@@ -67,8 +66,9 @@ public class ContributionsExecutor extends RequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(results, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
