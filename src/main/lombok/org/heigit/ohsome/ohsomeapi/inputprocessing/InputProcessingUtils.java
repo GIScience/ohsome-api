@@ -33,7 +33,7 @@ import org.locationtech.jts.geom.Puntal;
 public class InputProcessingUtils implements Serializable {
 
   private static final String GEOMCOLLTYPE = "GeometryCollection";
-  private Object[] boundaryIds;
+  private Serializable[] boundaryIds;
   private String[] toTimestamps = null;
 
   /**
@@ -86,7 +86,7 @@ public class InputProcessingUtils implements Serializable {
   public List<String> splitBboxes(String bboxes) {
     String[] bboxesArray = splitOnHyphen(bboxes);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Object[bboxesArray.length];
+    boundaryIds = new Serializable[bboxesArray.length];
     try {
       if (bboxesArray[0].contains(":")) {
         boundaryParamValues = splitBboxesWithIds(bboxesArray);
@@ -113,7 +113,7 @@ public class InputProcessingUtils implements Serializable {
   public List<String> splitBcircles(String bcircles) {
     String[] bcirclesArray = splitOnHyphen(bcircles);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Object[bcirclesArray.length];
+    boundaryIds = new Serializable[bcirclesArray.length];
     try {
       if (bcirclesArray[0].contains(":")) {
         boundaryParamValues = splitBcirclesWithIds(bcirclesArray);
@@ -140,7 +140,7 @@ public class InputProcessingUtils implements Serializable {
   public List<String> splitBpolys(String bpolys) {
     String[] bpolysArray = splitOnHyphen(bpolys);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Object[bpolysArray.length];
+    boundaryIds = new Serializable[bpolysArray.length];
     try {
       if (bpolysArray[0].contains(":")) {
         boundaryParamValues = splitBpolysWithIds(bpolysArray);
@@ -619,7 +619,7 @@ public class InputProcessingUtils implements Serializable {
     return toTimestamps;
   }
 
-  public void setBoundaryIds(Object[] boundaryIds) {
+  public void setBoundaryIds(Serializable[] boundaryIds) {
     this.boundaryIds = boundaryIds;
   }
 

@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -226,12 +227,12 @@ public class GeometryBuilder {
     ArrayList<Geometry> geometryList = new ArrayList<>();
     JsonObject root = null;
     JsonArray features;
-    Object[] boundaryIds;
+    Serializable[] boundaryIds;
     GeoJsonObject[] geoJsonGeoms;
     try (JsonReader jsonReader = Json.createReader(new StringReader(geoJson))) {
       root = jsonReader.readObject();
       features = root.getJsonArray("features");
-      boundaryIds = new Object[features.size()];
+      boundaryIds = new Serializable[features.size()];
       geoJsonGeoms = new GeoJsonObject[features.size()];
     } catch (Exception e) {
       throw new BadRequestException("Error in reading the provided GeoJSON. The given GeoJSON has "
@@ -322,7 +323,7 @@ public class GeometryBuilder {
    * @return <code>Object</code> having the custom id of type <code>String</code> or
    *         <code>Integer</code>
    */
-  private Object createBoundaryIdFromJsonObjectId(JsonObject jsonObject,
+  private Serializable createBoundaryIdFromJsonObjectId(JsonObject jsonObject,
       InputProcessor inputProcessor) {
     if (jsonObject.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
       String id = jsonObject.getString("id");
