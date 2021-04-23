@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
+import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,7 @@ import org.locationtech.jts.geom.Geometry;
 /** Holds the relevant objects for processing the request and creating the response.*/
 @Getter
 @Setter
-public class ProcessingData {
+public class ProcessingData implements Serializable {
   @Getter
   @Setter
   private static Geometry dataPolyGeom;

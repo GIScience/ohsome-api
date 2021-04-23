@@ -96,7 +96,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 @RequiredArgsConstructor
-public class ExecutionUtils {
+public class ExecutionUtils implements Serializable {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
