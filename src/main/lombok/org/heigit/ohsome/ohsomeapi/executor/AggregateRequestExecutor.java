@@ -81,31 +81,27 @@ public class AggregateRequestExecutor extends RequestExecutor {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     mapRed = inputProcessor.processParameters();
+    var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
         result = mapRed.aggregateByTimestamp().count();
         break;
-      case AREA:
-        result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> ExecutionUtils
-                .cacheInUserData(snapshot.getGeometry(), () -> Geo.areaOf(snapshot.getGeometry())));
-        break;
-      case LENGTH:
-        result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> ExecutionUtils
-                .cacheInUserData(snapshot.getGeometry(),
-                    () -> Geo.lengthOf(snapshot.getGeometry())));
-        break;
       case PERIMETER:
-        result = mapRed.aggregateByTimestamp()
-            .sum((SerializableFunction<OSMEntitySnapshot, Number>) snapshot -> {
-              if (snapshot.getGeometry() instanceof Polygonal) {
-                return ExecutionUtils.cacheInUserData(snapshot.getGeometry(),
-                    () -> Geo.lengthOf(snapshot.getGeometry().getBoundary()));
-              } else {
+        result = mapRedGeom.aggregateByTimestamp()
+            .sum(geom -> {
+              if (!(geom instanceof Polygonal)) {
                 return 0.0;
               }
+              return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
             });
+        break;
+      case LENGTH:
+        result = mapRedGeom.aggregateByTimestamp()
+            .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+        break;
+      case AREA:
+        result = mapRedGeom.aggregateByTimestamp()
+            .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
         break;
       default:
         throw new RuntimeException("Unsupported RequestResource type for this processing. "
@@ -345,7 +341,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Geometry> preResult;
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
@@ -359,22 +354,22 @@ public class AggregateRequestExecutor extends RequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    preResult = mapAgg.map(OSMEntitySnapshot::getGeometry);
+    var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
-        return preResult.count();
+        return mapAgg.count();
       case PERIMETER:
-        return preResult.sum(geom -> {
+        return mapAggGeom.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
           return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
         });
       case LENGTH:
-        return preResult
+        return mapAggGeom
             .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
       case AREA:
-        return preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
+        return mapAggGeom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
       default:
         return null;
     }
