@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
@@ -29,7 +30,7 @@ import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
-public class InputProcessingUtils {
+public class InputProcessingUtils implements Serializable {
 
   private static final String GEOMCOLLTYPE = "GeometryCollection";
   private Object[] boundaryIds;
