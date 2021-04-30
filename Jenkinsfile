@@ -1,9 +1,12 @@
 pipeline {
   agent {label 'main'}
+  options {
+    timeout(time: 30, unit: 'MINUTES')
+  }
 
   environment {
     REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
-    VERSION = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "(^\\[|Download\\w+)"').trim()
+    VERSION = sh(returnStdout: true, script: 'mvn --batch-mode org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "(^\\[|Download\\w+)"').trim()
     LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
     LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
 
@@ -46,7 +49,7 @@ pipeline {
           rtMaven.deployer.deployArtifacts = false
 
           withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar verify -P jacoco,sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE'
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean compile javadoc:jar source:jar verify -P jacoco,sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE'
           }
         }
       }
@@ -61,7 +64,7 @@ pipeline {
       steps {
         script {
           withSonarQubeEnv('sonarcloud GIScience/ohsome') {
-            sh "mvn sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME}"
+            sh "mvn --batch-mode sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME}"
           }
           report_basedir = "/srv/reports/${REPO_NAME}/${VERSION}_${env.BRANCH_NAME}/${env.BUILD_NUMBER}_${LATEST_COMMIT_ID}"
 
@@ -79,13 +82,13 @@ pipeline {
           // infer
           if (env.BRANCH_NAME ==~ INFER_BRANCH_REGEX) {
             report_dir = report_basedir + "/infer/"
-            sh "mvn clean"
-            sh "infer run --pmd-xml -r -- mvn compile"
+            sh "mvn --batch-mode clean"
+            sh "infer run --pmd-xml -r -- mvn --batch-mode compile"
             sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && cp -R ./infer-out/* ${report_dir}"
           }
 
           // warnings plugin
-          rtMaven.run pom: 'pom.xml', goals: '--batch-mode -V -e clean compile checkstyle:checkstyle pmd:pmd pmd:cpd com.github.spotbugs:spotbugs-maven-plugin:3.1.7:spotbugs -Dmaven.repo.local=.m2'
+          rtMaven.run pom: 'pom.xml', goals: '--batch-mode -V -e clean compile checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs -Dmaven.repo.local=.m2'
 
           recordIssues enabledForFailure: true, tools: [mavenConsole(),  java(), javaDoc()]
           recordIssues enabledForFailure: true, tool: checkStyle()
@@ -111,7 +114,7 @@ pipeline {
       steps {
         script {
           withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
           }
           rtMaven.deployer.deployArtifacts buildInfo
           server.publishBuildInfo buildInfo
@@ -134,7 +137,7 @@ pipeline {
       steps {
         script {
           withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
           }
           rtMaven.deployer.deployArtifacts buildInfo
           server.publishBuildInfo buildInfo
@@ -144,7 +147,7 @@ pipeline {
             file(credentialsId: 'ossrh-settings', variable: 'settingsFile'),
             string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')
         ]) {
-          sh 'mvn clean compile -s $settingsFile javadoc:jar source:jar deploy -P sign,git,deploy-central -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          sh 'mvn --batch-mode clean compile -s $settingsFile javadoc:jar source:jar deploy -P sign,git,deploy-central -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
         }
       }
       post {
@@ -164,12 +167,12 @@ pipeline {
       steps {
         script {
           // load dependencies to artifactory
-          rtMaven.run pom: 'pom.xml', goals: 'org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -Dmaven.repo.local=.m2'
+          rtMaven.run pom: 'pom.xml', goals: '--batch-mode org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -Dmaven.repo.local=.m2'
 
           javadc_dir = "/srv/javadoc/java/" + REPO_NAME + "/" + VERSION + "/"
           echo javadc_dir
 
-          rtMaven.run pom: 'pom.xml', goals: 'clean javadoc:javadoc -Dadditionalparam=-Xdoclint:none -Dmaven.repo.local=.m2'
+          rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean javadoc:javadoc -Dadditionalparam=-Xdoclint:none -Dmaven.repo.local=.m2'
           sh "echo ${javadc_dir}"
           // make sure jenkins uses bash not dash!
           sh "mkdir -p ${javadc_dir} && rm -Rf ${javadc_dir}* && find . -path '*/target/site/apidocs' -exec cp -R --parents {} ${javadc_dir} \\; && find ${javadc_dir} -path '*/target/site/apidocs' | while read line; do echo \$line; neu=\${line/target\\/site\\/apidocs/} ;  mv \$line/* \$neu ; done && find ${javadc_dir} -type d -empty -delete"
@@ -242,10 +245,15 @@ pipeline {
       }
       steps {
         script {
-          update_notify = sh(returnStdout: true, script: 'mvn versions:display-dependency-updates | grep -Pzo "(?s)The following dependencies.*\\n.* \\n"').trim()
+          update_notify = sh(returnStdout: true, script: 'mvn --batch-mode versions:display-dependency-updates | grep -Pzo "(?s)The following dependencies([^\\n]*\\S\\n)*[^\\n]*\\s\\n"').trim()
           echo update_notify
         }
         rocketSend channel: 'jenkinsohsome', emoji: ':wave:' , message: "Check your dependencies in *${REPO_NAME}*. You might have updates: ${update_notify}" , rawMessage: true
+        script {
+          update_notify = sh(returnStdout: true, script: 'mvn --batch-mode versions:display-plugin-updates | grep -Pzo "(?s)The following plugin update([^\\n]*\\S\\n)*[^\\n]*\\s\\n"').trim()
+          echo update_notify
+        }
+        rocketSend channel: 'jenkinsohsome', emoji: ':wave:' , message: "Check your maven plugins in *${REPO_NAME}*. You might have updates: ${update_notify}" , rawMessage: true
       }
       post {
         failure {
