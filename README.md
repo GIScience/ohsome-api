@@ -22,6 +22,67 @@ This URL automatically redirects you to the documentation page, where you find e
 
 If you want to contribute to the code base of the ohsome API, please follow the guideline and hints in the upcoming sections.
 
+## Examples
+
+The following blog posts describe analyses which were using the ohsome API:
+   
+* [Farm shops are ohsome](http://k1z.blog.uni-heidelberg.de/2019/07/05/farm-shops-are-ohsome/)
+* [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
+* [Exploring OSM history: the example of health related amenities](http://k1z.blog.uni-heidelberg.de/2019/05/16/exploring-osm-history-the-example-of-health-realted-amenities/)
+* several posts of the [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/) series
+
+Here you see an example response giving the length of residential roads for a bounding box around the german city Heidelberg.
+
+```json
+{
+    "attribution": {
+        "url": "https://ohsome.org/copyrights",
+        "text": "© OpenStreetMap contributors"
+    },
+    "apiVersion": "1.4.1",
+    "metadata": {
+        "executionTime": 858,
+        "description": "Total length of items in meters.",
+        "requestUrl": "http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&time=2010-01-01/2016-08-01/P2Y2M2D&showMetadata=true&filter=highway=residential%20and%20type:way"
+    },
+    "result": [
+        {
+            "timestamp": "2010-01-01T00:00:00Z",
+            "value": 344220.86
+        },
+        {
+            "timestamp": "2012-03-03T00:00:00Z",
+            "value": 352116.48
+        },
+        {
+            "timestamp": "2014-05-05T00:00:00Z",
+            "value": 351579.81
+        },
+        {
+            "timestamp": "2016-07-07T00:00:00Z",
+            "value": 350577.72
+        }
+    ]
+}
+```
+
+## Services, Clients and Dockerized Version
+
+These services use the ohsome API:
+   
+* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/3/0/0)
+* [ohsome dashboard](https://ohsome.org/apps/dashboard/)
+* [ohsome2label](https://github.com/GIScience/ohsome2label)
+* [ohsome quality analyst](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
+
+This is a list of clients for the ohsome API:
+   
+* [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py) - Python client
+* [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - Client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables.
+* [ohsome-qgis-plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin) - QGIS plugin that supports data extraction
+
+You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -105,78 +166,8 @@ cd docs
 DOCS_DEPLOYMENT=release make clean html
 ```
 
-## Examples
-
-The following blog posts describe analysis which were using the ohsome API:
-   
-* [Farm shops are ohsome](http://k1z.blog.uni-heidelberg.de/2019/07/05/farm-shops-are-ohsome/)
-* [Plausible Parrots - HeiGIT’s OSHDB Supports Research in Citizen Science Data Quality](http://k1z.blog.uni-heidelberg.de/2019/02/27/plausible-parrots-heigits-oshdb-supports-research-in-citizen-science-data-quality/)
-* [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
-* [Exploring OSM history: the example of health related amenities](http://k1z.blog.uni-heidelberg.de/2019/05/16/exploring-osm-history-the-example-of-health-realted-amenities/)
-* several posts of the [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/) series
-
-Here you see an example response giving the length of residential roads for a bounding box around the german city Heidelberg.
-
-```json
-{
-    "attribution": {
-        "url": "https://ohsome.org/copyrights",
-        "text": "© OpenStreetMap contributors"
-    },
-    "apiVersion": "1.4.1",
-    "metadata": {
-        "executionTime": 858,
-        "description": "Total length of items in meters.",
-        "requestUrl": "http://localhost:8080/elements/length?bboxes=8.6128,49.3183,8.7294,49.4376&time=2010-01-01/2016-08-01/P2Y2M2D&showMetadata=true&filter=highway=residential%20and%20type:way"
-    },
-    "result": [
-        {
-            "timestamp": "2010-01-01T00:00:00Z",
-            "value": 344220.86
-        },
-        {
-            "timestamp": "2012-03-03T00:00:00Z",
-            "value": 352116.48
-        },
-        {
-            "timestamp": "2014-05-05T00:00:00Z",
-            "value": 351579.81
-        },
-        {
-            "timestamp": "2016-07-07T00:00:00Z",
-            "value": 350577.72
-        }
-    ]
-}
-```
-
-## Services, Clients and Dockerized Version
-
-These services use the ohsome API:
-   
-* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/3/0/0)
-* [ohsome dashboard](https://ohsome.org/apps/dashboard/)
-* [ohsome2label](https://github.com/GIScience/ohsome2label)
-* [ohsome quality analyst](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
-
-This is a list of clients for the ohsome API:
-   
-* [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py) - Python client
-* [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - Client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables.
-* [ohsome-qgis-plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin) - QGIS plugin that supports data extraction
-
-You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
-
 ## Built With
 
 * [Spring Boot](https://projects.spring.io/spring-boot/) - Web framework
 * [Maven](https://maven.apache.org/) - Dependency management and project building
 * [Sphinx](https://www.sphinx-doc.org) - API documentation
-
-## Tested With
-
-* [Postman](https://www.getpostman.com/) - Software to test REST APIs (build and send HTTP requests and view the responses)
-
-## License
-
-[AGPL](LICENSE).
