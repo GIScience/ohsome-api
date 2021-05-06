@@ -70,14 +70,14 @@ Here you see an example response giving the length of residential roads for a bo
 
 These services use the ohsome API:
    
-* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/#/amenity_clinic_healthcare_clinic_ptpl/2020-06-01T00:00:00Z/3/0/0)
+* [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/)
 * [ohsome dashboard](https://ohsome.org/apps/dashboard/)
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
-* [ohsome quality analyst](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/apps/ohsome-quality-analyst)
+* [ohsome quality analyst](https://oqt.ohsome.org/)
 
 This is a list of clients for the ohsome API:
    
-* [ohsome-py](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/libs/ohsome-py) - Python client
+* [ohsome-py](https://github.com/GIScience/ohsome-py) - Python client
 * [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - Client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables.
 * [ohsome-qgis-plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin) - QGIS plugin that supports data extraction
 
