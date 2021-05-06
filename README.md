@@ -18,7 +18,7 @@ To make your life easier, we already have a running ohsome API instance on our s
 
 https://api.ohsome.org/v1 (current stable version)
 
-This URL automatically redirects you to the documentation page, where you find explanations and examples for all the different parameters and endpoints that we have implemented in the API. We also have a blog post series called [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/), which gives diverse example analysis and updates on new features. Through the [swagger UI](https://api.ohsome.org/v1/swagger-ui.html) page of the ohsome API you can send simple GET requests and test the individual endpoints.
+This URL automatically redirects you to the documentation page, where you find explanations and examples for all the different parameters and endpoints that we have implemented in the API. We also have a blog post series called [how to become ohsome](https://heigit.org/tag/become-ohsome/), which gives diverse example analysis and updates on new features. Through the [swagger UI](https://api.ohsome.org/v1/swagger-ui.html) page of the ohsome API you can send simple GET requests and test the individual endpoints.
 
 If you want to contribute to the code base of the ohsome API, please follow the guideline and hints in the upcoming sections.
 
@@ -26,10 +26,10 @@ If you want to contribute to the code base of the ohsome API, please follow the 
 
 The following blog posts describe analyses which were using the ohsome API:
    
-* [Farm shops are ohsome](http://k1z.blog.uni-heidelberg.de/2019/07/05/farm-shops-are-ohsome/)
-* [Visualizing the historical OSM evolution of your city](http://k1z.blog.uni-heidelberg.de/2018/12/14/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
-* [Exploring OSM history: the example of health related amenities](http://k1z.blog.uni-heidelberg.de/2019/05/16/exploring-osm-history-the-example-of-health-realted-amenities/)
-* several posts of the [how to become ohsome](http://k1z.blog.uni-heidelberg.de/tag/become-ohsome/) series
+* [Farm shops are ohsome](https://heigit.org/farm-shops-are-ohsome/)
+* [Visualizing the historical OSM evolution of your city](https://heigit.org/how-to-become-ohsome-part-1-visualizing-the-historical-evolution-of-osm-buildings-of-your-city/) 
+* [Exploring OSM history: the example of health related amenities](https://heigit.org/exploring-osm-history-the-example-of-health-related-amenities/)
+* several posts of the [how to become ohsome](https://heigit.org/tag/become-ohsome/) series
 
 Here you see an example response giving the length of residential roads for a bounding box around the german city Heidelberg.
 
