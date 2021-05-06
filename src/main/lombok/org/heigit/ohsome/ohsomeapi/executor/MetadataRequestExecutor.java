@@ -15,7 +15,7 @@ public class MetadataRequestExecutor {
 
   /**
    * Returns the metadata of the underlying extract-file.
-   * 
+   *
    * @return {@link org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse MetadataResponse}
    * @throws BadRequestException if parameters are given in the query.
    */

@@ -49,7 +49,7 @@ public class DataRequestExecutor extends RequestExecutor {
 
   /**
    * Performs an OSM data extraction using the full-history of the data.
-   * 
+   *
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser

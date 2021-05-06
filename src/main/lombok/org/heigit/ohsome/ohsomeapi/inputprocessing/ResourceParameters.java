@@ -15,10 +15,10 @@ public class ResourceParameters {
    * Checks the resource of the request and gives back a list of available parameters for this
    * resource.
    *
-   * <p>Note that some resources don't use this method, but implement their own checks. One example 
+   * <p>Note that some resources don't use this method, but implement their own checks. One example
    * for this is the metadata request in {@link MetadataRequestExecutor
    * #executeGetMetadata(HttpServletRequest) executeGetMetadata}.
-   * 
+   *
    * @param servletRequest represents the HttpServlet request.
    * @return a list of of available parameters for the given resource.
    */
@@ -55,7 +55,7 @@ public class ResourceParameters {
 
   /**
    * Checks, if the request contains unexpected parameters for this resource.
-   * 
+   *
    * @param servletRequest represents the HttpServlet request.
    * @param resourceParams represents a list of all possible parameters for the requested resource.
    * @return a list of unexpected parameters

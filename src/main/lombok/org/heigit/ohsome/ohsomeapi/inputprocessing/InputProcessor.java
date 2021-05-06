@@ -107,7 +107,7 @@ public class InputProcessor {
 
   /**
    * Processes the input parameters from the given request.
-   * 
+   *
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    * @throws BadRequestException if the boundary parameter is not defined or it has an invalid
@@ -267,7 +267,7 @@ public class InputProcessor {
 
   /**
    * Defines the type(s) out of the given String[].
-   * 
+   *
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation), or simple feature types (point, line, polygon, other). If the array is empty,
    *        all three OSM types are used.
@@ -326,7 +326,7 @@ public class InputProcessor {
   /**
    * Splits the given input parameter on ',' if it has a length of 1 and contains ',' at [0].
    * Returns a String array containing the splits.
-   * 
+   *
    * @param param <code>String</code> array containing the content to split
    * @return <code>String</code> array containing the splitted parameter content
    */
@@ -339,7 +339,7 @@ public class InputProcessor {
 
   /**
    * Creates an empty array if an input parameter of a POST request is null.
-   * 
+   *
    * @param toCheck <code>String</code> array, which is checked.
    * @return <code>String</code> array, which is empty.
    */
@@ -352,7 +352,7 @@ public class InputProcessor {
 
   /**
    * Creates an empty <code>String</code>, if a given input parameter is null.
-   * 
+   *
    * @param toCheck <code>String</code>, which is checked.
    * @return <code>String</code>, which may be empty but not null.
    */
@@ -365,7 +365,7 @@ public class InputProcessor {
 
   /**
    * Checks the given keys and values String[] on their length.
-   * 
+   *
    * @throws BadRequestException if values_n doesn't fit to keys_n. There cannot be more input
    *         values in the values|values2 than in the keys|keys2 parameter.
    */
@@ -395,7 +395,7 @@ public class InputProcessor {
    * Processes the properties parameter used in data-extraction resources and sets the respective
    * boolean values includeTags, includeOSMMetadata, unclippedGeometries, and
    * includeContributionTypes (only for the /contributions endpoints).
-   * 
+   *
    * @throws BadRequestException if the properties parameter contains invalid values
    */
   public void processPropertiesParam() {
@@ -486,7 +486,7 @@ public class InputProcessor {
   /**
    * Checks the given filter parameter if it's null or blank. Currently used for filter2 parameter
    * of /ratio processing.
-   * 
+   *
    * @param filter parameter to be checked
    * @throws BadRequestException if the given filter parameter is null or blank.
    */
@@ -502,7 +502,7 @@ public class InputProcessor {
    * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
    * or {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
    * osmTag(key, value)} method.
-   * 
+   *
    * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
    *        MapReducer} object
    * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
@@ -513,9 +513,7 @@ public class InputProcessor {
     checkKeysValues(keys, values);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
-      for (int a = 0; a < values.length; a++) {
-        tempVal[a] = values[a];
-      }
+      System.arraycopy(values, 0, tempVal, 0, values.length);
       for (int i = values.length; i < keys.length; i++) {
         tempVal[i] = "";
       }
@@ -536,14 +534,9 @@ public class InputProcessor {
   /**
    * Extracts the information from the given time array and fills the toTimestamps[] with content
    * (in case of isSnapshot=false).
-   * 
-   * @throws BadRequestException if the time format is invalid
-   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser
-   *         #parseIsoDateTime(String) parseIsoDateTime}
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
-      MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
-      throws Exception {
+      MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot) {
     String[] toTimestamps = null;
     String[] timeData;
     if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
@@ -589,7 +582,7 @@ public class InputProcessor {
 
   /**
    * Checks the given type(s) String[] on its length and content.
-   * 
+   *
    * @throws BadRequestException if the given types parameter is invalid.
    */
   private void checkTypes(String[] types) {
@@ -617,7 +610,7 @@ public class InputProcessor {
 
   /**
    * Checks the content of the given format parameter.
-   * 
+   *
    * @throws BadRequestException if the given format parameter is invalid.
    */
   private void checkFormat(String format) {
@@ -632,7 +625,7 @@ public class InputProcessor {
   /**
    * Defines the timeout for this request depending on the given timeout parameter. If it is smaller
    * than the predefined value, it is used for this request.
-   * 
+   *
    * @return <code>double</code> value defining the timeout for this request
    * @throws BadRequestException if the given timeout parameter is larger than the predefined one
    */
@@ -660,7 +653,7 @@ public class InputProcessor {
    * Sets a corresponding enum (NOBOUNDARY for no boundary, BBOXES for bboxes, BCIRCLES for
    * bcircles, BPOLYS for bpolys) based on the given boundary parameter(s). Only one of them is
    * allowed to have content in it.
-   * 
+   *
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
    * @param bcircles <code>String</code> containing the bounding circles separated via a pipe (|)
@@ -685,7 +678,7 @@ public class InputProcessor {
 
   /**
    * Checks, if the cluster has less active server nodes, than defined on startup.
-   * 
+   *
    * @throws ServiceUnavailableException in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
@@ -702,7 +695,7 @@ public class InputProcessor {
   /**
    * Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or
    * 'multipart/form-data'.
-   * 
+   *
    * @throws BadRequestException if an unsupported header is given.
    */
   private void checkContentTypeHeader(HttpServletRequest servletRequest) {
@@ -720,7 +713,7 @@ public class InputProcessor {
   /**
    * Checks, if there are false or repeated parameters in the request. It suggests possible
    * parameters based on fuzzy matching scores.
-   * 
+   *
    * @throws BadRequestException in case of invalid parameter or if a parameter is given more than
    *         once
    */
@@ -766,7 +759,7 @@ public class InputProcessor {
   /**
    * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
    * value of the parameter is false.
-   * 
+   *
    * @throws BadRequestException if the value of the parameter is not attributable to a boolean
    *         value.
    */
@@ -788,7 +781,7 @@ public class InputProcessor {
 
   /**
    * Gets the geometry from the currently in-use boundary object(s).
-   * 
+   *
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
   public Geometry getGeometry() {
@@ -836,7 +829,7 @@ public class InputProcessor {
   public boolean includeContributionTypes() {
     return includeContributionTypes;
   }
-  
+
   public boolean isClipGeometry() {
     return clipGeometry;
   }

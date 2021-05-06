@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.output.Result;
 
-
 /**
  * Represents the result JSON object for most of the /elements resources containing the timestamp
  * together with the corresponding value.

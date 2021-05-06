@@ -8,8 +8,8 @@ import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.output.Result;
 
 /**
- * Represents the result JSON object for the resources working with contributions (currently: 
- * /users and /contributions/count) containing the from timestamp together with the corresponding 
+ * Represents the result JSON object for the resources working with contributions (currently:
+ * /users and /contributions/count) containing the from timestamp together with the corresponding
  * value.
  */
 @Getter

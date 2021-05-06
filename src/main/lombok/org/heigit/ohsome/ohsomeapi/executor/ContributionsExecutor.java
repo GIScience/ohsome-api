@@ -19,7 +19,7 @@ import org.locationtech.jts.geom.Geometry;
 
 /** Includes the execute method for requests mapped to /contributions/couht and /users/count. */
 public class ContributionsExecutor extends RequestExecutor {
-  
+
   private final InputProcessor inputProcessor;
   private final ProcessingData processingData;
   private final long startTime = System.currentTimeMillis();
@@ -30,11 +30,11 @@ public class ContributionsExecutor extends RequestExecutor {
     inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     processingData = inputProcessor.getProcessingData();
   }
-  
+
   /**
    * Performs a count calculation using contributions for the /contributions/count or the
    * /users/count endpoint.
-   * 
+   *
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()

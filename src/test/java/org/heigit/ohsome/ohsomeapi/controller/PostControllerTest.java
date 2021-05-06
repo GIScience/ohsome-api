@@ -1077,7 +1077,7 @@ public class PostControllerTest {
   /*
    * filter tests
    */
-  
+
   @Test
   public void postFilterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -1139,7 +1139,7 @@ public class PostControllerTest {
   /*
    * /contributions/count tests
    */
-  
+
   @Test
   public void countContributionsToHeidelbergCastleTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -1164,5 +1164,4 @@ public class PostControllerTest {
     assertEquals(85.45, response.getBody().get("result").get(0).get("value").asDouble(),
         deltaPercentage);
   }
-  
 }

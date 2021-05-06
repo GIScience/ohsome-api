@@ -45,7 +45,7 @@ public class Application implements ApplicationRunner {
 
   /**
    * Main method to run this SpringBootApplication.
-   * 
+   *
    * @throws RuntimeException if database and keytables are not defined in the
    *         '-DdbFilePathProperty=' parameter of 'mvn test'.
    */
@@ -212,7 +212,7 @@ public class Application implements ApplicationRunner {
 
   /**
    * Get the API version. It throws a RuntimeException if the API version is null.
-   * 
+   *
    * @throws RuntimeException if API version from the application.properties file cannot be loaded
    */
   private static String ohsomeApiVersion() {

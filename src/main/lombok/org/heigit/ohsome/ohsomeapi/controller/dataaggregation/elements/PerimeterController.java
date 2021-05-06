@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/perimeter".
@@ -32,7 +31,7 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -52,7 +51,7 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -76,7 +75,7 @@ public class PerimeterController {
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -99,12 +98,12 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, 
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the boundary and the tag",
@@ -125,12 +124,12 @@ public class PerimeterController {
 
   /**
    * Gives the perimeter of polygonal OSM objects grouped by the key.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByKey}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the key",
@@ -153,7 +152,7 @@ public class PerimeterController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByTag}
    */
   @ApiOperation(value = "Perimeter of OSM elements grouped by the tag",
@@ -175,7 +174,7 @@ public class PerimeterController {
   /**
    * Gives the density of OSM elements (perimeter of items divided by the total area in
    * square-kilometers).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -197,7 +196,7 @@ public class PerimeterController {
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -221,7 +220,7 @@ public class PerimeterController {
   /**
    * Gives the density of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -243,7 +242,7 @@ public class PerimeterController {
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -269,7 +268,7 @@ public class PerimeterController {
 
   /**
    * Gives the density of OSM elements grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -295,7 +294,7 @@ public class PerimeterController {
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -329,7 +328,7 @@ public class PerimeterController {
   /**
    * Gives the ratio of the perimeter of OSM elements satisfying filter2 within items selected by
    * filter grouped by the boundary.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}

@@ -48,7 +48,7 @@ public class GeometryBuilder {
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
    * <code>String</code> array.
-   * 
+   *
    * @param bboxes <code>String</code> array containing the lon/lat coordinates of the bounding
    *        boxes. Each bounding box must consist of 2 lon/lat coordinate pairs (bottom-left and
    *        top-right).
@@ -91,7 +91,7 @@ public class GeometryBuilder {
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
    * array.
-   * 
+   *
    * @param bpoints <code>String</code> array containing the lon/lat coordinates of the point at [0]
    *        and [1] and the size of the buffer at [2].
    * @return <code>Geometry</code> object representing (a) circular polygon(s) around the given
@@ -141,7 +141,7 @@ public class GeometryBuilder {
   /**
    * Creates a <code>Polygon</code> out of the coordinates in the given array. If more polygons are
    * given, a union of the polygons is applied and a <code>MultiPolygon</code> is created.
-   * 
+   *
    * @param bpolys <code>String</code> array containing the lon/lat coordinates of the bounding
    *        polygon(s).
    * @return <code>Geometry</code> object representing a <code>Polygon</code> object, if only one
@@ -201,7 +201,7 @@ public class GeometryBuilder {
 
   /**
    * Creates a Geometry object from the given GeoJSON String, which is derived from the metadata.
-   * 
+   *
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
   public void createGeometryFromMetadataGeoJson(String geoJson) {
@@ -217,7 +217,7 @@ public class GeometryBuilder {
   /**
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
    * and its features must be of type 'Polygon' or 'Multipolygon'.
-   * 
+   *
    * @throws BadRequestException if the given GeoJSON String cannot be converted to a Geometry, it
    *         is not of the type 'FeatureCollection', or if the provided custom id(s) cannot be
    *         parsed
@@ -282,7 +282,7 @@ public class GeometryBuilder {
   /**
    * Computes the union of the given geometries and checks if it is completely within the underlying
    * data extract.
-   * 
+   *
    * @param geometries <code>Collection</code> containing the geometries to unify
    * @return unified geometries
    * @throws NotFoundException if the unified Geometry does not lie completely within the underlying
@@ -314,7 +314,7 @@ public class GeometryBuilder {
 
   /**
    * Creates a boundary ID value from the 'id' field in the given <code>JsonObject</code>.
-   * 
+   *
    * @param jsonObject <code>JsonObject</code> where the 'id' value is extracted from
    * @param inputProcessor used for {@link
    *        org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
@@ -338,7 +338,7 @@ public class GeometryBuilder {
   /**
    * Checks the geometry of the given <code>JsonObject</code> on its type. If it's not of type
    * Polygon or Multipolygon, an exception is thrown.
-   * 
+   *
    * @param geomObj <code>JsonObject</code> to check
    * @throws BadRequestException if the given <code>JsonObject</code> is not of type Polygon or
    *         Multipolygon
