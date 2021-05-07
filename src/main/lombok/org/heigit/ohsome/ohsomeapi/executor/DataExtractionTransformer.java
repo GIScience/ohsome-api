@@ -49,6 +49,7 @@ public class DataExtractionTransformer implements Serializable {
 
   /**
    * Creates a new data extraction transformer, adhering to the given parameters.
+   *
    * @param startTimestamp start timestamp of the query
    * @param endTimestamp end timestamp of the query
    * @param filter the filter of the query
