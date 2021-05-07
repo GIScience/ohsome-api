@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
  * Controller containing the GET and POST request handling methods, which are mapped to
  * "/elements/count".
@@ -32,7 +31,7 @@ public class CountController {
 
   /**
    * Gives the count of OSM objects.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -52,7 +51,7 @@ public class CountController {
 
   /**
    * Gives the count of OSM objects grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -75,7 +74,7 @@ public class CountController {
 
   /**
    * Gives the count of OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -99,7 +98,7 @@ public class CountController {
 
   /**
    * Gives the count of OSM objects grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -125,7 +124,7 @@ public class CountController {
 
   /**
    * Gives the count of OSM objects grouped by the key.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -148,7 +147,7 @@ public class CountController {
 
   /**
    * Gives the count of OSM objects grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -175,7 +174,7 @@ public class CountController {
   /**
    * Gives the density of OSM elements (number of items divided by the total area in
    * square-kilometers).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -197,7 +196,7 @@ public class CountController {
 
   /**
    * Gives the density of OSM objects grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -221,7 +220,7 @@ public class CountController {
   /**
    * Gives the density of OSM objects grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -245,7 +244,7 @@ public class CountController {
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -271,7 +270,7 @@ public class CountController {
 
   /**
    * Gives the density of OSM elements grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -297,7 +296,7 @@ public class CountController {
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -331,7 +330,7 @@ public class CountController {
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter grouped by
    * the boundary.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}

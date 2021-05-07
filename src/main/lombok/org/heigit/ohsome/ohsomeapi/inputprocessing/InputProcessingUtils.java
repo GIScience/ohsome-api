@@ -39,9 +39,9 @@ public class InputProcessingUtils {
    * Finds and returns the EPSG code of the given point, which is needed for {@link
    * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder#createCircularPolygons(String[]
    * bcircles) createCircularPolygons}.
-   * 
+   *
    * <p>Adapted code from UTMCodeFromLonLat.java class in the osmatrix project (© by Michael Auer)
-   * 
+   *
    * @param lon Longitude coordinate of the point.
    * @param lat Latitude coordinate of the point.
    * @return <code>String</code> representing the corresponding EPSG code.
@@ -77,7 +77,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the given bounding boxes and returns them in a <code>List</code>.
-   * 
+   *
    * @param bboxes contains the given bounding boxes
    * @return <code>List</code> containing the splitted bounding boxes
    * @throws BadRequestException if the bboxes parameter has an invalid format
@@ -104,7 +104,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the given bounding circles and returns them in a <code>List</code>.
-   * 
+   *
    * @param bcircles contains the given bounding circles
    * @return <code>List</code> containing the splitted bounding circles
    * @throws BadRequestException if the bcircles parameter has an invalid format
@@ -131,7 +131,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the given bounding polygons and returns them in a <code>List</code>.
-   * 
+   *
    * @param bpolys contains the given bounding polygons
    * @return <code>List</code> containing the splitted bounding polygons
    * @throws BadRequestException if the bpolys parameter has an invalid format
@@ -160,7 +160,7 @@ public class InputProcessingUtils {
 
   /**
    * Defines the toTimestamps for the result json object for /users responses.
-   * 
+   *
    * @param timeData contains the requested time
    * @return array having only the toTimestamps
    */
@@ -203,11 +203,11 @@ public class InputProcessingUtils {
    * <li><strong>//PnYnMnD</strong>: #/#/period</li>
    * <li><strong>invalid</strong>: throws BadRequestException</li>
    * </ul>
-   * 
+   *
    * <p>For clarification: the format YYYY-MM-DDThh:mm:ss can be applied to any format, where a
    * timestamp is used and # is a replacement holder for "no value". Note that the positioning and
    * using of the forward slash '/' is very important.
-   * 
+   *
    * @param time <code>String</code> holding the unparsed time information.
    * @return <code>String</code> array containing the startTime at [0], the endTime at [1] and the
    *         period at [2].
@@ -299,7 +299,7 @@ public class InputProcessingUtils {
 
   /**
    * Sorts the given timestamps from oldest to newest.
-   * 
+   *
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
    */
   public String[] sortTimestamps(String[] timestamps) {
@@ -319,7 +319,7 @@ public class InputProcessingUtils {
 
   /**
    * Checks the given custom boundary id. At the moment only used if output format = csv.
-   * 
+   *
    * @throws BadRequestException if the custom ids contain semicolons
    */
   public void checkCustomBoundaryId(String id) {
@@ -332,7 +332,7 @@ public class InputProcessingUtils {
   /**
    * Checks if the given geometry is within the underlying data-polygon. Returns also true if no
    * data-polygon is given.
-   * 
+   *
    * @param geom <code>Geometry</code>, which is tested against the data-polygon
    * @return <code>true</code> - if inside <br>
    *         <code>false</code> - if not inside
@@ -359,10 +359,9 @@ public class InputProcessingUtils {
     TagTranslator tt = DbConnData.tagTranslator;
     OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
     OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
-    mapRed.osmEntityFilter(entity -> !entity.getType().equals(OSMType.RELATION)
+    return mapRed.osmEntityFilter(entity -> !entity.getType().equals(OSMType.RELATION)
         || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
         || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue()));
-    return mapRed;
   }
 
   /**
@@ -382,7 +381,7 @@ public class InputProcessingUtils {
 
   /**
    * Tries to parse the given filter using the given parser.
-   * 
+   *
    * @throws BadRequestException if the filter contains wrong syntax.
    */
   public FilterExpression parseFilter(FilterParser fp, String filter) {
@@ -396,7 +395,7 @@ public class InputProcessingUtils {
 
   /**
    * Checks the provided time info on its temporal extent.
-   * 
+   *
    * @param timeInfo time information to check
    * @throws NotFoundException if the given time is not completely within the timerange of the
    *         underlying data
@@ -436,7 +435,7 @@ public class InputProcessingUtils {
 
   /**
    * Checks the provided time info on its ISO conformity.
-   * 
+   *
    * @param timeInfo time information to check
    * @throws BadRequestException if the timestamps are not ISO-8601 conform.
    */
@@ -452,7 +451,7 @@ public class InputProcessingUtils {
 
   /**
    * Checks the provided period on its ISO conformity.
-   * 
+   *
    * @throws BadRequestException if the interval is not ISO-8601 conform.
    */
   protected void checkPeriodOnIsoConformity(String period) {
@@ -467,7 +466,7 @@ public class InputProcessingUtils {
   /**
    * Splits the given boundary parameter (bboxes, bcircles, or bpolys) on '|' to seperate the
    * different bounding objects.
-   * 
+   *
    * @param boundaryParam <code>String</code> that contains the boundary parameter(s)
    * @return splitted boundaries
    */
@@ -480,7 +479,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the coordinates from the given boundaries array.
-   * 
+   *
    * @param boundariesArray contains the boundaries without a custom id
    * @return <code>List</code> containing the splitted boundaries
    */
@@ -488,10 +487,8 @@ public class InputProcessingUtils {
       BoundaryType boundaryType) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < boundariesArray.length; i++) {
-      String[] coords = boundariesArray[i].split("\\,");
-      for (String coord : coords) {
-        boundaryParamValues.add(coord);
-      }
+      String[] coords = boundariesArray[i].split(",");
+      Collections.addAll(boundaryParamValues, coords);
       boundaryIds[i] = "boundary" + (i + 1);
     }
     checkBoundaryParamLength(boundaryParamValues, boundaryType);
@@ -500,7 +497,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the ids and the coordinates from the given bounding boxes array.
-   * 
+   *
    * @param bboxesArray contains the bounding boxes having a custom id
    * @return <code>List</code> containing the splitted bounding boxes
    * @throws BadRequestException if the bboxes have invalid format
@@ -508,7 +505,7 @@ public class InputProcessingUtils {
   private List<String> splitBboxesWithIds(String[] bboxesArray) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < bboxesArray.length; i++) {
-      String[] coords = bboxesArray[i].split("\\,");
+      String[] coords = bboxesArray[i].split(",");
       if (coords.length != 4) {
         throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
       }
@@ -531,7 +528,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the ids and the coordinates from the given bounding circles array.
-   * 
+   *
    * @param bcirclesArray contains the bounding circles having a custom id
    * @return <code>List</code> containing the splitted bounding circles
    * @throws BadRequestException if the bcircles have invalid format
@@ -539,7 +536,7 @@ public class InputProcessingUtils {
   private List<String> splitBcirclesWithIds(String[] bcirclesArray) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < bcirclesArray.length; i++) {
-      String[] coords = bcirclesArray[i].split("\\,");
+      String[] coords = bcirclesArray[i].split(",");
       if (coords.length != 3) {
         throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
       }
@@ -557,7 +554,7 @@ public class InputProcessingUtils {
 
   /**
    * Splits the ids and the coordinates from the given bounding polygons array.
-   * 
+   *
    * @param bpolysArray contains the bounding polygons having a custom id
    * @return <code>List</code> containing the splitted bounding polygons
    * @throws BadRequestException if the bpolys have invalid format
@@ -565,7 +562,7 @@ public class InputProcessingUtils {
   private List<String> splitBpolysWithIds(String[] bpolysArray) {
     List<String> boundaryParamValues = new ArrayList<>();
     for (int i = 0; i < bpolysArray.length; i++) {
-      String[] coords = bpolysArray[i].split("\\,");
+      String[] coords = bpolysArray[i].split(",");
       String[] idAndCoordinate = coords[0].split(":");
       // extract the id and the first coordinate
       boundaryIds[i] = idAndCoordinate[0];
@@ -585,7 +582,7 @@ public class InputProcessingUtils {
   /**
    * Checks the given boundaries list on their length. Bounding box and polygon list must be even,
    * bounding circle list must be divisable by three.
-   * 
+   *
    * @param boundaries parameter to check the length
    * @throws BadRequestException if the length is not even or divisible by three
    */

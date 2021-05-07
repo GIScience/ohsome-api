@@ -160,7 +160,7 @@ public class ExecutionUtils {
 
   /**
    * Defines a certain decimal format.
-   * 
+   *
    * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
    *        after the comma)
    * @return <code>DecimalFormat</code> object with the defined format.
@@ -173,7 +173,7 @@ public class ExecutionUtils {
 
   /**
    * Caches the given mapper value in the user data of the <code>Geometry</code> object.
-   * 
+   *
    * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
    * @param mapper arbitrary function that returns a time-independent value from a snapshot object,
    *        for example lenght, area, perimeter
@@ -213,7 +213,7 @@ public class ExecutionUtils {
   /**
    * Streams the result of /elements, /elementsFullHistory and /contributions endpoints as an
    * outputstream.
-   * 
+   *
    * @throws RuntimeException which only wraps {@link java.io.IOException IOException}
    * @throws IOException thrown by {@link JsonGenerator
    *         com.fasterxml.jackson.core.JsonFactory#createGenerator(java.io.OutputStream,
@@ -434,7 +434,7 @@ public class ExecutionUtils {
   /**
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
-   * 
+   *
    * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
    *         #count() count}, and
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
@@ -569,7 +569,7 @@ public class ExecutionUtils {
 
   /**
    * Fills the result value arrays for the ratio/groupBy/boundary response.
-   * 
+   *
    * @param resultSet <code>Set</code> containing the result values
    * @param df <code>DecimalFormat</code> defining the number of digits of the result values
    * @return <code>Double[]</code> containing the formatted result values
@@ -590,7 +590,7 @@ public class ExecutionUtils {
   /**
    * Maps the given <code>OSMEntitySnapshot</code> to a given tag, or to the remainder (having -1,
    * -1 as identifier) if none of the given tags is included.
-   * 
+   *
    * @param keysInt int value of the groupByKey parameter
    * @param valuesInt Integer[] of the groupByValues parameter
    * @param f <code>OSMEntitySnapshot</code>
@@ -733,7 +733,7 @@ public class ExecutionUtils {
 
   /**
    * Creates the csv response for /elements/_/groupBy requests.
-   * 
+   *
    * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
    *        containing <code>ElementsResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
@@ -769,7 +769,7 @@ public class ExecutionUtils {
 
   /**
    * Creates the csv response for /elements/_/ratio/groupBy requests.
-   * 
+   *
    * @param resultSet <code>GroupByObject</code> array containing <code>RatioGroupByResult</code>
    *        objects containing <code>RatioResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
@@ -806,7 +806,7 @@ public class ExecutionUtils {
 
   /**
    * Creates the csv response for /users/_/groupBy requests.
-   * 
+   *
    * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
    *        containing <code>ContributionsResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
@@ -840,7 +840,7 @@ public class ExecutionUtils {
 
   /**
    * Fills the given stream with output data using multiple parallel threads.
-   * 
+   *
    * @throws RuntimeException if any one thread experiences an exception, or it only wraps
    *         {@link IOException}
    * @throws DatabaseAccessException if the access to keytables or database is not possible
@@ -938,7 +938,7 @@ public class ExecutionUtils {
 
   /**
    * Creates a new CSVWriter, writes the given comments and returns the writer object.
-   * 
+   *
    * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
    */
   private CSVWriter writeComments(HttpServletResponse servletResponse, List<String[]> comments)
@@ -978,7 +978,7 @@ public class ExecutionUtils {
     gpr.setRemoveCollapsedComponents(false);
     return gpr;
   }
-  
+
   static Set<Integer> keysToKeysInt(String[] keys, TagTranslator tt) {
     final Set<Integer> keysInt;
     if (keys.length != 0) {

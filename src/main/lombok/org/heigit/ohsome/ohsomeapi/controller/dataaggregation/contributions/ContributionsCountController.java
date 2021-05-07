@@ -22,7 +22,7 @@ public class ContributionsCountController {
 
   /**
    * Gives the count of OSM contributions.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
@@ -43,7 +43,7 @@ public class ContributionsCountController {
 
   /**
    * Gives the density of OSM contributions.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse

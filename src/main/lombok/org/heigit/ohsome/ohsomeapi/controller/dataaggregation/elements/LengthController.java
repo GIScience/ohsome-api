@@ -31,7 +31,7 @@ public class LengthController {
 
   /**
    * Gives the length of OSM elements.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -44,14 +44,14 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH, 
+    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
         servletRequest, servletResponse, false);
     return executor.aggregate();
   }
 
   /**
    * Gives the length of OSM elements grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -72,7 +72,7 @@ public class LengthController {
   /**
    * Gives the length of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -89,14 +89,14 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH, 
+    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
         servletRequest, servletResponse, false);
     return executor.aggregateGroupByBoundary();
   }
 
   /**
    * Gives the length of OSM elements grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -122,7 +122,7 @@ public class LengthController {
 
   /**
    * Gives the length of OSM elements grouped by the key.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -145,7 +145,7 @@ public class LengthController {
 
   /**
    * Gives the length of OSM elements grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -172,7 +172,7 @@ public class LengthController {
   /**
    * Gives the density of OSM elements (length of items divided by the total area in
    * square-kilometers).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -194,7 +194,7 @@ public class LengthController {
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -214,7 +214,7 @@ public class LengthController {
 
   /**
    * Gives density of OSM elements grouped by the boundary parameter (bounding box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -238,12 +238,12 @@ public class LengthController {
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest, 
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
@@ -264,12 +264,12 @@ public class LengthController {
 
   /**
    * Gives the density of OSM elements grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, 
+   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
@@ -290,7 +290,7 @@ public class LengthController {
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -324,7 +324,7 @@ public class LengthController {
   /**
    * Gives the ratio of the length of OSM elements satisfying filter2 within items selected by
    * filter grouped by the boundary.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}

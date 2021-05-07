@@ -56,7 +56,7 @@ public class DataExtractionTest {
   @Test
   public void elementsGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823"
         + "&time=2015-01-01&properties=metadata&filter=type:way and building=residential",
         JsonNode.class);
@@ -76,7 +76,7 @@ public class DataExtractionTest {
   @Test
   public void elementsGeomUsingMultipleTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.67559,49.40853,8.69379,49.4231&time=2015-10-01"
         + "&properties=metadata&filter=type:way and highway=residential and maxspeed=* and name=*",
         JsonNode.class);
@@ -98,7 +98,7 @@ public class DataExtractionTest {
   //  @Test
   //  public void elementsGeomSimpleFeaturesOtherLineTest() {
   //    TestRestTemplate restTemplate = new TestRestTemplate();
-  //    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+  //    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
   //        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994"
   //        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
   //        JsonNode.class);
@@ -122,7 +122,7 @@ public class DataExtractionTest {
   @Test
   public void elementsBboxTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
         + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     JsonNode featureGeom =
@@ -137,7 +137,7 @@ public class DataExtractionTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
         + "filter=type:way and natural=*&properties=contributionTypes&time=2016-04-20,2016-04-21",
-        JsonNode.class);      
+        JsonNode.class);
     assertEquals("\"The properties parameter of this resource can only contain the values 'tags' "
         + "and/or 'metadata' and/or 'unclipped'.\"", response.getBody().get("message").toString());
   }
@@ -145,7 +145,7 @@ public class DataExtractionTest {
   @Test
   public void elementsCentroidTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
         + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     assertEquals(2, Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468")
@@ -458,7 +458,6 @@ public class DataExtractionTest {
         + "&filter=id:node/3429511451&time=2017-01-01,2019-01-01", JsonNode.class);
     JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "node/3429511451");
     assertEquals(49.418466, feature.get("geometry").get("coordinates").get(1).asDouble(), 0);
-    
   }
 
   @Test

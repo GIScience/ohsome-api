@@ -98,7 +98,7 @@ public class UsersRequestExecutor {
 
   /**
    * Performs a count calculation grouped by the tag.
-   * 
+   *
    * @throws BadRequestException if the groupByKey parameter is not given.
    */
   public static Response countGroupByTag(HttpServletRequest servletRequest,
@@ -189,7 +189,7 @@ public class UsersRequestExecutor {
 
   /**
    * Performs a count calculation grouped by the key.
-   * 
+   *
    * @throws BadRequestException if the groupByKeys parameter is not given.
    */
   public static Response countGroupByKey(HttpServletRequest servletRequest,

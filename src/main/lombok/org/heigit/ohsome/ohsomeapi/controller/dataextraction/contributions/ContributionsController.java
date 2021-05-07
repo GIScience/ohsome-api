@@ -25,7 +25,7 @@ public class ContributionsController {
   /**
    * Gives the contributions as GeoJSON features, which have the geometry of the respective objects
    * in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
@@ -49,7 +49,7 @@ public class ContributionsController {
   /**
    * Gives the contributions as GeoJSON features, which have the bounding box of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
@@ -73,7 +73,7 @@ public class ContributionsController {
   /**
    * Gives the contributions as GeoJSON features, which have the centroid of the respective objects
    * in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link
@@ -97,7 +97,7 @@ public class ContributionsController {
   /**
    * Gives the latest contributions as GeoJSON features, which have the geometry of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
@@ -122,7 +122,7 @@ public class ContributionsController {
   /**
    * Gives the latest contributions as GeoJSON features, which have the bounding box of the
    * respective objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
@@ -147,7 +147,7 @@ public class ContributionsController {
   /**
    * Gives the latest contributions as GeoJSON features, which have the centroid of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor

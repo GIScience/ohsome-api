@@ -1,6 +1,5 @@
 package org.heigit.ohsome.ohsomeapi.controller.dataaggregation.elements;
 
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,7 +31,7 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -52,7 +51,7 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -75,7 +74,7 @@ public class AreaController {
 
   /**
    * Gives the area OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -97,7 +96,7 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -123,7 +122,7 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the key.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -146,7 +145,7 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response }
@@ -173,7 +172,7 @@ public class AreaController {
   /**
    * Gives the density of OSM elements (area of items divided by the total area in
    * square-kilometers).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -195,7 +194,7 @@ public class AreaController {
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -219,7 +218,7 @@ public class AreaController {
   /**
    * Gives the density of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -241,7 +240,7 @@ public class AreaController {
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -267,7 +266,7 @@ public class AreaController {
 
   /**
    * Gives the density of OSM elements grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -293,7 +292,7 @@ public class AreaController {
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -329,7 +328,7 @@ public class AreaController {
   /**
    * Gives the ratio of the area of OSM elements satisfying filter2 within items selected by filter
    * grouped by the boundary.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}

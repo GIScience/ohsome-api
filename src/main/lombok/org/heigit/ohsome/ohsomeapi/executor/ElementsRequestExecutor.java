@@ -75,8 +75,8 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs an OSM data extraction.
-   * 
-   * @param elemGeom {@link 
+   *
+   * @param elemGeom {@link
    *        org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -135,7 +135,7 @@ public class ElementsRequestExecutor {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT), 
+    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT),
         Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamResponse(servletResponse, osmData, streamResult);
@@ -144,7 +144,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary and the tag.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -250,7 +250,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the tag.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -335,7 +335,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the OSM type.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -395,7 +395,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the key.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -487,9 +487,9 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
-   * 
+   *
    * @deprecated Will be removed in next major version update.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -634,7 +634,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation using the filter and filter2
    * parameters.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -734,9 +734,9 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
-   * 
+   *
    * @deprecated Will be removed in next major version update.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -927,7 +927,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary using the
    * filter and filter2 parameters.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming

@@ -11,7 +11,6 @@ import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 
-
 /**
  * Represents the whole JSON response object for the data aggregation response using the
  * /ratio/groupBy/boundary resource. It contains an optional {@link

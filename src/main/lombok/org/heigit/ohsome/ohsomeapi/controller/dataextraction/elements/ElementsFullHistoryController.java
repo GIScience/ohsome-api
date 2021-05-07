@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
  * REST controller containing the methods, which are mapped to "/elementsFullHistory" and used to
  * return the full history of the requested OSM data.
@@ -25,7 +24,7 @@ public class ElementsFullHistoryController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
    * the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
@@ -50,7 +49,7 @@ public class ElementsFullHistoryController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the bounding box of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
@@ -75,7 +74,7 @@ public class ElementsFullHistoryController {
   /**
    * Gives the OSM objects as GeoJSON features, which have the centroid of the respective objects in
    * the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor

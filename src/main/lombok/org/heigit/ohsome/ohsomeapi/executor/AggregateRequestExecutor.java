@@ -68,7 +68,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation.
-   * 
+   *
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws RuntimeException if an unsupported RequestResource type is used. Only COUNT, LENGTH,
    *         PERIMETER, and AREA are permitted here
@@ -126,7 +126,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
-   * 
+   *
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters} and
@@ -241,7 +241,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
 
   /**
    * Writes the CSV response directly and returns a null Response as writer has already been called.
-   * 
+   *
    * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
    */
   private Response writeCsv(List<String[]> comments, Consumer<CSVWriter> consumer)
@@ -275,7 +275,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
 
   /**
    * Creates the csv response for /elements/_/groupBy requests.
-   * 
+   *
    * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
    *        containing <code>ElementsResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
@@ -331,16 +331,16 @@ public class AggregateRequestExecutor extends RequestExecutor {
 
   /**
    * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
-   * 
+   *
    * @throws BadRequestException if a boundary parameter is not defined.
    * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
    *         #count() count}, or
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
    *         #sum(SerializableFunction) sum}
    */
-  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, 
-        ? extends Number> computeCountLengthPerimeterAreaGbB(RequestResource requestResource, 
-        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed, 
+  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
+        ? extends Number> computeCountLengthPerimeterAreaGbB(RequestResource requestResource,
+        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed,
         InputProcessor inputProcessor) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
