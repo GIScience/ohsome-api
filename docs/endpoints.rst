@@ -1300,12 +1300,12 @@ Get all the bike rental stations in Heidelberg.
 .. http:post :: /elementsFullHistory/(geometryType)
 
    Get the full history of OSM data as a GeoJSON feature collection. All changes to matching OSM features are included with corresponding ``validFrom`` and ``validTo`` timestamps.
-   This endpoint supports the same ``geometryType`` options as the ``/elements`` endpoint.
+   This endpoint supports the geometry types bbox, centroid and geometry.
 
-   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
-   :query properties: same as for generic-extraction_
-   :query clipGeometry: same as for generic-extraction_
    :query <other>: see above_ (except **format**)
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query clipGeometry: sboolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
 .. _generic-extraction: endpoints.html#post--elements-(geometryType)
 .. _above: endpoints.html#post--elements-(aggregation)
@@ -1503,12 +1503,12 @@ Contributions Extraction
 .. http:post :: /contributions/(geometryType)
 
    Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
-   It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
-
+   This endpoint supports the geometry types bbox, centroid and geometry.
+   
+   :query <other>: see above_ (except **format**)
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
-   :query clipGeometry:  same as for generic-extraction_
-   :query <other>: see above_ (except **format**)
+   :query clipGeometry:  boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
 .. _generic-extraction: endpoints.html#post--elements-(geometryType)
 .. _above: endpoints.html#post--elements-(aggregation)
@@ -1850,7 +1850,12 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
 .. http:post :: /contributions/latest/(geometryType)
 
    Get the the latest state of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
-   It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
+   This endpoint supports the geometry types bbox, centroid and geometry.
+
+   :query <other>: see above_ (except **format**)
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
+   :query clipGeometry:  boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
 **Example request**:
 
