@@ -1,7 +1,6 @@
 API Endpoints
 =============
 
-
 .. note:: For **POST requests** the fields are given analogous to **GET requests**. When you just have a smaller set of spatial parameters,
     a GET request fits perfectly. POST mostly makes sense when you start to use GeoJSON as input geometries.
     
@@ -33,7 +32,6 @@ Elements Aggregation
 .. _time: time.html#time
 .. _filter: filter.html#filter
 
-
 **Example request**:
 
 How big is the area of farmland in the region Rhein-Neckar?
@@ -42,16 +40,13 @@ How big is the area of farmland in the region Rhein-Neckar?
 
    .. code-tab:: bash curl (GET)
 
-
       curl -X GET 'https://api.ohsome.org/v1/elements/area?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&time=2014-01-01&filter=landuse%3Dfarmland%20and%20type%3Away'
 
    .. code-tab:: bash curl (POST)
 
-
       curl -X POST 'https://api.ohsome.org/v1/elements/area' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode 'format=json' --data-urlencode 'time=2014-01-01' --data-urlencode 'filter=landuse=farmland and type:way'
 
    .. code-tab:: python Python
-
 
        import requests
        URL = 'https://api.ohsome.org/v1/elements/area'
@@ -61,11 +56,9 @@ How big is the area of farmland in the region Rhein-Neckar?
 
    .. code-tab:: r R
 
-
        library(httr)
        r <- POST("https://api.ohsome.org/v1/elements/area", encode = "form", body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "landuse=farmland and type:way", time = "2014-01-01"))
        r
-
 
 **Example response**:
 
@@ -99,7 +92,6 @@ How big is the area of farmland in the region Rhein-Neckar?
        } ]
      }
 
-
    .. code-tab:: json Python
 
      {
@@ -127,7 +119,6 @@ How big is the area of farmland in the region Rhein-Neckar?
          "value" : 1.020940258E7
        } ]
      }
-
 
 .. http:post :: /elements/(aggregation)/density
 
@@ -195,7 +186,6 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "value" : 0.79
                } ]
              }
-
 
        .. code-tab:: json Python
 
@@ -297,7 +287,6 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                } ]
              }
 
-
        .. code-tab:: json curl (POST)
 
              {
@@ -323,8 +312,6 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "ratio" : 0.222885
                } ]
              }
-
-
 
        .. code-tab:: json Python
 
@@ -385,19 +372,17 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    * grouping type: one of boundary_, key_, tag_, type_.
    
+   .. note:: ``groupByKeys``, ``groupByKey`` and ``groupByValues`` are resource-specific parameters.
+   
    :query <other>: see above_
-   :query groupByKeys: see groupBy_
-   :query groupByKey: see groupBy_
-   :query groupByValues: see groupBy_
+   :query groupByKeys: see key_
+   :query groupByKey: see tag_
+   :query groupByValues: see tag_
 .. _boundary: group-by.html#boundary
 .. _key: group-by.html#key
 .. _tag: group-by.html#tag
 .. _type: group-by.html#type
 .. _groupBy: group-by.html
-
-.. note:: For **groupBy/key** and **groupBy/tag**, 
-          there are additional resource-specific parameters, which you can find at groupBy_.
-
 
 **Example request**:
 
@@ -459,7 +444,6 @@ How often information about the roof of buildings is present?
                 "groupByObject" : "building:roof:colour"
               } ]
             }
-
 
           .. code-tab:: json curl (POST)
 
@@ -553,8 +537,11 @@ How often information about the roof of buildings is present?
    Get ``density`` of ``aggregation`` of OSM elements grouped by ``groupType``.
    
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
-   * grouping type: see above - Same as for **aggregation** of OSM elements grouped by **groupType** but without **groupBy/key**.
+   * grouping type: one of boundary_, tag_, type_.
 
+   :query <other>: see above_
+   :query groupByKey: see tag_
+   :query groupByValues: see tag_
 
 .. http:post :: /elements/(aggregation)/groupBy/boundary/groupBy/tag
 
@@ -562,13 +549,15 @@ How often information about the roof of buildings is present?
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    
-   :query <other>: see above
-   :query groupByKey: see groupBy_
-   :query groupByValues: see groupBy_
+   :query <other>: see above_
+   :query groupByKey: see tag_ 
+   :query groupByValues: see tag_
+
 .. _boundary: group-by.html#boundary
 .. _key: group-by.html#key
 .. _tag: group-by.html#tag
 .. _type: group-by.html#type
+.. _tag&boundary: group-by.html#tag-and-boundary
 .. _groupBy: group-by.html
 
 **Example request**:
@@ -661,7 +650,6 @@ Compare length of different types of streets for two or more regions.
                "groupByObject" : [ "Plankstadt", "highway=primary" ]
              } ]
            }
-
 
          .. code-tab:: json curl (POST)
 
@@ -840,28 +828,36 @@ Compare length of different types of streets for two or more regions.
              } ]
            }
 
-
-.. http:post :: /elements/(aggregation)/density/groupBy/boundary/groupBy/tag
+.. http:post :: /elements/(aggregation)/(density or ratio)/groupBy/boundary/groupBy/tag
 
    Get ``density`` of ``aggregation`` of OSM elements grouped by ``boundary`` and ``tag``.
    
-   * aggregation type: same as for **/elements/(aggregation)/groupBy/boundary/groupBy/tag**.
-
+   * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
+	
+   :query <other>: see above_
+   :query groupByKey: see tag_
+   :query groupByValues: see tag_
 
 Users Aggregation
 -----------------
 
 .. http:post :: /users/count
 
-    Compute data aggregation functions on users. Possbile endpoints:
+    Get ``aggregation`` on OSM users. Possible endpoints:
     
     * /count
     * /count/groupBy/(groupType)
     * /count/density
     * /count/density/groupBy/(boundary or tag or type)
 
+    * grouping type: one of boundary_, key_, tag_, type_.
+    
+     .. note:: ``groupByKeys``, ``groupByKey`` and ``groupByValues`` are resource-specific parameters.
+    
     :query <other>: see above_
-    :param groupType: property to group by, one of boundary_, key_, tag_, type_.
+    :query groupByKeys: see key_
+    :query groupByKey: see tag_
+    :query groupByValues: see tag_
 
 **Example request**:
 
@@ -890,7 +886,6 @@ Show number of users editing buildings before, during and after Nepal earthquake
         library(httr)
         r <- POST("https://api.ohsome.org/v1/users/count", encode = "form", body = list(bboxes = "82.3055,6.7576,87.4663,28.7025", filter = "building=* and type:way", time = "2015-03-01/2015-08-01/P1M"))
         r
-
 
 **Example response**:
 
@@ -927,7 +922,6 @@ Show number of users editing buildings before, during and after Nepal earthquake
         } ]
       }
 
-
     .. code-tab:: json curl (POST)
 
       {
@@ -958,7 +952,6 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "value" : 185.0
         } ]
       }
-
 
     .. code-tab:: json Python
 
@@ -1022,13 +1015,17 @@ Show number of users editing buildings before, during and after Nepal earthquake
         } ]
       }
 
-
 Contributions Aggregation
 -------------------------
       
 .. http:post :: /contributions/count
 
-   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters. Possible endpoints:
+    
+    * /count
+    * /count/density
+
+   :query <other>: see above_
 
 .. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
 
@@ -1059,7 +1056,6 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
         library(httr)
         r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.699053,49.411842,8.701311,49.412893", time = "2010-01-01,2020-01-01", filter = "id:way/140112810"))
         r
-
 
 **Example response**:
 
@@ -1099,7 +1095,6 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 	  ]
 	}
 
-
    .. code-tab:: json Python
 
 	{
@@ -1133,7 +1128,6 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 	    }
 	  ]
 	}
-
 
 .. http:post :: /contributions/count/density
 
@@ -1241,19 +1235,17 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	  ]
 	}
 
-
 Elements Extraction
 -------------------
 .. http:post :: /elements/(geometryType)
 
    Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
 
+   :query <other>: see above_ (except **format**)
    :query time: required; format same as described in time_
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
    :query clipGeometry: boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
-   :query <other>: see above_ (except **format**)
    
-
 .. note:: The extraction endpoints always return a .geojson file.
 
 **Example request**:
@@ -1284,7 +1276,6 @@ Get all the bike rental stations in Heidelberg.
         r <- POST("https://api.ohsome.org/v1/elements/geometry", encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "amenity=bicycle_rental and type:node", time = "2019-09-01"))
         r
 
-
 **Example response**:
 
    .. tabs::
@@ -1305,7 +1296,6 @@ Get all the bike rental stations in Heidelberg.
     .. code-tab:: text R
 
       file ohsome.geojson
-  
 
 .. http:post :: /elementsFullHistory/(geometryType)
 
@@ -1431,7 +1421,6 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
         ]
       }
 
-
     .. code-tab:: text Python
 
       {
@@ -1507,8 +1496,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
         ...
         ]
       }
-   
-      
+    
 Contributions Extraction
 ------------------------
 
@@ -1634,7 +1622,6 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         }]
       }
 
-
     .. code-tab:: text curl (POST)
 
       {
@@ -1710,7 +1697,6 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         }]
       }
 
-
     .. code-tab:: text Python
 
       {
@@ -1785,7 +1771,6 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           }
         }]
       }
-
 
     .. code-tab:: text R
 
@@ -1948,7 +1933,6 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
         }]
       }
 
-
     .. code-tab:: text curl (POST)
 
       {
@@ -1995,7 +1979,6 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }]
       }
-
 
     .. code-tab:: text Python
 
@@ -2044,7 +2027,6 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
         }]
       }
 
-
     .. code-tab:: text R
 
       {
@@ -2090,8 +2072,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
             "@version" : 9
           }
         }]
-      }
-      
+      }    
       
 Metadata
 --------
@@ -2122,7 +2103,6 @@ Get metadata of the underlying OSHDB data
         library(httr)
         r <- GET("https://api.ohsome.org/v1/metadata")
         r
-
 
 **Example response**:
 
