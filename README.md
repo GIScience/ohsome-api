@@ -30,7 +30,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 11](https://openjdk.java.net/projects/jdk/11/) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* data: [download](http://downloads.ohsome.org/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-tool/etl/README.md)
+* data: [download](http://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-tool/etl/README.md)
 
 ### IDE Settings
 
@@ -69,7 +69,7 @@ To run the tests locally, you need the following:
     * -Dport.get starts data-aggregation + metadata tests using GET requests
     * -Dport.post starts data-aggregation tests using POST requests
     * -Dport.data starts data-extraction tests using GET and POST requests
-2. [heidelberg.oshdb](https://downloads.ohsome.org/v0.6/europe/germany/baden-wuerttemberg/heidelberg_68900_2020-07-23.oshdb.mv.db) file (or any other, which includes the data from Heidelberg)
+2. [heidelberg.oshdb](https://downloads.ohsome.org/OSHDB/v0.6/europe/germany/baden-wuerttemberg/heidelberg_68900_2020-07-23.oshdb.mv.db) file (or any other, which includes the data from Heidelberg)
 3. maven command: `mvn -Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=<path-to-your-heidelberg.oshdb-file>" test`
 
 *Note:* 
