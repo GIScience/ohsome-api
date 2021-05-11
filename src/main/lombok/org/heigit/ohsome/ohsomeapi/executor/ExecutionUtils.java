@@ -96,14 +96,14 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
 @RequiredArgsConstructor
-public class ExecutionUtils {
+public class ExecutionUtils implements Serializable {
   private AtomicReference<Boolean> isFirst;
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
-  public MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
+  public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
       Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
       Integer[] valuesInt1, Integer[] valuesInt2) {
@@ -116,7 +116,7 @@ public class ExecutionUtils {
    * Applies a filter on the given MapReducer object using the given parameters. Used in
    * /ratio/groupBy/boundary requests.
    */
-  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>
+  public static MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>
       snapshotFilter(
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapRed,
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
@@ -128,7 +128,7 @@ public class ExecutionUtils {
   }
 
   /** Compares the type(s) and tag(s) of the given snapshot to the given types|tags. */
-  public boolean snapshotMatches(OSMEntitySnapshot snapshot, Set<OSMType> osmTypes,
+  public static boolean snapshotMatches(OSMEntitySnapshot snapshot, Set<OSMType> osmTypes,
       Set<SimpleFeatureType> simpleFeatureTypes, Integer[] keysInt, Integer[] valuesInt) {
     boolean matchesTags = true;
     OSMEntity entity = snapshot.getEntity();
@@ -349,7 +349,7 @@ public class ExecutionUtils {
    * Sets the boolean values for the respective simple feature type: 0 = hasPoint, 1 = hasLine, 2 =
    * hasPolygon, 3 = hasOther.
    */
-  public boolean[] setRequestedSimpleFeatures(Set<SimpleFeatureType> simpleFeatureTypes) {
+  private static boolean[] setRequestedSimpleFeatures(Set<SimpleFeatureType> simpleFeatureTypes) {
     boolean[] simpleFeatureArray = new boolean[] {false, false, false, false};
     for (SimpleFeatureType type : simpleFeatureTypes) {
       if (type.equals(SimpleFeatureType.POINT)) {
@@ -366,7 +366,7 @@ public class ExecutionUtils {
   }
 
   /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
-  public List<String[]> createCsvTopComments(String url, String text, String apiVersion,
+  public static List<String[]> createCsvTopComments(String url, String text, String apiVersion,
       Metadata metadata) {
     List<String[]> comments = new LinkedList<>();
     comments.add(new String[] {"# Copyright URL: " + url});
@@ -440,7 +440,7 @@ public class ExecutionUtils {
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public <K extends Comparable<K> & Serializable, V extends Number>
+  public static <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
       RequestResource requestResource,
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> preResult)
@@ -475,7 +475,7 @@ public class ExecutionUtils {
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public <K extends Comparable<K> & Serializable, V extends Number>
+  public static <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>
       computeNestedResult(
       RequestResource requestResource,
@@ -508,7 +508,7 @@ public class ExecutionUtils {
    * Extracts the tags from the given <code>OSMContribution</code> depending on the
    * <code>ContributionType</code>.
    */
-  public int[] extractContributionTags(OSMContribution contrib) {
+  public static int[] extractContributionTags(OSMContribution contrib) {
     int[] tags;
     if (contrib.getContributionTypes().contains(ContributionType.DELETION)) {
       tags = contrib.getEntityBefore().getRawTags();
@@ -525,8 +525,9 @@ public class ExecutionUtils {
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
-  public ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
-      boolean isDensity, DecimalFormat df, Geometry geom) {
+  public static ElementsResult[] fillElementsResult(
+      SortedMap<OSHDBTimestamp, ? extends Number> entryVal, boolean isDensity, DecimalFormat df,
+      Geometry geom) {
     ElementsResult[] results = new ElementsResult[entryVal.entrySet().size()];
     int count = 0;
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
@@ -545,7 +546,7 @@ public class ExecutionUtils {
   }
 
   /** Fills the ContributionsResult array with respective ContributionsResult objects. */
-  public ContributionsResult[] fillContributionsResult(
+  public static ContributionsResult[] fillContributionsResult(
       SortedMap<OSHDBTimestamp, ? extends Number> entryVal, boolean isDensity,
       InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
     ContributionsResult[] results = new ContributionsResult[entryVal.entrySet().size()];
@@ -574,7 +575,7 @@ public class ExecutionUtils {
    * @param df <code>DecimalFormat</code> defining the number of digits of the result values
    * @return <code>Double[]</code> containing the formatted result values
    */
-  public Double[] fillElementsRatioGroupByBoundaryResultValues(
+  public static Double[] fillElementsRatioGroupByBoundaryResultValues(
       Set<? extends Entry<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, ? extends Number>> resultSet,
       DecimalFormat df) {
     Double[] resultValues = new Double[resultSet.size()];
@@ -597,7 +598,7 @@ public class ExecutionUtils {
    * @return nested <code>Pair</code> containing the integer values of the tag category and the
    *         <code>OSMEntitySnapshot</code>
    */
-  public Pair<Pair<Integer, Integer>, OSMEntitySnapshot> mapSnapshotToTags(int keysInt,
+  public static Pair<Pair<Integer, Integer>, OSMEntitySnapshot> mapSnapshotToTags(int keysInt,
       Integer[] valuesInt, OSMEntitySnapshot f) {
     int[] tags = f.getEntity().getRawTags();
     for (int i = 0; i < tags.length; i += 2) {
@@ -703,7 +704,7 @@ public class ExecutionUtils {
    * Extracts and returns a geometry out of the given contribution. The boolean values specify if it
    * should be clipped/unclipped and if the geometry before/after a contribution should be taken.
    */
-  public Geometry getGeometry(OSMContribution contribution, boolean clipGeometries,
+  public static Geometry getGeometry(OSMContribution contribution, boolean clipGeometries,
       boolean before) {
     Geometry geom = null;
     if (clipGeometries) {
@@ -723,7 +724,7 @@ public class ExecutionUtils {
   }
 
   /** Combines the two given filters with an OR operation. Used in /ratio computation. */
-  public String combineFiltersWithOr(String firstFilter, String secondFilter) {
+  public static String combineFiltersWithOr(String firstFilter, String secondFilter) {
     if (firstFilter.isBlank() || secondFilter.isBlank()) {
       // definition of an empty combined filter if filter1 or filter2 is empty
       return "";
@@ -738,7 +739,7 @@ public class ExecutionUtils {
    *        containing <code>ElementsResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
    */
-  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsGroupBy(
+  private static ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsGroupBy(
       GroupByObject[] resultSet) {
     List<String> columnNames = new LinkedList<>();
     columnNames.add("timestamp");
@@ -774,8 +775,8 @@ public class ExecutionUtils {
    *        objects containing <code>RatioResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
    */
-  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsRatioGroupBy(
-      GroupByObject[] resultSet) {
+  private static ImmutablePair<List<String>, List<String[]>>
+      createCsvResponseForElementsRatioGroupBy(GroupByObject[] resultSet) {
     List<String> columnNames = new LinkedList<>();
     columnNames.add("timestamp");
     List<String[]> rows = new LinkedList<>();
@@ -811,7 +812,7 @@ public class ExecutionUtils {
    *        containing <code>ContributionsResult</code> objects
    * @return <code>Pair</code> containing the column names (left) and the data rows (right)
    */
-  private ImmutablePair<List<String>, List<String[]>> createCsvResponseForUsersGroupBy(
+  private static ImmutablePair<List<String>, List<String[]>> createCsvResponseForUsersGroupBy(
       GroupByObject[] resultSet) {
     List<String> columnNames = new LinkedList<>();
     columnNames.add("fromTimestamp");
@@ -941,8 +942,8 @@ public class ExecutionUtils {
    *
    * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
    */
-  private CSVWriter writeComments(HttpServletResponse servletResponse, List<String[]> comments)
-      throws IOException {
+  private static CSVWriter writeComments(
+      HttpServletResponse servletResponse, List<String[]> comments) throws IOException {
     CSVWriter writer =
         new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
             CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
@@ -951,7 +952,7 @@ public class ExecutionUtils {
   }
 
   /** Adds contribution types properties like creation to the feature. */
-  private Map<String, Object> addContributionTypes(Map<String, Object> properties,
+  private static Map<String, Object> addContributionTypes(Map<String, Object> properties,
       EnumSet<ContributionType> contributionTypes) {
     if (contributionTypes.contains(ContributionType.CREATION)) {
       properties.put("@creation", true);
@@ -972,7 +973,7 @@ public class ExecutionUtils {
    * Returns a new geometry precision reducer using a precision of 7 digits, having an activated
    * point-wise mode and a deactivated remove-collapsed-components mode.
    */
-  private GeometryPrecisionReducer createGeometryPrecisionReducer() {
+  private static GeometryPrecisionReducer createGeometryPrecisionReducer() {
     var gpr = new GeometryPrecisionReducer(new PrecisionModel(1E7));
     gpr.setPointwise(true);
     gpr.setRemoveCollapsedComponents(false);
@@ -983,8 +984,8 @@ public class ExecutionUtils {
     final Set<Integer> keysInt;
     if (keys.length != 0) {
       keysInt = new HashSet<>(keys.length);
-      for (int i = 0; i < keys.length; i++) {
-        keysInt.add(tt.getOSHDBTagKeyOf(keys[i]).toInt());
+      for (String key : keys) {
+        keysInt.add(tt.getOSHDBTagKeyOf(key).toInt());
       }
     } else {
       keysInt = Collections.emptySet();

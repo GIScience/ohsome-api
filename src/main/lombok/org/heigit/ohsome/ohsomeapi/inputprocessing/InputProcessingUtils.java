@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
@@ -29,10 +30,10 @@ import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
-public class InputProcessingUtils {
+public class InputProcessingUtils implements Serializable {
 
   private static final String GEOMCOLLTYPE = "GeometryCollection";
-  private Object[] boundaryIds;
+  private Serializable[] boundaryIds;
   private String[] toTimestamps = null;
 
   /**
@@ -85,7 +86,7 @@ public class InputProcessingUtils {
   public List<String> splitBboxes(String bboxes) {
     String[] bboxesArray = splitOnHyphen(bboxes);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Object[bboxesArray.length];
+    boundaryIds = new Serializable[bboxesArray.length];
     try {
       if (bboxesArray[0].contains(":")) {
         boundaryParamValues = splitBboxesWithIds(bboxesArray);
@@ -112,7 +113,7 @@ public class InputProcessingUtils {
   public List<String> splitBcircles(String bcircles) {
     String[] bcirclesArray = splitOnHyphen(bcircles);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Object[bcirclesArray.length];
+    boundaryIds = new Serializable[bcirclesArray.length];
     try {
       if (bcirclesArray[0].contains(":")) {
         boundaryParamValues = splitBcirclesWithIds(bcirclesArray);
@@ -139,7 +140,7 @@ public class InputProcessingUtils {
   public List<String> splitBpolys(String bpolys) {
     String[] bpolysArray = splitOnHyphen(bpolys);
     List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Object[bpolysArray.length];
+    boundaryIds = new Serializable[bpolysArray.length];
     try {
       if (bpolysArray[0].contains(":")) {
         boundaryParamValues = splitBpolysWithIds(bpolysArray);
@@ -618,7 +619,7 @@ public class InputProcessingUtils {
     return toTimestamps;
   }
 
-  public void setBoundaryIds(Object[] boundaryIds) {
+  public void setBoundaryIds(Serializable[] boundaryIds) {
     this.boundaryIds = boundaryIds;
   }
 

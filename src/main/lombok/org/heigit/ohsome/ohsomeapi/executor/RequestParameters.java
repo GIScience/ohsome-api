@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class RequestParameters {
+public class RequestParameters implements Serializable {
 
   private String requestMethod;
   private boolean isSnapshot;
