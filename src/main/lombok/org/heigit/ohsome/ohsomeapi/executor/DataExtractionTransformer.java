@@ -54,26 +54,25 @@ public class DataExtractionTransformer implements Serializable {
    * @param endTimestamp end timestamp of the query
    * @param filter the filter of the query
    * @param isContributionsEndpoint set true if the requested resource is a
-*                                `/contributions` endpoint
+*           `/contributions` endpoint
    * @param isContributionsLatestEndpoint set true if the requested resource is a
-*                                      `/contributions/latest` endpoint
+*           `/contributions/latest` endpoint
    * @param clipGeometries whether or not the output geometries should be clipped to the query
-*                       area-of-interest or not
+   *        area-of-interest or not
    * @param includeTags set true if the result should include all OSM entity's tags as GeoJSON
-*                    feature properties
+   *        feature properties
    * @param includeOSMMetadata set true if the result should include the OSM entity metadata (e.g.
-*                           cahngeset id, timestamp, version number)
+   *        changeset id, timestamp, version number)
    * @param includeContributionTypes set true if the result should include the contribution type
-*                                 for `/elements/contributions` resources
+   *        for `/elements/contributions` resources
    * @param inputUtils input processing utility object
    * @param exeUtils the execution utils object
    * @param keysInt (for the deprecated `keys` filter parameter) set the list of always to be
-*                returned OSM tags in the GeoJSON's features' properties
+   *        returned OSM tags in the GeoJSON's features' properties
    * @param outputGeometry specifies what should be returned as the GeoJSON feature's geometry:
-*                         either the full geometry, its bbox or its centroid.
+   *        either the full geometry, its bbox or its centroid.
    * @param simpleFeatureTypes if the query uses the (deprecated) types parameter, and it contains
-*                           simple feature "geometry" types, specify the set of to be returned
-*                           geometry types here
+   *        simple feature "geometry" types, specify the set of to be returned geometry types here
    * @param isContainingSimpleFeatureTypes set true if the query uses the (deprecated) types
    */
   public DataExtractionTransformer(String startTimestamp, String endTimestamp,
@@ -109,8 +108,8 @@ public class DataExtractionTransformer implements Serializable {
    *   resulting GeoJSON properties, while full history endpoints include validFrom-validTo dates.
    * </p>
    *
-   * @param contributions The list of modifications of a single OSMEntity.
-   * @return A list of GeoJSON features corresponding to the given OSM entity's modifications.
+   * @param contributions list of modifications of a single OSMEntity.
+   * @return list of GeoJSON features corresponding to the given OSM entity's modifications.
    */
   public List<Feature> buildChangedFeatures(List<OSMContribution> contributions) {
     List<Feature> output = new LinkedList<>();
@@ -217,7 +216,7 @@ public class DataExtractionTransformer implements Serializable {
    *   result which don't change at all during the given start and end times.
    * </p>
    *
-   * @param snapshot The osm entity to return.
+   * @param snapshot OSM entity to return.
    * @return Either a singleton of a GeoJSON feature representing this OSM entity, or an
    *         empty collection if it doesn't fit the given (simple feature types) filter.
    */
