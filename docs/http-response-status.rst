@@ -1,11 +1,13 @@
 HTTP Response Status
 ====================
 
-List of HTTP status codes and respective descriptions.
+List of HTTP status codes and possible messages.
 
 2xx success
 -----------
 ``200 OK`` - standard response for successful GET or POST requests.
+
+.. note:: If an error occurs during a data-extraction request, the result will be a broken GeoJSON containing the error JSON object at the end. In this case, the ohsome API will give back a 200 response status.
 
 4xx client errors
 -----------------
@@ -51,6 +53,7 @@ List of possible messages:
 * "The keys, values and types parameters must be empty, when you set the filter parameter."
 * "The properties parameter of this resource can only contain the values 'tags' and/or 'metadata' and/or 'contributionTypes' and/or 'unclipped'."
 * "The properties parameter of this resource can only contain the values 'tags' and/or 'metadata' and/or 'unclipped'."
+* "Parameter 'types' (and 'types2') can only have 'node' and/or 'way' and/or 'relation' OR 'point' and/or 'line' and/or 'polygon' and/or 'other'"
 
 ``404 Not Found``-  the requested resource could not be found.
 
