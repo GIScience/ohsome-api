@@ -73,7 +73,7 @@ These services use the ohsome API:
 * [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/)
 * [ohsome dashboard](https://ohsome.org/apps/dashboard/)
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
-* [ohsome quality analyst](https://oqt.ohsome.org/)
+* [ohsome quality analyst](https://github.com/GIScience/ohsome-quality-analyst/)
 
 This is a list of clients for the ohsome API:
    
