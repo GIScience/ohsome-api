@@ -79,7 +79,6 @@ This is a list of clients for the ohsome API:
    
 * [ohsome-py](https://github.com/GIScience/ohsome-py) - Python client
 * [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - Client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables.
-* [ohsome-qgis-plugin](https://github.com/MichaelsJP/ohsome-qgis-plugin) - QGIS plugin that supports data extraction
 
 You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
 
