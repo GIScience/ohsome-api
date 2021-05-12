@@ -5,6 +5,7 @@ List of HTTP status codes and possible messages.
 
 2xx success
 -----------
+
 ``200 OK`` - standard response for successful GET or POST requests.
 
 .. note:: If an error occurs during a data-extraction request, the result will be a broken GeoJSON containing the error JSON object at the end. In this case, the ohsome API will give back a 200 response status.
