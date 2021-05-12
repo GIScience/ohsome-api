@@ -11,6 +11,7 @@ Changelog
 
 * fix uncaught GeoJSON parsing exception ([#55])
 * fix a bug where `getMetadataTest` unit test fails in certain setups ([#175])
+* remove the parameters `@snapshotTimestamp` and `@lastEdit` from full-history extraction response([#191])
 
 ### Performance and Code Quality
 
@@ -27,7 +28,7 @@ Changelog
 [#55]: https://github.com/GIScience/ohsome-api/issues/55
 [#164]: https://github.com/GIScience/ohsome-api/pull/164
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
-
+[#191]: https://github.com/GIScience/ohsome-api/issues/191
 
 ## 1.4.1
 
