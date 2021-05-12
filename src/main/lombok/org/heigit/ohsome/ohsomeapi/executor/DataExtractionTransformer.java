@@ -223,17 +223,12 @@ public class DataExtractionTransformer implements Serializable {
   public List<Feature> buildUnchangedFeatures(OSMEntitySnapshot snapshot) {
     Map<String, Object> properties = new TreeMap<>();
     OSMEntity entity = snapshot.getEntity();
-    if (includeOSMMetadata) {
-      properties.put("@lastEdit", entity.getTimestamp().toString());
-    }
     Geometry geom;
     if (clipGeometries) {
       geom = snapshot.getGeometry();
     } else {
       geom = snapshot.getGeometryUnclipped();
     }
-    properties.put("@snapshotTimestamp",
-        TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
     properties.put(VALID_FROM_PROPERTY, startTimestamp);
     properties.put(VALID_TO_PROPERTY, endTimestamp);
     boolean addToOutput = addEntityToOutput(entity, geom);
