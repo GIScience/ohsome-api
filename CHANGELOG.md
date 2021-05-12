@@ -11,7 +11,7 @@ Changelog
 
 * fix uncaught GeoJSON parsing exception ([#55])
 * fix a bug where `getMetadataTest` unit test fails in certain setups ([#175])
-* remove the parameters `@snapshotTimestamp` and `@lastEdit` from full-history extraction response([#191])
+* remove the parameters `@snapshotTimestamp` and `@lastEdit` from full-history extraction responses ([#191])
 
 ### Performance and Code Quality
 
