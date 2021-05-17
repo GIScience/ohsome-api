@@ -1000,6 +1000,8 @@ Show number of users editing buildings before, during and after Nepal earthquake
         } ]
       }
 
+.. note:: For endpoint description, grouping types and query parameters of the endpoints **/count/groupBy/(groupType)**, **/count/density** and **/count/density/groupBy/(groupType)**, please refer to the corresponding `/elements/(aggregation)`_ endpoints.
+
 Contributions Aggregation
 -------------------------
       
@@ -2167,3 +2169,4 @@ Get metadata of the underlying OSHDB data
 .. _time: time.html#time
 .. _filter: filter.html#filter
 .. _above: endpoints.html#post--elements-(aggregation)
+.. _/elements/(aggregation): endpoints.html#elements-aggregation
