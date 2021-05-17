@@ -537,6 +537,7 @@ How often information about the roof of buildings is present?
    Get ``aggregation`` of OSM elements grouped by ``boundary`` and ``tag``.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
+   * grouping type: `boundary and tag`_.
    
    :query <other>: see above_
    :query groupByKey: see tag_ 
@@ -810,15 +811,17 @@ Compare length of different types of streets for two or more regions.
              } ]
            }
 
-.. http:post :: /elements/(aggregation)/(density or ratio)/groupBy/boundary/groupBy/tag
+.. http:post :: /elements/(aggregation)/ratio/groupBy/boundary
 
-   Get ``density`` of ``aggregation`` of OSM elements grouped by ``boundary`` and ``tag``.
+   Get ``ratio`` of ``aggregation`` of OSM elements grouped by ``boundary``.
    
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
 	
    :query <other>: see above_
-   :query groupByKey: see tag_
-   :query groupByValues: see tag_
+   :query filter2: see filter_
+   :query keys2: Deprecated! see **filter2**
+   :query types2: Deprecated! use **filter2**
+   :query values2: Deprecated! see **filter2**
 
 Users Aggregation
 -----------------
@@ -2156,13 +2159,11 @@ Get metadata of the underlying OSHDB data
 .. _key: group-by.html#key
 .. _tag: group-by.html#tag
 .. _type: group-by.html#type
-.. _groupBy: group-by.html    
-.. _tag&boundary: group-by.html#tag-and-boundary 
+.. _boundary and tag: group-by.html#boundary-and-tag 
 .. _bboxes: boundaries.html#bboxes
 .. _bcircles: boundaries.html#bcircles
 .. _bpolys: boundaries.html#bpolys
 .. _boundaries: boundaries.html#boundaries
 .. _time: time.html#time
 .. _filter: filter.html#filter
-.. _generic-extraction: endpoints.html#post--elements-(geometryType)
 .. _above: endpoints.html#post--elements-(aggregation)

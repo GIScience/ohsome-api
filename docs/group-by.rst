@@ -59,7 +59,7 @@ parameter.
     :param aggregation: aggregation type, one of ``area``, ``count``, ``length``, ``perimeter``
     :query <params>: see query-parameters_ at /elements(aggregation) endpoint
 
-Tag and Boundary
+Boundary and Tag
 ----------------
 Groups the result by the given boundary and the tags.
 
