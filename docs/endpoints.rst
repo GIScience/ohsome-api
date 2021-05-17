@@ -25,12 +25,6 @@ Elements Aggregation
    :query types: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
    :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
    :query values: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty
-.. _bboxes: boundaries.html#bounding-boxes
-.. _bcircles: boundaries.html#circles
-.. _bpolys: boundaries.html#polygons
-.. _boundaries: boundaries.html#boundaries
-.. _time: time.html#time
-.. _filter: filter.html#filter
 
 **Example request**:
 
@@ -378,11 +372,6 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
    :query groupByKeys: see key_
    :query groupByKey: see tag_
    :query groupByValues: see tag_
-.. _boundary: group-by.html#boundary
-.. _key: group-by.html#key
-.. _tag: group-by.html#tag
-.. _type: group-by.html#type
-.. _groupBy: group-by.html
 
 **Example request**:
 
@@ -552,13 +541,6 @@ How often information about the roof of buildings is present?
    :query <other>: see above_
    :query groupByKey: see tag_ 
    :query groupByValues: see tag_
-
-.. _boundary: group-by.html#boundary
-.. _key: group-by.html#key
-.. _tag: group-by.html#tag
-.. _type: group-by.html#type
-.. _tag&boundary: group-by.html#tag-and-boundary
-.. _groupBy: group-by.html
 
 **Example request**:
 
@@ -1307,10 +1289,6 @@ Get all the bike rental stations in Heidelberg.
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
    :query clipGeometry: sboolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
-.. _generic-extraction: endpoints.html#post--elements-(geometryType)
-.. _above: endpoints.html#post--elements-(aggregation)
-.. _time: time.html#time
-
 **Example request**:
 
 Extract the modifications of the blown up tower of the heidelberg castle over time
@@ -1509,9 +1487,6 @@ Contributions Extraction
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
    :query clipGeometry:  boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
-
-.. _generic-extraction: endpoints.html#post--elements-(geometryType)
-.. _above: endpoints.html#post--elements-(aggregation)
 
 **Example request**:
 
@@ -2176,3 +2151,18 @@ Get metadata of the underlying OSHDB data
           "replicationSequenceNumber" : 65032
         }
       }
+
+.. _boundary: group-by.html#boundary
+.. _key: group-by.html#key
+.. _tag: group-by.html#tag
+.. _type: group-by.html#type
+.. _groupBy: group-by.html    
+.. _tag&boundary: group-by.html#tag-and-boundary 
+.. _bboxes: boundaries.html#bboxes
+.. _bcircles: boundaries.html#bcircles
+.. _bpolys: boundaries.html#bpolys
+.. _boundaries: boundaries.html#boundaries
+.. _time: time.html#time
+.. _filter: filter.html#filter
+.. _generic-extraction: endpoints.html#post--elements-(geometryType)
+.. _above: endpoints.html#post--elements-(aggregation)
