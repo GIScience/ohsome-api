@@ -27,6 +27,16 @@ https://api.ohsome.org
     │       ├── groupBy/key
     │       ├── groupBy/tag
     │       └── groupBy/type
+    ├── contributions
+    │   ├── count
+    │   │   └── density
+    │   ├── bbox
+    │   ├── centroid
+    │   ├── geometry       
+    │   └── latest
+    │       ├── bbox
+    │       ├── centroid
+    │       └── geometry    
     ├── elementsFullHistory
     │   ├── bbox
     │   ├── centroid

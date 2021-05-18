@@ -22,6 +22,7 @@ Changelog
 * add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
 * properly skip `GetControllerTest` class if `port1` parameter is absent ([#164])
 * update ohsome parent module, requires maven version 3.6 or higher ([#184])
+* update documentation([#88]) ([#150]) and endpoints graph ([#158])
 
 [#166]: https://github.com/GIScience/ohsome-api/issues/166
 [#136]: https://github.com/GIScience/ohsome-api/issues/136
@@ -30,6 +31,9 @@ Changelog
 [#175]: https://github.com/GIScience/ohsome-api/issues/175
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
+[#88]: https://github.com/GIScience/ohsome-api/issues/88
+[#150]: https://github.com/GIScience/ohsome-api/issues/150
+[#158]: https://github.com/GIScience/ohsome-api/issues/158
 
 ## 1.4.1
 
