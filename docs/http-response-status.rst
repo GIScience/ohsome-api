@@ -17,7 +17,7 @@ List of HTTP status codes and possible messages.
 
 ``404 Not Found``-  the requested resource could not be found because the given boundary or time are not within the underlying osh-data.
 
-``413 Payload Too Large`` - the request is too large in respect to the given timeout parameter.
+``413 Payload Too Large`` - the request took too long to compute in respect of the given or default timeout.
 
 5xx server errors
 -----------------
