@@ -27,6 +27,7 @@ Changelog
 [#136]: https://github.com/GIScience/ohsome-api/issues/136
 [#55]: https://github.com/GIScience/ohsome-api/issues/55
 [#164]: https://github.com/GIScience/ohsome-api/pull/164
+[#175]: https://github.com/GIScience/ohsome-api/issues/175
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
 
