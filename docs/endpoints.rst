@@ -828,7 +828,7 @@ Users Aggregation
 
 .. http:post :: /users/count
 
-    Get ``aggregation`` on OSM users. Possible endpoints:
+    Get ``aggregation`` statistics about OSM users. Possible endpoints:
     
     * /count
     * /count/groupBy/(groupType)
