@@ -41,7 +41,7 @@ public class UsersController {
       throws Exception {
     ContributionsExecutor executor =
         new ContributionsExecutor(servletRequest, servletResponse, false);
-    return executor.count(true);
+    return executor.count(true, false);
   }
 
   /**
@@ -147,7 +147,7 @@ public class UsersController {
       HttpServletResponse servletResponse) throws Exception {
     ContributionsExecutor executor =
         new ContributionsExecutor(servletRequest, servletResponse, true);
-    return executor.count(true);
+    return executor.count(true, false);
   }
 
   /**
