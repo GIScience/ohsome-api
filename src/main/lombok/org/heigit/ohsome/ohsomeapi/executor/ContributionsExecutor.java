@@ -54,7 +54,9 @@ public class ContributionsExecutor extends RequestExecutor {
       throws Exception {
     MapReducer<OSMContribution> mapRed;
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
-    inputProcessor.getProcessingData().setFullHistory(true);
+    if (isContributionsLatestCount) {
+      inputProcessor.getProcessingData().setFullHistory(true);
+    }
     if (DbConnData.db instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
