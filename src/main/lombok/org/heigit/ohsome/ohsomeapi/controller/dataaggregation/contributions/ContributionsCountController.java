@@ -1,9 +1,12 @@
 package org.heigit.ohsome.ohsomeapi.controller.dataaggregation.contributions;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
@@ -34,6 +37,9 @@ public class ContributionsCountController {
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   public Response contributionsCount(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     ContributionsExecutor executor =
@@ -55,6 +61,9 @@ public class ContributionsCountController {
       value = "Density of OSM contributions (number of contributions divided by the "
           + "total area in square-kilometers)",
       nickname = "contributionsCountDensity", response = DefaultAggregationResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response contributionsCountDensity(HttpServletRequest servletRequest,
@@ -76,6 +85,9 @@ public class ContributionsCountController {
    */
   @ApiOperation(value = "Count of latest OSM contributions", nickname = "contributionsLatestCount",
       response = DefaultAggregationResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/latest/count", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response contributionsLatestCount(HttpServletRequest servletRequest,

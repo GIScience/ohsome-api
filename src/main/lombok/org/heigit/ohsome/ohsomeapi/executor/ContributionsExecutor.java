@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -10,8 +11,10 @@ import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
+import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -66,18 +69,9 @@ public class ContributionsExecutor extends RequestExecutor {
       mapRed = inputProcessor.processParameters();
     }
     if (isUsersRequest) {
-      result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
-    } else if (isContributionsLatestCount) {
-      MapReducer<List<OSMContribution>> mapRedGroupByEntity = mapRed.groupByEntity();
-      Optional<FilterExpression> filter = processingData.getFilterExpression();
-      if (filter.isPresent()) {
-        mapRedGroupByEntity = mapRedGroupByEntity.filter(filter.get());
-      }
-      result = mapRedGroupByEntity
-          .map(listContrsPerEntity -> listContrsPerEntity.get(listContrsPerEntity.size() - 1))
-          .aggregateByTimestamp(OSMContribution::getTimestamp).count();
+      result = usersCount(mapRed);
     } else {
-      result = mapRed.aggregateByTimestamp().count();
+      result = contributionsCount(mapRed, isContributionsLatestCount);
     }
     Geometry geom = inputProcessor.getGeometry();
     RequestParameters requestParameters = processingData.getRequestParameters();
@@ -103,5 +97,50 @@ public class ContributionsExecutor extends RequestExecutor {
     }
     return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, results);
+  }
+
+  public SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
+      throws UnsupportedOperationException, Exception {
+    return mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
+  }
+  
+  private SortedMap<OSHDBTimestamp, Integer> contributionsCount(MapReducer<OSMContribution> mapRed,
+      boolean isContributionsLatest) throws UnsupportedOperationException, Exception {
+    if (isContributionsLatest) {
+      MapReducer<List<OSMContribution>> mapRedGroupByEntity = mapRed.groupByEntity();
+      Optional<FilterExpression> filter = processingData.getFilterExpression();
+      if (filter.isPresent()) {
+        mapRedGroupByEntity = mapRedGroupByEntity.filter(filter.get());
+      }
+      return contributionsFilter(mapRedGroupByEntity
+          .map(listContrsPerEntity -> listContrsPerEntity.get(listContrsPerEntity.size() - 1)))
+          .aggregateByTimestamp(OSMContribution::getTimestamp).count();
+    } else {
+      return contributionsFilter(mapRed).aggregateByTimestamp().count();
+    }
+  }
+
+  private MapReducer<OSMContribution> contributionsFilter(MapReducer<OSMContribution> mapRed) {
+    String contributionType = servletRequest.getParameter("contributionType");
+    if (contributionType == null) {
+      return mapRed;
+    }
+    List<String> contrTypes =
+        Arrays.asList("CREATION", "DELETION", "GEOMETRYCHANGE", "TAGCHANGE", "OTHERCHANGES");
+    contributionType = contributionType.toUpperCase();
+    if (!contrTypes.contains(contributionType)) {
+      throw new BadRequestException(
+          "The contribution type must be 'creation', 'deletion', 'geometryChange', 'tagChange' "
+              + "or 'otherChanges'.");
+    }
+    if (contributionType.equals("OTHERCHANGES")) {
+      return mapRed.filter(contr -> contr.getContributionTypes().isEmpty());
+    } else {
+      var string = new StringBuilder(contributionType);
+      if (contributionType.equals("TAGCHANGE") || contributionType.equals("GEOMETRYCHANGE")) {
+        string.insert(contributionType.length() - 6, '_');
+      }
+      return mapRed.filter(contr -> contr.is(ContributionType.valueOf(string.toString())));
+    }
   }
 }
