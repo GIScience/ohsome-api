@@ -31,7 +31,7 @@ public class ContributionsCountController {
    * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count count}
    */
   @ApiOperation(value = "Count of OSM contributions", nickname = "contributionsCount",
       response = DefaultAggregationResponse.class)
@@ -54,7 +54,7 @@ public class ContributionsCountController {
    * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count count}
    */
   @ApiOperation(
       value = "Density of OSM contributions (number of contributions divided by the "
@@ -79,7 +79,7 @@ public class ContributionsCountController {
    * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
    *         DefaultAggregationResponse}
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count(boolean) count}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#count count}
    */
   @ApiOperation(value = "Count of latest OSM contributions", nickname = "contributionsLatestCount",
       response = DefaultAggregationResponse.class)
