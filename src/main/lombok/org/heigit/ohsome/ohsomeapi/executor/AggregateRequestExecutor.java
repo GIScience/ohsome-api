@@ -248,7 +248,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
       throws IOException {
     setCsvSettingsInServletResponse();
     try (CSVWriter writer =
-        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
+          new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
             CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);) {
       writer.writeAll(comments, false);
       consumer.accept(writer);

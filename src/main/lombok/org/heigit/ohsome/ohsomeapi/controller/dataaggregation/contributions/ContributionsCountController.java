@@ -42,8 +42,7 @@ public class ContributionsCountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   public Response contributionsCount(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor =
-        new ContributionsExecutor(servletRequest, servletResponse, false);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count(false, false);
   }
 
@@ -68,8 +67,7 @@ public class ContributionsCountController {
       produces = {"application/json", "text/csv"})
   public Response contributionsCountDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor =
-        new ContributionsExecutor(servletRequest, servletResponse, true);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.count(false, false);
   }
 
@@ -92,8 +90,7 @@ public class ContributionsCountController {
       produces = {"application/json", "text/csv"})
   public Response contributionsLatestCount(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor =
-        new ContributionsExecutor(servletRequest, servletResponse, false);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count(false, true);
   }
 }

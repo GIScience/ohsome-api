@@ -226,7 +226,6 @@ public class DataExtractionTransformer implements Serializable {
    */
   public List<Feature> buildUnchangedFeatures(OSMEntitySnapshot snapshot) {
     Map<String, Object> properties = new TreeMap<>();
-    OSMEntity entity = snapshot.getEntity();
     Geometry geom;
     if (clipGeometries) {
       geom = snapshot.getGeometry();
@@ -235,6 +234,7 @@ public class DataExtractionTransformer implements Serializable {
     }
     properties.put(VALID_FROM_PROPERTY, startTimestamp);
     properties.put(VALID_TO_PROPERTY, endTimestamp);
+    OSMEntity entity = snapshot.getEntity();
     boolean addToOutput = addEntityToOutput(entity, geom);
     if (addToOutput) {
       return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,

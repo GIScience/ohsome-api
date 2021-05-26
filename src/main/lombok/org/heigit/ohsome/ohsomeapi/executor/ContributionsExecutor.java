@@ -90,7 +90,7 @@ public class ContributionsExecutor extends RequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+      var exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(results, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
