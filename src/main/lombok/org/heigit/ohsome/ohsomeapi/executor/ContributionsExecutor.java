@@ -54,11 +54,14 @@ public class ContributionsExecutor extends RequestExecutor {
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters(ComputeMode) processParameters} and
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}
    * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#usersCount
-   *         usersCount} and {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #contributionsCount contributionsCount}
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *         #usersCount(MapReducer) usersCount} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *         #contributionsCount(MapReducer, boolean) contributionsCount}
    */
   public Response count(boolean isUsersRequest, boolean isContributionsLatestCount)
       throws UnsupportedOperationException, Exception {
