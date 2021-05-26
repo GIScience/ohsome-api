@@ -28,7 +28,7 @@ import org.locationtech.jts.geom.Geometry;
 
 /**
  * Includes the execute method for requests mapped to /contributions/count,
- * /contributions/latest/count and /users/count.
+ * /contributions/count/density, /contributions/latest/count and /users/count.
  */
 public class ContributionsExecutor extends RequestExecutor {
 
@@ -44,17 +44,24 @@ public class ContributionsExecutor extends RequestExecutor {
   }
 
   /**
-   * Performs a count calculation using contributions for the endpoints /contributions/count,
-   * /contribution/latest/count or /users/count.
+   * Handler method for count calculation of the endpoints /contributions/count,
+   * /contributions/density, /contribution/latest/count or /users/count.
    *
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
+   * @param isUsersRequest the boolean value relative to the endpoint /users/count
+   * @param isContributionsLatestCount the boolean value relative to the endpoint
+   *        /contributions/latest
+   * @return DefaultAggregationResponse {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
    *         processParameters},
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}
+   * @throws UnsupportedOperationException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor#usersCount
+   *         usersCount} and {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *         #contributionsCount contributionsCount}
    */
   public Response count(boolean isUsersRequest, boolean isContributionsLatestCount)
-      throws Exception {
+      throws UnsupportedOperationException, Exception {
     MapReducer<OSMContribution> mapRed;
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     if (isContributionsLatestCount) {
@@ -98,12 +105,36 @@ public class ContributionsExecutor extends RequestExecutor {
     return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, results);
   }
-
-  public SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
+  
+  /**
+   * Performs a count calculation for /users/count.
+   * 
+   * @param mapRed a MapReducer of OSM contributions
+   * @return SortedMap with counts of users aggregated by timestamp
+   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   * #countUniq() countUniq}
+   * @throws UnsupportedOperationException thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *         aggregateByTimeStamp}
+   */
+  private SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
       throws UnsupportedOperationException, Exception {
     return mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
   }
   
+  /**
+   * Performs a count calculation for /contributions/count, /contributions/density or
+   * /contribution/latest/count.
+   * 
+   * @param mapRed a MapReducer of OSM contributions
+   * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest 
+   * @return SortedMap with counts of contributions aggregated by timestamp
+   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   *         #count() count}
+   * @throws UnsupportedOperationException thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *         aggregateByTimeStamp}
+   */
   private SortedMap<OSHDBTimestamp, Integer> contributionsCount(MapReducer<OSMContribution> mapRed,
       boolean isContributionsLatest) throws UnsupportedOperationException, Exception {
     if (isContributionsLatest) {
@@ -120,6 +151,12 @@ public class ContributionsExecutor extends RequestExecutor {
     }
   }
 
+  /**
+   * Filters contributions by contribution type.
+   * 
+   * @param mapRed a MapReducer to be filtered
+   * @return MapReducer filtered by contribution type
+   */
   private MapReducer<OSMContribution> contributionsFilter(MapReducer<OSMContribution> mapRed) {
     String contributionType = servletRequest.getParameter("contributionType");
     if (contributionType == null) {
