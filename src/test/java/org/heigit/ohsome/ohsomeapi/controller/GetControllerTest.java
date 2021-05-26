@@ -720,7 +720,7 @@ public class GetControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
         .mapToInt(node -> node.get("value").asInt()).sum();
-    assertEquals(4, sum);
+    assertEquals(7, sum);
   }
 
   @Test
@@ -734,7 +734,7 @@ public class GetControllerTest {
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
         .mapToInt(node -> node.get("value").asInt()).sum();
-    assertEquals(1, sum);
+    assertEquals(4, sum);
   }
   
   /*
