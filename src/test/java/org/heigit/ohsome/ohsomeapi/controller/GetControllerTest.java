@@ -682,6 +682,62 @@ public class GetControllerTest {
   }
 
   /*
+   * /contributions tests
+   */
+
+  @Test
+  public void contributionsLatestCountTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> responseAggregation =
+        restTemplate.getForEntity(server + port
+            + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
+            + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
+        JsonNode.class);
+    ResponseEntity<JsonNode> responseExtraction = restTemplate.getForEntity(server + port
+        + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&filter=type:way and natural=*"
+        + "&properties=tags&time=2014-01-01,2017-01-01",
+        JsonNode.class);
+    int sumAggregation = StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(responseAggregation.getBody().get("result").iterator(),
+            Spliterator.ORDERED),
+        false).mapToInt(node -> node.get("value").asInt()).sum();
+    long sumExtraction =
+        StreamSupport.stream(
+            Spliterators.spliteratorUnknownSize(
+                responseExtraction.getBody().get("features").iterator(), Spliterator.ORDERED),
+            false).count();
+    assertEquals(sumExtraction, sumAggregation);
+  }
+
+  @Test
+  public void contributionsLatestCountFilteredByGeometryChange() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/count?bboxes=8.673088,49.401834,8.692051,49.407979&filter=type:way and "
+        + "building=residential&format=json&time=2016-01-01/2020-01-01/P1Y&"
+        + "contributionType=geometryChange", JsonNode.class);
+    int sum = StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
+            Spliterator.ORDERED), false)
+        .mapToInt(node -> node.get("value").asInt()).sum();
+    assertEquals(4, sum);
+  }
+
+  @Test
+  public void contributionsLatestCountFilteredByTagChange() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/count?bboxes=8.673088,49.401834,8.692051,49.407979&filter=type:way and "
+        + "building=residential&format=json&time=2016-01-01/2020-01-01/P1Y&"
+        + "contributionType=tagChange", JsonNode.class);
+    int sum = StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
+            Spliterator.ORDERED), false)
+        .mapToInt(node -> node.get("value").asInt()).sum();
+    assertEquals(1, sum);
+  }
+  
+  /*
    * csv output tests start here
    */
   @Test
