@@ -715,7 +715,7 @@ public class GetControllerTest {
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/contributions/count?bboxes=8.673088,49.401834,8.692051,49.407979&filter=type:way and "
         + "building=residential&format=json&time=2016-01-01/2019-01-01/P1Y&"
-        + "contributionType=geometryChange", JsonNode.class);    
+        + "contributionType=geometryChange", JsonNode.class);
     int sum = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)

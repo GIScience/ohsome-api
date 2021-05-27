@@ -1011,9 +1011,11 @@ Contributions Aggregation
     
     * /count
     * /count/density
+    * /latest/count
 
    :query <other>: see above_
-
+   :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or 'otherChanges'; 'otherChanges' filters contributions by changes that don't involve the geometry or tags; default: empty;
+   
 .. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
 
 **Example request**:
@@ -1148,7 +1150,6 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
         r <- POST("https://api.ohsome.org/v1/contributions/count/density", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node"))
         r
 
-
 **Example response**:
 
   .. tabs::
@@ -1218,6 +1219,111 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	      "fromTimestamp":"2012-01-01T00:00:00Z",
 	      "toTimestamp":"2016-01-01T00:00:00Z",
 	      "value":417.13
+	    }
+	  ]
+	}
+	
+.. http:post :: /contributions/latest/count
+
+   Get the count of the latest contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Number of the latest contributions to residential buildings with a geometry change within the oldtown area of Heidelberg in 2014.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/latest/count?bboxes=8.69282,49.40766,8.71673,49.4133&contributionType=geometryChange&filter=building=residential&time=2014-01-01/2015-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/count' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlenconde 'contributionType=geometryChange' --data-urlencode 'filter=building=residential' --data-urlencode 'time=2014-01-01,2015-01-01'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/latest/count'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "contributionType": "geometryChange", "filter": "building=residential", "time": "2014-01-01,2015-01-01"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/latest/count", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", contributionType= "geometryChange", filter = "building=residential", time = "2014-01-01,2015-01-01"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.5.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2014-01-01T00:00:00Z",
+	      "toTimestamp":"2015-01-01T00:00:00Z",
+	      "value":5
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.5.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2014-01-01T00:00:00Z",
+	      "toTimestamp":"2015-01-01T00:00:00Z",
+	      "value":5
+	    }
+	  ]
+	}
+
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.5.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2014-01-01T00:00:00Z",
+	      "toTimestamp":"2015-01-01T00:00:00Z",
+	      "value":5
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution":{
+	    "url":"https://ohsome.org/copyrights",
+	    "text":"© OpenStreetMap contributors"
+	  },
+	  "apiVersion":"1.5.0",
+	  "result":[
+	    {
+	      "fromTimestamp":"2014-01-01T00:00:00Z",
+	      "toTimestamp":"2015-01-01T00:00:00Z",
+	      "value":5
 	    }
 	  ]
 	}
