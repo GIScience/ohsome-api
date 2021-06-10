@@ -16,6 +16,6 @@ Closes #
 - [ ] I have added sufficient unit and API tests
 - [ ] I have made corresponding changes to the [documentation](https://github.com/GIScience/ohsome-api/tree/master/docs)
 - [ ] I have updated the [CHANGELOG.md](https://github.com/GIScience/ohsome-api/blob/master/CHANGELOG.md)
-- [ ] I have adjusted the examples in the [check-ohsome-api](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/helpers/check-ohsome-api) script or [created an issue](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/helpers/check-ohsome-api/-/issues/new) in the corresponding repository. More Information [here](https://github.com/GIScience/ohsome-api/blob/master/CONTRIBUTING.md#check-examples).
+- [ ] I have run [check-ohsome-api](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/helpers/check-ohsome-api) and, if needed, adjusted the examples in the script or [created an issue](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/big-data/ohsome/helpers/check-ohsome-api/-/issues/new). More Information [here](https://github.com/GIScience/ohsome-api/blob/master/CONTRIBUTING.md#check-examples).
 
 Please check all finished tasks. If some tasks do not apply to your PR, please cross their text out (by using `~...~`) and remove their checkboxes.
