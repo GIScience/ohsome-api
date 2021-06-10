@@ -1014,7 +1014,7 @@ Contributions Aggregation
     * /latest/count
 
    :query <other>: see above_
-   :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or 'otherChanges'; 'otherChanges' filters contributions by changes that don't involve the geometry or tags; default: empty;
+   :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or 'otherChanges'; 'otherChanges' filters contributions which don't match any of the other contribution types; default: empty;
    
 .. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
 
