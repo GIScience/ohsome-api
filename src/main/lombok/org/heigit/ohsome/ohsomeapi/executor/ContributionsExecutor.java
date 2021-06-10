@@ -68,6 +68,8 @@ public class ContributionsExecutor extends RequestExecutor {
     MapReducer<OSMContribution> mapRed;
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     if (isContributionsLatestCount) {
+      // otherwise the MapReducer will be filtered in the Inputprocessor
+      // preventing the call of groupByEntity() in contributionsCount()
       inputProcessor.getProcessingData().setFullHistory(true);
     }
     if (DbConnData.db instanceof OSHDBIgnite) {
