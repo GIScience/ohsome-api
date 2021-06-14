@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
 import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
@@ -17,7 +16,6 @@ import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -72,14 +70,7 @@ public class ContributionsExecutor extends RequestExecutor {
       // preventing the call of groupByEntity() in contributionsCount()
       inputProcessor.getProcessingData().setFullHistory(true);
     }
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
-      // of result data, without buffering the whole result in memory before returning the result.
-      // This allows to write data out to the client via a chunked HTTP response.
-      mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
-    } else {
-      mapRed = inputProcessor.processParameters();
-    }
+    mapRed = inputProcessor.processParameters();
     if (isUsersRequest) {
       result = usersCount(mapRed);
     } else {
