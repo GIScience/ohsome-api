@@ -6,7 +6,7 @@ Changelog
 ### New Features
 
 * add new `contributionTypes` property to `properties` parameter ([#136])
-* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field
+* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field ([#200])
 
 ### Bug Fixes
 
@@ -25,16 +25,24 @@ Changelog
 * update ohsome parent module, requires maven version 3.6 or higher ([#184])
 * update documentation([#88]) ([#150]) and endpoints graph ([#158])
 
-[#166]: https://github.com/GIScience/ohsome-api/issues/166
-[#136]: https://github.com/GIScience/ohsome-api/issues/136
 [#55]: https://github.com/GIScience/ohsome-api/issues/55
+[#88]: https://github.com/GIScience/ohsome-api/issues/88
+[#136]: https://github.com/GIScience/ohsome-api/issues/136
+[#150]: https://github.com/GIScience/ohsome-api/issues/150
+[#158]: https://github.com/GIScience/ohsome-api/issues/158
 [#164]: https://github.com/GIScience/ohsome-api/pull/164
+[#166]: https://github.com/GIScience/ohsome-api/issues/166
 [#175]: https://github.com/GIScience/ohsome-api/issues/175
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
-[#88]: https://github.com/GIScience/ohsome-api/issues/88
-[#150]: https://github.com/GIScience/ohsome-api/issues/150
-[#158]: https://github.com/GIScience/ohsome-api/issues/158
+
+
+## 1.4.2
+
+* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field (backported from 1.5.0) ([#200])
+
+[#200]: https://github.com/GIScience/ohsome-api/issues/200
+
 
 ## 1.4.1
 
