@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## 1.4.2
+
+* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field (backported from 1.5.0) ([#200])
+
+[#200]: https://github.com/GIScience/ohsome-api/issues/200
+
+
 ## 1.4.1
 
 * ugrade OSHDB to version [OSHDB#0.6.4], fixes thw following two bugs:
