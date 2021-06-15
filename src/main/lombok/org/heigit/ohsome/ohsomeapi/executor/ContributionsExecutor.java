@@ -159,21 +159,17 @@ public class ContributionsExecutor extends RequestExecutor {
       return mapRed;
     }
     List<String> contrTypes =
-        Arrays.asList("CREATION", "DELETION", "GEOMETRYCHANGE", "TAGCHANGE", "OTHERCHANGES");
+        Arrays.asList("CREATION", "DELETION", "GEOMETRYCHANGE", "TAGCHANGE");
     contributionType = contributionType.toUpperCase();
     if (!contrTypes.contains(contributionType)) {
       throw new BadRequestException(
-          "The contribution type must be 'creation', 'deletion', 'geometryChange', 'tagChange' "
-              + "or 'otherChanges'.");
+          "The contribution type must be 'creation', 'deletion', 'geometryChange', 'tagChange' or"
+          + "a combination of them");
     }
-    if (contributionType.equals("OTHERCHANGES")) {
-      return mapRed.filter(contr -> contr.getContributionTypes().isEmpty());
-    } else {
-      var string = new StringBuilder(contributionType);
-      if (contributionType.equals("TAGCHANGE") || contributionType.equals("GEOMETRYCHANGE")) {
-        string.insert(contributionType.length() - 6, '_');
-      }
-      return mapRed.filter(contr -> contr.is(ContributionType.valueOf(string.toString())));
+    var string = new StringBuilder(contributionType);
+    if (contributionType.equals("TAGCHANGE") || contributionType.equals("GEOMETRYCHANGE")) {
+      string.insert(contributionType.length() - 6, '_');
     }
+    return mapRed.filter(contr -> contr.is(ContributionType.valueOf(string.toString())));
   }
 }
