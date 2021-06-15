@@ -465,11 +465,12 @@ public class DataExtractionTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/contributions/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
-        + "filter=type:way and natural=*&properties=contributionTypes&time=2016-04-20,2016-04-21",
+        + "filter=id:way/25316163&properties=metadata,contributionTypes&time=2012-12-10,2012-12-11",
         JsonNode.class);
-    JsonNode featuresArray = response.getBody().get("features");
-    assertTrue(featuresArray.get(0).get("properties").has("@geometryChange"));
-    assertFalse(featuresArray.get(0).get("properties").has("@changesetId"));
+    JsonNode feature = response.getBody().get("features").get(0);
+    assertTrue(feature.get("properties").has("@geometryChange"));
+    assertEquals("14184500", feature.get("properties").get("@changesetId").asText());
+    assertEquals("14227603", feature.get("properties").get("@contributionChangesetId").asText());
   }
 
   /*

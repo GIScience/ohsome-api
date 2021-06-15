@@ -6,6 +6,7 @@ Changelog
 ### New Features
 
 * add new `contributionTypes` property to `properties` parameter ([#136])
+* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field
 
 ### Bug Fixes
 

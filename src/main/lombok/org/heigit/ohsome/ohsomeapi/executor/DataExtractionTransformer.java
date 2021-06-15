@@ -27,6 +27,7 @@ public class DataExtractionTransformer implements Serializable {
   private static final String VALID_TO_PROPERTY = "@validTo";
   private static final String VALID_FROM_PROPERTY = "@validFrom";
   private static final String TIMESTAMP_PROPERTY = "@timestamp";
+  private static final String CONTRIBUTION_CHANGESET_ID_PROPERTY = "@contributionChangesetId";
 
   private final String startTimestamp;
   private final String endTimestamp;
@@ -153,6 +154,7 @@ public class DataExtractionTransformer implements Serializable {
               properties.put(VALID_TO_PROPERTY, validTo);
             } else {
               properties.put(TIMESTAMP_PROPERTY, validTo);
+              properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, contribution.getChangesetId());
             }
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
                 includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
@@ -185,6 +187,7 @@ public class DataExtractionTransformer implements Serializable {
       } else {
         properties.put(TIMESTAMP_PROPERTY,
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
+        properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, lastContribution.getChangesetId());
       }
       if (!currentGeom.isEmpty()) {
         boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
@@ -200,6 +203,7 @@ public class DataExtractionTransformer implements Serializable {
       properties = new TreeMap<>();
       properties.put(TIMESTAMP_PROPERTY,
           TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
+      properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, lastContribution.getChangesetId());
       output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
           includeOSMMetadata, includeContributionTypes, isContributionsEndpoint, outputGeometry,
           lastContribution.getContributionTypes()));
