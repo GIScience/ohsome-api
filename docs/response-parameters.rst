@@ -51,12 +51,15 @@ Descriptions of the custom response parameters that are marked with a leading ``
 * ``@changesetId`` - id of the OSM changeset where the contribution was performed
 * ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
 * ``@timestamp`` - indicates when this contribution occurred
+* ``@contributionChangsetId`` - id of the OSM changeset where the contribution was performed
 * ``@creation`` - contribution type; indicates if the OSM element newly fits the query's requirements: either because it is freshly created, moved into the query's area of interest, or is now matching the defined filter parameter (true); cannot occur in combination with other contribution types
 * ``@geometryChange`` - contribution type; indicates if the geometry of the OSM element has changed (true); can occur in combination with @tagChange
 * ``@tagChange``- contribution type; indicates if the tags of this OSM element have changed (true); can occur in combination with @geometryChange
 * ``@deletion`` - contribution type; indicates if the OSM element does not match the query requirements anymore: either because it got deleted, moved outside of the query area of interest, or is not matching the defined filter anymore (true); cannot occur in combination with other contribution types
 
 .. note:: No `contribution type` can occur with having ``false`` as a value. If any of them is present, the value is always ``true``.
+
+.. note:: The `@contributionChangsetId` can be different from the general `@changesetId` in cases where a contribution stems from changes child elements referenced by an OSM element, e.g. when only the nodes of an OSM way are rearranged or moved. This is sometimes called a "minor version".
 
 Metadata
 --------

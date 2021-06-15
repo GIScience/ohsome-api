@@ -21,7 +21,6 @@ import org.locationtech.jts.geom.Geometry;
 import org.wololo.geojson.Feature;
 
 public class DataExtractionTransformer implements Serializable {
-
   private final boolean isContributionsLatestEndpoint;
   private final boolean isContributionsEndpoint;
   private final ExecutionUtils exeUtils;
@@ -102,6 +101,7 @@ public class DataExtractionTransformer implements Serializable {
               properties.put("@validTo", validTo);
             } else {
               properties.put("@timestamp", validTo);
+              properties.put("@contributionChangesetId", contribution.getChangesetId());
             }
             output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
                 includeTags, includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
@@ -134,6 +134,7 @@ public class DataExtractionTransformer implements Serializable {
       } else {
         properties.put("@timestamp",
             TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
+        properties.put("@contributionChangesetId", lastContribution.getChangesetId());
       }
       if (!currentGeom.isEmpty()) {
         boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
@@ -149,6 +150,7 @@ public class DataExtractionTransformer implements Serializable {
       properties = new TreeMap<>();
       properties.put("@timestamp",
           TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
+      properties.put("@contributionChangesetId", lastContribution.getChangesetId());
       output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
           includeOSMMetadata, isContributionsEndpoint, elementsGeometry,
           lastContribution.getContributionTypes()));

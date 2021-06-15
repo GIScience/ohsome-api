@@ -1,7 +1,6 @@
 Changelog
 =========
 
-
 ## 1.4.1
 
 * ugrade OSHDB to version [OSHDB#0.6.4], fixes thw following two bugs:

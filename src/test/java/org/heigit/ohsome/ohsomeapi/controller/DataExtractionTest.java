@@ -448,6 +448,19 @@ public class DataExtractionTest {
     assertEquals(49.418466, feature.get("geometry").get("coordinates").get(1).asDouble(), 0);
   }
 
+  @Test
+  public void contributionTypesPropertiesParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
+        + "filter=id:way/25316163&properties=metadata,contributionTypes&time=2012-12-10,2012-12-11",
+        JsonNode.class);
+    JsonNode feature = response.getBody().get("features").get(0);
+    assertTrue(feature.get("properties").has("@geometryChange"));
+    assertEquals("14184500", feature.get("properties").get("@changesetId").asText());
+    assertEquals("14227603", feature.get("properties").get("@contributionChangesetId").asText());
+  }
+
   /*
    * ./contributions/latest tests
    */
