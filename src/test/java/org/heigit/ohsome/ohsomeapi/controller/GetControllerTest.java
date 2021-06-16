@@ -713,22 +713,22 @@ public class GetControllerTest {
   public void contributionsLatestCountFilteredByGeometryChange() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/contributions/count?bboxes=8.673088,49.401834,8.692051,49.407979&filter=type:way and "
-        + "building=residential&format=json&time=2016-01-01/2019-01-01/P1Y&"
+        + "/contributions/latest/count?bboxes=8.673088,49.401834,8.692051,49.407979&"
+        + "filter=type:way and building=residential&format=json&time=2016-01-01/2019-01-01/P1Y&"
         + "contributionType=geometryChange", JsonNode.class);
     int sum = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
             Spliterator.ORDERED), false)
         .mapToInt(node -> node.get("value").asInt()).sum();
-    assertEquals(4, sum);
+    assertEquals(2, sum);
   }
 
   @Test
   public void contributionsLatestCountFilteredByTagChange() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/contributions/count?bboxes=8.673088,49.401834,8.692051,49.407979&filter=type:way and "
-        + "building=residential&format=json&time=2016-01-01/2019-01-01/P1Y&"
+        + "/contributions/latest/count?bboxes=8.673088,49.401834,8.692051,49.407979&"
+        + "filter=type:way and building=residential&format=json&time=2016-01-01/2019-01-01/P1Y&"
         + "contributionType=tagChange", JsonNode.class);
     int sum = StreamSupport
         .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
@@ -737,6 +737,20 @@ public class GetControllerTest {
     assertEquals(4, sum);
   }
   
+  @Test
+  public void contributionsLatestCountFilteredByTagChangeAndGeometryChange() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/latest/count?bboxes=8.673088,49.401834,8.692051,49.407979"
+        + "&filter=type:way and building=residential&format=json&time=2017-01-01/2019-01-01&"
+        + "contributionType=tagChange,geometryChange", JsonNode.class);
+    int sum = StreamSupport
+        .stream(Spliterators.spliteratorUnknownSize(response.getBody().get("result").iterator(),
+            Spliterator.ORDERED), false)
+        .mapToInt(node -> node.get("value").asInt()).sum();
+    assertEquals(5, sum);
+  }
+
   /*
    * csv output tests start here
    */
