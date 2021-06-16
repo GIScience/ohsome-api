@@ -36,7 +36,8 @@ https://api.ohsome.org
     │   └── latest
     │       ├── bbox
     │       ├── centroid
-    │       └── geometry    
+    │       ├── geometry
+    │       └── count    
     ├── elementsFullHistory
     │   ├── bbox
     │   ├── centroid
