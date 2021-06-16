@@ -1,5 +1,7 @@
+
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -154,22 +156,37 @@ public class ContributionsExecutor extends RequestExecutor {
    * @return MapReducer filtered by contribution type
    */
   private MapReducer<OSMContribution> contributionsFilter(MapReducer<OSMContribution> mapRed) {
-    String contributionType = servletRequest.getParameter("contributionType");
-    if (contributionType == null) {
+    String types = servletRequest.getParameter("contributionType");
+    if (types == null) {
       return mapRed;
     }
-    List<String> contrTypes =
-        Arrays.asList("CREATION", "DELETION", "GEOMETRYCHANGE", "TAGCHANGE");
-    contributionType = contributionType.toUpperCase();
-    if (!contrTypes.contains(contributionType)) {
-      throw new BadRequestException(
-          "The contribution type must be 'creation', 'deletion', 'geometryChange', 'tagChange' or"
-          + "a combination of them");
+    types = types.toUpperCase();
+    List<String> givenTypes = Arrays.asList(types.split(","));
+    for (int i = 0; i < givenTypes.size(); i++) {
+      switch (givenTypes.get(i)) {
+        case "TAGCHANGE":
+          givenTypes.set(i, "TAG_CHANGE");
+          break;
+        case "GEOMETRYCHANGE":
+          givenTypes.set(i, "GEOMETRY_CHANGE");
+          break;
+        case "CREATION":
+          break;
+        case "DELETION":
+          break;
+        default:
+          throw new BadRequestException("The contribution type must be 'creation', 'deletion',"
+              + "'geometryChange', 'tagChange' or a combination of them");
+      }
     }
-    var string = new StringBuilder(contributionType);
-    if (contributionType.equals("TAGCHANGE") || contributionType.equals("GEOMETRYCHANGE")) {
-      string.insert(contributionType.length() - 6, '_');
-    }
-    return mapRed.filter(contr -> contr.is(ContributionType.valueOf(string.toString())));
+    List<ContributionType> contributionTypes = new ArrayList<>();
+    givenTypes.stream().forEach(givenType -> {
+      for (ContributionType contrType : ContributionType.values()) {
+        if (contrType.name().equals(givenType)) {
+          contributionTypes.add(contrType);
+        }
+      }
+    });
+    return mapRed.filter(contr -> contributionTypes.stream().anyMatch(contr::is));
   }
 }
