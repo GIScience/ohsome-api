@@ -736,7 +736,7 @@ public class GetControllerTest {
         .mapToInt(node -> node.get("value").asInt()).sum();
     assertEquals(4, sum);
   }
-  
+
   @Test
   public void contributionsLatestCountFilteredByTagChangeAndGeometryChange() {
     TestRestTemplate restTemplate = new TestRestTemplate();

@@ -44,6 +44,7 @@ Changelog
 
 [#200]: https://github.com/GIScience/ohsome-api/issues/200
 
+
 ## 1.4.1
 
 * upgrade OSHDB to version [OSHDB#0.6.4], fixes the following two bugs:

@@ -36,6 +36,13 @@ public class ContributionsExecutor extends RequestExecutor {
   private final ProcessingData processingData;
   private final long startTime = System.currentTimeMillis();
 
+  /**
+   * Initializes a newly created <code>ContributionsExecutor</code> object.
+   *
+   * @param isDensity the boolean value relative to the density resource
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   */
   public ContributionsExecutor(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) {
     super(servletRequest, servletResponse);
@@ -103,14 +110,15 @@ public class ContributionsExecutor extends RequestExecutor {
     return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
         metadata, results);
   }
-  
+
   /**
    * Performs a count calculation for /users/count.
-   * 
+   *
    * @param mapRed a MapReducer of OSM contributions
    * @return SortedMap with counts of users aggregated by timestamp
-   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
-   * #countUniq() countUniq}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator #countUniq()
+   *         countUniq}
    * @throws UnsupportedOperationException thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimeStamp}
@@ -119,16 +127,16 @@ public class ContributionsExecutor extends RequestExecutor {
       throws UnsupportedOperationException, Exception {
     return mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
   }
-  
+
   /**
    * Performs a count calculation for /contributions/count, /contributions/density or
    * /contribution/latest/count.
-   * 
+   *
    * @param mapRed a MapReducer of OSM contributions
-   * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest 
+   * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest
    * @return SortedMap with counts of contributions aggregated by timestamp
-   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
-   *         #count() count}
+   * @throws Exception thrown by
+   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator #count() count}
    * @throws UnsupportedOperationException thrown by
    *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimeStamp}
@@ -151,7 +159,7 @@ public class ContributionsExecutor extends RequestExecutor {
 
   /**
    * Filters contributions by contribution type.
-   * 
+   *
    * @param mapRed a MapReducer to be filtered
    * @return MapReducer filtered by contribution type
    */
