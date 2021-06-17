@@ -1,4 +1,3 @@
-
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.util.ArrayList;
@@ -75,7 +74,8 @@ public class ContributionsExecutor extends RequestExecutor {
     MapReducer<OSMContribution> mapRed;
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     if (isContributionsLatestCount) {
-      // otherwise the MapReducer will be filtered in the Inputprocessor
+      // the setFullHistory flag needs to be set, because
+      // otherwise the MapReducer would be filtered in the Inputprocessor
       // preventing the call of groupByEntity() in contributionsCount()
       inputProcessor.getProcessingData().setFullHistory(true);
     }
