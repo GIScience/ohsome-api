@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -169,32 +168,26 @@ public class ContributionsExecutor extends RequestExecutor {
       return mapRed;
     }
     types = types.toUpperCase();
-    List<String> givenTypes = Arrays.asList(types.split(","));
-    for (int i = 0; i < givenTypes.size(); i++) {
-      switch (givenTypes.get(i)) {
-        case "TAGCHANGE":
-          givenTypes.set(i, "TAG_CHANGE");
-          break;
-        case "GEOMETRYCHANGE":
-          givenTypes.set(i, "GEOMETRY_CHANGE");
-          break;
+    List<ContributionType> contributionTypes = new ArrayList<>();
+    for (String givenType : types.split(",")) {
+      switch (givenType) {
         case "CREATION":
+          contributionTypes.add(ContributionType.CREATION);
           break;
         case "DELETION":
+          contributionTypes.add(ContributionType.DELETION);
+          break;
+        case "TAGCHANGE":
+          contributionTypes.add(ContributionType.TAG_CHANGE);
+          break;
+        case "GEOMETRYCHANGE":
+          contributionTypes.add(ContributionType.GEOMETRY_CHANGE);
           break;
         default:
           throw new BadRequestException("The contribution type must be 'creation', 'deletion',"
               + "'geometryChange', 'tagChange' or a combination of them");
       }
     }
-    List<ContributionType> contributionTypes = new ArrayList<>();
-    givenTypes.stream().forEach(givenType -> {
-      for (ContributionType contrType : ContributionType.values()) {
-        if (contrType.name().equals(givenType)) {
-          contributionTypes.add(contrType);
-        }
-      }
-    });
     return mapRed.filter(contr -> contributionTypes.stream().anyMatch(contr::is));
   }
 }
