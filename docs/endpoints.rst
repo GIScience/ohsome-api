@@ -1017,6 +1017,7 @@ Contributions Aggregation
    :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; default: empty;
    
 .. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
+.. note:: In case of multiple time intervals using the /contribution/latest endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
 
 **Example request**:
 
