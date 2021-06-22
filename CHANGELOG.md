@@ -6,8 +6,7 @@ Changelog
 ### New Features
 
 * add new `contributionTypes` property to `properties` parameter ([#136])
-* add new `/contributions/latest/count` endpoint ([#174])
-* add new `/contributions/latest/count/density` endpoint
+* add new `/contributions/latest/count` and `/contributions/latest/count/density` endpoints ([#174])
 * add new `contributionType` parameter for contributions aggregation ([#174])
 * contribution extraction endpoints now return the `@contributionChangesetId` as a separate field ([#200])
 
@@ -37,7 +36,6 @@ Changelog
 [#175]: https://github.com/GIScience/ohsome-api/issues/175
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
-
 
 ## 1.4.2
 
