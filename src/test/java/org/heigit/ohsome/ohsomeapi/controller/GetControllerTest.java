@@ -751,6 +751,18 @@ public class GetControllerTest {
     assertEquals(5, sum);
   }
 
+  @Test
+  public void contributionsLatestCountDensityFilteredByTagChange() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/contributions/latest/count/density?"
+            + "bboxes=8.680215,49.416382,8.683867,49.417321&contributionType=tagchange&"
+            + "filter=type:way and building=residential&format=json&time=2014-01-01/2019-01-01",
+        JsonNode.class);
+    assertEquals(36.14, response.getBody().get("result").get(0).get("value").asDouble(),
+        deltaPercentage);
+  }
+
   /*
    * csv output tests start here
    */
