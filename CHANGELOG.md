@@ -1,7 +1,10 @@
 Changelog
 =========
 
-## 1.5.0-SNAPSHOT (current master)
+## 1.6.0-SNAPSHOT (current master)
+
+
+## 1.5.0
 
 ### New Features
 
