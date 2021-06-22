@@ -14,7 +14,7 @@
   <url>https://api.ohsome.org</url>
   <description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
   <packaging>jar</packaging>
-  <version>1.6.0-SNAPSHOT</version>
+  <version>1.5.0</version>
 
   <scm>
     <connection>scm:git:git@github.com:GIScience/ohsome-api.git</connection>
