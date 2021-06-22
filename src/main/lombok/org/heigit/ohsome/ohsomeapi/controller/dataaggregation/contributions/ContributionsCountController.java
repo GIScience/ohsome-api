@@ -72,7 +72,7 @@ public class ContributionsCountController {
   }
 
   /**
-   * Gives the count of latest OSM contributions.
+   * Gives the density of latest OSM contributions.
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
@@ -80,6 +80,31 @@ public class ContributionsCountController {
    *         DefaultAggregationResponse}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
    *         #count(boolean, boolean) count}
+   */
+  @ApiOperation(
+      value = "Density of the latest OSM contributions (number of contributions divided by the "
+          + "total area in square-kilometers)",
+      nickname = "contributionsLatestCountDensity", response = DefaultAggregationResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/latest/count/density", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = {"application/json", "text/csv"})
+  public Response contributionsLatestCountDensity(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
+    return executor.count(false, true);
+  }
+
+  /**
+   * Gives the count of latest OSM contributions.
+   *
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
+   *         DefaultAggregationResponse}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *         #count (boolean,boolean) count}
    */
   @ApiOperation(value = "Count of latest OSM contributions", nickname = "contributionsLatestCount",
       response = DefaultAggregationResponse.class)
