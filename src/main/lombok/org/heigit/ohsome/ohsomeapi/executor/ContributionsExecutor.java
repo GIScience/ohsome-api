@@ -26,7 +26,8 @@ import org.locationtech.jts.geom.Geometry;
 
 /**
  * Includes the execute method for requests mapped to /contributions/count,
- * /contributions/count/density, /contributions/latest/count and /users/count.
+ * /contributions/count/density, /contributions/latest/count, /contributions/latest/count/density
+ * and /users/count.
  */
 public class ContributionsExecutor extends RequestExecutor {
 
@@ -50,7 +51,8 @@ public class ContributionsExecutor extends RequestExecutor {
 
   /**
    * Handler method for count calculation of the endpoints /contributions/count,
-   * /contributions/density, /contribution/latest/count or /users/count.
+   * /contributions/density, /contribution/latest/count, /contributions/latest/count/density
+   * or /users/count.
    *
    * @param isUsersRequest the boolean value relative to the endpoint /users/count
    * @param isContributionsLatestCount the boolean value relative to the endpoint
@@ -128,8 +130,8 @@ public class ContributionsExecutor extends RequestExecutor {
   }
 
   /**
-   * Performs a count calculation for /contributions/count, /contributions/density or
-   * /contribution/latest/count.
+   * Performs a count calculation for /contributions/count, /contributions/density,
+   * /contribution/latest/count or /contributions/latest/count/density.
    *
    * @param mapRed a MapReducer of OSM contributions
    * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest
