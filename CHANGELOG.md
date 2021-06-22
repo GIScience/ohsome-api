@@ -24,6 +24,7 @@ Changelog
 * properly skip `GetControllerTest` class if `port1` parameter is absent ([#164])
 * update ohsome parent module, requires maven version 3.6 or higher ([#184])
 * update documentation([#88]) ([#150]) and endpoints graph ([#158])
+* remove deprecated request parameters from swagger definition and UI ([#168])
 
 [#55]: https://github.com/GIScience/ohsome-api/issues/55
 [#88]: https://github.com/GIScience/ohsome-api/issues/88
@@ -32,6 +33,7 @@ Changelog
 [#158]: https://github.com/GIScience/ohsome-api/issues/158
 [#164]: https://github.com/GIScience/ohsome-api/pull/164
 [#166]: https://github.com/GIScience/ohsome-api/issues/166
+[#168]: https://github.com/GIScience/ohsome-api/pull/168
 [#175]: https://github.com/GIScience/ohsome-api/issues/175
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
