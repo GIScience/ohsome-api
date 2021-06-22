@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
 import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
 import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
