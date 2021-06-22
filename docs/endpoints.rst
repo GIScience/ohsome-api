@@ -828,12 +828,12 @@ Users Aggregation
 
 .. http:post :: /users/count
 
-    Get ``aggregation`` statistics about OSM users. Possible endpoints:
+    Get ``aggregation`` statistics about OSM users. List of endpoints:
     
-    * /count
-    * /count/groupBy/(groupType)
-    * /count/density
-    * /count/density/groupBy/(boundary or tag or type)
+    * **/count**
+    * **/count/groupBy/(groupType)**
+    * **/count/density**
+    * **/count/density/groupBy/(boundary or tag or type)**
 
     * grouping type: one of boundary_, key_, tag_, type_.
     
@@ -1007,17 +1007,19 @@ Contributions Aggregation
       
 .. http:post :: /contributions/count
 
-   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters. Possible endpoints:
+   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters. List of endpoints:
     
-    * /count
-    * /count/density
-    * /latest/count
+    * **/count**
+    * **/count/density**
+    * **/latest/count**
+    * **/latest/count/density**
 
    :query <other>: see above_
    :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; default: empty;
    
-.. note:: The /contributions/count endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
-.. note:: In case of multiple time intervals using the /contribution/latest endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
+.. note:: The **/contributions/count** endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
+.. note:: If the ``contributionType`` parameter is let empty, the result could contain contributions that do not effect geometries or tags.
+.. note:: In case of multiple time intervals using the **/contribution/latest** endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
 
 **Example request**:
 
@@ -1054,16 +1056,16 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
    .. code-tab:: json curl (GET)
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2010-01-01T00:00:00Z",
-	      "toTimestamp":"2020-01-01T00:00:00Z",
-	      "value":15.0
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
 	    }
 	  ]
 	}
@@ -1071,16 +1073,16 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
    .. code-tab:: json curl (POST)
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2010-01-01T00:00:00Z",
-	      "toTimestamp":"2020-01-01T00:00:00Z",
-	      "value":15.0
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
 	    }
 	  ]
 	}
@@ -1088,16 +1090,16 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
    .. code-tab:: json Python
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2010-01-01T00:00:00Z",
-	      "toTimestamp":"2020-01-01T00:00:00Z",
-	      "value":15.0
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
 	    }
 	  ]
 	}
@@ -1105,16 +1107,16 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
    .. code-tab:: json R
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2010-01-01T00:00:00Z",
-	      "toTimestamp":"2020-01-01T00:00:00Z",
-	      "value":15.0
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
 	    }
 	  ]
 	}
@@ -1158,16 +1160,16 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
    .. code-tab:: json curl (GET)
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2012-01-01T00:00:00Z",
-	      "toTimestamp":"2016-01-01T00:00:00Z",
-	      "value":417.13
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
 	    }
 	  ]
 	}
@@ -1175,34 +1177,33 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
    .. code-tab:: json curl (POST)
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2012-01-01T00:00:00Z",
-	      "toTimestamp":"2016-01-01T00:00:00Z",
-	      "value":417.13
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
 	    }
 	  ]
 	}
 
-
    .. code-tab:: json Python
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2012-01-01T00:00:00Z",
-	      "toTimestamp":"2016-01-01T00:00:00Z",
-	      "value":417.13
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
 	    }
 	  ]
 	}
@@ -1210,16 +1211,16 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
    .. code-tab:: json R
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.4.2",
-	  "result":[
+	  "apiVersion" : "1.4.2",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2012-01-01T00:00:00Z",
-	      "toTimestamp":"2016-01-01T00:00:00Z",
-	      "value":417.13
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
 	    }
 	  ]
 	}
@@ -1263,16 +1264,16 @@ Number of the latest contributions to residential buildings with a geometry chan
    .. code-tab:: json curl (GET)
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.5.0",
-	  "result":[
+	  "apiVersion" : "1.5.0",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2014-01-01T00:00:00Z",
-	      "toTimestamp":"2015-01-01T00:00:00Z",
-	      "value":5
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
 	    }
 	  ]
 	}
@@ -1280,34 +1281,33 @@ Number of the latest contributions to residential buildings with a geometry chan
    .. code-tab:: json curl (POST)
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.5.0",
-	  "result":[
+	  "apiVersion" : "1.5.0",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2014-01-01T00:00:00Z",
-	      "toTimestamp":"2015-01-01T00:00:00Z",
-	      "value":5
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
 	    }
 	  ]
 	}
 
-
    .. code-tab:: json Python
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.5.0",
-	  "result":[
+	  "apiVersion" : "1.5.0",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2014-01-01T00:00:00Z",
-	      "toTimestamp":"2015-01-01T00:00:00Z",
-	      "value":5
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
 	    }
 	  ]
 	}
@@ -1315,25 +1315,130 @@ Number of the latest contributions to residential buildings with a geometry chan
    .. code-tab:: json R
 
 	{
-	  "attribution":{
-	    "url":"https://ohsome.org/copyrights",
-	    "text":"© OpenStreetMap contributors"
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
 	  },
-	  "apiVersion":"1.5.0",
-	  "result":[
+	  "apiVersion" : "1.5.0",
+	  "result" : [
 	    {
-	      "fromTimestamp":"2014-01-01T00:00:00Z",
-	      "toTimestamp":"2015-01-01T00:00:00Z",
-	      "value":5
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
+	    }
+	  ]
+	}
+
+.. http:post :: /contributions/latest/count/density
+
+  Get the density of the count of the latest contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Density of the latest contributions with a geometry change to shops within the oldtown area of Heidelberg between 2012 and 2016.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/latest/count/density?bboxes=8.69282,49.40766,8.71673,49.4133&filter=shop=* and type:node&time=2012-01-01,2016-01-01&contributionType=geometryChange'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/count/density' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlencode 'time=2012-01-01,2016-01-01' --data-urlencode 'filter=shop=* and type:node' --data-urlencode 'contributionType=geometryChange'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/latest/count/density'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "time": "2012-01-01,2016-01-01", "filter": "shop=* and type:node", "contributionType": "geometryChange"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/latest/count/density", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node", contributionType = "geometryChange"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.4.2",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.4.2",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.4.2",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.4.2",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
 	    }
 	  ]
 	}
 
 Elements Extraction
 -------------------
+
 .. http:post :: /elements/(geometryType)
 
-   Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
+   Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given geometry type (``geometry``, ``bbox``, or ``centroid``).
 
    :query <other>: see above_ (except **format**)
    :query time: required; format same as described in time_
@@ -1391,10 +1496,13 @@ Get all the bike rental stations in Heidelberg.
 
       file ohsome.geojson
 
+Elements Full History Extraction
+--------------------------------
+
 .. http:post :: /elementsFullHistory/(geometryType)
 
    Get the full history of OSM data as a GeoJSON feature collection. All changes to matching OSM features are included with corresponding ``validFrom`` and ``validTo`` timestamps.
-   This endpoint supports the geometry types bbox, centroid and geometry.
+   This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
 
    :query <other>: see above_ (except **format**)
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
@@ -1593,7 +1701,7 @@ Contributions Extraction
 .. http:post :: /contributions/(geometryType)
 
    Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
-   This endpoint supports the geometry types bbox, centroid and geometry.
+   This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
    
    :query <other>: see above_ (except **format**)
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
@@ -1937,7 +2045,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
 .. http:post :: /contributions/latest/(geometryType)
 
    Get the the latest state of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
-   This endpoint supports the geometry types bbox, centroid and geometry.
+   This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
 
    :query <other>: see above_ (except **format**)
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value

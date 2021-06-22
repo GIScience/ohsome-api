@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="718pt"
    height="345.10147pt"
    viewBox="0 0 718.13 345.10147"
    version="1.1"
    id="svg848"
    sodipodi:docname="ohsome-api-tree.svg"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
+   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata854">
     <rdf:RDF>
@@ -163,9 +163,9 @@
      inkscape:window-height="739"
      id="namedview850"
      showgrid="false"
-     inkscape:zoom="0.76508705"
-     inkscape:cx="480.04618"
-     inkscape:cy="171.19016"
+     inkscape:zoom="1.01"
+     inkscape:cx="293.56436"
+     inkscape:cy="253.9604"
      inkscape:window-x="1366"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -174,7 +174,9 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0" />
+     fit-margin-bottom="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="pt" />
   <g
      id="graph0"
      class="graph"
@@ -193,30 +195,6 @@
          style="fill:#fffff7;fill-opacity:0.84;stroke-width:1.17494"
          inkscape:export-xdpi="96"
          inkscape:export-ydpi="96" />
-      <g
-         id="path1316"
-         style="opacity:1">
-        <path
-           style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
-           d="m 653.15039,-137.10156 -0.2832,43.962888 1.28339,0.0059 V -137.0957 Z"
-           id="path1876"
-           sodipodi:nodetypes="ccccc" />
-        <g
-           id="g1866">
-          <g
-             id="path1868"
-             style="opacity:1">
-            <path
-               style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.799945pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1.0;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1;"
-               d="m 653.33672,-88.520745 -3.95488,-6.945254 7.99929,0.05175 z"
-               id="path1872" />
-            <path
-               style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1.0;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1;"
-               d="M 648.46094 -96.005859 L 653.33008 -87.455078 L 653.79688 -88.25 L 658.30859 -95.941406 L 648.46094 -96.005859 z M 650.30273 -94.927734 L 656.45508 -94.886719 L 653.34375 -89.587891 L 650.30273 -94.927734 z "
-               id="path1874" />
-          </g>
-        </g>
-      </g>
     </g>
     <!-- https://api.ohsome.org -->
     <!-- v1 -->
@@ -839,22 +817,6 @@
          id="polygon708" />
     </g>
     <!-- density&#45;&gt;groupBy/boundary -->
-    <g
-       id="edge16"
-       class="edge">
-      <title
-         id="title711">density-&gt;groupBy/boundary</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 250.52,-146.33 c 15.07,10.04 36.77,23.49 55.76,34.62"
-         id="path713" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="304.65,-108.61 308.16,-114.67 315.05,-106.63 "
-         id="polygon715" />
-    </g>
     <!-- density&#45;&gt;groupBy/boundary -->
     <g
        id="edge28"
@@ -890,22 +852,6 @@
          id="polygon729" />
     </g>
     <!-- density&#45;&gt;groupBy/tag -->
-    <g
-       id="edge29"
-       class="edge">
-      <title
-         id="title732">density-&gt;groupBy/tag</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 242.95,-144.58 c 7.21,18.13 15.81,47.99 26.29,72.58 3.78,8.88 8.59,18.22 12.78,26.55"
-         id="path734" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="279,-43.66 285.28,-46.75 286.56,-36.24 "
-         id="polygon736" />
-    </g>
     <!-- density&#45;&gt;groupBy/type -->
     <g
        id="edge18"
@@ -924,39 +870,7 @@
          id="polygon743" />
     </g>
     <!-- density&#45;&gt;groupBy/type -->
-    <g
-       id="edge30"
-       class="edge">
-      <title
-         id="title746">density-&gt;groupBy/type</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 216.65,-145.46 c -12.35,9.85 -29.83,22.73 -45.4,33.48"
-         id="path748" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="169.13,-114.77 173.07,-108.99 162.84,-106.25 "
-         id="polygon750" />
-    </g>
     <!-- groupBy/boundary&#45;&gt;groupBy/tag -->
-    <g
-       id="edge19"
-       class="edge">
-      <title
-         id="title753">groupBy/boundary-&gt;groupBy/tag</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 326.89,-72.41 c -7.78,8.42 -16.47,18.83 -23.64,28.21"
-         id="path755" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="300.28,-46.08 305.92,-41.92 297.16,-35.96 "
-         id="polygon757" />
-    </g>
     <!-- groupBy/boundary&#45;&gt;groupBy/tag -->
     <g
        id="edge20"
@@ -1525,37 +1439,31 @@
         </a>
       </g>
     </g>
-    <g
-       id="node15-5-3-6"
-       class="node"
-       transform="translate(570.01211,158.12858)">
-      <title
-         id="title774-0-6-2">count</title>
-      <g
-         id="a_node15-3-7-9"
-         transform="translate(-0.00664178,2.0656655)">
-        <a
-           xlink:href="https://api.ohsome.org/v1/users/count"
-           xlink:title="count"
-           id="a780-6-5-1">
-          <path
-             style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
-             d="m 83.240234,-252.5 c -8.526697,0 -16.253258,2.02806 -21.884765,5.3418 -5.631508,3.31373 -9.205078,7.95803 -9.205078,13.1582 0,5.20017 3.57357,9.84447 9.205078,13.1582 5.631507,3.31374 13.358068,5.3418 21.884765,5.3418 8.526698,0 16.251305,-2.02806 21.882816,-5.3418 5.6315,-3.31373 9.20703,-7.95803 9.20703,-13.1582 0,-5.20017 -3.57553,-9.84447 -9.20703,-13.1582 -5.631511,-3.31374 -13.356118,-5.3418 -21.882816,-5.3418 z m 0,1 c 8.367693,0 15.937059,2.00214 21.376956,5.20312 5.43989,3.20099 8.71289,7.55593 8.71289,12.29688 0,4.74095 -3.273,9.09589 -8.71289,12.29688 -5.439897,3.20098 -13.009263,5.20312 -21.376956,5.20312 -8.367692,0 -15.937058,-2.00214 -21.376953,-5.20312 -5.439895,-3.20099 -8.71289,-7.55593 -8.71289,-12.29688 0,-4.74095 3.272995,-9.09589 8.71289,-12.29688 5.439895,-3.20098 13.009261,-5.20312 21.376953,-5.20312 z"
-             id="ellipse776-1-3-2" />
-          <text
-             text-anchor="middle"
-             x="83.239998"
-             y="-230.3"
-             font-family="Times, serif"
-             font-size="14px"
-             id="text778-0-5-7">count</text>
-        </a>
-      </g>
-    </g>
     <path
        style="fill:none;stroke:none;stroke-width:0.750136;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker2183)"
        d="m 653.2822,-97.987005 0.28443,-43.961975 z"
        id="path1240"
        sodipodi:nodetypes="ccc" />
+    <g
+       id="path962">
+      <path
+         style="color:#000000;fill:#000000;-inkscape-stroke:none"
+         d="m 632.85937,-144.91211 -110.46484,64.400391 0.50391,0.863282 110.46289,-64.400393 z"
+         id="path2978" />
+      <g
+         id="g2966">
+        <g
+           id="path2968">
+          <path
+             style="color:#000000;fill:#000000;fill-rule:evenodd;stroke-width:0.800144pt;-inkscape-stroke:none"
+             d="m 518.65808,-77.754611 3.9643,-6.942172 4.02998,6.912471 z"
+             id="path2972" />
+          <path
+             style="color:#000000;fill:#000000;fill-rule:evenodd;-inkscape-stroke:none"
+             d="m 522.61719,-85.763672 -4.88086,8.546875 0.92383,-0.0039 8.91796,-0.0332 z m 0.01,2.134766 3.09766,5.314453 -6.14649,0.02344 z"
+             id="path2974" />
+        </g>
+      </g>
+    </g>
   </g>
 </svg>
