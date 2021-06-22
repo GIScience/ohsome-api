@@ -37,6 +37,7 @@ Changelog
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
 
+
 ## 1.4.2
 
 * contribution extraction endpoints now return the `@contributionChangesetId` as a separate field (backported from 1.5.0) ([#200])
