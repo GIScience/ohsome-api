@@ -41,6 +41,9 @@ public class ParameterDescriptions {
   public static final String CLIP_GEOMETRY = "Boolean operator to specify whether the returned "
       + "geometries of the features should be clipped to the query's spatial boundary (‘true’), "
       + "or not (‘false’); default: ‘true’";
+  public static final String CONTRIBUTION_TYPE = "Filter contributions by contribution type: "
+      + "'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them;"
+      + "no default value";
 
   private ParameterDescriptions() {
     throw new IllegalStateException("Utility class");

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="718pt"
    height="345.10147pt"
    viewBox="0 0 718.13 345.10147"
    version="1.1"
    id="svg848"
    sodipodi:docname="ohsome-api-tree.svg"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
+   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata854">
     <rdf:RDF>
@@ -23,12 +23,26 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs852">
+    <marker
+       style="overflow:visible"
+       id="TriangleInL"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="TriangleInL"
+       inkscape:isstock="true">
+      <path
+         transform="scale(-0.8)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         id="path1657" />
+    </marker>
     <marker
        style="overflow:visible"
        id="marker2183"
@@ -39,7 +53,7 @@
        inkscape:isstock="true">
       <path
          transform="scale(-0.8)"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1pt;stroke-opacity:1"
          d="M 5.77,0 -2.88,5 V -5 Z"
          id="path2181" />
     </marker>
@@ -59,7 +73,7 @@
        inkscape:isstock="true">
       <path
          transform="scale(-0.8)"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
          d="M 5.77,0 -2.88,5 V -5 Z"
          id="path3869" />
     </marker>
@@ -149,9 +163,9 @@
      inkscape:window-height="739"
      id="namedview850"
      showgrid="false"
-     inkscape:zoom="0.76508705"
-     inkscape:cx="480.04618"
-     inkscape:cy="171.19016"
+     inkscape:zoom="1.01"
+     inkscape:cx="293.56436"
+     inkscape:cy="253.9604"
      inkscape:window-x="1366"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -160,7 +174,9 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0" />
+     fit-margin-bottom="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="pt" />
   <g
      id="graph0"
      class="graph"
@@ -801,22 +817,6 @@
          id="polygon708" />
     </g>
     <!-- density&#45;&gt;groupBy/boundary -->
-    <g
-       id="edge16"
-       class="edge">
-      <title
-         id="title711">density-&gt;groupBy/boundary</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 250.52,-146.33 c 15.07,10.04 36.77,23.49 55.76,34.62"
-         id="path713" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="304.65,-108.61 308.16,-114.67 315.05,-106.63 "
-         id="polygon715" />
-    </g>
     <!-- density&#45;&gt;groupBy/boundary -->
     <g
        id="edge28"
@@ -852,22 +852,6 @@
          id="polygon729" />
     </g>
     <!-- density&#45;&gt;groupBy/tag -->
-    <g
-       id="edge29"
-       class="edge">
-      <title
-         id="title732">density-&gt;groupBy/tag</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 242.95,-144.58 c 7.21,18.13 15.81,47.99 26.29,72.58 3.78,8.88 8.59,18.22 12.78,26.55"
-         id="path734" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="279,-43.66 285.28,-46.75 286.56,-36.24 "
-         id="polygon736" />
-    </g>
     <!-- density&#45;&gt;groupBy/type -->
     <g
        id="edge18"
@@ -886,39 +870,7 @@
          id="polygon743" />
     </g>
     <!-- density&#45;&gt;groupBy/type -->
-    <g
-       id="edge30"
-       class="edge">
-      <title
-         id="title746">density-&gt;groupBy/type</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 216.65,-145.46 c -12.35,9.85 -29.83,22.73 -45.4,33.48"
-         id="path748" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="169.13,-114.77 173.07,-108.99 162.84,-106.25 "
-         id="polygon750" />
-    </g>
     <!-- groupBy/boundary&#45;&gt;groupBy/tag -->
-    <g
-       id="edge19"
-       class="edge">
-      <title
-         id="title753">groupBy/boundary-&gt;groupBy/tag</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 326.89,-72.41 c -7.78,8.42 -16.47,18.83 -23.64,28.21"
-         id="path755" />
-      <polygon
-         fill="#000000"
-         stroke="#000000"
-         points="300.28,-46.08 305.92,-41.92 297.16,-35.96 "
-         id="polygon757" />
-    </g>
     <!-- groupBy/boundary&#45;&gt;groupBy/tag -->
     <g
        id="edge20"
@@ -1063,7 +1015,8 @@
          fill="none"
          stroke="#000000"
          d="m 83.24,-215.7 c 0,7.72 0,16.99 0,25.59"
-         id="path821" />
+         id="path821"
+         style="stroke-width:0.99993103;stroke-miterlimit:4;stroke-dasharray:none" />
       <polygon
          fill="#000000"
          stroke="#000000"
@@ -1284,7 +1237,7 @@
        id="path3107"
        style="opacity:1">
       <path
-         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1;stroke-width:0.99993103"
          d="m 504.90234,-210.35547 -1,0.0117 0.72071,56.83008 1,-0.0117 z"
          id="path2253" />
       <g
@@ -1330,7 +1283,7 @@
        id="path3403"
        style="opacity:1">
       <path
-         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1;stroke-width:0.99993103"
          d="m 84.898438,-287.46875 -1,0.01 0.273437,30.2832 1.001953,-0.008 z"
          id="path1580" />
       <g
@@ -1484,6 +1437,32 @@
              font-size="14px"
              id="text528-5">contributions</text>
         </a>
+      </g>
+    </g>
+    <path
+       style="fill:none;stroke:none;stroke-width:0.750136;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker2183)"
+       d="m 653.2822,-97.987005 0.28443,-43.961975 z"
+       id="path1240"
+       sodipodi:nodetypes="ccc" />
+    <g
+       id="path962">
+      <path
+         style="color:#000000;fill:#000000;-inkscape-stroke:none"
+         d="m 632.85937,-144.91211 -110.46484,64.400391 0.50391,0.863282 110.46289,-64.400393 z"
+         id="path2978" />
+      <g
+         id="g2966">
+        <g
+           id="path2968">
+          <path
+             style="color:#000000;fill:#000000;fill-rule:evenodd;stroke-width:0.800144pt;-inkscape-stroke:none"
+             d="m 518.65808,-77.754611 3.9643,-6.942172 4.02998,6.912471 z"
+             id="path2972" />
+          <path
+             style="color:#000000;fill:#000000;fill-rule:evenodd;-inkscape-stroke:none"
+             d="m 522.61719,-85.763672 -4.88086,8.546875 0.92383,-0.0039 8.91796,-0.0332 z m 0.01,2.134766 3.09766,5.314453 -6.14649,0.02344 z"
+             id="path2974" />
+        </g>
       </g>
     </g>
   </g>

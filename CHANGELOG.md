@@ -6,6 +6,8 @@ Changelog
 ### New Features
 
 * add new `contributionTypes` property to `properties` parameter ([#136])
+* add new `/contributions/latest/count` and `/contributions/latest/count/density` endpoints ([#174])
+* add new `contributionType` parameter for contributions aggregation ([#174])
 * contribution extraction endpoints now return the `@contributionChangesetId` as a separate field ([#200])
 
 ### Bug Fixes
@@ -15,8 +17,6 @@ Changelog
 * remove the parameters `@snapshotTimestamp` and `@lastEdit` from full-history extraction responses ([#191])
 
 ### Performance and Code Quality
-
-
 
 ### Other Changes
 
@@ -34,6 +34,7 @@ Changelog
 [#164]: https://github.com/GIScience/ohsome-api/pull/164
 [#166]: https://github.com/GIScience/ohsome-api/issues/166
 [#168]: https://github.com/GIScience/ohsome-api/pull/168
+[#174]: https://github.com/GIScience/ohsome-api/issues/174
 [#175]: https://github.com/GIScience/ohsome-api/issues/175
 [#184]: https://github.com/GIScience/ohsome-api/pull/184
 [#191]: https://github.com/GIScience/ohsome-api/issues/191
