@@ -50,6 +50,17 @@ public class PostControllerTest {
     }
   }
 
+  @Test
+  public void providedBoundaryOutsideUnderlyingDataExtractpolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bcircles", "8.457261,49.488483,100");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/users/count", map, JsonNode.class);
+    assertEquals(404, response.getBody().get("status").asInt());
+  }
+
+
   /*
    * false parameter tests
    */
