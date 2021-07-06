@@ -68,8 +68,8 @@ public class PostControllerTest {
   public void providedBpolysOutsideUnderlyingDataExtractPolygonTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("bpolys",
-        "8.422684,49.471910,8.422694,49.471980|8.426363,49.473583,8.426373,49.473593|8.422684,49.471910,8.422694,49.471980");
+    map.add("bpolys", "8.422684,49.471910,8.422694,49.471980|8.426363,49.473583,8.426373,49.473593"
+        + "|8.422684,49.471910,8.422694,49.471980");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
     assertEquals(404, response.getBody().get("status").asInt());
