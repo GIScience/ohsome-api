@@ -19,8 +19,6 @@ Changelog
 * fix a bug where `getMetadataTest` unit test fails in certain setups ([#175])
 * remove the parameters `@snapshotTimestamp` and `@lastEdit` from full-history extraction responses ([#191])
 
-### Performance and Code Quality
-
 ### Other Changes
 
 * add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
