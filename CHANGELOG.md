@@ -3,6 +3,17 @@ Changelog
 
 ## 1.6.0-SNAPSHOT (current master)
 
+### Bug Fixes
+
+* fix not thrown exception in case of `bpolys` and `bcircles` boundaries not lying completely within the underlying data-extract polygon ([#201])
+
+### Other Changes
+
+* adapt error message for contributions extration endpoint in case of wrong `time` parameter value ([#208])
+
+[#201]: https://github.com/GIScience/ohsome-api/issues/201
+[#208]: https://github.com/GIScience/ohsome-api/issues/208
+
 
 ## 1.5.0
 

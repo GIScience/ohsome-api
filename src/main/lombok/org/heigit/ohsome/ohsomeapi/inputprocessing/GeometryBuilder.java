@@ -121,6 +121,9 @@ public class GeometryBuilder {
         transform = CRS.findMathTransform(targetCrs, sourceCrs, false);
         geom = JTS.transform(buffer, transform);
         if (bpoints.length == 3) {
+          if (!utils.isWithin(geom)) {
+            throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
+          }
           geometryList.add(geom);
           processingData.setBoundaryList(geometryList);
           processingData.setRequestGeom(geom);
@@ -154,6 +157,7 @@ public class GeometryBuilder {
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<>();
     ArrayList<Geometry> geometryList = new ArrayList<>();
+    InputProcessingUtils utils = new InputProcessingUtils();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -165,6 +169,9 @@ public class GeometryBuilder {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
       bpoly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
+      if (!utils.isWithin(bpoly)) {
+        throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
+      }
       geometryList.add(bpoly);
       processingData.setBoundaryList(geometryList);
       processingData.setRequestGeom(bpoly);

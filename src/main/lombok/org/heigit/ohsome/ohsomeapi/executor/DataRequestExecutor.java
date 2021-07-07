@@ -79,7 +79,8 @@ public class DataRequestExecutor extends RequestExecutor {
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
     if (time.length != 2) {
-      throw new BadRequestException(ExceptionMessages.TIME_FORMAT_FULL_HISTORY);
+      throw new BadRequestException(
+          ExceptionMessages.TIME_FORMAT_CONTRS_EXTRACTION_AND_FULL_HISTORY);
     }
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParameters.getKeys();

@@ -47,8 +47,8 @@ public class ExceptionMessages {
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";
-  public static final String TIME_FORMAT_FULL_HISTORY = "Wrong time parameter. You need to give "
-      + "exactly two ISO-8601 conform timestamps, if you want to use the full-history extraction.";
+  public static final String TIME_FORMAT_CONTRS_EXTRACTION_AND_FULL_HISTORY =
+      "Wrong time parameter. You need to give exactly two ISO-8601 conform timestamps.";
   public static final String TIME_FORMAT_CONTRIBUTION =
       "You need to give at least two timestamps or a time interval for this resource.";
   public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";

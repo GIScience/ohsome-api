@@ -51,6 +51,37 @@ public class PostControllerTest {
   }
 
   /*
+   * test geometries lying outside the underlying data-extract polygon
+   */
+
+  @Test
+  public void providedBcirclesOutsideUnderlyingDataExtractPolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    String message = "The provided boundary parameter "
+        + "does not lie completely within the underlying data-extract polygon.";
+    map.add("bcircles", "8.457261,49.488483,100");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/users/count", map, JsonNode.class);
+    assertEquals(404, response.getBody().get("status").asInt());
+    assertEquals(message, response.getBody().get("message").asText());
+  }
+
+  @Test
+  public void providedBpolysOutsideUnderlyingDataExtractPolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    String message = "The provided boundary parameter "
+        + "does not lie completely within the underlying data-extract polygon.";
+    map.add("bpolys", "8.422684,49.471910,8.422694,49.471980|8.426363,49.473583,8.426373,49.473593"
+        + "|8.422684,49.471910,8.422694,49.471980");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
+    assertEquals(404, response.getBody().get("status").asInt());
+    assertEquals(message, response.getBody().get("message").asText());
+  }
+
+  /*
    * false parameter tests
    */
 
