@@ -3,17 +3,9 @@ Changelog
 
 ## 1.6.0-SNAPSHOT (current master)
 
-### New Features
-
-
-
 ### Bug Fixes
 
 * fix not thrown exception in case of `bpolys` and `bcircles` boundaries not lying completely within the underlying data-extract polygon ([#201])
-
-### Performance and Code Quality
-
-
 
 ### Other Changes
 
