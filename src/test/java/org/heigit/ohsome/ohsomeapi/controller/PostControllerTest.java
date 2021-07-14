@@ -80,7 +80,39 @@ public class PostControllerTest {
     assertEquals(404, response.getBody().get("status").asInt());
     assertEquals(message, response.getBody().get("message").asText());
   }
+  
+  /*
+   * test request with invalid bpolys boundary
+   */
 
+  @Test
+  public void oneCoordinatesPairTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    String message = "The bpolys parameter must contain double-parseable values in form of lon/lat"
+        + " coordinate pairs.";;
+    map.add("bpolys", "8.65821,49.41129");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+    assertEquals(message, response.getBody().get("message").asText());
+  }
+  
+  @Test
+  public void nonNodedLinestringsIntersectionTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    String message = "Invalid geometry: found non-noded intersection between LINESTRING "
+        + "( 8.696384 49.401269, 8.674739 49.401869 ) and LINESTRING ( 8.681818 49.404774, "
+        + "8.695483 49.400794 ) [ (8.693585810865496, 49.401346565880374, NaN) ]";
+    map.add("bpolys", "8.695483,49.400794,8.696384,49.401269|8.674739,49.401869,8.681818,49.404774"
+        + "|8.695483,49.400794,8.696384,49.401269");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+    assertEquals(message, response.getBody().get("message").asText());
+  }
+  
   /*
    * false parameter tests
    */
