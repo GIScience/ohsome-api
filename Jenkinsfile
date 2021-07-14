@@ -13,7 +13,6 @@ pipeline {
     // START CUSTOM ohsome API
     MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
     // END CUSTOM ohsome API
-    INFER_BRANCH_REGEX = /(^master$)/
     SNAPSHOT_BRANCH_REGEX = /(^master$)/
     RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
     RELEASE_DEPLOY = false
@@ -79,14 +78,6 @@ pipeline {
           )
           sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && find . -path '*/target/site/jacoco' -exec cp -R --parents {} ${report_dir} \\; && find ${report_dir} -path '*/target/site/jacoco' | while read line; do echo \$line; neu=\${line/target\\/site\\/jacoco/} ;  mv \$line/* \$neu ; done && find ${report_dir} -type d -empty -delete"
 
-          // infer
-          if (env.BRANCH_NAME ==~ INFER_BRANCH_REGEX) {
-            report_dir = report_basedir + "/infer/"
-            sh "mvn --batch-mode clean"
-            sh "infer run --pmd-xml -r -- mvn --batch-mode compile"
-            sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && cp -R ./infer-out/* ${report_dir}"
-          }
-
           // warnings plugin
           rtMaven.run pom: 'pom.xml', goals: '--batch-mode -V -e compile checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
 
@@ -95,7 +86,6 @@ pipeline {
           recordIssues enabledForFailure: true, tool: spotBugs()
           recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
           recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
-          recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/infer-out/report.xml', id: 'infer')
         }
       }
       post {
