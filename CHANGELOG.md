@@ -5,6 +5,7 @@ Changelog
 
 ### Bug Fixes
 
+* fix wrong thrown exceptions in case of invalid `bpolys` boundary ([#214])
 * fix not thrown exception in case of `bpolys` and `bcircles` boundaries not lying completely within the underlying data-extract polygon ([#201])
 
 ### Other Changes
@@ -13,7 +14,7 @@ Changelog
 
 [#201]: https://github.com/GIScience/ohsome-api/issues/201
 [#208]: https://github.com/GIScience/ohsome-api/issues/208
-
+[#214]: https://github.com/GIScience/ohsome-api/issues/214
 
 ## 1.5.0
 

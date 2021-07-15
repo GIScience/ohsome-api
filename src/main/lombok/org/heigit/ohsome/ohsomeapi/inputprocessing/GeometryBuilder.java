@@ -165,10 +165,10 @@ public class GeometryBuilder {
           coords.add(
               new Coordinate(Double.parseDouble(bpolys[i]), Double.parseDouble(bpolys[i + 1])));
         }
-      } catch (NumberFormatException e) {
+        bpoly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
+      } catch (IllegalArgumentException e) {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
-      bpoly = geomFact.createPolygon(coords.toArray(new Coordinate[] {}));
       if (!utils.isWithin(bpoly)) {
         throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
