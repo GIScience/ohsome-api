@@ -80,7 +80,7 @@ public class PostControllerTest {
     assertEquals(404, response.getBody().get("status").asInt());
     assertEquals(message, response.getBody().get("message").asText());
   }
-  
+
   /*
    * test request with invalid bpolys boundary
    */
@@ -90,14 +90,14 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     String message = "The bpolys parameter must contain double-parseable values in form of lon/lat"
-        + " coordinate pairs.";;
+        + " coordinate pairs.";
     map.add("bpolys", "8.65821,49.41129");
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());
     assertEquals(message, response.getBody().get("message").asText());
   }
-  
+
   @Test
   public void nonNodedLinestringsIntersectionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -112,7 +112,7 @@ public class PostControllerTest {
     assertEquals(400, response.getBody().get("status").asInt());
     assertEquals(message, response.getBody().get("message").asText());
   }
-  
+
   /*
    * false parameter tests
    */
