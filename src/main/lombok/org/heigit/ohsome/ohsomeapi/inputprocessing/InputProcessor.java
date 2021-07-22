@@ -214,7 +214,7 @@ public class InputProcessor {
       try {
         mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
       } catch (TopologyException e) {
-        throw new BadRequestException("Invalid geometry: " + e.getMessage());
+        throw new BadRequestException(ExceptionMessages.BPOLYS_PARAM_GEOMETRY + e.getMessage());
       }
     }
     processShowMetadata(showMetadata);
