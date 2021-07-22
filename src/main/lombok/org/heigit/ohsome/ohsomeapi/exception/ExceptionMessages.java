@@ -14,6 +14,8 @@ public class ExceptionMessages {
           + "remember to follow the format, where you separate every coordinate with a comma, "
           + "each boundary object with a pipe-sign "
           + "and add optional custom ids to every first coordinate with a colon.";
+  public static final String BPOLYS_PARAM_GEOMETRY =
+      "The defined bpolys parameter contains some invalid geometry: ";
   public static final String BOUNDARY_IDS_FORMAT =
       "One or more boundary object(s) have a custom id "
           + "(or at least a colon), whereas other(s) don't. You can either set custom ids for all "

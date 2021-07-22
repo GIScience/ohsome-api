@@ -41,6 +41,7 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.TopologyException;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /**
@@ -192,9 +193,7 @@ public class InputProcessor {
         dbIgnite.computeMode(computeMode);
       }
     }
-
     DbConnData.db.timeout(timeout);
-
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);
@@ -212,11 +211,13 @@ public class InputProcessor {
       mapRed =
           mapRed.areaOfInterest(OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal()));
     } else {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+      try {
+        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+      } catch (TopologyException e) {
+        throw new BadRequestException(ExceptionMessages.BPOLYS_PARAM_GEOMETRY + e.getMessage());
+      }
     }
-
     processShowMetadata(showMetadata);
-
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
       GeoJSONWriter writer = new GeoJSONWriter();
