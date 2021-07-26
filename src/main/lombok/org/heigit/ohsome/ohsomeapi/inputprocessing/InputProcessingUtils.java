@@ -15,6 +15,7 @@ import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.Filter;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.filter.FilterParser;
 import org.heigit.ohsome.oshdb.osm.OSMType;
@@ -360,9 +361,9 @@ public class InputProcessingUtils implements Serializable {
     TagTranslator tt = DbConnData.tagTranslator;
     OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
     OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
-    return mapRed.osmEntityFilter(entity -> !entity.getType().equals(OSMType.RELATION)
+    return mapRed.filter(Filter.byOSMEntity(entity -> !entity.getType().equals(OSMType.RELATION)
         || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
-        || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue()));
+        || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue())));
   }
 
   /**
