@@ -10,11 +10,14 @@ Changelog
 
 ### Other Changes
 
+* upgrade to OSHDB version 0.7.0 – note that oshdb database files from the previous version are not compatible with this version anymore, you have to either [redownload](https://downloads.ohsome.org/OSHDB/v0.7/) or [recreate](https://github.com/GIScience/oshdb/blob/0.7/oshdb-etl/README.md) them from scratch ([#222])
 * adapt error message for contributions extration endpoint in case of wrong `time` parameter value ([#208])
 
 [#201]: https://github.com/GIScience/ohsome-api/issues/201
 [#208]: https://github.com/GIScience/ohsome-api/issues/208
 [#214]: https://github.com/GIScience/ohsome-api/issues/214
+[#222]: https://github.com/GIScience/ohsome-api/pull/222
+
 
 ## 1.5.0
 
