@@ -508,20 +508,17 @@ public class ExecutionUtils implements Serializable {
    * Extracts the tags from the given <code>OSMContribution</code> depending on the
    * <code>ContributionType</code>.
    */
-  public static int[] extractContributionTags(OSMContribution contrib) {
-    int[] tags;
+  public static Iterable<OSHDBTag> extractContributionTags(OSMContribution contrib) {
     if (contrib.getContributionTypes().contains(ContributionType.DELETION)) {
-      tags = contrib.getEntityBefore().getRawTags();
+      return contrib.getEntityBefore().getTags();
     } else if (contrib.getContributionTypes().contains(ContributionType.CREATION)) {
-      tags = contrib.getEntityAfter().getRawTags();
+      return contrib.getEntityAfter().getTags();
     } else {
-      int[] tagsBefore = contrib.getEntityBefore().getRawTags();
-      int[] tagsAfter = contrib.getEntityAfter().getRawTags();
-      tags = new int[tagsBefore.length + tagsAfter.length];
-      System.arraycopy(tagsBefore, 0, tags, 0, tagsBefore.length);
-      System.arraycopy(tagsAfter, 0, tags, tagsBefore.length, tagsAfter.length);
+      return Iterables.concat(
+          contrib.getEntityBefore().getTags(),
+          contrib.getEntityAfter().getTags()
+      );
     }
-    return tags;
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
@@ -600,10 +597,10 @@ public class ExecutionUtils implements Serializable {
    */
   public static Pair<Pair<Integer, Integer>, OSMEntitySnapshot> mapSnapshotToTags(int keysInt,
       Integer[] valuesInt, OSMEntitySnapshot f) {
-    int[] tags = f.getEntity().getRawTags();
-    for (int i = 0; i < tags.length; i += 2) {
-      int tagKeyId = tags[i];
-      int tagValueId = tags[i + 1];
+    Iterable<OSHDBTag> tags = f.getEntity().getTags();
+    for (OSHDBTag tag : tags) {
+      int tagKeyId = tag.getKey();
+      int tagValueId = tag.getValue();
       if (tagKeyId == keysInt) {
         if (valuesInt.length == 0) {
           return new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f);

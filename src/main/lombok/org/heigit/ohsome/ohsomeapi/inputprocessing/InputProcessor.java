@@ -504,8 +504,7 @@ public class InputProcessor {
    * or {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
    * osmTag(key, value)} method.
    *
-   * @param mapRed current {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer
-   *        MapReducer} object
+   * @param mapRed current {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer}
    * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the filters derived from the given parameters.
    */

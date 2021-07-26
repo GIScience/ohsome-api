@@ -333,10 +333,10 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
    *
    * @throws BadRequestException if a boundary parameter is not defined.
-   * @throws Exception thrown by {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator
-   *         #count() count}, or
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator
-   *         #sum(SerializableFunction) sum}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
+   *         sum}
    */
   private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
         ? extends Number> computeCountLengthPerimeterAreaGbB(RequestResource requestResource,

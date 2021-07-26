@@ -117,8 +117,7 @@ public class ContributionsExecutor extends RequestExecutor {
    * @param mapRed a MapReducer of OSM contributions
    * @return SortedMap with counts of users aggregated by timestamp
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #countUniq()
-   *         countUniq}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #countUniq() countUniq}
    * @throws UnsupportedOperationException thrown by
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimeStamp}
