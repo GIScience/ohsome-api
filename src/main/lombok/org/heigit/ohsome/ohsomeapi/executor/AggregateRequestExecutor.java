@@ -18,15 +18,6 @@ import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -45,6 +36,15 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
+import org.heigit.ohsome.oshdb.util.geometry.Geo;
+import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
+import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
@@ -74,8 +74,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
    *         PERIMETER, and AREA are permitted here
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   public Response aggregate() throws Exception {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
@@ -333,9 +333,9 @@ public class AggregateRequestExecutor extends RequestExecutor {
    * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
    *
    * @throws BadRequestException if a boundary parameter is not defined.
-   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   * @throws Exception thrown by {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator
    *         #count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator
    *         #sum(SerializableFunction) sum}
    */
   private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,

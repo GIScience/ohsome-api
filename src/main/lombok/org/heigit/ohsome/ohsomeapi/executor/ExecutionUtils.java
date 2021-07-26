@@ -41,25 +41,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableSupplier;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
-import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
-import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.OSMTag;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
@@ -85,6 +66,25 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
+import org.heigit.ohsome.oshdb.OSHDBTag;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.osm.OSMEntity;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
+import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
+import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
+import org.heigit.ohsome.oshdb.util.function.SerializableSupplier;
+import org.heigit.ohsome.oshdb.util.geometry.Geo;
+import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
+import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
+import org.heigit.ohsome.oshdb.util.tagtranslator.OSMTag;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
@@ -189,7 +189,7 @@ public class ExecutionUtils implements Serializable {
 
   /**
    * Adapted helper function, which works like
-   * {@link org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex#nest(Map) nest} but has
+   * {@link org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex#nest(Map) nest} but has
    * switched &lt;U&gt; and &lt;V&gt; parameters.
    *
    * @param result the "flat" result data structure that should be converted to a nested structure
@@ -435,9 +435,9 @@ public class ExecutionUtils implements Serializable {
    * Computes the result depending on the <code>RequestResource</code> using a
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    *
-   * @throws Exception thrown by {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator
+   * @throws Exception thrown by {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator
    *         #count() count}, and
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public static <K extends Comparable<K> & Serializable, V extends Number>
