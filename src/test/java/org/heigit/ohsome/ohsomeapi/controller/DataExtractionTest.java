@@ -83,16 +83,6 @@ public class DataExtractionTest {
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
   }
 
-  @Test
-  public void elementsGeomUnclippedSimpleFeaturesTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&properties=unclipped"
-        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
-        JsonNode.class);
-    assertTrue(response.getBody().get("features").size() == 0);
-  }
-
   // this needs a fix in the OSHDB to work
   // see https://github.com/GIScience/oshdb/issues/338
   //  @Test
