@@ -1,12 +1,92 @@
 Changelog
 =========
 
-## 1.4.0-SNAPSHOT (current master)
+## 1.6.0-SNAPSHOT (current master)
+
+### Bug Fixes
+
+* fix wrong thrown exceptions in case of invalid `bpolys` boundary ([#214])
+* fix not thrown exception in case of `bpolys` and `bcircles` boundaries not lying completely within the underlying data-extract polygon ([#201])
+
+### Other Changes
+
+* upgrade to OSHDB version 0.7.0 – note that oshdb database files from the previous version are not compatible with this version anymore, you have to either [redownload](https://downloads.ohsome.org/OSHDB/v0.7/) or [recreate](https://github.com/GIScience/oshdb/blob/0.7/oshdb-etl/README.md) them from scratch ([#222])
+* adapt error message for contributions extration endpoint in case of wrong `time` parameter value ([#208])
+
+[#201]: https://github.com/GIScience/ohsome-api/issues/201
+[#208]: https://github.com/GIScience/ohsome-api/issues/208
+[#214]: https://github.com/GIScience/ohsome-api/issues/214
+[#222]: https://github.com/GIScience/ohsome-api/pull/222
+
+
+## 1.5.0
+
+### New Features
+
+* add new `contributionTypes` property to `properties` parameter ([#136])
+* add new `/contributions/latest/count` and `/contributions/latest/count/density` endpoints ([#174])
+* add new `contributionType` parameter for contributions aggregation ([#174])
+* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field ([#200])
+
+### Bug Fixes
+
+* fix uncaught GeoJSON parsing exception ([#55])
+* fix a bug where `getMetadataTest` unit test fails in certain setups ([#175])
+* remove the parameters `@snapshotTimestamp` and `@lastEdit` from full-history extraction responses ([#191])
+
+### Other Changes
+
+* add information regarding a potential "NaN" value for `ratio` results to docs ([#166])
+* properly skip `GetControllerTest` class if `port1` parameter is absent ([#164])
+* update ohsome parent module, requires maven version 3.6 or higher ([#184])
+* update documentation([#88]) ([#150]) and endpoints graph ([#158])
+* remove deprecated request parameters from swagger definition and UI ([#168])
+
+[#55]: https://github.com/GIScience/ohsome-api/issues/55
+[#88]: https://github.com/GIScience/ohsome-api/issues/88
+[#136]: https://github.com/GIScience/ohsome-api/issues/136
+[#150]: https://github.com/GIScience/ohsome-api/issues/150
+[#158]: https://github.com/GIScience/ohsome-api/issues/158
+[#164]: https://github.com/GIScience/ohsome-api/pull/164
+[#166]: https://github.com/GIScience/ohsome-api/issues/166
+[#168]: https://github.com/GIScience/ohsome-api/pull/168
+[#174]: https://github.com/GIScience/ohsome-api/issues/174
+[#175]: https://github.com/GIScience/ohsome-api/issues/175
+[#184]: https://github.com/GIScience/ohsome-api/pull/184
+[#191]: https://github.com/GIScience/ohsome-api/issues/191
+
+
+## 1.4.2
+
+* contribution extraction endpoints now return the `@contributionChangesetId` as a separate field (backported from 1.5.0) ([#200])
+
+[#200]: https://github.com/GIScience/ohsome-api/issues/200
+
+
+## 1.4.1
+
+* upgrade OSHDB to version [OSHDB#0.6.4], fixes the following two bugs:
+* fix crash when a non-existent tag is used in a filter ([#154])
+* fix crash in `groupBy/boundary` queries caused by invalid OSM geometries ([OSHDB#362])
+
+[OSHDB#0.6.4]: https://github.com/GIScience/oshdb/releases/tag/0.6.4
+[OSHDB#362]: https://github.com/GIScience/oshdb/pull/362
+[#154]: https://github.com/GIScience/ohsome-api/issues/154
+
+
+## 1.4.0
+
+### New Features
+
+* add new endpoint /contributions/count/{density} ([#115])
 
 ### Bug Fixes
 
 * fix some invalid filters in the default swagger examples ([#111])
 * fix returning invalid GeoJSON using empty coordinates for deletion contributions ([#129], [#131])
+* fix using a proper boolean data type instead of a string for contributionType in response ([#135])
+* fix a null pointer exception in data extraction requests ([#141], [#145])
+* make sure geometry filters are applied to all returned features of elementsFullHistory requests ([#109])
 
 ### Performance and Code Quality
 
@@ -17,16 +97,27 @@ Changelog
 * update all tests using the filter parameter instead of deprecated types, keys, values ([#98])
 * update some default parameter values in swagger UI to slightly more sensible examples ([#113])
 * restructure packages and classes within the controller and output packages ([#117])
+* extend docs on contribution types ([#134])
 * round coordinates of returned OSM features to 7 decimal places ([#138])
+* improve code style by wrapping all code lines longer than 100 characters ([#83])
+* update ohsome parent to version 2.8 ([#152])
 
+[#83]: https://github.com/GIScience/ohsome-api/issues/83
 [#98]: https://github.com/GIScience/ohsome-api/issues/98
+[#109]: https://github.com/GIScience/ohsome-api/issues/109
 [#111]: https://github.com/GIScience/ohsome-api/issues/111
 [#113]: https://github.com/GIScience/ohsome-api/issues/113
 [#114]: https://github.com/GIScience/ohsome-api/pull/114
+[#115]: https://github.com/GIScience/ohsome-api/issues/115
 [#117]: https://github.com/GIScience/ohsome-api/issues/117
 [#129]: https://github.com/GIScience/ohsome-api/issues/129
 [#131]: https://github.com/GIScience/ohsome-api/issues/131
+[#134]: https://github.com/GIScience/ohsome-api/issues/134
+[#135]: https://github.com/GIScience/ohsome-api/pull/135
 [#138]: https://github.com/GIScience/ohsome-api/issues/138
+[#141]: https://github.com/GIScience/ohsome-api/issues/141
+[#145]: https://github.com/GIScience/ohsome-api/pull/145
+[#152]: https://github.com/GIScience/ohsome-api/pull/152
 
 
 ## 1.3.2

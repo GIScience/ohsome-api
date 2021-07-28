@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,6 +15,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,9 +47,68 @@ public class PostControllerTest {
   /** Stops this application context. */
   @AfterClass
   public static void applicationMainShutdown() {
-    if (null != Application.getApplicationContext()) {
+    if (Application.getApplicationContext()  != null) {
       SpringApplication.exit(Application.getApplicationContext(), () -> 0);
     }
+  }
+
+  /*
+   * test geometries lying outside the underlying data-extract polygon
+   */
+
+  @Test
+  public void providedBcirclesOutsideUnderlyingDataExtractPolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    String message = "The provided boundary parameter "
+        + "does not lie completely within the underlying data-extract polygon.";
+    map.add("bcircles", "8.457261,49.488483,100");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/users/count", map, JsonNode.class);
+    assertEquals(404, response.getBody().get("status").asInt());
+    assertEquals(message, response.getBody().get("message").asText());
+  }
+
+  @Test
+  public void providedBpolysOutsideUnderlyingDataExtractPolygonTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    String message = "The provided boundary parameter "
+        + "does not lie completely within the underlying data-extract polygon.";
+    map.add("bpolys", "8.422684,49.471910,8.422694,49.471980|8.426363,49.473583,8.426373,49.473593"
+        + "|8.422684,49.471910,8.422694,49.471980");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/perimeter", map, JsonNode.class);
+    assertEquals(404, response.getBody().get("status").asInt());
+    assertEquals(message, response.getBody().get("message").asText());
+  }
+
+  /*
+   * test request with invalid bpolys boundary
+   */
+
+  @Test
+  public void oneCoordinatesPairTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bpolys", "8.65821,49.41129");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+    assertEquals(ExceptionMessages.BPOLYS_FORMAT, response.getBody().get("message").asText());
+  }
+
+  @Test
+  public void nonNodedLinestringsIntersectionTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bpolys", "8.695483,49.400794,8.696384,49.401269|8.674739,49.401869,8.681818,49.404774"
+        + "|8.695483,49.400794,8.696384,49.401269");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/count", map, JsonNode.class);
+    assertEquals(400, response.getBody().get("status").asInt());
+    assertTrue(response.getBody().get("message").asText()
+        .contains(ExceptionMessages.BPOLYS_PARAM_GEOMETRY));
   }
 
   /*
@@ -704,7 +765,6 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-
   @Test
   public void elementsAreaDensityGroupByTagTest() {
     final double expectedValue = 404281.85;
@@ -815,7 +875,9 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-  // csv output tests
+  /*
+   * csv output tests
+   */
 
   @Test
   public void elementsLengthCsvTest() throws IOException {
@@ -894,8 +956,6 @@ public class PostControllerTest {
         expectedValue * deltaPercentage);
   }
 
-
-
   @Test
   public void elementsLengthGroupByBoundaryGroupByTagSimpleFeatureCsvTest() throws IOException {
     // expect result to have 1 entry rows with 9 columns
@@ -916,7 +976,6 @@ public class PostControllerTest {
     assertEquals(expectedValue, Double.parseDouble(records.get(0).get("b2_highway=footway")),
         expectedValue * deltaPercentage);
   }
-
 
   @Test
   public void elementsPerimeterCsvTest() throws IOException {
@@ -1079,6 +1138,7 @@ public class PostControllerTest {
   /*
    * filter tests
    */
+
   @Test
   public void postFilterTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -1129,11 +1189,40 @@ public class PostControllerTest {
   }
 
   @Test
-  public void postQueryRequestEndsByQuestionMark() {
+  public void postQueryRequestEndsByQuestionMarkTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/count?", map, JsonNode.class);
     assertEquals(null, response.getBody().get("error"));
+  }
+
+  /*
+   * /contributions/count tests
+   */
+
+  @Test
+  public void countContributionsToHeidelbergCastleTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.7137,49.40916,8.71694,49.41198");
+    map.add("time", "2015-01-01,2019-01-01");
+    map.add("filter", "id:way/254154168");
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/contributions/count", map, JsonNode.class);
+    assertEquals(16, response.getBody().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void countDensityOfContributionsToShopsInOldtownHeidelbergTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("bboxes", "8.69282,49.40766,8.71673,49.4133");
+    map.add("time", "2018-01-01,2019-01-01");
+    map.add("filter", "shop=* and type:node");
+    ResponseEntity<JsonNode> response = restTemplate
+        .postForEntity(server + port + "/contributions/count/density", map, JsonNode.class);
+    assertEquals(85.45, response.getBody().get("result").get(0).get("value").asDouble(),
+        deltaPercentage);
   }
 }

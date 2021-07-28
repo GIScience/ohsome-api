@@ -21,10 +21,23 @@ When requested, the result will contain OSM elements' tags as individual GeoJSON
 Aggregation Parameters
 ----------------------
 
+* ``value`` - indicates the result of the chosen computation (``count``, ``area``, ``lenght``, ``perimeter``)
+
+**specific for /contributions**
+
+* ``fromTimestamp`` - temporal starting point
+* ``toTimestamp`` - temporal ending point
+
+**specific for /elements and /users**
+
+* ``timestamp`` - indicates the period of time to which the computation refers
+* ``value2`` - result of the chosen computation (``count``, ``area``, ``lenght``, ``perimeter``) applying the filter2 parameter
+* ``ratio`` - indicates the result of the ratio computation
+
 Extraction Parameters
 ---------------------
 
-Descriptions of the custom response parameters that are marked with a leading ``@``.
+Description of the custom response parameters that are marked with a leading ``@``.
 
 * ``@osmId`` - id of the OSM element, including its type (e.g. node/1)
 * ``@version`` - version number of the OSM element
@@ -41,20 +54,18 @@ Descriptions of the custom response parameters that are marked with a leading ``
 * ``@validFrom`` - indicates when a creation or change of this feature with the provided attributes and geometry was made; has the same value as the fromTimestamp if the creation/change happened before the requested time interval
 * ``@validTo`` - indicates until when this feature with the provided attributes and geometry stayed unchanged or undeleted; has the same value as the toTimestamp if the change/deletion happened after the requested time interval
 
-Contribution Parameters
------------------------
+**specific for /contributions**
 
-Descriptions of the custom response parameters that are marked with a leading ``@``.
-
-* ``@osmId`` - id of the OSM element, including its type (e.g. node/1)
-* ``@version`` - version of the OSM element
-* ``@changesetId`` - id of the OSM changeset where the contribution was performed
-* ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
 * ``@timestamp`` - indicates when this contribution occurred
-* ``@creation``	- contribution type; indicates if this feature is newly created (true); cannot occur in combination with other contribution types
-* ``@geometryChange`` - contribution type; indicates if the geometry of this feature has changed (true); can occur in combination with @tagChange
-* ``@tagChange``- contribution type; indicates if the tag of this feature has changed (true); can occur in combination with @geometryChange
-* ``@deletion`` - contribution type; indicates if the feature is deleted (true); cannot occur in combination with other contribution types
+* ``@contributionChangsetId`` - id of the OSM changeset where the contribution was performed
+* ``@creation`` - contribution type; indicates if the OSM element newly fits the query's requirements: either because it is freshly created, moved into the query's area of interest, or is now matching the defined filter parameter (true); cannot occur in combination with other contribution types
+* ``@geometryChange`` - contribution type; indicates if the geometry of the OSM element has changed (true); can occur in combination with @tagChange
+* ``@tagChange``- contribution type; indicates if the tags of this OSM element have changed (true); can occur in combination with @geometryChange
+* ``@deletion`` - contribution type; indicates if the OSM element does not match the query requirements anymore: either because it got deleted, moved outside of the query area of interest, or is not matching the defined filter anymore (true); cannot occur in combination with other contribution types
+
+.. note:: No `contribution type` can occur with having ``false`` as a value. If any of them is present, the value is always ``true``.
+
+.. note:: The `@contributionChangsetId` can be different from the general `@changesetId` in cases where a contribution stems from changes child elements referenced by an OSM element, e.g. when only the nodes of an OSM way are rearranged or moved. This is sometimes called a "minor version".
 
 Metadata
 --------

@@ -15,15 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -33,14 +24,23 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
-import org.heigit.ohsome.ohsomeapi.output.contributions.UsersResult;
+import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.heigit.ohsome.oshdb.OSHDBTag;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
+import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
@@ -53,36 +53,6 @@ public class UsersRequestExecutor {
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
-  }
-
-  /** Performs a count calculation. */
-  public static Response count(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isDensity) throws Exception {
-    long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBTimestamp, Integer> result;
-    MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    mapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    result = mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    Geometry geom = inputProcessor.getGeometry();
-    UsersResult[] results =
-        exeUtils.fillUsersResult(result, requestParameters.isDensity(), inputProcessor, df, geom);
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countUsers(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
-    }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      exeUtils.writeCsvResponse(results, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, results);
   }
 
   /** Performs a count calculation grouped by the OSM type. */
@@ -104,10 +74,9 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     Geometry geom = inputProcessor.getGeometry();
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
@@ -119,8 +88,9 @@ public class UsersRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -129,7 +99,7 @@ public class UsersRequestExecutor {
 
   /**
    * Performs a count calculation grouped by the tag.
-   * 
+   *
    * @throws BadRequestException if the groupByKey parameter is not given.
    */
   public static Response countGroupByTag(HttpServletRequest servletRequest,
@@ -145,7 +115,6 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -161,10 +130,10 @@ public class UsersRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
     result = mapRed.flatMap(f -> {
       List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
-      int[] tags = exeUtils.extractContributionTags(f);
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
-        int tagValueId = tags[i + 1];
+      Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
+      for (OSHDBTag tag : tags) {
+        int tagKeyId = tag.getKey();
+        int tagValueId = tag.getValue();
         if (tagKeyId == keysInt) {
           if (valuesInt.length == 0) {
             res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
@@ -191,7 +160,7 @@ public class UsersRequestExecutor {
     int count = 0;
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
         .entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
         groupByName = "total";
@@ -210,8 +179,9 @@ public class UsersRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -220,7 +190,7 @@ public class UsersRequestExecutor {
 
   /**
    * Performs a count calculation grouped by the key.
-   * 
+   *
    * @throws BadRequestException if the groupByKeys parameter is not given.
    */
   public static Response countGroupByKey(HttpServletRequest servletRequest,
@@ -236,7 +206,6 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -245,9 +214,9 @@ public class UsersRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     result = mapRed.flatMap(f -> {
       List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
-      int[] tags = exeUtils.extractContributionTags(f);
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
+      Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
+      for (OSHDBTag tag : tags) {
+        int tagKeyId = tag.getKey();
         for (int key : keysInt) {
           if (tagKeyId == key) {
             res.add(new ImmutablePair<>(tagKeyId, f));
@@ -268,7 +237,7 @@ public class UsersRequestExecutor {
     String groupByName = "";
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey() == -2) {
         groupByName = "total";
@@ -287,8 +256,9 @@ public class UsersRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -325,11 +295,10 @@ public class UsersRequestExecutor {
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     int count = 0;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      UsersResult[] results = exeUtils.fillUsersResult(entry.getValue(),
+      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
       resultSet[count] = new GroupByResult(boundaryIds[count], results);
       count++;
@@ -345,8 +314,9 @@ public class UsersRequestExecutor {
           "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
               processingData.getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,

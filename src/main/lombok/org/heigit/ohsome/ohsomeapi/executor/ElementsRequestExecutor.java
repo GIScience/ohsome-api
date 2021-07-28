@@ -20,22 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import org.heigit.ohsome.filter.FilterExpression;
-import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
@@ -49,14 +33,31 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
+import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.heigit.ohsome.oshdb.OSHDBTag;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.filter.FilterParser;
+import org.heigit.ohsome.oshdb.osm.OSMEntity;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
+import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
+import org.heigit.ohsome.oshdb.util.geometry.Geo;
+import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.geojson.Feature;
@@ -74,18 +75,19 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs an OSM data extraction.
-   * 
-   * @param elemGeom {@link org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry
+   *
+   * @param elemGeom {@link
+   *        org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry
    *        ElementsGeometry} defining the geometry of the OSM elements
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
    *        request object
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#streamResponse(HttpServletResponse, ExtractionResponse, Stream)
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#stream() stream}, or
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
    */
   public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,
@@ -101,7 +103,7 @@ public class ElementsRequestExecutor {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.
-      mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      mapRed = inputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
     } else {
       mapRed = inputProcessor.processParameters();
     }
@@ -111,12 +113,12 @@ public class ElementsRequestExecutor {
     String[] keys = requestParameters.getKeys();
     final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     final MapReducer<Feature> preResult;
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    final ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     preResult = mapRed.map(snapshot -> {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
         properties.put("@lastEdit",
-            TimestampFormatter.getInstance().isoDateTime(snapshot.getEntity().getTimestamp()));
+            TimestampFormatter.getInstance().isoDateTime(snapshot.getEntity().getEpochSecond()));
       }
       properties.put("@snapshotTimestamp",
           TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
@@ -125,15 +127,16 @@ public class ElementsRequestExecutor {
         geom = snapshot.getGeometryUnclipped();
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
-          includeOSMMetadata, false, elemGeom, null);
+          includeOSMMetadata, false, false, elemGeom,
+          EnumSet.noneOf(ContributionType.class));
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, "FeatureCollection", Collections.emptyList());
+    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT),
+        Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamResponse(servletResponse, osmData, streamResult);
     }
@@ -141,7 +144,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary and the tag.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -153,9 +156,8 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKey parameter is not given
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters}
    */
   public static <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
@@ -196,11 +198,10 @@ public class ElementsRequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    var preResult = mapAgg.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+    var preResult = mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
         .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(OSMEntitySnapshot::getGeometry);
-    var result = exeUtils.computeNestedResult(requestResource, preResult);
+    var result = ExecutionUtils.computeNestedResult(requestResource, preResult);
     var groupByResult = OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -209,8 +210,8 @@ public class ElementsRequestExecutor {
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
     for (var entry : groupByResult.entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
-      ElementsResult[] results = exeUtils.fillElementsResult(entry.getValue(),
-          requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
       int tagValue = entry.getKey().getSecondIndex().getValue();
       String tagIdentifier;
       // check for non-remainder objects (which do have the defined key and value)
@@ -234,8 +235,9 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -248,7 +250,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the tag.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -260,11 +262,10 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKey parameter is not given
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateGroupByTag(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
@@ -280,7 +281,6 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -293,17 +293,17 @@ public class ElementsRequestExecutor {
         zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
       }
     }
-    var preResult = mapRed.map(f -> exeUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+    var preResult = mapRed.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     Geometry geom = inputProcessor.getGeometry();
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, geom);
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -324,8 +324,9 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -334,7 +335,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the OSM type.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -345,11 +346,10 @@ public class ElementsRequestExecutor {
    *        (false)
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateGroupByType(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
@@ -360,19 +360,18 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(
         (SerializableFunction<OSMEntitySnapshot, OSMType>) f -> f.getEntity().getType(),
         processingData.getOsmTypes());
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     Geometry geom = inputProcessor.getGeometry();
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, geom);
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
@@ -385,8 +384,9 @@ public class ElementsRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -395,7 +395,7 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the key.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -407,11 +407,10 @@ public class ElementsRequestExecutor {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if groupByKeys parameter is not given
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateGroupByKey(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
@@ -427,7 +426,6 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -451,14 +449,14 @@ public class ElementsRequestExecutor {
           return res;
         }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
             .map(Pair::getValue);
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      ElementsResult[] results =
-          exeUtils.fillElementsResult(entry.getValue(), requestParameters.isDensity(), df, null);
+      ElementsResult[] results = ExecutionUtils.fillElementsResult(
+          entry.getValue(), requestParameters.isDensity(), df, null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -478,8 +476,9 @@ public class ElementsRequestExecutor {
               inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          exeUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
@@ -488,9 +487,9 @@ public class ElementsRequestExecutor {
 
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
-   * 
+   *
    * @deprecated Will be removed in next major version update.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -498,11 +497,10 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   @Deprecated(forRemoval = true)
   public static Response aggregateBasicFiltersRatio(RequestResource requestResource,
@@ -514,8 +512,8 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    final ProcessingData processingData = inputProcessor.getProcessingData();
+    final RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys2 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
@@ -560,7 +558,6 @@ public class ElementsRequestExecutor {
     osmTypes.addAll(osmTypes2);
     String[] osmTypesString =
         osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    ExecutionUtils tempExecutionUtils = new ExecutionUtils(processingData);
     MapReducer<OSMEntitySnapshot> mapRed = null;
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
@@ -581,12 +578,12 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters();
     }
     mapRed = mapRed.osmType(osmTypes);
-    mapRed = tempExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
+    mapRed = ExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
         simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
     var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
-      boolean matches1 = tempExecutionUtils.snapshotMatches(snapshot, osmTypes1,
+      boolean matches1 = ExecutionUtils.snapshotMatches(snapshot, osmTypes1,
           simpleFeatureTypes1, keysInt1, valuesInt1);
-      boolean matches2 = tempExecutionUtils.snapshotMatches(snapshot, osmTypes2,
+      boolean matches2 = ExecutionUtils.snapshotMatches(snapshot, osmTypes2,
           simpleFeatureTypes2, keysInt2, valuesInt2);
       if (matches1 && matches2) {
         return MatchType.MATCHESBOTH;
@@ -600,8 +597,7 @@ public class ElementsRequestExecutor {
         return MatchType.MATCHESNONE;
       }
     }, EnumSet.allOf(MatchType.class));
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     Double[] value1 = new Double[resultSize / 4];
     Double[] value2 = new Double[resultSize / 4];
@@ -629,6 +625,7 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
   }
@@ -636,7 +633,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation using the filter and filter2
    * parameters.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -644,11 +641,10 @@ public class ElementsRequestExecutor {
    * @param servletResponse {@link javax.servlet.http.HttpServletResponse HttpServletResponse]}
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils#computeResult(RequestResource, MapAggregator)
-   *         computeResult}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
+   *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public static Response aggregateRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
@@ -664,12 +660,11 @@ public class ElementsRequestExecutor {
     InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    final ProcessingData processingData = inputProcessor.getProcessingData();
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
     String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
-    String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
+    String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
@@ -702,7 +697,7 @@ public class ElementsRequestExecutor {
         return MatchType.MATCHESNONE;
       }
     }, EnumSet.allOf(MatchType.class));
-    var result = exeUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(requestResource, preResult);
     int resultSize = result.size();
     int matchTypeSize = 4;
     Double[] value1 = new Double[resultSize / matchTypeSize];
@@ -731,15 +726,16 @@ public class ElementsRequestExecutor {
         matchesBothCount++;
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
   }
 
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
-   * 
+   *
    * @deprecated Will be removed in next major version update.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -748,11 +744,10 @@ public class ElementsRequestExecutor {
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @Deprecated(forRemoval = true)
   public static <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
@@ -765,8 +760,8 @@ public class ElementsRequestExecutor {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     inputProcessor.getProcessingData().setRatio(true);
     final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    final ProcessingData processingData = inputProcessor.getProcessingData();
+    final RequestParameters requestParameters = processingData.getRequestParameters();
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -838,16 +833,15 @@ public class ElementsRequestExecutor {
     @SuppressWarnings({"unchecked"})
     Map<Integer, P> geoms =
         arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    mapRed2 = exeUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
+    mapRed2 = ExecutionUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
         simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
     var preResult =
         mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
-          boolean matches1 = exeUtils.snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1,
-              keysInt1, valuesInt1);
-          boolean matches2 = exeUtils.snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2,
-              keysInt2, valuesInt2);
+          boolean matches1 = ExecutionUtils.snapshotMatches(snapshot,
+              osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1);
+          boolean matches2 = ExecutionUtils.snapshotMatches(snapshot,
+              osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
           if (matches1 && matches2) {
             return MatchType.MATCHESBOTH;
           } else if (matches1) {
@@ -859,8 +853,8 @@ public class ElementsRequestExecutor {
           }
           return MatchType.MATCHESNONE;
         }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
-    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
-        null;
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
+        Number> result = null;
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
@@ -897,9 +891,9 @@ public class ElementsRequestExecutor {
         timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues2 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues1 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
@@ -923,6 +917,7 @@ public class ElementsRequestExecutor {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
         resultValues2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
@@ -931,7 +926,7 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary using the
    * filter and filter2 parameters.
-   * 
+   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -940,11 +935,10 @@ public class ElementsRequestExecutor {
    *        outgoing response object
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters() processParameters},
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   public static <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
@@ -967,14 +961,14 @@ public class ElementsRequestExecutor {
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
+    final String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
+    final String filter2 =
+        inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
-    String combinedFilter = exeUtils.combineFiltersWithOr(filter1, filter2);
-    FilterParser fp = new FilterParser(DbConnData.tagTranslator);
-    FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
-    FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
+    final String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
+    final FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+    final FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
+    final FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
     RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
         isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
         servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
@@ -1012,8 +1006,8 @@ public class ElementsRequestExecutor {
           }
           return MatchType.MATCHESNONE;
         }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
-    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends Number> result =
-        null;
+    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
+        Number> result = null;
     switch (requestResource) {
       case COUNT:
         result = preResult.count();
@@ -1050,9 +1044,9 @@ public class ElementsRequestExecutor {
         timeArray = new String[resultSet.size()];
       }
       if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues2 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = exeUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+        resultValues1 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
       } else if (entry.getKey() == MatchType.MATCHESBOTH) {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
@@ -1076,6 +1070,7 @@ public class ElementsRequestExecutor {
         // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
       }
     }
+    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
         resultValues2, startTime, requestResource,
         inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);

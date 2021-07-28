@@ -1,15 +1,14 @@
 API Endpoints
 =============
 
-
 .. note:: For **POST requests** the fields are given analogous to **GET requests**. When you just have a smaller set of spatial parameters,
     a GET request fits perfectly. POST mostly makes sense when you start to use GeoJSON as input geometries.
     
     The usage of the parameters **types**, **keys** and **values** is not recommended as they are deprecated. Please use the 
     filter_ parameter for your requests.
 
-Aggregation Endpoints
----------------------
+Elements Aggregation
+--------------------
 
 .. http:post :: /elements/(aggregation)
 
@@ -26,13 +25,6 @@ Aggregation Endpoints
    :query types: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
    :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
    :query values: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty
-.. _bboxes: boundaries.html#bounding-boxes
-.. _bcircles: boundaries.html#circles
-.. _bpolys: boundaries.html#polygons
-.. _boundaries: boundaries.html#boundaries
-.. _time: time.html#time
-.. _filter: filter.html#filter
-
 
 **Example request**:
 
@@ -42,16 +34,13 @@ How big is the area of farmland in the region Rhein-Neckar?
 
    .. code-tab:: bash curl (GET)
 
-
       curl -X GET 'https://api.ohsome.org/v1/elements/area?bboxes=8.625%2C49.3711%2C8.7334%2C49.4397&format=json&time=2014-01-01&filter=landuse%3Dfarmland%20and%20type%3Away'
 
    .. code-tab:: bash curl (POST)
 
-
       curl -X POST 'https://api.ohsome.org/v1/elements/area' --data-urlencode 'bboxes=8.625,49.3711,8.7334,49.4397' --data-urlencode 'format=json' --data-urlencode 'time=2014-01-01' --data-urlencode 'filter=landuse=farmland and type:way'
 
    .. code-tab:: python Python
-
 
        import requests
        URL = 'https://api.ohsome.org/v1/elements/area'
@@ -61,11 +50,9 @@ How big is the area of farmland in the region Rhein-Neckar?
 
    .. code-tab:: r R
 
-
        library(httr)
        r <- POST("https://api.ohsome.org/v1/elements/area", encode = "form", body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "landuse=farmland and type:way", time = "2014-01-01"))
        r
-
 
 **Example response**:
 
@@ -78,7 +65,7 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.2",
+       "apiVersion" : "1.5.0",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 1.020940258E7
@@ -92,13 +79,12 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.2",
+       "apiVersion" : "1.5.0",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 1.020940258E7
        } ]
      }
-
 
    .. code-tab:: json Python
 
@@ -107,7 +93,7 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.2",
+       "apiVersion" : "1.5.0",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 10209402.58
@@ -121,17 +107,16 @@ How big is the area of farmland in the region Rhein-Neckar?
          "url" : "https://ohsome.org/copyrights",
          "text" : "© OpenStreetMap contributors"
        },
-       "apiVersion" : "1.3.2",
+       "apiVersion" : "1.5.0",
        "result" : [ {
          "timestamp" : "2014-01-01T00:00:00Z",
          "value" : 1.020940258E7
        } ]
      }
 
-
 .. http:post :: /elements/(aggregation)/density
 
-   Get density of ``aggregation`` of OSM elements divided by the total area in square-kilometers.
+   Get density of ``aggregation`` of OSM elements in the total query area per square-kilometers.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    
@@ -175,7 +160,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
+               "apiVersion" : "1.5.0",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -189,13 +174,12 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
+               "apiVersion" : "1.5.0",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
                } ]
              }
-
 
        .. code-tab:: json Python
 
@@ -204,7 +188,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
+               "apiVersion" : "1.5.0",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -218,7 +202,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
+               "apiVersion" : "1.5.0",
                "result" : [ {
                  "timestamp" : "2019-05-07T00:00:00Z",
                  "value" : 0.79
@@ -236,7 +220,9 @@ What is the density of restaurants with wheelchair access in Heidelberg?
    :query keys2: Deprecated! see **filter2**
    :query types2: Deprecated! use **filter2**
    :query values2: Deprecated! see **filter2**
-   
+
+.. note:: The result of a **ratio request** may contain the value **"NaN"**, when the ratio calculation involves a division of zero by zero.
+
 **Example request**:
 
 How many oneway streets exist within living_street streets in Heidelberg over time? And how many of them are oneway streets?
@@ -276,8 +262,8 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
-               "result" : [ {
+               "apiVersion" : "1.5.0",
+               "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
                  "value2" : 7079.26,
@@ -294,7 +280,6 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "ratio" : 0.222885
                } ]
              }
-
 
        .. code-tab:: json curl (POST)
 
@@ -303,8 +288,8 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
-               "result" : [ {
+               "apiVersion" : "1.5.0",
+               "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
                  "value2" : 7079.26,
@@ -322,8 +307,6 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                } ]
              }
 
-
-
        .. code-tab:: json Python
 
              {
@@ -331,8 +314,8 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
-               "result" : [ {
+               "apiVersion" : "1.5.0",
+               "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
                  "value2" : 7079.26,
@@ -357,8 +340,8 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
                  "url" : "https://ohsome.org/copyrights",
                  "text" : "© OpenStreetMap contributors"
                },
-               "apiVersion" : "1.3.2",
-               "result" : [ {
+               "apiVersion" : "1.5.0",
+               "ratioResult" : [ {
                  "timestamp" : "2016-01-01T00:00:00Z",
                  "value" : 28660.519999999997,
                  "value2" : 7079.26,
@@ -383,19 +366,12 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    * grouping type: one of boundary_, key_, tag_, type_.
    
+   .. note:: ``groupByKeys``, ``groupByKey`` and ``groupByValues`` are resource-specific parameters.
+   
    :query <other>: see above_
-   :query groupByKeys: see groupBy_
-   :query groupByKey: see groupBy_
-   :query groupByValues: see groupBy_
-.. _boundary: group-by.html#boundary
-.. _key: group-by.html#key
-.. _tag: group-by.html#tag
-.. _type: group-by.html#type
-.. _groupBy: group-by.html
-
-.. note:: For **groupBy/key** and **groupBy/tag**, 
-          there are additional resource-specific parameters, which you can find at groupBy_.
-
+   :query groupByKeys: see key_
+   :query groupByKey: see tag_
+   :query groupByValues: see tag_
 
 **Example request**:
 
@@ -436,7 +412,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.2",
+              "apiVersion" : "1.5.0",
               "groupByResult" : [ {
                 "groupByObject" : "remainder",
                 "result" : [ {
@@ -465,7 +441,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.2",
+              "apiVersion" : "1.5.0",
               "groupByResult" : [ {
                 "groupByObject" : "remainder",
                 "result" : [ {
@@ -494,7 +470,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.2",
+              "apiVersion" : "1.5.0",
               "groupByResult" : [ {
                 "groupByObject" : "remainder",
                 "result" : [ {
@@ -523,7 +499,7 @@ How often information about the roof of buildings is present?
                 "url" : "https://ohsome.org/copyrights",
                 "text" : "© OpenStreetMap contributors"
               },
-              "apiVersion" : "1.3.2",
+              "apiVersion" : "1.5.0",
               "groupByResult" : [ {
                 "groupByObject" : "remainder",
                 "result" : [ {
@@ -550,23 +526,22 @@ How often information about the roof of buildings is present?
    Get ``density`` of ``aggregation`` of OSM elements grouped by ``groupType``.
    
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
-   * grouping type: see above - Same as for **aggregation** of OSM elements grouped by **groupType** but without **groupBy/key**.
+   * grouping type: one of boundary_, tag_, type_.
 
+   :query <other>: see above_
+   :query groupByKey: see tag_
+   :query groupByValues: see tag_
 
 .. http:post :: /elements/(aggregation)/groupBy/boundary/groupBy/tag
 
    Get ``aggregation`` of OSM elements grouped by ``boundary`` and ``tag``.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
+   * grouping type: `boundary and tag`_.
    
-   :query <other>: see above
-   :query groupByKey: see groupBy_
-   :query groupByValues: see groupBy_
-.. _boundary: group-by.html#boundary
-.. _key: group-by.html#key
-.. _tag: group-by.html#tag
-.. _type: group-by.html#type
-.. _groupBy: group-by.html
+   :query <other>: see above_
+   :query groupByKey: see tag_ 
+   :query groupByValues: see tag_
 
 **Example request**:
 
@@ -607,7 +582,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.2",
+             "apiVersion" : "1.5.0",
              "groupByResult" : [ {
                "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
@@ -659,7 +634,6 @@ Compare length of different types of streets for two or more regions.
              } ]
            }
 
-
          .. code-tab:: json curl (POST)
 
            {
@@ -667,7 +641,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.2",
+             "apiVersion" : "1.5.0",
              "groupByResult" : [ {
                "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
@@ -726,7 +700,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.2",
+             "apiVersion" : "1.5.0",
              "groupByResult" : [ {
                "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
@@ -785,7 +759,7 @@ Compare length of different types of streets for two or more regions.
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
-             "apiVersion" : "1.3.2",
+             "apiVersion" : "1.5.0",
              "groupByResult" : [ {
                "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
@@ -837,28 +811,38 @@ Compare length of different types of streets for two or more regions.
              } ]
            }
 
+.. http:post :: /elements/(aggregation)/ratio/groupBy/boundary
 
-.. http:post :: /elements/(aggregation)/density/groupBy/boundary/groupBy/tag
-
-   Get ``density`` of ``aggregation`` of OSM elements grouped by ``boundary`` and ``tag``.
+   Get ``ratio`` of ``aggregation`` of OSM elements grouped by ``boundary``.
    
-   * aggregation type: same as for **/elements/(aggregation)/groupBy/boundary/groupBy/tag**.
+   * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
+	
+   :query <other>: see above_
+   :query filter2: see filter_
+   :query keys2: Deprecated! see **filter2**
+   :query types2: Deprecated! use **filter2**
+   :query values2: Deprecated! see **filter2**
 
-
-Users Aggregation Endpoints
----------------------------
+Users Aggregation
+-----------------
 
 .. http:post :: /users/count
 
-    Compute data aggregation functions on users. Possbile endpoints:
+    Get ``aggregation`` statistics about OSM users. List of endpoints:
     
-    * /count
-    * /count/groupBy/(groupType)
-    * /count/density
-    * /count/density/groupBy/(boundary or tag or type)
+    * **/count**
+    * **/count/groupBy/(groupType)**
+    * **/count/density**
+    * **/count/density/groupBy/(boundary or tag or type)**
 
+    * grouping type: one of boundary_, key_, tag_, type_.
+    
+     .. note:: ``groupByKeys``, ``groupByKey`` and ``groupByValues`` are resource-specific parameters.
+    
     :query <other>: see above_
-    :param groupType: property to group by, one of boundary_, key_, tag_, type_.
+    :query groupByKeys: see key_
+    :query groupByKey: see tag_
+    :query groupByValues: see tag_
 
 **Example request**:
 
@@ -888,7 +872,6 @@ Show number of users editing buildings before, during and after Nepal earthquake
         r <- POST("https://api.ohsome.org/v1/users/count", encode = "form", body = list(bboxes = "82.3055,6.7576,87.4663,28.7025", filter = "building=* and type:way", time = "2015-03-01/2015-08-01/P1M"))
         r
 
-
 **Example response**:
 
    .. tabs::
@@ -900,7 +883,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -923,7 +906,6 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "value" : 185.0
         } ]
       }
-
 
     .. code-tab:: json curl (POST)
 
@@ -932,7 +914,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -956,7 +938,6 @@ Show number of users editing buildings before, during and after Nepal earthquake
         } ]
       }
 
-
     .. code-tab:: json Python
 
       {
@@ -964,7 +945,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -995,7 +976,7 @@ Show number of users editing buildings before, during and after Nepal earthquake
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "result" : [ {
           "fromTimestamp" : "2015-03-01T00:00:00Z",
           "toTimestamp" : "2015-04-01T00:00:00Z",
@@ -1019,20 +1000,451 @@ Show number of users editing buildings before, during and after Nepal earthquake
         } ]
       }
 
+.. note:: For endpoint description, grouping types and query parameters of the endpoints **/count/groupBy/(groupType)**, **/count/density** and **/count/density/groupBy/(groupType)**, please refer to the corresponding `/elements/(aggregation)`_ endpoints.
 
-Extraction Endpoints
---------------------
+Contributions Aggregation
+-------------------------
+      
+.. http:post :: /contributions/count
+
+   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters. List of endpoints:
+    
+    * **/count**
+    * **/count/density**
+    * **/latest/count**
+    * **/latest/count/density**
+
+   :query <other>: see above_
+   :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; default: empty;
+   
+.. note:: The **/contributions/count** endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
+.. note:: If the ``contributionType`` parameter is let empty, the result could contain contributions that do not effect geometries or tags.
+.. note:: In case of multiple time intervals using the **/contribution/latest** endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
+
+**Example request**:
+
+Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and 2020.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count?bboxes=8.699053,49.411842,8.701311,49.412893&filter=id:way/140112810&time=2010-01-01,2020-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count' --data-urlencode 'bboxes=8.699053,49.411842,8.701311,49.412893' --data-urlencode 'time=2010-01-01,2020-01-01' --data-urlencode 'filter=id:way/140112810'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count'
+        data = {"bboxes": "8.699053,49.411842,8.701311,49.412893", "time": "2010-01-01,2020-01-01", "filter": "id:way/140112810"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count", encode = "form", body = list(bboxes = "8.699053,49.411842,8.701311,49.412893", time = "2010-01-01,2020-01-01", filter = "id:way/140112810"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2010-01-01T00:00:00Z",
+	      "toTimestamp" : "2020-01-01T00:00:00Z",
+	      "value" : 15.0
+	    }
+	  ]
+	}
+
+.. http:post :: /contributions/count/density
+
+   Get the density of the count of contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Density of contributions to shops within the oldtown area of Heidelberg between 2012 and 2016.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count/density?bboxes=8.69282,49.40766,8.71673,49.4133&filter=shop=*%20and%20type:node&time=2012-01-01,2016-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count/density' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlencode 'time=2012-01-01,2016-01-01' --data-urlencode 'filter=shop=* and type:node'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count/density'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "time": "2012-01-01,2016-01-01", "filter": "shop=* and type:node"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count/density", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 417.13
+	    }
+	  ]
+	}
+	
+.. http:post :: /contributions/latest/count
+
+   Get the count of the latest contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Number of the latest contributions to residential buildings with a geometry change within the oldtown area of Heidelberg in 2014.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/latest/count?bboxes=8.69282,49.40766,8.71673,49.4133&contributionType=geometryChange&filter=building=residential&time=2014-01-01/2015-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/count' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlenconde 'contributionType=geometryChange' --data-urlencode 'filter=building=residential' --data-urlencode 'time=2014-01-01,2015-01-01'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/latest/count'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "contributionType": "geometryChange", "filter": "building=residential", "time": "2014-01-01,2015-01-01"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/latest/count", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", contributionType= "geometryChange", filter = "building=residential", time = "2014-01-01,2015-01-01"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
+	    }
+	  ]
+	}
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2014-01-01T00:00:00Z",
+	      "toTimestamp" : "2015-01-01T00:00:00Z",
+	      "value" : 5
+	    }
+	  ]
+	}
+
+.. http:post :: /contributions/latest/count/density
+
+  Get the density of the count of the latest contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Density of the latest contributions with a geometry change to shops within the oldtown area of Heidelberg between 2012 and 2016.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/latest/count/density?bboxes=8.69282,49.40766,8.71673,49.4133&filter=shop=* and type:node&time=2012-01-01,2016-01-01&contributionType=geometryChange'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/count/density' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlencode 'time=2012-01-01,2016-01-01' --data-urlencode 'filter=shop=* and type:node' --data-urlencode 'contributionType=geometryChange'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/latest/count/density'
+        data = {"bboxes": "8.69282,49.40766,8.71673,49.4133", "time": "2012-01-01,2016-01-01", "filter": "shop=* and type:node", "contributionType": "geometryChange"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/latest/count/density", encode = "form", body = list(bboxes = "8.69282,49.40766,8.71673,49.4133", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node", contributionType = "geometryChange"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+   .. code-tab:: json curl (POST)
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+   .. code-tab:: json Python
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+   .. code-tab:: json R
+
+	{
+	  "attribution" : {
+	    "url" : "https://ohsome.org/copyrights",
+	    "text" : "© OpenStreetMap contributors"
+	  },
+	  "apiVersion" : "1.5.0",
+	  "result" : [
+	    {
+	      "fromTimestamp" : "2012-01-01T00:00:00Z",
+	      "toTimestamp" : "2016-01-01T00:00:00Z",
+	      "value" : 28.48
+	    }
+	  ]
+	}
+
+Elements Extraction
+-------------------
 
 .. http:post :: /elements/(geometryType)
 
-   Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given ``geometryType`` (geometry, bbox, or centroid).
+   Get the state of OSM data at the given timestamp(s) as a GeoJSON feature collection where object geometries are returned as the given geometry type (``geometry``, ``bbox``, or ``centroid``).
 
+   :query <other>: see above_ (except **format**)
    :query time: required; format same as described in time_
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
    :query clipGeometry: boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
-   :query <other>: see above_ (except **format**)
    
-
 .. note:: The extraction endpoints always return a .geojson file.
 
 **Example request**:
@@ -1063,7 +1475,6 @@ Get all the bike rental stations in Heidelberg.
         r <- POST("https://api.ohsome.org/v1/elements/geometry", encode = "form",body = list(bboxes = "8.625,49.3711,8.7334,49.4397", filter = "amenity=bicycle_rental and type:node", time = "2019-09-01"))
         r
 
-
 **Example response**:
 
    .. tabs::
@@ -1084,21 +1495,19 @@ Get all the bike rental stations in Heidelberg.
     .. code-tab:: text R
 
       file ohsome.geojson
-  
+
+Elements Full History Extraction
+--------------------------------
 
 .. http:post :: /elementsFullHistory/(geometryType)
 
    Get the full history of OSM data as a GeoJSON feature collection. All changes to matching OSM features are included with corresponding ``validFrom`` and ``validTo`` timestamps.
-   This endpoint supports the same ``geometryType`` options as the ``/elements`` endpoint.
+   This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
 
-   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
-   :query properties: same as for generic-extraction_
-   :query clipGeometry: same as for generic-extraction_
    :query <other>: see above_ (except **format**)
-
-.. _generic-extraction: endpoints.html#post--elements-(geometryType)
-.. _above: endpoints.html#post--elements-(aggregation)
-.. _time: time.html#time
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
+   :query clipGeometry: sboolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
 **Example request**:
 
@@ -1141,7 +1550,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1179,7 +1588,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1210,7 +1619,6 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
         ]
       }
 
-
     .. code-tab:: text Python
 
       {
@@ -1218,7 +1626,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1256,7 +1664,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "type" : "FeatureCollection",
         "features" : [{
           "type" : "Feature",
@@ -1286,15 +1694,19 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
         ...
         ]
       }
-   
-      
-Contribution Endpoints
-----------------------
+    
+Contributions Extraction
+------------------------
 
 .. http:post :: /contributions/(geometryType)
 
    Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
-   It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
+   This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
+   
+   :query <other>: see above_ (except **format**)
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
+   :query clipGeometry:  boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
 **Example request**:
 
@@ -1337,7 +1749,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1356,7 +1768,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 8,
             "addr:city" : "Heidelberg",
@@ -1389,7 +1801,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 2,
             "amenity" : "pharmacy",
@@ -1404,7 +1816,6 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           }
         }]
       }
-
 
     .. code-tab:: text curl (POST)
 
@@ -1413,7 +1824,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1432,7 +1843,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 8,
             "addr:city" : "Heidelberg",
@@ -1465,7 +1876,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 2,
             "amenity" : "pharmacy",
@@ -1480,7 +1891,6 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           }
         }]
       }
-
 
     .. code-tab:: text Python
 
@@ -1489,7 +1899,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1508,7 +1918,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 8,
             "addr:city" : "Heidelberg",
@@ -1541,7 +1951,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 2,
             "amenity" : "pharmacy",
@@ -1557,7 +1967,6 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
         }]
       }
 
-
     .. code-tab:: text R
 
       {
@@ -1565,7 +1974,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6720,49.3988,8.7026,49.4274&filter=amenity=pharmacy%20and%20opening_hours=*%20and%20type:node&time=2020-02-01,2020-06-29&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1584,7 +1993,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 8,
             "addr:city" : "Heidelberg",
@@ -1617,7 +2026,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
             "@changesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
-            "@tagChange" : "true",
+            "@tagChange" : true,
             "@timestamp" : "2020-04-05T13:32:50Z",
             "@version" : 2,
             "amenity" : "pharmacy",
@@ -1636,7 +2045,12 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
 .. http:post :: /contributions/latest/(geometryType)
 
    Get the the latest state of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
-   It uses the same ``geometryType`` options as the ``/elements`` and ``/elementsFullHistory`` endpoints.
+   This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
+
+   :query <other>: see above_ (except **format**)
+   :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
+   :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
+   :query clipGeometry:  boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
 
 **Example request**:
 
@@ -1679,7 +2093,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1698,7 +2112,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-            "@geometryChange" : "true",
+            "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1710,7 +2124,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
-            "@deletion" : "true",
+            "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
             "@timestamp" : "2017-09-10T09:22:03Z",
@@ -1718,7 +2132,6 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }]
       }
-
 
     .. code-tab:: text curl (POST)
 
@@ -1727,7 +2140,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1746,7 +2159,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-            "@geometryChange" : "true",
+            "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1758,7 +2171,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
-            "@deletion" : "true",
+            "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
             "@timestamp" : "2017-09-10T09:22:03Z",
@@ -1766,7 +2179,6 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }]
       }
-
 
     .. code-tab:: text Python
 
@@ -1775,7 +2187,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1794,7 +2206,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-            "@geometryChange" : "true",
+            "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1806,7 +2218,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
-            "@deletion" : "true",
+            "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
             "@timestamp" : "2017-09-10T09:22:03Z",
@@ -1814,7 +2226,6 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           }
         }]
       }
-
 
     .. code-tab:: text R
 
@@ -1823,7 +2234,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "metadata" : {
           "description" : "Latest contributions as GeoJSON features.",
           "requestUrl" : "https://api.ohsome.org/v1/contributions/latest/geometry?bboxes=8.6644159,49.401099,8.6663353,49.4027195&filter=landuse=construction%20and%20type:way&time=2020-06-29,2014-07-01&showMetadata=yes&properties=metadata,tags&clipGeometry=false"
@@ -1842,7 +2253,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
-            "@geometryChange" : "true",
+            "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
             "@timestamp" : "2020-05-22T10:22:53Z",
@@ -1854,17 +2265,17 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
-            "@deletion" : "true",
+            "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
             "@timestamp" : "2017-09-10T09:22:03Z",
             "@version" : 9
           }
         }]
-      }
-
-Metadata Endpoint
------------------
+      }    
+      
+Metadata
+--------
 
 .. http:get :: /metadata
 
@@ -1893,7 +2304,6 @@ Get metadata of the underlying OSHDB data
         r <- GET("https://api.ohsome.org/v1/metadata")
         r
 
-
 **Example response**:
 
    .. tabs::
@@ -1905,7 +2315,7 @@ Get metadata of the underlying OSHDB data
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "timeout": 600.0,
         "extractRegion" : {
           "spatialExtent" : {
@@ -1927,7 +2337,7 @@ Get metadata of the underlying OSHDB data
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "extractRegion" : {
           "spatialExtent" : {
             "type" : "Polygon",
@@ -1948,7 +2358,7 @@ Get metadata of the underlying OSHDB data
           "url" : "https://ohsome.org/copyrights",
           "text" : "© OpenStreetMap contributors"
         },
-        "apiVersion" : "1.3.2",
+        "apiVersion" : "1.5.0",
         "extractRegion" : {
           "spatialExtent" : {
             "type" : "Polygon",
@@ -1961,3 +2371,17 @@ Get metadata of the underlying OSHDB data
           "replicationSequenceNumber" : 65032
         }
       }
+
+.. _boundary: group-by.html#boundary
+.. _key: group-by.html#key
+.. _tag: group-by.html#tag
+.. _type: group-by.html#type
+.. _boundary and tag: group-by.html#boundary-and-tag 
+.. _bboxes: boundaries.html#bboxes
+.. _bcircles: boundaries.html#bcircles
+.. _bpolys: boundaries.html#bpolys
+.. _boundaries: boundaries.html#boundaries
+.. _time: time.html#time
+.. _filter: filter.html#filter
+.. _above: endpoints.html#post--elements-(aggregation)
+.. _/elements/(aggregation): endpoints.html#elements-aggregation

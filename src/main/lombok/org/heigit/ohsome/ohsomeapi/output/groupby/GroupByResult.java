@@ -6,8 +6,8 @@ import org.heigit.ohsome.ohsomeapi.output.Result;
 
 /**
  * Represents the groupBy result JSON object containing the groupBy value and the respective
- * {@link org.heigit.ohsome.ohsomeapi.output.Result Result} objects. The
- * GroupByResult is only used in responses for groupBy requests.
+ * {@link org.heigit.ohsome.ohsomeapi.output.Result Result} objects. The GroupByResult is only used
+ * in responses for groupBy requests.
  */
 @Getter
 public class GroupByResult extends GroupByObject {

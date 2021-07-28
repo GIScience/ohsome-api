@@ -15,13 +15,12 @@ public class ResourceParameters {
    * Checks the resource of the request and gives back a list of available parameters for this
    * resource.
    *
-   * <p>
-   * Note that some resources don't use this method, but implement their own checks. One example for
-   * this is the metadata request in
-   * {@link MetadataRequestExecutor#executeGetMetadata(HttpServletRequest) executeGetMetadata}.
-   * 
+   * <p>Note that some resources don't use this method, but implement their own checks. One example
+   * for this is the metadata request in {@link MetadataRequestExecutor
+   * #executeGetMetadata(HttpServletRequest) executeGetMetadata}.
+   *
+   * @param servletRequest represents the HttpServlet request.
    * @return a list of of available parameters for the given resource.
-   * @param servletRequest
    */
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
     String uri = servletRequest.getRequestURI();
@@ -34,37 +33,35 @@ public class ResourceParameters {
     if (uri.contains("/groupBy/tag")) {
       possibleParams.add("groupByKey");
       possibleParams.add("groupByValues");
-      return possibleParams;
     } else if (uri.contains("/groupBy/key")) {
       possibleParams.add("groupByKeys");
-      return possibleParams;
     } else if (uri.contains("/ratio")) {
       possibleParams.add("filter2");
       possibleParams.add("keys2");
       possibleParams.add("types2");
       possibleParams.add("values2");
-      return possibleParams;
     } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
       possibleParams.add("properties");
       possibleParams.add("clipGeometry");
-      // removing deprecated params from newly implemented endpoint
-      if (uri.contains("/contributions")) {
-        possibleParams.remove("types");
-        possibleParams.remove("keys");
-        possibleParams.remove("values");
-      }        
-      return possibleParams;
-    } else {
-      return possibleParams;
     }
+    if (uri.contains("/contributions")) {
+      if (uri.contains("/count")) {
+        possibleParams.add("contributionType");
+      }
+      // removing deprecated params from newer endpoint
+      possibleParams.remove("types");
+      possibleParams.remove("keys");
+      possibleParams.remove("values");
+    }
+    return possibleParams;
   }
 
   /**
    * Checks, if the request contains unexpected parameters for this resource.
-   * 
+   *
+   * @param servletRequest represents the HttpServlet request.
+   * @param resourceParams represents a list of all possible parameters for the requested resource.
    * @return a list of unexpected parameters
-   * @param servletRequest
-   * @param resourceParams
    */
   public static List<String> checkUnexpectedParams(HttpServletRequest servletRequest,
       List<String> resourceParams) {

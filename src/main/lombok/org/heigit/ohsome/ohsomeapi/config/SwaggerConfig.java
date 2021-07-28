@@ -83,11 +83,14 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
             .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataaggregation"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(false))
-        .tags(new Tag("Users", "Compute data aggregation functions on users"),
-            new Tag("Area", "Compute the area of polygonal OSM elements"),
-            new Tag("Length", "Compute the length of linear OSM elements"),
-            new Tag("Count", "Compute the count of point/linear/polygonal OSM elements"),
-            new Tag("Perimeter", "Compute the perimeter of polygonal OSM elements"))
+        .tags(
+            new Tag("Elements Count",
+                "Compute the count of point/linear/polygonal OSM elements", 1),
+            new Tag("Elements Length", "Compute the length of linear OSM elements", 2),
+            new Tag("Elements Area", "Compute the area of polygonal OSM elements", 3),
+            new Tag("Elements Perimeter", "Compute the perimeter of polygonal OSM elements", 4),
+            new Tag("Users Count", "Compute the count of OSM users", 5),
+            new Tag("Contributions Count", "Compute the count of OSM contributions", 6))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages)
         .globalResponseMessage(RequestMethod.POST, responseMessages);
   }
@@ -101,7 +104,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
         .apis(
             RequestHandlerSelectors.basePackage("org.heigit.ohsome.ohsomeapi.controller.metadata"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
-        .tags(new Tag("Metadata", "Request metadata of the underlying OSHDB"))
+        .tags(new Tag("Metadata", "Request metadata of the underlying OSHDB", 1))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
@@ -115,11 +118,12 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
             .basePackage("org.heigit.ohsome.ohsomeapi.controller.dataextraction"))
         .paths(PathSelectors.any()).build().apiInfo(apiInfo()).useDefaultResponseMessages(false)
         .globalOperationParameters(defineGlobalOperationParams(true))
-        .tags(new Tag("Elements Extraction", "Direct access to the OSM data"),
-            new Tag("Full-History Elements Extraction",
-                "Direct access to the full-history of the OSM data"),
+        .tags(
+            new Tag("Elements Extraction", "Direct access to the OSM data", 1),
+            new Tag("Full History Elements Extraction",
+                "Direct access to the full history of the OSM data", 2),
             new Tag("Contributions Extraction",
-                "Direct access to all contributions provided to the OSM data"))
+                "Direct access to all contributions provided to the OSM data", 3))
         .forCodeGeneration(true).globalResponseMessage(RequestMethod.GET, responseMessages);
   }
 
@@ -172,15 +176,6 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams.add(new ParameterBuilder().name("bpolys")
         .description(ParameterDescriptions.BPOLYS).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("types")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .allowMultiple(true).parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("keys")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
-        .parameterType(query).defaultValue("").required(false).build());
-    globalOperationParams.add(new ParameterBuilder().name("values")
-        .description(ParameterDescriptions.DEPRECATED_USE_FILTER).modelRef(new ModelRef(string))
         .parameterType(query).defaultValue("").required(false).build());
     globalOperationParams
         .add(new ParameterBuilder().name("filter").description(ParameterDescriptions.FILTER)

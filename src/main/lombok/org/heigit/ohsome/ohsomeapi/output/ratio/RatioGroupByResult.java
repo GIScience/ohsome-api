@@ -6,8 +6,8 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 
 /**
  * Represents the ratio-groupBy result JSON object containing the groupBy value and the respective
- * {@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult RatioResult}
- * objects. The RatioGroupByResult is only used in responses for /ratio/groupBy requests.
+ * {@link org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult RatioResult} objects. The
+ * RatioGroupByResult is only used in responses for /ratio/groupBy requests.
  */
 @Getter
 public class RatioGroupByResult extends GroupByObject {

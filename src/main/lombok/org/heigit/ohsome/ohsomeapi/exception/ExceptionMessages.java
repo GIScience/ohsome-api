@@ -11,9 +11,11 @@ public class ExceptionMessages {
       + "input could not be parsed for the creation of the response GeoJSON.";
   public static final String BOUNDARY_PARAM_FORMAT =
       "Error in processing the boundary parameter. Please "
-          + "remember to follow the format, where you separate every coordinate with a semicolon, "
+          + "remember to follow the format, where you separate every coordinate with a comma, "
           + "each boundary object with a pipe-sign "
           + "and add optional custom ids to every first coordinate with a colon.";
+  public static final String BPOLYS_PARAM_GEOMETRY =
+      "The defined bpolys parameter contains some invalid geometry: ";
   public static final String BOUNDARY_IDS_FORMAT =
       "One or more boundary object(s) have a custom id "
           + "(or at least a colon), whereas other(s) don't. You can either set custom ids for all "
@@ -39,13 +41,16 @@ public class ExceptionMessages {
       "The given query is too large in respect to the given timeout. Please use a smaller region "
           + "and/or coarser time period.";
   public static final String PROPERTIES_PARAM =
-      "The properties parameter can only contain the values 'tags' and/or 'metadata' and/or "
-          + "'unclipped'.";
+      "The properties parameter of this resource can only contain the values 'tags' and/or "
+          + "'metadata' and/or 'unclipped'.";
+  public static final String PROPERTIES_PARAM_CONTR =
+      "The properties parameter of this resource can only contain the values 'tags' and/or "
+          + "'metadata' and/or 'contributionTypes' and/or 'unclipped'.";
   public static final String SHOWMETADATA_PARAM = "The showMetadata parameter can only contain the "
       + "values 'true', 'yes', 'false', or 'no'.";
   public static final String TIME_FORMAT = "The provided time parameter is not ISO-8601 conform.";
-  public static final String TIME_FORMAT_FULL_HISTORY = "Wrong time parameter. You need to give "
-      + "exactly two ISO-8601 conform timestamps, if you want to use the full-history extraction.";
+  public static final String TIME_FORMAT_CONTRS_EXTRACTION_AND_FULL_HISTORY =
+      "Wrong time parameter. You need to give exactly two ISO-8601 conform timestamps.";
   public static final String TIME_FORMAT_CONTRIBUTION =
       "You need to give at least two timestamps or a time interval for this resource.";
   public static final String TIMEOUT = "The given timeout is too long. It has to be shorter than ";

@@ -31,19 +31,19 @@ public class ParameterDescriptions {
   public static final String FORMAT =
       "Output format geojson (for /groupBy/boundary resources only), csv, or json; default: json";
   public static final String PROPERTIES =
-      "List of possible property-groups added to each OSM-element: 'tags' and/or 'metadata'; "
+      "List of possible property-groups added to each OSM-element: 'tags' and/or 'metadata' "
+          + "and/or 'contributionTypes' (only for the /contributions/{geometryType} endpoints); "
           + "default: no property";
   public static final String SHOW_METADATA = "Boolean operator 'true' or 'false'; default: 'false'";
   public static final String TIMEOUT = "Custom timeout in seconds; no default value";
   public static final String FILTER = "Combines several attributive filters, e.g. OSM type, "
       + "the geometry (simple feature) type, as well as the OSM tag; no default value";
-  public static final String DEPRECATED_USE_FILTER = "This parameter has been deprecated since "
-      + "v1.0. We encourage you to use the new parameter 'filter' instead.";
-  public static final String DEPRECATED_USE_FILTER2 = "This parameter has been deprecated since "
-      + "v1.0. We encourage you to use the new parameter 'filter2' instead.";
   public static final String CLIP_GEOMETRY = "Boolean operator to specify whether the returned "
       + "geometries of the features should be clipped to the query's spatial boundary (‘true’), "
       + "or not (‘false’); default: ‘true’";
+  public static final String CONTRIBUTION_TYPE = "Filter contributions by contribution type: "
+      + "'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them;"
+      + "no default value";
 
   private ParameterDescriptions() {
     throw new IllegalStateException("Utility class");

@@ -1,17 +1,18 @@
 pipeline {
   agent {label 'main'}
+  options {
+    timeout(time: 30, unit: 'MINUTES')
+  }
 
   environment {
     REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
-    VERSION = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "(^\\[|Download\\w+)"').trim()
+    VERSION = sh(returnStdout: true, script: 'mvn --batch-mode org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "(^\\[|Download\\w+)"').trim()
     LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
     LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
 
     // START CUSTOM ohsome API
-    MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=/opt/data/heidelberg.oshdb"'
-    DOC_BRANCH_REGEX = /(^[0-9]+$)|(^(([0-9]+)(\.))+([0-9]+)?$)|(^master$)/
+    MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=/opt/data/heidelberg-v0.7.oshdb"'
     // END CUSTOM ohsome API
-    INFER_BRANCH_REGEX = /(^master$)/
     SNAPSHOT_BRANCH_REGEX = /(^master$)/
     RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
     RELEASE_DEPLOY = false
@@ -47,13 +48,49 @@ pipeline {
           rtMaven.deployer.deployArtifacts = false
 
           withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean compile javadoc:jar source:jar install -P sign,git,withDep -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE'
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean compile javadoc:jar source:jar verify -P jacoco,sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE'
           }
         }
       }
       post {
         failure {
           rocketSend channel: 'jenkinsohsome', emoji: ':sob:' , message: "*${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${LATEST_AUTHOR}. Review the code!" , rawMessage: true
+        }
+      }
+    }
+
+    stage ('Reports and Statistics') {
+      steps {
+        script {
+          withSonarQubeEnv('sonarcloud GIScience/ohsome') {
+            sh "mvn --batch-mode sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME}"
+          }
+          report_basedir = "/srv/reports/${REPO_NAME}/${VERSION}_${env.BRANCH_NAME}/${env.BUILD_NUMBER}_${LATEST_COMMIT_ID}"
+
+          // jacoco
+          report_dir = report_basedir + "/jacoco/"
+
+          jacoco(
+              execPattern      : '**/target/jacoco.exec',
+              classPattern     : '**/target/classes',
+              sourcePattern    : '**/src/main/java',
+              inclusionPattern : 'org/heigit/**'
+          )
+          sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && find . -path '*/target/site/jacoco' -exec cp -R --parents {} ${report_dir} \\; && find ${report_dir} -path '*/target/site/jacoco' | while read line; do echo \$line; neu=\${line/target\\/site\\/jacoco/} ;  mv \$line/* \$neu ; done && find ${report_dir} -type d -empty -delete"
+
+          // warnings plugin
+          rtMaven.run pom: 'pom.xml', goals: '--batch-mode -V -e compile checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
+
+          recordIssues enabledForFailure: true, tools: [mavenConsole(),  java(), javaDoc()]
+          recordIssues enabledForFailure: true, tool: checkStyle()
+          recordIssues enabledForFailure: true, tool: spotBugs()
+          recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
+          recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
+        }
+      }
+      post {
+        failure {
+          rocketSend channel: 'jenkinsohsome', emoji: ':disappointed:', message: "Reporting of *${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${LATEST_AUTHOR}." , rawMessage: true
         }
       }
     }
@@ -66,6 +103,9 @@ pipeline {
       }
       steps {
         script {
+          withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          }
           rtMaven.deployer.deployArtifacts buildInfo
           server.publishBuildInfo buildInfo
           SNAPSHOT_DEPLOY = true
@@ -86,6 +126,9 @@ pipeline {
       }
       steps {
         script {
+          withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
+            buildInfo = rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          }
           rtMaven.deployer.deployArtifacts buildInfo
           server.publishBuildInfo buildInfo
           RELEASE_DEPLOY = true
@@ -94,8 +137,7 @@ pipeline {
             file(credentialsId: 'ossrh-settings', variable: 'settingsFile'),
             string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')
         ]) {
-          // copy of the above build, since "deploy" does rebuild the packages, without withDep profile
-          sh 'mvn -s $settingsFile javadoc:jar source:jar deploy -P sign,git,deploy-central -Dmaven.repo.local=.m2 -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          sh 'mvn --batch-mode clean compile -s $settingsFile javadoc:jar source:jar deploy -P sign,git,deploy-central -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
         }
       }
       post {
@@ -115,12 +157,12 @@ pipeline {
       steps {
         script {
           // load dependencies to artifactory
-          rtMaven.run pom: 'pom.xml', goals: 'org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -Dmaven.repo.local=.m2'
+          rtMaven.run pom: 'pom.xml', goals: '--batch-mode org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
 
           javadc_dir = "/srv/javadoc/java/" + REPO_NAME + "/" + VERSION + "/"
           echo javadc_dir
 
-          rtMaven.run pom: 'pom.xml', goals: 'clean javadoc:javadoc -Dadditionalparam=-Xdoclint:none -Dmaven.repo.local=.m2'
+          rtMaven.run pom: 'pom.xml', goals: '--batch-mode clean javadoc:javadoc -Dadditionalparam=-Xdoclint:none -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
           sh "echo ${javadc_dir}"
           // make sure jenkins uses bash not dash!
           sh "mkdir -p ${javadc_dir} && rm -Rf ${javadc_dir}* && find . -path '*/target/site/apidocs' -exec cp -R --parents {} ${javadc_dir} \\; && find ${javadc_dir} -path '*/target/site/apidocs' | while read line; do echo \$line; neu=\${line/target\\/site\\/apidocs/} ;  mv \$line/* \$neu ; done && find ${javadc_dir} -type d -empty -delete"
@@ -136,8 +178,9 @@ pipeline {
     // START CUSTOM ohsome API
     stage ('Publish API Docs') {
       when {
-        expression {
-          return env.BRANCH_NAME ==~ DOC_BRANCH_REGEX
+        anyOf {
+          equals expected: true, actual: RELEASE_DEPLOY
+          equals expected: true, actual: SNAPSHOT_DEPLOY
         }
       }
       steps {
@@ -145,7 +188,7 @@ pipeline {
           DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
           DOCS_DEPLOYMENT = "development"
           API_DOCS_PATH = "development"
-          if(VERSION ==~ DOC_RELEASE_REGEX) {
+          if (VERSION ==~ DOC_RELEASE_REGEX) {
             DOCS_DEPLOYMENT = "release"
             API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
           }
@@ -177,55 +220,10 @@ pipeline {
     }
     // END CUSTOM ohsome API
 
-    stage ('Reports and Statistics') {
-      steps {
-        script {
-          report_basedir = "/srv/reports/${REPO_NAME}/${VERSION}_${env.BRANCH_NAME}/${env.BUILD_NUMBER}_${LATEST_COMMIT_ID}"
-
-          // jacoco
-          report_dir = report_basedir + "/jacoco/"
-
-          rtMaven.run pom: 'pom.xml', goals: 'clean verify -Pjacoco -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
-          jacoco(
-              execPattern      : '**/target/jacoco.exec',
-              classPattern     : '**/target/classes',
-              // START CUSTOM ohsome API
-              sourcePattern    : '**/target/generated-sources/delombok',
-              // END CUSTOM ohsome API
-              inclusionPattern : '/org/heigit/**'
-          )
-          sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && find . -path '*/target/site/jacoco' -exec cp -R --parents {} ${report_dir} \\; && find ${report_dir} -path '*/target/site/jacoco' | while read line; do echo \$line; neu=\${line/target\\/site\\/jacoco/} ;  mv \$line/* \$neu ; done && find ${report_dir} -type d -empty -delete"
-
-          // infer
-          if (env.BRANCH_NAME ==~ INFER_BRANCH_REGEX) {
-            report_dir = report_basedir + "/infer/"
-            sh "mvn clean"
-            sh "infer run --pmd-xml -r -- mvn compile"
-            sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && cp -R ./infer-out/* ${report_dir}"
-          }
-
-          // warnings plugin
-          rtMaven.run pom: 'pom.xml', goals: '--batch-mode -V -e compile checkstyle:checkstyle pmd:pmd pmd:cpd com.github.spotbugs:spotbugs-maven-plugin:3.1.7:spotbugs -Dmaven.repo.local=.m2'
-
-          recordIssues enabledForFailure: true, tools: [mavenConsole(),  java(), javaDoc()]
-          recordIssues enabledForFailure: true, tool: checkStyle()
-          recordIssues enabledForFailure: true, tool: spotBugs()
-          recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
-          recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
-          recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/infer-out/report.xml', id: 'infer')
-        }
-      }
-      post {
-        failure {
-          rocketSend channel: 'jenkinsohsome', emoji: ':disappointed:', message: "Reporting of *${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${LATEST_AUTHOR}." , rawMessage: true
-        }
-      }
-    }
-
     stage ('Check Dependencies') {
       when {
         expression {
-          if (currentBuild.number > 1) {
+          if ((currentBuild.number > 1) && (env.BRANCH_NAME ==~ SNAPSHOT_BRANCH_REGEX)) {
             month_pre = new Date(currentBuild.previousBuild.rawBuild.getStartTimeInMillis())[Calendar.MONTH]
             echo month_pre.toString()
             month_now = new Date(currentBuild.rawBuild.getStartTimeInMillis())[Calendar.MONTH]
@@ -237,14 +235,22 @@ pipeline {
       }
       steps {
         script {
-          update_notify = sh(returnStdout: true, script: 'mvn versions:display-dependency-updates | grep -Pzo "(?s)The following dependencies.*\\n.* \\n"').trim()
-          echo update_notify
+          try {
+            update_notify = sh(returnStdout: true, script: 'mvn --batch-mode versions:display-dependency-updates | grep -Pzo "(?s)The following dependencies([^\\n]*\\S\\n)*[^\\n]*\\s\\n"').trim()
+            echo update_notify
+            rocketSend channel: 'jenkinsohsome', emoji: ':wave:' , message: "Check your dependencies in *${REPO_NAME}*. You might have updates: ${update_notify}" , rawMessage: true
+          } catch (err) {
+            echo "No maven dependency upgrades found."
+          }
         }
-        rocketSend channel: 'jenkinsohsome', emoji: ':wave:' , message: "Check your dependencies in *${REPO_NAME}*. You might have updates: ${update_notify}" , rawMessage: true
-      }
-      post {
-        failure {
-          rocketSend channel: 'jenkinsohsome', emoji: ':disappointed:' , message: "Checking for updates in *${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Latest commit from  ${LATEST_AUTHOR}." , rawMessage: true
+        script {
+          try {
+            update_notify = sh(returnStdout: true, script: 'mvn --batch-mode versions:display-plugin-updates | grep -Pzo "(?s)The following plugin update([^\\n]*\\S\\n)*[^\\n]*\\s\\n"').trim()
+            echo update_notify
+            rocketSend channel: 'jenkinsohsome', emoji: ':wave:' , message: "Check your maven plugins in *${REPO_NAME}*. You might have updates: ${update_notify}" , rawMessage: true
+          } catch (err) {
+            echo "No maven plugin upgrades found."
+          }
         }
       }
     }
@@ -257,7 +263,7 @@ pipeline {
             echo date_pre.format( 'yyyyMMdd' )
             date_now = new Date(currentBuild.rawBuild.getStartTimeInMillis()).clearTime()
             echo date_now.format( 'yyyyMMdd' )
-            return date_pre.numberAwareCompareTo(date_now)<0
+            return date_pre.numberAwareCompareTo(date_now) < 0
           }
           return false
         }

@@ -1,8 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.oshdb;
 
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableSupplier;
-import org.heigit.bigspatialdata.oshdb.util.celliterator.LazyEvaluatedObject;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.oshdb.util.celliterator.LazyEvaluatedObject;
+import org.heigit.ohsome.oshdb.util.function.SerializableSupplier;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 
 /**
  * A tag-translator that can be used in map/flatMap/aggregateBy functions that may be executed on

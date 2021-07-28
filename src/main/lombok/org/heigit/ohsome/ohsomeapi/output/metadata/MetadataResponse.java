@@ -9,8 +9,8 @@ import org.heigit.ohsome.ohsomeapi.output.Attribution;
 
 /**
  * Represents the JSON response object for the /metadata request. It contains information about the
- * attribution, the version of the API and the
- * {@link org.heigit.ohsome.ohsomeapi.output.metadata.ExtractRegion ExtractRegion}.
+ * attribution, the version of the API and the {@link
+ * org.heigit.ohsome.ohsomeapi.output.metadata.ExtractRegion ExtractRegion}.
  */
 @Getter
 @AllArgsConstructor

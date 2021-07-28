@@ -25,11 +25,11 @@ public class ContributionsController {
   /**
    * Gives the contributions as GeoJSON features, which have the geometry of the respective objects
    * in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(value = "OSM contributions having the raw geometry of each OSM object as geometry",
       nickname = "contributionsGeometry", response = ExtractionResponse.class)
@@ -49,11 +49,11 @@ public class ContributionsController {
   /**
    * Gives the contributions as GeoJSON features, which have the bounding box of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(value = "OSM contributions having the bounding box of each OSM object as geometry",
       nickname = "contributionsBbox", response = ExtractionResponse.class)
@@ -73,11 +73,11 @@ public class ContributionsController {
   /**
    * Gives the contributions as GeoJSON features, which have the centroid of the respective objects
    * in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link
+   *         org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
    */
   @ApiOperation(value = "OSM contributions having the centroid of each OSM object as geometry",
       nickname = "contributionsCentroid", response = ExtractionResponse.class)
@@ -97,11 +97,11 @@ public class ContributionsController {
   /**
    * Gives the latest contributions as GeoJSON features, which have the geometry of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(
       value = "Latest OSM contributions having the raw geometry of each OSM object as geometry",
@@ -122,11 +122,11 @@ public class ContributionsController {
   /**
    * Gives the latest contributions as GeoJSON features, which have the bounding box of the
    * respective objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(
       value = "Latest OSM contributions having the bounding box of each OSM object as geometry",
@@ -147,11 +147,11 @@ public class ContributionsController {
   /**
    * Gives the latest contributions as GeoJSON features, which have the centroid of the respective
    * objects in the geometry field.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor#extract() extract}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor
+   *         #extract() extract}
    */
   @ApiOperation(
       value = "Latest OSM contributions having the centroid of each OSM object as geometry",

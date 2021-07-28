@@ -1,9 +1,11 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class DataExtractionTest {
   /** Stops this application context. */
   @AfterClass
   public static void applicationMainShutdown() {
-    if (null != Application.getApplicationContext()) {
+    if (Application.getApplicationContext() != null) {
       SpringApplication.exit(Application.getApplicationContext(), () -> 0);
     }
   }
@@ -54,7 +56,7 @@ public class DataExtractionTest {
   @Test
   public void elementsGeometryTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.67452,49.40961,8.70392,49.41823"
         + "&time=2015-01-01&properties=metadata&filter=type:way and building=residential",
         JsonNode.class);
@@ -74,21 +76,11 @@ public class DataExtractionTest {
   @Test
   public void elementsGeomUsingMultipleTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/geometry?bboxes=8.67559,49.40853,8.69379,49.4231&time=2015-10-01"
         + "&properties=metadata&filter=type:way and highway=residential and maxspeed=* and name=*",
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
-  }
-
-  @Test
-  public void elementsGeomUnclippedSimpleFeaturesTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&properties=unclipped"
-        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
-        JsonNode.class);
-    assertTrue(response.getBody().get("features").size() == 0);
   }
 
   // this needs a fix in the OSHDB to work
@@ -96,7 +88,7 @@ public class DataExtractionTest {
   //  @Test
   //  public void elementsGeomSimpleFeaturesOtherLineTest() {
   //    TestRestTemplate restTemplate = new TestRestTemplate();
-  //    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+  //    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
   //        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994"
   //        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
   //        JsonNode.class);
@@ -120,7 +112,7 @@ public class DataExtractionTest {
   @Test
   public void elementsBboxTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/bbox?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
         + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     JsonNode featureGeom =
@@ -130,9 +122,20 @@ public class DataExtractionTest {
   }
 
   @Test
+  public void checkResponseMessageForWrongPropertiesParam() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
+        + "filter=type:way and natural=*&properties=contributionTypes&time=2016-04-20,2016-04-21",
+        JsonNode.class);
+    assertEquals("\"The properties parameter of this resource can only contain the values 'tags' "
+        + "and/or 'metadata' and/or 'unclipped'.\"", response.getBody().get("message").toString());
+  }
+
+  @Test
   public void elementsCentroidTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response = restTemplate.getForEntity( server + port 
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/elements/centroid?bboxes=8.67452,49.40961,8.70392,49.41823&time=2015-01-01"
         + "&properties=metadata&filter=type:way and building=residential", JsonNode.class);
     assertEquals(2, Helper.getFeatureByIdentifier(response, "@osmId", "way/294644468")
@@ -294,10 +297,9 @@ public class DataExtractionTest {
         + "/contributions/geometry?bboxes=8.686017,49.406453,8.686983,49.406966&filter=building=*&"
         + "time=2008-01-01,2009-09-01&properties=metadata,tags&clipGeometry=false", JsonNode.class);
     JsonNode featuresArray = response.getBody().get("features");
-    assertTrue(featuresArray.get(0).get("properties").get("@creation").asText().equals("true"));
-    assertTrue(
-        featuresArray.get(1).get("properties").get("@geometryChange").asText().equals("true"));
-    assertTrue(featuresArray.get(2).get("properties").get("@tagChange").asText().equals("true"));
+    assertTrue(featuresArray.get(0).get("properties").get("@creation").asBoolean());
+    assertTrue(featuresArray.get(1).get("properties").get("@geometryChange").asBoolean());
+    assertTrue(featuresArray.get(2).get("properties").get("@tagChange").asBoolean());
   }
 
   @Test
@@ -340,8 +342,8 @@ public class DataExtractionTest {
         + "time=2010-01-01,2012-01-01&properties=metadata&clipGeometry=false", JsonNode.class);
     JsonNode featureProperties =
         Helper.getFeatureByIdentifier(response, "@changesetId", "10082609").get("properties");
-    assertTrue(featureProperties.get("@geometryChange").asText().equals("true")
-        && featureProperties.get("@tagChange").asText().equals("true"));
+    assertTrue(featureProperties.get("@geometryChange").asBoolean()
+        && featureProperties.get("@tagChange").asBoolean());
   }
 
   @Test
@@ -353,7 +355,7 @@ public class DataExtractionTest {
         JsonNode.class);
     JsonNode featureProperties =
         Helper.getFeatureByIdentifier(response, "@changesetId", "8371765").get("properties");
-    assertEquals("true", featureProperties.get("@creation").asText());
+    assertTrue(featureProperties.get("@creation").asBoolean());
   }
 
   @Test
@@ -426,7 +428,7 @@ public class DataExtractionTest {
   }
 
   @Test
-  public void contributionsAssociationChangeSetIdWithOsmIdAndVersion() {
+  public void contributionsAssociationChangeSetIdWithOsmIdAndVersionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/contributions/bbox?bboxes=8.70606,49.412150,8.70766,49.413686"
@@ -446,6 +448,19 @@ public class DataExtractionTest {
         + "&filter=id:node/3429511451&time=2017-01-01,2019-01-01", JsonNode.class);
     JsonNode feature = Helper.getFeatureByIdentifier(response, "@osmId", "node/3429511451");
     assertEquals(49.418466, feature.get("geometry").get("coordinates").get(1).asDouble(), 0);
+  }
+
+  @Test
+  public void contributionTypesPropertiesParameterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
+        + "filter=id:way/25316163&properties=metadata,contributionTypes&time=2012-12-10,2012-12-11",
+        JsonNode.class);
+    JsonNode feature = response.getBody().get("features").get(0);
+    assertTrue(feature.get("properties").has("@geometryChange"));
+    assertEquals("14184500", feature.get("properties").get("@changesetId").asText());
+    assertEquals("14227603", feature.get("properties").get("@contributionChangesetId").asText());
   }
 
   /*
@@ -497,8 +512,8 @@ public class DataExtractionTest {
   public void contributionsLatestDeletionTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-        + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter=building=* "
-        + "and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
+        + "/contributions/latest/geometry?bboxes=8.699552,49.411985,8.700909,49.412648&filter="
+        + "building=* and type:way and id:14195519&time=2008-01-28,2012-01-01&properties=metadata",
         JsonNode.class);
     assertEquals(Helper.getFeatureByIdentifier(response, "@changesetId", "9218673").get("geometry")
         .getNodeType(), JsonNodeType.NULL);
@@ -512,7 +527,21 @@ public class DataExtractionTest {
             + "/contributions/latest/geometry?bboxes=8.679253,49.424025,8.679623,49.424185&filter="
             + "building=*&time=2010-01-01,2011-01-17&properties=metadata,tags&clipGeometry=false",
         JsonNode.class);
-    assertTrue(response.getBody().get("features").get(0).get("properties").get("@creation").asText()
-        .equals("true"));
+    assertTrue(
+        response.getBody().get("features").get(0).get("properties").get("@creation").asBoolean());
+  }
+
+  @Test
+  public void issue109Test() {
+    // see https://github.com/GIScience/ohsome-api/issues/109
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    // this uses the centroid endpoint to make sure that geometry filters are even applied to
+    // the geometries before being transformed to, e.g., centroid points
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port
+            + "/elementsFullHistory/centroid?bboxes=8.69525,49.40938,8.70461,49.41203&"
+            + "time=2011-09-05,2011-09-06&filter=geometry:polygon and id:relation/1391838",
+        JsonNode.class);
+    assertEquals(1, response.getBody().get("features").size());
   }
 }

@@ -3,14 +3,14 @@ package org.heigit.ohsome.ohsomeapi.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBDatabase;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.oshdb.api.db.OSHDBDatabase;
+import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
 
 /** Utils class containing request-specific static utility methods. */
 public class RequestUtils {
@@ -21,7 +21,7 @@ public class RequestUtils {
 
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.
-   * 
+   *
    * @param request sent <code>HttpServletRequest</code> object
    * @return <code>String</code> that contains the received request URL
    */
@@ -75,7 +75,7 @@ public class RequestUtils {
 
   /**
    * Checks if the given request uses the csv format.
-   * 
+   *
    * @param request <code>HttpServletRequest</code> object used to check
    * @return whether it uses the csv format, or not
    */
@@ -85,11 +85,11 @@ public class RequestUtils {
 
   /**
    * Extracts some metadata from the OSHDB keytables or db and adds it to the corresponding objects.
-   * 
+   *
    * @throws DatabaseAccessException if the keytables are missing
    * @throws RuntimeException if the timerange metadata cannot be retrieved from the db
-   * @throws IOException thrown by
-   *         {@link com.fasterxml.jackson.databind.ObjectMapper#readTree(String) readTree}
+   * @throws IOException thrown by {@link com.fasterxml.jackson.databind.ObjectMapper
+   *         #readTree(String) readTree}
    */
   public static void extractOSHDBMetadata() throws IOException {
     OSHDBDatabase db;
@@ -134,7 +134,7 @@ public class RequestUtils {
 
   /**
    * Checks if the given request uses the default toTimestamp.
-   * 
+   *
    * @param timeParameter the "time" parameter of the request to check
    * @return whether it uses the default toTimestamp, or not
    */
@@ -151,7 +151,7 @@ public class RequestUtils {
 
   /**
    * Checks if the given request is requesting metadata.
-   * 
+   *
    * @param url the url of the request to check
    * @return whether it is a metadata request, or not
    */

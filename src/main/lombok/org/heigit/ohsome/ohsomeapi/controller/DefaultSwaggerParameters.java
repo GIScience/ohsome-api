@@ -13,7 +13,7 @@ public class DefaultSwaggerParameters {
   public static final String BUILDING_FILTER2 = "geometry:polygon and building=house";
   public static final String HOUSENUMBER_FILTER = "type:node and \"addr:housenumber\"=*";
   public static final String TIME = "2014-01-01/2017-01-01/P1Y";
-  
+
   private DefaultSwaggerParameters() {
     throw new IllegalStateException("Utility class");
   }

@@ -1,6 +1,5 @@
 package org.heigit.ohsome.ohsomeapi.controller.dataaggregation.elements;
 
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,14 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller containing the GET and POST servletRequest handling methods, which are mapped to
  * "/elements/area".
  */
-@Api(tags = "Area")
+@Api(tags = "Elements Area")
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {
 
   /**
    * Gives the area of OSM objects.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
@@ -52,13 +51,13 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByType(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByType}
+   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
+   *         boolean, boolean) aggregateGroupByType}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the type", nickname = "areaGroupByType",
       response = GroupByResponse.class)
@@ -75,13 +74,13 @@ public class AreaController {
 
   /**
    * Gives the area OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link
-   *                   org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
-   *                   #aggregateGroupByBoundary() aggregateGroupByBoundary}
+   *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
+   *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
   @ApiOperation(
       value = "Area of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -97,13 +96,13 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
+   *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the boundary and the tag",
       nickname = "areaGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -123,13 +122,13 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the key.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByKey(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByKey}
+   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByKey}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the key", nickname = "areaGroupByKey",
       response = GroupByResponse.class)
@@ -146,13 +145,13 @@ public class AreaController {
 
   /**
    * Gives the area of OSM objects grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response }
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByTag(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByTag}
+   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByTag}
    */
   @ApiOperation(value = "Area of OSM elements grouped by the tag", nickname = "areaGroupByTag",
       response = GroupByResponse.class)
@@ -173,13 +172,12 @@ public class AreaController {
   /**
    * Gives the density of OSM elements (area of items divided by the total area in
    * square-kilometers).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link
-   *                   org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
-   *                   #aggregate() aggregate}
+   *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
   @ApiOperation(
       value = "Density of OSM elements (area of elements divided "
@@ -196,13 +194,13 @@ public class AreaController {
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByType(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByType}
+   *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
+   *         boolean, boolean) aggregateGroupByType}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the type",
       nickname = "areaDensityGroupByType", response = GroupByResponse.class)
@@ -220,13 +218,13 @@ public class AreaController {
   /**
    * Gives the density of OSM elements grouped by the boundary parameter (bounding
    * box/circle/polygon).
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link
-   *                   org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
-   *                   #aggregateGroupByBoundary() aggregateGroupByBoundary}
+   *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
+   *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
   @ApiOperation(
       value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
@@ -242,13 +240,13 @@ public class AreaController {
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
+   *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
       nickname = "areaDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
@@ -268,13 +266,13 @@ public class AreaController {
 
   /**
    * Gives the density of OSM elements grouped by the tag.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateGroupByTag(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse, boolean, boolean) aggregateGroupByTag}
+   *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByTag}
    */
   @ApiOperation(value = "Density of OSM elements grouped by the tag",
       nickname = "areaDensityGroupByTag", response = GroupByResponse.class)
@@ -294,25 +292,19 @@ public class AreaController {
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
-   *                   aggregateRatio}
+   *         #aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
+   *         aggregateRatio}
    */
   @ApiOperation(
       value = "Ratio of the area of OSM elements satisfying filter2 within items selected by "
           + "filter",
       nickname = "areaRatio", response = RatioResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
           dataType = "string", required = false),
@@ -330,23 +322,17 @@ public class AreaController {
   /**
    * Gives the ratio of the area of OSM elements satisfying filter2 within items selected by filter
    * grouped by the boundary.
-   * 
+   *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *                   #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest,
-   *                   HttpServletResponse) aggregateRatioGroupByBoundary}
+   *         #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest,
+   *         HttpServletResponse) aggregateRatioGroupByBoundary}
    */
   @ApiOperation(value = "Ratio of the area of OSM elements grouped by the boundary",
       nickname = "areaRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "types2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "keys2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
-      @ApiImplicitParam(name = "values2", value = ParameterDescriptions.DEPRECATED_USE_FILTER2,
-          defaultValue = "", paramType = "query", dataType = "string", required = false),
       @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
           dataType = "string", required = false),

@@ -5,17 +5,17 @@ import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBJdbc;
-import org.heigit.bigspatialdata.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.oshdb.api.db.OSHDBH2;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
+import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
+import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.DefaultApplicationArguments;
@@ -45,7 +45,7 @@ public class Application implements ApplicationRunner {
 
   /**
    * Main method to run this SpringBootApplication.
-   * 
+   *
    * @throws RuntimeException if database and keytables are not defined in the
    *         '-DdbFilePathProperty=' parameter of 'mvn test'.
    */
@@ -72,16 +72,15 @@ public class Application implements ApplicationRunner {
    * @throws RuntimeException if a class with a specific name could not be found, or if the database
    *         parameter is not defined
    * @throws DatabaseAccessException if the access to keytables or database is not possible
-   * @throws SQLException thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2#OSHDBH2(String) OSHDBH2}
-   * @throws ClassNotFoundException thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.db.OSHDBH2#OSHDBH2(String) OSHDBH2}
-   * @throws OSHDBKeytablesNotFoundException thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator#TagTranslator(java.sql.Connection)
-   *         TagTranslator}
-   * @throws IOException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils#extractOSHDBMetadata()
-   *         extractOSHDBMetadata}
+   * @throws SQLException thrown by {@link org.heigit.ohsome.oshdb.api.db.OSHDBH2
+   *         #OSHDBH2(String) OSHDBH2}
+   * @throws ClassNotFoundException thrown by {@link org.heigit.ohsome.oshdb.api.db.OSHDBH2
+   *         #OSHDBH2(String) OSHDBH2}
+   * @throws OSHDBKeytablesNotFoundException thrown by {@link
+   *         org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator
+   *         #TagTranslator(java.sql.Connection) TagTranslator}
+   * @throws IOException thrown by {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils
+   *         #extractOSHDBMetadata() extractOSHDBMetadata}
    */
   public static void preRun(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
@@ -213,7 +212,7 @@ public class Application implements ApplicationRunner {
 
   /**
    * Get the API version. It throws a RuntimeException if the API version is null.
-   * 
+   *
    * @throws RuntimeException if API version from the application.properties file cannot be loaded
    */
   private static String ohsomeApiVersion() {

@@ -17,21 +17,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
-import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
-import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
-import org.heigit.ohsome.filter.FilterExpression;
-import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
@@ -39,16 +24,33 @@ import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
+import org.heigit.ohsome.oshdb.api.mapreducer.OSMContributionView;
+import org.heigit.ohsome.oshdb.api.mapreducer.OSMEntitySnapshotView;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.filter.FilterParser;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.ohsome.oshdb.util.mappable.OSHDBMapReducible;
+import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
+import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
+import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
+import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.TopologyException;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
- * the request. Uses geometry methods from
- * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
- * inputProcessingUtils from {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils
- * InputProcessingUtils}. Throws exceptions depending on their validity.
+ * the request. Uses geometry methods from {@link
+ * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
+ * inputProcessingUtils from {@link
+ * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws
+ * exceptions depending on their validity.
  */
 public class InputProcessor {
 
@@ -67,6 +69,7 @@ public class InputProcessor {
   private Map<String, String[]> requestParameters;
   private boolean includeTags;
   private boolean includeOSMMetadata;
+  private boolean includeContributionTypes;
   private boolean clipGeometry = true;
 
   public InputProcessor(ProcessingData processingData) {
@@ -96,9 +99,8 @@ public class InputProcessor {
   }
 
   /**
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters(ComputeMode)
-   *         processParameters}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters(ComputeMode) processParameters}
    */
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
     return this.processParameters(null);
@@ -106,16 +108,15 @@ public class InputProcessor {
 
   /**
    * Processes the input parameters from the given request.
-   * 
-   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   *
+   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    * @throws BadRequestException if the boundary parameter is not defined or it has an invalid
    *         format, if the geometry of given boundary cannot be parsed for the creation of the
    *         response GeoJSON or if the keys, values and types parameters are not empty, while the
    *         filter parameter is set.
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#extractTime(MapReducer, String[], boolean)
-   *         extractTime}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #extractTime(MapReducer, String[], boolean) extractTime}
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
@@ -185,16 +186,14 @@ public class InputProcessor {
         ComputeMode computeMode;
         double boundarySize = boundary.getEnvelope().getArea();
         if (boundarySize <= COMPUTE_MODE_THRESHOLD) {
-          computeMode = ComputeMode.LocalPeek;
+          computeMode = ComputeMode.LOCAL_PEEK;
         } else {
-          computeMode = ComputeMode.ScanQuery;
+          computeMode = ComputeMode.SCAN_QUERY;
         }
         dbIgnite.computeMode(computeMode);
       }
     }
-
     DbConnData.db.timeout(timeout);
-
     if (isSnapshot) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);
@@ -212,11 +211,13 @@ public class InputProcessor {
       mapRed =
           mapRed.areaOfInterest(OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal()));
     } else {
-      mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+      try {
+        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+      } catch (TopologyException e) {
+        throw new BadRequestException(ExceptionMessages.BPOLYS_PARAM_GEOMETRY + e.getMessage());
+      }
     }
-
     processShowMetadata(showMetadata);
-
     checkFormat(processingData.getFormat());
     if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
       GeoJSONWriter writer = new GeoJSONWriter();
@@ -267,7 +268,7 @@ public class InputProcessor {
 
   /**
    * Defines the type(s) out of the given String[].
-   * 
+   *
    * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
    *        relation), or simple feature types (point, line, polygon, other). If the array is empty,
    *        all three OSM types are used.
@@ -326,7 +327,7 @@ public class InputProcessor {
   /**
    * Splits the given input parameter on ',' if it has a length of 1 and contains ',' at [0].
    * Returns a String array containing the splits.
-   * 
+   *
    * @param param <code>String</code> array containing the content to split
    * @return <code>String</code> array containing the splitted parameter content
    */
@@ -339,7 +340,7 @@ public class InputProcessor {
 
   /**
    * Creates an empty array if an input parameter of a POST request is null.
-   * 
+   *
    * @param toCheck <code>String</code> array, which is checked.
    * @return <code>String</code> array, which is empty.
    */
@@ -352,7 +353,7 @@ public class InputProcessor {
 
   /**
    * Creates an empty <code>String</code>, if a given input parameter is null.
-   * 
+   *
    * @param toCheck <code>String</code>, which is checked.
    * @return <code>String</code>, which may be empty but not null.
    */
@@ -365,7 +366,7 @@ public class InputProcessor {
 
   /**
    * Checks the given keys and values String[] on their length.
-   * 
+   *
    * @throws BadRequestException if values_n doesn't fit to keys_n. There cannot be more input
    *         values in the values|values2 than in the keys|keys2 parameter.
    */
@@ -392,17 +393,15 @@ public class InputProcessor {
   }
 
   /**
-   * Processes the properties parameter used in data-extraction ressources and sets the respective
-   * boolean values includeTags, includeOSMMetadata and unclippedGeometries.
-   * 
+   * Processes the properties parameter used in data-extraction resources and sets the respective
+   * boolean values includeTags, includeOSMMetadata, unclippedGeometries, and
+   * includeContributionTypes (only for the /contributions endpoints).
+   *
    * @throws BadRequestException if the properties parameter contains invalid values
    */
   public void processPropertiesParam() {
     String[] properties =
         splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
-    if (properties.length > 3) {
-      throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
-    }
     for (String property : properties) {
       @Deprecated
       boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
@@ -412,6 +411,12 @@ public class InputProcessor {
         this.includeOSMMetadata = true;
       } else if (oldUnclippedParameter) {
         this.clipGeometry = false;
+      } else if (RequestUtils.isContributionsExtraction(requestUrl)) {
+        if ("contributionTypes".equalsIgnoreCase(property)) {
+          this.includeContributionTypes = true;
+        } else {
+          throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM_CONTR);
+        }
       } else {
         throw new BadRequestException(ExceptionMessages.PROPERTIES_PARAM);
       }
@@ -442,9 +447,8 @@ public class InputProcessor {
    * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
    *
    * @return MapReducer with filtered geometries
-   * @throws RuntimeException if
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#filterOnSimpleFeatures(Mappable)
-   *         filterOnSimpleFeatures} was called on mapped entries
+   * @throws RuntimeException if {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #filterOnSimpleFeatures(Mappable) filterOnSimpleFeatures} was called on mapped entries
    */
   // suppressed, as filter always returns the same mappable type T
   @SuppressWarnings("unchecked")
@@ -483,7 +487,7 @@ public class InputProcessor {
   /**
    * Checks the given filter parameter if it's null or blank. Currently used for filter2 parameter
    * of /ratio processing.
-   * 
+   *
    * @param filter parameter to be checked
    * @throws BadRequestException if the given filter parameter is null or blank.
    */
@@ -496,13 +500,12 @@ public class InputProcessor {
 
   /**
    * Checks the given keys and values parameters on their length and includes them in the
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
-   * or {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
+   * {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
+   * or {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
    * osmTag(key, value)} method.
-   * 
-   * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
-   *        MapReducer} object
-   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   *
+   * @param mapRed current {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer}
+   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the filters derived from the given parameters.
    */
   private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
@@ -510,9 +513,7 @@ public class InputProcessor {
     checkKeysValues(keys, values);
     if (keys.length != values.length) {
       String[] tempVal = new String[keys.length];
-      for (int a = 0; a < values.length; a++) {
-        tempVal[a] = values[a];
-      }
+      System.arraycopy(values, 0, tempVal, 0, values.length);
       for (int i = values.length; i < keys.length; i++) {
         tempVal[i] = "";
       }
@@ -533,15 +534,9 @@ public class InputProcessor {
   /**
    * Extracts the information from the given time array and fills the toTimestamps[] with content
    * (in case of isSnapshot=false).
-   * 
-   * @throws BadRequestException if the time format is invalid
-   * @throws Exception thrown by {@link
-   *         org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser#parseIsoDateTime(String)
-   *         parseIsoDateTime}
    */
   private MapReducer<? extends OSHDBMapReducible> extractTime(
-      MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot)
-      throws Exception {
+      MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot) {
     String[] toTimestamps = null;
     String[] timeData;
     if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
@@ -587,7 +582,7 @@ public class InputProcessor {
 
   /**
    * Checks the given type(s) String[] on its length and content.
-   * 
+   *
    * @throws BadRequestException if the given types parameter is invalid.
    */
   private void checkTypes(String[] types) {
@@ -615,7 +610,7 @@ public class InputProcessor {
 
   /**
    * Checks the content of the given format parameter.
-   * 
+   *
    * @throws BadRequestException if the given format parameter is invalid.
    */
   private void checkFormat(String format) {
@@ -630,7 +625,7 @@ public class InputProcessor {
   /**
    * Defines the timeout for this request depending on the given timeout parameter. If it is smaller
    * than the predefined value, it is used for this request.
-   * 
+   *
    * @return <code>double</code> value defining the timeout for this request
    * @throws BadRequestException if the given timeout parameter is larger than the predefined one
    */
@@ -658,7 +653,7 @@ public class InputProcessor {
    * Sets a corresponding enum (NOBOUNDARY for no boundary, BBOXES for bboxes, BCIRCLES for
    * bcircles, BPOLYS for bpolys) based on the given boundary parameter(s). Only one of them is
    * allowed to have content in it.
-   * 
+   *
    * @param bboxes <code>String</code> containing the bounding boxes separated via a pipe (|) and
    *        optional custom names at each first coordinate appended with a colon (:).
    * @param bcircles <code>String</code> containing the bounding circles separated via a pipe (|)
@@ -683,7 +678,7 @@ public class InputProcessor {
 
   /**
    * Checks, if the cluster has less active server nodes, than defined on startup.
-   * 
+   *
    * @throws ServiceUnavailableException in case one or more nodes are inactive.
    */
   private void checkClusterAvailability() {
@@ -700,7 +695,7 @@ public class InputProcessor {
   /**
    * Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or
    * 'multipart/form-data'.
-   * 
+   *
    * @throws BadRequestException if an unsupported header is given.
    */
   private void checkContentTypeHeader(HttpServletRequest servletRequest) {
@@ -718,7 +713,7 @@ public class InputProcessor {
   /**
    * Checks, if there are false or repeated parameters in the request. It suggests possible
    * parameters based on fuzzy matching scores.
-   * 
+   *
    * @throws BadRequestException in case of invalid parameter or if a parameter is given more than
    *         once
    */
@@ -764,7 +759,7 @@ public class InputProcessor {
   /**
    * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
    * value of the parameter is false.
-   * 
+   *
    * @throws BadRequestException if the value of the parameter is not attributable to a boolean
    *         value.
    */
@@ -786,7 +781,7 @@ public class InputProcessor {
 
   /**
    * Gets the geometry from the currently in-use boundary object(s).
-   * 
+   *
    * @return <code>Geometry</code> object of the used boundary parameter.
    */
   public Geometry getGeometry() {
@@ -829,6 +824,10 @@ public class InputProcessor {
 
   public boolean includeOSMMetadata() {
     return includeOSMMetadata;
+  }
+
+  public boolean includeContributionTypes() {
+    return includeContributionTypes;
   }
 
   public boolean isClipGeometry() {

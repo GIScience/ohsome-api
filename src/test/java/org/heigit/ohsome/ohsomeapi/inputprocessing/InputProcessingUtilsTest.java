@@ -2,9 +2,9 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
 import org.heigit.ohsome.ohsomeapi.controller.TestProperties;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.junit.Before;
 import org.junit.BeforeClass;
