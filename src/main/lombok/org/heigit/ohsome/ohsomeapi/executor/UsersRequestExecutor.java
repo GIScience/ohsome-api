@@ -15,15 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -40,6 +31,16 @@ import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.heigit.ohsome.oshdb.OSHDBTag;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
+import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
@@ -129,10 +130,10 @@ public class UsersRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
     result = mapRed.flatMap(f -> {
       List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
-      int[] tags = ExecutionUtils.extractContributionTags(f);
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
-        int tagValueId = tags[i + 1];
+      Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
+      for (OSHDBTag tag : tags) {
+        int tagKeyId = tag.getKey();
+        int tagValueId = tag.getValue();
         if (tagKeyId == keysInt) {
           if (valuesInt.length == 0) {
             res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
@@ -213,9 +214,9 @@ public class UsersRequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     result = mapRed.flatMap(f -> {
       List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
-      int[] tags = ExecutionUtils.extractContributionTags(f);
-      for (int i = 0; i < tags.length; i += 2) {
-        int tagKeyId = tags[i];
+      Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
+      for (OSHDBTag tag : tags) {
+        int tagKeyId = tag.getKey();
         for (int key : keysInt) {
           if (tagKeyId == key) {
             res.add(new ImmutablePair<>(tagKeyId, f));

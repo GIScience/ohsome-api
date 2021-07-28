@@ -6,11 +6,6 @@ import java.util.Optional;
 import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -21,6 +16,11 @@ import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
+import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.locationtech.jts.geom.Geometry;
 
 /**
@@ -62,7 +62,7 @@ public class ContributionsExecutor extends RequestExecutor {
    *         processParameters},
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters(ComputeMode) processParameters} and
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
    * @throws UnsupportedOperationException thrown by
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
    *         #usersCount(MapReducer) usersCount} and
@@ -117,10 +117,9 @@ public class ContributionsExecutor extends RequestExecutor {
    * @param mapRed a MapReducer of OSM contributions
    * @return SortedMap with counts of users aggregated by timestamp
    * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator #countUniq()
-   *         countUniq}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #countUniq() countUniq}
    * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimeStamp}
    */
   private SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
@@ -136,9 +135,9 @@ public class ContributionsExecutor extends RequestExecutor {
    * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest
    * @return SortedMap with counts of contributions aggregated by timestamp
    * @throws Exception thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator #count() count}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #count() count}
    * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
    *         aggregateByTimeStamp}
    */
   private SortedMap<OSHDBTimestamp, Integer> contributionsCount(MapReducer<OSMContribution> mapRed,

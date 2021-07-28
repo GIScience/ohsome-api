@@ -15,11 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.geojson.GeoJsonObject;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBBoundingBox;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
+import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -65,7 +65,7 @@ public class GeometryBuilder {
       double minLat = Double.parseDouble(bboxes[1]);
       double maxLon = Double.parseDouble(bboxes[2]);
       double maxLat = Double.parseDouble(bboxes[3]);
-      bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
+      bbox = OSHDBBoundingBox.bboxWgs84Coordinates(minLon, minLat, maxLon, maxLat);
       unifiedBbox = gf.createGeometry(OSHDBGeometryBuilder.getGeometry(bbox));
       ArrayList<Geometry> geometryList = new ArrayList<>();
       geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
@@ -74,7 +74,7 @@ public class GeometryBuilder {
         minLat = Double.parseDouble(bboxes[i + 1]);
         maxLon = Double.parseDouble(bboxes[i + 2]);
         maxLat = Double.parseDouble(bboxes[i + 3]);
-        bbox = new OSHDBBoundingBox(minLon, minLat, maxLon, maxLat);
+        bbox = OSHDBBoundingBox.bboxWgs84Coordinates(minLon, minLat, maxLon, maxLat);
         geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }

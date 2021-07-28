@@ -20,23 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
-import org.heigit.bigspatialdata.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.bigspatialdata.oshdb.api.generic.function.SerializableFunction;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMEntity;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTag;
-import org.heigit.bigspatialdata.oshdb.util.OSHDBTimestamp;
-import org.heigit.bigspatialdata.oshdb.util.celliterator.ContributionType;
-import org.heigit.bigspatialdata.oshdb.util.geometry.Geo;
-import org.heigit.bigspatialdata.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.bigspatialdata.oshdb.util.time.TimestampFormatter;
-import org.heigit.ohsome.filter.FilterExpression;
-import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
@@ -58,6 +41,23 @@ import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.heigit.ohsome.oshdb.OSHDBTag;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.filter.FilterParser;
+import org.heigit.ohsome.oshdb.osm.OSMEntity;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
+import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
+import org.heigit.ohsome.oshdb.util.geometry.Geo;
+import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.geojson.Feature;
@@ -85,7 +85,7 @@ public class ElementsRequestExecutor {
    *        outgoing response object
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#stream() stream}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#stream() stream}, or
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
@@ -103,7 +103,7 @@ public class ElementsRequestExecutor {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.
-      mapRed = inputProcessor.processParameters(ComputeMode.AffinityCall);
+      mapRed = inputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
     } else {
       mapRed = inputProcessor.processParameters();
     }
@@ -118,7 +118,7 @@ public class ElementsRequestExecutor {
       Map<String, Object> properties = new TreeMap<>();
       if (includeOSMMetadata) {
         properties.put("@lastEdit",
-            TimestampFormatter.getInstance().isoDateTime(snapshot.getEntity().getTimestamp()));
+            TimestampFormatter.getInstance().isoDateTime(snapshot.getEntity().getEpochSecond()));
       }
       properties.put("@snapshotTimestamp",
           TimestampFormatter.getInstance().isoDateTime(snapshot.getTimestamp()));
@@ -746,8 +746,8 @@ public class ElementsRequestExecutor {
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @Deprecated(forRemoval = true)
   public static <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
@@ -937,8 +937,8 @@ public class ElementsRequestExecutor {
    * @throws BadRequestException if a boundary parameter (bboxes, bcircles, bpolys) is not defined
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters},
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   public static <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,

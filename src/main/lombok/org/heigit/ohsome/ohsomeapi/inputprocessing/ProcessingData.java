@@ -7,9 +7,9 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.geojson.GeoJsonObject;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.ohsome.filter.FilterExpression;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.locationtech.jts.geom.Geometry;
 
 /** Holds the relevant objects for processing the request and creating the response.*/

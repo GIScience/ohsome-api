@@ -17,21 +17,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite;
-import org.heigit.bigspatialdata.oshdb.api.db.OSHDBIgnite.ComputeMode;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.Mappable;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMContributionView;
-import org.heigit.bigspatialdata.oshdb.api.mapreducer.OSMEntitySnapshotView;
-import org.heigit.bigspatialdata.oshdb.api.object.OSHDBMapReducible;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMContribution;
-import org.heigit.bigspatialdata.oshdb.api.object.OSMEntitySnapshot;
-import org.heigit.bigspatialdata.oshdb.osm.OSMType;
-import org.heigit.bigspatialdata.oshdb.util.geometry.OSHDBGeometryBuilder;
-import org.heigit.bigspatialdata.oshdb.util.time.IsoDateTimeParser;
-import org.heigit.bigspatialdata.oshdb.util.time.OSHDBTimestamps;
-import org.heigit.ohsome.filter.FilterExpression;
-import org.heigit.ohsome.filter.FilterParser;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
@@ -39,6 +24,21 @@ import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
+import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
+import org.heigit.ohsome.oshdb.api.mapreducer.OSMContributionView;
+import org.heigit.ohsome.oshdb.api.mapreducer.OSMEntitySnapshotView;
+import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.filter.FilterParser;
+import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
+import org.heigit.ohsome.oshdb.util.mappable.OSHDBMapReducible;
+import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
+import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
+import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
+import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.TopologyException;
@@ -109,7 +109,7 @@ public class InputProcessor {
   /**
    * Processes the input parameters from the given request.
    *
-   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the settings derived from the given parameters.
    * @throws BadRequestException if the boundary parameter is not defined or it has an invalid
    *         format, if the geometry of given boundary cannot be parsed for the creation of the
@@ -186,9 +186,9 @@ public class InputProcessor {
         ComputeMode computeMode;
         double boundarySize = boundary.getEnvelope().getArea();
         if (boundarySize <= COMPUTE_MODE_THRESHOLD) {
-          computeMode = ComputeMode.LocalPeek;
+          computeMode = ComputeMode.LOCAL_PEEK;
         } else {
-          computeMode = ComputeMode.ScanQuery;
+          computeMode = ComputeMode.SCAN_QUERY;
         }
         dbIgnite.computeMode(computeMode);
       }
@@ -500,13 +500,12 @@ public class InputProcessor {
 
   /**
    * Checks the given keys and values parameters on their length and includes them in the
-   * {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
-   * or {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
+   * {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
+   * or {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
    * osmTag(key, value)} method.
    *
-   * @param mapRed current {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer
-   *        MapReducer} object
-   * @return {@link org.heigit.bigspatialdata.oshdb.api.mapreducer.MapReducer MapReducer} object
+   * @param mapRed current {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer}
+   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
    *         including the filters derived from the given parameters.
    */
   private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
