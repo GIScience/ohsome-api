@@ -90,7 +90,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 11](https://openjdk.java.net/projects/jdk/11/) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* data: [download](http://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-tool/etl/README.md)
+* data: [download](https://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-etl/README.md)
 
 ### IDE Settings
 
