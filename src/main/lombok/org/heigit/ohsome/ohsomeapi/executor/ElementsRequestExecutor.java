@@ -198,10 +198,10 @@ public class ElementsRequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    var preResult = mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
-        .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
-        .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp).map(OSMEntitySnapshot::getGeometry);
-    var result = ExecutionUtils.computeNestedResult(requestResource, preResult);
+    var result = ExecutionUtils.computeNestedResult(requestResource,
+        mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+            .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
+            .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp));
     var groupByResult = OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -683,8 +683,8 @@ public class ElementsRequestExecutor {
     mapRed = mapRed.filter(combinedFilter);
     var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
       OSMEntity entity = snapshot.getEntity();
-      boolean matches1 = filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry());
-      boolean matches2 = filterExpr2.applyOSMGeometry(entity, snapshot.getGeometry());
+      boolean matches1 = filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry);
+      boolean matches2 = filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
       if (matches1 && matches2) {
         return MatchType.MATCHESBOTH;
       } else if (matches1) {
@@ -990,11 +990,11 @@ public class ElementsRequestExecutor {
         arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
     var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
     mapRed2 = mapRed2.filter(combinedFilter);
-    var preResult =
+    var mapRed3 =
         mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
           OSMEntity entity = snapshot.getEntity();
-          boolean matches1 = filterExpr1.applyOSMGeometry(entity, snapshot.getGeometry());
-          boolean matches2 = filterExpr2.applyOSMGeometry(entity, snapshot.getGeometry());
+          boolean matches1 = filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry);
+          boolean matches2 = filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
           if (matches1 && matches2) {
             return MatchType.MATCHESBOTH;
           } else if (matches1) {
@@ -1005,19 +1005,20 @@ public class ElementsRequestExecutor {
             assert false : "MatchType matches none.";
           }
           return MatchType.MATCHESNONE;
-        }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
+        }, EnumSet.allOf(MatchType.class));
+    var mapRed3Geom = mapRed3.map(OSMEntitySnapshot::getGeometry);
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
         Number> result = null;
     switch (requestResource) {
       case COUNT:
-        result = preResult.count();
+        result = mapRed3.count();
         break;
       case LENGTH:
         result =
-            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+            mapRed3Geom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
         break;
       case PERIMETER:
-        result = preResult.sum(geom -> {
+        result = mapRed3Geom.sum(geom -> {
           if (!(geom instanceof Polygonal)) {
             return 0.0;
           }
@@ -1026,7 +1027,7 @@ public class ElementsRequestExecutor {
         break;
       case AREA:
         result =
-            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
+            mapRed3Geom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
         break;
       default:
         break;
