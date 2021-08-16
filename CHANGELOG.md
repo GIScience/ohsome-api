@@ -10,12 +10,12 @@ Changelog
 
 ### Performance Improvements
 
-* avoid unneccessary geometry building for `count/ratio` requests ([#161])
+* avoid unnecessary geometry building for `count/ratio` requests ([#161])
 
 ### Other Changes
 
 * upgrade to OSHDB version 0.7.1 – note that OSHDB database files from the previous version are not compatible with the OSHDB version 0.7 anymore, so you have to either [redownload](https://downloads.ohsome.org/OSHDB/v0.7/) or [recreate](https://github.com/GIScience/oshdb/blob/0.7/oshdb-etl/README.md) them from scratch ([#222], [#225])
-* adapt error message for contributions extration endpoint in case of wrong `time` parameter value ([#208])
+* adapt error message for contributions extraction endpoint in case of wrong `time` parameter value ([#208])
 
 [#161]: https://github.com/GIScience/ohsome-api/pull/161
 [#201]: https://github.com/GIScience/ohsome-api/issues/201
