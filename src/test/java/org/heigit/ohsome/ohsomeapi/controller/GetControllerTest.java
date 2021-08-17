@@ -1328,4 +1328,15 @@ public class GetControllerTest {
         restTemplate.getForEntity(server + port + "/users/count?", JsonNode.class);
     assertEquals(null, response.getBody().get("error"));
   }
+
+  @Test
+  public void getRequestNonUniqueParam() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.getForEntity(
+            server + port + "/users/count?bboxes=8.67452,49.40961,8.70392,49.41823&"
+                + "time=2014-01-01/2015-01-01&filter=type:node&filter=type:way",
+            JsonNode.class);
+    assertEquals(400, response.getStatusCode().value());
+  }
 }
