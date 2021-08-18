@@ -238,8 +238,10 @@ public class ExecutionUtils implements Serializable {
 
     ObjectMapper objMapper = new ObjectMapper();
     objMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8).setCodec(objMapper)
-        .writeObject(osmData);
+    try (var jsonGenerator = jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8)) {
+      jsonGenerator.setCodec(objMapper);
+      jsonGenerator.writeObject(osmData);
+    }
 
     String scaffold =
         tempStream.toString(StandardCharsets.UTF_8).replaceFirst("\\s*]\\s*}\\s*$", "");

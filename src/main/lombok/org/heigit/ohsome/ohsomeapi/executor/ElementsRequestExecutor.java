@@ -898,6 +898,8 @@ public class ElementsRequestExecutor {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
         for (var innerEntry : resultSet) {
+          assert resultValues1 != null;
+          assert resultValues2 != null;
           resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
@@ -1052,6 +1054,8 @@ public class ElementsRequestExecutor {
         int matchesBothCount = 0;
         int timeArrayCount = 0;
         for (var innerEntry : resultSet) {
+          assert resultValues1 != null;
+          assert resultValues2 != null;
           resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
