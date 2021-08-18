@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -726,24 +724,10 @@ public class InputProcessor {
       throw new BadRequestException(
           StringSimilarity.findSimilarParameters(unexpectedParam, possibleParameters));
     }
-    if (servletRequest.getQueryString() != null) {
-      String queryString = servletRequest.getQueryString();
-      String[] queryStringArray = queryString.split("&");
-      List<String> paramsValuesList = Arrays.asList(queryStringArray);
-      List<String> paramsList = new ArrayList<>();
-      String param;
-      for (int i = 0; i < paramsValuesList.size(); i++) {
-        if (!paramsValuesList.get(i).contains("=")) {
-          paramsValuesList.set(i, paramsValuesList.get(i).concat("="));
-        }
-        param = paramsValuesList.get(i).substring(0, paramsValuesList.get(i).indexOf("="));
-        paramsList.add(param);
-      }
-      for (String parameter : paramsList) {
-        if (Collections.frequency(paramsList, parameter) > 1) {
-          throw new BadRequestException("Every parameter has to be unique. "
-              + "You can't give more than one '" + parameter + "' parameter.");
-        }
+    for (var parameter : servletRequest.getParameterMap().entrySet()) {
+      if (parameter.getValue().length != 1) {
+        throw new BadRequestException("Every parameter has to be unique. "
+            + "You can't give more than one '" + parameter + "' parameter.");
       }
     }
   }

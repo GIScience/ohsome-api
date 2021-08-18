@@ -1,6 +1,15 @@
 Changelog
 =========
 
+## 1.7.0-SNAPSHOT (current master)
+
+### Bug Fixes
+
+* fix bug which prevented error messages from being returned for non-unique parameters in POST requests. ([#228])
+
+[#228]: https://github.com/GIScience/ohsome-api/pull/228
+
+
 ## 1.6.0
 
 ### Bug Fixes
