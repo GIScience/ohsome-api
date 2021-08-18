@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 1.6.0-SNAPSHOT (current master)
+## 1.7.0-SNAPSHOT (current master)
 
 ### Bug Fixes
 
