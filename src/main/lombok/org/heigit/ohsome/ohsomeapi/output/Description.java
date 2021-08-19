@@ -117,6 +117,14 @@ public class Description {
     return "Number of performed contributions per time interval.";
   }
 
+  public static String countContributionsGroupByBoundary(boolean isDensity) {
+    if (isDensity) {
+      return "Density of performed contributions per time interval "
+          + "(number of contributions per square-kilometer) aggregated on the boundary.";
+    }
+    return "Number of performed contributions per time interval aggregated on the boundary.";
+  }
+
   private Description() {
     throw new IllegalStateException("Utility class");
   }

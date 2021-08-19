@@ -2,12 +2,16 @@ package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
@@ -16,12 +20,16 @@ import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygonal;
 
 /**
  * Includes the execute method for requests mapped to /contributions/count,
@@ -149,11 +157,80 @@ public class ContributionsExecutor extends RequestExecutor {
         mapRedGroupByEntity = mapRedGroupByEntity.filter(filter.get());
       }
       return contributionsFilter(mapRedGroupByEntity
-          .map(listContrsPerEntity -> listContrsPerEntity.get(listContrsPerEntity.size() - 1)))
+          .map(contributions -> contributions.get(contributions.size() - 1)))
           .aggregateByTimestamp(OSMContribution::getTimestamp).count();
     } else {
       return contributionsFilter(mapRed).aggregateByTimestamp().count();
     }
+  }
+
+  /**
+   * Handler method for count calculation of the endpoints /contributions/count/groupBy/boundary,
+   * etc.
+   *
+   * @return GroupByResponse {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
+   * @throws Exception thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *         processParameters},
+   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #processParameters(ComputeMode) processParameters} and
+   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
+   * @throws UnsupportedOperationException thrown by
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *         #usersCount(MapReducer) usersCount} and
+   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *         #contributionsCount(MapReducer, boolean) contributionsCount}
+   */
+  public <P extends Geometry & Polygonal> Response countGroupByBoundary()
+      throws UnsupportedOperationException, Exception {
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
+    var mapRed = contributionsFilter(inputProcessor.processParameters());
+
+    final var requestParameters = processingData.getRequestParameters();
+    List<Geometry> arrGeoms = processingData.getBoundaryList();
+    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+
+    var mapAgg = mapRed
+        .aggregateByTimestamp()
+        .aggregateByGeometry(geoms);
+
+    var filter = inputProcessor.getProcessingData().getFilterExpression();
+    if (filter.isPresent()) {
+      mapAgg = mapAgg.filter(filter.get());
+    }
+
+    var groupByResult = ExecutionUtils.nest(mapAgg.count());
+    var resultSet = new GroupByResult[groupByResult.size()];
+    var count = 0;
+    InputProcessingUtils utils = inputProcessor.getUtils();
+    Object[] boundaryIds = utils.getBoundaryIds();
+    for (var entry : groupByResult.entrySet()) {
+      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
+          requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
+      resultSet[count] = new GroupByResult(boundaryIds[count], results);
+      count++;
+    }
+    Metadata metadata = null;
+    if (processingData.isShowMetadata()) {
+      long duration = System.currentTimeMillis() - startTime;
+      metadata = new Metadata(duration,
+          Description.countContributionsGroupByBoundary(requestParameters.isDensity()),
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+    }
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
+              processingData.getGeoJsonGeoms()));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      var exeUtils = new ExecutionUtils(processingData);
+      exeUtils.writeCsvResponse(resultSet, servletResponse,
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+      return null;
+    }
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+        resultSet);
   }
 
   /**
