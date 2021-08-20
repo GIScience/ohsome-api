@@ -1013,6 +1013,8 @@ Contributions Aggregation
     * **/count/density**
     * **/latest/count**
     * **/latest/count/density**
+    * **/count/groupBy/boundary**
+    * **/count/density/groupBy/boundary**
 
    :query <other>: see above_
    :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; default: empty;
@@ -1224,7 +1226,7 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 	    }
 	  ]
 	}
-	
+
 .. http:post :: /contributions/latest/count
 
    Get the count of the latest contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
@@ -1432,6 +1434,278 @@ Density of the latest contributions with a geometry change to shops within the o
 	    }
 	  ]
 	}
+
+.. http:post :: /contributions/count/groupBy/boundary
+
+   Get the count of the contributions provided to the OSM data grouped by the specified boundaries of the query. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Number of contributions to shops in different suburbs of Heidelberg (Altstadt and Bahnstadt) between 2010 and 2020.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count/groupBy/boundary?bboxes=Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069&filter=shop=*&time=2010-01-01,2020-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count/groupBy/boundary' --data-urlencode 'bboxes=Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069' --data-urlencode 'time=2010-01-01,2020-01-01' --data-urlencode 'filter=shop=*'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count/groupBy/boundary'
+        data = {"bboxes": "Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069", "time": "2010-01-01,2020-01-01", "filter": "shop=*"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count/groupBy/boundary", encode = "form", body = list(bboxes = "Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069", time = "2010-01-01,2020-01-01", filter = "shop=*"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 2141.0
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 513.0
+      } ]
+    } ]
+  }
+
+   .. code-tab:: json curl (POST)
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 2141.0
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 513.0
+      } ]
+    } ]
+  }
+
+   .. code-tab:: json Python
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 2141.0
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 513.0
+      } ]
+    } ]
+  }
+
+   .. code-tab:: json R
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 2141.0
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2010-01-01T00:00:00Z",
+        "toTimestamp" : "2020-01-01T00:00:00Z",
+        "value" : 513.0
+      } ]
+    } ]
+  }
+
+.. http:post :: /contributions/count/density/groupBy/boundary
+
+   Get the density of the count of contributions in the total query area in counts per square-kilometers grouped by the specified boundaries of the query. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+
+**Example request**:
+
+Density of contributions to shops within different suburbs of Heidelberg (Altstadt and Bahnstadt) between 2012 and 2016.
+
+  .. tabs::
+
+    .. code-tab:: bash curl (GET)
+
+       curl -X GET 'https://api.ohsome.org/v1/contributions/count/density/groupBy/boundary?bboxes=Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069&filter=shop=*%20and%20type:node&time=2012-01-01,2016-01-01'
+
+    .. code-tab:: bash curl (POST)
+
+       curl -X POST 'https://api.ohsome.org/v1/contributions/count/density/groupBy/boundary' --data-urlencode 'bboxes=Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069' --data-urlencode 'time=2012-01-01,2016-01-01' --data-urlencode 'filter=shop=* and type:node'
+
+    .. code-tab:: python Python
+
+        import requests
+        URL = 'https://api.ohsome.org/v1/contributions/count/density/groupBy/boundary'
+        data = {"bboxes": "Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069", "time": "2012-01-01,2016-01-01", "filter": "shop=* and type:node"}
+        response = requests.post(URL, data=data)
+        print(response.json())
+
+    .. code-tab:: r R
+
+        library(httr)
+        r <- POST("https://api.ohsome.org/v1/contributions/count/density/groupBy/boundary", encode = "form", body = list(bboxes = "Heidelberg-Altstadt:8.6924,49.4066,8.7189,49.4154|Heidelberg-Bahnstadt:8.6566,49.3968,8.6776,49.4069", time = "2012-01-01,2016-01-01", filter = "shop=* and type:node"))
+        r
+
+**Example response**:
+
+  .. tabs::
+
+   .. code-tab:: json curl (GET)
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 256.09
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 108.05
+      } ]
+    } ]
+  }
+
+   .. code-tab:: json curl (POST)
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 256.09
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 108.05
+      } ]
+    } ]
+  }
+
+   .. code-tab:: json Python
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 256.09
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 108.05
+      } ]
+    } ]
+  }
+
+   .. code-tab:: json R
+
+	{
+    "attribution" : {
+      "url" : "https://ohsome.org/copyrights",
+      "text" : "© OpenStreetMap contributors"
+    },
+    "apiVersion" : "1.6.0-SNAPSHOT",
+    "groupByResult" : [ {
+      "groupByObject" : "Heidelberg-Altstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 256.09
+      } ]
+    }, {
+      "groupByObject" : "Heidelberg-Bahnstadt",
+      "result" : [ {
+        "fromTimestamp" : "2012-01-01T00:00:00Z",
+        "toTimestamp" : "2016-01-01T00:00:00Z",
+        "value" : 108.05
+      } ]
+    } ]
+  }
 
 Elements Extraction
 -------------------
