@@ -25,8 +25,10 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
+import org.heigit.ohsome.oshdb.util.function.SerializablePredicate;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
@@ -156,11 +158,13 @@ public class ContributionsExecutor extends RequestExecutor {
       if (filter.isPresent()) {
         mapRedGroupByEntity = mapRedGroupByEntity.filter(filter.get());
       }
-      return contributionsFilter(mapRedGroupByEntity
-          .map(contributions -> contributions.get(contributions.size() - 1)))
-          .aggregateByTimestamp(OSMContribution::getTimestamp).count();
+      return mapRedGroupByEntity
+          .map(contributions -> contributions.get(contributions.size() - 1))
+          .filter(contributionsFilter())
+          .aggregateByTimestamp(OSMContribution::getTimestamp)
+          .count();
     } else {
-      return contributionsFilter(mapRed).aggregateByTimestamp().count();
+      return mapRed.filter(contributionsFilter()).aggregateByTimestamp().count();
     }
   }
 
@@ -184,8 +188,8 @@ public class ContributionsExecutor extends RequestExecutor {
   public <P extends Geometry & Polygonal> Response countGroupByBoundary()
       throws UnsupportedOperationException, Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
-    var mapRed = contributionsFilter(inputProcessor.processParameters());
 
+    var mapRed = inputProcessor.processParameters();
     final var requestParameters = processingData.getRequestParameters();
     List<Geometry> arrGeoms = processingData.getBoundaryList();
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
@@ -194,12 +198,14 @@ public class ContributionsExecutor extends RequestExecutor {
 
     var mapAgg = mapRed
         .aggregateByTimestamp()
-        .aggregateByGeometry(geoms);
+        .aggregateByGeometry(geoms)
+        .map(OSMContribution.class::cast);
 
     var filter = inputProcessor.getProcessingData().getFilterExpression();
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
+    mapAgg = mapAgg.filter(contributionsFilter());
 
     var groupByResult = ExecutionUtils.nest(mapAgg.count());
     var resultSet = new GroupByResult[groupByResult.size()];
@@ -234,15 +240,15 @@ public class ContributionsExecutor extends RequestExecutor {
   }
 
   /**
-   * Filters contributions by contribution type.
+   * Returns a function to filter contributions by contribution type.
    *
-   * @param mapRed a MapReducer to be filtered
-   * @return MapReducer filtered by contribution type
+   * @return a lambda method implementing the filter which can be passed to
+   *         {@link Mappable#filter(SerializablePredicate)}
    */
-  private MapReducer<OSMContribution> contributionsFilter(MapReducer<OSMContribution> mapRed) {
+  private SerializablePredicate<OSMContribution> contributionsFilter() {
     String types = servletRequest.getParameter("contributionType");
     if (types == null) {
-      return mapRed;
+      return ignored -> true;
     }
     types = types.toUpperCase();
     List<ContributionType> contributionTypes = new ArrayList<>();
@@ -265,6 +271,6 @@ public class ContributionsExecutor extends RequestExecutor {
               + "'geometryChange', 'tagChange' or a combination of them");
       }
     }
-    return mapRed.filter(contr -> contributionTypes.stream().anyMatch(contr::is));
+    return contr -> contributionTypes.stream().anyMatch(contr::is);
   }
 }
