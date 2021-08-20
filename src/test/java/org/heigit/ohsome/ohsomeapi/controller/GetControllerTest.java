@@ -763,6 +763,22 @@ public class GetControllerTest {
         deltaPercentage);
   }
 
+  @Test
+  public void contributionsLatestCountGroupByBoundary() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/contributions/count/groupBy/boundary?"
+            + "bboxes=8.68677,49.39716,8.69004,49.39884|8.71922,49.41442,8.72248,49.4161&"
+            + "contributionType=tagchange&filter=type:node and railway in (halt, station)&"
+            + "format=geojson&time=2008-01-01,2019-01-01",
+        JsonNode.class);
+    assertEquals(2, response.getBody().get("features").size());
+    assertEquals(7,
+        response.getBody().get("features").get(0).get("properties").get("value").asInt());
+    assertEquals(12,
+        response.getBody().get("features").get(1).get("properties").get("value").asInt());
+  }
+
   /*
    * csv output tests start here
    */
