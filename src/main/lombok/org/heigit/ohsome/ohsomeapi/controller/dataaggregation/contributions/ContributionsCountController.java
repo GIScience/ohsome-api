@@ -126,7 +126,7 @@ public class ContributionsCountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse GroupByResponse}
-   * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary()}
+   * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary(boolean)}
    */
   @ApiOperation(
       value = "Count of OSM contributions grouped by boundary (bboxes, bcirlces, or bpolys)",
@@ -140,7 +140,7 @@ public class ContributionsCountController {
   public Response contributionsCountGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
-    return executor.countGroupByBoundary();
+    return executor.countGroupByBoundary(false);
   }
 
   /**
@@ -149,7 +149,7 @@ public class ContributionsCountController {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse GroupByResponse}
-   * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary()}
+   * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary(boolean)}
    */
   @ApiOperation(
       value =
@@ -164,6 +164,6 @@ public class ContributionsCountController {
   public Response contributionsCountDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
-    return executor.countGroupByBoundary();
+    return executor.countGroupByBoundary(false);
   }
 }

@@ -24,6 +24,7 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
@@ -169,8 +170,8 @@ public class ContributionsExecutor extends RequestExecutor {
   }
 
   /**
-   * Handler method for count calculation of the endpoints /contributions/count/groupBy/boundary,
-   * etc.
+   * Handler method for count calculation of the endpoints
+   * /contributions/count/[density/]groupBy/boundary and /users/count/[density/]groupBy/boundary.
    *
    * @return GroupByResponse {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
@@ -185,7 +186,7 @@ public class ContributionsExecutor extends RequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
    *         #contributionsCount(MapReducer, boolean) contributionsCount}
    */
-  public <P extends Geometry & Polygonal> Response countGroupByBoundary()
+  public <P extends Geometry & Polygonal> Response countGroupByBoundary(boolean isUsersRequest)
       throws UnsupportedOperationException, Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
 
@@ -205,9 +206,13 @@ public class ContributionsExecutor extends RequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    mapAgg = mapAgg.filter(contributionsFilter());
-
-    var groupByResult = ExecutionUtils.nest(mapAgg.count());
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result;
+    if (isUsersRequest) {
+      result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
+    } else {
+      result = mapAgg.filter(contributionsFilter()).count();
+    }
+    var groupByResult = ExecutionUtils.nest(result);
     var resultSet = new GroupByResult[groupByResult.size()];
     var count = 0;
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -221,8 +226,13 @@ public class ContributionsExecutor extends RequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          Description.countContributionsGroupByBoundary(requestParameters.isDensity()),
+      String description;
+      if (isUsersRequest) {
+        description = Description.countUsersGroupByBoundary(requestParameters.isDensity());
+      } else {
+        description = Description.countContributionsGroupByBoundary(requestParameters.isDensity());
+      }
+      metadata = new Metadata(duration, description,
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {

@@ -39,8 +39,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ContributionsExecutor executor =
-        new ContributionsExecutor(servletRequest, servletResponse, false);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count(true, false);
   }
 
@@ -123,7 +122,8 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, false);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
+    return executor.countGroupByBoundary(true);
   }
 
   /**
@@ -145,8 +145,7 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ContributionsExecutor executor =
-        new ContributionsExecutor(servletRequest, servletResponse, true);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.count(true, false);
   }
 
@@ -209,6 +208,7 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return UsersRequestExecutor.countGroupByBoundary(servletRequest, servletResponse, true);
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
+    return executor.countGroupByBoundary(true);
   }
 }
