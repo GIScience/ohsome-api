@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
@@ -186,16 +186,20 @@ public class ContributionsExecutor extends RequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
    *         #contributionsCount(MapReducer, boolean) contributionsCount}
    */
-  public <P extends Geometry & Polygonal> Response countGroupByBoundary(boolean isUsersRequest)
+  public <P extends Geometry & Polygonal, V extends Comparable<V> & Serializable> Response
+      countGroupByBoundary(boolean isUsersRequest)
       throws UnsupportedOperationException, Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
 
     var mapRed = inputProcessor.processParameters();
     final var requestParameters = processingData.getRequestParameters();
     List<Geometry> arrGeoms = processingData.getBoundaryList();
-    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    var arrGeomIds = inputProcessor.getUtils().getBoundaryIds();
+    @SuppressWarnings("unchecked")
+    // intentionally "unchecked" as check for P on Polygonal is already performed, and type of
+    // geomIds are either Strings or Integers which are both comparable and serializable
+    Map<V, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> (V) arrGeomIds[idx], idx -> (P) arrGeoms.get(idx)));
 
     var mapAgg = mapRed
         .aggregateByTimestamp()
@@ -206,23 +210,17 @@ public class ContributionsExecutor extends RequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
     if (isUsersRequest) {
       result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
     } else {
       result = mapAgg.filter(contributionsFilter()).count();
     }
     var groupByResult = ExecutionUtils.nest(result);
-    var resultSet = new GroupByResult[groupByResult.size()];
-    var count = 0;
-    InputProcessingUtils utils = inputProcessor.getUtils();
-    Object[] boundaryIds = utils.getBoundaryIds();
-    for (var entry : groupByResult.entrySet()) {
-      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
-      resultSet[count] = new GroupByResult(boundaryIds[count], results);
-      count++;
-    }
+    var resultSet = groupByResult.entrySet().stream().map(entry ->
+        new GroupByResult(entry.getKey(), ExecutionUtils.fillContributionsResult(entry.getValue(),
+            requestParameters.isDensity(), inputProcessor, df, geoms.get(entry.getKey())
+    ))).toArray(GroupByResult[]::new);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
