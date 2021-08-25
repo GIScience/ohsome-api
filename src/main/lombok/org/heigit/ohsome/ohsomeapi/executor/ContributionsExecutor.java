@@ -190,7 +190,6 @@ public class ContributionsExecutor extends RequestExecutor {
       countGroupByBoundary(boolean isUsersRequest)
       throws UnsupportedOperationException, Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
-
     var mapRed = inputProcessor.processParameters();
     final var requestParameters = processingData.getRequestParameters();
     List<Geometry> arrGeoms = processingData.getBoundaryList();
