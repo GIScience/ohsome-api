@@ -40,6 +40,7 @@ import org.locationtech.jts.geom.Polygonal;
  * and /users/count.
  */
 public class ContributionsExecutor extends RequestExecutor {
+  private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
 
   private final InputProcessor inputProcessor;
   private final ProcessingData processingData;
@@ -161,11 +162,14 @@ public class ContributionsExecutor extends RequestExecutor {
       }
       return mapRedGroupByEntity
           .map(contributions -> contributions.get(contributions.size() - 1))
-          .filter(contributionsFilter())
+          .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
           .aggregateByTimestamp(OSMContribution::getTimestamp)
           .count();
     } else {
-      return mapRed.filter(contributionsFilter()).aggregateByTimestamp().count();
+      return mapRed
+          .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+          .aggregateByTimestamp()
+          .count();
     }
   }
 
@@ -213,7 +217,9 @@ public class ContributionsExecutor extends RequestExecutor {
     if (isUsersRequest) {
       result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
     } else {
-      result = mapAgg.filter(contributionsFilter()).count();
+      result = mapAgg
+          .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+          .count();
     }
     var groupByResult = ExecutionUtils.nest(result);
     var resultSet = groupByResult.entrySet().stream().map(entry ->
@@ -249,11 +255,11 @@ public class ContributionsExecutor extends RequestExecutor {
   /**
    * Returns a function to filter contributions by contribution type.
    *
+   * @param types the parameter string containing the to-be-filtered contribution types
    * @return a lambda method implementing the filter which can be passed to
    *         {@link Mappable#filter(SerializablePredicate)}
    */
-  private SerializablePredicate<OSMContribution> contributionsFilter() {
-    String types = servletRequest.getParameter("contributionType");
+  static SerializablePredicate<OSMContribution> contributionsFilter(String types) {
     if (types == null) {
       return ignored -> true;
     }
