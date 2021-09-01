@@ -1437,7 +1437,7 @@ Density of the latest contributions with a geometry change to shops within the o
 
 .. http:post :: /contributions/count/groupBy/boundary
 
-   Get the count of the contributions provided to the OSM data grouped by the specified boundaries of the query. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+  Get the count of the contributions provided to the OSM data grouped by the specified boundaries of the query. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
 
 **Example request**:
 
@@ -1474,102 +1474,102 @@ Number of contributions to shops in different suburbs of Heidelberg (Altstadt an
    .. code-tab:: json curl (GET)
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 2141.0
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 513.0
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 2141.0
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 513.0
+			} ]
+		} ]
+	}
 
    .. code-tab:: json curl (POST)
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 2141.0
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 513.0
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 2141.0
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 513.0
+			} ]
+		} ]
+	}
 
    .. code-tab:: json Python
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 2141.0
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 513.0
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 2141.0
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 513.0
+			} ]
+		} ]
+	}
 
    .. code-tab:: json R
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 2141.0
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2010-01-01T00:00:00Z",
-        "toTimestamp" : "2020-01-01T00:00:00Z",
-        "value" : 513.0
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 2141.0
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2010-01-01T00:00:00Z",
+				"toTimestamp" : "2020-01-01T00:00:00Z",
+				"value" : 513.0
+			} ]
+		} ]
+	}
 
 .. http:post :: /contributions/count/density/groupBy/boundary
 
@@ -1610,102 +1610,102 @@ Density of contributions to shops within different suburbs of Heidelberg (Altsta
    .. code-tab:: json curl (GET)
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 256.09
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 108.05
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 256.09
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 108.05
+			} ]
+		} ]
+	}
 
    .. code-tab:: json curl (POST)
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 256.09
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 108.05
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 256.09
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 108.05
+			} ]
+		} ]
+	}
 
    .. code-tab:: json Python
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 256.09
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 108.05
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 256.09
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 108.05
+			} ]
+		} ]
+	}
 
    .. code-tab:: json R
 
 	{
-    "attribution" : {
-      "url" : "https://ohsome.org/copyrights",
-      "text" : "© OpenStreetMap contributors"
-    },
-    "apiVersion" : "1.6.0-SNAPSHOT",
-    "groupByResult" : [ {
-      "groupByObject" : "Heidelberg-Altstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 256.09
-      } ]
-    }, {
-      "groupByObject" : "Heidelberg-Bahnstadt",
-      "result" : [ {
-        "fromTimestamp" : "2012-01-01T00:00:00Z",
-        "toTimestamp" : "2016-01-01T00:00:00Z",
-        "value" : 108.05
-      } ]
-    } ]
-  }
+		"attribution" : {
+			"url" : "https://ohsome.org/copyrights",
+			"text" : "© OpenStreetMap contributors"
+		},
+		"apiVersion" : "1.6.0-SNAPSHOT",
+		"groupByResult" : [ {
+			"groupByObject" : "Heidelberg-Altstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 256.09
+			} ]
+		}, {
+			"groupByObject" : "Heidelberg-Bahnstadt",
+			"result" : [ {
+				"fromTimestamp" : "2012-01-01T00:00:00Z",
+				"toTimestamp" : "2016-01-01T00:00:00Z",
+				"value" : 108.05
+			} ]
+		} ]
+	}
 
 Elements Extraction
 -------------------
