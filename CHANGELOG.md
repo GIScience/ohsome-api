@@ -5,7 +5,7 @@ Changelog
 
 ### New Features
 
-* add `contributions/count[/density]groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
+* add `contributions/count[/density]/groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
 
 ### Bug Fixes
 

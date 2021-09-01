@@ -1011,10 +1011,10 @@ Contributions Aggregation
     
     * **/count**
     * **/count/density**
-    * **/latest/count**
-    * **/latest/count/density**
     * **/count/groupBy/boundary**
     * **/count/density/groupBy/boundary**
+    * **/latest/count**
+    * **/latest/count/density**
 
    :query <other>: see above_
    :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; default: empty;
@@ -1478,7 +1478,7 @@ Number of contributions to shops in different suburbs of Heidelberg (Altstadt an
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1503,7 +1503,7 @@ Number of contributions to shops in different suburbs of Heidelberg (Altstadt an
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1528,7 +1528,7 @@ Number of contributions to shops in different suburbs of Heidelberg (Altstadt an
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1553,7 +1553,7 @@ Number of contributions to shops in different suburbs of Heidelberg (Altstadt an
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1614,7 +1614,7 @@ Density of contributions to shops within different suburbs of Heidelberg (Altsta
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1639,7 +1639,7 @@ Density of contributions to shops within different suburbs of Heidelberg (Altsta
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1664,7 +1664,7 @@ Density of contributions to shops within different suburbs of Heidelberg (Altsta
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
@@ -1689,7 +1689,7 @@ Density of contributions to shops within different suburbs of Heidelberg (Altsta
 			"url" : "https://ohsome.org/copyrights",
 			"text" : "© OpenStreetMap contributors"
 		},
-		"apiVersion" : "1.6.0-SNAPSHOT",
+		"apiVersion" : "1.7.0-SNAPSHOT",
 		"groupByResult" : [ {
 			"groupByObject" : "Heidelberg-Altstadt",
 			"result" : [ {
