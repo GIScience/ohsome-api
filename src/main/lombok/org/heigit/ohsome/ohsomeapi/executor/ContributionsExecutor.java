@@ -207,6 +207,9 @@ public class ContributionsExecutor extends RequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
+    if (isUsersRequest && processingData.isContainingSimpleFeatureTypes()) {
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
     if (isUsersRequest) {
       result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
