@@ -30,6 +30,9 @@ public class Description {
       ", aggregated on the type.";
   private static final String AGGREGATED_ON_THE_KEY =
       ", aggregated on the key.";
+  public static final String RATIO = " satisfying the filter2 parameter (= value2 output),"
+      + " as well as items selected by the filter parameter (= value output)"
+      + " and the quotient (= ratio output) of value2 to value";
 
   public static String aggregate(boolean isDensity, String label, String unit) {
     if (isDensity) {
@@ -82,17 +85,11 @@ public class Description {
   }
 
   public static String aggregateRatio(String label, String unit) {
-    return String.format(NUMBER_OF_ITEMS_IN_UNIT, label, unit)
-        + " satisfying types2, keys2, values2 parameters (= value2 output),"
-        + " as well as items selected by types, keys, values parameters (= value output)"
-        + " and ratio of value2:value.";
+    return String.format(NUMBER_OF_ITEMS_IN_UNIT, label, unit) + RATIO + ".";
   }
 
   public static String aggregateRatioGroupByBoundary(String label, String unit) {
-    return String.format(NUMBER_OF_ITEMS_IN_UNIT, label, unit)
-        + " satisfying types2, keys2, values2 parameters (= value2 output), as well as items"
-        + " selected by types, keys, values parameters (= value output) and ratio of value2:value"
-        + AGGREGATED_ON_THE_BOUNDARY;
+    return String.format(NUMBER_OF_ITEMS_IN_UNIT, label, unit) + RATIO + AGGREGATED_ON_THE_BOUNDARY;
   }
 
   public static String countUsers(boolean isDensity) {
