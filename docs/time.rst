@@ -27,3 +27,8 @@ detailed information on timestamp formats and how to use the earliest/latest tim
 
 .. note:: If ``-MM-DD`` or just ``-DD`` is not given, ``01`` is used as default for month and day. If ``Thh:mm:ss`` is not given, ``00:00:00Z`` is used as a default for the time.
           If the time parameter is undefined, the latest available timestamp within the underlying OSHDB is used per default. It reflects the time of the last edit in the current data set.
+
+.. note:: If you use the time interval syntax and use an end timestamp that does not perfectly align with the given start
+          timestamp and period, you will get a response where the last result has as an end timestamp value which is the
+          start timestamp plus a multiple of the period, and not one equal to the given end time. For example, if you
+          use ``2010-01-01/2012-02-01/P1Y``, the actually used final timestamp will be ``2012-01-01``.
