@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.SortedMap;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -18,7 +14,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -30,19 +25,15 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
-import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Polygonal;
 
 /** Includes the execute methods for requests mapped to /users. */
 public class UsersRequestExecutor {
@@ -256,64 +247,6 @@ public class UsersRequestExecutor {
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
     if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
-      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-      exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
-      return null;
-    }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-        resultSet);
-  }
-
-  /** Performs a count calculation grouped by the boundary. */
-  public static <P extends Geometry & Polygonal> Response countGroupByBoundary(
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity)
-      throws Exception {
-    long startTime = System.currentTimeMillis();
-    MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    inputProcessor.getProcessingData().setGroupByBoundary(true);
-    mapRed = inputProcessor.processParameters();
-    ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    List<Geometry> arrGeoms = processingData.getBoundaryList();
-    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMContribution> mapAgg =
-        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.isContainingSimpleFeatureTypes()) {
-      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
-    }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent()) {
-      mapAgg = mapAgg.filter(filter.get());
-    }
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result =
-        mapAgg.map(OSMContribution::getContributorUserId).countUniq();
-    SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
-    groupByResult = ExecutionUtils.nest(result);
-    GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    int count = 0;
-    InputProcessingUtils utils = inputProcessor.getUtils();
-    Object[] boundaryIds = utils.getBoundaryIds();
-    for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
-      ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df, arrGeoms.get(count));
-      resultSet[count] = new GroupByResult(boundaryIds[count], results);
-      count++;
-    }
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, Description.countUsersGroupByBoundary(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
-    }
-    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
-      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
-          "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
-              processingData.getGeoJsonGeoms()));
-    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));

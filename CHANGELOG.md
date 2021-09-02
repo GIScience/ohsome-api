@@ -3,11 +3,18 @@ Changelog
 
 ## 1.7.0-SNAPSHOT (current master)
 
+### New Features
+
+* add `contributions/count[/density]/groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
+
 ### Bug Fixes
 
-* fix bug which prevented error messages from being returned for non-unique parameters in POST requests. ([#228])
+* fix bug which prevented error messages from being returned for non-unique parameters in POST requests ([#228])
+* fix a regression causing `…/groupBy/boundary` to crash when used with a geometry type filter using the (deprecated) types/keys/values parameter syntax ([#230])
 
+[#217]: https://github.com/GIScience/ohsome-api/issues/217
 [#228]: https://github.com/GIScience/ohsome-api/pull/228
+[#230]: https://github.com/GIScience/ohsome-api/pull/230
 
 
 ## 1.6.0

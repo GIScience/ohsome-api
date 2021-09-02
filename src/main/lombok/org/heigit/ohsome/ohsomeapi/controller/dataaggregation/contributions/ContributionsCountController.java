@@ -10,6 +10,7 @@ import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,6 +73,27 @@ public class ContributionsCountController {
   }
 
   /**
+   * Gives the count of latest OSM contributions.
+   *
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link DefaultAggregationResponse}
+   * @throws Exception thrown by {@link ContributionsExecutor#count(boolean,boolean)}
+   */
+  @ApiOperation(value = "Count of latest OSM contributions", nickname = "contributionsLatestCount",
+      response = DefaultAggregationResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/latest/count", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = {"application/json", "text/csv"})
+  public Response contributionsLatestCount(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
+    return executor.count(false, true);
+  }
+
+  /**
    * Gives the density of latest OSM contributions.
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
@@ -97,25 +119,49 @@ public class ContributionsCountController {
   }
 
   /**
-   * Gives the count of latest OSM contributions.
+   * Gives the count of OSM contributions grouped by boundary (bboxes, bcirlces, or bpolys).
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #count (boolean,boolean) count}
+   * @return {@link GroupByResponse}
+   * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary(boolean)}
    */
-  @ApiOperation(value = "Count of latest OSM contributions", nickname = "contributionsLatestCount",
-      response = DefaultAggregationResponse.class)
+  @ApiOperation(
+      value = "Count of OSM contributions grouped by boundary (bboxes, bcirlces, or bpolys)",
+      nickname = "contributionsCountGroupByBoundary",
+      response = GroupByResponse.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/latest/count", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response contributionsLatestCount(HttpServletRequest servletRequest,
+  @RequestMapping(value = "/count/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response contributionsCountGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
-    return executor.count(false, true);
+    return executor.countGroupByBoundary(false);
+  }
+
+  /**
+   * Gives the count density of OSM contributions grouped by boundary (bboxes, bcirlces, or bpolys).
+   *
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link GroupByResponse}
+   * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary(boolean)}
+   */
+  @ApiOperation(
+      value =
+          "Count density of OSM contributions grouped by boundary (bboxes, bcirlces, or bpolys)",
+      nickname = "contributionsCountDensityGroupByBoundary",
+      response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/count/density/groupBy/boundary",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response contributionsCountDensityGroupByBoundary(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse) throws Exception {
+    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
+    return executor.countGroupByBoundary(false);
   }
 }

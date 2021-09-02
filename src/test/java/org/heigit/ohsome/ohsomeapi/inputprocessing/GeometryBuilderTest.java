@@ -14,9 +14,7 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
 /**
- * Test class for the
- * {@link org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder
- * GeometryBuilder} class.
+ * Test class for the {@link GeometryBuilder GeometryBuilder} class.
  */
 public class GeometryBuilderTest {
 
