@@ -77,10 +77,8 @@ public class ContributionsCountController {
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse
-   *         DefaultAggregationResponse}
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #count (boolean,boolean) count}
+   * @return {@link DefaultAggregationResponse}
+   * @throws Exception thrown by {@link ContributionsExecutor#count(boolean,boolean)}
    */
   @ApiOperation(value = "Count of latest OSM contributions", nickname = "contributionsLatestCount",
       response = DefaultAggregationResponse.class)
@@ -125,7 +123,7 @@ public class ContributionsCountController {
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse GroupByResponse}
+   * @return {@link GroupByResponse}
    * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary(boolean)}
    */
   @ApiOperation(
@@ -148,7 +146,7 @@ public class ContributionsCountController {
    *
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse GroupByResponse}
+   * @return {@link GroupByResponse}
    * @throws Exception thrown by {@link ContributionsExecutor#countGroupByBoundary(boolean)}
    */
   @ApiOperation(

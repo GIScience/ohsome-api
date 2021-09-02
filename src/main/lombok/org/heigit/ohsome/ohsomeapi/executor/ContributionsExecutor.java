@@ -184,15 +184,9 @@ public class ContributionsExecutor extends RequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters(ComputeMode) processParameters} and
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
-   * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #usersCount(MapReducer) usersCount} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #contributionsCount(MapReducer, boolean) contributionsCount}
    */
   public <P extends Geometry & Polygonal, V extends Comparable<V> & Serializable> Response
-      countGroupByBoundary(boolean isUsersRequest)
-      throws UnsupportedOperationException, Exception {
+      countGroupByBoundary(boolean isUsersRequest) throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     var mapRed = inputProcessor.processParameters();
     final var requestParameters = processingData.getRequestParameters();

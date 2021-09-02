@@ -58,7 +58,7 @@ public class Description {
   }
 
   public static String aggregateGroupByUser(String label, String unit) {
-    return "Total " + label + " of items in " + unit + AGGREGATED_ON_THE_USER;
+    return String.format(NUMBER_OF_ITEMS_IN_UNIT, label, unit) + AGGREGATED_ON_THE_USER;
   }
 
   public static String aggregateGroupByTag(boolean isDensity, String label, String unit) {
