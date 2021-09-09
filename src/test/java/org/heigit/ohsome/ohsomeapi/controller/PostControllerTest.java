@@ -123,7 +123,6 @@ public class PostControllerTest {
                     JsonNode.class);
     String errorMessage = "The query did not specify any parameter. Please remember: "
             + ExceptionMessages.NO_BOUNDARY;
-    System.out.println("rosariotest " + response.getBody().get("message").asText());
     assertEquals(errorMessage, response.getBody().get("message").asText());
   }
 
