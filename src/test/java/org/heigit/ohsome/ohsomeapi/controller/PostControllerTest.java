@@ -112,8 +112,20 @@ public class PostControllerTest {
   }
 
   /*
-   * false parameter tests
+   * false parameter and no parameters tests
    */
+
+  @Test
+  public void queryWithoutParametersTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+            restTemplate.postForEntity(server + port + "/elements/perimeter", null,
+                    JsonNode.class);
+    String errorMessage = "The query did not specify any parameter. Please remember: "
+            + ExceptionMessages.NO_BOUNDARY;
+    System.out.println("rosariotest " + response.getBody().get("message").asText());
+    assertEquals(errorMessage, response.getBody().get("message").asText());
+  }
 
   @Test
   public void postGeneralResourceWithFalseParameterTest() {

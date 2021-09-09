@@ -709,13 +709,18 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if there are false or repeated parameters in the request. It suggests possible
-   * parameters based on fuzzy matching scores.
+   * Checks, if the request does not specify any parameter or if it specifies false or repeated
+   * parameters. In case of false or repeated parameters, it suggests possible parameters based on
+   * fuzzy matching scores.
    *
-   * @throws BadRequestException in case of invalid parameter or if a parameter is given more than
-   *         once
+   * @throws BadRequestException in case of no parameters, invalid parameters or if parameters are
+   *     given more than once.
    */
   private void checkParameters(HttpServletRequest servletRequest) {
+    if (servletRequest.getParameterMap().isEmpty()) {
+      throw new BadRequestException("The query did not specify any parameter. Please remember: "
+              + ExceptionMessages.NO_BOUNDARY);
+    }
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
     List<String> unexpectedParams =
         ResourceParameters.checkUnexpectedParams(servletRequest, possibleParameters);
