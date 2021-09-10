@@ -120,8 +120,7 @@ public class PostControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/perimeter", null, JsonNode.class);
-    String errorMessage = ExceptionMessages.NO_DEFINED_PARAMS + ExceptionMessages.NO_BOUNDARY;
-    assertEquals(errorMessage, response.getBody().get("message").asText());
+    assertEquals(ExceptionMessages.NO_DEFINED_PARAMS, response.getBody().get("message").asText());
   }
 
   @Test

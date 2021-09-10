@@ -718,8 +718,7 @@ public class InputProcessor {
    */
   private void checkParameters(HttpServletRequest servletRequest) {
     if (servletRequest.getParameterMap().isEmpty()) {
-      throw new BadRequestException(ExceptionMessages.NO_DEFINED_PARAMS
-          + ExceptionMessages.NO_BOUNDARY);
+      throw new BadRequestException(ExceptionMessages.NO_DEFINED_PARAMS);
     }
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
     List<String> unexpectedParams =
