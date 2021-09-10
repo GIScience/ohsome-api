@@ -718,8 +718,8 @@ public class InputProcessor {
    */
   private void checkParameters(HttpServletRequest servletRequest) {
     if (servletRequest.getParameterMap().isEmpty()) {
-      throw new BadRequestException("The query did not specify any parameter. Please remember: "
-              + ExceptionMessages.NO_BOUNDARY);
+      throw new BadRequestException(ExceptionMessages.NO_DEFINED_PARAMS
+          + ExceptionMessages.NO_BOUNDARY);
     }
     List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
     List<String> unexpectedParams =

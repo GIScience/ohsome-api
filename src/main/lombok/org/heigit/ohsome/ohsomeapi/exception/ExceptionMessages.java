@@ -35,6 +35,8 @@ public class ExceptionMessages {
       "You need to give one groupByKeys parameter, if you want to use groupBy/key.";
   public static final String KEYS_VALUES_RATIO_INVALID = "There cannot be more input values in the "
       + "values|values2 than in the keys|keys2 parameter, as values_n must fit to keys_n.";
+  public static final String NO_DEFINED_PARAMS = "The query did not specify any parameter. "
+          + "Please remember: ";
   public static final String NO_BOUNDARY =
       "You need to define one of the boundary parameters (bboxes, bcircles, bpolys).";
   public static final String PAYLOAD_TOO_LARGE =

@@ -119,10 +119,8 @@ public class PostControllerTest {
   public void queryWithoutParametersTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response =
-            restTemplate.postForEntity(server + port + "/elements/perimeter", null,
-                    JsonNode.class);
-    String errorMessage = "The query did not specify any parameter. Please remember: "
-            + ExceptionMessages.NO_BOUNDARY;
+        restTemplate.postForEntity(server + port + "/elements/perimeter", null, JsonNode.class);
+    String errorMessage = ExceptionMessages.NO_DEFINED_PARAMS + ExceptionMessages.NO_BOUNDARY;
     assertEquals(errorMessage, response.getBody().get("message").asText());
   }
 
