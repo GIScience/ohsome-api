@@ -6,6 +6,7 @@ Changelog
 ### New Features
 
 * add `contributions/count[/density]/groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
+* add error message in cases of queries without defined parameter [#233]
 
 ### Bug Fixes
 
@@ -15,7 +16,7 @@ Changelog
 [#217]: https://github.com/GIScience/ohsome-api/issues/217
 [#228]: https://github.com/GIScience/ohsome-api/pull/228
 [#230]: https://github.com/GIScience/ohsome-api/pull/230
-
+[#233]: https://github.com/GIScience/ohsome-api/issues/227
 
 ## 1.6.0
 
