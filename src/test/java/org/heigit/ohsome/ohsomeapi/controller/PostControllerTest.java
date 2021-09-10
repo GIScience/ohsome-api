@@ -112,8 +112,16 @@ public class PostControllerTest {
   }
 
   /*
-   * false parameter tests
+   * false parameter and no parameters tests
    */
+
+  @Test
+  public void queryWithoutParametersTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response =
+        restTemplate.postForEntity(server + port + "/elements/perimeter", null, JsonNode.class);
+    assertEquals(ExceptionMessages.NO_DEFINED_PARAMS, response.getBody().get("message").asText());
+  }
 
   @Test
   public void postGeneralResourceWithFalseParameterTest() {
