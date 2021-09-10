@@ -6,7 +6,7 @@ Changelog
 ### New Features
 
 * add `contributions/count[/density]/groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
-* add error message in cases of queries without defined parameter [#233]
+* add an error message for requests without defined parameters. [#233]
 
 ### Bug Fixes
 
