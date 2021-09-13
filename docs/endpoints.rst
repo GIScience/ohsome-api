@@ -2040,6 +2040,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2073,6 +2074,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2115,6 +2117,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2148,6 +2151,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2190,6 +2194,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2223,6 +2228,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2265,6 +2271,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/323191854",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2298,6 +2305,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
           },
           "properties" : {
             "@changesetId" : 83099383,
+            "@contributionChangesetId" : 83099383,
             "@osmId" : "node/5400804545",
             "@osmType" : "NODE",
             "@tagChange" : true,
@@ -2386,6 +2394,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
+            "@contributionChangesetId" : 85604249,
             "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
@@ -2398,6 +2407,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
+            "@contributionChangesetId" : 51902131,
             "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
@@ -2433,6 +2443,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
+            "@contributionChangesetId" : 85604249,
             "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
@@ -2445,6 +2456,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
+            "@contributionChangesetId" : 51902131,
             "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
@@ -2480,6 +2492,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
+            "@contributionChangesetId" : 85604249,
             "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
@@ -2492,6 +2505,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
+            "@contributionChangesetId" : 51902131,
             "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
@@ -2527,6 +2541,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           },
           "properties" : {
             "@changesetId" : 85604249,
+            "@contributionChangesetId" : 85604249,
             "@geometryChange" : true,
             "@osmId" : "way/795435536",
             "@osmType" : "WAY",
@@ -2539,6 +2554,7 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
           "geometry" : null,
           "properties" : {
             "@changesetId" : 51902131,
+            "@contributionChangesetId" : 51902131,
             "@deletion" : true,
             "@osmId" : "way/135635599",
             "@osmType" : "WAY",
