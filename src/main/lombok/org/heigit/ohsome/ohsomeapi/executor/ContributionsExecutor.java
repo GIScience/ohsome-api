@@ -136,7 +136,10 @@ public class ContributionsExecutor extends RequestExecutor {
    */
   private SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
       throws UnsupportedOperationException, Exception {
-    return mapRed.aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
+    //TODO
+    mapRed.filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER))).collect().forEach(x -> System.out.println(x.getContributorUserId() + " " + x.getContributionTypes() + " " + x.getTimestamp()));
+    return mapRed.filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+            .aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
   }
 
   /**

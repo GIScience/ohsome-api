@@ -44,14 +44,15 @@ public class ResourceParameters {
       possibleParams.add("properties");
       possibleParams.add("clipGeometry");
     }
-    if (uri.contains("/contributions")) {
-      if (uri.contains("/count")) {
-        possibleParams.add("contributionType");
-      }
+    if (uri.contains("/contributions") && uri.contains("/count")) {
+      possibleParams.add("contributionType");
       // removing deprecated params from newer endpoint
       possibleParams.remove("types");
       possibleParams.remove("keys");
       possibleParams.remove("values");
+    }
+    if (uri.contains("/users")) {
+      possibleParams.add("contributionType");
     }
     return possibleParams;
   }
