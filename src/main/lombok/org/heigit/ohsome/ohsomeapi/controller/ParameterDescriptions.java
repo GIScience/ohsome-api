@@ -42,7 +42,7 @@ public class ParameterDescriptions {
       + "geometries of the features should be clipped to the query's spatial boundary (‘true’), "
       + "or not (‘false’); default: ‘true’";
   public static final String CONTRIBUTION_TYPE = "Filter contributions by contribution type: "
-      + "'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them;"
+      + "'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; "
       + "no default value";
 
   private ParameterDescriptions() {

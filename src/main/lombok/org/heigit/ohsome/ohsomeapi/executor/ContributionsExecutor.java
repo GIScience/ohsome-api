@@ -200,12 +200,10 @@ public class ContributionsExecutor extends RequestExecutor {
     // geomIds are either Strings or Integers which are both comparable and serializable
     Map<V, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> (V) arrGeomIds[idx], idx -> (P) arrGeoms.get(idx)));
-
     var mapAgg = mapRed
         .aggregateByTimestamp()
         .aggregateByGeometry(geoms)
         .map(OSMContribution.class::cast);
-
     var filter = inputProcessor.getProcessingData().getFilterExpression();
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
@@ -215,7 +213,10 @@ public class ContributionsExecutor extends RequestExecutor {
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
     if (isUsersRequest) {
-      result = mapAgg.map(OSMContribution::getContributorUserId).countUniq();
+      result = mapAgg.filter(contributionsFilter(servletRequest
+          .getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+          .map(OSMContribution::getContributorUserId)
+          .countUniq();
     } else {
       result = mapAgg
           .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
@@ -259,7 +260,7 @@ public class ContributionsExecutor extends RequestExecutor {
    * @return a lambda method implementing the filter which can be passed to
    *         {@link Mappable#filter(SerializablePredicate)}
    */
-  static SerializablePredicate<OSMContribution> contributionsFilter(String types) {
+  public static SerializablePredicate<OSMContribution> contributionsFilter(String types) {
     if (types == null) {
       return ignored -> true;
     }

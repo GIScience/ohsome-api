@@ -41,6 +41,7 @@ public class UsersRequestExecutor {
   private static final String URL = ExtractMetadata.attributionUrl;
   private static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
+  private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
@@ -56,11 +57,12 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    result = mapRed.aggregateByTimestamp()
-        .aggregateBy(
-            (SerializableFunction<OSMContribution, OSMType>) f -> f.getEntityAfter().getType(),
+    result = mapRed
+            .filter(ContributionsExecutor.contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+            .aggregateByTimestamp()
+            .aggregateBy((SerializableFunction<OSMContribution, OSMType>) f -> f.getEntityAfter().getType(),
             processingData.getOsmTypes())
-        .map(OSMContribution::getContributorUserId).countUniq();
+            .map(OSMContribution::getContributorUserId).countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -119,7 +121,9 @@ public class UsersRequestExecutor {
       }
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
-    result = mapRed.flatMap(f -> {
+    result = mapRed
+            .filter(ContributionsExecutor.contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+            .flatMap(f -> {
       List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
       Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
       for (OSHDBTag tag : tags) {
@@ -203,7 +207,9 @@ public class UsersRequestExecutor {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
-    result = mapRed.flatMap(f -> {
+    result = mapRed
+            .filter(ContributionsExecutor.contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+            .flatMap(f -> {
       List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
       Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
       for (OSHDBTag tag : tags) {
