@@ -49,8 +49,8 @@ public class ContributionsExecutor extends RequestExecutor {
   /**
    * Initializes a newly created <code>ContributionsExecutor</code> object.
    *
-   * @param isDensity the boolean value relative to the density resource
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param isDensity       the boolean value relative to the density resource
+   * @param servletRequest  <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
   public ContributionsExecutor(HttpServletRequest servletRequest,
@@ -65,21 +65,21 @@ public class ContributionsExecutor extends RequestExecutor {
    * /contributions/density, /contribution/latest/count, /contributions/latest/count/density
    * or /users/count.
    *
-   * @param isUsersRequest the boolean value relative to the endpoint /users/count
+   * @param isUsersRequest             the boolean value relative to the endpoint /users/count
    * @param isContributionsLatestCount the boolean value relative to the endpoint
-   *        /contributions/latest
+   *                                   /contributions/latest
    * @return DefaultAggregationResponse {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *         #processParameters(ComputeMode) processParameters} and
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
+   * @throws Exception                     thrown by
+   *                                       {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *                                       processParameters},
+   *                                       {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *                                       #processParameters(ComputeMode) processParameters} and
+   *                                       {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
    * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #usersCount(MapReducer) usersCount} and
-   *         {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
-   *         #contributionsCount(MapReducer, boolean) contributionsCount}
+   *                                       {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *                                       #usersCount(MapReducer) usersCount} and
+   *                                       {@link org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor
+   *                                       #contributionsCount(MapReducer, boolean) contributionsCount}
    */
   public Response count(boolean isUsersRequest, boolean isContributionsLatestCount)
       throws UnsupportedOperationException, Exception {
@@ -128,32 +128,31 @@ public class ContributionsExecutor extends RequestExecutor {
    *
    * @param mapRed a MapReducer of OSM contributions
    * @return SortedMap with counts of users aggregated by timestamp
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #countUniq() countUniq}
+   * @throws Exception                     thrown by
+   *                                       {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #countUniq() countUniq}
    * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
-   *         aggregateByTimeStamp}
+   *                                       {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *                                       aggregateByTimeStamp}
    */
   private SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
       throws UnsupportedOperationException, Exception {
-    //TODO
-    mapRed.filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER))).collect().forEach(x -> System.out.println(x.getContributorUserId() + " " + x.getContributionTypes() + " " + x.getTimestamp()));
-    return mapRed.filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
-            .aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
+    return mapRed.filter(
+            contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+        .aggregateByTimestamp().map(OSMContribution::getContributorUserId).countUniq();
   }
 
   /**
    * Performs a count calculation for /contributions/count, /contributions/density,
    * /contribution/latest/count or /contributions/latest/count/density.
    *
-   * @param mapRed a MapReducer of OSM contributions
+   * @param mapRed                a MapReducer of OSM contributions
    * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest
    * @return SortedMap with counts of contributions aggregated by timestamp
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #count() count}
+   * @throws Exception                     thrown by
+   *                                       {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator #count() count}
    * @throws UnsupportedOperationException thrown by
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
-   *         aggregateByTimeStamp}
+   *                                       {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#aggregateByTimestamp()
+   *                                       aggregateByTimeStamp}
    */
   private SortedMap<OSHDBTimestamp, Integer> contributionsCount(MapReducer<OSMContribution> mapRed,
       boolean isContributionsLatest) throws UnsupportedOperationException, Exception {
@@ -182,14 +181,14 @@ public class ContributionsExecutor extends RequestExecutor {
    *
    * @return GroupByResponse {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
-   *         processParameters},
-   *         {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *         #processParameters(ComputeMode) processParameters} and
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
+   *                   {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor#processParameters()
+   *                   processParameters},
+   *                   {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *                   #processParameters(ComputeMode) processParameters} and
+   *                   {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}
    */
   public <P extends Geometry & Polygonal, V extends Comparable<V> & Serializable> Response
-      countGroupByBoundary(boolean isUsersRequest) throws Exception {
+  countGroupByBoundary(boolean isUsersRequest) throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     var mapRed = inputProcessor.processParameters();
     final var requestParameters = processingData.getRequestParameters();
@@ -214,7 +213,7 @@ public class ContributionsExecutor extends RequestExecutor {
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
     if (isUsersRequest) {
       result = mapAgg.filter(contributionsFilter(servletRequest
-          .getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+              .getParameter(CONTRIBUTION_TYPE_PARAMETER)))
           .map(OSMContribution::getContributorUserId)
           .countUniq();
     } else {
@@ -226,7 +225,7 @@ public class ContributionsExecutor extends RequestExecutor {
     var resultSet = groupByResult.entrySet().stream().map(entry ->
         new GroupByResult(entry.getKey(), ExecutionUtils.fillContributionsResult(entry.getValue(),
             requestParameters.isDensity(), inputProcessor, df, geoms.get(entry.getKey())
-    ))).toArray(GroupByResult[]::new);
+        ))).toArray(GroupByResult[]::new);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
@@ -258,7 +257,7 @@ public class ContributionsExecutor extends RequestExecutor {
    *
    * @param types the parameter string containing the to-be-filtered contribution types
    * @return a lambda method implementing the filter which can be passed to
-   *         {@link Mappable#filter(SerializablePredicate)}
+   * {@link Mappable#filter(SerializablePredicate)}
    */
   public static SerializablePredicate<OSMContribution> contributionsFilter(String types) {
     if (types == null) {
