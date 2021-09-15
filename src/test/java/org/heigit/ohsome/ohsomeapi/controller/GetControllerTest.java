@@ -681,6 +681,18 @@ public class GetControllerTest {
         expectedValue * deltaPercentage);
   }
 
+  @Test
+  public void getUsersCountDensityByContributionTypeTest() {
+    double expectedValue = 0.54;
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/users/count/density?bboxes=8.67,49.39,8.71,49.43&"
+        + "filter=type:way and natural=*&format=json&contributionType=creation&"
+        + "time=2014-01-01/2017-01-01", JsonNode.class);
+    double result = response.getBody().get("result").get(0).get("value").asDouble();
+    assertEquals(expectedValue, result, deltaPercentage);
+  }
+
   /*
    * /contributions tests
    */
@@ -690,12 +702,12 @@ public class GetControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> responseAggregation =
         restTemplate.getForEntity(server + port
-            + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
-            + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
-        JsonNode.class);
+                + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
+                + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
+            JsonNode.class);
     ResponseEntity<JsonNode> responseExtraction = restTemplate.getForEntity(server + port
-        + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&filter=type:way and natural=*"
-        + "&properties=tags&time=2014-01-01,2017-01-01",
+            + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&filter=type:way and natural=*"
+            + "&properties=tags&time=2014-01-01,2017-01-01",
         JsonNode.class);
     int sumAggregation = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(responseAggregation.getBody().get("result").iterator(),
