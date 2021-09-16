@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## 1.6.1
+
+* upgrade OSHDB to version [`0.7.2`](https://github.com/GIScience/oshdb/releases/tag/0.7.2), with bugfixes for not working `length:` and `area:` filters on ignite and improved job canceling ([#237])
+
+[#237]: https://github.com/GIScience/ohsome-api/pull/237
+
+
 ## 1.6.0
 
 ### Bug Fixes
