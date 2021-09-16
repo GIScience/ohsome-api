@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
@@ -82,19 +81,17 @@ public class DataExtractionTest {
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
   }
-
-  // this needs a fix in the OSHDB to work
-  // see https://github.com/GIScience/oshdb/issues/338
-  //  @Test
-  //  public void elementsGeomSimpleFeaturesOtherLineTest() {
-  //    TestRestTemplate restTemplate = new TestRestTemplate();
-  //    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
-  //        + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994"
-  //        + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
-  //        JsonNode.class);
-  //    assertTrue("GeometryCollection"
-  //        .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
-  //  }
+  
+  @Test
+  public void elementsGeomSimpleFeaturesOtherLineTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+            + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994"
+            + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
+        JsonNode.class);
+    assertTrue("GeometryCollection"
+        .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
+  }
 
   @Test
   public void elementsGeomUsingNoTagsTest() {
@@ -142,20 +139,20 @@ public class DataExtractionTest {
         .get("geometry").get("coordinates").size());
   }
 
-  // this needs a fix in the OSHDB to work
-  // see https://github.com/GIScience/oshdb/issues/338
-  //  @Test
-  //  public void elementsClipGeometryParamTrueFalseTest() {
-  //    TestRestTemplate restTemplate = new TestRestTemplate();
-  //    String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&time=2018-01-02"
-  //        + "&filter=building=* and (geometry:other or geometry:line)";
-  //    ResponseEntity<JsonNode> emptyFeatureResponse =
-  //        restTemplate.getForEntity(server + port + uri + "&clipGeometry=false", JsonNode.class);
-  //    ResponseEntity<JsonNode> featureResponse =
-  //        restTemplate.getForEntity(server + port + uri + "&clipGeometry=true", JsonNode.class);
-  //    assertTrue(emptyFeatureResponse.getBody().get("features").size() == 0);
-  //    assertTrue(featureResponse.getBody().get("features").size() == 1);
-  //  }
+  @Test
+  public void elementsClipGeometryParamTrueFalseTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&time=2018-01-02"
+        + "&filter=building=* and (geometry:other or geometry:line)";
+    ResponseEntity<JsonNode> clipGeometryFalseResponse =
+        restTemplate.getForEntity(server + port + uri + "&clipGeometry=false", JsonNode.class);
+    ResponseEntity<JsonNode> clipGeometryTrueResponse =
+        restTemplate.getForEntity(server + port + uri + "&clipGeometry=true", JsonNode.class);
+    assertEquals("Polygon", clipGeometryFalseResponse.getBody().get("features").get(0)
+        .get("geometry").get("type").asText());
+    assertEquals("GeometryCollection", clipGeometryTrueResponse.getBody().get("features").get(0)
+        .get("geometry").get("type").asText());
+  }
 
   /*
    * ./elementsFullHistory/geometry|bbox|centroid tests
