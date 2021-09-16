@@ -35,7 +35,7 @@
     <jts2geojson.version>0.13.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>4.0</opencsv.version>
-    <oshdb.version>0.7.1</oshdb.version>
+    <oshdb.version>0.7.2</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <sonar.sources>src/main/lombok</sonar.sources>
     <springboot.version>2.0.3.RELEASE</springboot.version>
