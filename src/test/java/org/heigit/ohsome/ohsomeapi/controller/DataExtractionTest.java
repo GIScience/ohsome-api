@@ -81,9 +81,7 @@ public class DataExtractionTest {
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
   }
-
-  // this needs a fix in the OSHDB to work
-  // see https://github.com/GIScience/oshdb/issues/338
+  
   @Test
   public void elementsGeomSimpleFeaturesOtherLineTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -141,8 +139,6 @@ public class DataExtractionTest {
         .get("geometry").get("coordinates").size());
   }
 
-  // this needs a fix in the OSHDB to work
-  // see https://github.com/GIScience/oshdb/issues/338
   @Test
   public void elementsClipGeometryParamTrueFalseTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -156,8 +152,6 @@ public class DataExtractionTest {
         .get("geometry").get("type").asText());
     assertEquals("GeometryCollection", clipGeometryTrueResponse.getBody().get("features").get(0)
         .get("geometry").get("type").asText());
-    //    assertTrue(emptyFeatureResponse.getBody().get("features").size() == 0);
-    //    assertTrue(featureResponse.getBody().get("features").size() == 1);
   }
 
   /*
