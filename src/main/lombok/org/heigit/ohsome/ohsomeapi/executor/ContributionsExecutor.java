@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,7 +10,6 @@ import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
@@ -26,10 +24,7 @@ import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
-import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
-import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
-import org.heigit.ohsome.oshdb.util.function.SerializablePredicate;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
@@ -137,8 +132,8 @@ public class ContributionsExecutor extends RequestExecutor {
    */
   private SortedMap<OSHDBTimestamp, Integer> usersCount(MapReducer<OSMContribution> mapRed)
       throws UnsupportedOperationException, Exception {
-    return mapRed.filter(
-            contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+    return mapRed.filter(ExecutionUtils
+            .contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
         .aggregateByTimestamp()
         .map(OSMContribution::getContributorUserId)
         .countUniq();
@@ -167,12 +162,14 @@ public class ContributionsExecutor extends RequestExecutor {
       }
       return mapRedGroupByEntity
           .map(contributions -> contributions.get(contributions.size() - 1))
-          .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+          .filter(ExecutionUtils
+              .contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
           .aggregateByTimestamp(OSMContribution::getTimestamp)
           .count();
     } else {
       return mapRed
-          .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+          .filter(ExecutionUtils
+              .contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
           .aggregateByTimestamp()
           .count();
     }
@@ -219,13 +216,14 @@ public class ContributionsExecutor extends RequestExecutor {
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
     if (isUsersRequest) {
-      result = mapAgg.filter(contributionsFilter(servletRequest
+      result = mapAgg.filter(ExecutionUtils.contributionsFilter(servletRequest
               .getParameter(CONTRIBUTION_TYPE_PARAMETER)))
           .map(OSMContribution::getContributorUserId)
           .countUniq();
     } else {
       result = mapAgg
-          .filter(contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+          .filter(ExecutionUtils
+              .contributionsFilter(servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
           .count();
     }
     var groupByResult = ExecutionUtils.nest(result);
@@ -261,41 +259,5 @@ public class ContributionsExecutor extends RequestExecutor {
     }
     return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
-  }
-
-  /**
-   * Returns a function to filter contributions by contribution type.
-   *
-   * @param types the parameter string containing the to-be-filtered contribution types
-   * @return a lambda method implementing the filter which can be passed to
-   *     {@link Mappable#filter(SerializablePredicate)}
-   */
-  public static SerializablePredicate<OSMContribution> contributionsFilter(String types) {
-    if (types == null) {
-      return ignored -> true;
-    }
-    types = types.toUpperCase();
-    List<ContributionType> contributionTypes = new ArrayList<>();
-    for (String givenType : types.split(",")) {
-      switch (givenType) {
-        case "CREATION":
-          contributionTypes.add(ContributionType.CREATION);
-          break;
-        case "DELETION":
-          contributionTypes.add(ContributionType.DELETION);
-          break;
-        case "TAGCHANGE":
-          contributionTypes.add(ContributionType.TAG_CHANGE);
-          break;
-        case "GEOMETRYCHANGE":
-          contributionTypes.add(ContributionType.GEOMETRY_CHANGE);
-          break;
-        default:
-          throw new BadRequestException("The contribution type must be 'creation', 'deletion',"
-              + "'geometryChange', 'tagChange' or a combination of them");
-      }
-    }
-    return contr -> contributionTypes.stream()
-        .anyMatch(contr::is);
   }
 }

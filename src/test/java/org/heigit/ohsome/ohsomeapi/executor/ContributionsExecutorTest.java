@@ -25,26 +25,26 @@ public class ContributionsExecutorTest {
   public void contributionsFilter() {
     Predicate<OSMContribution> filter;
     // check single value
-    filter = ContributionsExecutor.contributionsFilter("creation");
+    filter = ExecutionUtils.contributionsFilter("creation");
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.CREATION))));
     assertFalse(filter.test(createOSMContribution(EnumSet.of(ContributionType.DELETION))));
     // check multiple values
-    filter = ContributionsExecutor.contributionsFilter("geometryChange,tagChange");
+    filter = ExecutionUtils.contributionsFilter("geometryChange,tagChange");
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.GEOMETRY_CHANGE))));
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.TAG_CHANGE))));
     assertFalse(filter.test(createOSMContribution(EnumSet.of(ContributionType.DELETION))));
     // check spelling
-    filter = ContributionsExecutor.contributionsFilter("dElEtIoN");
+    filter = ExecutionUtils.contributionsFilter("dElEtIoN");
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.DELETION))));
     // null = no filter
-    filter = ContributionsExecutor.contributionsFilter(null);
+    filter = ExecutionUtils.contributionsFilter(null);
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.CREATION))));
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.DELETION))));
   }
 
   @Test(expected = BadRequestException.class)
   public void contributionsFilterInvalid() {
-    ContributionsExecutor.contributionsFilter("doesnotexist");
+    ExecutionUtils.contributionsFilter("doesnotexist");
   }
 
   private OSMContribution createOSMContribution(Set<ContributionType> contributionTypes) {

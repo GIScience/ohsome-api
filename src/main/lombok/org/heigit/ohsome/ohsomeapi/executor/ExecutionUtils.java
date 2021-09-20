@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
+import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -72,10 +74,12 @@ import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
+import org.heigit.ohsome.oshdb.util.function.SerializablePredicate;
 import org.heigit.ohsome.oshdb.util.function.SerializableSupplier;
 import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
@@ -990,8 +994,46 @@ public class ExecutionUtils implements Serializable {
     return keysInt;
   }
 
-  /** Enum type used in /ratio computation. */
+  /**
+   * Enum type used in /ratio computation.
+   */
   public enum MatchType {
     MATCHES1, MATCHES2, MATCHESBOTH, MATCHESNONE
+  }
+
+  /**
+   * Returns a function to filter contributions by contribution type.
+   *
+   * @param types the parameter string containing the to-be-filtered contribution types
+   * @return a lambda method implementing the filter which can be passed to
+   *     {@link Mappable#filter(SerializablePredicate)}
+   */
+  public static SerializablePredicate<OSMContribution> contributionsFilter(String types) {
+    if (types == null) {
+      return ignored -> true;
+    }
+    types = types.toUpperCase();
+    List<ContributionType> contributionTypes = new ArrayList<>();
+    for (String givenType : types.split(",")) {
+      switch (givenType) {
+        case "CREATION":
+          contributionTypes.add(ContributionType.CREATION);
+          break;
+        case "DELETION":
+          contributionTypes.add(ContributionType.DELETION);
+          break;
+        case "TAGCHANGE":
+          contributionTypes.add(ContributionType.TAG_CHANGE);
+          break;
+        case "GEOMETRYCHANGE":
+          contributionTypes.add(ContributionType.GEOMETRY_CHANGE);
+          break;
+        default:
+          throw new BadRequestException("The contribution type must be 'creation', 'deletion',"
+              + "'geometryChange', 'tagChange' or a combination of them");
+      }
+    }
+    return contr -> contributionTypes.stream()
+        .anyMatch(contr::is);
   }
 }

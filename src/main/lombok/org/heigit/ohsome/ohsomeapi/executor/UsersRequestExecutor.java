@@ -61,7 +61,7 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    result = mapRed.filter(ContributionsExecutor.contributionsFilter(servletRequest.getParameter(
+    result = mapRed.filter(ExecutionUtils.contributionsFilter(servletRequest.getParameter(
             CONTRIBUTION_TYPE_PARAMETER)))
         .aggregateByTimestamp()
         .aggregateBy(
@@ -128,7 +128,7 @@ public class UsersRequestExecutor {
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
     result = mapRed
-        .filter(ContributionsExecutor.contributionsFilter(
+        .filter(ExecutionUtils.contributionsFilter(
             servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
         .flatMap(f -> {
           List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
@@ -218,7 +218,7 @@ public class UsersRequestExecutor {
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     result = mapRed
-        .filter(ContributionsExecutor.contributionsFilter(
+        .filter(ExecutionUtils.contributionsFilter(
             servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
         .flatMap(f -> {
           List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
