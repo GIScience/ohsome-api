@@ -488,8 +488,6 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
    *
-   * @deprecated Will be removed in next major version update.
-   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -501,6 +499,7 @@ public class ElementsRequestExecutor {
    *         #processParameters() processParameters} and
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
+   * @deprecated Will be removed in next major version update.
    */
   @Deprecated(forRemoval = true)
   public static Response aggregateBasicFiltersRatio(RequestResource requestResource,
@@ -734,8 +733,6 @@ public class ElementsRequestExecutor {
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary.
    *
-   * @deprecated Will be removed in next major version update.
-   *
    * @param requestResource {@link org.heigit.ohsome.ohsomeapi.executor.RequestResource
    *        RequestResource} definition of the request resource
    * @param servletRequest {@link javax.servlet.http.HttpServletRequest HttpServletRequest} incoming
@@ -748,6 +745,7 @@ public class ElementsRequestExecutor {
    *         #processParameters() processParameters},
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
+   * @deprecated Will be removed in next major version update.
    */
   @Deprecated(forRemoval = true)
   public static <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
