@@ -35,18 +35,23 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
 
-/** Includes the execute methods for requests mapped to /users. */
+/**
+ * Includes the execute methods for requests mapped to /users.
+ */
 public class UsersRequestExecutor {
 
   private static final String URL = ExtractMetadata.attributionUrl;
   private static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
+  private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
 
   private UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
   }
 
-  /** Performs a count calculation grouped by the OSM type. */
+  /**
+   * Performs a count calculation grouped by the OSM type.
+   */
   public static Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
@@ -56,11 +61,14 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    result = mapRed.aggregateByTimestamp()
+    result = mapRed.filter(ExecutionUtils.contributionsFilter(servletRequest.getParameter(
+            CONTRIBUTION_TYPE_PARAMETER)))
+        .aggregateByTimestamp()
         .aggregateBy(
             (SerializableFunction<OSMContribution, OSMType>) f -> f.getEntityAfter().getType(),
             processingData.getOsmTypes())
-        .map(OSMContribution::getContributorUserId).countUniq();
+        .map(OSMContribution::getContributorUserId)
+        .countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -106,8 +114,8 @@ public class UsersRequestExecutor {
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
-    String[] groupByValues = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
+    String[] groupByValues = inputProcessor.splitParamOnComma(inputProcessor.createEmptyArrayIfNull(
+        servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
@@ -119,38 +127,44 @@ public class UsersRequestExecutor {
       }
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
-    result = mapRed.flatMap(f -> {
-      List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
-      Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
-      for (OSHDBTag tag : tags) {
-        int tagKeyId = tag.getKey();
-        int tagValueId = tag.getValue();
-        if (tagKeyId == keysInt) {
-          if (valuesInt.length == 0) {
-            res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
-          }
-          for (int value : valuesInt) {
-            if (tagValueId == value) {
-              res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
+    result = mapRed
+        .filter(ExecutionUtils.contributionsFilter(
+            servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+        .flatMap(f -> {
+          List<Pair<Pair<Integer, Integer>, OSMContribution>> res = new LinkedList<>();
+          Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
+          for (OSHDBTag tag : tags) {
+            int tagKeyId = tag.getKey();
+            int tagValueId = tag.getValue();
+            if (tagKeyId == keysInt) {
+              if (valuesInt.length == 0) {
+                res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
+              }
+              for (int value : valuesInt) {
+                if (tagValueId == value) {
+                  res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
+                }
+              }
             }
           }
-        }
-      }
-      if (res.isEmpty()) {
-        res.add(new ImmutablePair<>(new ImmutablePair<>(-1, -1), f));
-      }
-      res.add(new ImmutablePair<>(new ImmutablePair<>(-2, -2), f));
-      return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
-        .map(OSMContribution::getContributorUserId).countUniq();
+          if (res.isEmpty()) {
+            res.add(new ImmutablePair<>(new ImmutablePair<>(-1, -1), f));
+          }
+          res.add(new ImmutablePair<>(new ImmutablePair<>(-2, -2), f));
+          return res;
+        })
+        .aggregateByTimestamp()
+        .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
+        .map(OSMContribution::getContributorUserId)
+        .countUniq();
     Geometry geom = inputProcessor.getGeometry();
     SortedMap<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
     int count = 0;
-    for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult
-        .entrySet()) {
+    for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry :
+        groupByResult.entrySet()) {
       ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
       if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
@@ -203,24 +217,31 @@ public class UsersRequestExecutor {
       keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
-    result = mapRed.flatMap(f -> {
-      List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
-      Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
-      for (OSHDBTag tag : tags) {
-        int tagKeyId = tag.getKey();
-        for (int key : keysInt) {
-          if (tagKeyId == key) {
-            res.add(new ImmutablePair<>(tagKeyId, f));
+    result = mapRed
+        .filter(ExecutionUtils.contributionsFilter(
+            servletRequest.getParameter(CONTRIBUTION_TYPE_PARAMETER)))
+        .flatMap(f -> {
+          List<Pair<Integer, OSMContribution>> res = new LinkedList<>();
+          Iterable<OSHDBTag> tags = ExecutionUtils.extractContributionTags(f);
+          for (OSHDBTag tag : tags) {
+            int tagKeyId = tag.getKey();
+            for (int key : keysInt) {
+              if (tagKeyId == key) {
+                res.add(new ImmutablePair<>(tagKeyId, f));
+              }
+            }
           }
-        }
-      }
-      if (res.isEmpty()) {
-        res.add(new ImmutablePair<>(-1, f));
-      }
-      res.add(new ImmutablePair<>(-2, f));
-      return res;
-    }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt)).map(Pair::getValue)
-        .map(OSMContribution::getContributorUserId).countUniq();
+          if (res.isEmpty()) {
+            res.add(new ImmutablePair<>(-1, f));
+          }
+          res.add(new ImmutablePair<>(-2, f));
+          return res;
+        })
+        .aggregateByTimestamp()
+        .aggregateBy(Pair::getKey, Arrays.asList(keysInt))
+        .map(Pair::getValue)
+        .map(OSMContribution::getContributorUserId)
+        .countUniq();
     Geometry geom = inputProcessor.getGeometry();
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);

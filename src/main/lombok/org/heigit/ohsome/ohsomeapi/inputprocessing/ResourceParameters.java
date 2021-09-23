@@ -20,7 +20,7 @@ public class ResourceParameters {
    * #executeGetMetadata(HttpServletRequest) executeGetMetadata}.
    *
    * @param servletRequest represents the HttpServlet request.
-   * @return a list of of available parameters for the given resource.
+   * @return a list of available parameters for the given resource.
    */
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
     String uri = servletRequest.getRequestURI();
@@ -45,13 +45,16 @@ public class ResourceParameters {
       possibleParams.add("clipGeometry");
     }
     if (uri.contains("/contributions")) {
-      if (uri.contains("/count")) {
-        possibleParams.add("contributionType");
-      }
       // removing deprecated params from newer endpoint
       possibleParams.remove("types");
       possibleParams.remove("keys");
       possibleParams.remove("values");
+      if (uri.contains("/count")) {
+        possibleParams.add("contributionType");
+      }
+    }
+    if (uri.contains("/users")) {
+      possibleParams.add("contributionType");
     }
     return possibleParams;
   }

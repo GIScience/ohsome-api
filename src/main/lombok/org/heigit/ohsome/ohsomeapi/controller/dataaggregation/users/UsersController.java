@@ -35,6 +35,9 @@ public class UsersController {
    */
   @ApiOperation(value = "Count of OSM users", nickname = "count",
       response = DefaultAggregationResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
@@ -54,6 +57,9 @@ public class UsersController {
    */
   @ApiOperation(value = "Count of OSM users grouped by the type", nickname = "countGroupByType",
       response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
@@ -77,6 +83,8 @@ public class UsersController {
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
@@ -96,9 +104,12 @@ public class UsersController {
    */
   @ApiOperation(value = "Count of OSM users grouped by the key", nickname = "countGroupByKey",
       response = GroupByResponse.class)
-  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
-      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-      dataType = "string", required = true)})
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "count/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
@@ -118,6 +129,9 @@ public class UsersController {
    */
   @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)",
       nickname = "countGroupByBoundary", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
@@ -141,6 +155,9 @@ public class UsersController {
       value = "Density of OSM users (number of users divided "
           + "by the total area in square-kilometers)",
       nickname = "countDensity", response = DefaultAggregationResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response countDensity(HttpServletRequest servletRequest,
@@ -160,6 +177,9 @@ public class UsersController {
    */
   @ApiOperation(value = "Density of OSM users grouped by the type",
       nickname = "countDensityGroupByType", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/type",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
@@ -183,6 +203,8 @@ public class UsersController {
           defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
           dataType = "string", required = true),
       @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+          defaultValue = "", paramType = "query", dataType = "string", required = false),
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
@@ -204,6 +226,9 @@ public class UsersController {
    */
   @ApiOperation(value = "Count of OSM users grouped by boundary (bboxes, bcirlces, or bpolys)",
       nickname = "countDensityGroupByBoundary", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "contributionType", value = ParameterDescriptions.CONTRIBUTION_TYPE,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/count/density/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,

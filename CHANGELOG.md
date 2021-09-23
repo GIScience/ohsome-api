@@ -7,6 +7,7 @@ Changelog
 
 * add `contributions/count[/density]/groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
 * add an error message for requests without defined parameters ([#227])
+* add `contributionType` parameter to all `/users` endpoints ([#224])
 
 ### Bug Fixes
 
@@ -14,6 +15,7 @@ Changelog
 * fix a regression causing `…/groupBy/boundary` to crash when used with a geometry type filter using the (deprecated) types/keys/values parameter syntax ([#230])
 
 [#217]: https://github.com/GIScience/ohsome-api/issues/217
+[#224]: https://github.com/GIScience/ohsome-api/issues/224
 [#227]: https://github.com/GIScience/ohsome-api/issues/227
 [#228]: https://github.com/GIScience/ohsome-api/pull/228
 [#230]: https://github.com/GIScience/ohsome-api/pull/230

@@ -681,6 +681,30 @@ public class GetControllerTest {
         expectedValue * deltaPercentage);
   }
 
+  @Test
+  public void getUsersCountDensityFilteredByContributionTypeTest() {
+    double expectedValue = 0.54;
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/users/count/density?bboxes=8.67,49.39,8.71,49.43&"
+        + "filter=type:way and natural=*&contributionType=creation&"
+        + "time=2014-01-01/2017-01-01", JsonNode.class);
+    double result = response.getBody().get("result").get(0).get("value").asDouble();
+    assertEquals(expectedValue, result, deltaPercentage);
+  }
+
+  @Test
+  public void getUsersCountGroupByKeyFilteredByContributionTypeTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/users/count/groupBy/key?bboxes=8.673088,49.401834,8.692051,49.407979&"
+        + "contributionType=deletion&filter=type:way and highway=*&format=json&groupByKeys=building"
+        + "&time=2014-01-01/2015-01-01", JsonNode.class);
+    long result = response.getBody().get("groupByResult").get(0).get("result").get(0).get("value")
+        .asInt();
+    assertEquals(7, result);
+  }
+
   /*
    * /contributions tests
    */
@@ -688,14 +712,13 @@ public class GetControllerTest {
   @Test
   public void contributionsLatestCountTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> responseAggregation =
-        restTemplate.getForEntity(server + port
-            + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
-            + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
+    ResponseEntity<JsonNode> responseAggregation = restTemplate.getForEntity(server + port
+        + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
+        + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
         JsonNode.class);
     ResponseEntity<JsonNode> responseExtraction = restTemplate.getForEntity(server + port
-        + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&filter=type:way and natural=*"
-        + "&properties=tags&time=2014-01-01,2017-01-01",
+        + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&"
+        + "filter=type:way and natural=*&properties=tags&time=2014-01-01,2017-01-01",
         JsonNode.class);
     int sumAggregation = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(responseAggregation.getBody().get("result").iterator(),

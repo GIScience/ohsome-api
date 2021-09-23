@@ -3,8 +3,8 @@ API Endpoints
 
 .. note:: For **POST requests** the fields are given analogous to **GET requests**. When you just have a smaller set of spatial parameters,
     a GET request fits perfectly. POST mostly makes sense when you start to use GeoJSON as input geometries.
-    
-    The usage of the parameters **types**, **keys** and **values** is not recommended as they are deprecated. Please use the 
+
+    The usage of the parameters **types**, **keys** and **values** is not recommended as they are deprecated. Please use the
     filter_ parameter for your requests.
 
 Elements Aggregation
@@ -15,7 +15,7 @@ Elements Aggregation
    Get ``aggregation`` of OSM elements.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
-   
+
    :query <boundary>: One of these boundary parameters: bboxes_, bcircles_, bpolys_. See boundaries_
    :query time: ISO-8601 conform timestring(s); default: latest timestamp in the OSHDB, see time_
    :query filter: combines several attributive filters: OSM type, geometry (simple feature) type, as well as the OSM tag; See filter_
@@ -119,7 +119,7 @@ How big is the area of farmland in the region Rhein-Neckar?
    Get density of ``aggregation`` of OSM elements in the total query area per square-kilometers.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
-   
+
    :query <other>: see above_
 
 **Example request**:
@@ -214,7 +214,7 @@ What is the density of restaurants with wheelchair access in Heidelberg?
    Get ratio of OSM elements satisfying ``filter2`` to elements satisfying ``filter``.
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
-   
+
    :query <other>: see above_
    :query filter2: see filter_
    :query keys2: Deprecated! see **filter2**
@@ -365,9 +365,9 @@ How many oneway streets exist within living_street streets in Heidelberg over ti
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    * grouping type: one of boundary_, key_, tag_, type_.
-   
+
    .. note:: ``groupByKeys``, ``groupByKey`` and ``groupByValues`` are resource-specific parameters.
-   
+
    :query <other>: see above_
    :query groupByKeys: see key_
    :query groupByKey: see tag_
@@ -524,7 +524,7 @@ How often information about the roof of buildings is present?
 .. http:post :: /elements/(aggregation)/density/groupBy/(groupType)
 
    Get ``density`` of ``aggregation`` of OSM elements grouped by ``groupType``.
-   
+
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    * grouping type: one of boundary_, tag_, type_.
 
@@ -538,9 +538,9 @@ How often information about the roof of buildings is present?
 
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
    * grouping type: `boundary and tag`_.
-   
+
    :query <other>: see above_
-   :query groupByKey: see tag_ 
+   :query groupByKey: see tag_
    :query groupByValues: see tag_
 
 **Example request**:
@@ -814,9 +814,9 @@ Compare length of different types of streets for two or more regions.
 .. http:post :: /elements/(aggregation)/ratio/groupBy/boundary
 
    Get ``ratio`` of ``aggregation`` of OSM elements grouped by ``boundary``.
-   
+
    * aggregation type: one of ``area``, ``count``, ``length``, ``perimeter``
-	
+
    :query <other>: see above_
    :query filter2: see filter_
    :query keys2: Deprecated! see **filter2**
@@ -829,20 +829,21 @@ Users Aggregation
 .. http:post :: /users/count
 
     Get ``aggregation`` statistics about OSM users. List of endpoints:
-    
+
     * **/count**
     * **/count/groupBy/(groupType)**
     * **/count/density**
     * **/count/density/groupBy/(boundary or tag or type)**
 
     * grouping type: one of boundary_, key_, tag_, type_.
-    
+
      .. note:: ``groupByKeys``, ``groupByKey`` and ``groupByValues`` are resource-specific parameters.
-    
+
     :query <other>: see above_
     :query groupByKeys: see key_
     :query groupByKey: see tag_
     :query groupByValues: see tag_
+    :query contributionType: restricts the result to counts of users who performed at least one of the given types of contribution: ‘creation’, ‘deletion’, ‘tagChange’, ‘geometryChange’ or a combination of them; default: empty;
 
 **Example request**:
 
@@ -1004,11 +1005,11 @@ Show number of users editing buildings before, during and after Nepal earthquake
 
 Contributions Aggregation
 -------------------------
-      
+
 .. http:post :: /contributions/count
 
    Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters. List of endpoints:
-    
+
     * **/count**
     * **/count/density**
     * **/count/groupBy/boundary**
@@ -1018,7 +1019,7 @@ Contributions Aggregation
 
    :query <other>: see above_
    :query contributionType: filters contributions by contribution type: 'creation', 'deletion', 'tagChange', 'geometryChange' or a combination of them; default: empty;
-   
+
 .. note:: The **/contributions/count** endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
 .. note:: If the ``contributionType`` parameter is let empty, the result could contain contributions that do not effect geometries or tags.
 .. note:: In case of multiple time intervals using the **/contribution/latest** endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
@@ -1718,7 +1719,7 @@ Elements Extraction
    :query time: required; format same as described in time_
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’; multiple values can be delimited by commas; default: empty
    :query clipGeometry: boolean operator to specify whether the returned geometries of the features should be clipped to the query's spatial boundary (‘true’), or not (‘false’); default: ‘true’
-   
+
 .. note:: The extraction endpoints always return a .geojson file.
 
 **Example request**:
@@ -1968,7 +1969,7 @@ Extract the modifications of the blown up tower of the heidelberg castle over ti
         ...
         ]
       }
-    
+
 Contributions Extraction
 ------------------------
 
@@ -1976,7 +1977,7 @@ Contributions Extraction
 
    Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
    This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
-   
+
    :query <other>: see above_ (except **format**)
    :query time: required; must consist of two ISO-8601 conform timestrings defining a time interval; no default value
    :query properties: specifies what properties should be included for each feature representing an OSM element: ‘tags’ and/or 'metadata’ and/or 'contributionTypes'; metadata gets also the contribution types until v2.0; multiple values can be delimited by commas; no default value
@@ -2562,8 +2563,8 @@ Get the latest change of constructions in a certain area of the Bahnstadt in Hei
             "@version" : 9
           }
         }]
-      }    
-      
+      }
+
 Metadata
 --------
 
@@ -2666,7 +2667,7 @@ Get metadata of the underlying OSHDB data
 .. _key: group-by.html#key
 .. _tag: group-by.html#tag
 .. _type: group-by.html#type
-.. _boundary and tag: group-by.html#boundary-and-tag 
+.. _boundary and tag: group-by.html#boundary-and-tag
 .. _bboxes: boundaries.html#bboxes
 .. _bcircles: boundaries.html#bcircles
 .. _bpolys: boundaries.html#bpolys

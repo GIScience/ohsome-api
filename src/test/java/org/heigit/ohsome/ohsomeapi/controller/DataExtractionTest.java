@@ -81,7 +81,7 @@ public class DataExtractionTest {
         JsonNode.class);
     assertTrue(Helper.getFeatureByIdentifier(response, "@osmId", "way/4084860") != null);
   }
-  
+
   @Test
   public void elementsGeomSimpleFeaturesOtherLineTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
