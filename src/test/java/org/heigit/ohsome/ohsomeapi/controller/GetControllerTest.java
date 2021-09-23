@@ -682,7 +682,7 @@ public class GetControllerTest {
   }
 
   @Test
-  public void getUsersCountDensityByContributionTypeTest() {
+  public void getUsersCountDensityFilteredByContributionTypeTest() {
     double expectedValue = 0.54;
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
@@ -694,7 +694,7 @@ public class GetControllerTest {
   }
 
   @Test
-  public void getUsersCountGroupByKeyByContributionTypeTest() {
+  public void getUsersCountGroupByKeyFilteredByContributionTypeTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
         + "/users/count/groupBy/key?bboxes=8.673088,49.401834,8.692051,49.407979&"
@@ -712,14 +712,13 @@ public class GetControllerTest {
   @Test
   public void contributionsLatestCountTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> responseAggregation =
-        restTemplate.getForEntity(server + port
-                + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
-                + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
-            JsonNode.class);
+    ResponseEntity<JsonNode> responseAggregation = restTemplate.getForEntity(server + port
+        + "/contributions/latest/count?bboxes=8.67,49.39,8.71,49.42"
+        + "&filter=type:way and natural=*&format=json&time=2014-01-01/2017-01-01/P1Y",
+        JsonNode.class);
     ResponseEntity<JsonNode> responseExtraction = restTemplate.getForEntity(server + port
-            + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&"
-            + "filter=type:way and natural=*&properties=tags&time=2014-01-01,2017-01-01",
+        + "/contributions/latest/bbox?bboxes=8.67,49.39,8.71,49.42&"
+        + "filter=type:way and natural=*&properties=tags&time=2014-01-01,2017-01-01",
         JsonNode.class);
     int sumAggregation = StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(responseAggregation.getBody().get("result").iterator(),

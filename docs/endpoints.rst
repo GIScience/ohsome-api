@@ -843,7 +843,7 @@ Users Aggregation
     :query groupByKeys: see key_
     :query groupByKey: see tag_
     :query groupByValues: see tag_
-    :query contributionType: filters users by type of contribution: ‘creation’, ‘deletion’, ‘tagChange’, ‘geometryChange’ or a combination of them; default: empty;
+    :query contributionType: restricts the result to counts of users who performed at least one of the given types of contribution: ‘creation’, ‘deletion’, ‘tagChange’, ‘geometryChange’ or a combination of them; default: empty;
 
 **Example request**:
 
