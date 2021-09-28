@@ -31,7 +31,7 @@ The following blog posts describe analyses which were using the ohsome API:
 * [Exploring OSM history: the example of health related amenities](https://heigit.org/exploring-osm-history-the-example-of-health-related-amenities/)
 * several posts of the [how to become ohsome](https://heigit.org/tag/become-ohsome/) series
 
-Here you see an example response giving the length of residential roads for a bounding box around the german city Heidelberg.
+Here you see an example response giving the length of residential roads for a bounding box around the German city Heidelberg.
 
 ```json
 {
