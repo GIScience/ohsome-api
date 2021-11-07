@@ -74,6 +74,7 @@ These services use the ohsome API:
 * [ohsome dashboard](https://ohsome.org/apps/dashboard/)
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
 * [ohsome quality analyst](https://github.com/GIScience/ohsome-quality-analyst/)
+* [is-osm-uptodate?](https://github.com/frafra/is-osm-uptodate)
 
 This is a list of clients for the ohsome API:
    
