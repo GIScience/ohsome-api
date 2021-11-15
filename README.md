@@ -68,18 +68,25 @@ Here you see an example response giving the length of residential roads for a bo
 
 ## Services, Clients and Dockerized Version
 
-These services use the ohsome API:
-   
+### Services using the ohsome API
+
+Services by [HeiGIT](https://heigit.org) and [GIScience](https://www.geog.uni-heidelberg.de/gis):
 * [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/)
 * [ohsome dashboard](https://ohsome.org/apps/dashboard/)
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
 * [ohsome quality analyst](https://github.com/GIScience/ohsome-quality-analyst/)
+
+Third-Party services:
 * [is-osm-uptodate?](https://github.com/frafra/is-osm-uptodate)
 
-This is a list of clients for the ohsome API:
+### ohsome API clients
    
 * [ohsome-py](https://github.com/GIScience/ohsome-py) - Python client
-* [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - Client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables.
+* [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - nodeJS client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables
+* [ohsome R](https://github.com/GIScience/ohsome-r) - R client
+* [ohsome QGIS Plugin](https://github.com/GIScience/ohsome-qgis-plugin) - QGIS plugin
+
+### ohsome API and Docker
 
 You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
 
