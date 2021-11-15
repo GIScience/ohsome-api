@@ -19,7 +19,7 @@ import org.locationtech.jts.geom.Polygon;
 public class GeometryBuilderTest {
 
   private GeometryBuilder geomBuilder;
-  private ProcessingData processingData = new ProcessingData(null, null);
+  private final ProcessingData processingData = new ProcessingData(null, null);
 
   /** Checks the value of the junit property. */
   @BeforeClass
@@ -29,7 +29,7 @@ public class GeometryBuilderTest {
 
   @Before
   public void setup() {
-    geomBuilder = new GeometryBuilder(processingData);
+    geomBuilder = new GeometryBuilder();
   }
 
   // bboxes tests

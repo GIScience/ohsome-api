@@ -541,7 +541,7 @@ public class ElementsRequestExecutor {
       }
     }
     EnumSet<OSMType> osmTypes1 =
-        (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
+        inputProcessor.getProcessingData().getOsmTypes();
     String[] types1 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
     String[] types2 = inputProcessor.splitParamOnComma(
@@ -550,7 +550,7 @@ public class ElementsRequestExecutor {
         inputProcessor.defineSimpleFeatureTypes(types1);
     inputProcessor.defineTypes(types2, intermediateMapRed);
     EnumSet<OSMType> osmTypes2 =
-        (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
+        inputProcessor.getProcessingData().getOsmTypes();
     final EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
         inputProcessor.defineSimpleFeatureTypes(types2);
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
@@ -561,7 +561,7 @@ public class ElementsRequestExecutor {
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
       RequestParameters requestParams =
-          new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+          new RequestParameters(isSnapshot, isDensity,
               servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
               servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
               new String[] {}, servletRequest.getParameterValues("time"),
@@ -661,14 +661,14 @@ public class ElementsRequestExecutor {
     inputProcessor.processParameters();
     final ProcessingData processingData = inputProcessor.getProcessingData();
     String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
-    String filter2 = inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
+    String filter2 = InputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
     String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
-    RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
-        isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
+    RequestParameters requestParamsCombined = new RequestParameters(isSnapshot, isDensity,
+        servletRequest.getParameter("bboxes"),
         servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
         new String[] {}, new String[] {}, new String[] {},
         servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
@@ -790,7 +790,7 @@ public class ElementsRequestExecutor {
         valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
       }
     }
-    EnumSet<OSMType> osmTypes1 = (EnumSet<OSMType>) processingData.getOsmTypes();
+    EnumSet<OSMType> osmTypes1 = processingData.getOsmTypes();
     String[] types1 = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
     String[] types2 = inputProcessor.splitParamOnComma(
@@ -799,7 +799,7 @@ public class ElementsRequestExecutor {
         inputProcessor.defineSimpleFeatureTypes(types1);
     inputProcessor.defineTypes(types2, intermediateMapRed);
     EnumSet<OSMType> osmTypes2 =
-        (EnumSet<OSMType>) inputProcessor.getProcessingData().getOsmTypes();
+        inputProcessor.getProcessingData().getOsmTypes();
     EnumSet<OSMType> osmTypes = osmTypes1.clone();
     final EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
         inputProcessor.defineSimpleFeatureTypes(types2);
@@ -810,7 +810,7 @@ public class ElementsRequestExecutor {
     if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
         requestParameters.getValues(), values2)) {
       RequestParameters requestParams =
-          new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+          new RequestParameters(isSnapshot, isDensity,
               servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
               servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
               new String[] {}, servletRequest.getParameterValues("time"),
@@ -963,14 +963,14 @@ public class ElementsRequestExecutor {
     }
     final String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
     final String filter2 =
-        inputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
+        InputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
     final String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
     final FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     final FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     final FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
-    RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
-        isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
+    RequestParameters requestParamsCombined = new RequestParameters(isSnapshot, isDensity,
+        servletRequest.getParameter("bboxes"),
         servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
         new String[] {}, new String[] {}, new String[] {},
         servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),

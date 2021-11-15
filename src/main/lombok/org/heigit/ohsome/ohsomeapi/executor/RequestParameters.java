@@ -11,7 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RequestParameters implements Serializable {
 
-  private String requestMethod;
   private boolean isSnapshot;
   private boolean isDensity;
   private String bboxes;

@@ -19,6 +19,10 @@ import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
+import org.heigit.ohsome.ohsomeapi.geometries.BBoxBuilder;
+import org.heigit.ohsome.ohsomeapi.geometries.BCircleBuilder;
+import org.heigit.ohsome.ohsomeapi.geometries.BPolyBuilder;
+import org.heigit.ohsome.ohsomeapi.geometries.FromGeoJSONGeometryBuilder;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
@@ -62,7 +66,6 @@ public class InputProcessor {
   private boolean isSnapshot;
   private boolean isDensity;
   private String requestUrl;
-  private String requestMethod;
   private String requestTimeout;
   private Map<String, String[]> requestParameters;
   private boolean includeTags;
@@ -70,8 +73,8 @@ public class InputProcessor {
   private boolean includeContributionTypes;
   private boolean clipGeometry = true;
 
-  public InputProcessor(ProcessingData processingData) {
-    this.processingData = processingData;
+  public InputProcessor(ProcessingData processionData){
+    this.processingData = processionData;
   }
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
@@ -83,7 +86,7 @@ public class InputProcessor {
     this.isSnapshot = isSnapshot;
     this.isDensity = isDensity;
     processingData =
-        new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
+        new ProcessingData(new RequestParameters(isSnapshot, isDensity,
             servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
             servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
             servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
@@ -91,7 +94,6 @@ public class InputProcessor {
             servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(),
             servletRequest.getParameter("filter")), servletRequest.getRequestURL().toString());
     this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
-    this.requestMethod = servletRequest.getMethod();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
   }
@@ -137,7 +139,7 @@ public class InputProcessor {
     String filter = createEmptyStringIfNull(processingData.getRequestParameters().getFilter());
     // overwriting RequestParameters object with splitted/non-null parameters
     processingData
-        .setRequestParameters(new RequestParameters(requestMethod, isSnapshot, isDensity, bboxes,
+        .setRequestParameters(new RequestParameters(isSnapshot, isDensity, bboxes,
             bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
@@ -155,18 +157,22 @@ public class InputProcessor {
           break;
         case BBOXES:
           processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
-          boundary = geomBuilder.createBboxes(processingData.getBoundaryValues());
+          BBoxBuilder bboxBuilder = new BBoxBuilder();
+          boundary = bboxBuilder.create(processingData.getBoundaryValues());
           break;
         case BCIRCLES:
           processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
-          boundary = geomBuilder.createCircularPolygons(processingData.getBoundaryValues());
+          BCircleBuilder bcircleBuilder = new BCircleBuilder();
+          boundary = bcircleBuilder.create(processingData.getBoundaryValues());
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
-            boundary = geomBuilder.createGeometryFromGeoJson(bpolys, this);
+            FromGeoJSONGeometryBuilder fromGeoJSONbuilder = new FromGeoJSONGeometryBuilder();
+            boundary = fromGeoJSONbuilder.create(bpolys);
           } else {
             processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
-            boundary = geomBuilder.createBpolys(processingData.getBoundaryValues());
+            BPolyBuilder bpolyBuilder = new BPolyBuilder();
+            boundary = bpolyBuilder.create(processingData.getBoundaryValues());
           }
           break;
         default:
@@ -234,7 +240,7 @@ public class InputProcessor {
     mapRed = defineTypes(types, mapRed);
     // the OSM type will be set in the ratio implementation within the ElementsRequestExecutor.java
     if (!processingData.isRatio()) {
-      mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
+      mapRed = mapRed.osmType(processingData.getOsmTypes());
     }
     if (processingData.isContainingSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
@@ -355,7 +361,7 @@ public class InputProcessor {
    * @param toCheck <code>String</code>, which is checked.
    * @return <code>String</code>, which may be empty but not null.
    */
-  public String createEmptyStringIfNull(String toCheck) {
+  public static String createEmptyStringIfNull(String toCheck) {
     if (toCheck == null) {
       toCheck = "";
     }
