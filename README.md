@@ -81,7 +81,9 @@ This service uses the ohsome API as well:
 This is a list of clients for the ohsome API:
    
 * [ohsome-py](https://github.com/GIScience/ohsome-py) - Python client
-* [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - Client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables.
+* [ohsome2x](https://www.npmjs.com/package/@giscience/ohsome2x) - nodeJS client that accepts and returns GeoJSON files and PostgreSQL/PostGIS tables
+* [ohsome R](https://github.com/GIScience/ohsome-r) - R client
+* [ohsome QGIS Plugin](https://github.com/GIScience/ohsome-qgis-plugin) - QGIS plugin
 
 You can find a dockerized version of the ohsome API [here](https://github.com/GIScience/ohsome-api-dockerized).
 
