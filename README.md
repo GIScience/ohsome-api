@@ -68,12 +68,14 @@ Here you see an example response giving the length of residential roads for a bo
 
 ## Services, Clients and Dockerized Version
 
-These services use the ohsome API:
-   
+These (HeiGIT and GIScience-internal) services use the ohsome API:
+
 * [ohsomeHeX](https://ohsome.org/apps/osm-history-explorer/)
 * [ohsome dashboard](https://ohsome.org/apps/dashboard/)
 * [ohsome2label](https://github.com/GIScience/ohsome2label)
 * [ohsome quality analyst](https://github.com/GIScience/ohsome-quality-analyst/)
+
+This service uses the ohsome API as well:
 * [is-osm-uptodate?](https://github.com/frafra/is-osm-uptodate)
 
 This is a list of clients for the ohsome API:
