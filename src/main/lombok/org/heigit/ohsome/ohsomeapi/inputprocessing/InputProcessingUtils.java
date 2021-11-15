@@ -1,40 +1,25 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
-import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.ohsome.oshdb.OSHDBTag;
+import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.TimeUtility;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.filter.FilterParser;
-import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.heigit.ohsome.oshdb.util.mappable.OSHDBMapReducible;
-import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
-import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
-import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.jparsec.error.ParserException;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Lineal;
-import org.locationtech.jts.geom.Polygonal;
-import org.locationtech.jts.geom.Puntal;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
 public class InputProcessingUtils implements Serializable {
 
-  private static final String GEOMCOLLTYPE = "GeometryCollection";
-  private Serializable[] boundaryIds;
-  private String[] toTimestamps = null;
+  private final SpatialUtility spatialUtility = new SpatialUtility();
+  private final TimeUtility timeUtility = new TimeUtility(this);
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link
@@ -49,31 +34,8 @@ public class InputProcessingUtils implements Serializable {
    */
   public String findEpsg(double lon, double lat) {
 
-    if (lat >= 84) {
-      return "EPSG:32661"; // UPS North
-    }
-    if (lat < -80) {
-      return "EPSG:32761"; // UPS South
-    }
-    int zoneNumber = (int) (Math.floor((lon + 180) / 6) + 1);
-    if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0) {
-      zoneNumber = 32;
-    }
     // Special zones for Svalbard
-    if (lat >= 72.0 && lat < 84.0) {
-      if (lon >= 0.0 && lon < 9.0) {
-        zoneNumber = 31;
-      } else if (lon >= 9.0 && lon < 21.0) {
-        zoneNumber = 33;
-      } else if (lon >= 21.0 && lon < 33.0) {
-        zoneNumber = 35;
-      } else if (lon >= 33.0 && lon < 42.0) {
-        zoneNumber = 37;
-      }
-    }
-    String isNorth = lat > 0 ? "6" : "7";
-    String zone = zoneNumber < 10 ? "0" + zoneNumber : "" + zoneNumber;
-    return "EPSG:32" + isNorth + zone;
+    return spatialUtility.findEpsg(lon, lat);
   }
 
   /**
@@ -84,23 +46,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the bboxes parameter has an invalid format
    */
   public List<String> splitBboxes(String bboxes) {
-    String[] bboxesArray = splitOnHyphen(bboxes);
-    List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Serializable[bboxesArray.length];
-    try {
-      if (bboxesArray[0].contains(":")) {
-        boundaryParamValues = splitBboxesWithIds(bboxesArray);
-      } else {
-        boundaryParamValues = splitBoundariesWithoutIds(bboxesArray, BoundaryType.BBOXES);
-      }
-    } catch (Exception e) {
-      if (e.getClass() == BadRequestException.class) {
-        throw e;
-      }
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-    }
-    boundaryParamValues.removeAll(Collections.singleton(null));
-    return boundaryParamValues;
+    return spatialUtility.splitBboxes(bboxes);
   }
 
   /**
@@ -111,23 +57,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the bcircles parameter has an invalid format
    */
   public List<String> splitBcircles(String bcircles) {
-    String[] bcirclesArray = splitOnHyphen(bcircles);
-    List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Serializable[bcirclesArray.length];
-    try {
-      if (bcirclesArray[0].contains(":")) {
-        boundaryParamValues = splitBcirclesWithIds(bcirclesArray);
-      } else {
-        boundaryParamValues = splitBoundariesWithoutIds(bcirclesArray, BoundaryType.BCIRCLES);
-      }
-    } catch (Exception e) {
-      if (e.getClass() == BadRequestException.class) {
-        throw e;
-      }
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-    }
-    boundaryParamValues.removeAll(Collections.singleton(null));
-    return boundaryParamValues;
+    return spatialUtility.splitBcircles(bcircles);
   }
 
   /**
@@ -138,25 +68,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the bpolys parameter has an invalid format
    */
   public List<String> splitBpolys(String bpolys) {
-    String[] bpolysArray = splitOnHyphen(bpolys);
-    List<String> boundaryParamValues = new ArrayList<>();
-    boundaryIds = new Serializable[bpolysArray.length];
-    try {
-      if (bpolysArray[0].contains(":")) {
-        boundaryParamValues = splitBpolysWithIds(bpolysArray);
-      } else if (bpolysArray[0].contains(",")) {
-        boundaryParamValues = splitBoundariesWithoutIds(bpolysArray, BoundaryType.BPOLYS);
-      } else {
-        throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-      }
-    } catch (Exception e) {
-      if (e.getClass() == BadRequestException.class) {
-        throw e;
-      }
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-    }
-    boundaryParamValues.removeAll(Collections.singleton(null));
-    return boundaryParamValues;
+    return spatialUtility.splitBpolys(bpolys);
   }
 
   /**
@@ -166,23 +78,7 @@ public class InputProcessingUtils implements Serializable {
    * @return array having only the toTimestamps
    */
   public String[] defineToTimestamps(String[] timeData) {
-    OSHDBTimestamps timestamps;
-    if (timeData.length == 3 && timeData[2] != null) {
-      // needed to check for interval
-      if (timeData[2].startsWith("P")) {
-        timestamps = new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]);
-        toTimestamps = timestamps.get().stream()
-            .map(oshdbTimestamp -> TimestampFormatter.getInstance().isoDateTime(oshdbTimestamp))
-            .toArray(String[]::new);
-      } else {
-        // list of timestamps
-        toTimestamps = getToTimestampsFromTimestamplist(timeData);
-      }
-    } else {
-      // list of timestamps
-      toTimestamps = getToTimestampsFromTimestamplist(timeData);
-    }
-    return toTimestamps;
+    return timeUtility.defineToTimestamps(timeData);
   }
 
   /**
@@ -215,87 +111,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
    */
   public String[] extractIsoTime(String time) {
-    String[] split = time.split("/");
-    if (split.length == 0 && !"/".equals(time)) {
-      // invalid time parameter
-      throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-    }
-    String[] timeVals = new String[3];
-    if (time.startsWith("/")) {
-      if (time.length() == 1) {
-        // only /
-        timeVals[0] = ExtractMetadata.fromTstamp;
-        timeVals[1] = ExtractMetadata.toTstamp;
-        return timeVals;
-      }
-      if (split[0].length() == 0 && split.length == 2) {
-        // /YYYY-MM-DD
-        checkTimestampsOnIsoConformity(split[1]);
-        checkTemporalExtend(split[1]);
-        timeVals[1] = split[1];
-      } else if (split.length == 3 && split[0].length() == 0 && split[1].length() == 0) {
-        // //PnYnMnD
-        checkPeriodOnIsoConformity(split[2]);
-        timeVals[1] = ExtractMetadata.toTstamp;
-        timeVals[2] = split[2];
-      } else if (split.length == 3 && split[1].length() != 0) {
-        // /YYYY-MM-DD/PnYnMnD
-        checkTimestampsOnIsoConformity(split[1]);
-        checkTemporalExtend(split[1]);
-        checkPeriodOnIsoConformity(split[2]);
-        timeVals[1] = split[1];
-        timeVals[2] = split[2];
-      } else {
-        // invalid time parameter
-        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-      }
-      timeVals[0] = ExtractMetadata.fromTstamp;
-    } else if (time.endsWith("/")) {
-      if (split.length != 1) {
-        // invalid time parameter
-        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-      }
-      // YYYY-MM-DD/
-      checkTimestampsOnIsoConformity(split[0]);
-      checkTemporalExtend(split[0]);
-      timeVals[0] = split[0];
-      timeVals[1] = ExtractMetadata.toTstamp;
-    } else if (split.length == 3) {
-      if (split[1].length() == 0) {
-        // YYYY-MM-DD//PnYnMnD
-        checkTimestampsOnIsoConformity(split[0]);
-        checkTemporalExtend(split[0]);
-        timeVals[1] = ExtractMetadata.toTstamp;
-        timeVals[2] = split[2];
-      } else {
-        // YYYY-MM-DD/YYYY-MM-DD/PnYnMnD
-        checkTimestampsOnIsoConformity(split[0], split[1]);
-        checkTemporalExtend(split[0], split[1]);
-        timeVals[1] = split[1];
-      }
-      checkPeriodOnIsoConformity(split[2]);
-      timeVals[0] = split[0];
-      timeVals[2] = split[2];
-    } else if (split.length == 2) {
-      // YYYY-MM-DD/YYYY-MM-DD
-      checkTimestampsOnIsoConformity(split[0], split[1]);
-      checkTemporalExtend(split[0], split[1]);
-      timeVals[0] = split[0];
-      timeVals[1] = split[1];
-    } else if (split.length == 1) {
-      // YYYY-MM-DD
-      checkTimestampsOnIsoConformity(split[0]);
-      checkTemporalExtend(split[0]);
-      timeVals[0] = split[0];
-      return timeVals;
-    } else {
-      // invalid time parameter
-      throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-    }
-    String[] sortedTimestamps = sortTimestamps(new String[] {timeVals[0], timeVals[1]});
-    timeVals[0] = sortedTimestamps[0];
-    timeVals[1] = sortedTimestamps[1];
-    return timeVals;
+    return timeUtility.extractIsoTime(time);
   }
 
   /**
@@ -304,18 +120,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the given time parameter is not ISO-8601 conform
    */
   public String[] sortTimestamps(String[] timestamps) {
-    List<String> timeStringList = new ArrayList<>();
-    for (String timestamp : timestamps) {
-      try {
-        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
-        checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-        timeStringList.add(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-      } catch (Exception e) {
-        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-      }
-    }
-    Collections.sort(timeStringList);
-    return timeStringList.toArray(timestamps);
+    return timeUtility.sortTimestamps(timestamps);
   }
 
   /**
@@ -324,10 +129,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the custom ids contain semicolons
    */
   public void checkCustomBoundaryId(String id) {
-    if (id.contains(";")) {
-      throw new BadRequestException("The given custom ids cannot contain semicolons, "
-          + "if you want to use csv as output format.");
-    }
+    spatialUtility.checkCustomBoundaryId(id);
   }
 
   /**
@@ -339,16 +141,12 @@ public class InputProcessingUtils implements Serializable {
    *         <code>false</code> - if not inside
    */
   public boolean isWithin(Geometry geom) {
-    if (ExtractMetadata.dataPoly != null) {
-      return geom.within(ExtractMetadata.dataPoly);
-    }
-    return true;
+    return spatialUtility.isWithin(geom);
   }
 
   /** Checks if the given String is one of the simple feature types (point, line, polygon). */
   public boolean isSimpleFeatureType(String type) {
-    return "point".equalsIgnoreCase(type) || "line".equalsIgnoreCase(type)
-        || "polygon".equalsIgnoreCase(type) || "other".equalsIgnoreCase(type);
+    return spatialUtility.isSimpleFeatureType(type);
   }
 
   /**
@@ -357,12 +155,7 @@ public class InputProcessingUtils implements Serializable {
    */
   public <T extends OSHDBMapReducible> MapReducer<T> filterOnPlanarRelations(MapReducer<T> mapRed) {
     // further filtering to not look at all relations
-    TagTranslator tt = DbConnData.tagTranslator;
-    OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
-    OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
-    return mapRed.osmEntityFilter(entity -> !entity.getType().equals(OSMType.RELATION)
-        || entity.hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
-        || entity.hasTagValue(typeBoundary.getKey(), typeBoundary.getValue()));
+    return spatialUtility.filterOnPlanarRelations(mapRed);
   }
 
   /**
@@ -373,11 +166,7 @@ public class InputProcessingUtils implements Serializable {
    */
   public boolean checkGeometryOnSimpleFeatures(Geometry geom,
       Set<SimpleFeatureType> simpleFeatureTypes) {
-    return simpleFeatureTypes.contains(SimpleFeatureType.POLYGON) && geom instanceof Polygonal
-        || simpleFeatureTypes.contains(SimpleFeatureType.POINT) && geom instanceof Puntal
-        || simpleFeatureTypes.contains(SimpleFeatureType.LINE) && geom instanceof Lineal
-        || simpleFeatureTypes.contains(SimpleFeatureType.OTHER)
-            && GEOMCOLLTYPE.equalsIgnoreCase(geom.getGeometryType());
+    return spatialUtility.checkGeometryOnSimpleFeatures(geom, simpleFeatureTypes);
   }
 
   /**
@@ -404,34 +193,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws RuntimeException if the Date or DateTime Format are not supported
    */
   protected void checkTemporalExtend(String... timeInfo) {
-    long start = 0;
-    long end = 0;
-    long timestampLong = 0;
-    try {
-      start = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.fromTstamp).toEpochSecond();
-      end = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.toTstamp).toEpochSecond();
-    } catch (Exception e) {
-      throw new RuntimeException("The ISO 8601 Date or the combined Date-Time String cannot be"
-          + " converted into a UTC based ZonedDateTime Object");
-    }
-    for (String timestamp : timeInfo) {
-      try {
-        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
-        timestampLong =
-            DateTimeFormatter.ISO_DATE_TIME.parse(zdt.format(DateTimeFormatter.ISO_DATE_TIME))
-                .getLong(ChronoField.INSTANT_SECONDS);
-        if (timestampLong < start || timestampLong > end) {
-          throw new NotFoundException(
-              "The given time parameter is not completely within the timeframe ("
-                  + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
-                  + ") of the underlying osh-data.");
-        }
-      } catch (NotFoundException e) {
-        throw e;
-      } catch (Exception e) {
-        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-      }
-    }
+    timeUtility.checkTemporalExtend(timeInfo);
   }
 
   /**
@@ -441,13 +203,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the timestamps are not ISO-8601 conform.
    */
   protected void checkTimestampsOnIsoConformity(String... timeInfo) {
-    for (String timestamp : timeInfo) {
-      try {
-        IsoDateTimeParser.parseIsoDateTime(timestamp);
-      } catch (Exception e) {
-        throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
-      }
-    }
+    timeUtility.checkTimestampsOnIsoConformity(timeInfo);
   }
 
   /**
@@ -456,12 +212,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the interval is not ISO-8601 conform.
    */
   protected void checkPeriodOnIsoConformity(String period) {
-    try {
-      IsoDateTimeParser.parseIsoPeriod(period);
-    } catch (Exception e) {
-      throw new BadRequestException(
-          "The interval (period) of the provided time parameter is not ISO-8601 conform.");
-    }
+    timeUtility.checkPeriodOnIsoConformity(period);
   }
 
   /**
@@ -472,10 +223,7 @@ public class InputProcessingUtils implements Serializable {
    * @return splitted boundaries
    */
   private String[] splitOnHyphen(String boundaryParam) {
-    if (boundaryParam.contains("|")) {
-      return boundaryParam.split("\\|");
-    }
-    return new String[] {boundaryParam};
+    return spatialUtility.splitOnHyphen(boundaryParam);
   }
 
   /**
@@ -486,14 +234,7 @@ public class InputProcessingUtils implements Serializable {
    */
   private List<String> splitBoundariesWithoutIds(String[] boundariesArray,
       BoundaryType boundaryType) {
-    List<String> boundaryParamValues = new ArrayList<>();
-    for (int i = 0; i < boundariesArray.length; i++) {
-      String[] coords = boundariesArray[i].split(",");
-      Collections.addAll(boundaryParamValues, coords);
-      boundaryIds[i] = "boundary" + (i + 1);
-    }
-    checkBoundaryParamLength(boundaryParamValues, boundaryType);
-    return boundaryParamValues;
+    return spatialUtility.splitBoundariesWithoutIds(boundariesArray, boundaryType);
   }
 
   /**
@@ -504,27 +245,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the bboxes have invalid format
    */
   private List<String> splitBboxesWithIds(String[] bboxesArray) {
-    List<String> boundaryParamValues = new ArrayList<>();
-    for (int i = 0; i < bboxesArray.length; i++) {
-      String[] coords = bboxesArray[i].split(",");
-      if (coords.length != 4) {
-        throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-      }
-      if (coords[0].contains(":")) {
-        String[] idAndCoordinate = coords[0].split(":");
-        // extract the id
-        boundaryIds[i] = idAndCoordinate[0];
-        // extract the coordinates
-        boundaryParamValues.add(idAndCoordinate[1]);
-        boundaryParamValues.add(coords[1]);
-        boundaryParamValues.add(coords[2]);
-        boundaryParamValues.add(coords[3]);
-      } else {
-        throw new BadRequestException(ExceptionMessages.BOUNDARY_IDS_FORMAT);
-      }
-    }
-    checkBoundaryParamLength(boundaryParamValues, BoundaryType.BBOXES);
-    return boundaryParamValues;
+    return spatialUtility.splitBboxesWithIds(bboxesArray);
   }
 
   /**
@@ -535,22 +256,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the bcircles have invalid format
    */
   private List<String> splitBcirclesWithIds(String[] bcirclesArray) {
-    List<String> boundaryParamValues = new ArrayList<>();
-    for (int i = 0; i < bcirclesArray.length; i++) {
-      String[] coords = bcirclesArray[i].split(",");
-      if (coords.length != 3) {
-        throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-      }
-      String[] idAndCoordinate = coords[0].split(":");
-      boundaryIds[i] = idAndCoordinate[0];
-      // extract the coordinate
-      boundaryParamValues.add(idAndCoordinate[1]);
-      boundaryParamValues.add(coords[1]);
-      // extract the radius
-      boundaryParamValues.add(coords[2]);
-    }
-    checkBoundaryParamLength(boundaryParamValues, BoundaryType.BCIRCLES);
-    return boundaryParamValues;
+    return spatialUtility.splitBcirclesWithIds(bcirclesArray);
   }
 
   /**
@@ -561,23 +267,7 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the bpolys have invalid format
    */
   private List<String> splitBpolysWithIds(String[] bpolysArray) {
-    List<String> boundaryParamValues = new ArrayList<>();
-    for (int i = 0; i < bpolysArray.length; i++) {
-      String[] coords = bpolysArray[i].split(",");
-      String[] idAndCoordinate = coords[0].split(":");
-      // extract the id and the first coordinate
-      boundaryIds[i] = idAndCoordinate[0];
-      boundaryParamValues.add(idAndCoordinate[1]);
-      // extract the other coordinates
-      for (int j = 1; j < coords.length; j++) {
-        if (coords[j].contains(":")) {
-          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-        }
-        boundaryParamValues.add(coords[j]);
-      }
-    }
-    checkBoundaryParamLength(boundaryParamValues, BoundaryType.BPOLYS);
-    return boundaryParamValues;
+    return spatialUtility.splitBpolysWithIds(bpolysArray);
   }
 
   /**
@@ -588,42 +278,27 @@ public class InputProcessingUtils implements Serializable {
    * @throws BadRequestException if the length is not even or divisible by three
    */
   private void checkBoundaryParamLength(List<String> boundaries, BoundaryType boundaryType) {
-    if ((boundaryType.equals(BoundaryType.BBOXES) || boundaryType.equals(BoundaryType.BPOLYS))
-        && boundaries.size() % 2 != 0) {
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-    }
-    if (boundaryType.equals(BoundaryType.BCIRCLES) && boundaries.size() % 3 != 0) {
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-    }
+    spatialUtility.checkBoundaryParamLength(boundaries, boundaryType);
   }
 
   /** Internal helper method to get the toTimestamps from a timestampList. */
   private String[] getToTimestampsFromTimestamplist(String[] timeData) {
-    toTimestamps = new String[timeData.length];
-    for (int i = 0; i < timeData.length; i++) {
-      try {
-        toTimestamps[i] =
-            IsoDateTimeParser.parseIsoDateTime(timeData[i]).format(DateTimeFormatter.ISO_DATE_TIME);
-      } catch (Exception e) {
-        // time gets checked earlier already, so no exception should appear here
-      }
-    }
-    return toTimestamps;
+    return timeUtility.getToTimestampsFromTimestamplist(timeData);
   }
 
   public Object[] getBoundaryIds() {
-    return boundaryIds;
+    return spatialUtility.getBoundaryIds();
   }
 
   public String[] getToTimestamps() {
-    return toTimestamps;
+    return timeUtility.getToTimestamps();
   }
 
   public void setBoundaryIds(Serializable[] boundaryIds) {
-    this.boundaryIds = boundaryIds;
+    spatialUtility.setBoundaryIds(boundaryIds);
   }
 
   public void setToTimestamps(String[] toTimestamps) {
-    this.toTimestamps = toTimestamps;
+    timeUtility.setToTimestamps(toTimestamps);
   }
 }
