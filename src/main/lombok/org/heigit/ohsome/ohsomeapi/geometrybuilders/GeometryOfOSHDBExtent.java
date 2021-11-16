@@ -1,10 +1,10 @@
-package org.heigit.ohsome.ohsomeapi.geometries;
+package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
 
-public class FromMetadataGeoJSONBuilder extends GeometryBuilder implements GeometryFromGeoJSONBuilder {
+public class GeometryOfOSHDBExtent extends GeometryBuilder implements GeometryFromGeoJSON {
 
   /**
    * Creates a Geometry object from the given GeoJSON String, which is derived from the metadata.

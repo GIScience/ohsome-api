@@ -1,13 +1,14 @@
-package org.heigit.ohsome.ohsomeapi.geometries;
+package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 
-public class BBoxBuilder extends GeometryBuilder implements OhsomePolygon {
+public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordinates {
 
   org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
 
@@ -45,7 +46,8 @@ public class BBoxBuilder extends GeometryBuilder implements OhsomePolygon {
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       Geometry result = this.unifyPolys(geometryList);
-      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder();
+      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+          InputProcessor.getProcessingData());
       geometryBuilder.getProcessingData().setBoundaryList(geometryList);
       geometryBuilder.getProcessingData().setRequestGeom(unifiedBbox);
       return result;

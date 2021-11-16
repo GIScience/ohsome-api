@@ -873,51 +873,53 @@ public class ExecutionUtils implements Serializable {
     AtomicBoolean errored = new AtomicBoolean(false);
     ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
     try {
-      threadPool.submit(() -> stream.parallel().map(data -> {
-        // 0. resolve tags
-        Map<String, Object> props = data.getProperties();
-        OSHDBTag[] tags = (OSHDBTag[]) props.remove("@tags");
-        if (tags != null) {
-          for (OSHDBTag tag : tags) {
-            OSMTag osmTag = tts.get().getOSMTagOf(tag);
-            String key = osmTag.getKey();
-            props.put(key.startsWith("@") ? "@" + key : key, osmTag.getValue());
+      threadPool.submit(() -> {
+        stream.parallel().map(data -> {
+          // 0. resolve tags
+          Map<String, Object> props = data.getProperties();
+          OSHDBTag[] tags = (OSHDBTag[]) props.remove("@tags");
+          if (tags != null) {
+            for (OSHDBTag tag : tags) {
+              OSMTag osmTag = tts.get().getOSMTagOf(tag);
+              String key = osmTag.getKey();
+              props.put(key.startsWith("@") ? "@" + key:key, osmTag.getValue());
+            }
           }
-        }
-        // 1. convert features to geojson
-        try {
-          outputBuffers.get().reset();
-          outputJsonGen.get().writeObject(data);
-          return outputBuffers.get().toByteArray();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }).forEach(data -> {
-        // 2. write data out to client
-        // only 1 thread is allowed to write at once!
-        lock.lock();
-        if (errored.get()) {
-          // when any one thread experienced an exception (e.g. a client disconnects):
-          // the "errored" flag is set and all threads abort themselves by throwing an exception
-          lock.unlock();
-          throw new RuntimeException();
-        }
-        try {
-          // separate features in the result by a comma, except for the very first one
-          if (isFirst.get()) {
-            isFirst.set(false);
-          } else {
-            outputStream.print(", ");
+          // 1. convert features to geojson
+          try {
+            outputBuffers.get().reset();
+            outputJsonGen.get().writeObject(data);
+            return outputBuffers.get().toByteArray();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
           }
-          // write the feature
-          outputStream.write(data);
-        } catch (IOException e) {
-          errored.set(true);
-          throw new RuntimeException(e);
-        } finally {
-          lock.unlock();
-        }
-      })).get();
+        }).forEach(data -> {
+          // 2. write data out to client
+          // only 1 thread is allowed to write at once!
+          lock.lock();
+          if (errored.get()) {
+            // when any one thread experienced an exception (e.g. a client disconnects):
+            // the "errored" flag is set and all threads abort themselves by throwing an exception
+            lock.unlock();
+            throw new RuntimeException();
+          }
+          try {
+            // separate features in the result by a comma, except for the very first one
+            if (isFirst.get()) {
+              isFirst.set(false);
+            } else {
+              outputStream.print(", ");
+            }
+            // write the feature
+            outputStream.write(data);
+          } catch (IOException e) {
+            errored.set(true);
+            throw new RuntimeException(e);
+          } finally {
+            lock.unlock();
+          }
+        });
+      }).get();
     } finally {
       threadPool.shutdown();
       if (keytablesConnectionPool != null) {

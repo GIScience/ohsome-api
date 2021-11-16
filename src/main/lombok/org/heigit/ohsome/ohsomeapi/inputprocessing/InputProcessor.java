@@ -19,10 +19,10 @@ import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
-import org.heigit.ohsome.ohsomeapi.geometries.BBoxBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.BCircleBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.BPolyBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.FromGeoJSONGeometryBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BBoxBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BCircleBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
@@ -62,7 +62,7 @@ public class InputProcessor {
   public static final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
-  private ProcessingData processingData;
+  private static ProcessingData processingData;
   private boolean isSnapshot;
   private boolean isDensity;
   private String requestUrl;
@@ -74,7 +74,7 @@ public class InputProcessor {
   private boolean clipGeometry = true;
 
   public InputProcessor(ProcessingData processionData){
-    this.processingData = processionData;
+    processingData = processionData;
   }
 
   public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
@@ -167,11 +167,11 @@ public class InputProcessor {
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
-            FromGeoJSONGeometryBuilder fromGeoJSONbuilder = new FromGeoJSONGeometryBuilder();
+            BPolygonFromGeoJSON fromGeoJSONbuilder = new BPolygonFromGeoJSON();
             boundary = fromGeoJSONbuilder.create(bpolys);
           } else {
             processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
-            BPolyBuilder bpolyBuilder = new BPolyBuilder();
+            BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
             boundary = bpolyBuilder.create(processingData.getBoundaryValues());
           }
           break;
@@ -800,12 +800,12 @@ public class InputProcessor {
     this.utils = utils;
   }
 
-  public ProcessingData getProcessingData() {
+  public static ProcessingData getProcessingData() {
     return processingData;
   }
 
   public void setProcessingData(ProcessingData processingData) {
-    this.processingData = processingData;
+    InputProcessor.processingData = processingData;
   }
 
   public String getRequestUrl() {

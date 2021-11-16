@@ -1,9 +1,10 @@
-package org.heigit.ohsome.ohsomeapi.geometries;
+package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -11,7 +12,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.geometry.MismatchedDimensionException;
 
-public class BPolyBuilder extends GeometryBuilder implements OhsomePolygon{
+public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoordinates {
 
   org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
   /**
@@ -45,6 +46,8 @@ public class BPolyBuilder extends GeometryBuilder implements OhsomePolygon{
         throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
       geometryList.add(bpoly);
+      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+          InputProcessor.getProcessingData());
       geometryBuilder.getProcessingData().setBoundaryList(geometryList);
       geometryBuilder.getProcessingData().setRequestGeom(bpoly);
       return bpoly;
@@ -71,8 +74,8 @@ public class BPolyBuilder extends GeometryBuilder implements OhsomePolygon{
         }
       }
       Geometry result = unifyPolys(geometryList);
-      geometryBuilder.getProcessingData().setBoundaryList(geometryList);
-      geometryBuilder.getProcessingData().setRequestGeom(result);
+      InputProcessor.getProcessingData().setBoundaryList(geometryList);
+      InputProcessor.getProcessingData().setRequestGeom(result);
       return result;
     } catch (NumberFormatException | MismatchedDimensionException e) {
       throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);

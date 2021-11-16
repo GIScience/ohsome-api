@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.ohsome.ohsomeapi.geometries.FromMetadataGeoJSONBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -105,7 +105,7 @@ public class RequestUtils {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
       ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
-      FromMetadataGeoJSONBuilder builder = new FromMetadataGeoJSONBuilder();
+      GeometryOfOSHDBExtent builder = new GeometryOfOSHDBExtent();
       builder.create(dataPolyString);
       ExtractMetadata.dataPoly = ProcessingData.getDataPolyGeom();
     }

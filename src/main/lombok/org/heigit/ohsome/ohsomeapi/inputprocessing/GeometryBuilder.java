@@ -2,11 +2,11 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import lombok.RequiredArgsConstructor;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.geometries.BBoxBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.BCircleBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.BPolyBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.FromGeoJSONGeometryBuilder;
-import org.heigit.ohsome.ohsomeapi.geometries.FromMetadataGeoJSONBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BBoxBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BCircleBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonBuilder;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
 import org.locationtech.jts.geom.Geometry;
 
 /**
@@ -14,12 +14,6 @@ import org.locationtech.jts.geom.Geometry;
  */
 @RequiredArgsConstructor
 public class GeometryBuilder {
-
-  private final BBoxBuilder BBoxBuilder = new BBoxBuilder();
-  private final BCircleBuilder BCircleBuilder = new BCircleBuilder();
-  private final BPolyBuilder BPolyBuilder = new BPolyBuilder();
-  private final FromMetadataGeoJSONBuilder geometryFromMetadataGeoJSON = new FromMetadataGeoJSONBuilder();
-  private final FromGeoJSONGeometryBuilder geometryFromGeoJSON = new FromGeoJSONGeometryBuilder();
   private final ProcessingData processingData;
 
   public GeometryBuilder() {
@@ -37,7 +31,8 @@ public class GeometryBuilder {
    * @throws BadRequestException if bboxes coordinates are invalid
    */
   public Geometry createBboxes(String[] bboxes) {
-    return BBoxBuilder.create(bboxes);
+    BBoxBuilder bboxBuilder = new BBoxBuilder();
+    return bboxBuilder.create(bboxes);
   }
 
   /**
@@ -51,7 +46,8 @@ public class GeometryBuilder {
    * @throws BadRequestException if bcircle coordinates or radius are invalid
    */
   public Geometry createCircularPolygons(String[] bpoints) {
-    return BCircleBuilder.create(bpoints);
+    BCircleBuilder bcircleBuilder = new BCircleBuilder();
+    return bcircleBuilder.create(bpoints);
   }
 
   /**
@@ -65,7 +61,8 @@ public class GeometryBuilder {
    * @throws BadRequestException if bpolys coordinates are invalid
    */
   public Geometry createBpolys(String[] bpolys) {
-    return BPolyBuilder.create(bpolys);
+  BPolygonBuilder bpolygonBuilder = new BPolygonBuilder();
+    return bpolygonBuilder.create(bpolys);
   }
 
   /**
@@ -74,6 +71,7 @@ public class GeometryBuilder {
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
   public void createGeometryFromMetadataGeoJson(String geoJson) {
+    GeometryOfOSHDBExtent geometryFromMetadataGeoJSON = new GeometryOfOSHDBExtent();
     geometryFromMetadataGeoJSON.create(geoJson);
   }
 
@@ -86,6 +84,7 @@ public class GeometryBuilder {
    *         parsed
    */
   public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
+    BPolygonFromGeoJSON geometryFromGeoJSON = new BPolygonFromGeoJSON();
     return geometryFromGeoJSON.create(geoJson);
   }
 

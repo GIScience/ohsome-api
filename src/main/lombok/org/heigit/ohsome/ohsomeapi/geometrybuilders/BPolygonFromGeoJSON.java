@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.geometries;
+package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
@@ -11,11 +11,12 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
 
-public class FromGeoJSONGeometryBuilder extends GeometryBuilder implements GeometryFromGeoJSONBuilder {
+public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFromGeoJSON {
 org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
   /**
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
@@ -26,7 +27,7 @@ org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
    *     parsed
    */
   public Geometry create(String geoJson) {
-    ArrayList<Geometry> geometryList = new ArrayList<Geometry>();
+    ArrayList<Geometry> geometryList = new ArrayList<>();
     JsonObject root = null;
     JsonArray features;
     Serializable[] boundaryIds;
@@ -74,6 +75,8 @@ org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
       }
     }
     Geometry result = unifyPolys(geometryList);
+    geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+        InputProcessor.getProcessingData());
     geometryBuilder.getProcessingData().setGeoJsonGeoms(geoJsonGeoms);
     geometryBuilder.getProcessingData().setBoundaryList(geometryList);
     geometryBuilder.getProcessingData().setRequestGeom(result);

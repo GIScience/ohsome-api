@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.geometries;
+package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
 import org.geotools.geometry.jts.JTS;
@@ -6,6 +6,7 @@ import org.geotools.referencing.CRS;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -17,7 +18,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-public class BCircleBuilder extends GeometryBuilder implements OhsomePolygon {
+public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoordinates {
   org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
@@ -55,6 +56,8 @@ public class BCircleBuilder extends GeometryBuilder implements OhsomePolygon {
             throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
           }
           geometryList.add(geom);
+          geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+              InputProcessor.getProcessingData());
           geometryBuilder.getProcessingData().setBoundaryList(geometryList);
           geometryBuilder.getProcessingData().setRequestGeom(geom);
           return geom;
@@ -62,8 +65,8 @@ public class BCircleBuilder extends GeometryBuilder implements OhsomePolygon {
         geometryList.add(geom);
       }
       Geometry result = unifyPolys(geometryList);
-      geometryBuilder.getProcessingData().setBoundaryList(geometryList);
-      geometryBuilder.getProcessingData().setRequestGeom(result);
+      InputProcessor.getProcessingData().setBoundaryList(geometryList);
+      InputProcessor.getProcessingData().setRequestGeom(result);
       return result;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {

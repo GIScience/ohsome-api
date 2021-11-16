@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.geometries;
+package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.io.Serializable;
 import java.util.ArrayList;
