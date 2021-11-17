@@ -66,6 +66,12 @@ Here you see an example response giving the length of residential roads for a bo
 }
 ```
 
+## How to Cite
+
+When using the [OSHDB](https://github.com/GIScience/oshdb) indirectly through the ohsome API for a publication, please cite it using the [`doi:10.5281/zenodo.4146990`](https://doi.org/10.5281/zenodo.4146990) or a corresponding version-specific DOI found on [zenodo](https://zenodo.org/record/4146990).
+
+For scientific papers or similar publications around the analysis of OSM history data, please consider to additionally also cite the technical paper describing the OSHDB: [`doi:10.1186/s40965-019-0061-3`](https://doi.org/10.1186/s40965-019-0061-3).
+
 ## Services, Clients and Dockerized Version
 
 ### Services using the ohsome API
