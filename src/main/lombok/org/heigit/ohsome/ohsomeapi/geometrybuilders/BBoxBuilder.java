@@ -22,7 +22,7 @@ public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordina
    * @return <code>Geometry</code> object representing the unified bounding boxes.
    * @throws BadRequestException if bboxes coordinates are invalid
    */
-  public Geometry create(String[] bboxes) {
+  public Geometry create(String[] bboxes, InputProcessor inputProcessor) {
     GeometryFactory gf;
     try {
       Geometry unifiedBbox;
@@ -46,10 +46,10 @@ public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordina
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       Geometry result = this.unifyPolys(geometryList);
-      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-          InputProcessor.getProcessingData());
-      geometryBuilder.getProcessingData().setBoundaryList(geometryList);
-      geometryBuilder.getProcessingData().setRequestGeom(unifiedBbox);
+//      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+//          inputProcessor.getProcessingData());
+      inputProcessor.getProcessingData().setBoundaryList(geometryList);
+      inputProcessor.getProcessingData().setRequestGeom(unifiedBbox);
       return result;
     } catch (NumberFormatException e) {
       throw new BadRequestException(

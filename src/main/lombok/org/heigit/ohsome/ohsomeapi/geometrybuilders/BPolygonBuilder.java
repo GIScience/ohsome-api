@@ -25,7 +25,7 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
    *     polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
    * @throws BadRequestException if bpolys coordinates are invalid
    */
-  public Geometry create(String[] bpolys) {
+  public Geometry create(String[] bpolys, InputProcessor inputProcessor) {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
@@ -46,10 +46,10 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
         throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
       geometryList.add(bpoly);
-      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-          InputProcessor.getProcessingData());
-      geometryBuilder.getProcessingData().setBoundaryList(geometryList);
-      geometryBuilder.getProcessingData().setRequestGeom(bpoly);
+//      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+//          inputProcessor.getProcessingData());
+      inputProcessor.getProcessingData().setBoundaryList(geometryList);
+      inputProcessor.getProcessingData().setRequestGeom(bpoly);
       return bpoly;
     }
     Coordinate firstPoint = null;
@@ -74,8 +74,8 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
         }
       }
       Geometry result = unifyPolys(geometryList);
-      InputProcessor.getProcessingData().setBoundaryList(geometryList);
-      InputProcessor.getProcessingData().setRequestGeom(result);
+      inputProcessor.getProcessingData().setBoundaryList(geometryList);
+      inputProcessor.getProcessingData().setRequestGeom(result);
       return result;
     } catch (NumberFormatException | MismatchedDimensionException e) {
       throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);

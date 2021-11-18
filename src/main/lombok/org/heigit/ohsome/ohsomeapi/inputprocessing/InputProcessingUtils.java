@@ -19,7 +19,7 @@ import org.locationtech.jts.geom.Geometry;
 public class InputProcessingUtils implements Serializable {
 
   private final SpatialUtility spatialUtility = new SpatialUtility();
-  private final TimeUtility timeUtility = new TimeUtility(this);
+  private final TimeUtility timeUtility = new TimeUtility();
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link
@@ -301,4 +301,13 @@ public class InputProcessingUtils implements Serializable {
   public void setToTimestamps(String[] toTimestamps) {
     timeUtility.setToTimestamps(toTimestamps);
   }
+
+  public SpatialUtility getSpatialUtility() {
+    return spatialUtility;
+  }
+
+  public TimeUtility getTimeUtility() {
+    return timeUtility;
+  }
 }
+

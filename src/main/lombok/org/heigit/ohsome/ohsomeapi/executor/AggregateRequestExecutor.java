@@ -24,7 +24,6 @@ import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
@@ -55,7 +54,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
 
   private final RequestResource requestResource;
   private final InputProcessor inputProcessor;
-  private final ProcessingData processingData;
+  //private final ProcessingData processingData;
   private final long startTime = System.currentTimeMillis();
 
   public AggregateRequestExecutor(RequestResource requestResource,
@@ -63,7 +62,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     super(servletRequest, servletResponse);
     this.requestResource = requestResource;
     inputProcessor = new InputProcessor(servletRequest, true, isDensity);
-    processingData = inputProcessor.getProcessingData();
+    //processingData = inputProcessor.getProcessingData();
   }
 
   /**
@@ -108,7 +107,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
             + "Only COUNT, LENGTH, PERIMETER, and AREA are permitted here");
     }
     Geometry geom = inputProcessor.getGeometry();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     ElementsResult[] resultSet =
         fillElementsResult(result, requestParameters.isDensity(), df, geom);
     String description = Description.aggregate(requestParameters.isDensity(),
@@ -131,19 +130,19 @@ public class AggregateRequestExecutor extends RequestExecutor {
    *         InputProcessor) computeCountLengthPerimeterAreaGbB}
    */
   public Response aggregateGroupByBoundary() throws Exception {
-    processingData.setGroupByBoundary(true);
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    inputProcessor.getProcessingData().setGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
+    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     InputProcessingUtils utils = inputProcessor.getUtils();
     var result = computeCountLengthPerimeterAreaGbB(requestResource,
-        processingData.getBoundaryType(), mapRed, inputProcessor);
+        inputProcessor.getProcessingData().getBoundaryType(), mapRed, inputProcessor);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     Object groupByName;
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
-    ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
+    ArrayList<Geometry> boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
       ElementsResult[] results = fillElementsResult(entry.getValue(), requestParameters.isDensity(),
@@ -157,7 +156,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     Metadata metadata = generateMetadata(description);
     if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
       return GroupByResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, "FeatureCollection",
-          createGeoJsonFeatures(resultSet, processingData.getGeoJsonGeoms()));
+          createGeoJsonFeatures(resultSet, inputProcessor.getProcessingData().getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
       return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
     }
@@ -170,7 +169,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
    */
   private Metadata generateMetadata(String description) {
     Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
+    if (inputProcessor.getProcessingData().isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description,
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
@@ -229,8 +228,8 @@ public class AggregateRequestExecutor extends RequestExecutor {
   private void setCsvSettingsInServletResponse() {
     servletResponse.setCharacterEncoding("UTF-8");
     servletResponse.setContentType("text/csv");
-    if (!RequestUtils.cacheNotAllowed(processingData.getRequestUrl(),
-        processingData.getRequestParameters().getTime())) {
+    if (!RequestUtils.cacheNotAllowed(inputProcessor.getProcessingData().getRequestUrl(),
+        inputProcessor.getProcessingData().getRequestParameters().getTime())) {
       servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     }
   }
@@ -341,16 +340,16 @@ public class AggregateRequestExecutor extends RequestExecutor {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
+    ArrayList<Geometry> arrGeoms = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.isContainingSimpleFeatureTypes()) {
+    if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    Optional<FilterExpression> filter = inputProcessor.getProcessingData().getFilterExpression();
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }

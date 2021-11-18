@@ -10,19 +10,18 @@ import java.util.List;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 
 public class TimeUtility implements Serializable {
-  private final InputProcessingUtils inputProcessingUtils;
+  //private final InputProcessingUtils inputProcessingUtils;
   private String[] toTimestamps;
 
-  public TimeUtility(InputProcessingUtils inputProcessingUtils) {
-    this.inputProcessingUtils = inputProcessingUtils;
-  }
+  //public TimeUtility(InputProcessingUtils inputProcessingUtils) {
+   // this.inputProcessingUtils = inputProcessingUtils;
+  //}
 
   /**
    * Defines the toTimestamps for the result json object for /users responses.

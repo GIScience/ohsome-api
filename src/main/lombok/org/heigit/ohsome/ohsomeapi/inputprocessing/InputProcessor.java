@@ -144,7 +144,7 @@ public class InputProcessor {
     processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
-    geomBuilder = new GeometryBuilder(processingData);
+    //geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
     Geometry boundary;
     try {
@@ -158,21 +158,22 @@ public class InputProcessor {
         case BBOXES:
           processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
           BBoxBuilder bboxBuilder = new BBoxBuilder();
-          boundary = bboxBuilder.create(processingData.getBoundaryValues());
+          boundary = bboxBuilder.create(processingData.getBoundaryValues(), this);
           break;
         case BCIRCLES:
           processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
           BCircleBuilder bcircleBuilder = new BCircleBuilder();
-          boundary = bcircleBuilder.create(processingData.getBoundaryValues());
+          boundary = bcircleBuilder.create(processingData.getBoundaryValues(), this);
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
+            //processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
             BPolygonFromGeoJSON fromGeoJSONbuilder = new BPolygonFromGeoJSON();
-            boundary = fromGeoJSONbuilder.create(bpolys);
+            boundary = fromGeoJSONbuilder.create(bpolys, this);
           } else {
             processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
             BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
-            boundary = bpolyBuilder.create(processingData.getBoundaryValues());
+            boundary = bpolyBuilder.create(processingData.getBoundaryValues(), this);
           }
           break;
         default:
@@ -800,7 +801,7 @@ public class InputProcessor {
     this.utils = utils;
   }
 
-  public static ProcessingData getProcessingData() {
+  public ProcessingData getProcessingData() {
     return processingData;
   }
 

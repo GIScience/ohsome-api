@@ -2,12 +2,6 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import lombok.RequiredArgsConstructor;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.geometrybuilders.BBoxBuilder;
-import org.heigit.ohsome.ohsomeapi.geometrybuilders.BCircleBuilder;
-import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonBuilder;
-import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
-import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * Includes methods to create and manipulate geometries derived from the boundary input parameters.
@@ -30,10 +24,10 @@ public class GeometryBuilder {
    * @return <code>Geometry</code> object representing the unified bounding boxes.
    * @throws BadRequestException if bboxes coordinates are invalid
    */
-  public Geometry createBboxes(String[] bboxes) {
-    BBoxBuilder bboxBuilder = new BBoxBuilder();
-    return bboxBuilder.create(bboxes);
-  }
+//  public Geometry createBboxes(String[] bboxes) {
+//    BBoxBuilder bboxBuilder = new BBoxBuilder();
+//    return bboxBuilder.create(bboxes);
+//  }
 
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
@@ -45,10 +39,10 @@ public class GeometryBuilder {
    *         bounding point(s).
    * @throws BadRequestException if bcircle coordinates or radius are invalid
    */
-  public Geometry createCircularPolygons(String[] bpoints) {
-    BCircleBuilder bcircleBuilder = new BCircleBuilder();
-    return bcircleBuilder.create(bpoints);
-  }
+//  public Geometry createCircularPolygons(String[] bpoints) {
+//    BCircleBuilder bcircleBuilder = new BCircleBuilder();
+//    return bcircleBuilder.create(bpoints);
+//  }
 
   /**
    * Creates a <code>Polygon</code> out of the coordinates in the given array. If more polygons are
@@ -60,20 +54,20 @@ public class GeometryBuilder {
    *         polygon was given or a <code>MultiPolygon</code> object, if more than one were given.
    * @throws BadRequestException if bpolys coordinates are invalid
    */
-  public Geometry createBpolys(String[] bpolys) {
-  BPolygonBuilder bpolygonBuilder = new BPolygonBuilder();
-    return bpolygonBuilder.create(bpolys);
-  }
+//  public Geometry createBpolys(String[] bpolys) {
+//  BPolygonBuilder bpolygonBuilder = new BPolygonBuilder();
+//    return bpolygonBuilder.create(bpolys);
+//  }
 
   /**
    * Creates a Geometry object from the given GeoJSON String, which is derived from the metadata.
    *
    * @throws RuntimeException if the derived GeoJSON cannot be converted to a Geometry
    */
-  public void createGeometryFromMetadataGeoJson(String geoJson) {
-    GeometryOfOSHDBExtent geometryFromMetadataGeoJSON = new GeometryOfOSHDBExtent();
-    geometryFromMetadataGeoJSON.create(geoJson);
-  }
+//  public void createGeometryFromMetadataGeoJson(String geoJson) {
+//    GeometryOfOSHDBExtent geometryFromMetadataGeoJSON = new GeometryOfOSHDBExtent();
+//    geometryFromMetadataGeoJSON.create(geoJson);
+//  }
 
   /**
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
@@ -83,10 +77,10 @@ public class GeometryBuilder {
    *         is not of the type 'FeatureCollection', or if the provided custom id(s) cannot be
    *         parsed
    */
-  public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
-    BPolygonFromGeoJSON geometryFromGeoJSON = new BPolygonFromGeoJSON();
-    return geometryFromGeoJSON.create(geoJson);
-  }
+//  public Geometry createGeometryFromGeoJson(String geoJson, InputProcessor inputProcessor) {
+//    BPolygonFromGeoJSON geometryFromGeoJSON = new BPolygonFromGeoJSON();
+//    return geometryFromGeoJSON.create(geoJson);
+//  }
 
   public ProcessingData getProcessingData() {
     return processingData;

@@ -30,7 +30,7 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
    *     bounding point(s).
    * @throws BadRequestException if bcircle coordinates or radius are invalid
    */
-  public Geometry create(String[] bpoints) {
+  public Geometry create(String[] bpoints, InputProcessor inputProcessor) {
     GeometryFactory geomFact = new GeometryFactory();
     Geometry buffer;
     Geometry geom;
@@ -56,17 +56,17 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
             throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
           }
           geometryList.add(geom);
-          geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-              InputProcessor.getProcessingData());
-          geometryBuilder.getProcessingData().setBoundaryList(geometryList);
-          geometryBuilder.getProcessingData().setRequestGeom(geom);
+//          geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
+//              inputProcessor.getProcessingData());
+          inputProcessor.getProcessingData().setBoundaryList(geometryList);
+          inputProcessor.getProcessingData().setRequestGeom(geom);
           return geom;
         }
         geometryList.add(geom);
       }
       Geometry result = unifyPolys(geometryList);
-      InputProcessor.getProcessingData().setBoundaryList(geometryList);
-      InputProcessor.getProcessingData().setRequestGeom(result);
+      inputProcessor.getProcessingData().setBoundaryList(geometryList);
+      inputProcessor.getProcessingData().setRequestGeom(result);
       return result;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {

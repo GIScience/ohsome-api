@@ -15,7 +15,6 @@ import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
@@ -35,7 +34,7 @@ public class DataRequestExecutor extends RequestExecutor {
 
   private final RequestResource requestResource;
   private final InputProcessor inputProcessor;
-  private final ProcessingData processingData;
+  //private final ProcessingData processingData;
   private final ElementsGeometry elementsGeometry;
 
   public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry,
@@ -44,7 +43,7 @@ public class DataRequestExecutor extends RequestExecutor {
     this.requestResource = requestResource;
     this.elementsGeometry = elementsGeometry;
     inputProcessor = new InputProcessor(servletRequest, false, false);
-    processingData = inputProcessor.getProcessingData();
+    //processingData = inputProcessor.getProcessingData();
   }
 
   /**
@@ -75,7 +74,8 @@ public class DataRequestExecutor extends RequestExecutor {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
     }
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
     if (time.length != 2) {
@@ -85,7 +85,7 @@ public class DataRequestExecutor extends RequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     String[] keys = requestParameters.getKeys();
     final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
-    final ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+    final ExecutionUtils exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();
     InputProcessingUtils utils = inputProcessor.getUtils();
@@ -97,19 +97,19 @@ public class DataRequestExecutor extends RequestExecutor {
         requestResource.equals(RequestResource.CONTRIBUTIONSLATEST);
     final boolean isContributionsEndpoint =
         isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS);
-    final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
+    final Set<SimpleFeatureType> simpleFeatureTypes = inputProcessor.getProcessingData().getSimpleFeatureTypes();
     String startTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
     MapReducer<List<OSMEntitySnapshot>> mapRedSnapshots = mapRedSnapshot.groupByEntity();
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    Optional<FilterExpression> filter = inputProcessor.getProcessingData().getFilterExpression();
     if (filter.isPresent()) {
       mapRedSnapshots = mapRedSnapshots.filter(filter.get());
       mapRedContributions = mapRedContributions.filter(filter.get());
     }
-    final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
+    final boolean isContainingSimpleFeatureTypes = inputProcessor.getProcessingData().isContainingSimpleFeatureTypes();
     DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
         startTimestamp, endTimestamp, filter.orElse(null), isContributionsEndpoint,
         isContributionsLatestEndpoint,
@@ -120,7 +120,7 @@ public class DataRequestExecutor extends RequestExecutor {
         .flatMap(dataExtractionTransformer::buildChangedFeatures)
         .filter(Objects::nonNull);
     Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
+    if (inputProcessor.getProcessingData().isShowMetadata()) {
       metadata = new Metadata(null, requestResource.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }

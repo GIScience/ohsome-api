@@ -34,6 +34,7 @@
     <jsonpath.version>2.2.0</jsonpath.version>
     <jts2geojson.version>0.13.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
+    <mockito.version>4.0.0</mockito.version>
     <opencsv.version>4.0</opencsv.version>
     <oshdb.version>0.7.2</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
@@ -192,6 +193,11 @@
       <version>${projectlombok.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -254,7 +260,7 @@
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
-    </resources> 
+    </resources>
   </build>
 
   <repositories>

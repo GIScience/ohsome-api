@@ -24,10 +24,7 @@ import org.locationtech.jts.geom.Puntal;
 
 public class SpatialUtility implements Serializable {
   public static final String GEOMCOLLTYPE = "GeometryCollection";
-  public Serializable[] boundaryIds;
-
-  public SpatialUtility() {
-  }
+  private Serializable[] boundaryIds;
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link
@@ -78,7 +75,7 @@ public class SpatialUtility implements Serializable {
    */
   public List<String> splitBboxes(String bboxes) {
     String[] bboxesArray = splitOnHyphen(bboxes);
-    List<String> boundaryParamValues = new ArrayList<String>();
+    List<String> boundaryParamValues = new ArrayList<>();
     boundaryIds = new Serializable[bboxesArray.length];
     try {
       if (bboxesArray[0].contains(":")) {
