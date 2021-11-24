@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -95,6 +96,7 @@ import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.Puntal;
 import org.locationtech.jts.precision.GeometryPrecisionReducer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
@@ -104,7 +106,8 @@ public class ExecutionUtils implements Serializable {
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
-
+  @Autowired
+  HttpServletRequest servletRequest;
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
@@ -640,8 +643,8 @@ public class ExecutionUtils implements Serializable {
       metadata = new Metadata(duration,
           Description.aggregateRatio(reqRes.getDescription(), reqRes.getUnit()), requestUrl);
     }
-    RequestParameters requestParameters = processingData.getRequestParameters();
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    //RequestParameters requestParameters = processingData.getRequestParameters();
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       writeCsvResponse(resultSet, servletResponse, createCsvTopComments(ElementsRequestExecutor.URL,
           ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
       return null;
@@ -683,15 +686,15 @@ public class ExecutionUtils implements Serializable {
           Description.aggregateRatioGroupByBoundary(reqRes.getDescription(), reqRes.getUnit()),
           requestUrl);
     }
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     Attribution attribution =
         new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
-    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
           "FeatureCollection",
           GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       writeCsvResponse(groupByResultSet, servletResponse,
           createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
               Application.API_VERSION, metadata));
@@ -934,7 +937,7 @@ public class ExecutionUtils implements Serializable {
     servletResponse.setCharacterEncoding("UTF-8");
     servletResponse.setContentType("text/csv");
     if (!RequestUtils.cacheNotAllowed(processingData.getRequestUrl(),
-        processingData.getRequestParameters().getTime())) {
+        servletRequest.getParameterValues("time"))) {
       servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     }
     return servletResponse;

@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
+import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,8 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
@@ -27,23 +30,42 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.wololo.geojson.Feature;
 
 /** Holds executor methods for the following endpoints: /elementsFullHistory, /contributions. */
-public class DataRequestExecutor extends RequestExecutor {
+@Component
+public class DataRequestExecutor {
 
   private final RequestResource requestResource;
-  private final InputProcessor inputProcessor;
+  protected static final String URL = ExtractMetadata.attributionUrl;
+  protected static final String TEXT = ExtractMetadata.attributionShort;
+  protected static final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
+  public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
+  @Autowired
+  InputProcessor inputProcessor;
+  @Autowired
+  InputProcessor snapshotInputProcessor;
   //private final ProcessingData processingData;
   private final ElementsGeometry elementsGeometry;
+  @Autowired
+  HttpServletRequest servletRequest;
+  @Autowired
+  HttpServletResponse servletResponse;
 
-  public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-    super(servletRequest, servletResponse);
+  public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry) {
     this.requestResource = requestResource;
     this.elementsGeometry = elementsGeometry;
-    inputProcessor = new InputProcessor(servletRequest, false, false);
+    //inputProcessor = new InputProcessor(servletRequest, false, false);
     //processingData = inputProcessor.getProcessingData();
+  }
+
+  public void setInputProcessorFields() {
+System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
+    //    inputProcessor.create();
+//    inputProcessor.setSnapshot(false);
+//    inputProcessor.setDensity(false);
   }
 
   /**
@@ -59,8 +81,11 @@ public class DataRequestExecutor extends RequestExecutor {
    *         streamElementsResponse}
    */
   public void extract() throws Exception {
-    inputProcessor.getProcessingData().setFullHistory(true);
-    InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
+    setInputProcessorFields();
+    snapshotInputProcessor.getProcessingData().setFullHistory(true);
+    snapshotInputProcessor.setSnapshot(true);
+    snapshotInputProcessor.setDensity(false);
+    //InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
     snapshotInputProcessor.getProcessingData().setFullHistory(true);
     MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
     MapReducer<OSMContribution> mapRedContribution = null;
@@ -74,7 +99,7 @@ public class DataRequestExecutor extends RequestExecutor {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
     }
-    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
@@ -83,7 +108,7 @@ public class DataRequestExecutor extends RequestExecutor {
           ExceptionMessages.TIME_FORMAT_CONTRS_EXTRACTION_AND_FULL_HISTORY);
     }
     TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys = requestParameters.getKeys();
+    String[] keys = inputProcessor.getKeys();
     final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     final ExecutionUtils exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
     inputProcessor.processPropertiesParam();
@@ -98,9 +123,9 @@ public class DataRequestExecutor extends RequestExecutor {
     final boolean isContributionsEndpoint =
         isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS);
     final Set<SimpleFeatureType> simpleFeatureTypes = inputProcessor.getProcessingData().getSimpleFeatureTypes();
-    String startTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[0])
+    String startTimestamp = IsoDateTimeParser.parseIsoDateTime(inputProcessor.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
-    String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
+    String endTimestamp = IsoDateTimeParser.parseIsoDateTime(inputProcessor.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
     MapReducer<List<OSMEntitySnapshot>> mapRedSnapshots = mapRedSnapshot.groupByEntity();
@@ -122,7 +147,7 @@ public class DataRequestExecutor extends RequestExecutor {
     Metadata metadata = null;
     if (inputProcessor.getProcessingData().isShowMetadata()) {
       metadata = new Metadata(null, requestResource.getDescription(),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
     ExtractionResponse osmData = new ExtractionResponse(ATTRIBUTION, Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());

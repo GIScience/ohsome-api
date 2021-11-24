@@ -24,6 +24,8 @@ import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
@@ -46,23 +48,46 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Holds relevant execution methods for various aggregation requests.
  */
-public class AggregateRequestExecutor extends RequestExecutor {
+@Component
+public class AggregateRequestExecutor {
 
-  private final RequestResource requestResource;
-  private final InputProcessor inputProcessor;
+  @Autowired
+  InputProcessor inputProcessor;
+  @Autowired
+  HttpServletRequest servletRequest;
+  @Autowired
+  HttpServletResponse servletResponse;
+
+  private final RequestResource requestResource = RequestResource.COUNT;
+  //private final InputProcessor inputProcessor;
   //private final ProcessingData processingData;
   private final long startTime = System.currentTimeMillis();
+  boolean isDensity = false;
+  protected static final String URL = ExtractMetadata.attributionUrl;
+  protected static final String TEXT = ExtractMetadata.attributionShort;
+  protected static final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
+  public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
-  public AggregateRequestExecutor(RequestResource requestResource,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity) {
-    super(servletRequest, servletResponse);
-    this.requestResource = requestResource;
-    inputProcessor = new InputProcessor(servletRequest, true, isDensity);
-    //processingData = inputProcessor.getProcessingData();
+
+//  public AggregateRequestExecutor(RequestResource requestResource,
+//      HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isDensity) {
+//    super(servletRequest, servletResponse);
+//    this.requestResource = requestResource;
+//  this.isDensity = isDensity;
+//    //inputProcessor = new InputProcessor(servletRequest, true, isDensity);
+//    //processingData = inputProcessor.getProcessingData();
+//  }
+
+  public void setInputProcessor() {
+    inputProcessor.create();
+    inputProcessor.setSnapshot(true);
+    inputProcessor.setDensity(isDensity);
   }
 
   /**
@@ -79,6 +104,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
   public Response aggregate() throws Exception {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
+    //setInputProcessor();
     mapRed = inputProcessor.processParameters();
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
@@ -107,13 +133,13 @@ public class AggregateRequestExecutor extends RequestExecutor {
             + "Only COUNT, LENGTH, PERIMETER, and AREA are permitted here");
     }
     Geometry geom = inputProcessor.getGeometry();
-    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     ElementsResult[] resultSet =
-        fillElementsResult(result, requestParameters.isDensity(), df, geom);
-    String description = Description.aggregate(requestParameters.isDensity(),
+        fillElementsResult(result, inputProcessor.isDensity(), df, geom);
+    String description = Description.aggregate(inputProcessor.isDensity(),
         requestResource.getDescription(), requestResource.getUnit());
     Metadata metadata = generateMetadata(description);
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
     }
     return DefaultAggregationResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, resultSet);
@@ -132,7 +158,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
   public Response aggregateGroupByBoundary() throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
-    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     InputProcessingUtils utils = inputProcessor.getUtils();
     var result = computeCountLengthPerimeterAreaGbB(requestResource,
         inputProcessor.getProcessingData().getBoundaryType(), mapRed, inputProcessor);
@@ -145,19 +171,19 @@ public class AggregateRequestExecutor extends RequestExecutor {
     ArrayList<Geometry> boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = fillElementsResult(entry.getValue(), requestParameters.isDensity(),
+      ElementsResult[] results = fillElementsResult(entry.getValue(), inputProcessor.isDensity(),
           df, boundaries.get(count));
       groupByName = boundaryIds[count];
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
     }
-    String description = Description.aggregate(requestParameters.isDensity(),
+    String description = Description.aggregate(inputProcessor.isDensity(),
         requestResource.getDescription(), requestResource.getUnit());
     Metadata metadata = generateMetadata(description);
-    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       return GroupByResponse.of(ATTRIBUTION, Application.API_VERSION, metadata, "FeatureCollection",
           createGeoJsonFeatures(resultSet, inputProcessor.getProcessingData().getGeoJsonGeoms()));
-    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
     }
     return new GroupByResponse(ATTRIBUTION, Application.API_VERSION, metadata, resultSet);
@@ -172,7 +198,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     if (inputProcessor.getProcessingData().isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, description,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
     return metadata;
   }
@@ -229,7 +255,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     servletResponse.setCharacterEncoding("UTF-8");
     servletResponse.setContentType("text/csv");
     if (!RequestUtils.cacheNotAllowed(inputProcessor.getProcessingData().getRequestUrl(),
-        inputProcessor.getProcessingData().getRequestParameters().getTime())) {
+        inputProcessor.getTime())) {
       servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     }
   }

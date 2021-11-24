@@ -10,7 +10,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,7 +21,6 @@ import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
-import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BBoxBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BCircleBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonBuilder;
@@ -44,6 +46,9 @@ import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.TopologyException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /**
@@ -54,17 +59,17 @@ import org.wololo.jts2geojson.GeoJSONWriter;
  * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws
  * exceptions depending on their validity.
  */
+@Component
+@RequestScope
 public class InputProcessor {
 
   /*
    * Represents about 1/500 of 180° * 360°.
    */
-  public static final int COMPUTE_MODE_THRESHOLD = 130;
+  public final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
   private InputProcessingUtils utils;
   private static ProcessingData processingData;
-  private boolean isSnapshot;
-  private boolean isDensity;
   private String requestUrl;
   private String requestTimeout;
   private Map<String, String[]> requestParameters;
@@ -72,30 +77,78 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean includeContributionTypes;
   private boolean clipGeometry = true;
+  @Autowired
+  HttpServletRequest servletRequest;
+  @Getter @Setter
+  private boolean isSnapshot;
+  @Getter @Setter
+  private boolean isDensity;
+  @Getter @Setter
+  String[] time;
+  @Getter @Setter
+  String[] keys;
+  @Getter @Setter
+  String bboxes;
+  @Getter @Setter
+  String bcircles;
+  @Getter @Setter
+  String bpolys;
+  @Getter @Setter
+  String[] types;
+  @Getter @Setter
+  String format;
+  @Getter @Setter
+  String showMetadata;
+  @Getter @Setter
+  String filter;
+  @Getter @Setter
+  double timeout;
+  @Getter @Setter
+  String[] values;
+  @Autowired
+  RequestUtils requestUtils;
+//  public InputProcessor(){
+//
+//  }
+//  public InputProcessor(ProcessingData processionData){
+//    processingData = processionData;
+//  }
 
-  public InputProcessor(ProcessingData processionData){
-    processingData = processionData;
-  }
+//  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+//    if (DbConnData.db instanceof OSHDBIgnite) {
+//      checkClusterAvailability();
+//    }
+//    checkContentTypeHeader(servletRequest);
+//    checkParameters(servletRequest);
+//    //this.servletRequest = servletRequest;
+//    this.isSnapshot = isSnapshot;
+//    this.isDensity = isDensity;
+//    processingData =
+//        new ProcessingData(servletRequest.getRequestURL().toString());
+//    this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
+//    this.requestTimeout = servletRequest.getParameter("timeout");
+//    this.requestParameters = servletRequest.getParameterMap();
+//  }
 
-  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
+  @PostConstruct
+  public void create() {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
-    checkContentTypeHeader(servletRequest);
-    checkParameters(servletRequest);
-    this.isSnapshot = isSnapshot;
-    this.isDensity = isDensity;
+    //this.servletRequest = servletRequest;
+    checkContentTypeHeader();
+    checkParameters();
+    //this.servletRequest = servletRequest;
+//    this.isSnapshot = isSnapshot;
+//    this.isDensity = isDensity;
     processingData =
-        new ProcessingData(new RequestParameters(isSnapshot, isDensity,
-            servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-            servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
-            servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
-            servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-            servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(),
-            servletRequest.getParameter("filter")), servletRequest.getRequestURL().toString());
-    this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
+        new ProcessingData(servletRequest.getRequestURL().toString());
+    //RequestUtils requestUtils = new RequestUtils();
+    this.requestUrl = requestUtils.extractRequestUrl();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
+    this.setSnapshot(true);
+    this.setDensity(isDensity);
   }
 
   /**
@@ -121,27 +174,28 @@ public class InputProcessor {
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
   public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
       throws Exception {
-    String bboxes = createEmptyStringIfNull(processingData.getRequestParameters().getBboxes());
-    String bcircles = createEmptyStringIfNull(processingData.getRequestParameters().getBcircles());
-    String bpolys = createEmptyStringIfNull(processingData.getRequestParameters().getBpolys());
-    String[] types =
-        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTypes()));
-    String[] keys =
-        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getKeys()));
-    String[] values = splitParamOnComma(
-        createEmptyArrayIfNull(processingData.getRequestParameters().getValues()));
-    String[] time =
-        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTime()));
-    String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
-    String showMetadata =
-        createEmptyStringIfNull(processingData.getRequestParameters().getShowMetadata());
-    double timeout = defineRequestTimeout();
-    String filter = createEmptyStringIfNull(processingData.getRequestParameters().getFilter());
+    bboxes = createEmptyStringIfNull(servletRequest.getParameter("bboxes"));
+    bcircles = createEmptyStringIfNull(servletRequest.getParameter("bcircles"));
+    bpolys = createEmptyStringIfNull(servletRequest.getParameter("bpolys"));
+    types =
+        splitParamOnComma(createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
+    keys =
+        splitParamOnComma(createEmptyArrayIfNull(servletRequest.getParameterValues("keys")));
+    values = splitParamOnComma(
+        createEmptyArrayIfNull(servletRequest.getParameterValues("values")));
+    time =
+        splitParamOnComma(createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
+    format = createEmptyStringIfNull(servletRequest.getParameter("format"));
+    showMetadata =
+        createEmptyStringIfNull(servletRequest.getParameter("showMetadata"));
+    filter = createEmptyStringIfNull(servletRequest.getParameter("filter"));
+    timeout = defineRequestTimeout();
+
     // overwriting RequestParameters object with splitted/non-null parameters
-    processingData
-        .setRequestParameters(new RequestParameters(isSnapshot, isDensity, bboxes,
-            bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
-    processingData.setFormat(format);
+//    processingData
+//        .setRequestParameters(new RequestParameters(isSnapshot, isDensity, bboxes,
+//            bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
+ //   processingData.setFormat(format);
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
     //geomBuilder = new GeometryBuilder(processingData);
@@ -158,22 +212,32 @@ public class InputProcessor {
         case BBOXES:
           processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
           BBoxBuilder bboxBuilder = new BBoxBuilder();
-          boundary = bboxBuilder.create(processingData.getBoundaryValues(), this);
+          boundary = bboxBuilder.create(processingData.getBoundaryValues());
+          this.getProcessingData().setBoundaryList(bboxBuilder.getGeometryList());
+          this.getProcessingData().setRequestGeom(bboxBuilder.getUnifiedBbox());
           break;
         case BCIRCLES:
           processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
           BCircleBuilder bcircleBuilder = new BCircleBuilder();
-          boundary = bcircleBuilder.create(processingData.getBoundaryValues(), this);
+          boundary = bcircleBuilder.create(processingData.getBoundaryValues());
+          this.getProcessingData().setBoundaryList(bcircleBuilder.getGeometryList());
+          this.getProcessingData().setRequestGeom(bcircleBuilder.getGeom());
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
             //processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
             BPolygonFromGeoJSON fromGeoJSONbuilder = new BPolygonFromGeoJSON();
-            boundary = fromGeoJSONbuilder.create(bpolys, this);
+            boundary = fromGeoJSONbuilder.create(bpolys);
+            this.getProcessingData().setGeoJsonGeoms(fromGeoJSONbuilder.getGeoJsonGeoms());
+            this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getBoundaryList());
+            this.getProcessingData().setRequestGeom(fromGeoJSONbuilder.getGeometry());
+            this.getUtils().getSpatialUtility().setBoundaryIds(fromGeoJSONbuilder.getBoundaryIds());
           } else {
             processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
             BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
-            boundary = bpolyBuilder.create(processingData.getBoundaryValues(), this);
+            boundary = bpolyBuilder.create(processingData.getBoundaryValues());
+            this.getProcessingData().setBoundaryList(bpolyBuilder.getGeometryList());
+            this.getProcessingData().setRequestGeom(bpolyBuilder.getGeometry());
           }
           break;
         default:
@@ -223,8 +287,8 @@ public class InputProcessor {
       }
     }
     processShowMetadata(showMetadata);
-    checkFormat(processingData.getFormat());
-    if ("geojson".equalsIgnoreCase(processingData.getFormat())) {
+    checkFormat(servletRequest.getParameter("format"));
+    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       GeoJSONWriter writer = new GeoJSONWriter();
       Collection<Geometry> boundaryColl = processingData.getBoundaryList();
       GeoJsonObject[] geoJsonGeoms = new GeoJsonObject[boundaryColl.size()];
@@ -441,7 +505,7 @@ public class InputProcessor {
   }
 
   /** Returns the request URL if a GET request was sent. */
-  public String getRequestUrlIfGetRequest(HttpServletRequest servletRequest) {
+  public String getRequestUrlIfGetRequest() {
     if (!"post".equalsIgnoreCase(servletRequest.getMethod())) {
       return this.getRequestUrl();
     }
@@ -703,7 +767,7 @@ public class InputProcessor {
    *
    * @throws BadRequestException if an unsupported header is given.
    */
-  private void checkContentTypeHeader(HttpServletRequest servletRequest) {
+  private void checkContentTypeHeader() {
     String contentType = servletRequest.getHeader("content-type");
     if (contentType == null) {
       return;
@@ -723,7 +787,7 @@ public class InputProcessor {
    * @throws BadRequestException in case of no parameters, invalid parameters or if parameters are
    *     given more than once.
    */
-  private void checkParameters(HttpServletRequest servletRequest) {
+  private void checkParameters() {
     if (servletRequest.getParameterMap().isEmpty()) {
       throw new BadRequestException(ExceptionMessages.NO_DEFINED_PARAMS);
     }

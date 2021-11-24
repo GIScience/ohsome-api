@@ -42,7 +42,7 @@ public class ElementsFullHistoryController {
   public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
-        ElementsGeometry.RAW, servletRequest, servletResponse);
+        ElementsGeometry.RAW);
     executor.extract();
   }
 
@@ -67,7 +67,7 @@ public class ElementsFullHistoryController {
   public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
-        ElementsGeometry.BBOX, servletRequest, servletResponse);
+        ElementsGeometry.BBOX);
     executor.extract();
   }
 
@@ -91,7 +91,7 @@ public class ElementsFullHistoryController {
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
-        ElementsGeometry.CENTROID, servletRequest, servletResponse);
+        ElementsGeometry.CENTROID);
     executor.extract();
   }
 }

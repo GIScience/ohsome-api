@@ -16,6 +16,7 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements/area")
 public class AreaController {
+
+  @Autowired
+  AggregateRequestExecutor executor;
 
   /**
    * Gives the area of OSM objects.
@@ -44,8 +48,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response area(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
+//    AggregateRequestExecutor executor =
+//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
     return executor.aggregate();
   }
 
@@ -68,7 +72,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.AREA, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByType(RequestResource.AREA, servletRequest,
         servletResponse, true, false);
   }
 
@@ -89,8 +94,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
+//    AggregateRequestExecutor executor =
+//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
     return executor.aggregateGroupByBoundary();
   }
 
@@ -116,7 +121,8 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.AREA,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByBoundaryGroupByTag(RequestResource.AREA,
         servletRequest, servletResponse, true, false);
   }
 
@@ -139,7 +145,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByKey(RequestResource.AREA, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByKey(RequestResource.AREA, servletRequest,
         servletResponse, true, false);
   }
 
@@ -165,7 +172,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.AREA, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByTag(RequestResource.AREA, servletRequest,
         servletResponse, true, false);
   }
 
@@ -187,8 +195,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
+//    AggregateRequestExecutor executor =
+//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
     return executor.aggregate();
   }
 
@@ -211,7 +219,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.AREA, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByType(RequestResource.AREA, servletRequest,
         servletResponse, true, true);
   }
 
@@ -233,8 +242,8 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
+//    AggregateRequestExecutor executor =
+//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
     return executor.aggregateGroupByBoundary();
   }
 
@@ -260,7 +269,8 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.AREA,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByBoundaryGroupByTag(RequestResource.AREA,
         servletRequest, servletResponse, true, true);
   }
 
@@ -286,7 +296,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.AREA, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByTag(RequestResource.AREA, servletRequest,
         servletResponse, true, true);
   }
 
@@ -315,7 +326,8 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    return ElementsRequestExecutor.aggregateRatio(RequestResource.AREA, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateRatio(RequestResource.AREA, servletRequest,
         servletResponse);
   }
 
@@ -343,7 +355,8 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.AREA,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateRatioGroupByBoundary(RequestResource.AREA,
         servletRequest, servletResponse);
   }
 }

@@ -16,6 +16,7 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elements/length")
 public class LengthController {
+
+  @Autowired
+  AggregateRequestExecutor executor;
 
   /**
    * Gives the length of OSM elements.
@@ -44,8 +48,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
-        servletRequest, servletResponse, false);
+//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
+//        servletRequest, servletResponse, false);
     return executor.aggregate();
   }
 
@@ -65,7 +69,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
         servletResponse, true, false);
   }
 
@@ -89,8 +94,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
-        servletRequest, servletResponse, false);
+//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
+//        servletRequest, servletResponse, false);
     return executor.aggregateGroupByBoundary();
   }
 
@@ -116,7 +121,8 @@ public class LengthController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, false);
   }
 
@@ -139,7 +145,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByKey(RequestResource.LENGTH, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByKey(RequestResource.LENGTH, servletRequest,
         servletResponse, true, false);
   }
 
@@ -165,7 +172,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
         servletResponse, true, false);
   }
 
@@ -187,8 +195,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
+//    AggregateRequestExecutor executor =
+//        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
     return executor.aggregate();
   }
 
@@ -208,7 +216,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
         servletResponse, true, true);
   }
 
@@ -231,8 +240,8 @@ public class LengthController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    AggregateRequestExecutor executor =
-        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
+//    AggregateRequestExecutor executor =
+//        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
     return executor.aggregateGroupByBoundary();
   }
 
@@ -258,7 +267,8 @@ public class LengthController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
         servletRequest, servletResponse, true, true);
   }
 
@@ -284,7 +294,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
         servletResponse, true, true);
   }
 
@@ -311,7 +322,8 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthRatio(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateRatio(RequestResource.LENGTH, servletRequest,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateRatio(RequestResource.LENGTH, servletRequest,
         servletResponse);
   }
 
@@ -339,7 +351,8 @@ public class LengthController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    return ElementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.LENGTH,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    return executor.aggregateRatioGroupByBoundary(RequestResource.LENGTH,
         servletRequest, servletResponse);
   }
 }

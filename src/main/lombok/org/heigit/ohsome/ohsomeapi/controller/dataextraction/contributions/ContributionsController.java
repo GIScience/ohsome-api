@@ -42,7 +42,7 @@ public class ContributionsController {
   public void contributions(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
-        ElementsGeometry.RAW, servletRequest, servletResponse);
+        ElementsGeometry.RAW);
     executor.extract();
   }
 
@@ -66,7 +66,7 @@ public class ContributionsController {
   public void contributionsBbox(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
-        ElementsGeometry.BBOX, servletRequest, servletResponse);
+        ElementsGeometry.BBOX);
     executor.extract();
   }
 
@@ -90,7 +90,7 @@ public class ContributionsController {
   public void contributionsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
-        ElementsGeometry.CENTROID, servletRequest, servletResponse);
+        ElementsGeometry.CENTROID);
     executor.extract();
   }
 
@@ -115,7 +115,7 @@ public class ContributionsController {
   public void contributionsLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
-        ElementsGeometry.RAW, servletRequest, servletResponse);
+        ElementsGeometry.RAW);
     executor.extract();
   }
 
@@ -137,10 +137,9 @@ public class ContributionsController {
       required = true)
   @RequestMapping(value = "/latest/bbox", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
-  public void contributionsBboxLatest(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
+  public void contributionsBboxLatest() throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
-        ElementsGeometry.BBOX, servletRequest, servletResponse);
+        ElementsGeometry.BBOX);
     executor.extract();
   }
 
@@ -165,7 +164,7 @@ public class ContributionsController {
   public void contributionsCentroidLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
-        ElementsGeometry.CENTROID, servletRequest, servletResponse);
+        ElementsGeometry.CENTROID);
     executor.extract();
   }
 

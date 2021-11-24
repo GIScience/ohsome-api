@@ -11,13 +11,15 @@ import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.oshdb.api.db.OSHDBDatabase;
 import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** Utils class containing request-specific static utility methods. */
+@Component
 public class RequestUtils {
 
-  private RequestUtils() {
-    throw new IllegalStateException("Utility class");
-  }
+  @Autowired
+  HttpServletRequest servletRequest;
 
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.
@@ -25,12 +27,12 @@ public class RequestUtils {
    * @param request sent <code>HttpServletRequest</code> object
    * @return <code>String</code> that contains the received request URL
    */
-  public static String extractRequestUrl(HttpServletRequest request) {
-    String queryString = request.getQueryString();
-    if (request.getHeader("X-REQUEST-URI") != null) {
-      return request.getHeader("X-REQUEST-URI") + "?" + queryString;
+  public String extractRequestUrl() {
+    String queryString = servletRequest.getQueryString();
+    if (servletRequest.getHeader("X-REQUEST-URI") != null) {
+      return servletRequest.getHeader("X-REQUEST-URI") + "?" + queryString;
     } else {
-      return request.getRequestURL() + "?" + queryString;
+      return servletRequest.getRequestURL() + "?" + queryString;
     }
   }
 

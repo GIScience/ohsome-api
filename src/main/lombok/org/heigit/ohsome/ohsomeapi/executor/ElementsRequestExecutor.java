@@ -29,7 +29,6 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
@@ -60,18 +59,21 @@ import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.wololo.geojson.Feature;
 
 /** Includes all execute methods for requests mapped to /elements. */
+@Component
 public class ElementsRequestExecutor {
 
   public static final String URL = ExtractMetadata.attributionUrl;
   public static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
-
-  private ElementsRequestExecutor() {
-    throw new IllegalStateException("Utility class");
-  }
+  @Autowired
+  HttpServletRequest servletRequest;
+  @Autowired
+  InputProcessor inputProcessor;
 
   /**
    * Performs an OSM data extraction.
@@ -90,9 +92,11 @@ public class ElementsRequestExecutor {
    *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
    */
-  public static void extract(RequestResource requestResource, ElementsGeometry elemGeom,
+  public void extract(RequestResource requestResource, ElementsGeometry elemGeom,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
+    inputProcessor.setSnapshot(true);
+    inputProcessor.setDensity(false);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, true, false);
     MapReducer<OSMEntitySnapshot> mapRed = null;
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();
@@ -108,9 +112,9 @@ public class ElementsRequestExecutor {
       mapRed = inputProcessor.processParameters();
     }
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys = requestParameters.getKeys();
+    String[] keys = servletRequest.getParameterValues("keys");
     final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     final MapReducer<Feature> preResult;
     final ExecutionUtils exeUtils = new ExecutionUtils(processingData);
@@ -133,7 +137,7 @@ public class ElementsRequestExecutor {
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
       metadata = new Metadata(null, requestResource.getDescription(),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
     ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT),
         Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
@@ -159,12 +163,14 @@ public class ElementsRequestExecutor {
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters() processParameters}
    */
-  public static <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
+  public <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.setSnapshot(isSnapshot);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
@@ -173,7 +179,7 @@ public class ElementsRequestExecutor {
     }
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -211,7 +217,7 @@ public class ElementsRequestExecutor {
     for (var entry : groupByResult.entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
       ElementsResult[] results = ExecutionUtils.fillElementsResult(
-          entry.getValue(), requestParameters.isDensity(), df, boundaries.get(boundaryIdentifier));
+          entry.getValue(), inputProcessor.isDensity(), df, boundaries.get(boundaryIdentifier));
       int tagValue = entry.getKey().getSecondIndex().getValue();
       String tagIdentifier;
       // check for non-remainder objects (which do have the defined key and value)
@@ -230,16 +236,16 @@ public class ElementsRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateGroupByBoundaryGroupByTag(requestParameters.isDensity(),
+          Description.aggregateGroupByBoundaryGroupByTag(inputProcessor.isDensity(),
               requestResource.getDescription(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
-    } else if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+    } else if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
           "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
               processingData.getGeoJsonGeoms()));
@@ -267,12 +273,14 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public static Response aggregateGroupByTag(RequestResource requestResource,
+  public Response aggregateGroupByTag(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.setSnapshot(isSnapshot);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -280,7 +288,7 @@ public class ElementsRequestExecutor {
     }
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     String[] groupByValues = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -303,7 +311,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
       ElementsResult[] results = ExecutionUtils.fillElementsResult(
-          entry.getValue(), requestParameters.isDensity(), df, geom);
+          entry.getValue(), inputProcessor.isDensity(), df, geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -319,11 +327,11 @@ public class ElementsRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateGroupByTag(requestParameters.isDensity(),
+          Description.aggregateGroupByTag(inputProcessor.isDensity(),
               requestResource.getDescription(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
@@ -351,15 +359,17 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public static Response aggregateGroupByType(RequestResource requestResource,
+  public Response aggregateGroupByType(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.setSnapshot(isSnapshot);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> preResult;
     preResult = mapRed.aggregateByTimestamp().aggregateBy(
         (SerializableFunction<OSMEntitySnapshot, OSMType>) f -> f.getEntity().getType(),
@@ -371,7 +381,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
       ElementsResult[] results = ExecutionUtils.fillElementsResult(
-          entry.getValue(), requestParameters.isDensity(), df, geom);
+          entry.getValue(), inputProcessor.isDensity(), df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
@@ -379,11 +389,11 @@ public class ElementsRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.countPerimeterAreaGroupByType(requestParameters.isDensity(),
+          Description.countPerimeterAreaGroupByType(inputProcessor.isDensity(),
               requestResource.getDescription(), requestResource.getUnit()),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
@@ -412,12 +422,14 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public static Response aggregateGroupByKey(RequestResource requestResource,
+  public Response aggregateGroupByKey(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.setSnapshot(isSnapshot);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     String[] groupByKeys = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKeys")));
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -425,7 +437,7 @@ public class ElementsRequestExecutor {
     }
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -456,7 +468,7 @@ public class ElementsRequestExecutor {
     int count = 0;
     for (var entry : groupByResult.entrySet()) {
       ElementsResult[] results = ExecutionUtils.fillElementsResult(
-          entry.getValue(), requestParameters.isDensity(), df, null);
+          entry.getValue(), inputProcessor.isDensity(), df, null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -473,9 +485,9 @@ public class ElementsRequestExecutor {
           new Metadata(duration,
               Description.aggregateGroupByKey(requestResource.getDescription(),
                   requestResource.getUnit()),
-              inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+              inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
@@ -501,133 +513,136 @@ public class ElementsRequestExecutor {
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    * @deprecated Will be removed in next major version update.
    */
-  @Deprecated(forRemoval = true)
-  public static Response aggregateBasicFiltersRatio(RequestResource requestResource,
-      HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-    final long startTime = System.currentTimeMillis();
-    // these 2 parameters always have these values for /ratio requests
-    final boolean isSnapshot = true;
-    final boolean isDensity = false;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setRatio(true);
-    final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
-    final ProcessingData processingData = inputProcessor.getProcessingData();
-    final RequestParameters requestParameters = processingData.getRequestParameters();
-    TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys2 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
-    String[] values2 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
-    inputProcessor.checkKeysValues(keys2, values2);
-    Pair<String[], String[]> keys2Vals2 = inputProcessor.processKeys2Vals2(keys2, values2);
-    keys2 = keys2Vals2.getKey();
-    values2 = keys2Vals2.getValue();
-    Integer[] keysInt1 = new Integer[requestParameters.getKeys().length];
-    Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
-    Integer[] keysInt2 = new Integer[keys2.length];
-    Integer[] valuesInt2 = new Integer[values2.length];
-    for (int i = 0; i < requestParameters.getKeys().length; i++) {
-      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).toInt();
-      if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
-        valuesInt1[i] =
-            tt.getOSHDBTagOf(requestParameters.getKeys()[i], requestParameters.getValues()[i])
-                .getValue();
-      }
-    }
-    for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (i < values2.length) {
-        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
-      }
-    }
-    EnumSet<OSMType> osmTypes1 =
-        inputProcessor.getProcessingData().getOsmTypes();
-    String[] types1 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
-    String[] types2 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
-    final EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
-        inputProcessor.defineSimpleFeatureTypes(types1);
-    inputProcessor.defineTypes(types2, intermediateMapRed);
-    EnumSet<OSMType> osmTypes2 =
-        inputProcessor.getProcessingData().getOsmTypes();
-    final EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
-        inputProcessor.defineSimpleFeatureTypes(types2);
-    EnumSet<OSMType> osmTypes = osmTypes1.clone();
-    osmTypes.addAll(osmTypes2);
-    String[] osmTypesString =
-        osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
-        requestParameters.getValues(), values2)) {
-      RequestParameters requestParams =
-          new RequestParameters(isSnapshot, isDensity,
-              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
-              new String[] {}, servletRequest.getParameterValues("time"),
-              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"),
-              ProcessingData.getTimeout(), servletRequest.getParameter("filter"));
-      ProcessingData secondProcessingData =
-          new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
-      InputProcessor secondInputProcessor =
-          new InputProcessor(servletRequest, isSnapshot, isDensity);
-      secondInputProcessor.setProcessingData(secondProcessingData);
-      mapRed = secondInputProcessor.processParameters();
-    } else {
-      mapRed = inputProcessor.processParameters();
-    }
-    mapRed = mapRed.osmType(osmTypes);
-    mapRed = ExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
-        simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
-    var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
-      boolean matches1 = ExecutionUtils.snapshotMatches(snapshot, osmTypes1,
-          simpleFeatureTypes1, keysInt1, valuesInt1);
-      boolean matches2 = ExecutionUtils.snapshotMatches(snapshot, osmTypes2,
-          simpleFeatureTypes2, keysInt2, valuesInt2);
-      if (matches1 && matches2) {
-        return MatchType.MATCHESBOTH;
-      } else if (matches1) {
-        return MatchType.MATCHES1;
-      } else if (matches2) {
-        return MatchType.MATCHES2;
-      } else {
-        // this should never be reached
-        assert false : "MatchType matches none.";
-        return MatchType.MATCHESNONE;
-      }
-    }, EnumSet.allOf(MatchType.class));
-    var result = ExecutionUtils.computeResult(requestResource, preResult);
-    int resultSize = result.size();
-    Double[] value1 = new Double[resultSize / 4];
-    Double[] value2 = new Double[resultSize / 4];
-    String[] timeArray = new String[resultSize / 4];
-    int value1Count = 0;
-    int value2Count = 0;
-    int matchesBothCount = 0;
-    // time and value extraction
-    for (var entry : result.entrySet()) {
-      if (entry.getKey().getSecondIndex() == MatchType.MATCHES2) {
-        timeArray[value2Count] =
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getFirstIndex());
-        value2[value2Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        value2Count++;
-      }
-      if (entry.getKey().getSecondIndex() == MatchType.MATCHES1) {
-        value1[value1Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        value1Count++;
-      }
-      if (entry.getKey().getSecondIndex() == MatchType.MATCHESBOTH) {
-        value1[matchesBothCount] = value1[matchesBothCount]
-            + Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        value2[matchesBothCount] = value2[matchesBothCount]
-            + Double.parseDouble(df.format(entry.getValue().doubleValue()));
-        matchesBothCount++;
-      }
-    }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
-        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
-  }
+//  @Deprecated(forRemoval = true)
+//  public Response aggregateBasicFiltersRatio(RequestResource requestResource,
+//      HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
+//    final long startTime = System.currentTimeMillis();
+//    // these 2 parameters always have these values for /ratio requests
+//    final boolean isSnapshot = true;
+//    final boolean isDensity = false;
+//    inputProcessor.setSnapshot(isSnapshot);
+//    inputProcessor.setDensity(isDensity);
+//    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+//    inputProcessor.getProcessingData().setRatio(true);
+//    final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
+//    final ProcessingData processingData = inputProcessor.getProcessingData();
+//    //final RequestParameters requestParameters = processingData.getRequestParameters();
+//    TagTranslator tt = DbConnData.tagTranslator;
+//    String[] keys2 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
+//    String[] values2 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
+//    inputProcessor.checkKeysValues(keys2, values2);
+//    Pair<String[], String[]> keys2Vals2 = inputProcessor.processKeys2Vals2(keys2, values2);
+//    keys2 = keys2Vals2.getKey();
+//    values2 = keys2Vals2.getValue();
+//    Integer[] keysInt1 = new Integer[inputProcessor.getKeys().length];
+//    Integer[] valuesInt1 = new Integer[inputProcessor.getValues().length];
+//    Integer[] keysInt2 = new Integer[keys2.length];
+//    Integer[] valuesInt2 = new Integer[values2.length];
+//    for (int i = 0; i < inputProcessor.getKeys().length; i++) {
+//      keysInt1[i] = tt.getOSHDBTagKeyOf(inputProcessor.getKeys()[i]).toInt();
+//      if (inputProcessor.getValues() != null && i < inputProcessor.getValues().length) {
+//        valuesInt1[i] =
+//            tt.getOSHDBTagOf(inputProcessor.getKeys()[i], inputProcessor.getValues()[i])
+//                .getValue();
+//      }
+//    }
+//    for (int i = 0; i < keys2.length; i++) {
+//      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
+//      if (i < values2.length) {
+//        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
+//      }
+//    }
+//    EnumSet<OSMType> osmTypes1 =
+//        inputProcessor.getProcessingData().getOsmTypes();
+//    String[] types1 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
+//    String[] types2 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
+//    final EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
+//        inputProcessor.defineSimpleFeatureTypes(types1);
+//    inputProcessor.defineTypes(types2, intermediateMapRed);
+//    EnumSet<OSMType> osmTypes2 =
+//        inputProcessor.getProcessingData().getOsmTypes();
+//    final EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
+//        inputProcessor.defineSimpleFeatureTypes(types2);
+//    EnumSet<OSMType> osmTypes = osmTypes1.clone();
+//    osmTypes.addAll(osmTypes2);
+//    String[] osmTypesString =
+//        osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
+//    MapReducer<OSMEntitySnapshot> mapRed = null;
+//    if (!inputProcessor.compareKeysValues(inputProcessor.getKeys(), keys2,
+//        inputProcessor.getValues(), values2)) {
+////      RequestParameters requestParams =
+////          new RequestParameters(isSnapshot, isDensity,
+////              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+////              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
+////              new String[] {}, servletRequest.getParameterValues("time"),
+////              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"),
+////              ProcessingData.getTimeout(), servletRequest.getParameter("filter"));
+////      ProcessingData secondProcessingData =
+////          new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
+//      InputProcessor secondInputProcessor =
+//          new InputProcessor(servletRequest, isSnapshot, isDensity);
+//      ProcessingData secondProcessingData = secondInputProcessor.getProcessingData();
+//      //secondInputProcessor.setProcessingData(secondProcessingData);
+//      mapRed = secondInputProcessor.processParameters();
+//    } else {
+//      mapRed = inputProcessor.processParameters();
+//    }
+//    mapRed = mapRed.osmType(osmTypes);
+//    mapRed = ExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
+//        simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
+//    var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
+//      boolean matches1 = ExecutionUtils.snapshotMatches(snapshot, osmTypes1,
+//          simpleFeatureTypes1, keysInt1, valuesInt1);
+//      boolean matches2 = ExecutionUtils.snapshotMatches(snapshot, osmTypes2,
+//          simpleFeatureTypes2, keysInt2, valuesInt2);
+//      if (matches1 && matches2) {
+//        return MatchType.MATCHESBOTH;
+//      } else if (matches1) {
+//        return MatchType.MATCHES1;
+//      } else if (matches2) {
+//        return MatchType.MATCHES2;
+//      } else {
+//        // this should never be reached
+//        assert false : "MatchType matches none.";
+//        return MatchType.MATCHESNONE;
+//      }
+//    }, EnumSet.allOf(MatchType.class));
+//    var result = ExecutionUtils.computeResult(requestResource, preResult);
+//    int resultSize = result.size();
+//    Double[] value1 = new Double[resultSize / 4];
+//    Double[] value2 = new Double[resultSize / 4];
+//    String[] timeArray = new String[resultSize / 4];
+//    int value1Count = 0;
+//    int value2Count = 0;
+//    int matchesBothCount = 0;
+//    // time and value extraction
+//    for (var entry : result.entrySet()) {
+//      if (entry.getKey().getSecondIndex() == MatchType.MATCHES2) {
+//        timeArray[value2Count] =
+//            TimestampFormatter.getInstance().isoDateTime(entry.getKey().getFirstIndex());
+//        value2[value2Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
+//        value2Count++;
+//      }
+//      if (entry.getKey().getSecondIndex() == MatchType.MATCHES1) {
+//        value1[value1Count] = Double.parseDouble(df.format(entry.getValue().doubleValue()));
+//        value1Count++;
+//      }
+//      if (entry.getKey().getSecondIndex() == MatchType.MATCHESBOTH) {
+//        value1[matchesBothCount] = value1[matchesBothCount]
+//            + Double.parseDouble(df.format(entry.getValue().doubleValue()));
+//        value2[matchesBothCount] = value2[matchesBothCount]
+//            + Double.parseDouble(df.format(entry.getValue().doubleValue()));
+//        matchesBothCount++;
+//      }
+//    }
+//    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+//    return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
+//        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
+//  }
 
   /**
    * Performs a count|length|perimeter|area|ratio calculation using the filter and filter2
@@ -645,40 +660,44 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public static Response aggregateRatio(RequestResource requestResource,
+  public Response aggregateRatio(RequestResource requestResource,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-    if (null == servletRequest.getParameter("filter")
-        && (null != servletRequest.getParameter("types")
-            || null != servletRequest.getParameter("keys"))) {
-      return aggregateBasicFiltersRatio(requestResource, servletRequest, servletResponse);
-    }
+//    if (null == servletRequest.getParameter("filter")
+//        && (null != servletRequest.getParameter("types")
+//            || null != servletRequest.getParameter("keys"))) {
+//      return aggregateBasicFiltersRatio(requestResource, servletRequest, servletResponse);
+//    }
     final long startTime = System.currentTimeMillis();
     // these 2 parameters always have these values for /ratio requests
     final boolean isSnapshot = true;
     final boolean isDensity = false;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.setSnapshot(isSnapshot);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
     final ProcessingData processingData = inputProcessor.getProcessingData();
-    String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
+    String filter1 = inputProcessor.getFilter();
     String filter2 = InputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
     String combinedFilter = ExecutionUtils.combineFiltersWithOr(filter1, filter2);
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
-    RequestParameters requestParamsCombined = new RequestParameters(isSnapshot, isDensity,
-        servletRequest.getParameter("bboxes"),
-        servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
-        new String[] {}, new String[] {}, new String[] {},
-        servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-        servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(), combinedFilter);
-    ProcessingData processingDataCombined =
-        new ProcessingData(requestParamsCombined, servletRequest.getRequestURL().toString());
-    InputProcessor inputProcessorCombined =
-        new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessorCombined.setProcessingData(processingDataCombined);
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
+//    RequestParameters requestParamsCombined = new RequestParameters(isSnapshot, isDensity,
+//        servletRequest.getParameter("bboxes"),
+//        servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
+//        new String[] {}, new String[] {}, new String[] {},
+//        servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+//        servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(), combinedFilter);
+//    InputProcessor inputProcessorCombined =
+//        new InputProcessor(servletRequest, isSnapshot, isDensity);
+//    ProcessingData processingDataCombined = inputProcessorCombined.getProcessingData();
+        //new ProcessingData(requestParamsCombined, servletRequest.getRequestURL().toString());
+inputProcessor.setFilter(combinedFilter);
+  //  inputProcessorCombined.setProcessingData(processingDataCombined);
+   // MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
     mapRed = mapRed.filter(combinedFilter);
     var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
       OSMEntity entity = snapshot.getEntity();
@@ -727,7 +746,7 @@ public class ElementsRequestExecutor {
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
-        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
+        inputProcessor.getRequestUrlIfGetRequest(), servletResponse);
   }
 
   /**
@@ -747,181 +766,183 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    * @deprecated Will be removed in next major version update.
    */
-  @Deprecated(forRemoval = true)
-  public static <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
-      RequestResource requestResource, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    final long startTime = System.currentTimeMillis();
-    final boolean isSnapshot = true;
-    final boolean isDensity = false;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessor.getProcessingData().setGroupByBoundary(true);
-    inputProcessor.getProcessingData().setRatio(true);
-    final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
-    final ProcessingData processingData = inputProcessor.getProcessingData();
-    final RequestParameters requestParameters = processingData.getRequestParameters();
-    if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-    }
-    String[] keys2 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
-    String[] values2 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
-    inputProcessor.checkKeysValues(keys2, values2);
-    Pair<String[], String[]> keys2Vals2 = inputProcessor.processKeys2Vals2(keys2, values2);
-    keys2 = keys2Vals2.getKey();
-    values2 = keys2Vals2.getValue();
-    Integer[] keysInt1 = new Integer[requestParameters.getKeys().length];
-    Integer[] valuesInt1 = new Integer[requestParameters.getValues().length];
-    Integer[] keysInt2 = new Integer[keys2.length];
-    Integer[] valuesInt2 = new Integer[values2.length];
-    TagTranslator tt = DbConnData.tagTranslator;
-    for (int i = 0; i < requestParameters.getKeys().length; i++) {
-      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).toInt();
-      if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
-        valuesInt1[i] =
-            tt.getOSHDBTagOf(requestParameters.getKeys()[i], requestParameters.getValues()[i])
-                .getValue();
-      }
-    }
-    for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
-      if (i < values2.length) {
-        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
-      }
-    }
-    EnumSet<OSMType> osmTypes1 = processingData.getOsmTypes();
-    String[] types1 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
-    String[] types2 = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
-    final EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
-        inputProcessor.defineSimpleFeatureTypes(types1);
-    inputProcessor.defineTypes(types2, intermediateMapRed);
-    EnumSet<OSMType> osmTypes2 =
-        inputProcessor.getProcessingData().getOsmTypes();
-    EnumSet<OSMType> osmTypes = osmTypes1.clone();
-    final EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
-        inputProcessor.defineSimpleFeatureTypes(types2);
-    osmTypes.addAll(osmTypes2);
-    String[] osmTypesString =
-        osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    if (!inputProcessor.compareKeysValues(requestParameters.getKeys(), keys2,
-        requestParameters.getValues(), values2)) {
-      RequestParameters requestParams =
-          new RequestParameters(isSnapshot, isDensity,
-              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
-              new String[] {}, servletRequest.getParameterValues("time"),
-              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"),
-              ProcessingData.getTimeout(), servletRequest.getParameter("filter"));
-      ProcessingData secondProcessingData =
-          new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
-      InputProcessor secondInputProcessor =
-          new InputProcessor(servletRequest, isSnapshot, isDensity);
-      secondInputProcessor.setProcessingData(secondProcessingData);
-      mapRed = secondInputProcessor.processParameters();
-    } else {
-      mapRed = inputProcessor.processParameters();
-    }
-    mapRed = mapRed.osmType(osmTypes);
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
-    // intentionally as check for P on Polygonal is already performed
-    @SuppressWarnings({"unchecked"})
-    Map<Integer, P> geoms =
-        arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
-    var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    mapRed2 = ExecutionUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
-        simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
-    var preResult =
-        mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
-          boolean matches1 = ExecutionUtils.snapshotMatches(snapshot,
-              osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1);
-          boolean matches2 = ExecutionUtils.snapshotMatches(snapshot,
-              osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
-          if (matches1 && matches2) {
-            return MatchType.MATCHESBOTH;
-          } else if (matches1) {
-            return MatchType.MATCHES1;
-          } else if (matches2) {
-            return MatchType.MATCHES2;
-          } else {
-            assert false : "MatchType matches none.";
-          }
-          return MatchType.MATCHESNONE;
-        }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
-    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
-        Number> result = null;
-    switch (requestResource) {
-      case COUNT:
-        result = preResult.count();
-        break;
-      case LENGTH:
-        result =
-            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
-        break;
-      case PERIMETER:
-        result = preResult.sum(geom -> {
-          if (!(geom instanceof Polygonal)) {
-            return 0.0;
-          }
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-        });
-        break;
-      case AREA:
-        result =
-            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
-        break;
-      default:
-        break;
-    }
-    InputProcessingUtils utils = inputProcessor.getUtils();
-    var groupByResult = ExecutionUtils.nest(result);
-    Object[] boundaryIds = utils.getBoundaryIds();
-    Double[] resultValues1 = null;
-    Double[] resultValues2 = null;
-    String[] timeArray = null;
-    boolean timeArrayFilled = false;
-    for (var entry : groupByResult.entrySet()) {
-      var resultSet = entry.getValue().entrySet();
-      if (!timeArrayFilled) {
-        timeArray = new String[resultSet.size()];
-      }
-      if (entry.getKey() == MatchType.MATCHES2) {
-        resultValues2 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
-      } else if (entry.getKey() == MatchType.MATCHES1) {
-        resultValues1 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
-      } else if (entry.getKey() == MatchType.MATCHESBOTH) {
-        int matchesBothCount = 0;
-        int timeArrayCount = 0;
-        for (var innerEntry : resultSet) {
-          assert resultValues1 != null;
-          assert resultValues2 != null;
-          resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
-              + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
-              + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
-          if (!timeArrayFilled) {
-            String time = innerEntry.getKey().getFirstIndex().toString();
-            if (matchesBothCount == 0 || !timeArray[timeArrayCount - 1].equals(time)) {
-              timeArray[timeArrayCount] = innerEntry.getKey().getFirstIndex().toString();
-              timeArrayCount++;
-            }
-          }
-          matchesBothCount++;
-        }
-        timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
-        timeArrayFilled = true;
-      } else {
-        // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
-      }
-    }
-    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-        resultValues2, startTime, requestResource,
-        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
-  }
+//  @Deprecated(forRemoval = true)
+//  public <P extends Geometry & Polygonal> Response aggregateBasicFiltersRatioGroupByBoundary(
+//      RequestResource requestResource, HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    final long startTime = System.currentTimeMillis();
+//    final boolean isSnapshot = true;
+//    final boolean isDensity = false;
+//    inputProcessor.setSnapshot(isSnapshot);
+//    inputProcessor.setDensity(isDensity);
+//    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+//    inputProcessor.getProcessingData().setGroupByBoundary(true);
+//    inputProcessor.getProcessingData().setRatio(true);
+//    final MapReducer<OSMEntitySnapshot> intermediateMapRed = inputProcessor.processParameters();
+//    final ProcessingData processingData = inputProcessor.getProcessingData();
+//    //final RequestParameters requestParameters = processingData.getRequestParameters();
+//    if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
+//      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
+//    }
+//    String[] keys2 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("keys2")));
+//    String[] values2 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("values2")));
+//    inputProcessor.checkKeysValues(keys2, values2);
+//    Pair<String[], String[]> keys2Vals2 = inputProcessor.processKeys2Vals2(keys2, values2);
+//    keys2 = keys2Vals2.getKey();
+//    values2 = keys2Vals2.getValue();
+//    Integer[] keysInt1 = new Integer[inputProcessor.getKeys().length];
+//    Integer[] valuesInt1 = new Integer[inputProcessor.getValues().length];
+//    Integer[] keysInt2 = new Integer[keys2.length];
+//    Integer[] valuesInt2 = new Integer[values2.length];
+//    TagTranslator tt = DbConnData.tagTranslator;
+//    for (int i = 0; i < inputProcessor.getKeys().length; i++) {
+//      keysInt1[i] = tt.getOSHDBTagKeyOf(inputProcessor.getKeys()[i]).toInt();
+//      if (inputProcessor.getValues() != null && i < inputProcessor.getValues().length) {
+//        valuesInt1[i] =
+//            tt.getOSHDBTagOf(inputProcessor.getKeys()[i], inputProcessor.getValues()[i])
+//                .getValue();
+//      }
+//    }
+//    for (int i = 0; i < keys2.length; i++) {
+//      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).toInt();
+//      if (i < values2.length) {
+//        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).getValue();
+//      }
+//    }
+//    EnumSet<OSMType> osmTypes1 = processingData.getOsmTypes();
+//    String[] types1 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types")));
+//    String[] types2 = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("types2")));
+//    final EnumSet<SimpleFeatureType> simpleFeatureTypes1 =
+//        inputProcessor.defineSimpleFeatureTypes(types1);
+//    inputProcessor.defineTypes(types2, intermediateMapRed);
+//    EnumSet<OSMType> osmTypes2 =
+//        inputProcessor.getProcessingData().getOsmTypes();
+//    EnumSet<OSMType> osmTypes = osmTypes1.clone();
+//    final EnumSet<SimpleFeatureType> simpleFeatureTypes2 =
+//        inputProcessor.defineSimpleFeatureTypes(types2);
+//    osmTypes.addAll(osmTypes2);
+//    String[] osmTypesString =
+//        osmTypes.stream().map(OSMType::toString).map(String::toLowerCase).toArray(String[]::new);
+//    MapReducer<OSMEntitySnapshot> mapRed = null;
+//    if (!inputProcessor.compareKeysValues(inputProcessor.getKeys(), keys2,
+//        inputProcessor.getValues(), values2)) {
+////      RequestParameters requestParams =
+////          new RequestParameters(isSnapshot, isDensity,
+////              servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
+////              servletRequest.getParameter("bpolys"), osmTypesString, new String[] {},
+////              new String[] {}, servletRequest.getParameterValues("time"),
+////              servletRequest.getParameter("format"), servletRequest.getParameter("showMetadata"),
+////              ProcessingData.getTimeout(), servletRequest.getParameter("filter"));
+//      InputProcessor secondInputProcessor =
+//          new InputProcessor(servletRequest, isSnapshot, isDensity);
+//      ProcessingData secondProcessingData = secondInputProcessor.getProcessingData();
+//          //new ProcessingData(requestParams, servletRequest.getRequestURL().toString());
+//      secondInputProcessor.setProcessingData(secondProcessingData);
+//      mapRed = secondInputProcessor.processParameters();
+//    } else {
+//      mapRed = inputProcessor.processParameters();
+//    }
+//    mapRed = mapRed.osmType(osmTypes);
+//    ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
+//    // intentionally as check for P on Polygonal is already performed
+//    @SuppressWarnings({"unchecked"})
+//    Map<Integer, P> geoms =
+//        arrGeoms.stream().collect(Collectors.toMap(arrGeoms::indexOf, geom -> (P) geom));
+//    var mapRed2 = mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+//    mapRed2 = ExecutionUtils.snapshotFilter(mapRed2, osmTypes1, osmTypes2, simpleFeatureTypes1,
+//        simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
+//    var preResult =
+//        mapRed2.aggregateBy((SerializableFunction<OSMEntitySnapshot, MatchType>) snapshot -> {
+//          boolean matches1 = ExecutionUtils.snapshotMatches(snapshot,
+//              osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1);
+//          boolean matches2 = ExecutionUtils.snapshotMatches(snapshot,
+//              osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2);
+//          if (matches1 && matches2) {
+//            return MatchType.MATCHESBOTH;
+//          } else if (matches1) {
+//            return MatchType.MATCHES1;
+//          } else if (matches2) {
+//            return MatchType.MATCHES2;
+//          } else {
+//            assert false : "MatchType matches none.";
+//          }
+//          return MatchType.MATCHESNONE;
+//        }, EnumSet.allOf(MatchType.class)).map(OSMEntitySnapshot::getGeometry);
+//    SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
+//        Number> result = null;
+//    switch (requestResource) {
+//      case COUNT:
+//        result = preResult.count();
+//        break;
+//      case LENGTH:
+//        result =
+//            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+//        break;
+//      case PERIMETER:
+//        result = preResult.sum(geom -> {
+//          if (!(geom instanceof Polygonal)) {
+//            return 0.0;
+//          }
+//          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+//        });
+//        break;
+//      case AREA:
+//        result =
+//            preResult.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
+//        break;
+//      default:
+//        break;
+//    }
+//    InputProcessingUtils utils = inputProcessor.getUtils();
+//    var groupByResult = ExecutionUtils.nest(result);
+//    Object[] boundaryIds = utils.getBoundaryIds();
+//    Double[] resultValues1 = null;
+//    Double[] resultValues2 = null;
+//    String[] timeArray = null;
+//    boolean timeArrayFilled = false;
+//    for (var entry : groupByResult.entrySet()) {
+//      var resultSet = entry.getValue().entrySet();
+//      if (!timeArrayFilled) {
+//        timeArray = new String[resultSet.size()];
+//      }
+//      if (entry.getKey() == MatchType.MATCHES2) {
+//        resultValues2 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+//      } else if (entry.getKey() == MatchType.MATCHES1) {
+//        resultValues1 = ExecutionUtils.fillElementsRatioGroupByBoundaryResultValues(resultSet, df);
+//      } else if (entry.getKey() == MatchType.MATCHESBOTH) {
+//        int matchesBothCount = 0;
+//        int timeArrayCount = 0;
+//        for (var innerEntry : resultSet) {
+//          assert resultValues1 != null;
+//          assert resultValues2 != null;
+//          resultValues1[matchesBothCount] = resultValues1[matchesBothCount]
+//              + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+//          resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
+//              + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
+//          if (!timeArrayFilled) {
+//            String time = innerEntry.getKey().getFirstIndex().toString();
+//            if (matchesBothCount == 0 || !timeArray[timeArrayCount - 1].equals(time)) {
+//              timeArray[timeArrayCount] = innerEntry.getKey().getFirstIndex().toString();
+//              timeArrayCount++;
+//            }
+//          }
+//          matchesBothCount++;
+//        }
+//        timeArray = Arrays.stream(timeArray).filter(Objects::nonNull).toArray(String[]::new);
+//        timeArrayFilled = true;
+//      } else {
+//        // on MatchType.MATCHESNONE aggregated values are not needed / do not exist
+//      }
+//    }
+//    ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+//    return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
+//        resultValues2, startTime, requestResource,
+//        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
+//  }
 
   /**
    * Performs a count|length|perimeter|area-ratio calculation grouped by the boundary using the
@@ -940,20 +961,22 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
-  public static <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
+  public <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
       RequestResource requestResource, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    if (null == servletRequest.getParameter("filter")
-        && (null != servletRequest.getParameter("types")
-            || null != servletRequest.getParameter("keys"))) {
-      return aggregateBasicFiltersRatioGroupByBoundary(requestResource, servletRequest,
-          servletResponse);
-    }
+//    if (null == servletRequest.getParameter("filter")
+//        && (null != servletRequest.getParameter("types")
+//            || null != servletRequest.getParameter("keys"))) {
+//      return aggregateBasicFiltersRatioGroupByBoundary(requestResource, servletRequest,
+//          servletResponse);
+//    }
     final long startTime = System.currentTimeMillis();
     // these 2 parameters always have these values for /ratio requests
     final boolean isSnapshot = true;
     final boolean isDensity = false;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
+    inputProcessor.setSnapshot(isSnapshot);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, isSnapshot, isDensity);
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     inputProcessor.getProcessingData().setRatio(true);
     inputProcessor.processParameters();
@@ -961,7 +984,7 @@ public class ElementsRequestExecutor {
     if (processingData.getBoundaryType() == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
-    final String filter1 = inputProcessor.getProcessingData().getRequestParameters().getFilter();
+    final String filter1 = inputProcessor.getFilter();
     final String filter2 =
         InputProcessor.createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     inputProcessor.checkFilter(filter2);
@@ -969,20 +992,23 @@ public class ElementsRequestExecutor {
     final FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     final FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     final FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
-    RequestParameters requestParamsCombined = new RequestParameters(isSnapshot, isDensity,
-        servletRequest.getParameter("bboxes"),
-        servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
-        new String[] {}, new String[] {}, new String[] {},
-        servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
-        servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(), combinedFilter);
-    ProcessingData processingDataCombined =
-        new ProcessingData(requestParamsCombined, servletRequest.getRequestURL().toString());
-    InputProcessor inputProcessorCombined =
-        new InputProcessor(servletRequest, isSnapshot, isDensity);
-    inputProcessorCombined.setProcessingData(processingDataCombined);
-    inputProcessorCombined.getProcessingData().setRatio(true);
-    inputProcessorCombined.getProcessingData().setGroupByBoundary(true);
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessorCombined.processParameters();
+//    RequestParameters requestParamsCombined = new RequestParameters(isSnapshot, isDensity,
+//        servletRequest.getParameter("bboxes"),
+//        servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
+//        new String[] {}, new String[] {}, new String[] {},
+//        servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
+//        servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(), combinedFilter);
+//    InputProcessor inputProcessorCombined =
+//        new InputProcessor(servletRequest, isSnapshot, isDensity);
+//    ProcessingData processingDataCombined = inputProcessorCombined.getProcessingData();
+   //     new ProcessingData(requestParamsCombined, servletRequest.getRequestURL().toString());
+//    InputProcessor inputProcessorCombined =
+//        new InputProcessor(servletRequest, isSnapshot, isDensity);
+//    inputProcessorCombined.setProcessingData(processingDataCombined);
+//    inputProcessorCombined.getProcessingData().setRatio(true);
+//    inputProcessorCombined.getProcessingData().setGroupByBoundary(true);
+    inputProcessor.setFilter(combinedFilter);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed
     @SuppressWarnings({"unchecked"})
@@ -1076,6 +1102,6 @@ public class ElementsRequestExecutor {
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
         resultValues2, startTime, requestResource,
-        inputProcessor.getRequestUrlIfGetRequest(servletRequest), servletResponse);
+        inputProcessor.getRequestUrlIfGetRequest(), servletResponse);
   }
 }

@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -27,17 +29,30 @@ import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Includes the execute method for requests mapped to /contributions/count,
  * /contributions/count/density, /contributions/latest/count, /contributions/latest/count/density
  * and /users/count.
  */
-public class ContributionsExecutor extends RequestExecutor {
+@Component
+public class ContributionsExecutor {
   private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
-
-  private final InputProcessor inputProcessor;
+  @Autowired
+  InputProcessor inputProcessor;
+  @Autowired
+  HttpServletRequest servletRequest;
+  @Autowired
+  HttpServletResponse servletResponse;
   //private final ProcessingData processingData;
+//  @Autowired
+//  RequestExecutor requestExecutor;
+  public final String URL = ExtractMetadata.attributionUrl;
+  public final String TEXT = ExtractMetadata.attributionShort;
+  public final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
+  public final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   private final long startTime = System.currentTimeMillis();
 
   /**
@@ -47,12 +62,14 @@ public class ContributionsExecutor extends RequestExecutor {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
-  public ContributionsExecutor(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse, boolean isDensity) {
-    super(servletRequest, servletResponse);
-    inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    //processingData = inputProcessor.getProcessingData();
-  }
+//  public ContributionsExecutor(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse, boolean isDensity) {
+//    super(servletRequest, servletResponse);
+//    inputProcessor.setSnapshot(false);
+//    inputProcessor.setDensity(isDensity);
+//    //inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+//    //processingData = inputProcessor.getProcessingData();
+//  }
 
   /**
    * Handler method for count calculation of the endpoints /contributions/count,
@@ -93,22 +110,22 @@ public class ContributionsExecutor extends RequestExecutor {
       result = contributionsCount(mapRed, isContributionsLatestCount);
     }
     Geometry geom = inputProcessor.getGeometry();
-    RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     ContributionsResult[] results = ExecutionUtils.fillContributionsResult(result,
-        requestParameters.isDensity(), inputProcessor, df, geom);
+        inputProcessor.isDensity(), inputProcessor, df, geom);
     Metadata metadata = null;
     if (inputProcessor.getProcessingData().isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       String description;
       if (isUsersRequest) {
-        description = Description.countUsers(requestParameters.isDensity());
+        description = Description.countUsers(inputProcessor.isDensity());
       } else {
-        description = Description.countContributions(requestParameters.isDensity());
+        description = Description.countContributions(inputProcessor.isDensity());
       }
       metadata = new Metadata(duration, description,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       var exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
       exeUtils.writeCsvResponse(results, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
@@ -191,7 +208,7 @@ public class ContributionsExecutor extends RequestExecutor {
       throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     var mapRed = inputProcessor.processParameters();
-    final var requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    //final var requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     List<Geometry> arrGeoms = inputProcessor.getProcessingData().getBoundaryList();
     var arrGeomIds = inputProcessor.getUtils()
         .getBoundaryIds();
@@ -231,7 +248,7 @@ public class ContributionsExecutor extends RequestExecutor {
         .map(entry ->
             new GroupByResult(entry.getKey(),
                 ExecutionUtils.fillContributionsResult(entry.getValue(),
-                    requestParameters.isDensity(), inputProcessor, df, geoms.get(entry.getKey())
+                    inputProcessor.isDensity(), inputProcessor, df, geoms.get(entry.getKey())
                 )))
         .toArray(GroupByResult[]::new);
     Metadata metadata = null;
@@ -239,18 +256,18 @@ public class ContributionsExecutor extends RequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       String description;
       if (isUsersRequest) {
-        description = Description.countUsersGroupByBoundary(requestParameters.isDensity());
+        description = Description.countUsersGroupByBoundary(inputProcessor.isDensity());
       } else {
-        description = Description.countContributionsGroupByBoundary(requestParameters.isDensity());
+        description = Description.countContributionsGroupByBoundary(inputProcessor.isDensity());
       }
       metadata = new Metadata(duration, description,
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
           "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
               inputProcessor.getProcessingData().getGeoJsonGeoms()));
-    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       var exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));

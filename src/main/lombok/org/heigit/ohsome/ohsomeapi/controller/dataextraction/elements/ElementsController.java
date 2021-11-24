@@ -36,7 +36,8 @@ public class ElementsController {
       produces = "application/json")
   public void elementsGeometry(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    executor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW,
         servletRequest, servletResponse);
   }
 
@@ -56,7 +57,8 @@ public class ElementsController {
       produces = "application/json")
   public void elementsBbox(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    executor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX,
         servletRequest, servletResponse);
   }
 
@@ -76,7 +78,8 @@ public class ElementsController {
       produces = "application/json")
   public void elementsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID,
+    ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    executor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID,
         servletRequest, servletResponse);
   }
 }

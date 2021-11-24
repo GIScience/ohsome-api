@@ -7,7 +7,6 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.geojson.GeoJsonObject;
-import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.locationtech.jts.geom.Geometry;
@@ -25,14 +24,13 @@ public class ProcessingData implements Serializable {
   @Getter
   @Setter
   private static int numberOfDataExtractionThreads = 1;
-  private RequestParameters requestParameters;
   private String requestUrl;
   private BoundaryType boundaryType;
   private String[] boundaryValues;
   private String boundaryValuesGeoJson;
   private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
-  private String format;
+  //private String format;
   private Geometry requestGeom;
   private List<Geometry> boundaryList;
   private GeoJsonObject[] geoJsonGeoms;
@@ -46,8 +44,7 @@ public class ProcessingData implements Serializable {
   private boolean isFullHistory;
   private FilterExpression filterExpression;
 
-  public ProcessingData(RequestParameters requestParameters, String requestUrl) {
-    this.requestParameters = requestParameters;
+  public ProcessingData(String requestUrl) {
     this.requestUrl = requestUrl;
     this.isRatio = false;
     this.isGroupByBoundary = false;

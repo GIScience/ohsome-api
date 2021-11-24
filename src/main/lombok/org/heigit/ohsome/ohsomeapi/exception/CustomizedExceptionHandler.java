@@ -75,7 +75,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
   private ResponseEntity<ErrorDetails> createExceptionResponse(Exception ex, HttpStatus status,
       HttpServletRequest servletRequest) {
     ErrorDetails errorDetails;
-    String servletRequestUrl = RequestUtils.extractRequestUrl(servletRequest);
+    RequestUtils requestUtils = new RequestUtils();
+    String servletRequestUrl = requestUtils.extractRequestUrl();
     if (servletRequestUrl.endsWith("?")) {
       servletRequestUrl += "null";
     }

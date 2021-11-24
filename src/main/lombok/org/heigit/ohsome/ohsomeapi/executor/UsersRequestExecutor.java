@@ -34,33 +34,40 @@ import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Includes the execute methods for requests mapped to /users.
  */
+@Component
 public class UsersRequestExecutor {
 
   private static final String URL = ExtractMetadata.attributionUrl;
   private static final String TEXT = ExtractMetadata.attributionShort;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
+  @Autowired
+  InputProcessor inputProcessor;
 
-  private UsersRequestExecutor() {
+  public UsersRequestExecutor() {
     throw new IllegalStateException("Utility class");
   }
 
   /**
    * Performs a count calculation grouped by the OSM type.
    */
-  public static Response countGroupByType(HttpServletRequest servletRequest,
+  public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
     MapReducer<OSMContribution> mapRed = null;
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    inputProcessor.setDensity(isDensity);
+    inputProcessor.setSnapshot(false);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     result = mapRed.filter(ExecutionUtils.contributionsFilter(servletRequest.getParameter(
             CONTRIBUTION_TYPE_PARAMETER)))
         .aggregateByTimestamp()
@@ -76,7 +83,7 @@ public class UsersRequestExecutor {
     Geometry geom = inputProcessor.getGeometry();
     for (Entry<OSMType, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df, geom);
+          inputProcessor.isDensity(), inputProcessor, df, geom);
       resultSet[count] = new GroupByResult(entry.getKey().toString(), results);
       count++;
     }
@@ -84,9 +91,9 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countUsersGroupByType(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
@@ -101,10 +108,12 @@ public class UsersRequestExecutor {
    *
    * @throws BadRequestException if the groupByKey parameter is not given.
    */
-  public static Response countGroupByTag(HttpServletRequest servletRequest,
+  public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    inputProcessor.setSnapshot(false);
+    inputProcessor.setDensity(isDensity);
+   // InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -113,7 +122,7 @@ public class UsersRequestExecutor {
     MapReducer<OSMContribution> mapRed = null;
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     String[] groupByValues = inputProcessor.splitParamOnComma(inputProcessor.createEmptyArrayIfNull(
         servletRequest.getParameterValues("groupByValues")));
     TagTranslator tt = DbConnData.tagTranslator;
@@ -166,7 +175,7 @@ public class UsersRequestExecutor {
     for (Entry<Pair<Integer, Integer>, SortedMap<OSHDBTimestamp, Integer>> entry :
         groupByResult.entrySet()) {
       ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df, geom);
+          inputProcessor.isDensity(), inputProcessor, df, geom);
       if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
         groupByName = "total";
       } else if (entry.getKey().getKey() == -1 && entry.getKey().getValue() == -1) {
@@ -181,9 +190,9 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countUsersGroupByTag(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
@@ -198,10 +207,12 @@ public class UsersRequestExecutor {
    *
    * @throws BadRequestException if the groupByKeys parameter is not given.
    */
-  public static Response countGroupByKey(HttpServletRequest servletRequest,
+  public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    inputProcessor.setSnapshot(false);
+    inputProcessor.setDensity(isDensity);
+    //InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
     String[] groupByKeys = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKeys")));
     if (groupByKeys == null || groupByKeys.length == 0) {
@@ -210,7 +221,7 @@ public class UsersRequestExecutor {
     MapReducer<OSMContribution> mapRed = null;
     mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
-    RequestParameters requestParameters = processingData.getRequestParameters();
+    //RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
@@ -250,7 +261,7 @@ public class UsersRequestExecutor {
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
-          requestParameters.isDensity(), inputProcessor, df, geom);
+          inputProcessor.isDensity(), inputProcessor, df, geom);
       if (entry.getKey() == -2) {
         groupByName = "total";
       } else if (entry.getKey() == -1) {
@@ -265,9 +276,9 @@ public class UsersRequestExecutor {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration, Description.countUsersGroupByKey(isDensity),
-          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
+          inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+    if ("csv".equalsIgnoreCase(servletRequest.getParameter("fomrat"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
           ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));

@@ -11,6 +11,7 @@ import org.heigit.ohsome.ohsomeapi.executor.ContributionsExecutor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/contributions")
 public class ContributionsCountController {
-
+  @Autowired
+  ContributionsExecutor executor;
   /**
    * Gives the count of OSM contributions.
    *
@@ -43,7 +45,7 @@ public class ContributionsCountController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   public Response contributionsCount(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
+    //var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count(false, false);
   }
 
@@ -68,7 +70,7 @@ public class ContributionsCountController {
       produces = {"application/json", "text/csv"})
   public Response contributionsCountDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
+    //var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.count(false, false);
   }
 
@@ -89,7 +91,7 @@ public class ContributionsCountController {
       produces = {"application/json", "text/csv"})
   public Response contributionsLatestCount(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
+    //var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.count(false, true);
   }
 
@@ -114,7 +116,7 @@ public class ContributionsCountController {
       produces = {"application/json", "text/csv"})
   public Response contributionsLatestCountDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
+    //var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.count(false, true);
   }
 
@@ -137,7 +139,7 @@ public class ContributionsCountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response contributionsCountGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
+    //var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
     return executor.countGroupByBoundary(false);
   }
 
@@ -161,7 +163,7 @@ public class ContributionsCountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response contributionsCountDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
+    //var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
     return executor.countGroupByBoundary(false);
   }
 }
