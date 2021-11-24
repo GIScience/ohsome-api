@@ -11,12 +11,15 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
 
 public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFromGeoJSON {
-org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
+  ArrayList<Geometry> boundaryList;
+  GeoJsonObject[] geoJsonGeoms;
+  Geometry geometry;
+  Serializable[] boundaryIds;
+
   /**
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
    * and its features must be of type 'Polygon' or 'Multipolygon'.
@@ -25,12 +28,10 @@ org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
    *     is not of the type 'FeatureCollection', or if the provided custom id(s) cannot be
    *     parsed
    */
-  public Geometry create(String geoJson, InputProcessor inputProcessor) {
-    ArrayList<Geometry> geometryList = new ArrayList<>();
+  public Geometry create(String geoJson) {
+    boundaryList = new ArrayList<>();
     JsonObject root = null;
     JsonArray features;
-    Serializable[] boundaryIds;
-    GeoJsonObject[] geoJsonGeoms;
     try (JsonReader jsonReader = Json.createReader(new StringReader(geoJson))) {
       root = jsonReader.readObject();
       features = root.getJsonArray("features");
@@ -64,7 +65,7 @@ org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
         this.checkGeometryTypeOfFeature(geomObj);
         GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
-        geometryList.add(currentResult);
+        boundaryList.add(currentResult);
         geoJsonGeoms[count - 1] =
             new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
       } catch (Exception e) {
@@ -73,13 +74,45 @@ org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder geometryBuilder;
             + "fitting GeoJSON input file.");
       }
     }
-    Geometry result = unifyPolys(geometryList);
+    geometry = unifyPolys(boundaryList);
     //geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
       //  inputProcessor.getProcessingData());
-    inputProcessor.getProcessingData().setGeoJsonGeoms(geoJsonGeoms);
-    inputProcessor.getProcessingData().setBoundaryList(geometryList);
-    inputProcessor.getProcessingData().setRequestGeom(result);
-    inputProcessor.getUtils().getSpatialUtility().setBoundaryIds(boundaryIds);
-    return result;
+//    inputProcessor.getProcessingData().setGeoJsonGeoms(geoJsonGeoms);
+//    inputProcessor.getProcessingData().setBoundaryList(geometryList);
+//    inputProcessor.getProcessingData().setRequestGeom(geometry);
+//    inputProcessor.getUtils().getSpatialUtility().setBoundaryIds(boundaryIds);
+    return geometry;
+  }
+
+  public ArrayList<Geometry> getBoundaryList() {
+    return boundaryList;
+  }
+
+  public void setBoundaryList(ArrayList<Geometry> boundaryList) {
+    this.boundaryList = boundaryList;
+  }
+
+  public GeoJsonObject[] getGeoJsonGeoms() {
+    return geoJsonGeoms;
+  }
+
+  public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
+    this.geoJsonGeoms = geoJsonGeoms;
+  }
+
+  public Geometry getGeometry() {
+    return geometry;
+  }
+
+  public void setGeometry(Geometry geometry) {
+    this.geometry = geometry;
+  }
+
+  public Serializable[] getBoundaryIds() {
+    return boundaryIds;
+  }
+
+  public void setBoundaryIds(Serializable[] boundaryIds) {
+    this.boundaryIds = boundaryIds;
   }
 }

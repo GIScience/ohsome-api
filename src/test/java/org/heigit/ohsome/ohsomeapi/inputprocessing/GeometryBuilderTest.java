@@ -22,13 +22,13 @@ import org.locationtech.jts.geom.Polygon;
  */
 public class GeometryBuilderTest {
   private GeometryBuilder geomBuilder;
-  private final ProcessingData processingData = new ProcessingData(null, null);
+  //private final ProcessingData processingData = new ProcessingData(null);
   private final BBoxBuilder bBoxBuilder = new BBoxBuilder();
   private final BCircleBuilder bCircleBuilder = new BCircleBuilder();
   private final BPolygonBuilder bPolygonBuilder = new BPolygonBuilder();
   private final BPolygonFromGeoJSON bPolygonFromGeoJSON = new BPolygonFromGeoJSON();
   private final GeometryOfOSHDBExtent geometryOfOSHDBExtent = new GeometryOfOSHDBExtent();
-  private final InputProcessor inputProcessor = new InputProcessor(processingData);
+  //private final InputProcessor inputProcessor = new InputProcessor(processingData);
 
   private final boolean isSnapshot = true;
   private final String bboxes = "8.67,49.39,8.71,49.42";
@@ -58,14 +58,14 @@ public class GeometryBuilderTest {
   public void createPolygonWithWrongCoordinatesFromBboxes() {
     String[] coords = new String[] {"8.67452", "49.40961", "8.70392", "[invalid input]", "8.68302",
         "49.41044", "8.69722", "49.41639"};
-    bBoxBuilder.create(coords, inputProcessor);
+    bBoxBuilder.create(coords);
   }
 
   @Test
   public void createOverlappingPolygonFromBboxes() {
     String[] coords = new String[] {"8.678", "49.4148", "8.68864", "49.41971", "8.68302",
         "49.41044", "8.69722", "49.41639"};
-    Geometry geom = bBoxBuilder.create(coords, inputProcessor);
+    Geometry geom = bBoxBuilder.create(coords);
     assertTrue(geom instanceof Polygon);
   }
 
@@ -73,7 +73,7 @@ public class GeometryBuilderTest {
   public void createNonOverlappingMultiPolygonFromBboxes() {
     String[] coords = new String[] {"8.67976", "49.41767", "8.68817", "49.42214", "8.6974",
         "49.40882", "8.70722", "49.41276"};
-    Geometry geom = bBoxBuilder.create(coords, inputProcessor);
+    Geometry geom = bBoxBuilder.create(coords);
     assertTrue(geom instanceof MultiPolygon);
   }
 
@@ -83,20 +83,20 @@ public class GeometryBuilderTest {
   public void createPolygonWithWrongCoordinatesFromBcircles() {
     String[] bcircles =
         new String[] {"8.68452", "49.41781", "[invalid input]", "8.68491", "49.4179", "117"};
-    bCircleBuilder.create(bcircles, inputProcessor);
+    bCircleBuilder.create(bcircles);
   }
 
   @Test
   public void createOverlappingPolygonFromBcircles() {
     String[] bcircles = new String[] {"8.68452", "49.41781", "100", "8.68491", "49.4179", "100"};
-    Geometry geom = bCircleBuilder.create(bcircles, inputProcessor);
+    Geometry geom = bCircleBuilder.create(bcircles);
     assertTrue(geom instanceof Polygon);
   }
 
   @Test
   public void createNonOverlappingMultiPolygonFromBcircles() {
     String[] bcircles = new String[] {"8.68242", "49.42482", "100", "8.68692", "49.40449", "100"};
-    Geometry geom = bCircleBuilder.create(bcircles, inputProcessor);
+    Geometry geom = bCircleBuilder.create(bcircles);
     assertTrue(geom instanceof MultiPolygon);
     assertEquals(geom.getNumGeometries(), bcircles.length / 3);
   }
@@ -107,7 +107,7 @@ public class GeometryBuilderTest {
   public void createPolygonWithWrongCoordinatesFromBpolys() {
     String[] bpolys = new String[] {"8.6974", "49.40882", "8.6974", "49.41276", "8.70722",
         "49.41276", "8.70722", "[invalid input]"};
-    bCircleBuilder.create(bpolys, inputProcessor);
+    bCircleBuilder.create(bpolys);
   }
 
   @Test
@@ -115,7 +115,7 @@ public class GeometryBuilderTest {
     String[] bpolys = new String[] {"8.678", "49.4148", "8.678", "49.41971", "8.68864", "49.41971",
         "8.68864", "49.4148", "8.678", "49.4148", "8.678", "49.4147", "8.678", "49.41972",
         "8.68864", "49.41972", "8.68864", "49.4147", "8.678", "49.4147"};
-    Geometry geom = bPolygonBuilder.create(bpolys, inputProcessor);
+    Geometry geom = bPolygonBuilder.create(bpolys);
     assertTrue(geom instanceof Polygon);
     assertTrue(((Polygon) geom).getExteriorRing().getNumPoints() < bpolys.length / 2);
   }
@@ -125,7 +125,7 @@ public class GeometryBuilderTest {
     String[] bpolys = new String[] {"8.678", "49.4148", "8.678", "49.41971", "8.68864", "49.41971",
         "8.678", "49.4148", "8.67229", "49.40343", "8.67229", "49.40804", "8.67941", "49.40804",
         "8.67229", "49.40343"};
-    Geometry geom = bPolygonBuilder.create(bpolys, inputProcessor);
+    Geometry geom = bPolygonBuilder.create(bpolys);
     assertTrue(geom instanceof MultiPolygon);
     MultiPolygon mp = (MultiPolygon) geom;
     assertEquals(mp.getNumGeometries(), 2);
@@ -141,7 +141,7 @@ public class GeometryBuilderTest {
         "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":"
             + "{\"id\":\"Neuenheim\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[[[8.68465,"
             + "49.41769]]]}}]}";
-    bPolygonFromGeoJSON.create(geoJson, inputProcessor);
+    bPolygonFromGeoJSON.create(geoJson);
   }
 
   @Test(expected = BadRequestException.class)
@@ -152,13 +152,13 @@ public class GeometryBuilderTest {
             + "[8.2942929,49.4313993],[8.2940648,49.4314931],[8.2931602,49.4328216],"
             + "[8.2933214,49.4329125],[8.2936734,49.4330121],[8.2940745,49.4331354],"
             + "[8.2950478,49.4317345],[8.2944706,49.4313443]]]]}]}";
-    bPolygonFromGeoJSON.create(geoJson, inputProcessor);
+    bPolygonFromGeoJSON.create(geoJson);
   }
 
   @Test(expected = BadRequestException.class)
   public void createGeometryFromInvalidInputGeoJson() {
     String geoJson = "{\"type\": \"FeatureCollection\"}";
-    bPolygonFromGeoJSON.create(geoJson, inputProcessor);
+    bPolygonFromGeoJSON.create(geoJson);
   }
 
   @Test
@@ -183,9 +183,9 @@ public class GeometryBuilderTest {
 //    Mockito.when(mockedServletRequest.getParameter("format")).thenReturn("json");
 //    Mockito.when(mockedServletRequest.getParameter("timeout")).thenReturn("400");
 
-    InputProcessor inputProcessor = new InputProcessor(processingData);
-    inputProcessor.setUtils(new InputProcessingUtils());
-    Geometry geom = bPolygonFromGeoJSON.create(geoJson, inputProcessor);
+    //InputProcessor inputProcessor = new InputProcessor(processingData);
+    //inputProcessor.setUtils(new InputProcessingUtils());
+    Geometry geom = bPolygonFromGeoJSON.create(geoJson);
     assertTrue(geom instanceof MultiPolygon);
   }
 
@@ -199,9 +199,9 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{\"id\":\"Handschuhsheim\"},\"geometry\":"
             + "{\"type\":\"Polygon\",\"coordinates\":[[[8.67817,49.42147],[8.67817,49.4342],"
             + "[8.70053,49.4342],[8.70053,49.42147],[8.67817,49.42147]]]}}]}";
-    InputProcessor inputProcessor = new InputProcessor(processingData);
-    inputProcessor.setUtils(new InputProcessingUtils());
-    Geometry geom = bPolygonFromGeoJSON.create(geoJson, inputProcessor);
+    //InputProcessor inputProcessor = new InputProcessor(processingData);
+    //inputProcessor.setUtils(new InputProcessingUtils());
+    Geometry geom = bPolygonFromGeoJSON.create(geoJson);
     assertTrue(geom instanceof Polygon);
   }
 
