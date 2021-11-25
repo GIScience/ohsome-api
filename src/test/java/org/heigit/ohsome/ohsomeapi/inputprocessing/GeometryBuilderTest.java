@@ -13,20 +13,30 @@ import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Test class for the {@link GeometryBuilder GeometryBuilder} class.
  */
+@SpringBootTest
+@RunWith(SpringRunner.class)
 public class GeometryBuilderTest {
-  private GeometryBuilder geomBuilder;
+  //private GeometryBuilder geomBuilder;
   //private final ProcessingData processingData = new ProcessingData(null);
-  private final BBoxBuilder bBoxBuilder = new BBoxBuilder();
-  private final BCircleBuilder bCircleBuilder = new BCircleBuilder();
-  private final BPolygonBuilder bPolygonBuilder = new BPolygonBuilder();
-  private final BPolygonFromGeoJSON bPolygonFromGeoJSON = new BPolygonFromGeoJSON();
+  @Autowired
+  private BBoxBuilder bBoxBuilder;
+  @Autowired
+  private BCircleBuilder bCircleBuilder;
+  @Autowired
+  private BPolygonBuilder bPolygonBuilder;
+  @Autowired
+  private BPolygonFromGeoJSON bPolygonFromGeoJSON;
   private final GeometryOfOSHDBExtent geometryOfOSHDBExtent = new GeometryOfOSHDBExtent();
   //private final InputProcessor inputProcessor = new InputProcessor(processingData);
 
