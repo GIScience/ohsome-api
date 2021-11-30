@@ -16,10 +16,15 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoordinates {
   private ArrayList<Geometry> geometryList;
   private Geometry geom;
+  @Autowired
+  SpatialUtility spatialUtility;
 
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
@@ -38,12 +43,12 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
     CoordinateReferenceSystem targetCrs;
     MathTransform transform = null;
     geometryList = new ArrayList<Geometry>();
-    SpatialUtility utils = new SpatialUtility();
+    //SpatialUtility utils = new SpatialUtility();
     try {
       for (int i = 0; i < bpoints.length; i += 3) {
         sourceCrs = CRS.decode("EPSG:4326", true);
         targetCrs = CRS.decode(
-            utils.findEpsg(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])),
+            spatialUtility.findEpsg(Double.parseDouble(bpoints[i]), Double.parseDouble(bpoints[i + 1])),
             true);
         transform = CRS.findMathTransform(sourceCrs, targetCrs, false);
         Point p = geomFact.createPoint(
@@ -52,7 +57,7 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
         transform = CRS.findMathTransform(targetCrs, sourceCrs, false);
         geom = JTS.transform(buffer, transform);
         if (bpoints.length == 3) {
-          if (!utils.isWithin(geom)) {
+          if (!spatialUtility.isWithin(geom)) {
             throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
           }
           geometryList.add(geom);

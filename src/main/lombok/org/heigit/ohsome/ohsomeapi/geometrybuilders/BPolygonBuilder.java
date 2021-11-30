@@ -10,10 +10,15 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.geometry.MismatchedDimensionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoordinates {
   private ArrayList<Geometry> geometryList;
   private Geometry geometry;
+  @Autowired
+  SpatialUtility spatialUtility;
 
   /**
    * Creates a <code>Polygon</code> out of the coordinates in the given array. If more polygons are
@@ -30,7 +35,7 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
     Geometry bpoly;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
     geometryList = new ArrayList<Geometry>();
-    SpatialUtility utils = new SpatialUtility();
+    //SpatialUtility utils = new SpatialUtility();
     if (bpolys[0].equals(bpolys[bpolys.length - 2])
         && bpolys[1].equals(bpolys[bpolys.length - 1])) {
       try {
@@ -42,7 +47,7 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
       } catch (IllegalArgumentException e) {
         throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
       }
-      if (!utils.isWithin(bpoly)) {
+      if (!spatialUtility.isWithin(bpoly)) {
         throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
       geometryList.add(bpoly);

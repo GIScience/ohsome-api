@@ -20,6 +20,8 @@ public class RequestUtils {
 
   @Autowired
   HttpServletRequest servletRequest;
+  @Autowired
+  ExtractMetadata extractMetadata;
 
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.
@@ -93,7 +95,7 @@ public class RequestUtils {
    * @throws IOException thrown by {@link com.fasterxml.jackson.databind.ObjectMapper
    *         #readTree(String) readTree}
    */
-  public static void extractOSHDBMetadata() throws IOException {
+  public void extractOSHDBMetadata() throws IOException {
     OSHDBDatabase db;
     if (DbConnData.keytables != null) {
       db = DbConnData.keytables;
@@ -106,31 +108,30 @@ public class RequestUtils {
     if (db.metadata("extract.region") != null) {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
-      ExtractMetadata.dataPolyJson = mapper.readTree(dataPolyString);
+      extractMetadata.setDataPolyJson(mapper.readTree(dataPolyString));
       GeometryOfOSHDBExtent builder = new GeometryOfOSHDBExtent();
       builder.create(dataPolyString);
-      ExtractMetadata.dataPoly = ProcessingData.getDataPolyGeom();
+      extractMetadata.setDataPoly(ProcessingData.getDataPolyGeom());
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");
-      ExtractMetadata.fromTstamp = timeranges[0];
-      ExtractMetadata.toTstamp = timeranges[1];
+      extractMetadata.setFromTstamp(timeranges[0]);
+      extractMetadata.setToTstamp(timeranges[1]);
     } else {
       throw new RuntimeException("The timerange metadata could not be retrieved from the db.");
     }
     if (db.metadata("attribution.short") != null) {
-      ExtractMetadata.attributionShort = db.metadata("attribution.short");
+      extractMetadata.setAttributionShort(db.metadata("attribution.short"));
     } else {
-      ExtractMetadata.attributionShort = "© OpenStreetMap contributors";
+      extractMetadata.setAttributionShort("© OpenStreetMap contributors");
     }
     if (db.metadata("attribution.url") != null) {
-      ExtractMetadata.attributionUrl = db.metadata("attribution.url");
+      extractMetadata.setAttributionUrl(db.metadata("attribution.url"));
     } else {
-      ExtractMetadata.attributionUrl = "https://ohsome.org/copyrights";
+      extractMetadata.setAttributionUrl("https://ohsome.org/copyrights");
     }
     if (db.metadata("header.osmosis_replication_sequence_number") != null) {
-      ExtractMetadata.replicationSequenceNumber =
-          Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number"));
+      extractMetadata.setReplicationSequenceNumber(Integer.parseInt(db.metadata("header.osmosis_replication_sequence_number")));
     }
   }
 

@@ -3,10 +3,10 @@ package org.heigit.ohsome.ohsomeapi.output;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.geojson.Feature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
@@ -15,12 +15,14 @@ import org.geojson.Feature;
  * org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult ElementsResult} objects.
  */
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+//@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonInclude(Include.NON_NULL)
+@Component
 public class DefaultAggregationResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
-  private Attribution attribution;
+  @Autowired
+  Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
   private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
@@ -33,10 +35,10 @@ public class DefaultAggregationResponse implements Response {
   private Result[] result;
 
   /** Static factory method returning the whole JSON response. */
-  public static DefaultAggregationResponse of(Attribution attribution, String apiVersion,
+  public static DefaultAggregationResponse of(String apiVersion,
       Metadata metadata, Result[] result) {
     DefaultAggregationResponse response = new DefaultAggregationResponse();
-    response.attribution = attribution;
+    //response.attribution = attribution;
     response.apiVersion = apiVersion;
     response.metadata = metadata;
     response.result = result;
@@ -52,10 +54,10 @@ public class DefaultAggregationResponse implements Response {
   }
 
   /** Static factory method returning the whole GeoJSON response. */
-  public static DefaultAggregationResponse of(Attribution attribution, String apiVersion,
+  public static DefaultAggregationResponse of(String apiVersion,
       Metadata metadata, String type, Feature[] features) {
     DefaultAggregationResponse response = new DefaultAggregationResponse();
-    response.attribution = attribution;
+    //response.attribution = attribution;
     response.apiVersion = apiVersion;
     response.metadata = metadata;
     response.type = type;

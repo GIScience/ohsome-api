@@ -5,10 +5,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction.ContributionsExtraction;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Latest;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/contributions")
 public class ContributionsController {
+
+  @Autowired
+  DataRequestExecutor dataRequestExecutor;
+  @Autowired
+  ContributionsExtraction contributionsExtraction;
+  @Autowired
+  Operator operator;
+  @Autowired
+  Latest latest;
 
   /**
    * Gives the contributions as GeoJSON features, which have the geometry of the respective objects
@@ -41,9 +52,11 @@ public class ContributionsController {
       produces = "application/json")
   public void contributions(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
-        ElementsGeometry.RAW);
-    executor.extract();
+    //DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
+      //  ElementsGeometry.RAW);
+    operator.setOperation(contributionsExtraction);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.RAW);
   }
 
   /**
@@ -65,9 +78,11 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsBbox(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
-        ElementsGeometry.BBOX);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
+//        ElementsGeometry.BBOX);
+    operator.setOperation(contributionsExtraction);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.BBOX);
   }
 
   /**
@@ -89,9 +104,11 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsCentroid(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
-        ElementsGeometry.CENTROID);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONS,
+//        ElementsGeometry.CENTROID);
+    operator.setOperation(contributionsExtraction);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.CONTRIBUTIONS, ElementsGeometry.CENTROID);
   }
 
   /**
@@ -114,9 +131,11 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
-        ElementsGeometry.RAW);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
+//        ElementsGeometry.RAW);
+    operator.setOperation(contributionsExtraction);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.RAW);
   }
 
   /**
@@ -138,9 +157,12 @@ public class ContributionsController {
   @RequestMapping(value = "/latest/bbox", method = {RequestMethod.GET, RequestMethod.POST},
       produces = "application/json")
   public void contributionsBboxLatest() throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
-        ElementsGeometry.BBOX);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
+//        ElementsGeometry.BBOX);
+    operator.setOperation(contributionsExtraction);
+    operator.setOperation(latest);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.BBOX);
   }
 
   /**
@@ -163,9 +185,12 @@ public class ContributionsController {
       produces = "application/json")
   public void contributionsCentroidLatest(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
-        ElementsGeometry.CENTROID);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.CONTRIBUTIONSLATEST,
+//        ElementsGeometry.CENTROID);
+    operator.setOperation(contributionsExtraction);
+    operator.setOperation(latest);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.CONTRIBUTIONSLATEST, ElementsGeometry.CENTROID);
   }
 
 }

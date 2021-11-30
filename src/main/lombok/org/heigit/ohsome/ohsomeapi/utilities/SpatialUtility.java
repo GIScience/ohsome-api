@@ -21,10 +21,15 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.Puntal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SpatialUtility implements Serializable {
   public static final String GEOMCOLLTYPE = "GeometryCollection";
   private Serializable[] boundaryIds;
+  @Autowired
+  ExtractMetadata extractMetadata;
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link
@@ -170,8 +175,8 @@ public class SpatialUtility implements Serializable {
    *     <code>false</code> - if not inside
    */
   public boolean isWithin(Geometry geom) {
-    if (ExtractMetadata.dataPoly != null) {
-      return geom.within(ExtractMetadata.dataPoly);
+    if (extractMetadata.getDataPoly() != null) {
+      return geom.within(extractMetadata.getDataPoly());
     }
     return true;
   }

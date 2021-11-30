@@ -14,12 +14,17 @@ import org.heigit.ohsome.oshdb.filter.FilterParser;
 import org.heigit.ohsome.oshdb.util.mappable.OSHDBMapReducible;
 import org.jparsec.error.ParserException;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** Holds utility methods that are used by the input processing and executor classes. */
+@Component
 public class InputProcessingUtils implements Serializable {
 
-  private final SpatialUtility spatialUtility = new SpatialUtility();
-  private final TimeUtility timeUtility = new TimeUtility();
+  @Autowired
+  SpatialUtility spatialUtility;
+  @Autowired
+  TimeUtility timeUtility;
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link

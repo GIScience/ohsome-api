@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ContributionsCountController {
   @Autowired
   ContributionsExecutor executor;
+
   /**
    * Gives the count of OSM contributions.
    *

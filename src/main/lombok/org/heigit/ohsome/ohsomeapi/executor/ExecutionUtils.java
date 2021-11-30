@@ -67,6 +67,11 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
@@ -108,6 +113,11 @@ public class ExecutionUtils implements Serializable {
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
   @Autowired
   HttpServletRequest servletRequest;
+  @Autowired
+  ExtractMetadata extractMetadata;
+  @Autowired
+  Attribution attribution;
+
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
       Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
@@ -450,28 +460,27 @@ public class ExecutionUtils implements Serializable {
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public static <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
-      RequestResource requestResource,
+      Operation operation,
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAgg)
       throws Exception {
     var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
-    switch (requestResource) {
-      case COUNT:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAgg.count();
-      case PERIMETER:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
-            .sum(geom -> {
-              if (!(geom instanceof Polygonal)) {
-                return 0.0;
-              }
-              return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-            });
-      case LENGTH:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
-            .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
-      case AREA:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
-            .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
-      default:
+    if (operation instanceof Count) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAgg.count();
+    } else if (operation instanceof Perimeter) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
+          .sum(geom -> {
+            if (!(geom instanceof Polygonal)) {
+              return 0.0;
+            }
+            return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+          });
+    } else if (operation instanceof Length) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
+          .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+    } else if (operation instanceof Area) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
+          .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
+    } else {
         return null;
     }
   }
@@ -483,30 +492,28 @@ public class ExecutionUtils implements Serializable {
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
   public static <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>
-      computeNestedResult(
-      RequestResource requestResource,
+      computeNestedResult(Operation operation,
       MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
           OSMEntitySnapshot> mapAgg) throws Exception {
     var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
-    switch (requestResource) {
-      case COUNT:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            mapAgg.count();
-      case PERIMETER:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            mapAggGeom.sum(geom -> {
-              if (!(geom instanceof Polygonal)) {
-                return 0.0;
-              }
-              return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-            });
-      case LENGTH:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            mapAggGeom.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
-      case AREA:
-        return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-            mapAggGeom.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
-      default:
+    if (operation instanceof Count) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
+          mapAgg.count();
+    } else if (operation instanceof Perimeter) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
+          mapAggGeom.sum(geom -> {
+            if (!(geom instanceof Polygonal)) {
+              return 0.0;
+            }
+            return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+          });
+    } else if (operation instanceof Length) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
+          mapAggGeom.sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+    } else if (operation instanceof Area) {
+      return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
+          mapAggGeom.sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
+    } else {
         return null;
     }
   }
@@ -624,7 +631,7 @@ public class ExecutionUtils implements Serializable {
 
   /** Creates a RatioResponse. */
   public Response createRatioResponse(String[] timeArray, Double[] value1, Double[] value2,
-      long startTime, RequestResource reqRes, String requestUrl,
+      long startTime, Operation operation, String requestUrl,
       HttpServletResponse servletResponse) {
     RatioResult[] resultSet = new RatioResult[timeArray.length];
     for (int i = 0; i < timeArray.length; i++) {
@@ -641,22 +648,20 @@ public class ExecutionUtils implements Serializable {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateRatio(reqRes.getDescription(), reqRes.getUnit()), requestUrl);
+          Description.aggregateRatio(operation.getDescription(), operation.getUnit()), requestUrl);
     }
     //RequestParameters requestParameters = processingData.getRequestParameters();
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(ElementsRequestExecutor.URL,
-          ElementsRequestExecutor.TEXT, Application.API_VERSION, metadata));
+      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(extractMetadata.getAttributionUrl(),
+          extractMetadata.getAttributionShort(), Application.API_VERSION, metadata));
       return null;
     }
-    return new RatioResponse(
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.API_VERSION, metadata, resultSet);
+    return new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
   }
 
   /** Creates a RatioGroupByBoundaryResponse. */
   public Response createRatioGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
-      Double[] resultValues1, Double[] resultValues2, long startTime, RequestResource reqRes,
+      Double[] resultValues1, Double[] resultValues2, long startTime, Operation operation,
       String requestUrl, HttpServletResponse servletResponse) {
     Metadata metadata = null;
     int boundaryIdsLength = boundaryIds.length;
@@ -683,12 +688,12 @@ public class ExecutionUtils implements Serializable {
     if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
-          Description.aggregateRatioGroupByBoundary(reqRes.getDescription(), reqRes.getUnit()),
+          Description.aggregateRatioGroupByBoundary(operation.getDescription(), operation.getUnit()),
           requestUrl);
     }
     //RequestParameters requestParameters = processingData.getRequestParameters();
-    Attribution attribution =
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort);
+//    Attribution attribution =
+//        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort());
     if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
       return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
@@ -696,7 +701,7 @@ public class ExecutionUtils implements Serializable {
           GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
     } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       writeCsvResponse(groupByResultSet, servletResponse,
-          createCsvTopComments(ElementsRequestExecutor.URL, ElementsRequestExecutor.TEXT,
+          createCsvTopComments(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort(),
               Application.API_VERSION, metadata));
       return null;
     }

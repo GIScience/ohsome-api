@@ -14,8 +14,13 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
 import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TimeUtility implements Serializable {
+  @Autowired
+  ExtractMetadata extractMetadata;
   //private final InputProcessingUtils inputProcessingUtils;
   private String[] toTimestamps;
 
@@ -90,8 +95,8 @@ public class TimeUtility implements Serializable {
     if (time.startsWith("/")) {
       if (time.length() == 1) {
         // only /
-        timeVals[0] = ExtractMetadata.fromTstamp;
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[0] = extractMetadata.getFromTstamp();
+        timeVals[1] = extractMetadata.getToTstamp();
         return timeVals;
       }
       if (split[0].length() == 0 && split.length == 2) {
@@ -102,7 +107,7 @@ public class TimeUtility implements Serializable {
       } else if (split.length == 3 && split[0].length() == 0 && split[1].length() == 0) {
         // //PnYnMnD
         checkPeriodOnIsoConformity(split[2]);
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[1] = extractMetadata.getToTstamp();
         timeVals[2] = split[2];
       } else if (split.length == 3 && split[1].length() != 0) {
         // /YYYY-MM-DD/PnYnMnD
@@ -115,7 +120,7 @@ public class TimeUtility implements Serializable {
         // invalid time parameter
         throw new BadRequestException(ExceptionMessages.TIME_FORMAT);
       }
-      timeVals[0] = ExtractMetadata.fromTstamp;
+      timeVals[0] = extractMetadata.getFromTstamp();
     } else if (time.endsWith("/")) {
       if (split.length != 1) {
         // invalid time parameter
@@ -125,13 +130,13 @@ public class TimeUtility implements Serializable {
       checkTimestampsOnIsoConformity(split[0]);
       checkTemporalExtend(split[0]);
       timeVals[0] = split[0];
-      timeVals[1] = ExtractMetadata.toTstamp;
+      timeVals[1] = extractMetadata.getToTstamp();
     } else if (split.length == 3) {
       if (split[1].length() == 0) {
         // YYYY-MM-DD//PnYnMnD
         checkTimestampsOnIsoConformity(split[0]);
         checkTemporalExtend(split[0]);
-        timeVals[1] = ExtractMetadata.toTstamp;
+        timeVals[1] = extractMetadata.getToTstamp();
         timeVals[2] = split[2];
       } else {
         // YYYY-MM-DD/YYYY-MM-DD/PnYnMnD
@@ -198,8 +203,8 @@ public class TimeUtility implements Serializable {
     long end = 0;
     long timestampLong = 0;
     try {
-      start = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.fromTstamp).toEpochSecond();
-      end = IsoDateTimeParser.parseIsoDateTime(ExtractMetadata.toTstamp).toEpochSecond();
+      start = IsoDateTimeParser.parseIsoDateTime(extractMetadata.getFromTstamp()).toEpochSecond();
+      end = IsoDateTimeParser.parseIsoDateTime(extractMetadata.getToTstamp()).toEpochSecond();
     } catch (Exception e) {
       throw new RuntimeException("The ISO 8601 Date or the combined Date-Time String cannot be"
           + " converted into a UTC based ZonedDateTime Object");
@@ -213,7 +218,7 @@ public class TimeUtility implements Serializable {
         if (timestampLong < start || timestampLong > end) {
           throw new NotFoundException(
               "The given time parameter is not completely within the timeframe ("
-                  + ExtractMetadata.fromTstamp + " to " + ExtractMetadata.toTstamp
+                  + extractMetadata.getFromTstamp() + " to " + extractMetadata.getToTstamp()
                   + ") of the underlying osh-data.");
         }
       } catch (NotFoundException e) {

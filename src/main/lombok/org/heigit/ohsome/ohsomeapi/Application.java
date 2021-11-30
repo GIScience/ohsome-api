@@ -10,7 +10,6 @@ import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
-import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.api.db.OSHDBH2;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
@@ -184,7 +183,7 @@ public class Application implements ApplicationRunner {
       }
       DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
     }
-    RequestUtils.extractOSHDBMetadata();
+    //RequestUtils.extractOSHDBMetadata();
     if (DbConnData.mapTagTranslator == null) {
       DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
     }

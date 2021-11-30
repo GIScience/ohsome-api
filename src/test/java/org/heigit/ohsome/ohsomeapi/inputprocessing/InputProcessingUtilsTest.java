@@ -9,6 +9,7 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Test class for the
@@ -17,7 +18,10 @@ import org.junit.Test;
  */
 public class InputProcessingUtilsTest {
 
-  private InputProcessingUtils inProUtils;
+  @Autowired
+  InputProcessingUtils inProUtils;
+  @Autowired
+  ExtractMetadata extractMetadata;
 
   /** Checks the value of the junit property. */
   @BeforeClass
@@ -27,9 +31,9 @@ public class InputProcessingUtilsTest {
 
   @Before
   public void setup() {
-    inProUtils = new InputProcessingUtils();
-    ExtractMetadata.fromTstamp = "2008-01-01T00:00:00Z";
-    ExtractMetadata.toTstamp = "2018-01-01T00:00:00Z";
+    //inProUtils = new InputProcessingUtils();
+    extractMetadata.setFromTstamp("2008-01-01T00:00:00Z");
+    extractMetadata.setToTstamp("2018-01-01T00:00:00Z");
   }
 
   // boundary param split tests

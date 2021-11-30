@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.executor.MetadataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/metadata")
 public class MetadataController {
+  @Autowired
+  MetadataRequestExecutor metadataRequestExecutor;
 
   /**
    * GET request giving the metadata of the underlying extract-region(s).
@@ -25,6 +28,6 @@ public class MetadataController {
   @GetMapping(produces = "application/json")
   @ApiOperation(nickname = "Metadata", value = "Metadata of the underlying OSHDB data-extract")
   public MetadataResponse getMetadata(HttpServletRequest servletRequest) {
-    return MetadataRequestExecutor.executeGetMetadata(servletRequest);
+    return metadataRequestExecutor.executeGetMetadata(servletRequest);
   }
 }

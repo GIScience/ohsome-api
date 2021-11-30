@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsersController {
 
   @Autowired
-  ContributionsExecutor executor;
+  ContributionsExecutor contributionsExecutor;
+  @Autowired
+  UsersRequestExecutor usersRequestExecutor;
 
   /**
    * Gives the count of OSM users.
@@ -47,7 +49,7 @@ public class UsersController {
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
     //var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
-    return executor.count(true, false);
+    return contributionsExecutor.count(true, false);
   }
 
   /**
@@ -68,8 +70,8 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    UsersRequestExecutor executor = new UsersRequestExecutor();
-    return executor.countGroupByType(servletRequest, servletResponse, false);
+    //UsersRequestExecutor executor = new UsersRequestExecutor();
+    return usersRequestExecutor.countGroupByType(servletRequest, servletResponse, false);
   }
 
   /**
@@ -95,8 +97,8 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    UsersRequestExecutor executor = new UsersRequestExecutor();
-    return executor.countGroupByTag(servletRequest, servletResponse, false);
+    //UsersRequestExecutor executor = new UsersRequestExecutor();
+    return usersRequestExecutor.countGroupByTag(servletRequest, servletResponse, false);
   }
 
   /**
@@ -120,8 +122,8 @@ public class UsersController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    UsersRequestExecutor executor = new UsersRequestExecutor();
-    return executor.countGroupByKey(servletRequest, servletResponse, false);
+    //UsersRequestExecutor executor = new UsersRequestExecutor();
+    return usersRequestExecutor.countGroupByKey(servletRequest, servletResponse, false);
   }
 
   /**
@@ -144,7 +146,7 @@ public class UsersController {
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     //var executor = new ContributionsExecutor(servletRequest, servletResponse, false);
-    return executor.countGroupByBoundary(true);
+    return contributionsExecutor.countGroupByBoundary(true);
   }
 
   /**
@@ -170,7 +172,7 @@ public class UsersController {
   public Response countDensity(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     //var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
-    return executor.count(true, false);
+    return contributionsExecutor.count(true, false);
   }
 
   /**
@@ -191,8 +193,8 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    UsersRequestExecutor executor = new UsersRequestExecutor();
-    return executor.countGroupByType(servletRequest, servletResponse, true);
+    //UsersRequestExecutor executor = new UsersRequestExecutor();
+    return usersRequestExecutor.countGroupByType(servletRequest, servletResponse, true);
   }
 
   /**
@@ -218,8 +220,8 @@ public class UsersController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    UsersRequestExecutor executor = new UsersRequestExecutor();
-    return executor.countGroupByTag(servletRequest, servletResponse, true);
+    //UsersRequestExecutor executor = new UsersRequestExecutor();
+    return usersRequestExecutor.countGroupByTag(servletRequest, servletResponse, true);
   }
 
   /**
@@ -243,6 +245,6 @@ public class UsersController {
   public Response countDensityGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     //var executor = new ContributionsExecutor(servletRequest, servletResponse, true);
-    return executor.countGroupByBoundary(true);
+    return contributionsExecutor.countGroupByBoundary(true);
   }
 }

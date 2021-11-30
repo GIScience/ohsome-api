@@ -17,10 +17,13 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public abstract class GeometryBuilder {
   @Autowired
   HttpServletRequest request;
+  @Autowired
   SpatialUtility spatialUtility;
 
   /**
@@ -49,8 +52,8 @@ public abstract class GeometryBuilder {
     MultiPolygon mp = geometryFactory.createMultiPolygon(polys);
     // merge all input geometries to single (multi) polygon
     Geometry result = mp.union();
-    SpatialUtility utils = new SpatialUtility();
-    if (!utils.isWithin(result)) {
+    //SpatialUtility utils = new SpatialUtility();
+    if (!spatialUtility.isWithin(result)) {
       throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
     }
     return result;

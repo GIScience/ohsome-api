@@ -8,10 +8,21 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.metadata.ExtractRegion;
 import org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse;
-import org.heigit.ohsome.ohsomeapi.output.metadata.TemporalExtent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** Includes the execute method for requests mapped to /metadata. */
+@Component
 public class MetadataRequestExecutor {
+
+  @Autowired
+  ExtractMetadata extractMetadata;
+  @Autowired
+  ExtractRegion extractRegion;
+  @Autowired
+  Attribution attribution;
+  @Autowired
+  MetadataResponse metadataResponse;
 
   /**
    * Returns the metadata of the underlying extract-file.
@@ -19,19 +30,20 @@ public class MetadataRequestExecutor {
    * @return {@link org.heigit.ohsome.ohsomeapi.output.metadata.MetadataResponse MetadataResponse}
    * @throws BadRequestException if parameters are given in the query.
    */
-  public static MetadataResponse executeGetMetadata(HttpServletRequest servletRequest) {
+  public MetadataResponse executeGetMetadata(HttpServletRequest servletRequest) {
     if (!servletRequest.getParameterMap().isEmpty()) {
       throw new BadRequestException("The endpoint 'metadata' does not require parameters");
     }
-    return new MetadataResponse(
-        new Attribution(ExtractMetadata.attributionUrl, ExtractMetadata.attributionShort),
-        Application.API_VERSION, ProcessingData.getTimeout(),
-        new ExtractRegion(ExtractMetadata.dataPolyJson,
-            new TemporalExtent(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp),
-            ExtractMetadata.replicationSequenceNumber));
-  }
-
-  private MetadataRequestExecutor() {
-    throw new IllegalStateException("Utility class");
+    metadataResponse.setAttribution(attribution);
+    metadataResponse.setApiVersion(Application.API_VERSION);
+    metadataResponse.setExtractRegion(extractRegion);
+    metadataResponse.setTimeout(ProcessingData.getTimeout());
+    metadataResponse.getExtractRegion().setSpatialExtent(extractMetadata.getDataPolyJson());
+    return metadataResponse;
+//    return new MetadataResponse(attribution,
+//        Application.API_VERSION, ProcessingData.getTimeout(),
+//        new ExtractRegion(extractMetadata.getDataPolyJson(),
+//            new TemporalExtent(extractMetadata.getFromTstamp(), extractMetadata.getToTstamp()),
+//            extractMetadata.getReplicationSequenceNumber()));
   }
 }

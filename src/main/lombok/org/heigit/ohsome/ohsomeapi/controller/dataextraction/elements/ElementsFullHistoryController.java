@@ -6,8 +6,10 @@ import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction.ElementsFullHistory;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/elementsFullHistory")
 public class ElementsFullHistoryController {
+
+  @Autowired
+  DataRequestExecutor dataRequestExecutor;
+  @Autowired
+  ElementsFullHistory elementsFullHistory;
+  @Autowired
+  Operator operator;
 
   /**
    * Gives the OSM objects as GeoJSON features, which have the geometry of the respective objects in
@@ -41,9 +50,11 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
-        ElementsGeometry.RAW);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
+//        ElementsGeometry.RAW);
+    operator.setOperation(elementsFullHistory);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW);
   }
 
   /**
@@ -66,9 +77,11 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsBboxFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
-        ElementsGeometry.BBOX);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
+//        ElementsGeometry.BBOX);
+    operator.setOperation(elementsFullHistory);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX);
   }
 
   /**
@@ -90,8 +103,10 @@ public class ElementsFullHistoryController {
       produces = "application/json")
   public void elementsCentroidFullHistory(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
-        ElementsGeometry.CENTROID);
-    executor.extract();
+//    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
+//        ElementsGeometry.CENTROID);
+    operator.setOperation(elementsFullHistory);
+    operator.compute();
+    //dataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID);
   }
 }

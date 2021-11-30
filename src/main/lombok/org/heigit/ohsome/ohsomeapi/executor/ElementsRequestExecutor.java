@@ -30,7 +30,6 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
@@ -39,6 +38,11 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -67,13 +71,17 @@ import org.wololo.geojson.Feature;
 @Component
 public class ElementsRequestExecutor {
 
-  public static final String URL = ExtractMetadata.attributionUrl;
-  public static final String TEXT = ExtractMetadata.attributionShort;
+//  public static final String URL = ExtractMetadata.attributionUrl;
+//  public static final String TEXT = ExtractMetadata.attributionShort;
+  @Autowired
+  Attribution attribution;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   @Autowired
   HttpServletRequest servletRequest;
   @Autowired
   InputProcessor inputProcessor;
+  @Autowired
+  InputProcessingUtils utils;
 
   /**
    * Performs an OSM data extraction.
@@ -92,7 +100,7 @@ public class ElementsRequestExecutor {
    *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
    */
-  public void extract(RequestResource requestResource, ElementsGeometry elemGeom,
+  public void extract(Operation operation, ElementsGeometry elemGeom,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
     inputProcessor.setSnapshot(true);
     inputProcessor.setDensity(false);
@@ -136,10 +144,10 @@ public class ElementsRequestExecutor {
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
-      metadata = new Metadata(null, requestResource.getDescription(),
+      metadata = new Metadata(null, operation.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest());
     }
-    ExtractionResponse osmData = new ExtractionResponse(new Attribution(URL, TEXT),
+    ExtractionResponse osmData = new ExtractionResponse(attribution,
         Application.API_VERSION, metadata, "FeatureCollection", Collections.emptyList());
     try (Stream<Feature> streamResult = preResult.stream()) {
       exeUtils.streamResponse(servletResponse, osmData, streamResult);
@@ -164,7 +172,7 @@ public class ElementsRequestExecutor {
    *         #processParameters() processParameters}
    */
   public <P extends Geometry & Polygonal> Response aggregateGroupByBoundaryGroupByTag(
-      RequestResource requestResource, HttpServletRequest servletRequest,
+      Operation operation, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isSnapshot, boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
     MapReducer<OSMEntitySnapshot> mapRed = null;
@@ -204,13 +212,13 @@ public class ElementsRequestExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    var result = ExecutionUtils.computeNestedResult(requestResource,
+    var result = ExecutionUtils.computeNestedResult(operation,
         mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
             .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp));
     var groupByResult = OSHDBCombinedIndex.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.entrySet().size()];
-    InputProcessingUtils utils = inputProcessor.getUtils();
+    //InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = utils.getBoundaryIds();
     int count = 0;
     ArrayList<Geometry> boundaries = new ArrayList<>(processingData.getBoundaryList());
@@ -237,20 +245,20 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.aggregateGroupByBoundaryGroupByTag(inputProcessor.isDensity(),
-              requestResource.getDescription(), requestResource.getUnit()),
+              operation.getDescription(), operation.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest());
     }
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     } else if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+      return GroupByResponse.of(attribution, Application.API_VERSION, metadata,
           "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
               processingData.getGeoJsonGeoms()));
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -273,7 +281,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public Response aggregateGroupByTag(RequestResource requestResource,
+  public Response aggregateGroupByTag(Operation operation,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -303,7 +311,7 @@ public class ElementsRequestExecutor {
     }
     var preResult = mapRed.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
         .aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
-    var result = ExecutionUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(operation, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
@@ -328,16 +336,16 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.aggregateGroupByTag(inputProcessor.isDensity(),
-              requestResource.getDescription(), requestResource.getUnit()),
+              operation.getDescription(), operation.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest());
     }
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -359,7 +367,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public Response aggregateGroupByType(RequestResource requestResource,
+  public Response aggregateGroupByType(Operation operation,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -374,7 +382,7 @@ public class ElementsRequestExecutor {
     preResult = mapRed.aggregateByTimestamp().aggregateBy(
         (SerializableFunction<OSMEntitySnapshot, OSMType>) f -> f.getEntity().getType(),
         processingData.getOsmTypes());
-    var result = ExecutionUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(operation, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     Geometry geom = inputProcessor.getGeometry();
@@ -390,16 +398,16 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata = new Metadata(duration,
           Description.countPerimeterAreaGroupByType(inputProcessor.isDensity(),
-              requestResource.getDescription(), requestResource.getUnit()),
+              operation.getDescription(), operation.getUnit()),
           inputProcessor.getRequestUrlIfGetRequest());
     }
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -422,7 +430,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public Response aggregateGroupByKey(RequestResource requestResource,
+  public Response aggregateGroupByKey(Operation operation,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse, boolean isSnapshot,
       boolean isDensity) throws Exception {
     final long startTime = System.currentTimeMillis();
@@ -461,7 +469,7 @@ public class ElementsRequestExecutor {
           return res;
         }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
             .map(Pair::getValue);
-    var result = ExecutionUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(operation, preResult);
     var groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
     String groupByName = "";
@@ -483,17 +491,17 @@ public class ElementsRequestExecutor {
       long duration = System.currentTimeMillis() - startTime;
       metadata =
           new Metadata(duration,
-              Description.aggregateGroupByKey(requestResource.getDescription(),
-                  requestResource.getUnit()),
+              Description.aggregateGroupByKey(operation.getDescription(),
+                  operation.getUnit()),
               inputProcessor.getRequestUrlIfGetRequest());
     }
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -660,7 +668,7 @@ public class ElementsRequestExecutor {
    *         {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *         #computeResult(RequestResource, MapAggregator) computeResult}
    */
-  public Response aggregateRatio(RequestResource requestResource,
+  public Response aggregateRatio(Operation operation,
       HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
 //    if (null == servletRequest.getParameter("filter")
 //        && (null != servletRequest.getParameter("types")
@@ -715,7 +723,7 @@ inputProcessor.setFilter(combinedFilter);
         return MatchType.MATCHESNONE;
       }
     }, EnumSet.allOf(MatchType.class));
-    var result = ExecutionUtils.computeResult(requestResource, preResult);
+    var result = ExecutionUtils.computeResult(operation, preResult);
     int resultSize = result.size();
     int matchTypeSize = 4;
     Double[] value1 = new Double[resultSize / matchTypeSize];
@@ -745,7 +753,7 @@ inputProcessor.setFilter(combinedFilter);
       }
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-    return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, requestResource,
+    return exeUtils.createRatioResponse(timeArray, value1, value2, startTime, operation,
         inputProcessor.getRequestUrlIfGetRequest(), servletResponse);
   }
 
@@ -962,7 +970,7 @@ inputProcessor.setFilter(combinedFilter);
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   public <P extends Geometry & Polygonal> Response aggregateRatioGroupByBoundary(
-      RequestResource requestResource, HttpServletRequest servletRequest,
+      Operation operation, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
 //    if (null == servletRequest.getParameter("filter")
 //        && (null != servletRequest.getParameter("types")
@@ -1035,30 +1043,25 @@ inputProcessor.setFilter(combinedFilter);
     var mapRed3Geom = mapRed3.map(OSMEntitySnapshot::getGeometry);
     SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, MatchType>, ? extends
         Number> result = null;
-    switch (requestResource) {
-      case COUNT:
-        result = mapRed3.count();
-        break;
-      case LENGTH:
-        result =
-            mapRed3Geom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
-        break;
-      case PERIMETER:
-        result = mapRed3Geom.sum(geom -> {
-          if (!(geom instanceof Polygonal)) {
-            return 0.0;
-          }
-          return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-        });
-        break;
-      case AREA:
-        result =
-            mapRed3Geom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
-        break;
-      default:
-        break;
+    if (operation instanceof Count) {
+      result = mapRed3.count();
+    } else if (operation instanceof Length) {
+      result =
+          mapRed3Geom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+
+    } else if (operation instanceof Perimeter) {
+      result = mapRed3Geom.sum(geom -> {
+        if (!(geom instanceof Polygonal)) {
+          return 0.0;
+        }
+        return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+      });
+    } else if (operation instanceof Area) {
+      result =
+          mapRed3Geom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
+    } else {
     }
-    InputProcessingUtils utils = inputProcessor.getUtils();
+    //InputProcessingUtils utils = inputProcessor.getUtils();
     var groupByResult = ExecutionUtils.nest(result);
     Object[] boundaryIds = utils.getBoundaryIds();
     Double[] resultValues1 = null;
@@ -1101,7 +1104,7 @@ inputProcessor.setFilter(combinedFilter);
     }
     ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     return exeUtils.createRatioGroupByBoundaryResponse(boundaryIds, timeArray, resultValues1,
-        resultValues2, startTime, requestResource,
+        resultValues2, startTime, operation,
         inputProcessor.getRequestUrlIfGetRequest(), servletResponse);
   }
 }

@@ -12,8 +12,9 @@ import javax.json.JsonValue;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONReader;
-
+@Component
 public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFromGeoJSON {
   ArrayList<Geometry> boundaryList;
   GeoJsonObject[] geoJsonGeoms;

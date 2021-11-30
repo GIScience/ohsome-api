@@ -10,12 +10,19 @@ import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.RequestResource;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Ratio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,7 +38,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class CountController {
 
   @Autowired
-  AggregateRequestExecutor executor;
+  AggregateRequestExecutor aggregateRequestExecutor;
+  @Autowired
+  Operator operator;
+  @Autowired
+  ElementsRequestExecutor elementsRequestExecutor;
+  @Autowired
+  Count count;
+  @Autowired GroupByBoundary groupByBoundary;
+  @Autowired GroupByKey groupByKey;
+  @Autowired GroupByType groupByType;
+  @Autowired GroupByTag groupByTag;
+  @Autowired
+  Density density;
+  @Autowired
+  Ratio ratio;
 
   /**
    * Gives the count of OSM objects.
@@ -48,9 +69,11 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
+    operator.setOperation(count);
+return    operator.compute();
 //    AggregateRequestExecutor executor =
 //        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, false);
-    return executor.aggregate();
+    //return aggregateRequestExecutor.aggregate(count);
   }
 
   /**
@@ -72,9 +95,12 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
-        servletResponse, true, false);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(groupByType);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
+//        servletResponse, true, false);
   }
 
   /**
@@ -96,9 +122,12 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
+    operator.setOperation(count);
+    operator.setOperation(groupByBoundary);
+    return operator.compute();
 //    AggregateRequestExecutor executor =
 //        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, false);
-    return executor.aggregateGroupByBoundary();
+   // return aggregateRequestExecutor.aggregateGroupByBoundary();
   }
 
   /**
@@ -123,9 +152,13 @@ public class CountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
-        servletRequest, servletResponse, true, false);
+   // ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(groupByBoundary);
+    operator.setOperation(groupByTag);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
+//        servletRequest, servletResponse, true, false);
   }
 
   /**
@@ -147,9 +180,12 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByKey(RequestResource.COUNT, servletRequest,
-        servletResponse, true, false);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(groupByKey);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByKey(RequestResource.COUNT, servletRequest,
+//        servletResponse, true, false);
   }
 
   /**
@@ -174,9 +210,12 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
-        servletResponse, true, false);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(groupByTag);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
+//        servletResponse, true, false);
   }
 
   /**
@@ -199,7 +238,10 @@ public class CountController {
       HttpServletResponse servletResponse) throws Exception {
 //    AggregateRequestExecutor executor =
 //        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, true);
-    return executor.aggregate();
+    operator.setOperation(count);
+    operator.setOperation(density);
+    return operator.compute();
+    //return aggregateRequestExecutor.aggregate();
   }
 
   /**
@@ -221,9 +263,13 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
-        servletResponse, true, true);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(density);
+    operator.setOperation(groupByType);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
+//        servletResponse, true, true);
   }
 
   /**
@@ -248,7 +294,11 @@ public class CountController {
       HttpServletResponse servletResponse) throws Exception {
 //    AggregateRequestExecutor executor =
 //        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, true);
-    return executor.aggregateGroupByBoundary();
+    operator.setOperation(count);
+    operator.setOperation(density);
+    operator.setOperation(groupByBoundary);
+    return operator.compute();
+    //return aggregateRequestExecutor.aggregateGroupByBoundary();
   }
 
   /**
@@ -273,9 +323,14 @@ public class CountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
-        servletRequest, servletResponse, true, true);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(density);
+    operator.setOperation(groupByBoundary);
+    operator.setOperation(groupByTag);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
+//        servletRequest, servletResponse, true, true);
   }
 
   /**
@@ -300,9 +355,13 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countDensityGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
-        servletResponse, true, true);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(density);
+    operator.setOperation(groupByTag);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
+//        servletResponse, true, true);
   }
 
   /**
@@ -328,9 +387,12 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
       throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateRatio(RequestResource.COUNT, servletRequest,
-        servletResponse);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(ratio);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateRatio(RequestResource.COUNT, servletRequest,
+//        servletResponse);
   }
 
   /**
@@ -357,8 +419,12 @@ public class CountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateRatioGroupByBoundary(RequestResource.COUNT,
-        servletRequest, servletResponse);
+    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+    operator.setOperation(count);
+    operator.setOperation(ratio);
+    operator.setOperation(groupByBoundary);
+    return operator.compute();
+//    return elementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.COUNT,
+//        servletRequest, servletResponse);
   }
 }

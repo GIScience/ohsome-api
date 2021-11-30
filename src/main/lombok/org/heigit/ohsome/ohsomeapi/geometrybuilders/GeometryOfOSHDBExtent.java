@@ -2,8 +2,10 @@ package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONReader;
 
+@Component
 public class GeometryOfOSHDBExtent extends GeometryBuilder {
 //TODO this class should implement GeometryFrom GeoJSON
   /**

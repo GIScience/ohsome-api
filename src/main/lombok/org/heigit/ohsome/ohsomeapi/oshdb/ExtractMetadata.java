@@ -1,20 +1,22 @@
 package org.heigit.ohsome.ohsomeapi.oshdb;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import lombok.Setter;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.stereotype.Component;
 
 /** Holds the metadata that is derived from the data-extract. */
+@Component
+@Getter
+@Setter
 public class ExtractMetadata {
 
-  public static String fromTstamp = null;
-  public static String toTstamp = null;
-  public static String attributionShort = null;
-  public static String attributionUrl = null;
-  public static Geometry dataPoly = null;
-  public static JsonNode dataPolyJson = null;
-  public static int replicationSequenceNumber;
-
-  private ExtractMetadata() {
-    throw new IllegalStateException("Utility class");
-  }
+  private String fromTstamp = null;
+  private String toTstamp = null;
+  private String attributionShort = null;
+  private String attributionUrl = null;
+  private Geometry dataPoly = null;
+  private JsonNode dataPolyJson = null;
+  private int replicationSequenceNumber;
 }

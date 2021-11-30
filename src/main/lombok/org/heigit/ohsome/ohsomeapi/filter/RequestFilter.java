@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestFilter extends OncePerRequestFilter {
+  @Autowired
+  RequestUtils requestUtils;
 
   /**
    * @throws IOException thrown by {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils
@@ -75,7 +78,7 @@ public class RequestFilter extends OncePerRequestFilter {
         setHeader(name, value);
       }
     };
-    RequestUtils.extractOSHDBMetadata();
+    requestUtils.extractOSHDBMetadata();
     filterChain.doFilter(request, wrapper);
   }
 }

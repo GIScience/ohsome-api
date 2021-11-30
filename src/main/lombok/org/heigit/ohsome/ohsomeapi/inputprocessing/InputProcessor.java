@@ -68,7 +68,8 @@ public class InputProcessor {
    */
   public final int COMPUTE_MODE_THRESHOLD = 130;
   private GeometryBuilder geomBuilder;
-  private InputProcessingUtils utils;
+  @Autowired
+  InputProcessingUtils utils;
   private static ProcessingData processingData;
   private String requestUrl;
   private String requestTimeout;
@@ -107,7 +108,11 @@ public class InputProcessor {
   String[] values;
   @Autowired
   RequestUtils requestUtils;
-//  public InputProcessor(){
+  @Autowired
+  ExtractMetadata extractMetadata;
+  @Autowired
+  BBoxBuilder bboxBuilder;
+  //  public InputProcessor(){
 //
 //  }
 //  public InputProcessor(ProcessingData processionData){
@@ -199,19 +204,19 @@ public class InputProcessor {
     MapReducer<? extends OSHDBMapReducible> mapRed = null;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
     //geomBuilder = new GeometryBuilder(processingData);
-    utils = new InputProcessingUtils();
+    //utils = new InputProcessingUtils();
     Geometry boundary;
     try {
       switch (processingData.getBoundaryType()) {
         case NOBOUNDARY:
-          if (ExtractMetadata.dataPoly == null) {
+          if (extractMetadata.getDataPoly() == null) {
             throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
           }
-          boundary = ExtractMetadata.dataPoly;
+          boundary = extractMetadata.getDataPoly();
           break;
         case BBOXES:
           processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
-          BBoxBuilder bboxBuilder = new BBoxBuilder();
+          //BBoxBuilder bboxBuilder = new BBoxBuilder();
           boundary = bboxBuilder.create(processingData.getBoundaryValues());
           this.getProcessingData().setBoundaryList(bboxBuilder.getGeometryList());
           this.getProcessingData().setRequestGeom(bboxBuilder.getUnifiedBbox());
@@ -610,10 +615,10 @@ public class InputProcessor {
     String[] timeData;
     if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
       if (!isSnapshot) {
-        toTimestamps = new String[] {ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp};
-        mapRed = mapRed.timestamps(ExtractMetadata.fromTstamp, ExtractMetadata.toTstamp);
+        toTimestamps = new String[] {extractMetadata.getFromTstamp(), extractMetadata.getToTstamp()};
+        mapRed = mapRed.timestamps(extractMetadata.getFromTstamp(), extractMetadata.getToTstamp());
       } else {
-        mapRed = mapRed.timestamps(ExtractMetadata.toTstamp);
+        mapRed = mapRed.timestamps(extractMetadata.getToTstamp());
       }
     } else if (time.length == 1) {
       timeData = utils.extractIsoTime(time[0]);

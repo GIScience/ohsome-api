@@ -17,7 +17,6 @@ import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
@@ -43,16 +42,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsersRequestExecutor {
 
-  private static final String URL = ExtractMetadata.attributionUrl;
-  private static final String TEXT = ExtractMetadata.attributionShort;
+//  private static final String URL = ExtractMetadata.attributionUrl;
+//  private static final String TEXT = ExtractMetadata.attributionShort;
+  @Autowired
+  Attribution attribution;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
   @Autowired
   InputProcessor inputProcessor;
-
-  public UsersRequestExecutor() {
-    throw new IllegalStateException("Utility class");
-  }
 
   /**
    * Performs a count calculation grouped by the OSM type.
@@ -96,10 +93,10 @@ public class UsersRequestExecutor {
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getText(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -195,10 +192,10 @@ public class UsersRequestExecutor {
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 
@@ -281,10 +278,10 @@ public class UsersRequestExecutor {
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("fomrat"))) {
       ExecutionUtils exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 }

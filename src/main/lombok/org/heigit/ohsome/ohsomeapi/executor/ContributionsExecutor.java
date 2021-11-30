@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -49,9 +48,11 @@ public class ContributionsExecutor {
   //private final ProcessingData processingData;
 //  @Autowired
 //  RequestExecutor requestExecutor;
-  public final String URL = ExtractMetadata.attributionUrl;
-  public final String TEXT = ExtractMetadata.attributionShort;
-  public final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
+//  public final String URL = ExtractMetadata.attributionUrl;
+//  public final String TEXT = ExtractMetadata.attributionShort;
+  @Autowired
+  Attribution attribution;
+  //public final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
   public final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   private final long startTime = System.currentTimeMillis();
 
@@ -128,11 +129,10 @@ public class ContributionsExecutor {
     if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       var exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
       exeUtils.writeCsvResponse(results, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
-        metadata, results);
+    return DefaultAggregationResponse.of(Application.API_VERSION, metadata, results);
   }
 
   /**
@@ -264,16 +264,16 @@ public class ContributionsExecutor {
           inputProcessor.getRequestUrlIfGetRequest());
     }
     if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+      return GroupByResponse.of(attribution, Application.API_VERSION, metadata,
           "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
               inputProcessor.getProcessingData().getGeoJsonGeoms()));
     } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       var exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
+    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
         resultSet);
   }
 }

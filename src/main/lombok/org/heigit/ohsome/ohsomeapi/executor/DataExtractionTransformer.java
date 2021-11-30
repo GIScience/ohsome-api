@@ -18,6 +18,7 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.wololo.geojson.Feature;
 
 /**
@@ -39,7 +40,8 @@ public class DataExtractionTransformer implements Serializable {
   private final boolean includeOSMMetadata;
   private final boolean includeContributionTypes;
   private final ElementsGeometry outputGeometry;
-  private final InputProcessingUtils inputUtils;
+  @Autowired
+  InputProcessingUtils inputUtils;
   private final ExecutionUtils exeUtils;
   @Deprecated
   private final Set<Integer> keysInt;
@@ -79,8 +81,7 @@ public class DataExtractionTransformer implements Serializable {
   public DataExtractionTransformer(String startTimestamp, String endTimestamp,
       FilterExpression filter, boolean isContributionsEndpoint,
       boolean isContributionsLatestEndpoint, boolean clipGeometries, boolean includeTags,
-      boolean includeOSMMetadata, boolean includeContributionTypes, InputProcessingUtils inputUtils,
-      ExecutionUtils exeUtils, Set<Integer> keysInt, ElementsGeometry outputGeometry,
+      boolean includeOSMMetadata, boolean includeContributionTypes, ExecutionUtils exeUtils, Set<Integer> keysInt, ElementsGeometry outputGeometry,
       Set<SimpleFeatureType> simpleFeatureTypes, boolean isContainingSimpleFeatureTypes) {
     this.isContributionsLatestEndpoint = isContributionsLatestEndpoint;
     this.isContributionsEndpoint = isContributionsEndpoint;

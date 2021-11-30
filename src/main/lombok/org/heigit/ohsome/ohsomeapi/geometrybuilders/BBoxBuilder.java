@@ -6,7 +6,9 @@ import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordinates {
   ArrayList<Geometry> geometryList;
   Geometry unifiedBbox;

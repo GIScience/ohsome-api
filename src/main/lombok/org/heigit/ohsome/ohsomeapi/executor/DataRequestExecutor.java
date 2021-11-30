@@ -18,10 +18,12 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction.ContributionsExtraction;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Latest;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
@@ -38,35 +40,37 @@ import org.wololo.geojson.Feature;
 @Component
 public class DataRequestExecutor {
 
-  private final RequestResource requestResource;
-  protected static final String URL = ExtractMetadata.attributionUrl;
-  protected static final String TEXT = ExtractMetadata.attributionShort;
-  protected static final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
+//  protected static final String URL = ExtractMetadata.attributionUrl;
+//  protected static final String TEXT = ExtractMetadata.attributionShort;
+  @Autowired
+  Attribution attribution;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
   @Autowired
   InputProcessor inputProcessor;
   @Autowired
   InputProcessor snapshotInputProcessor;
   //private final ProcessingData processingData;
-  private final ElementsGeometry elementsGeometry;
+  //private final ElementsGeometry elementsGeometry;
   @Autowired
   HttpServletRequest servletRequest;
   @Autowired
   HttpServletResponse servletResponse;
+  @Autowired
+  InputProcessingUtils utils;
 
-  public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry) {
-    this.requestResource = requestResource;
-    this.elementsGeometry = elementsGeometry;
-    //inputProcessor = new InputProcessor(servletRequest, false, false);
-    //processingData = inputProcessor.getProcessingData();
-  }
+//  public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry) {
+//    this.requestResource = requestResource;
+//    this.elementsGeometry = elementsGeometry;
+//    //inputProcessor = new InputProcessor(servletRequest, false, false);
+//    //processingData = inputProcessor.getProcessingData();
+//  }
 
-  public void setInputProcessorFields() {
-System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
+//  public void setInputProcessorFields() {
+//System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
     //    inputProcessor.create();
 //    inputProcessor.setSnapshot(false);
 //    inputProcessor.setDensity(false);
-  }
+ // }
 
   /**
    * Performs an OSM data extraction using the full-history of the data.
@@ -80,8 +84,8 @@ System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
    *         #streamResponse(HttpServletResponse, ExtractionResponse, Stream)
    *         streamElementsResponse}
    */
-  public void extract() throws Exception {
-    setInputProcessorFields();
+  public void extract(Operation operation, ElementsGeometry elementsGeometry) throws Exception {
+    //setInputProcessorFields();
     snapshotInputProcessor.getProcessingData().setFullHistory(true);
     snapshotInputProcessor.setSnapshot(true);
     snapshotInputProcessor.setDensity(false);
@@ -113,15 +117,14 @@ System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
     final ExecutionUtils exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();
-    InputProcessingUtils utils = inputProcessor.getUtils();
+    //InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean includeContributionTypes = inputProcessor.includeContributionTypes();
     final boolean clipGeometries = inputProcessor.isClipGeometry();
-    final boolean isContributionsLatestEndpoint =
-        requestResource.equals(RequestResource.CONTRIBUTIONSLATEST);
+    final boolean isContributionsLatestEndpoint = operation instanceof Latest;
     final boolean isContributionsEndpoint =
-        isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS);
+        isContributionsLatestEndpoint || (operation instanceof ContributionsExtraction);
     final Set<SimpleFeatureType> simpleFeatureTypes = inputProcessor.getProcessingData().getSimpleFeatureTypes();
     String startTimestamp = IsoDateTimeParser.parseIsoDateTime(inputProcessor.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
@@ -138,7 +141,7 @@ System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
     DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
         startTimestamp, endTimestamp, filter.orElse(null), isContributionsEndpoint,
         isContributionsLatestEndpoint,
-        clipGeometries, includeTags, includeOSMMetadata, includeContributionTypes, utils, exeUtils,
+        clipGeometries, includeTags, includeOSMMetadata, includeContributionTypes, exeUtils,
         keysInt, elementsGeometry, simpleFeatureTypes,
         isContainingSimpleFeatureTypes);
     MapReducer<Feature> contributionPreResult = mapRedContributions
@@ -146,10 +149,10 @@ System.out.println(inputProcessor.COMPUTE_MODE_THRESHOLD);
         .filter(Objects::nonNull);
     Metadata metadata = null;
     if (inputProcessor.getProcessingData().isShowMetadata()) {
-      metadata = new Metadata(null, requestResource.getDescription(),
+      metadata = new Metadata(null, operation.getDescription(),
           inputProcessor.getRequestUrlIfGetRequest());
     }
-    ExtractionResponse osmData = new ExtractionResponse(ATTRIBUTION, Application.API_VERSION,
+    ExtractionResponse osmData = new ExtractionResponse(attribution, Application.API_VERSION,
         metadata, "FeatureCollection", Collections.emptyList());
     MapReducer<Feature> snapshotPreResult = null;
     if (!isContributionsEndpoint) {

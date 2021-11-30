@@ -3,9 +3,10 @@ package org.heigit.ohsome.ohsomeapi.output.metadata;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
+import org.springframework.stereotype.Component;
 
 /**
  * Represents the JSON response object for the /metadata request. It contains information about the
@@ -13,8 +14,10 @@ import org.heigit.ohsome.ohsomeapi.output.Attribution;
  * org.heigit.ohsome.ohsomeapi.output.metadata.ExtractRegion ExtractRegion}.
  */
 @Getter
-@AllArgsConstructor
+@Setter
+//@AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
+@Component
 public class MetadataResponse {
 
   @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
