@@ -21,9 +21,11 @@ import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction.ContributionsExtraction;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.ContributionView;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Latest;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction.ContributionsExtraction;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
@@ -57,6 +59,10 @@ public class DataRequestExecutor {
   HttpServletResponse servletResponse;
   @Autowired
   InputProcessingUtils utils;
+  @Autowired
+  SnapshotView snapshotView;
+  @Autowired
+  ContributionView contributionView;
 
 //  public DataRequestExecutor(RequestResource requestResource, ElementsGeometry elementsGeometry) {
 //    this.requestResource = requestResource;
@@ -97,11 +103,11 @@ public class DataRequestExecutor {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
       // This allows to write data out to the client via a chunked HTTP response.
-      mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
-      mapRedContribution = inputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
+      mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AFFINITY_CALL,snapshotView);
+      mapRedContribution = inputProcessor.processParameters(ComputeMode.AFFINITY_CALL, contributionView);
     } else {
-      mapRedSnapshot = snapshotInputProcessor.processParameters();
-      mapRedContribution = inputProcessor.processParameters();
+      mapRedSnapshot = snapshotInputProcessor.processParameters(snapshotView);
+      mapRedContribution = inputProcessor.processParameters(contributionView);
     }
     //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();

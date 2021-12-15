@@ -1,27 +1,18 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
-import static org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures;
-
 import com.opencsv.CSVWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
-import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -36,21 +27,18 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
+import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
-import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
-import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
-import org.heigit.ohsome.oshdb.filter.FilterExpression;
-import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
-import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +57,13 @@ public class AggregateRequestExecutor {
   @Autowired
   HttpServletResponse servletResponse;
   @Autowired
-  private RequestResource requestResource;
+  ResultUtility resultUtility;
   @Autowired
   ExtractMetadata extractMetadata;
   @Autowired
   InputProcessingUtils utils;
+  @Autowired
+  SnapshotView snapshotView;
   //private final InputProcessor inputProcessor;
   //private final ProcessingData processingData;
   private final long startTime = System.currentTimeMillis();
@@ -82,6 +72,10 @@ public class AggregateRequestExecutor {
 //  protected final String TEXT = extractMetadata.getAttributionShort();
   @Autowired
   Attribution attribution;
+  @Autowired
+  DefaultAggregationResponse defaultAggregationResponse;
+  @Autowired
+  GroupByResponse groupByResponse;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
 
@@ -115,7 +109,7 @@ public class AggregateRequestExecutor {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = null;
     //setInputProcessor();
-    mapRed = inputProcessor.processParameters();
+    mapRed = inputProcessor.processParameters(snapshotView);
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
     if (operation instanceof Count) {
       result = mapRed.aggregateByTimestamp().count();
@@ -138,16 +132,15 @@ public class AggregateRequestExecutor {
     }
     Geometry geom = inputProcessor.getGeometry();
     //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
-    ElementsResult[] resultSet =
-        fillElementsResult(result, inputProcessor.isDensity(), df, geom);
+    List resultSet = resultUtility.fillElementsResult(result, inputProcessor.isDensity(), geom);
     String description = Description.aggregate(inputProcessor.isDensity(),
         operation.getDescription(), operation.getUnit());
     Metadata metadata = generateMetadata(description);
-    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
-    }
-    return DefaultAggregationResponse.of(Application.API_VERSION, metadata, resultSet);
-  }
+//    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
+//    }
+    //return defaultAggregationResponse.getJSONResponse(metadata, resultSet);
+
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the boundary.
@@ -161,7 +154,7 @@ public class AggregateRequestExecutor {
    */
   public Response aggregateGroupByBoundary(Operation operation) throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
     //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
     //InputProcessingUtils utils = inputProcessor.getUtils();
     var result = computeCountLengthPerimeterAreaGbB(operation,
@@ -175,8 +168,7 @@ public class AggregateRequestExecutor {
     ArrayList<Geometry> boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      ElementsResult[] results = fillElementsResult(entry.getValue(), inputProcessor.isDensity(),
-          df, boundaries.get(count));
+      List results = resultUtility.fillElementsResult(entry.getValue(), inputProcessor.isDensity(), boundaries.get(count));
       groupByName = boundaryIds[count];
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -184,28 +176,16 @@ public class AggregateRequestExecutor {
     String description = Description.aggregate(inputProcessor.isDensity(),
         operation.getDescription(), operation.getUnit());
     Metadata metadata = generateMetadata(description);
-    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      return GroupByResponse.of(attribution, Application.API_VERSION, metadata, "FeatureCollection",
-          createGeoJsonFeatures(resultSet, inputProcessor.getProcessingData().getGeoJsonGeoms()));
-    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
-    }
-    return new GroupByResponse(attribution, Application.API_VERSION, metadata, resultSet);
+//    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      return GroupByResponse.of(metadata, "FeatureCollection",
+//          createGeoJsonFeatures(resultSet, inputProcessor.getProcessingData().getGeoJsonGeoms()));
+//    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
+//    }
+    //return new GroupByResponse(metadata, resultSet);
+    return groupByResponse;
   }
 
-  /**
-   * Creates the metadata for the JSON response containing info like execution time, request URL and
-   * a short description of the returned data.
-   */
-  private Metadata generateMetadata(String description) {
-    Metadata metadata = null;
-    if (inputProcessor.getProcessingData().isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration, description,
-          inputProcessor.getRequestUrlIfGetRequest());
-    }
-    return metadata;
-  }
 
   /**
    * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)|groupBy
@@ -319,8 +299,8 @@ public class AggregateRequestExecutor {
       } else {
         columnNames.add(groupByObject.toString());
       }
-      for (int j = 0; j < groupByResult.getResult().length; j++) {
-        ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
+      for (int j = 0; j < groupByResult.getResult().size(); j++) {
+        ElementsResult elemResult = (ElementsResult) groupByResult.getResult().get(j);
         if (i == 0) {
           String[] row = new String[resultSet.length + 1];
           row[0] = elemResult.getTimestamp();
@@ -332,75 +312,5 @@ public class AggregateRequestExecutor {
       }
     }
     return new ImmutablePair<>(columnNames, rows);
-  }
-
-  /** Fills the ElementsResult array with respective ElementsResult objects. */
-  private ElementsResult[] fillElementsResult(SortedMap<OSHDBTimestamp, ? extends Number> entryVal,
-      boolean isDensity, DecimalFormat df, Geometry geom) {
-    ElementsResult[] results = new ElementsResult[entryVal.entrySet().size()];
-    int count = 0;
-    for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
-      if (isDensity) {
-        results[count] = new ElementsResult(
-            TimestampFormatter.getInstance().isoDateTime(entry.getKey()), Double.parseDouble(
-                df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001))));
-      } else {
-        results[count] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-                Double.parseDouble(df.format(entry.getValue().doubleValue())));
-      }
-      count++;
-    }
-    return results;
-  }
-
-  /**
-   * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
-   *
-   * @throws BadRequestException if a boundary parameter is not defined.
-   * @throws Exception thrown by
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#count() count}, or
-   *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
-   *         sum}
-   */
-  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
-        ? extends Number> computeCountLengthPerimeterAreaGbB(Operation operation,
-        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed,
-        InputProcessor inputProcessor) throws Exception {
-    if (boundaryType == BoundaryType.NOBOUNDARY) {
-      throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-    }
-    ArrayList<Geometry> arrGeoms = new ArrayList<>(
-        inputProcessor.getProcessingData().getBoundaryList());
-    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
-        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
-      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
-    }
-    Optional<FilterExpression> filter = inputProcessor.getProcessingData().getFilterExpression();
-    if (filter.isPresent()) {
-      mapAgg = mapAgg.filter(filter.get());
-    }
-    var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
-    if (operation instanceof Count) {
-      return mapAgg.count();
-    } else if (operation instanceof Perimeter) {
-      return mapAggGeom.sum(geom -> {
-        if (!(geom instanceof Polygonal)) {
-          return 0.0;
-        }
-        return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
-      });
-    } else if (operation instanceof Length) {
-      return mapAggGeom
-          .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
-    } else if (operation instanceof Area) {
-      return mapAggGeom.sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
-    } else {
-        return null;
-    }
   }
 }

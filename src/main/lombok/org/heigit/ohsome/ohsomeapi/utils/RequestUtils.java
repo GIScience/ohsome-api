@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.oshdb.api.db.OSHDBDatabase;
@@ -22,6 +21,8 @@ public class RequestUtils {
   HttpServletRequest servletRequest;
   @Autowired
   ExtractMetadata extractMetadata;
+  @Autowired
+  GeometryOfOSHDBExtent geometryOfOSHDBExtent;
 
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.
@@ -111,7 +112,7 @@ public class RequestUtils {
       extractMetadata.setDataPolyJson(mapper.readTree(dataPolyString));
       GeometryOfOSHDBExtent builder = new GeometryOfOSHDBExtent();
       builder.create(dataPolyString);
-      extractMetadata.setDataPoly(ProcessingData.getDataPolyGeom());
+      extractMetadata.setDataPoly(geometryOfOSHDBExtent.getGeometry());
     }
     if (db.metadata("extract.timerange") != null) {
       String[] timeranges = db.metadata("extract.timerange").split(",");

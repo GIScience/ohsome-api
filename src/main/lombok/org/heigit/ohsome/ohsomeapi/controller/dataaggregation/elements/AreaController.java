@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.checkerframework.checker.units.qual.Time;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
@@ -15,10 +17,11 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "Elements Area")
 @RestController
 @RequestMapping("/elements/area")
+@Time
 public class AreaController {
 
   @Autowired
@@ -45,9 +49,11 @@ public class AreaController {
   @Autowired
   Density density;
   @Autowired
-  Operator operator;
-  @Autowired
   GroupByType groupByType;
+  @Autowired
+  GroupByKey groupByKey;
+  @Autowired
+  GroupByTag groupByTag;
 
   /**
    * Gives the area of OSM objects.
@@ -62,13 +68,9 @@ public class AreaController {
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response area(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-    operator.setOperation(area);
-  return operator.compute();
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
-   // return aggregateRequestExecutor.aggregate(area);
+  public Response area() throws Exception {
+   List result = area.compute();
+    return area.getResponse(result);
   }
 
   /**
@@ -88,14 +90,9 @@ public class AreaController {
       dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response areaGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(groupByType);
-    operator.setOperation(area);
-    return operator.compute();
-//    return executor.aggregateGroupByType(area, servletRequest,
-//        servletResponse, true, false);
+  public Response areaGroupByType() throws Exception {
+    List result = groupByType.compute();
+    return groupByType.getResponse(result);
   }
 
   /**
@@ -113,15 +110,9 @@ public class AreaController {
       nickname = "areaGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response areaGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, false);
-    Operator operator = new Operator();
-    operator.setOperation(area);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregateGroupByBoundary(groupBy);
+  public Response areaGroupByBoundary() throws Exception {
+    List result = groupByBoundary.compute();
+    return groupByBoundary.getResponse(result);
   }
 
   /**
@@ -168,11 +159,9 @@ public class AreaController {
       dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response areaGroupByKey(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByKey(area, servletRequest,
-        servletResponse, true, false);
+  public Response areaGroupByKey() throws Exception {
+      List result = groupByKey.compute();
+      return groupByKey.getResponse(result);
   }
 
   /**
@@ -195,11 +184,9 @@ public class AreaController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response areaGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByTag(area, servletRequest,
-        servletResponse, true, false);
+  public Response areaGroupByTag() throws Exception {
+    List result = groupByTag.compute();
+    return groupByTag.getResponse(result);
   }
 
   /**
@@ -260,22 +247,22 @@ public class AreaController {
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
-  @ApiOperation(
-      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "areaDensityGroupByBoundary", response = GroupByResponse.class)
-  @RequestMapping(value = "/density/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response areaDensityGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-  Operator operator = new Operator();
-  operator.setOperation(area);
-  operator.setOperation(density);
-  operator.setOperation(groupByBoundary);
-  return operator.compute();
-  //    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
-    //return aggregateRequestExecutor.aggregateGroupByBoundary(groupBy);
-  }
+//  @ApiOperation(
+//      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+//      nickname = "areaDensityGroupByBoundary", response = GroupByResponse.class)
+//  @RequestMapping(value = "/density/groupBy/boundary",
+//      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+//  public Response areaDensityGroupByBoundary(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//  Operator operator = new Operator();
+//  operator.setOperation(area);
+//  operator.setOperation(density);
+//  operator.setOperation(groupByBoundary);
+//  return operator.operate();
+//  //    AggregateRequestExecutor executor =
+////        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
+//    //return aggregateRequestExecutor.aggregateGroupByBoundary(groupBy);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.

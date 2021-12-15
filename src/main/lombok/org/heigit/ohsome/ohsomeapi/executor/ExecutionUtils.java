@@ -67,10 +67,10 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
@@ -179,7 +179,7 @@ public class ExecutionUtils implements Serializable {
    *
    * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
    *        after the comma)
-   * @return <code>DecimalFormat</code> object with the defined format.
+   * @return <code>DecimalFormatDefiner</code> object with the defined format.
    */
   public static DecimalFormat defineDecimalFormat(String format) {
     DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
@@ -583,7 +583,7 @@ public class ExecutionUtils implements Serializable {
    * Fills the result value arrays for the ratio/groupBy/boundary response.
    *
    * @param resultSet <code>Set</code> containing the result values
-   * @param df <code>DecimalFormat</code> defining the number of digits of the result values
+   * @param df <code>DecimalFormatDefiner</code> defining the number of digits of the result values
    * @return <code>Double[]</code> containing the formatted result values
    */
   public static Double[] fillElementsRatioGroupByBoundaryResultValues(

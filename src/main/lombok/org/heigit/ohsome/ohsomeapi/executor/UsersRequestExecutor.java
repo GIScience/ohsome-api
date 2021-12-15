@@ -24,6 +24,7 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.ContributionView;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -50,6 +51,9 @@ public class UsersRequestExecutor {
   private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
   @Autowired
   InputProcessor inputProcessor;
+  @Autowired
+  ContributionView contributionView;
+
 
   /**
    * Performs a count calculation grouped by the OSM type.
@@ -62,7 +66,7 @@ public class UsersRequestExecutor {
     inputProcessor.setDensity(isDensity);
     inputProcessor.setSnapshot(false);
     //InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    mapRed = inputProcessor.processParameters();
+    mapRed = inputProcessor.processParameters(contributionView);
     ProcessingData processingData = inputProcessor.getProcessingData();
     //RequestParameters requestParameters = processingData.getRequestParameters();
     result = mapRed.filter(ExecutionUtils.contributionsFilter(servletRequest.getParameter(
@@ -216,7 +220,7 @@ public class UsersRequestExecutor {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
     MapReducer<OSMContribution> mapRed = null;
-    mapRed = inputProcessor.processParameters();
+    mapRed = inputProcessor.processParameters(contributionView);
     ProcessingData processingData = inputProcessor.getProcessingData();
     //RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
@@ -275,13 +279,12 @@ public class UsersRequestExecutor {
       metadata = new Metadata(duration, Description.countUsersGroupByKey(isDensity),
           inputProcessor.getRequestUrlIfGetRequest());
     }
-    if ("csv".equalsIgnoreCase(servletRequest.getParameter("fomrat"))) {
-      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
-      exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
-      return null;
-    }
-    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
-        resultSet);
+//    if ("csv".equalsIgnoreCase(servletRequest.getParameter("fomrat"))) {
+//      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+//      exeUtils.writeCsvResponse(resultSet, servletResponse,
+//          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
+//      return null;
+//    }
+    return new GroupByResponse(resultSet);
   }
 }

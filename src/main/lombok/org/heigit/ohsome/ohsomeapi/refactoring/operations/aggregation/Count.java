@@ -1,19 +1,13 @@
 package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
 
-import java.text.DecimalFormat;
+import java.util.List;
 import java.util.SortedMap;
-import javax.servlet.http.HttpServletRequest;
-import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
-import org.heigit.ohsome.ohsomeapi.output.Description;
-import org.heigit.ohsome.ohsomeapi.output.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.refactoring.results.ElementsResultRefactoring;
-import org.heigit.ohsome.ohsomeapi.utilities.MetadataUtility;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
@@ -22,42 +16,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Count implements Operation {
+public class Count implements Operation, SnapshotView {
 
   @Autowired
   InputProcessor inputProcessor;
   @Autowired
-  HttpServletRequest servletRequest;
+  DefaultAggregationResponse defaultAggregationResponse;
   @Autowired
-  ElementsResultRefactoring elementsResultRefactoring;
+  SnapshotView snapshotView;
   @Autowired
-  MetadataUtility metadataUtility;
-  @Autowired
-  Attribution attribution;
-  public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
-  private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
+  ResultUtility resultUtility;
 
   @Override
-  public DefaultAggregationResponse compute() throws Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
-    final SortedMap<OSHDBTimestamp, ? extends Number> result = mapRed.aggregateByTimestamp().count();
+  public List compute() throws Exception {
+    final SortedMap<OSHDBTimestamp, ? extends Number> result;
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+      result = mapRed.aggregateByTimestamp().count();
     Geometry geom = inputProcessor.getGeometry();
-    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
-    ElementsResult[] resultSet =
-        elementsResultRefactoring.fillElementsResult(result, inputProcessor.isDensity(), df, geom);
-    String description = Description.aggregate(inputProcessor.isDensity(),
-        getDescription(), getUnit());
-    Metadata metadata = metadataUtility.generateMetadata(description);
-//    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-//      return writeCsv(createCsvTopComments(metadata), writeCsvResponse(resultSet));
-//    }
-    return DefaultAggregationResponse.of(Application.API_VERSION, metadata, resultSet);
+    List resultSet = resultUtility.fillElementsResult(result, inputProcessor.isDensity(), geom);
+  return resultSet;
   }
 
+  @Override
+  public Response getResponse(List resultSet) {
+    return defaultAggregationResponse.getResponse(this, resultSet);
+  }
+
+  @Override
   public String getDescription() {
     return "count";
   }
 
+  @Override
   public String getUnit() {
     return "absolute values";
   }

@@ -5,9 +5,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.heigit.ohsome.ohsomeapi.executor.DataRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction.ElementsFullHistory;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/elementsFullHistory")
 public class ElementsFullHistoryController {
 
-  @Autowired
-  DataRequestExecutor dataRequestExecutor;
-  @Autowired
-  ElementsFullHistory elementsFullHistory;
+//  @Autowired
+//  DataRequestExecutor dataRequestExecutor;
+//  @Autowired
+//  ElementsFullHistory elementsFullHistory;
   @Autowired
   Operator operator;
 
@@ -52,8 +50,8 @@ public class ElementsFullHistoryController {
       HttpServletResponse servletResponse) throws Exception {
 //    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
 //        ElementsGeometry.RAW);
-    operator.setOperation(elementsFullHistory);
-    operator.compute();
+//    operator.setOperation(elementsFullHistory);
+//    operator.compute();
     //dataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.RAW);
   }
 
@@ -79,8 +77,8 @@ public class ElementsFullHistoryController {
       HttpServletResponse servletResponse) throws Exception {
 //    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
 //        ElementsGeometry.BBOX);
-    operator.setOperation(elementsFullHistory);
-    operator.compute();
+//    operator.setOperation(elementsFullHistory);
+//    operator.compute();
     //dataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.BBOX);
   }
 
@@ -105,8 +103,8 @@ public class ElementsFullHistoryController {
       HttpServletResponse servletResponse) throws Exception {
 //    DataRequestExecutor executor = new DataRequestExecutor(RequestResource.DATAEXTRACTION,
 //        ElementsGeometry.CENTROID);
-    operator.setOperation(elementsFullHistory);
-    operator.compute();
+//    operator.setOperation(elementsFullHistory);
+//    operator.compute();
     //dataRequestExecutor.extract(RequestResource.DATAEXTRACTION, ElementsGeometry.CENTROID);
   }
 }

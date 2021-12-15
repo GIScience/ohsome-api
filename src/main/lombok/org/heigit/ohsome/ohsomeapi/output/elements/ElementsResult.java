@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.output.elements;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.output.Result;
 
 /**
@@ -10,11 +11,12 @@ import org.heigit.ohsome.ohsomeapi.output.Result;
  * together with the corresponding value.
  */
 @Getter
+@Setter
 @AllArgsConstructor
 public class ElementsResult implements Result {
 
   @ApiModelProperty(notes = "Timestamp in the format YYYY-MM-DDThh:mm:ssZ", required = true)
-  private String timestamp;
+  private final String timestamp;
   @ApiModelProperty(notes = "Value corresponding to the filter parameters", required = true)
-  private double value;
+  private final double value;
 }

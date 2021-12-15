@@ -40,8 +40,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Primary
 public class SwaggerConfig implements SwaggerResourcesProvider {
   private enum OhsomeApiResourceSpec {
-    DATA_AGGREGATION("Data Aggregation", 1),
-    DATA_EXTRACTION("Data Extraction", 2),
+    DATA_AGGREGATION("DataProcessingType Aggregation", 1),
+    DATA_EXTRACTION("DataProcessingType Extraction", 2),
     METADATA("Metadata", 9);
 
     private final String name;

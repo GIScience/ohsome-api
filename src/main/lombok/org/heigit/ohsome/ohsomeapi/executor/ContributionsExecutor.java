@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -28,32 +28,17 @@ import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Includes the execute method for requests mapped to /contributions/count,
  * /contributions/count/density, /contributions/latest/count, /contributions/latest/count/density
  * and /users/count.
  */
-@Component
-public class ContributionsExecutor {
+public class ContributionsExecutor extends RequestExecutor {
   private static final String CONTRIBUTION_TYPE_PARAMETER = "contributionType";
-  @Autowired
-  InputProcessor inputProcessor;
-  @Autowired
-  HttpServletRequest servletRequest;
-  @Autowired
-  HttpServletResponse servletResponse;
-  //private final ProcessingData processingData;
-//  @Autowired
-//  RequestExecutor requestExecutor;
-//  public final String URL = ExtractMetadata.attributionUrl;
-//  public final String TEXT = ExtractMetadata.attributionShort;
-  @Autowired
-  Attribution attribution;
-  //public final Attribution ATTRIBUTION = new Attribution(URL, TEXT);
-  public final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
+
+  private final InputProcessor inputProcessor;
+  private final ProcessingData processingData;
   private final long startTime = System.currentTimeMillis();
 
   /**
@@ -63,14 +48,12 @@ public class ContributionsExecutor {
    * @param servletRequest <code>HttpServletRequest</code> of the incoming request
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    */
-//  public ContributionsExecutor(HttpServletRequest servletRequest,
-//      HttpServletResponse servletResponse, boolean isDensity) {
-//    super(servletRequest, servletResponse);
-//    inputProcessor.setSnapshot(false);
-//    inputProcessor.setDensity(isDensity);
-//    //inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-//    //processingData = inputProcessor.getProcessingData();
-//  }
+  public ContributionsExecutor(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse, boolean isDensity) {
+    super(servletRequest, servletResponse);
+    inputProcessor = new InputProcessor(servletRequest, false, isDensity);
+    processingData = inputProcessor.getProcessingData();
+  }
 
   /**
    * Handler method for count calculation of the endpoints /contributions/count,
@@ -111,28 +94,29 @@ public class ContributionsExecutor {
       result = contributionsCount(mapRed, isContributionsLatestCount);
     }
     Geometry geom = inputProcessor.getGeometry();
-    //RequestParameters requestParameters = inputProcessor.getProcessingData().getRequestParameters();
+    RequestParameters requestParameters = processingData.getRequestParameters();
     ContributionsResult[] results = ExecutionUtils.fillContributionsResult(result,
-        inputProcessor.isDensity(), inputProcessor, df, geom);
+        requestParameters.isDensity(), inputProcessor, df, geom);
     Metadata metadata = null;
-    if (inputProcessor.getProcessingData().isShowMetadata()) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       String description;
       if (isUsersRequest) {
-        description = Description.countUsers(inputProcessor.isDensity());
+        description = Description.countUsers(requestParameters.isDensity());
       } else {
-        description = Description.countContributions(inputProcessor.isDensity());
+        description = Description.countContributions(requestParameters.isDensity());
       }
       metadata = new Metadata(duration, description,
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      var exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
+    if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      var exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(results, servletResponse,
-          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return DefaultAggregationResponse.of(Application.API_VERSION, metadata, results);
+    return DefaultAggregationResponse.of(new Attribution(URL, TEXT), Application.API_VERSION,
+        metadata, results);
   }
 
   /**
@@ -172,7 +156,7 @@ public class ContributionsExecutor {
       boolean isContributionsLatest) throws UnsupportedOperationException, Exception {
     if (isContributionsLatest) {
       MapReducer<List<OSMContribution>> mapRedGroupByEntity = mapRed.groupByEntity();
-      Optional<FilterExpression> filter = inputProcessor.getProcessingData().getFilterExpression();
+      Optional<FilterExpression> filter = processingData.getFilterExpression();
       if (filter.isPresent()) {
         mapRedGroupByEntity = mapRedGroupByEntity.filter(filter.get());
       }
@@ -208,8 +192,8 @@ public class ContributionsExecutor {
       throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     var mapRed = inputProcessor.processParameters();
-    //final var requestParameters = inputProcessor.getProcessingData().getRequestParameters();
-    List<Geometry> arrGeoms = inputProcessor.getProcessingData().getBoundaryList();
+    final var requestParameters = processingData.getRequestParameters();
+    List<Geometry> arrGeoms = processingData.getBoundaryList();
     var arrGeomIds = inputProcessor.getUtils()
         .getBoundaryIds();
     @SuppressWarnings("unchecked")
@@ -227,7 +211,7 @@ public class ContributionsExecutor {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    if (isUsersRequest && inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
+    if (isUsersRequest && processingData.isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
@@ -248,32 +232,32 @@ public class ContributionsExecutor {
         .map(entry ->
             new GroupByResult(entry.getKey(),
                 ExecutionUtils.fillContributionsResult(entry.getValue(),
-                    inputProcessor.isDensity(), inputProcessor, df, geoms.get(entry.getKey())
+                    requestParameters.isDensity(), inputProcessor, df, geoms.get(entry.getKey())
                 )))
         .toArray(GroupByResult[]::new);
     Metadata metadata = null;
-    if (inputProcessor.getProcessingData().isShowMetadata()) {
+    if (processingData.isShowMetadata()) {
       long duration = System.currentTimeMillis() - startTime;
       String description;
       if (isUsersRequest) {
-        description = Description.countUsersGroupByBoundary(inputProcessor.isDensity());
+        description = Description.countUsersGroupByBoundary(requestParameters.isDensity());
       } else {
-        description = Description.countContributionsGroupByBoundary(inputProcessor.isDensity());
+        description = Description.countContributionsGroupByBoundary(requestParameters.isDensity());
       }
       metadata = new Metadata(duration, description,
-          inputProcessor.getRequestUrlIfGetRequest());
+          inputProcessor.getRequestUrlIfGetRequest(servletRequest));
     }
-    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      return GroupByResponse.of(attribution, Application.API_VERSION, metadata,
+    if ("geojson".equalsIgnoreCase(requestParameters.getFormat())) {
+      return GroupByResponse.of(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
           "FeatureCollection", GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(resultSet,
-              inputProcessor.getProcessingData().getGeoJsonGeoms()));
-    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      var exeUtils = new ExecutionUtils(inputProcessor.getProcessingData());
+              processingData.getGeoJsonGeoms()));
+    } else if ("csv".equalsIgnoreCase(requestParameters.getFormat())) {
+      var exeUtils = new ExecutionUtils(processingData);
       exeUtils.writeCsvResponse(resultSet, servletResponse,
-          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
+          ExecutionUtils.createCsvTopComments(URL, TEXT, Application.API_VERSION, metadata));
       return null;
     }
-    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
+    return new GroupByResponse(new Attribution(URL, TEXT), Application.API_VERSION, metadata,
         resultSet);
   }
 }

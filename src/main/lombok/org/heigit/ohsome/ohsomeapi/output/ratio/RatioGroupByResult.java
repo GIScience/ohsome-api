@@ -2,6 +2,7 @@ package org.heigit.ohsome.ohsomeapi.output.ratio;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 
 /**
@@ -10,11 +11,11 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
  * RatioGroupByResult is only used in responses for /ratio/groupBy requests.
  */
 @Getter
-public class RatioGroupByResult extends GroupByObject {
+public class RatioGroupByResult extends GroupByObject implements Result {
 
   @ApiModelProperty(notes = "RatioResult array holding timestamp, whole and part values",
       required = true)
-  private RatioResult[] ratioResult;
+  private final RatioResult[] ratioResult;
 
   public RatioGroupByResult(Object groupByObject, RatioResult[] ratioResult) {
     super(groupByObject);

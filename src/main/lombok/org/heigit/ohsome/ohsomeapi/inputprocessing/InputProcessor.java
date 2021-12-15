@@ -25,8 +25,11 @@ import org.heigit.ohsome.ohsomeapi.geometrybuilders.BBoxBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BCircleBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.ViewOnData;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
@@ -67,6 +70,7 @@ public class InputProcessor {
    * Represents about 1/500 of 180° * 360°.
    */
   public final int COMPUTE_MODE_THRESHOLD = 130;
+  //private final StartupConfig startupConfig = new StartupConfig(this);
   private GeometryBuilder geomBuilder;
   @Autowired
   InputProcessingUtils utils;
@@ -112,6 +116,8 @@ public class InputProcessor {
   ExtractMetadata extractMetadata;
   @Autowired
   BBoxBuilder bboxBuilder;
+  @Autowired
+  GeometryOfOSHDBExtent geometryOfOSHDBExtent;
   //  public InputProcessor(){
 //
 //  }
@@ -152,18 +158,23 @@ public class InputProcessor {
     this.requestUrl = requestUtils.extractRequestUrl();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
-    this.setSnapshot(true);
-    this.setDensity(isDensity);
+    System.out.println(servletRequest.getRequestURL().toString());
+    System.out.println(servletRequest.getRequestURI());
+    if (servletRequest.getRequestURI().contains("density")) {
+      this.setDensity(true);
+    }
   }
 
   /**
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
    *         #processParameters(ComputeMode) processParameters}
    */
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
-    return this.processParameters(null);
+//  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
+//    return this.processParameters(null);
+//  }
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ViewOnData viewOnData) throws Exception {
+    return this.processParameters(null, viewOnData);
   }
-
   /**
    * Processes the input parameters from the given request.
    *
@@ -177,8 +188,10 @@ public class InputProcessor {
    *         #extractTime(MapReducer, String[], boolean) extractTime}
    */
   @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
+  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode, ViewOnData viewOnData)
       throws Exception {
+//  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
+//      throws Exception {
     bboxes = createEmptyStringIfNull(servletRequest.getParameter("bboxes"));
     bcircles = createEmptyStringIfNull(servletRequest.getParameter("bcircles"));
     bpolys = createEmptyStringIfNull(servletRequest.getParameter("bpolys"));
@@ -234,7 +247,7 @@ public class InputProcessor {
             BPolygonFromGeoJSON fromGeoJSONbuilder = new BPolygonFromGeoJSON();
             boundary = fromGeoJSONbuilder.create(bpolys);
             this.getProcessingData().setGeoJsonGeoms(fromGeoJSONbuilder.getGeoJsonGeoms());
-            this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getBoundaryList());
+            this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getGeometryList());
             this.getProcessingData().setRequestGeom(fromGeoJSONbuilder.getGeometry());
             this.getUtils().getSpatialUtility().setBoundaryIds(fromGeoJSONbuilder.getBoundaryIds());
           } else {
@@ -252,45 +265,9 @@ public class InputProcessor {
       throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
 
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
-      if (forceComputeMode != null) {
-        dbIgnite.computeMode(forceComputeMode);
-      } else {
-        ComputeMode computeMode;
-        double boundarySize = boundary.getEnvelope().getArea();
-        if (boundarySize <= COMPUTE_MODE_THRESHOLD) {
-          computeMode = ComputeMode.LOCAL_PEEK;
-        } else {
-          computeMode = ComputeMode.SCAN_QUERY;
-        }
-        dbIgnite.computeMode(computeMode);
-      }
-    }
+    //startupConfig.extracted(forceComputeMode, boundary);
     DbConnData.db.timeout(timeout);
-    if (isSnapshot) {
-      if (DbConnData.keytables == null) {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.db);
-      } else {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.db).keytables(DbConnData.keytables);
-      }
-    } else {
-      if (DbConnData.keytables == null) {
-        mapRed = OSMContributionView.on(DbConnData.db);
-      } else {
-        mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
-      }
-    }
-    if (boundary.isRectangle()) {
-      mapRed =
-          mapRed.areaOfInterest(OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal()));
-    } else {
-      try {
-        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
-      } catch (TopologyException e) {
-        throw new BadRequestException(ExceptionMessages.BPOLYS_PARAM_GEOMETRY + e.getMessage());
-      }
-    }
+    mapRed = setMapReducer(boundary, viewOnData);
     processShowMetadata(showMetadata);
     checkFormat(servletRequest.getParameter("format"));
     if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
@@ -339,6 +316,41 @@ public class InputProcessor {
     }
     return (MapReducer<T>) mapRed;
   }
+
+  private MapReducer<? extends OSHDBMapReducible> setMapReducer(Geometry boundary, ViewOnData viewOnData) {
+    MapReducer<? extends OSHDBMapReducible> mapRed;
+    if (viewOnData instanceof SnapshotView) {
+      if (DbConnData.keytables == null) {
+        mapRed = OSMEntitySnapshotView.on(DbConnData.db);
+      } else {
+        mapRed = OSMEntitySnapshotView.on(DbConnData.db).keytables(DbConnData.keytables);
+      }
+    } else {
+      if (DbConnData.keytables == null) {
+        mapRed = OSMContributionView.on(DbConnData.db);
+      } else {
+        mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
+      }
+    }
+    if (boundary.isRectangle()) {
+      mapRed =
+          mapRed.areaOfInterest(OSHDBGeometryBuilder.boundingBoxOf(boundary.getEnvelopeInternal()));
+    } else {
+      try {
+        mapRed = mapRed.areaOfInterest((Geometry & Polygonal) boundary);
+      } catch (TopologyException e) {
+        throw new BadRequestException(ExceptionMessages.BPOLYS_PARAM_GEOMETRY + e.getMessage());
+      }
+    }
+    return mapRed;
+  }
+
+
+  private void extracted(ComputeMode forceComputeMode, Geometry boundary) {
+    //startupConfig.extracted(forceComputeMode, boundary);
+  }
+
+
 
   /**
    * Defines the type(s) out of the given String[].
@@ -851,7 +863,7 @@ public class InputProcessor {
   public Geometry getGeometry() {
     Geometry geom;
     if (BoundaryType.NOBOUNDARY == processingData.getBoundaryType()) {
-      geom = ProcessingData.getDataPolyGeom();
+      geom = geometryOfOSHDBExtent.getGeometry();
     } else {
       geom = processingData.getRequestGeom();
     }
