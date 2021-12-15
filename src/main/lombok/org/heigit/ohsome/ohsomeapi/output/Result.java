@@ -8,6 +8,5 @@ package org.heigit.ohsome.ohsomeapi.output;
  * </ul>
  */
 public interface Result {
-
   double getValue();
 }

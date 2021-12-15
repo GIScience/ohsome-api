@@ -3,8 +3,13 @@ package org.heigit.ohsome.ohsomeapi.output;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 import org.geojson.Feature;
+import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.ohsome.ohsomeapi.utilities.ProcessingRequestTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,16 +20,16 @@ import org.springframework.stereotype.Component;
  * org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult ElementsResult} objects.
  */
 @Getter
-//@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Setter
 @JsonInclude(Include.NON_NULL)
 @Component
-public class DefaultAggregationResponse implements Response {
+public class DefaultAggregationResponse extends Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   @Autowired
   Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
-  private String apiVersion;
+  private final String apiVersion = Application.API_VERSION;
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
@@ -32,36 +37,21 @@ public class DefaultAggregationResponse implements Response {
   @ApiModelProperty(notes = "GeoJSON Features", required = true)
   private Feature[] features;
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
-  private Result[] result;
+  private List<Result> result;
+  @Autowired
+  InputProcessor inputProcessor;
+  @Autowired
+  ProcessingRequestTime processingRequestTime;
 
-  /** Static factory method returning the whole JSON response. */
-  public static DefaultAggregationResponse of(String apiVersion,
-      Metadata metadata, Result[] result) {
-    DefaultAggregationResponse response = new DefaultAggregationResponse();
-    //response.attribution = attribution;
-    response.apiVersion = apiVersion;
-    response.metadata = metadata;
-    response.result = result;
-    return response;
-  }
 
-  /** Static factory method returning JSON without attribution and apiVersion. */
-  public static DefaultAggregationResponse of(Metadata metadata, Result[] result) {
-    DefaultAggregationResponse response = new DefaultAggregationResponse();
-    response.metadata = metadata;
-    response.result = result;
-    return response;
-  }
 
-  /** Static factory method returning the whole GeoJSON response. */
-  public static DefaultAggregationResponse of(String apiVersion,
-      Metadata metadata, String type, Feature[] features) {
-    DefaultAggregationResponse response = new DefaultAggregationResponse();
-    //response.attribution = attribution;
-    response.apiVersion = apiVersion;
-    response.metadata = metadata;
-    response.type = type;
-    response.features = features;
-    return response;
-  }
-}
+
+
+//    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      ExecutionUtils exeUtils = new ExecutionUtils(processingData);
+//      exeUtils.writeCsvResponse(resultSet, servletResponse,
+//          ExecutionUtils.createCsvTopComments(attribution.getUrl(), attribution.getText(), Application.API_VERSION, metadata));
+//      return null;
+//    }
+//    return new GroupByResponse(attribution, Application.API_VERSION, metadata,
+//        resultSet);

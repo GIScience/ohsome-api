@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.heigit.ohsome.ohsomeapi.Application;
 import org.wololo.geojson.Feature;
 
 /**
@@ -15,16 +17,17 @@ import org.wololo.geojson.Feature;
 @JsonInclude(Include.NON_NULL)
 @Getter
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class ExtractionResponse implements Response {
 
   @ApiModelProperty(notes = "License and copyright info", required = true)
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
-  private String apiVersion;
+  private final String apiVersion = Application.API_VERSION;
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
-  private String type;
+  private final String type = "FeatureCollection";
   @ApiModelProperty(notes = "List of GeoJSON features containing the OSM data")
   private List<Feature> features;
 }
