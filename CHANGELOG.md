@@ -21,6 +21,13 @@ Changelog
 [#230]: https://github.com/GIScience/ohsome-api/pull/230
 
 
+## 1.6.2
+
+* remove unused `log4j-api` dependency ([#251])
+
+[#251]: https://github.com/GIScience/ohsome-api/pull/251
+
+
 ## 1.6.1
 
 * upgrade OSHDB to version [`0.7.2`](https://github.com/GIScience/oshdb/releases/tag/0.7.2), with bugfixes for not working `length:` and `area:` filters on ignite and improved job canceling ([#237])
