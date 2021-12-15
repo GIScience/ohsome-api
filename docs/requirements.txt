@@ -7,3 +7,6 @@ recommonmark
 m2r
 anytree
 sphinx-copybutton
+
+# workaround because of https://github.com/miyakogi/m2r/issues/66
+mistune<2.0.0
