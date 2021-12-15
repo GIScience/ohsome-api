@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONReader;
 @Component
 public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFromGeoJSON {
-  ArrayList<Geometry> boundaryList;
+
+  List<Geometry> geometryList;
   GeoJsonObject[] geoJsonGeoms;
   Geometry geometry;
   Serializable[] boundaryIds;
@@ -30,7 +32,7 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
    *     parsed
    */
   public Geometry create(String geoJson) {
-    boundaryList = new ArrayList<>();
+    geometryList = new ArrayList<>();
     JsonObject root = null;
     JsonArray features;
     try (JsonReader jsonReader = Json.createReader(new StringReader(geoJson))) {
@@ -66,7 +68,7 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
         this.checkGeometryTypeOfFeature(geomObj);
         GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
-        boundaryList.add(currentResult);
+        geometryList.add(currentResult);
         geoJsonGeoms[count - 1] =
             new ObjectMapper().readValue(geomObj.toString(), GeoJsonObject.class);
       } catch (Exception e) {
@@ -75,7 +77,7 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
             + "fitting GeoJSON input file.");
       }
     }
-    geometry = unifyPolys(boundaryList);
+    geometry = unifyPolys(geometryList);
     //geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
       //  inputProcessor.getProcessingData());
 //    inputProcessor.getProcessingData().setGeoJsonGeoms(geoJsonGeoms);
@@ -85,12 +87,12 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
     return geometry;
   }
 
-  public ArrayList<Geometry> getBoundaryList() {
-    return boundaryList;
+  public List<Geometry> getGeometryList() {
+    return geometryList;
   }
 
-  public void setBoundaryList(ArrayList<Geometry> boundaryList) {
-    this.boundaryList = boundaryList;
+  public void setGeometryList(ArrayList<Geometry> geometryList) {
+    this.geometryList = geometryList;
   }
 
   public GeoJsonObject[] getGeoJsonGeoms() {

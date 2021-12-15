@@ -1,23 +1,9 @@
-package org.heigit.ohsome.ohsomeapi.refactoring.operations.extraction;
+package org.heigit.ohsome.ohsomeapi.refactoring.data;
 
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.ContributionView;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ElementsFullHistory implements Operation {
-  @Override
-  public DefaultAggregationResponse compute() throws Exception {
-    return null;
-  }
+public class ElementsFullHistory implements DataProcessingType, ContributionView {
 
-  @Override
-  public String getDescription() {
-    return "Full-history OSM data as GeoJSON features.";
-  }
-
-  @Override
-  public String getUnit() {
-    return "";
-  }
 }

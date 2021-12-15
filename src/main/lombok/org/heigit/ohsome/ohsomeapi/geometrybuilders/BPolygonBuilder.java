@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoordinates {
-  private ArrayList<Geometry> geometryList;
+  private List<Geometry> geometryList;
   private Geometry geometry;
   @Autowired
   SpatialUtility spatialUtility;
@@ -87,7 +88,7 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
     }
   }
 
-  public ArrayList<Geometry> getGeometryList() {
+  public List<Geometry> getGeometryList() {
     return geometryList;
   }
 

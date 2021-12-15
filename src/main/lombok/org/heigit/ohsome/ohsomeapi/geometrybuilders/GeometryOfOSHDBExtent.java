@@ -7,6 +7,9 @@ import org.wololo.jts2geojson.GeoJSONReader;
 
 @Component
 public class GeometryOfOSHDBExtent extends GeometryBuilder {
+
+  private Geometry geometry;
+
 //TODO this class should implement GeometryFrom GeoJSON
   /**
    * Creates a Geometry object from the given GeoJSON String, which is derived from the metadata.
@@ -16,12 +19,16 @@ public class GeometryOfOSHDBExtent extends GeometryBuilder {
   public Geometry create(String geoJson) {
     GeoJSONReader reader = new GeoJSONReader();
     try {
-      Geometry geometry = reader.read(geoJson);
+      geometry = reader.read(geoJson);
       ProcessingData.setDataPolyGeom(geometry);
       return geometry;
     } catch (Exception e) {
       throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
           + "converted. Please use a different data file and contact an admin about this issue.");
     }
+  }
+
+  public Geometry getGeometry() {
+    return geometry;
   }
 }

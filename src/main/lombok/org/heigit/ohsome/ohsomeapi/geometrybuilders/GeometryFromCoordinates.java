@@ -4,6 +4,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface GeometryFromCoordinates {
+public interface GeometryFromCoordinates extends GeometryFrom {
+
   Geometry create(String[] geometries);
+
 }

@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordinates {
-  ArrayList<Geometry> geometryList;
+  List<Geometry> geometryList;
   Geometry unifiedBbox;
 
   /**
@@ -59,7 +60,7 @@ public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordina
     }
   }
 
-  public ArrayList<Geometry> getGeometryList() {
+  public List<Geometry> getGeometryList() {
     return geometryList;
   }
 

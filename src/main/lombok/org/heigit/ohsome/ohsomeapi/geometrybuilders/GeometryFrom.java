@@ -1,11 +1,11 @@
 package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
+import java.util.List;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface GeometryFromGeoJSON extends GeometryFrom {
+public interface GeometryFrom {
 
-  Geometry create(String geometry);
-
+  List<Geometry> getGeometryList();
 }

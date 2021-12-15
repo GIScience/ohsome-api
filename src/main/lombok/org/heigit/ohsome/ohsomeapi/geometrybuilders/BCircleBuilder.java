@@ -1,6 +1,7 @@
 package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoordinates {
-  private ArrayList<Geometry> geometryList;
+  private List<Geometry> geometryList;
   private Geometry geom;
   @Autowired
   SpatialUtility spatialUtility;
@@ -80,7 +81,7 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
     }
   }
 
-  public ArrayList<Geometry> getGeometryList() {
+  public List<Geometry> getGeometryList() {
     return geometryList;
   }
 
