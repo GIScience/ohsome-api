@@ -9,7 +9,7 @@ import lombok.Getter;
 import org.wololo.geojson.Feature;
 
 /**
- * Represents the whole GeoJSON response object for the data-extraction and contribution endpoints
+ * Represents the whole GeoJSON response object for the data-extraction and contributions endpoints
  * that always extract the data as GeoJSON, e.g. /elements/geometry or /contributions/geometry.
  */
 @JsonInclude(Include.NON_NULL)

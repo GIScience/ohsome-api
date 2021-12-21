@@ -1022,7 +1022,7 @@ Contributions Aggregation
 
 .. note:: The **/contributions/count** endpoint is a new feature that is in the experimental status, meaning it is still under internal evaluation and might be subject to changes in the upcoming minor or patch releases.
 .. note:: If the ``contributionType`` parameter is let empty, the result could contain contributions that do not effect geometries or tags.
-.. note:: In case of multiple time intervals using the **/contribution/latest** endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
+.. note:: In case of multiple time intervals using the **/contributions/latest** endpoints, a contribution is present in a time interval only if this is the time interval in which the latest contribution of the entity happend.
 
 **Example request**:
 
