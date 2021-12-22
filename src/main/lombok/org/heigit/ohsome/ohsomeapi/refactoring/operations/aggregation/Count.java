@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -9,6 +10,8 @@ import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
+import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.locationtech.jts.geom.Geometry;
@@ -31,10 +34,23 @@ public class Count implements Operation, SnapshotView {
   public List compute() throws Exception {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
-      result = mapRed.aggregateByTimestamp().count();
+    result = getCount(mapRed.aggregateByTimestamp());
     Geometry geom = inputProcessor.getGeometry();
     List resultSet = resultUtility.fillElementsResult(result, inputProcessor.isDensity(), geom);
   return resultSet;
+  }
+
+  public SortedMap<OSHDBTimestamp, ? extends Number> getCount(MapAggregator<OSHDBTimestamp, OSMEntitySnapshot> mapAggregator) throws Exception {
+    return mapAggregator.count();
+  }
+
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getCountGroupBy(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
+    return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggregator.map(OSMEntitySnapshot::getGeometry).count();
+  }
+
+  public <K extends Comparable<K> & Serializable, V extends Number>  SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getCountGroupByBoundaryByTag(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, OSMEntitySnapshot> mapAggregator) throws Exception {
+    return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
+        mapAggregator.map(OSMEntitySnapshot::getGeometry).count();
   }
 
   @Override

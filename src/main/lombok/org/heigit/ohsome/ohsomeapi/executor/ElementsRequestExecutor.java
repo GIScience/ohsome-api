@@ -192,18 +192,18 @@ public class ElementsRequestExecutor {
     mapRed = inputProcessor.processParameters(snapshotView);
     ProcessingData processingData = inputProcessor.getProcessingData();
     //RequestParameters requestParameters = processingData.getRequestParameters();
-    String[] groupByValues = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
-    TagTranslator tt = DbConnData.tagTranslator;
-    Integer[] valuesInt = new Integer[groupByValues.length];
-    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
-    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
-    if (groupByValues.length != 0) {
-      for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
-        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
-      }
-    }
+//    String[] groupByValues = inputProcessor.splitParamOnComma(
+//        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
+//    TagTranslator tt = DbConnData.tagTranslator;
+//    Integer[] valuesInt = new Integer[groupByValues.length];
+//    ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
+//    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
+//    if (groupByValues.length != 0) {
+//      for (int j = 0; j < groupByValues.length; j++) {
+//        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
+//        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
+//      }
+//    }
     var arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
     Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()

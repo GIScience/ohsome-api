@@ -15,12 +15,13 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Ratio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,8 @@ public class PerimeterController {
   @Autowired
   GroupByKey groupByKey;
   @Autowired
+  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
+  @Autowired
   Operator operator;
   @Autowired
   Density density;
@@ -71,13 +74,9 @@ public class PerimeterController {
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeter(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-//        servletRequest, servletResponse, false);
-    operator.setOperation(perimeter);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregate();
+  public Response perimeter() throws Exception {
+    var result = perimeter.compute();
+    return perimeter.getResponse(result);
   }
 
   /**
@@ -97,14 +96,11 @@ public class PerimeterController {
       dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(groupByType);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
-//        servletResponse, true, false);
+  public Response perimeterGroupByType() throws Exception {
+    var mapAggregator = groupByType.compute();
+    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var result = groupByType.getResult(perimeterResult);
+    return groupByType.getResponse(result);
   }
 
   /**
@@ -124,14 +120,11 @@ public class PerimeterController {
       nickname = "perimeterGroupByBoundary", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-//        servletRequest, servletResponse, false);
-    operator.setOperation(perimeter);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregateGroupByBoundary();
+  public Response perimeterGroupByBoundary() throws Exception {
+    var mapAggregator = groupByBoundary.compute();
+    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var result = groupByBoundary.getResult(perimeterResult);
+    return groupByBoundary.getResponse(result);
   }
 
   /**
@@ -154,15 +147,11 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(groupByBoundary);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
-//        servletRequest, servletResponse, true, false);
+  public Response perimeterGroupByBoundaryGroupByTag() throws Exception {
+    var mapAggregator = groupByBoundaryGroupByTag.compute();
+    var perimeterResult = perimeter.getPerimeterGroupByBoundaryGroupByTag(mapAggregator);
+    var result = groupByBoundaryGroupByTag.getResult(perimeterResult);
+    return groupByBoundaryGroupByTag.getResponse(result);
   }
 
   /**
@@ -182,14 +171,11 @@ public class PerimeterController {
       dataType = "string", required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByKey(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(groupByKey);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByKey(RequestResource.PERIMETER, servletRequest,
-//        servletResponse, true, false);
+  public Response perimeterGroupByKey() throws Exception {
+    var mapAggregator = groupByKey.compute();
+    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var result = groupByKey.getResult(perimeterResult);
+    return groupByKey.getResponse(result);
   }
 
   /**
@@ -212,14 +198,11 @@ public class PerimeterController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    operator.setOperation(perimeter);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
-//        servletResponse, true, false);
+  public Response perimeterGroupByTag() throws Exception {
+    var mapAggregator = groupByTag.compute();
+    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var result = groupByTag.getResult(perimeterResult);
+    return groupByTag.getResponse(result);
   }
 
   /**

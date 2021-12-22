@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
@@ -15,13 +16,14 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Ratio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +52,8 @@ public class CountController {
   @Autowired GroupByType groupByType;
   @Autowired GroupByTag groupByTag;
   @Autowired
+  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
+  @Autowired
   Density density;
   @Autowired
   Ratio ratio;
@@ -67,13 +71,9 @@ public class CountController {
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response count(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-    operator.setOperation(count);
-return    operator.compute();
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, false);
-    //return aggregateRequestExecutor.aggregate(count);
+  public Response count() throws Exception {
+    List result = count.compute();
+    return count.getResponse(result);
   }
 
   /**
@@ -93,99 +93,11 @@ return    operator.compute();
       dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response countGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(count);
-    operator.setOperation(groupByType);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
-//        servletResponse, true, false);
-  }
-
-  /**
-   * Gives the count of OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
-   *
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link
-   *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
-   *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
-   */
-  @ApiOperation(
-      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "countGroupByBoundary", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
-      paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response countGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    operator.setOperation(count);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.COUNT, servletRequest, servletResponse, false);
-   // return aggregateRequestExecutor.aggregateGroupByBoundary();
-  }
-
-  /**
-   * Gives the count of OSM objects grouped by the boundary and the tag.
-   *
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
-   *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
-   */
-  @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
-      nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-   // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(count);
-    operator.setOperation(groupByBoundary);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.COUNT,
-//        servletRequest, servletResponse, true, false);
-  }
-
-  /**
-   * Gives the count of OSM objects grouped by the key.
-   *
-   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
-   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
-   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
-   *         boolean) aggregateGroupByKey}
-   */
-  @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
-      response = GroupByResponse.class)
-  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
-      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-      dataType = "string", required = true)})
-  @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response countGroupByKey(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(count);
-    operator.setOperation(groupByKey);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByKey(RequestResource.COUNT, servletRequest,
-//        servletResponse, true, false);
+  public Response countGroupByType() throws Exception {
+    var mapAggregator = groupByType.compute();
+    var sortedMap = count.getCountGroupBy(mapAggregator);
+    var result = groupByType.getResult(sortedMap);
+    return groupByType.getResponse(result);
   }
 
   /**
@@ -208,14 +120,86 @@ return    operator.compute();
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response countGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(count);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.COUNT, servletRequest,
-//        servletResponse, true, false);
+  public Response countGroupByTag() throws Exception {
+    var mapAggregator = groupByTag.compute();
+    var sortedMap = count.getCountGroupBy(mapAggregator);
+    var result = groupByTag.getResult(sortedMap);
+    return groupByTag.getResponse(result);
+  }
+
+  /**
+   * Gives the count of OSM objects grouped by the key.
+   *
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
+   *         #aggregateGroupByKey(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
+   *         boolean) aggregateGroupByKey}
+   */
+  @ApiOperation(value = "Count of OSM elements grouped by the key", nickname = "countGroupByKey",
+      response = GroupByResponse.class)
+  @ApiImplicitParams({@ApiImplicitParam(name = "groupByKeys", value = ParameterDescriptions.KEYS,
+      defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+      dataType = "string", required = true)})
+  @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = {"application/json", "text/csv"})
+  public Response countGroupByKey() throws Exception {
+    var mapAggregator = groupByKey.compute();
+    var sortedMap = count.getCountGroupBy(mapAggregator);
+    var result = groupByKey.getResult(sortedMap);
+    return groupByKey.getResponse(result);
+  }
+
+  /**
+   * Gives the count of OSM objects grouped by the boundary parameter (bounding box/circle/polygon).
+   *
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
+   * @throws Exception thrown by {@link
+   *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
+   *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
+   */
+  @ApiOperation(
+      value = "Count of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+      nickname = "countGroupByBoundary", response = GroupByResponse.class)
+  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
+      paramType = "query", dataType = "string", required = false)
+  @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = {"application/json", "text/csv"})
+  public Response countGroupByBoundary() throws Exception {
+    var mapAggregator = groupByBoundary.compute();
+    var countResult = count.getCountGroupBy(mapAggregator);
+    var result = groupByBoundary.getResult(countResult);
+    return groupByBoundary.getResponse(result);
+  }
+
+  /**
+   * Gives the count of OSM objects grouped by the boundary and the tag.
+   *
+   * @param servletRequest <code>HttpServletRequest</code> of the incoming request
+   * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
+   * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
+   *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
+   *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
+   */
+  @ApiOperation(value = "Count of OSM elements grouped by the boundary and the tag",
+      nickname = "countGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+          dataType = "string", required = true),
+      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+  @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
+      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+  public Response countGroupByBoundaryGroupByTag() throws Exception {
+    var mapAggregator = groupByBoundaryGroupByTag.compute();
+    var countResult = count.getCountGroupByBoundaryByTag(mapAggregator);
+    var result = groupByBoundaryGroupByTag.getResult(countResult);
+    return groupByBoundaryGroupByTag.getResponse(result);
   }
 
   /**
@@ -266,7 +250,7 @@ return    operator.compute();
     //ElementsRequestExecutor executor = new ElementsRequestExecutor();
     operator.setOperation(count);
     operator.setOperation(density);
-    operator.setOperation(groupByType);
+    operator.setOperation(groupByBoundary);
     return operator.compute();
 //    return elementsRequestExecutor.aggregateGroupByType(RequestResource.COUNT, servletRequest,
 //        servletResponse, true, true);

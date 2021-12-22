@@ -15,13 +15,14 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Ratio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +55,8 @@ public class LengthController {
   @Autowired
   GroupByKey groupByKey;
   @Autowired
+  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
+  @Autowired
   Operator operator;
   @Autowired
   Density density;
@@ -71,13 +74,9 @@ public class LengthController {
       response = DefaultAggregationResponse.class)
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response length(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
-//        servletRequest, servletResponse, false);
-    operator.setOperation(length);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregate();
+  public Response length() throws Exception {
+    var result = length.compute();
+    return length.getResponse(result);
   }
 
   /**
@@ -94,14 +93,11 @@ public class LengthController {
       nickname = "lengthGroupByType", response = GroupByResponse.class)
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(groupByType);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
-//        servletResponse, true, false);
+  public Response lengthGroupByType() throws Exception {
+    var mapAggregator = groupByType.compute();
+    var lengthResult = length.getLengthGroupBy(mapAggregator);
+    var result = groupByType.getResult(lengthResult);
+    return groupByType.getResponse(result);
   }
 
   /**
@@ -122,14 +118,11 @@ public class LengthController {
       paramType = "query", dataType = "string", required = false)
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.LENGTH,
-//        servletRequest, servletResponse, false);
-    operator.setOperation(length);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregateGroupByBoundary();
+  public Response lengthGroupByBoundary() throws Exception {
+    var mapAggregator = groupByBoundary.compute();
+    var lengthResult = length.getLengthGroupBy(mapAggregator);
+    var result = groupByBoundary.getResult(lengthResult);
+    return groupByBoundary.getResponse(result);
   }
 
   /**
@@ -152,15 +145,11 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/boundary/groupBy/tag",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response lengthGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(groupByBoundary);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-    //return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
-      //  servletRequest, servletResponse, true, false);
+  public Response lengthGroupByBoundaryGroupByTag() throws Exception {
+    var mapAggregator = groupByBoundaryGroupByTag.compute();
+    var lengthResult = length.getLengthGroupByBoundaryGroupByTag(mapAggregator);
+    var result = groupByBoundaryGroupByTag.getResult(lengthResult);
+    return groupByBoundaryGroupByTag.getResponse(result);
   }
 
   /**
@@ -180,14 +169,11 @@ public class LengthController {
       required = true)})
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthGroupByKey(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(groupByKey);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByKey(RequestResource.LENGTH, servletRequest,
-//        servletResponse, true, false);
+  public Response lengthGroupByKey() throws Exception {
+      var mapAggregator = groupByKey.compute();
+      var lengthResult = length.getLengthGroupBy(mapAggregator);
+      var result = groupByKey.getResult(lengthResult);
+      return groupByKey.getResponse(result);
   }
 
   /**
@@ -210,14 +196,11 @@ public class LengthController {
           defaultValue = "", paramType = "query", dataType = "string", required = false)})
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
-//        servletResponse, true, false);
+  public Response lengthGroupByTag() throws Exception {
+    var mapAggregator = groupByTag.compute();
+    var lengthResult = length.getLengthGroupBy(mapAggregator);
+    var result = groupByTag.getResult(lengthResult);
+    return groupByTag.getResponse(result);
   }
 
   /**

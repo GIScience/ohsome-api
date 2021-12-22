@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GroupByBoundary extends Group implements Operation, SnapshotView {
+public class GroupByBoundary extends Group implements SnapshotView {
 
   @Autowired
   InputProcessor inputProcessor;
@@ -49,12 +49,18 @@ public class GroupByBoundary extends Group implements Operation, SnapshotView {
   @Autowired
   GeometryFrom geometryFrom;
 
-  public List compute() throws Exception {
+  public MapAggregator compute() throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
-    var result = computeCountLengthPerimeterAreaGbB(this, mapRed);
+    return aggregate(mapRed);
+  }
+
+  public List getResult(SortedMap sortedMap) throws Exception {
+//    inputProcessor.getProcessingData().setGroupByBoundary(true);
+//    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+    // result = computeCountLengthPerimeterAreaGbB(this, mapRed);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = ExecutionUtils.nest(result);
+    groupByResult = nest(sortedMap);
     List<GroupByResult> resultSet = new ArrayList<>();
     Object groupByName;
     Object[] boundaryIds = inputProcessingUtils.getBoundaryIds();
@@ -71,6 +77,25 @@ public class GroupByBoundary extends Group implements Operation, SnapshotView {
     return resultSet;
   }
 
+  public <P extends Geometry & Polygonal> MapAggregator aggregate(
+      MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
+    List<Geometry> arrGeoms = new ArrayList<>(geometryFrom.getGeometryList());
+    @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
+    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
+        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+    if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
+      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
+    }
+    Optional<FilterExpression> filter = inputProcessor.getProcessingData().getFilterExpression();
+    if (filter.isPresent()) {
+      mapAgg = mapAgg.filter(filter.get());
+    }
+    var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
+    return mapAggGeom;
+  }
+
   /**
    * Computes the result for the /count|length|perimeter|area/groupBy/boundary resources.
    *
@@ -80,7 +105,7 @@ public class GroupByBoundary extends Group implements Operation, SnapshotView {
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum(SerializableFunction)
    *         sum}
    */
-  private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
+  public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
       ? extends Number> computeCountLengthPerimeterAreaGbB(Operation operation, MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
     List<Geometry> arrGeoms = new ArrayList<>(geometryFrom.getGeometryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed

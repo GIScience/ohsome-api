@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.checkerframework.checker.units.qual.Time;
@@ -20,6 +19,7 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
@@ -54,6 +54,8 @@ public class AreaController {
   GroupByKey groupByKey;
   @Autowired
   GroupByTag groupByTag;
+  @Autowired
+  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
 
   /**
    * Gives the area of OSM objects.
@@ -69,7 +71,7 @@ public class AreaController {
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response area() throws Exception {
-   List result = area.compute();
+    var result = area.compute();
     return area.getResponse(result);
   }
 
@@ -91,7 +93,9 @@ public class AreaController {
   @RequestMapping(value = "/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response areaGroupByType() throws Exception {
-    List result = groupByType.compute();
+    var mapAggregator = groupByType.compute();
+    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var result = groupByType.getResult(areaResult);
     return groupByType.getResponse(result);
   }
 
@@ -111,7 +115,9 @@ public class AreaController {
   @RequestMapping(value = "/groupBy/boundary", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response areaGroupByBoundary() throws Exception {
-    List result = groupByBoundary.compute();
+    var mapAggregator = groupByBoundary.compute();
+    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var result = groupByBoundary.getResult(areaResult);
     return groupByBoundary.getResponse(result);
   }
 
@@ -137,9 +143,10 @@ public class AreaController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response areaGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
-    ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return executor.aggregateGroupByBoundaryGroupByTag(area,
-        servletRequest, servletResponse, true, false);
+    var mapAggregator = groupByBoundaryGroupByTag.compute();
+    var areaResult = area.getAreaGroupByBoundaryByTag(mapAggregator);
+    var result = groupByBoundaryGroupByTag.getResult(areaResult);
+    return groupByBoundaryGroupByTag.getResponse(result);
   }
 
   /**
@@ -160,8 +167,10 @@ public class AreaController {
   @RequestMapping(value = "/groupBy/key", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response areaGroupByKey() throws Exception {
-      List result = groupByKey.compute();
-      return groupByKey.getResponse(result);
+    var mapAggregator = groupByKey.compute();
+    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var result = groupByKey.getResult(areaResult);
+    return groupByKey.getResponse(result);
   }
 
   /**
@@ -185,7 +194,9 @@ public class AreaController {
   @RequestMapping(value = "/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response areaGroupByTag() throws Exception {
-    List result = groupByTag.compute();
+    var mapAggregator = groupByTag.compute();
+    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var result = groupByTag.getResult(areaResult);
     return groupByTag.getResponse(result);
   }
 

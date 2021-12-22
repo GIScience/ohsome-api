@@ -203,28 +203,7 @@ public class ExecutionUtils implements Serializable {
     return (Double) geom.getUserData();
   }
 
-  /**
-   * Adapted helper function, which works like
-   * {@link org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex#nest(Map) nest} but has
-   * switched &lt;U&gt; and &lt;V&gt; parameters.
-   *
-   * @param result the "flat" result data structure that should be converted to a nested structure
-   * @param <A> an arbitrary data type, used for the data value items
-   * @param <U> an arbitrary data type, used for the index'es key items
-   * @param <V> an arbitrary data type, used for the index'es key items
-   * @return a nested data structure: for each index part there is a separate level of nested maps
-   */
-  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable>
-      SortedMap<V, SortedMap<U, A>> nest(Map<OSHDBCombinedIndex<U, V>, A> result) {
-    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
-    result.forEach((index, data) -> {
-      if (!ret.containsKey(index.getSecondIndex())) {
-        ret.put(index.getSecondIndex(), new TreeMap<>());
-      }
-      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
-    });
-    return ret;
-  }
+
 
   /**
    * Streams the result of /elements, /elementsFullHistory and /contributions endpoints as an
@@ -447,6 +426,18 @@ public class ExecutionUtils implements Serializable {
     }
     return new org.wololo.geojson.Feature(gjw.write(gpr.reduce(outputGeometry)),
         properties);
+  }
+
+  public static <A, U extends Comparable<U> & Serializable, V extends Comparable<V> & Serializable>
+  SortedMap<V, SortedMap<U, A>> nest(Map<OSHDBCombinedIndex<U, V>, A> result) {
+    TreeMap<V, SortedMap<U, A>> ret = new TreeMap<>();
+    result.forEach((index, data) -> {
+      if (!ret.containsKey(index.getSecondIndex())) {
+        ret.put(index.getSecondIndex(), new TreeMap<>());
+      }
+      ret.get(index.getSecondIndex()).put(index.getFirstIndex(), data);
+    });
+    return ret;
   }
 
   /**
