@@ -107,6 +107,8 @@ public class InputProcessor {
   @Getter @Setter
   String filter;
   @Getter @Setter
+  String filter2;
+  @Getter @Setter
   double timeout;
   @Getter @Setter
   String[] values;
@@ -207,6 +209,7 @@ public class InputProcessor {
     showMetadata =
         createEmptyStringIfNull(servletRequest.getParameter("showMetadata"));
     filter = createEmptyStringIfNull(servletRequest.getParameter("filter"));
+    filter2 = createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     timeout = defineRequestTimeout();
 
     // overwriting RequestParameters object with splitted/non-null parameters
@@ -570,19 +573,7 @@ public class InputProcessor {
     });
   }
 
-  /**
-   * Checks the given filter parameter if it's null or blank. Currently used for filter2 parameter
-   * of /ratio processing.
-   *
-   * @param filter parameter to be checked
-   * @throws BadRequestException if the given filter parameter is null or blank.
-   */
-  public void checkFilter(String filter) {
-    if (null == filter || filter.isBlank() && processingData.isRatio()) {
-      throw new BadRequestException(
-          "The filter2 parameter has to be defined when using a /ratio endpoint.");
-    }
-  }
+
 
   /**
    * Checks the given keys and values parameters on their length and includes them in the

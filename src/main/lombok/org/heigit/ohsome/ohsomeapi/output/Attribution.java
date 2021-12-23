@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Represents the attribution information contained in every json response. It holds a link to the
@@ -14,7 +13,6 @@ import org.springframework.web.context.annotation.RequestScope;
 @Getter
 //@AllArgsConstructor
 @Component
-@RequestScope
 public class Attribution {
 
   @Autowired
