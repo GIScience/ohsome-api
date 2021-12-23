@@ -8,9 +8,11 @@ import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
@@ -43,6 +45,8 @@ public class Ratio implements Operation<MapAggregator>, SnapshotView {
   final DecimalFormat decimalFormat = decimalFormatDefiner.getDecimalFormatForRatioRequests();
   @Autowired
   FilterUtility filterUtility;
+  @Autowired
+  InputProcessingUtils inputProcessingUtils;
 
   @Override
   public MapAggregator compute() throws Exception {
@@ -122,6 +126,32 @@ public class Ratio implements Operation<MapAggregator>, SnapshotView {
       resultSet.add(new RatioResult(timeArray[i], value1[i], value2[i], ratio));
     }
     return resultSet;
+  }
+
+  public RatioGroupByResult[] getRatioGroupBy(String[] timeArray, Double[] resultValues1, Double[] resultValues2) {
+    Object[] boundaryIds = inputProcessingUtils.getBoundaryIds();
+    int boundaryIdsLength = boundaryIds.length;
+    int timeArrayLenth = timeArray.length;
+    RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
+    for (int i = 0; i < boundaryIdsLength; i++) {
+      Object groupByName = boundaryIds[i];
+      RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
+      int innerCount = 0;
+      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+        double ratio = resultValues2[j] / resultValues1[j];
+        // in case ratio has the values "NaN", "Infinity", etc.
+        try {
+          ratio = Double.parseDouble(decimalFormat.format(ratio));
+        } catch (Exception e) {
+          // do nothing --> just return ratio without rounding (trimming)
+        }
+        ratioResultSet[innerCount] =
+            new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
+        innerCount++;
+      }
+      groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
+    }
+    return groupByResultSet;
   }
 
   @Override
