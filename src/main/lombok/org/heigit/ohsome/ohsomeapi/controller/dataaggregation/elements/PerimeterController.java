@@ -98,7 +98,7 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByType() throws Exception {
     var mapAggregator = groupByType.compute();
-    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var perimeterResult = perimeter.getPerimeterGroupByResult(mapAggregator);
     var result = groupByType.getResult(perimeterResult);
     return groupByType.getResponse(result);
   }
@@ -122,7 +122,7 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByBoundary() throws Exception {
     var mapAggregator = groupByBoundary.compute();
-    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var perimeterResult = perimeter.getPerimeterGroupByResult(mapAggregator);
     var result = groupByBoundary.getResult(perimeterResult);
     return groupByBoundary.getResponse(result);
   }
@@ -149,7 +149,7 @@ public class PerimeterController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response perimeterGroupByBoundaryGroupByTag() throws Exception {
     var mapAggregator = groupByBoundaryGroupByTag.compute();
-    var perimeterResult = perimeter.getPerimeterGroupByBoundaryGroupByTag(mapAggregator);
+    var perimeterResult = perimeter.getPerimeterGroupByBoundaryGroupByTagResult(mapAggregator);
     var result = groupByBoundaryGroupByTag.getResult(perimeterResult);
     return groupByBoundaryGroupByTag.getResponse(result);
   }
@@ -173,7 +173,7 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByKey() throws Exception {
     var mapAggregator = groupByKey.compute();
-    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var perimeterResult = perimeter.getPerimeterGroupByResult(mapAggregator);
     var result = groupByKey.getResult(perimeterResult);
     return groupByKey.getResponse(result);
   }
@@ -200,7 +200,7 @@ public class PerimeterController {
       produces = {"application/json", "text/csv"})
   public Response perimeterGroupByTag() throws Exception {
     var mapAggregator = groupByTag.compute();
-    var perimeterResult = perimeter.getPerimeterGroupBy(mapAggregator);
+    var perimeterResult = perimeter.getPerimeterGroupByResult(mapAggregator);
     var result = groupByTag.getResult(perimeterResult);
     return groupByTag.getResponse(result);
   }
@@ -367,17 +367,16 @@ public class PerimeterController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterRatio(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(ratio);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateRatio(RequestResource.PERIMETER, servletRequest,
-//        servletResponse);
+  public Response perimeterRatio() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());
+    var perimeterResult = perimeter.getPerimeterResult(mapAggregator);
+    var values = ratio.getValues(perimeterResult);
+    var result = ratio.getRatioResult(values);
+    return ratio.getResponse(result);
   }
 
   /**
@@ -399,17 +398,16 @@ public class PerimeterController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(ratio);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.PERIMETER,
-//        servletRequest, servletResponse);
+  public Response perimeterRatioGroupByBoundary() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = groupByBoundary.aggregate(mapReducer);
+    var mapAggregatorEntitiesByFilterMatched = ratio.aggregateByFilterMatching(mapAggregator);
+    var perimeterResult = perimeter.getPerimeterGroupByResult(mapAggregatorEntitiesByFilterMatched);
+    var values = ratio.getValues(perimeterResult);
+    var result = ratio.getRatioGroupByResult(values);
+    return ratio.getResponse(result);
   }
 }

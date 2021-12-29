@@ -95,7 +95,7 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByType() throws Exception {
     var mapAggregator = groupByType.compute();
-    var sortedMap = count.getCountGroupBy(mapAggregator);
+    var sortedMap = count.getCountGroupByResult(mapAggregator);
     var result = groupByType.getResult(sortedMap);
     return groupByType.getResponse(result);
   }
@@ -122,7 +122,7 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByTag() throws Exception {
     var mapAggregator = groupByTag.compute();
-    var sortedMap = count.getCountGroupBy(mapAggregator);
+    var sortedMap = count.getCountGroupByResult(mapAggregator);
     var result = groupByTag.getResult(sortedMap);
     return groupByTag.getResponse(result);
   }
@@ -146,7 +146,7 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByKey() throws Exception {
     var mapAggregator = groupByKey.compute();
-    var sortedMap = count.getCountGroupBy(mapAggregator);
+    var sortedMap = count.getCountGroupByResult(mapAggregator);
     var result = groupByKey.getResult(sortedMap);
     return groupByKey.getResponse(result);
   }
@@ -170,7 +170,7 @@ public class CountController {
       produces = {"application/json", "text/csv"})
   public Response countGroupByBoundary() throws Exception {
     var mapAggregator = groupByBoundary.compute();
-    var countResult = count.getCountGroupBy(mapAggregator);
+    var countResult = count.getCountGroupByResult(mapAggregator);
     var result = groupByBoundary.getResult(countResult);
     return groupByBoundary.getResponse(result);
   }
@@ -197,7 +197,7 @@ public class CountController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response countGroupByBoundaryGroupByTag() throws Exception {
     var mapAggregator = groupByBoundaryGroupByTag.compute();
-    var countResult = count.getCountGroupByBoundaryByTag(mapAggregator);
+    var countResult = count.getCountGroupByBoundaryByTagResult(mapAggregator);
     var result = groupByBoundaryGroupByTag.getResult(countResult);
     return groupByBoundaryGroupByTag.getResponse(result);
   }
@@ -366,17 +366,16 @@ public class CountController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response countRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(count);
-    operator.setOperation(ratio);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateRatio(RequestResource.COUNT, servletRequest,
-//        servletResponse);
+  public Response countRatio() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());
+    var countResult = count.getCountResult(mapAggregator);
+    var values = ratio.getValues(countResult);
+    var result = ratio.getRatioResult(values);
+    return ratio.getResponse(result);
   }
 
   /**
@@ -398,17 +397,16 @@ public class CountController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response countRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(count);
-    operator.setOperation(ratio);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.COUNT,
-//        servletRequest, servletResponse);
+  public Response countRatioGroupByBoundary() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = groupByBoundary.aggregate(mapReducer);
+    var mapAggregatorEntitiesByFilterMatched = ratio.aggregateByFilterMatching(mapAggregator);
+    var countResult = count.getCountGroupByResult(mapAggregatorEntitiesByFilterMatched);
+    var values = ratio.getValues(countResult);
+    var result = ratio.getRatioGroupByResult(values);
+    return ratio.getResponse(result);
   }
 }

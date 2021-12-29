@@ -95,7 +95,7 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByType() throws Exception {
     var mapAggregator = groupByType.compute();
-    var lengthResult = length.getLengthGroupBy(mapAggregator);
+    var lengthResult = length.getLengthGroupByResult(mapAggregator);
     var result = groupByType.getResult(lengthResult);
     return groupByType.getResponse(result);
   }
@@ -120,7 +120,7 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundary() throws Exception {
     var mapAggregator = groupByBoundary.compute();
-    var lengthResult = length.getLengthGroupBy(mapAggregator);
+    var lengthResult = length.getLengthGroupByResult(mapAggregator);
     var result = groupByBoundary.getResult(lengthResult);
     return groupByBoundary.getResponse(result);
   }
@@ -147,7 +147,7 @@ public class LengthController {
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
   public Response lengthGroupByBoundaryGroupByTag() throws Exception {
     var mapAggregator = groupByBoundaryGroupByTag.compute();
-    var lengthResult = length.getLengthGroupByBoundaryGroupByTag(mapAggregator);
+    var lengthResult = length.getLengthGroupByBoundaryGroupByTagResult(mapAggregator);
     var result = groupByBoundaryGroupByTag.getResult(lengthResult);
     return groupByBoundaryGroupByTag.getResponse(result);
   }
@@ -171,7 +171,7 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByKey() throws Exception {
       var mapAggregator = groupByKey.compute();
-      var lengthResult = length.getLengthGroupBy(mapAggregator);
+      var lengthResult = length.getLengthGroupByResult(mapAggregator);
       var result = groupByKey.getResult(lengthResult);
       return groupByKey.getResponse(result);
   }
@@ -198,7 +198,7 @@ public class LengthController {
       produces = {"application/json", "text/csv"})
   public Response lengthGroupByTag() throws Exception {
     var mapAggregator = groupByTag.compute();
-    var lengthResult = length.getLengthGroupBy(mapAggregator);
+    var lengthResult = length.getLengthGroupByResult(mapAggregator);
     var result = groupByTag.getResult(lengthResult);
     return groupByTag.getResponse(result);
   }
@@ -363,17 +363,16 @@ public class LengthController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthRatio(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(ratio);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateRatio(RequestResource.LENGTH, servletRequest,
-//        servletResponse);
+  public Response lengthRatio() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());
+    var lengthResult = length.getLengthResult(mapAggregator);
+    var values = ratio.getValues(lengthResult);
+    var result = ratio.getRatioResult(values);
+    return ratio.getResponse(result);
   }
 
   /**
@@ -395,17 +394,16 @@ public class LengthController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response lengthRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(ratio);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateRatioGroupByBoundary(RequestResource.LENGTH,
-//        servletRequest, servletResponse);
+  public Response lengthRatioGroupByBoundary() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = groupByBoundary.aggregate(mapReducer);
+    var mapAggregatorEntitiesByFilterMatched = ratio.aggregateByFilterMatching(mapAggregator);
+    var lengthResult = length.getLengthGroupByResult(mapAggregatorEntitiesByFilterMatched);
+    var values = ratio.getValues(lengthResult);
+    var result = ratio.getRatioGroupByResult(values);
+    return ratio.getResponse(result);
   }
 }

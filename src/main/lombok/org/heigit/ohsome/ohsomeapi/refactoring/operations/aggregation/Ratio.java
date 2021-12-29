@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.SortedMap;
-import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
+import org.heigit.ohsome.ohsomeapi.output.RatioDataStructure;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
@@ -32,14 +32,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Ratio implements Operation<MapAggregator>, SnapshotView {
+public class Ratio implements Operation, SnapshotView {
 
   @Autowired
   InputProcessor inputProcessor;
   @Autowired
   SnapshotView snapshotView;
-  @Autowired
-  HttpServletRequest servletRequest;
   @Autowired
   DecimalFormatDefiner decimalFormatDefiner;
   final DecimalFormat decimalFormat = decimalFormatDefiner.getDecimalFormatForRatioRequests();
@@ -49,24 +47,19 @@ public class Ratio implements Operation<MapAggregator>, SnapshotView {
   InputProcessingUtils inputProcessingUtils;
 
   @Override
-  public MapAggregator compute() throws Exception {
+  public MapReducer<OSMEntitySnapshot> compute() throws Exception {
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
     String combinedFilter = filterUtility.combineFiltersWithOr(inputProcessor.getFilter(), inputProcessor.getFilter2());
     inputProcessor.setFilter(combinedFilter);
-    mapRed = mapRed.filter(combinedFilter);
-   return aggregate(mapRed.aggregateByTimestamp());
-    //the call to computeResult should be done in the controller e.g. count.countGroupBy(mapAggregator)
-    //countGroupBy functions should be renamed in Count, Length, Perimeter and Area
-    // since it is called not only in case of groupBy resources
-    // var result = ExecutionUtils.computeResult(operation, preResult);
+    return mapRed.filter(combinedFilter);
   }
 
-  private MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, ExecutionUtils.MatchType>, OSMEntitySnapshot> aggregate(MapAggregator<OSHDBTimestamp, OSMEntitySnapshot> mapAggregator) {
+  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, ExecutionUtils.MatchType>, OSMEntitySnapshot> aggregateByFilterMatching(MapAggregator<OSHDBTimestamp, OSMEntitySnapshot> mapAggregator) {
     filterUtility.checkFilter(inputProcessor.getFilter2());
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = filterUtility.parseFilter(fp, inputProcessor.getFilter());
     FilterExpression filterExpr2 = filterUtility.parseFilter(fp, inputProcessor.getFilter2());
-    var preResult = mapAggregator.aggregateBy(snapshot -> {
+    return mapAggregator.aggregateBy(snapshot -> {
       OSMEntity entity = snapshot.getEntity();
       boolean matches1 = filterExpr1.applyOSMGeometry(entity, snapshot::getGeometry);
       boolean matches2 = filterExpr2.applyOSMGeometry(entity, snapshot::getGeometry);
@@ -82,10 +75,9 @@ public class Ratio implements Operation<MapAggregator>, SnapshotView {
         return MatchType.MATCHESNONE;
       }
     }, EnumSet.allOf(MatchType.class));
-    return preResult;
   }
 
-  public List<RatioResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, Number> preResult) {
+  public RatioDataStructure getValues(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number> preResult) {
     int resultSize = preResult.size();
     int matchTypeSize = 4;
     Double[] value1 = new Double[resultSize / matchTypeSize];
@@ -114,31 +106,35 @@ public class Ratio implements Operation<MapAggregator>, SnapshotView {
         matchesBothCount++;
       }
     }
+    return new RatioDataStructure(timeArray, value1, value2);
+  }
+
+  public List<RatioResult> getRatioResult(RatioDataStructure ratioDataStructure) {
     List<RatioResult> resultSet = new ArrayList<>();
-    for (int i = 0; i < timeArray.length; i++) {
-      double ratio = value2[i] / value1[i];
+    for (int i = 0; i < ratioDataStructure.getTimeArray().length; i++) {
+      double ratio = ratioDataStructure.getValue2()[i] / ratioDataStructure.getValue1()[i];
       // in case ratio has the values "NaN", "Infinity", etc.
       try {
         ratio = Double.parseDouble(decimalFormat.format(ratio));
       } catch (Exception e) {
         // do nothing --> just return ratio without rounding (trimming)
       }
-      resultSet.add(new RatioResult(timeArray[i], value1[i], value2[i], ratio));
+      resultSet.add(new RatioResult(ratioDataStructure.getTimeArray()[i], ratioDataStructure.getValue1()[i], ratioDataStructure.getValue2()[i], ratio));
     }
     return resultSet;
   }
 
-  public RatioGroupByResult[] getRatioGroupBy(String[] timeArray, Double[] resultValues1, Double[] resultValues2) {
+  public List<RatioGroupByResult> getRatioGroupByResult(RatioDataStructure ratioDataStructure) {
     Object[] boundaryIds = inputProcessingUtils.getBoundaryIds();
     int boundaryIdsLength = boundaryIds.length;
-    int timeArrayLenth = timeArray.length;
-    RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
+    int timeArrayLength = ratioDataStructure.getTimeArray().length;
+    List<RatioGroupByResult> groupByResultSet = new ArrayList<>();
     for (int i = 0; i < boundaryIdsLength; i++) {
       Object groupByName = boundaryIds[i];
-      RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
+      RatioResult[] ratioResultSet = new RatioResult[timeArrayLength];
       int innerCount = 0;
-      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-        double ratio = resultValues2[j] / resultValues1[j];
+      for (int j = i; j < timeArrayLength * boundaryIdsLength; j += boundaryIdsLength) {
+        double ratio = ratioDataStructure.getValue2()[j] / ratioDataStructure.getValue1()[j];
         // in case ratio has the values "NaN", "Infinity", etc.
         try {
           ratio = Double.parseDouble(decimalFormat.format(ratio));
@@ -146,16 +142,16 @@ public class Ratio implements Operation<MapAggregator>, SnapshotView {
           // do nothing --> just return ratio without rounding (trimming)
         }
         ratioResultSet[innerCount] =
-            new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
+            new RatioResult(ratioDataStructure.getTimeArray()[innerCount], ratioDataStructure.getValue1()[j], ratioDataStructure.getValue2()[j], ratio);
         innerCount++;
       }
-      groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
+      groupByResultSet.add(new RatioGroupByResult(groupByName, ratioResultSet));
     }
     return groupByResultSet;
   }
 
   @Override
-  public Response getResponse(List<RatioResult> result) {
+  public Response getResponse(List result) {
     return new RatioResponse(result);
   }
 

@@ -23,6 +23,7 @@ import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBou
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Ratio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,6 +57,8 @@ public class AreaController {
   GroupByTag groupByTag;
   @Autowired
   GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
+  @Autowired
+  Ratio ratio;
 
   /**
    * Gives the area of OSM objects.
@@ -94,7 +97,7 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByType() throws Exception {
     var mapAggregator = groupByType.compute();
-    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var areaResult = area.getAreaGroupByResult(mapAggregator);
     var result = groupByType.getResult(areaResult);
     return groupByType.getResponse(result);
   }
@@ -116,7 +119,7 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByBoundary() throws Exception {
     var mapAggregator = groupByBoundary.compute();
-    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var areaResult = area.getAreaGroupByResult(mapAggregator);
     var result = groupByBoundary.getResult(areaResult);
     return groupByBoundary.getResponse(result);
   }
@@ -144,7 +147,7 @@ public class AreaController {
   public Response areaGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse) throws Exception {
     var mapAggregator = groupByBoundaryGroupByTag.compute();
-    var areaResult = area.getAreaGroupByBoundaryByTag(mapAggregator);
+    var areaResult = area.getAreaGroupByBoundaryByTagResult(mapAggregator);
     var result = groupByBoundaryGroupByTag.getResult(areaResult);
     return groupByBoundaryGroupByTag.getResponse(result);
   }
@@ -168,7 +171,7 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByKey() throws Exception {
     var mapAggregator = groupByKey.compute();
-    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var areaResult = area.getAreaGroupByResult(mapAggregator);
     var result = groupByKey.getResult(areaResult);
     return groupByKey.getResponse(result);
   }
@@ -195,7 +198,7 @@ public class AreaController {
       produces = {"application/json", "text/csv"})
   public Response areaGroupByTag() throws Exception {
     var mapAggregator = groupByTag.compute();
-    var areaResult = area.getAreaGroupBy(mapAggregator);
+    var areaResult = area.getAreaGroupByResult(mapAggregator);
     var result = groupByTag.getResult(areaResult);
     return groupByTag.getResponse(result);
   }
@@ -349,14 +352,16 @@ public class AreaController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2,
-          paramType = "query", dataType = "string", required = false)})
+          paramType = "query", dataType = "string", required = true)})
   @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response areaRatio(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return elementsRequestExecutor.aggregateRatio(area, servletRequest,
-        servletResponse);
+  public Response areaRatio() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());
+    var areaResult = area.getAreaResult(mapAggregator);
+    var values = ratio.getValues(areaResult);
+    var result = ratio.getRatioResult(values);
+    return ratio.getResponse(result);
   }
 
   /**
@@ -367,8 +372,8 @@ public class AreaController {
    * @param servletResponse <code>HttpServletResponse</code> of the outgoing response
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor
-   *         #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest,
-   *         HttpServletResponse) aggregateRatioGroupByBoundary}
+   *     #aggregateRatioGroupByBoundary(RequestResource, HttpServletRequest,
+   *     HttpServletResponse) aggregateRatioGroupByBoundary}
    */
   @ApiOperation(value = "Ratio of the area of OSM elements grouped by the boundary",
       nickname = "areaRatioGroupByBoundary", response = RatioGroupByBoundaryResponse.class)
@@ -378,13 +383,16 @@ public class AreaController {
           dataType = "string", required = false),
       @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
           defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
-          dataType = "string", required = false)})
+          dataType = "string", required = true)})
   @RequestMapping(value = "/ratio/groupBy/boundary",
       method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response areaRatioGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return elementsRequestExecutor.aggregateRatioGroupByBoundary(area,
-        servletRequest, servletResponse);
+  public Response areaRatioGroupByBoundary() throws Exception {
+    var mapReducer = ratio.compute();
+    var mapAggregator = groupByBoundary.aggregate(mapReducer);
+    var mapAggregatorEntitiesByFilterMatched = ratio.aggregateByFilterMatching(mapAggregator);
+    var areaResult = area.getAreaGroupByResult(mapAggregatorEntitiesByFilterMatched);
+    var ratioResult = ratio.getValues(areaResult);
+    var groupByResult = ratio.getRatioGroupByResult(ratioResult);
+    return ratio.getResponse(groupByResult);
   }
 }
