@@ -38,13 +38,12 @@ public class Perimeter implements Operation, SnapshotView {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
-    result = getPerimeter(mapRedGeom.aggregateByTimestamp());
+    result = getPerimeterResult(mapRedGeom.aggregateByTimestamp());
     Geometry geom = inputProcessor.getGeometry();
-    var resultSet = resultUtility.fillElementsResult(result, inputProcessor.isDensity(), geom);
-    return resultSet;
+    return resultUtility.fillElementsResult(result, geom);
   }
 
-  public SortedMap getPerimeter(MapAggregator mapAggregator) throws Exception {
+  public SortedMap getPerimeterResult(MapAggregator mapAggregator) throws Exception {
     return mapAggregator.sum(geom -> {
       if (!(geom instanceof Polygonal)) {
         return 0.0;
@@ -53,7 +52,7 @@ public class Perimeter implements Operation, SnapshotView {
     });
   }
 
-  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getPerimeterGroupBy(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getPerimeterGroupByResult(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
     return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggregator.map(OSMEntitySnapshot::getGeometry).sum(geom -> {
       if (!(geom instanceof Polygonal)) {
         return 0.0;
@@ -62,7 +61,7 @@ public class Perimeter implements Operation, SnapshotView {
     });
   }
 
-  public  <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getPerimeterGroupByBoundaryGroupByTag(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
+  public  <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getPerimeterGroupByBoundaryGroupByTagResult(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
       OSMEntitySnapshot> mapAggregator) throws Exception {
     return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>) mapAggregator.map(OSMEntitySnapshot::getGeometry).sum(geom -> {
       if (!(geom instanceof Polygonal)) {

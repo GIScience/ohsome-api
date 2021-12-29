@@ -54,7 +54,7 @@ public class GroupByTag extends Group implements SnapshotView {
     keysInt = getOSHDBKeyOfOneTag();
     Integer[] valuesInt = getOSHDBTag();
     List<Pair<Integer, Integer>> zeroFill = this.getListOfKeyValuePair(keysInt, valuesInt);
-    return aggregate(mapRed,keysInt, valuesInt, zeroFill);
+    return aggregate(mapRed, keysInt, valuesInt, zeroFill);
   }
 
   public List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Number> preResult) {
@@ -63,10 +63,8 @@ public class GroupByTag extends Group implements SnapshotView {
     String groupByName = "";
     Geometry geom = inputProcessor.getGeometry();
     TagTranslator tt = DbConnData.tagTranslator;
-    int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(entry.getValue(),
-          inputProcessor.isDensity(), geom);
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), geom);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -74,10 +72,9 @@ public class GroupByTag extends Group implements SnapshotView {
         groupByName = "remainder";
       }
       resultSet.add(new GroupByResult(groupByName, results));
-      count++;
     }
     // used to remove null objects from the resultSet
-    resultSet = resultSet.stream().filter(x -> Objects.nonNull(x)).collect(Collectors.toList());
+    resultSet = resultSet.stream().filter(Objects::nonNull).collect(Collectors.toList());
     return resultSet;
   }
 
@@ -88,8 +85,7 @@ public class GroupByTag extends Group implements SnapshotView {
   }
 
   private void computeThroughFilters() throws Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    mapRed = inputProcessor.processParameters(snapshotView);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -98,7 +94,7 @@ public class GroupByTag extends Group implements SnapshotView {
     String filter = groupByKey[0] + "=*";
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr = inputProcessingUtils.parseFilter(fp, filter);
-      mapRed = mapRed.filter(filterExpr);
+    mapRed = mapRed.filter(filterExpr);
   }
 
   @Override

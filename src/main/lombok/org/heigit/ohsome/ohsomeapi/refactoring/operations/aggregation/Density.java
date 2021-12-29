@@ -8,19 +8,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class Density implements Operation, SnapshotView {
 
-  private final String description = "density";
-  private final String unit = "meters";
-
   @Override
   public DefaultAggregationResponse compute() throws Exception {
     return null;
   }
 
   public String getDescription() {
-    return description;
+    return "density";
   }
 
   public String getUnit() {
-    return unit;
+    return "meters";
   }
 }

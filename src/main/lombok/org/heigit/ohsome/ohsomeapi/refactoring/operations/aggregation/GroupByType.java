@@ -30,8 +30,6 @@ public class GroupByType extends Group implements SnapshotView {
   @Autowired
   InputProcessor inputProcessor;
   @Autowired
-  HttpServletRequest servletRequest;
-  @Autowired
   SnapshotView snapshotView;
   @Autowired
   ResultUtility resultUtility;
@@ -66,12 +64,9 @@ public class GroupByType extends Group implements SnapshotView {
     var groupByResult = nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     Geometry geom = inputProcessor.getGeometry();
-    int count = 0;
     for (var entry : groupByResult.entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(
-          entry.getValue(), inputProcessor.isDensity(), geom);
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), geom);
       resultSet.add(new GroupByResult(entry.getKey().toString(), results));
-      count++;
     }
     return resultSet;
   }

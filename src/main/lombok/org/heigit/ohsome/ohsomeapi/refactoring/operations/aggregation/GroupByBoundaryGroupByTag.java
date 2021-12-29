@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
-import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryFrom;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
@@ -35,8 +34,6 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
   @Autowired
   SnapshotView snapshotView;
   @Autowired
-  GeometryFrom geometryFrom;
-  @Autowired
   SpatialUtility spatialUtility;
   int keysInt;
 
@@ -52,9 +49,7 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
   public List<Result> getResult(SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, Number> sortedMap) {
     var groupByResult = OSHDBCombinedIndex.nest(sortedMap);
     List<Result> resultSet = new ArrayList<>();
-    //InputProcessingUtils utils = inputProcessor.getUtils();
     Object[] boundaryIds = spatialUtility.getBoundaryIds();
-    int count = 0;
     ArrayList<Geometry> boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
@@ -69,7 +64,6 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
         tagIdentifier = "remainder";
       }
       resultSet.add(new GroupByResult(new Object[] {boundaryIds[boundaryIdentifier], tagIdentifier}, results));
-      count++;
     }
     // used to remove null objects from the resultSet
     resultSet = resultSet.stream().filter(Objects::nonNull).collect(Collectors.toList());
@@ -77,11 +71,11 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
   }
 
   public <P extends Geometry & Polygonal> MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, OSMEntitySnapshot> aggregate(MapReducer<OSMEntitySnapshot> mapRed, int keysInt, Integer[] valuesInt, List<Pair<Integer, Integer>> zeroFill) {
-    var arrGeoms = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
+    var boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
-    MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geoms);
+    Map<Integer, P> geometries = IntStream.range(0, boundaries.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) boundaries.get(idx)));
+    MapAggregator<Integer, OSMEntitySnapshot> mapAgg = mapRed.aggregateByGeometry(geometries);
     if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }

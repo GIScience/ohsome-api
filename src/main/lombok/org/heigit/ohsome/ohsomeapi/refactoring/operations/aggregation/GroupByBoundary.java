@@ -56,9 +56,6 @@ public class GroupByBoundary extends Group implements SnapshotView {
   }
 
   public List getResult(SortedMap sortedMap) throws Exception {
-//    inputProcessor.getProcessingData().setGroupByBoundary(true);
-//    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
-    // result = computeCountLengthPerimeterAreaGbB(this, mapRed);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = nest(sortedMap);
     List<GroupByResult> resultSet = new ArrayList<>();
@@ -68,8 +65,7 @@ public class GroupByBoundary extends Group implements SnapshotView {
     ArrayList<Geometry> boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     for (Entry<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> entry : groupByResult
         .entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), inputProcessor.isDensity(),
-          boundaries.get(count));
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), boundaries.get(count));
       groupByName = boundaryIds[count];
       resultSet.add(new GroupByResult(groupByName, results));
       count++;
@@ -79,12 +75,12 @@ public class GroupByBoundary extends Group implements SnapshotView {
 
   public <P extends Geometry & Polygonal> MapAggregator aggregate(
       MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
-    List<Geometry> arrGeoms = new ArrayList<>(geometryFrom.getGeometryList());
+    List<Geometry> boundaries = new ArrayList<>(geometryFrom.getGeometryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    Map<Integer, P> geometries = IntStream.range(0, boundaries.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) boundaries.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
-        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+        mapRed.aggregateByTimestamp().aggregateByGeometry(geometries);
     if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
@@ -92,8 +88,7 @@ public class GroupByBoundary extends Group implements SnapshotView {
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
-    var mapAggGeom = mapAgg.map(OSMEntitySnapshot::getGeometry);
-    return mapAggGeom;
+    return mapAgg;
   }
 
   /**
@@ -107,12 +102,12 @@ public class GroupByBoundary extends Group implements SnapshotView {
    */
   public <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
       ? extends Number> computeCountLengthPerimeterAreaGbB(Operation operation, MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
-    List<Geometry> arrGeoms = new ArrayList<>(geometryFrom.getGeometryList());
+    List<Geometry> boundaries = new ArrayList<>(geometryFrom.getGeometryList());
     @SuppressWarnings("unchecked") // intentionally as check for P on Polygonal is already performed
-    Map<Integer, P> geoms = IntStream.range(0, arrGeoms.size()).boxed()
-        .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
+    Map<Integer, P> geometries = IntStream.range(0, boundaries.size()).boxed()
+        .collect(Collectors.toMap(idx -> idx, idx -> (P) boundaries.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
-        mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
+        mapRed.aggregateByTimestamp().aggregateByGeometry(geometries);
     if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }

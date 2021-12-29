@@ -37,23 +37,22 @@ public class Length implements Operation, SnapshotView {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
-    result = getLength(mapRedGeom.aggregateByTimestamp());
+    result = getLengthResult(mapRedGeom.aggregateByTimestamp());
     Geometry geom = inputProcessor.getGeometry();
-    List resultSet = resultUtility.fillElementsResult(result, inputProcessor.isDensity(), geom);
-    return resultSet;
+    return resultUtility.fillElementsResult(result, geom);
   }
 
-  public SortedMap getLength(MapAggregator mapAggregator) throws Exception {
+  public SortedMap getLengthResult(MapAggregator mapAggregator) throws Exception {
     return mapAggregator.sum(geom -> ExecutionUtils.cacheInUserData((Geometry) geom, () -> Geo.lengthOf(
         (Geometry) geom)));
   }
 
-  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getLengthGroupBy(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getLengthGroupByResult(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
     return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggregator.map(OSMEntitySnapshot::getGeometry)
         .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
   }
 
-  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getLengthGroupByBoundaryGroupByTag(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getLengthGroupByBoundaryGroupByTagResult(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
       OSMEntitySnapshot> mapAggregator) throws Exception {
     return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
         mapAggregator.map(OSMEntitySnapshot::getGeometry).sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));

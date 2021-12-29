@@ -38,27 +38,25 @@ public class Area implements Operation, SnapshotView {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
-    //      result = mapRedGeom.aggregateByTimestamp()
-    //          .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
-    result = getArea(mapRedGeom.aggregateByTimestamp());
+    result = getAreaResult(mapRedGeom.aggregateByTimestamp());
     Geometry geom = inputProcessor.getGeometry();
-    List resultSet = resultUtility.fillElementsResult(result, inputProcessor.isDensity(), geom);
-    return resultSet;
+    return resultUtility.fillElementsResult(result, geom);
   }
 
-  public SortedMap getArea(MapAggregator mapAggr) throws Exception {
-    return mapAggr.sum(geom -> ExecutionUtils.cacheInUserData((Geometry) geom, () -> Geo.areaOf(
+  public SortedMap getAreaResult(MapAggregator mapAggregator) throws Exception {
+    return mapAggregator.sum(geom -> ExecutionUtils.cacheInUserData((Geometry) geom, () -> Geo.areaOf(
         (Geometry) geom)));
   }
 
-  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getAreaGroupBy(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> getAreaGroupByResult(MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAggregator) throws Exception {
     return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggregator.map(OSMEntitySnapshot::getGeometry)
         .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
   }
 
-  public <K extends Comparable<K> & Serializable, V extends Number>  SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getAreaGroupByBoundaryByTag(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, OSMEntitySnapshot> mapAggregator) throws Exception {
+  public <K extends Comparable<K> & Serializable, V extends Number> SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V> getAreaGroupByBoundaryByTagResult(MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, OSMEntitySnapshot> mapAggregator) throws Exception {
     return (SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>)
-        mapAggregator.map(OSMEntitySnapshot::getGeometry).sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
+        mapAggregator.map(OSMEntitySnapshot::getGeometry)
+            .sum(geom -> ExecutionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
   }
 
   @Override
@@ -66,13 +64,13 @@ public class Area implements Operation, SnapshotView {
     return defaultAggregationResponse.getResponse(this, resultSet);
   }
 
-    @Override
-    public String getDescription() {
-      return "area";
-    }
-
-    @Override
-    public String getUnit() {
-      return "square meters";
-    }
+  @Override
+  public String getDescription() {
+    return "area";
   }
+
+  @Override
+  public String getUnit() {
+    return "square meters";
+  }
+}

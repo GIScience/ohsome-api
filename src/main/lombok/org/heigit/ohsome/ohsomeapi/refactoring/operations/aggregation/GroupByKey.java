@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedMap;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
@@ -34,8 +33,6 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
   @Autowired
   InputProcessor inputProcessor;
   @Autowired
-  HttpServletRequest servletRequest;
-  @Autowired
   SnapshotView snapshotView;
   @Autowired
   ResultUtility resultUtility;
@@ -54,11 +51,9 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
     var groupByResult = ExecutionUtils.nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     String groupByName = "";
-    int count = 0;
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(entry.getValue(),
-          inputProcessor.isDensity(), null);
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), null);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -66,7 +61,6 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
         groupByName = "remainder";
       }
       resultSet.add(new GroupByResult(groupByName, results));
-      count++;
     }
     return resultSet;
   }
@@ -74,21 +68,21 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
   private MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> aggregate(
       MapReducer<OSMEntitySnapshot> mapRed) {
     return mapRed.flatMap(f -> {
-          List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
-          Iterable<OSHDBTag> tags = f.getEntity().getTags();
-          for (OSHDBTag tag : tags) {
-            int tagKeyId = tag.getKey();
-            for (int key : keysInt) {
-              if (tagKeyId == key) {
-                res.add(new ImmutablePair<>(tagKeyId, f));
-              }
-            }
+      List<Pair<Integer, OSMEntitySnapshot>> res = new LinkedList<>();
+      Iterable<OSHDBTag> tags = f.getEntity().getTags();
+      for (OSHDBTag tag : tags) {
+        int tagKeyId = tag.getKey();
+        for (int key : keysInt) {
+          if (tagKeyId == key) {
+            res.add(new ImmutablePair<>(tagKeyId, f));
           }
-          if (res.isEmpty()) {
-            res.add(new ImmutablePair<>(-1, f));
-          }
-          return res;
-        }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
+        }
+      }
+      if (res.isEmpty()) {
+        res.add(new ImmutablePair<>(-1, f));
+      }
+      return res;
+    }).aggregateByTimestamp().aggregateBy(Pair::getKey, Arrays.asList(keysInt))
         .map(Pair::getValue);
   }
 
