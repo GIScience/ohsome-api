@@ -57,7 +57,7 @@ public class ContributionsExecutor extends RequestExecutor {
 
   /**
    * Handler method for count calculation of the endpoints /contributions/count,
-   * /contributions/density, /contribution/latest/count, /contributions/latest/count/density
+   * /contributions/density, /contributions/latest/count, /contributions/latest/count/density
    * or /users/count.
    *
    * @param isUsersRequest the boolean value relative to the endpoint /users/count
@@ -141,7 +141,7 @@ public class ContributionsExecutor extends RequestExecutor {
 
   /**
    * Performs a count calculation for /contributions/count, /contributions/density,
-   * /contribution/latest/count or /contributions/latest/count/density.
+   * /contributions/latest/count or /contributions/latest/count/density.
    *
    * @param mapRed a MapReducer of OSM contributions
    * @param isContributionsLatest the boolean value relative to the endpoint /contributions/latest
