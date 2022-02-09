@@ -75,9 +75,9 @@ Selectors
     |                         | | performed in one of the          |                        |
     |                         | | specified changesets             |                        |
     +-------------------------+------------------------------------+------------------------+
-    | ``changeset:(from..to)``| | matches contributions [3]_       | ``changeset:(10, 42)`` |
-    |                         | | performed in one of the          |                        |
-    |                         | | specified changesets             |                        |
+    | ``changeset:(from..to)``| | matches contributions [3]_       | ``changeset:(10..42)`` |
+    |                         | | performed in a range of          |                        |
+    |                         | | changesets                       |                        |
     +-------------------------+------------------------------------+------------------------+
 .. [1] Keep in mind that osm ids are not unique between osm types. In order to include only a specific object the id needs to be used together with an osm type filter. Alternatively, one can also use the combined type+id filter (e.g. `id:node/1234`).
 .. [2] The lower or upper bound of a range may be omitted to indicate that the values are only to be limited to be "up to" or "starting from" the given value, respectively. For example: `id:(10..)` will accept all entities with an id of 10 or higher.
