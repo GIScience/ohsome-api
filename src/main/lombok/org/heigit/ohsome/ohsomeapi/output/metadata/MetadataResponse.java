@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Component;
  */
 @Getter
 @Setter
-//@AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 @Component
 public class MetadataResponse {
@@ -23,6 +24,8 @@ public class MetadataResponse {
   @ApiModelProperty(notes = "License and copyright info", required = true, position = 0)
   private Attribution attribution;
   @ApiModelProperty(notes = "Specific version of this API", required = true, position = 1)
+  @Autowired
+  @Qualifier("ohsomeAPIVersion")
   private String apiVersion;
   @ApiModelProperty(notes = "Maximal response timeout in seconds", required = true, position = 2)
   private double timeout;

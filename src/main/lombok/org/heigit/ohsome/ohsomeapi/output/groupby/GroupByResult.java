@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.output.Result;
-import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 
 /**
  * Represents the groupBy result JSON object containing the groupBy value and the respective
@@ -14,12 +13,12 @@ import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
  */
 @Getter
 @Setter
-public class GroupByResult extends GroupByObject implements Result {
+public class GroupByResult<T> extends GroupByObject implements Result {
 
   @ApiModelProperty(notes = "Result array holding timestamp-value pairs", required = true)
-  private final List<Result> result;
+  private final List<T> result;
 
-  public GroupByResult(Object groupByName, List<ElementsResult> result) {
+  public GroupByResult(Object groupByName, List<T> result) {
     super(groupByName);
     this.result = result;
   }

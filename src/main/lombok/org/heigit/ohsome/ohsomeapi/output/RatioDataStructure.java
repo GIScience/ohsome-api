@@ -7,6 +7,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
+//For test purposes only. It needs to be deleted
 public class RatioDataStructure {
 
   String[] timeArray;

@@ -21,4 +21,9 @@ public class RatioGroupByResult extends GroupByObject implements Result {
     super(groupByObject);
     this.ratioResult = ratioResult;
   }
+
+  @Override
+  public double getValue() {
+    return 0;
+  }
 }

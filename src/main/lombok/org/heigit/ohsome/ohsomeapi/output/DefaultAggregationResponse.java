@@ -7,11 +7,14 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.geojson.Feature;
-import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.utilities.ProcessingRequestTime;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utilities.MetadataUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.StartTimeOfRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Represents the outer JSON response object for the data aggregation requests that do not use the
@@ -22,14 +25,20 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
-@Component
+@Configurable
 public class DefaultAggregationResponse extends Response {
 
+  @Autowired
+  private ExtractMetadata extractMetadata;
+  @Autowired
+  private MetadataUtility metadataUtility;
   @ApiModelProperty(notes = "License and copyright info", required = true)
   @Autowired
-  Attribution attribution;
+  private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
-  private final String apiVersion = Application.API_VERSION;
+  @Autowired
+  @Qualifier("ohsomeAPIVersion")
+  private String apiVersion;
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
@@ -39,13 +48,15 @@ public class DefaultAggregationResponse extends Response {
   @ApiModelProperty(notes = "ElementsResult holding timestamp-value pairs", required = true)
   private List<Result> result;
   @Autowired
-  InputProcessor inputProcessor;
+  private StartTimeOfRequest startTimeOfRequest;
   @Autowired
-  ProcessingRequestTime processingRequestTime;
+  private InputProcessor inputProcessor;
 
-
-
-
+  public DefaultAggregationResponse(List<Result> result, Operation operation) {
+    this.result = result;
+    this.metadata = this.generateMetadata(operation.getMetadataDescription(), operation);
+  }
+}
 
 //    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
 //      ExecutionUtils exeUtils = new ExecutionUtils(processingData);

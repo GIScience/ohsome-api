@@ -3,12 +3,14 @@ package org.heigit.ohsome.ohsomeapi.output.ratio;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.heigit.ohsome.ohsomeapi.Application;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -20,15 +22,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Getter
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class RatioResponse implements Response {
+public class RatioResponse extends Response {
 
+  @Autowired
+  private ExtractMetadata extractMetadata;
   @ApiModelProperty(notes = "License and copyright info", required = true)
   @Autowired
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
-  private String apiVersion = Application.API_VERSION;
+  private String apiVersion = extractMetadata.getApiVersion();
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "ElementsResult for /ratio requests", required = true)
-  private RatioResult[] ratioResult;
+  private List<RatioResult> result;
+
+  public RatioResponse(List<RatioResult> result, Operation operation) {
+    this.result = result;
+    this.metadata = this.generateMetadata(operation.getMetadataDescription(), operation);
+  }
 }

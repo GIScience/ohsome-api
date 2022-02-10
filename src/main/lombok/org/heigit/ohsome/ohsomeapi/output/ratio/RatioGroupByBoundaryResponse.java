@@ -3,13 +3,22 @@ package org.heigit.ohsome.ohsomeapi.output.ratio;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.geojson.Feature;
+import org.geojson.GeoJsonObject;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
+import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Represents the whole JSON response object for the data aggregation response using the
@@ -23,12 +32,16 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonInclude(Include.NON_NULL)
-public class RatioGroupByBoundaryResponse implements Response {
+@Configurable
+public class RatioGroupByBoundaryResponse extends Response {
 
+  @Autowired
+  private ExtractMetadata extractMetadata;
   @ApiModelProperty(notes = "License and copyright info", required = true)
+  @Autowired
   private Attribution attribution;
   @ApiModelProperty(notes = "Version of this api", required = true)
-  private String apiVersion;
+  private final String apiVersion = extractMetadata.getApiVersion();
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "Type of the GeoJSON", required = true)
@@ -37,25 +50,28 @@ public class RatioGroupByBoundaryResponse implements Response {
   private Feature[] features;
   @ApiModelProperty(notes = "RatioGroupByResult array holding the respective objects "
       + "with their timestamp-value-value2-ratio values", required = true)
-  private RatioGroupByResult[] groupByBoundaryResult;
+  private List<RatioGroupByResult> groupByBoundaryResult;
+  @Autowired
+  private HttpServletRequest servletRequest;
+  @Autowired
+  private BPolygonFromGeoJSON fromGeoJSONbuilder;
 
-  public RatioGroupByBoundaryResponse(Attribution attribution, String apiVersion, Metadata metadata,
-      RatioGroupByResult[] groupByBoundaryResult) {
-    this.attribution = attribution;
-    this.apiVersion = apiVersion;
-    this.metadata = metadata;
+  public RatioGroupByBoundaryResponse(List<RatioGroupByResult> groupByBoundaryResult, Operation operation) {
+    this.metadata = this.generateMetadata(operation.getMetadataDescription(), operation);
     this.groupByBoundaryResult = groupByBoundaryResult;
+    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+      GeoJsonObject[] geoJsonGeoms = fromGeoJSONbuilder.getGeoJsonGeoms();
+      this.type = "FeatureCollection";
+      this.features = GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByBoundaryResult, geoJsonGeoms);
+    }
   }
 
-  /** Static factory method returning the whole GeoJSON response. */
-  public static RatioGroupByBoundaryResponse of(Attribution attribution, String apiVersion,
-      Metadata metadata, String type, Feature[] features) {
-    RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse();
-    response.attribution = attribution;
-    response.apiVersion = apiVersion;
-    response.metadata = metadata;
-    response.type = type;
-    response.features = features;
-    return response;
-  }
+//  /** Static factory method returning the whole GeoJSON response. */
+//  public static RatioGroupByBoundaryResponse of(Metadata metadata, String type, Feature[] features) {
+//    RatioGroupByBoundaryResponse response = new RatioGroupByBoundaryResponse();
+//    response.metadata = metadata;
+//    response.type = type;
+//    response.features = features;
+//    return response;
+//  }
 }
