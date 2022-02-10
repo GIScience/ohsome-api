@@ -7,6 +7,8 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
@@ -22,6 +24,8 @@ public class TimeUtility implements Serializable {
 
   @Autowired
   private ExtractMetadata extractMetadata;
+  @Getter
+  @Setter
   private String[] toTimestamps;
 
   /**
@@ -269,13 +273,5 @@ public class TimeUtility implements Serializable {
       }
     }
     return toTimestamps;
-  }
-
-  public String[] getToTimestamps() {
-    return toTimestamps;
-  }
-
-  public void setToTimestamps(String[] toTimestamps) {
-    this.toTimestamps = toTimestamps;
   }
 }

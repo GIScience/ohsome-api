@@ -10,7 +10,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -19,6 +18,7 @@ import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utilities.FilterUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -36,14 +36,14 @@ import org.springframework.stereotype.Component;
 public class GroupByTag extends Group implements Operation {
 
   @Autowired
-  HttpServletRequest servletRequest;
+  private HttpServletRequest servletRequest;
   @Autowired
-  ResultUtility resultUtility;
-  @Autowired
-  InputProcessingUtils inputProcessingUtils;
+  private ResultUtility resultUtility;
   private int keysInt;
   @Autowired
   private InputProcessor inputProcessor;
+  @Autowired
+  private FilterUtility filterUtility;
 
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> compute() throws Exception {
@@ -90,7 +90,7 @@ public class GroupByTag extends Group implements Operation {
     }
     String filter = groupByKey[0] + "=*";
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
-    FilterExpression filterExpr = inputProcessingUtils.parseFilter(fp, filter);
+    FilterExpression filterExpr = filterUtility.parseFilter(fp, filter);
     mapRed = mapRed.filter(filterExpr);
   }
 

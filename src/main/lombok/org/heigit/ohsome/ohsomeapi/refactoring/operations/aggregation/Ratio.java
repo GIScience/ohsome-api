@@ -8,7 +8,6 @@ import java.util.SortedMap;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -21,6 +20,7 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.utilities.DecimalFormatDefiner;
 import org.heigit.ohsome.ohsomeapi.utilities.FilterUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
@@ -39,13 +39,13 @@ public class Ratio implements Operation {
   @Autowired
   private InputProcessor inputProcessor;
   @Autowired
-  DecimalFormatDefiner decimalFormatDefiner;
+  private DecimalFormatDefiner decimalFormatDefiner;
   @Autowired
-  FilterUtility filterUtility;
+  private FilterUtility filterUtility;
   @Autowired
-  InputProcessingUtils inputProcessingUtils;
+  private HttpServletRequest servletRequest;
   @Autowired
-  HttpServletRequest servletRequest;
+  private SpatialUtility spatialUtility;
   private DecimalFormat decimalFormat;
 
   @PostConstruct
@@ -134,7 +134,7 @@ public class Ratio implements Operation {
   }
 
   public List<RatioGroupByResult> getRatioGroupByResult(RatioDataStructure ratioDataStructure) {
-    Object[] boundaryIds = inputProcessingUtils.getBoundaryIds();
+    Object[] boundaryIds = spatialUtility.getBoundaryIds();
     int boundaryIdsLength = boundaryIds.length;
     int timeArrayLength = ratioDataStructure.getTimeArray().length;
     List<RatioGroupByResult> groupByResultSet = new ArrayList<>();

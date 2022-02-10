@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
+import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
@@ -25,11 +25,11 @@ import org.wololo.geojson.Feature;
  * Used by data extraction requests to create GeoJSON features from OSM entities.
  */
 public class DataExtractionTransformer implements Serializable {
+
   private static final String VALID_TO_PROPERTY = "@validTo";
   private static final String VALID_FROM_PROPERTY = "@validFrom";
   private static final String TIMESTAMP_PROPERTY = "@timestamp";
   private static final String CONTRIBUTION_CHANGESET_ID_PROPERTY = "@contributionChangesetId";
-
   private final String startTimestamp;
   private final String endTimestamp;
   private final FilterExpression filter;
@@ -40,8 +40,6 @@ public class DataExtractionTransformer implements Serializable {
   private final boolean includeOSMMetadata;
   private final boolean includeContributionTypes;
   private final ElementsGeometry outputGeometry;
-  @Autowired
-  InputProcessingUtils inputUtils;
   private final ExecutionUtils exeUtils;
   @Deprecated
   private final Set<Integer> keysInt;
@@ -49,6 +47,8 @@ public class DataExtractionTransformer implements Serializable {
   private final Set<SimpleFeatureType> simpleFeatureTypes;
   @Deprecated
   private final boolean isContainingSimpleFeatureTypes;
+  @Autowired
+  private SpatialUtility spatialUtility;
 
   /**
    * Creates a new data extraction transformer, adhering to the given parameters.
@@ -88,7 +88,6 @@ public class DataExtractionTransformer implements Serializable {
     this.exeUtils = exeUtils;
     this.clipGeometries = clipGeometries;
     this.startTimestamp = startTimestamp;
-    this.inputUtils = inputUtils;
     this.simpleFeatureTypes = simpleFeatureTypes;
     this.filter = filter;
     this.keysInt = keysInt;
@@ -249,7 +248,7 @@ public class DataExtractionTransformer implements Serializable {
   /** Checks whether the given entity should be added to the output (true) or not (false). */
   private boolean addEntityToOutput(OSMEntity currentEntity, Geometry currentGeom) {
     if (isContainingSimpleFeatureTypes) {
-      return inputUtils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
+      return spatialUtility.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
     } else {
       return filter == null || filter.applyOSMGeometry(currentEntity, currentGeom);
     }

@@ -63,7 +63,8 @@ import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
-import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utilities.TimeUtility;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -104,6 +105,8 @@ public class ExecutionUtils implements Serializable {
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
   @Autowired
   private HttpServletRequest servletRequest;
+  @Autowired
+  private TimeUtility timeUtility;
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
@@ -534,12 +537,12 @@ public class ExecutionUtils implements Serializable {
   }
 
   /** Fills the ContributionsResult array with respective ContributionsResult objects. */
-  public static List<ContributionsResult> fillContributionsResult(
+  public List<ContributionsResult> fillContributionsResult(
       SortedMap<OSHDBTimestamp, ? extends Number> entryVal, boolean isDensity,
       InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
     List<ContributionsResult> results = new ArrayList<>();
     int count = 0;
-    String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
+    String[] toTimestamps = timeUtility.getToTimestamps();
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
         results.add(new ContributionsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),

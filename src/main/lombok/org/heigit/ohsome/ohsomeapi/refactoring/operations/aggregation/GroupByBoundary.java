@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryFrom;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
@@ -19,6 +18,7 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
@@ -35,12 +35,12 @@ import org.springframework.stereotype.Service;
 public class GroupByBoundary extends Group implements Operation {
 
   @Autowired
-  InputProcessingUtils inputProcessingUtils;
+  private ResultUtility resultUtility;
+  private GeometryFrom geometryFrom;
   @Autowired
-  ResultUtility resultUtility;
-  GeometryFrom geometryFrom;
+  private InputProcessor inputProcessor;
   @Autowired
-  InputProcessor inputProcessor;
+  private SpatialUtility spatialUtility;
 
   public MapAggregator compute() throws Exception {
     geometryFrom = inputProcessor.getGeometryFrom();
@@ -54,7 +54,7 @@ public class GroupByBoundary extends Group implements Operation {
     groupByResult = nest(sortedMap);
     List<GroupByResult> resultSet = new ArrayList<>();
     Object groupByName;
-    Object[] boundaryIds = inputProcessingUtils.getBoundaryIds();
+    Object[] boundaryIds = spatialUtility.getBoundaryIds();
     int count = 0;
     ArrayList<Geometry> boundaries =
         new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());

@@ -28,10 +28,13 @@ import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryFrom;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.ContributionView;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.ViewOnData;
-import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.refactoring.viewsondata.ContributionView;
+import org.heigit.ohsome.ohsomeapi.refactoring.viewsondata.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.refactoring.viewsondata.ViewOnData;
+import org.heigit.ohsome.ohsomeapi.utilities.FilterUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.TimeUtility;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
@@ -72,9 +75,7 @@ public class InputProcessor {
   private HttpServletRequest servletRequest;
   //Represents about 1/500 of 180° * 360°.
   public final int COMPUTE_MODE_THRESHOLD = 130;
-  private GeometryBuilder geomBuilder;
   private BPolygonFromGeoJSON fromGeoJSONbuilder;
-  private InputProcessingUtils utils;
   private ProcessingData processingData;
   private String requestUrl;
   private String requestTimeout;
@@ -83,7 +84,7 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean includeContributionTypes;
   private boolean clipGeometry = true;
-  private boolean isDensity;
+  private boolean isDensity = false;
   private String[] time;
   private String[] keys;
   private String bboxes;
@@ -104,12 +105,17 @@ public class InputProcessor {
   private ViewOnData viewOnData;
   private Geometry boundary;
   private MapReducer<? extends OSHDBMapReducible> mapRed;
+  @Autowired
+  private SpatialUtility spatialUtility;
+  @Autowired
+  private TimeUtility timeUtility;
+  @Autowired
+  private FilterUtility filterUtility;
 
   @Autowired
   public InputProcessor(HttpServletRequest servletRequest, RequestUtils requestUtils,
-      InputProcessingUtils utils, BBoxBuilder bboxBuilder, GeometryBuilder geomBuilder,
-      BPolygonFromGeoJSON fromGeoJSONbuilder, ExtractMetadata extractMetadata,
-      GeometryOfOSHDBExtent geometryOfOSHDBExtent) {
+      BBoxBuilder bboxBuilder, BPolygonFromGeoJSON fromGeoJSONbuilder,
+      ExtractMetadata extractMetadata, GeometryOfOSHDBExtent geometryOfOSHDBExtent) {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
@@ -117,9 +123,7 @@ public class InputProcessor {
     checkContentTypeHeader();
     checkParameters();
     this.requestUtils = requestUtils;
-    this.utils = utils;
     this.bboxBuilder = bboxBuilder;
-    this.geomBuilder = geomBuilder;
     this.fromGeoJSONbuilder = fromGeoJSONbuilder;
     this.extractMetadata = extractMetadata;
     this.geometryOfOSHDBExtent = geometryOfOSHDBExtent;
@@ -258,14 +262,14 @@ public class InputProcessor {
           boundary = extractMetadata.getDataPoly();
           break;
         case BBOXES:
-          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
+          processingData.setBoundaryValues(spatialUtility.splitBboxes(bboxes).toArray(new String[] {}));
           boundary = bboxBuilder.create(processingData.getBoundaryValues());
           this.getProcessingData().setBoundaryList(bboxBuilder.getGeometryList());
           this.getProcessingData().setRequestGeom(bboxBuilder.getUnifiedBbox());
           geometryFrom = bboxBuilder;
           break;
         case BCIRCLES:
-          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
+          processingData.setBoundaryValues(spatialUtility.splitBcircles(bcircles).toArray(new String[] {}));
           BCircleBuilder bcircleBuilder = new BCircleBuilder();
           boundary = bcircleBuilder.create(processingData.getBoundaryValues());
           this.getProcessingData().setBoundaryList(bcircleBuilder.getGeometryList());
@@ -278,10 +282,10 @@ public class InputProcessor {
             this.getProcessingData().setGeoJsonGeoms(fromGeoJSONbuilder.getGeoJsonGeoms());
             this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getGeometryList());
             this.getProcessingData().setRequestGeom(fromGeoJSONbuilder.getGeometry());
-            this.getUtils().getSpatialUtility().setBoundaryIds(fromGeoJSONbuilder.getBoundaryIds());
+            spatialUtility.setBoundaryIds(fromGeoJSONbuilder.getBoundaryIds());
             geometryFrom = fromGeoJSONbuilder;
           } else {
-            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
+            processingData.setBoundaryValues(spatialUtility.splitBpolys(bpolys).toArray(new String[] {}));
             BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
             boundary = bpolyBuilder.create(processingData.getBoundaryValues());
             this.getProcessingData().setBoundaryList(bpolyBuilder.getGeometryList());
@@ -408,7 +412,7 @@ public class InputProcessor {
         processingData.setSimpleFeatureTypes(defineSimpleFeatureTypes(types));
         if (!processingData.isRatio() && (processingData.getOsmTypes().contains(OSMType.WAY)
             || processingData.getOsmTypes().contains(OSMType.RELATION))) {
-          mapRed = utils.filterOnPlanarRelations(mapRed);
+          mapRed = spatialUtility.filterOnPlanarRelations(mapRed);
         }
       }
     }
@@ -439,7 +443,7 @@ public class InputProcessor {
         } else {
           snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
         }
-        return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
+        return spatialUtility.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
       } else if (data instanceof OSMContribution) {
         Geometry contribGeomBefore;
         Geometry contribGeomAfter;
@@ -451,9 +455,9 @@ public class InputProcessor {
           contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
         }
         return contribGeomBefore != null
-            && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
+            && spatialUtility.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
             || contribGeomAfter != null
-            && utils.checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
+            && spatialUtility.checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
       } else {
         assert false : "filterOnSimpleFeatures() called on mapped entries";
         throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
@@ -476,9 +480,9 @@ public class InputProcessor {
         mapRed = mapRed.timestamps(extractMetadata.getToTstamp());
       }
     } else if (time.length == 1) {
-      timeData = utils.extractIsoTime(time[0]);
+      timeData = timeUtility.extractIsoTime(time[0]);
       if (viewOnData instanceof ContributionView) {
-        toTimestamps = utils.defineToTimestamps(timeData);
+        toTimestamps = timeUtility.defineToTimestamps(timeData);
       }
       if (timeData[2] != null) {
         // interval is given
@@ -492,20 +496,20 @@ public class InputProcessor {
         mapRed = mapRed.timestamps(timeData[0]);
       }
     } else {
-      utils.checkTimestampsOnIsoConformity(time);
+      timeUtility.checkTimestampsOnIsoConformity(time);
       for (String timestamp : time) {
         ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
-        utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+        timeUtility.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
       }
-      timeData = utils.sortTimestamps(time);
+      timeData = timeUtility.sortTimestamps(time);
       if (viewOnData instanceof ContributionView) {
-        toTimestamps = utils.defineToTimestamps(timeData);
+        toTimestamps = timeUtility.defineToTimestamps(timeData);
       }
       String firstElem = timeData[0];
       timeData = ArrayUtils.remove(timeData, 0);
       mapRed = mapRed.timestamps(firstElem, firstElem, timeData);
     }
-    utils.setToTimestamps(toTimestamps);
+    timeUtility.setToTimestamps(toTimestamps);
   }
 
   public void filterMapReducer(String filter) {
@@ -515,7 +519,7 @@ public class InputProcessor {
       } else {
         // call translator and add filters to mapRed
         FilterParser fp = new FilterParser(DbConnData.tagTranslator);
-        FilterExpression filterExpr = utils.parseFilter(fp, filter);
+        FilterExpression filterExpr = filterUtility.parseFilter(fp, filter);
         processingData.setFilterExpression(filterExpr);
         if (!(processingData.isRatio()
             || processingData.isGroupByBoundary()
@@ -718,7 +722,7 @@ public class InputProcessor {
       processingData.setContainingSimpleFeatureTypes(!"node".equalsIgnoreCase(types[0])
           && !"way".equalsIgnoreCase(types[0]) && !"relation".equalsIgnoreCase(types[0]));
       for (String type : types) {
-        if (utils.isSimpleFeatureType(type)) {
+        if (spatialUtility.isSimpleFeatureType(type)) {
           if (!processingData.isContainingSimpleFeatureTypes()) {
             throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
           }
