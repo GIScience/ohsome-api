@@ -3,7 +3,7 @@ package org.heigit.ohsome.ohsomeapi.exception;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.servlet.http.HttpServletRequest;
-import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
 import org.heigit.ohsome.oshdb.util.exceptions.OSHDBTimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

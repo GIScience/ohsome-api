@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -26,7 +26,7 @@ public class RequestFilter extends OncePerRequestFilter {
   private RequestUtils requestUtils;
 
   /**
-   * @throws IOException thrown by {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils
+   * @throws IOException thrown by {@link RequestUtils
    *         #extractOSHDBMetadata() extractOSHDBMetadata}, and
    *         {@link javax.servlet.ServletRequest#setCharacterEncoding(String) setCharacterEncoding}
    * @throws ServletException thrown by {@link javax.servlet.FilterChain
