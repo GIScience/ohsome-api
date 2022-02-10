@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig;
 import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
@@ -31,7 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan({"org.heigit.ohsome.ohsomeapi"})
 public class Application implements ApplicationRunner {
-  public static final String API_VERSION = ohsomeApiVersion();
+
   public static final int DEFAULT_TIMEOUT_IN_MILLISECONDS = 100000;
   public static final int DEFAULT_NUMBER_OF_CLUSTER_NODES = 0;
   public static final int DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS = 40;
@@ -207,28 +206,5 @@ public class Application implements ApplicationRunner {
   @Override
   public void run(ApplicationArguments args) {
     // empty body on purpose. main function is used instead.
-  }
-
-  /**
-   * Get the API version. It throws a RuntimeException if the API version is null.
-   *
-   * @throws RuntimeException if API version from the application.properties file cannot be loaded
-   */
-  private static String ohsomeApiVersion() {
-    String apiVersion;
-    try {
-      Properties properties = new Properties();
-      properties
-          .load(Application.class.getClassLoader().getResourceAsStream("application.properties"));
-      apiVersion = properties.getProperty("project.version");
-    } catch (Exception e) {
-      return "The application.properties file could not be found";
-    }
-    if (apiVersion == null) {
-      throw new RuntimeException(
-          "The API version from the application.properties file could not be loaded.");
-    } else {
-      return apiVersion;
-    }
   }
 }
