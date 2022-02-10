@@ -13,11 +13,12 @@ import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
+import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -32,25 +33,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GroupByTag extends Group implements SnapshotView {
+public class GroupByTag extends Group implements Operation {
 
-  @Autowired
-  InputProcessor inputProcessor;
   @Autowired
   HttpServletRequest servletRequest;
   @Autowired
-  SnapshotView snapshotView;
-  @Autowired
   ResultUtility resultUtility;
-  @Autowired
-  DefaultAggregationResponse defaultAggregationResponse;
   @Autowired
   InputProcessingUtils inputProcessingUtils;
   private int keysInt;
+  @Autowired
+  private InputProcessor inputProcessor;
 
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> compute() throws Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     keysInt = getOSHDBKeyOfOneTag();
     Integer[] valuesInt = getOSHDBTag();
     List<Pair<Integer, Integer>> zeroFill = this.getListOfKeyValuePair(keysInt, valuesInt);
@@ -64,7 +61,7 @@ public class GroupByTag extends Group implements SnapshotView {
     Geometry geom = inputProcessor.getGeometry();
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), geom);
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), geom, inputProcessor);
       // check for non-remainder objects (which do have the defined key and value)
       if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
         groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
@@ -85,7 +82,7 @@ public class GroupByTag extends Group implements SnapshotView {
   }
 
   private void computeThroughFilters() throws Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     String[] groupByKey = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByKey")));
     if (groupByKey.length != 1) {
@@ -99,7 +96,7 @@ public class GroupByTag extends Group implements SnapshotView {
 
   @Override
   public Response getResponse(List resultSet) {
-    return defaultAggregationResponse.getResponse(this, resultSet);
+    return new GroupByResponse(resultSet, this);
   }
 
   @Override
@@ -110,5 +107,16 @@ public class GroupByTag extends Group implements SnapshotView {
   @Override
   public String getUnit() {
     return "";
+  }
+
+  @Override
+  public String getMetadataDescription() {
+    return Description.aggregateGroupByTag(inputProcessor.isDensity(),
+        this.getDescription(), this.getUnit());
+  }
+
+  @Override
+  public InputProcessor getInputProcessor() {
+    return inputProcessor;
   }
 }

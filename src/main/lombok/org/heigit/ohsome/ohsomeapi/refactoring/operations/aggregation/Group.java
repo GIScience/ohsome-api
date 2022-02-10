@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
+import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
@@ -27,17 +28,19 @@ import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public abstract class Group {
 
   @Autowired
   DecimalFormatDefiner df;
   @Autowired
-  InputProcessor inputProcessor;
-  @Autowired
   HttpServletRequest servletRequest;
+  @Autowired
+  ExecutionUtils executionUtils;
+  @Autowired
+  InputProcessor inputProcessor;
 
 
   public int getOSHDBKeyOfOneTag() throws Exception {
@@ -72,7 +75,8 @@ public abstract class Group {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
     String[] groupByValues = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues(
+            "groupByValues")));
     Integer[] valuesInt = new Integer[groupByValues.length];
     TagTranslator tt = DbConnData.tagTranslator;
     if (groupByValues.length != 0) {
@@ -86,7 +90,8 @@ public abstract class Group {
   public List<Pair<Integer, Integer>> getListOfKeyValuePair(int keysInt, Integer[] valuesInt) {
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
     String[] groupByValues = inputProcessor.splitParamOnComma(
-        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("groupByValues")));
+        inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues(
+            "groupByValues")));
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
         zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
@@ -104,7 +109,7 @@ public abstract class Group {
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public static <K extends Comparable<K> & Serializable, V extends Number>
+  public <K extends Comparable<K> & Serializable, V extends Number>
   SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
       Operation operation,
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAgg)
@@ -118,14 +123,14 @@ public abstract class Group {
             if (!(geom instanceof Polygonal)) {
               return 0.0;
             }
-            return cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+            return executionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
           });
     } else if (operation instanceof Length) {
       return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
-          .sum(geom -> cacheInUserData(geom, () -> Geo.lengthOf(geom)));
+          .sum(geom -> executionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom)));
     } else if (operation instanceof Area) {
       return (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V>) mapAggGeom
-          .sum(geom -> cacheInUserData(geom, () -> Geo.areaOf(geom)));
+          .sum(geom -> executionUtils.cacheInUserData(geom, () -> Geo.areaOf(geom)));
     } else {
       return null;
     }

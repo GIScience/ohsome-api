@@ -7,11 +7,12 @@ import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
+import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -25,16 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GroupByType extends Group implements SnapshotView {
+public class GroupByType extends Group implements Operation {
 
-  @Autowired
-  InputProcessor inputProcessor;
-  @Autowired
-  SnapshotView snapshotView;
   @Autowired
   ResultUtility resultUtility;
   @Autowired
-  DefaultAggregationResponse defaultAggregationResponse;
+  InputProcessor inputProcessor;
   public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
 
   /**
@@ -51,28 +48,28 @@ public class GroupByType extends Group implements SnapshotView {
    * @param isDensity whether this request is accessed via the /density resource
    * @return {@link org.heigit.ohsome.ohsomeapi.output.Response Response}
    * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *     #processParameters() processParameters} and
+   *     #getMapReducer() getMapReducer} and
    *     {@link org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils
    *     #computeResult(RequestResource, MapAggregator) computeResult}
    */
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> compute() throws Exception {
-    return aggregate(inputProcessor.processParameters(snapshotView));
+    return aggregate(inputProcessor.getMapReducer());
   }
 
-  public List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Number> preResult) {
+  public <T> List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Number> preResult) {
 
     var groupByResult = nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     Geometry geom = inputProcessor.getGeometry();
     for (var entry : groupByResult.entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), geom);
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), geom, inputProcessor);
       resultSet.add(new GroupByResult(entry.getKey().toString(), results));
     }
     return resultSet;
   }
 
   public MapReducer<OSMEntitySnapshot> getMapReducer() throws Exception {
-    return inputProcessor.processParameters(snapshotView);
+    return inputProcessor.getMapReducer();
   }
 
   private MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, OSMEntitySnapshot> aggregate(
@@ -84,7 +81,7 @@ public class GroupByType extends Group implements SnapshotView {
 
   @Override
   public Response getResponse(List resultSet) {
-    return defaultAggregationResponse.getResponse(this, resultSet);
+    return new GroupByResponse(resultSet, this);
   }
 
   @Override
@@ -95,5 +92,16 @@ public class GroupByType extends Group implements SnapshotView {
   @Override
   public String getUnit() {
     return "";
+  }
+
+  @Override
+  public String getMetadataDescription(){
+    return Description.countPerimeterAreaGroupByType(inputProcessor.isDensity(),
+            this.getDescription(), this.getUnit());
+  }
+
+  @Override
+  public InputProcessor getInputProcessor() {
+    return inputProcessor;
   }
 }

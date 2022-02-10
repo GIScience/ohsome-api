@@ -6,9 +6,9 @@ import java.util.SortedMap;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
+import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -22,25 +22,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Perimeter implements Operation, SnapshotView {
+public class Perimeter implements Operation {
 
   @Autowired
-  InputProcessor inputProcessor;
-  @Autowired
-  SnapshotView snapshotView;
+  private InputProcessor inputProcessor;
   @Autowired
   ResultUtility resultUtility;
   @Autowired
-  DefaultAggregationResponse defaultAggregationResponse;
+  ExecutionUtils executionUtils;
 
   @Override
   public List compute() throws Exception {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
     result = getPerimeterResult(mapRedGeom.aggregateByTimestamp());
     Geometry geom = inputProcessor.getGeometry();
-    return resultUtility.fillElementsResult(result, geom);
+    return resultUtility.fillElementsResult(result, geom, inputProcessor);
   }
 
   public SortedMap getPerimeterResult(MapAggregator mapAggregator) throws Exception {
@@ -48,7 +46,7 @@ public class Perimeter implements Operation, SnapshotView {
       if (!(geom instanceof Polygonal)) {
         return 0.0;
       }
-      return ExecutionUtils.cacheInUserData((Geometry) geom, () -> Geo.lengthOf(((Geometry) geom).getBoundary()));
+      return executionUtils.cacheInUserData((Geometry) geom, () -> Geo.lengthOf(((Geometry) geom).getBoundary()));
     });
   }
 
@@ -57,7 +55,7 @@ public class Perimeter implements Operation, SnapshotView {
       if (!(geom instanceof Polygonal)) {
         return 0.0;
       }
-      return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+      return executionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
     });
   }
 
@@ -67,13 +65,13 @@ public class Perimeter implements Operation, SnapshotView {
       if (!(geom instanceof Polygonal)) {
         return 0.0;
       }
-      return ExecutionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
+      return executionUtils.cacheInUserData(geom, () -> Geo.lengthOf(geom.getBoundary()));
     });
   }
 
   @Override
   public Response getResponse(List resultSet) {
-    return defaultAggregationResponse.getResponse(this, resultSet);
+    return new DefaultAggregationResponse(resultSet, this);
   }
 
   public String getDescription() {
@@ -82,5 +80,16 @@ public class Perimeter implements Operation, SnapshotView {
 
   public String getUnit() {
     return "meters";
+  }
+
+  @Override
+  public String getMetadataDescription() {
+    return Description.aggregate(inputProcessor.isDensity(),
+        this.getDescription(), this.getUnit());
+  }
+
+  @Override
+  public InputProcessor getInputProcessor() {
+    return inputProcessor;
   }
 }

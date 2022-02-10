@@ -8,15 +8,18 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
+import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
+import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -28,20 +31,22 @@ import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class GroupByBoundaryGroupByTag extends Group implements Operation, SnapshotView {
+@Component
+public class GroupByBoundaryGroupByTag extends Group implements Operation {
 
-  @Autowired
-  SnapshotView snapshotView;
   @Autowired
   SpatialUtility spatialUtility;
   int keysInt;
+  @Getter
+  private InputProcessor inputProcessor;
 
   public MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, OSMEntitySnapshot> compute() throws Exception {
     keysInt = this.getOSHDBKeyOfOneTag();
     Integer[] valuesInt = this.getOSHDBTag();
     List<Pair<Integer, Integer>> zeroFill = this.getListOfKeyValuePair(keysInt, valuesInt);
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     return aggregate(mapRed, keysInt, valuesInt, zeroFill);
   }
 
@@ -50,11 +55,14 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
     var groupByResult = OSHDBCombinedIndex.nest(sortedMap);
     List<Result> resultSet = new ArrayList<>();
     Object[] boundaryIds = spatialUtility.getBoundaryIds();
-    ArrayList<Geometry> boundaries = new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
+    ArrayList<Geometry> boundaries =
+        new ArrayList<>(inputProcessor.getProcessingData().getBoundaryList());
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
-      List<ElementsResult> results = fillElementsResult(entry.getValue(), inputProcessor.isDensity(), boundaries.get(boundaryIdentifier));
+      List<ElementsResult> results =
+      fillElementsResult(entry.getValue(), inputProcessor.isDensity(),
+          boundaries.get(boundaryIdentifier));
       int tagValue = entry.getKey().getSecondIndex().getValue();
       String tagIdentifier;
       // check for non-remainder objects (which do have the defined key and value)
@@ -79,7 +87,8 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
     if (inputProcessor.getProcessingData().isContainingSimpleFeatureTypes()) {
       mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
-    Optional<FilterExpression> filter = inputProcessor.getProcessingData().getFilterExpression();
+    Optional<FilterExpression> filter =
+        inputProcessor.getProcessingData().getFilterExpression();
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
     }
@@ -100,6 +109,12 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation, Snaps
 
   @Override
   public Response getResponse(List resultSet) {
-    return null;
+    return new GroupByResponse(resultSet, this);
+  }
+
+  @Override
+  public String getMetadataDescription() {
+    return Description.aggregateGroupByBoundaryGroupByTag(inputProcessor.isDensity(),
+        this.getDescription(), this.getUnit());
   }
 }

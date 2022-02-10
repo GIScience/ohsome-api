@@ -5,18 +5,20 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.SortedMap;
-import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
+import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.RatioDataStructure;
 import org.heigit.ohsome.ohsomeapi.output.Response;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.utilities.DecimalFormatDefiner;
 import org.heigit.ohsome.ohsomeapi.utilities.FilterUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -32,29 +34,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Ratio implements Operation, SnapshotView {
+public class Ratio implements Operation {
 
   @Autowired
-  InputProcessor inputProcessor;
-  @Autowired
-  SnapshotView snapshotView;
+  private InputProcessor inputProcessor;
   @Autowired
   DecimalFormatDefiner decimalFormatDefiner;
-  final DecimalFormat decimalFormat = decimalFormatDefiner.getDecimalFormatForRatioRequests();
   @Autowired
   FilterUtility filterUtility;
   @Autowired
   InputProcessingUtils inputProcessingUtils;
+  @Autowired
+  HttpServletRequest servletRequest;
+  private DecimalFormat decimalFormat;
+
+  @PostConstruct
+  public void init() {
+     decimalFormat = decimalFormatDefiner.getDecimalFormatForRatioRequests();
+  }
 
   @Override
   public MapReducer<OSMEntitySnapshot> compute() throws Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
-    String combinedFilter = filterUtility.combineFiltersWithOr(inputProcessor.getFilter(), inputProcessor.getFilter2());
-    inputProcessor.setFilter(combinedFilter);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
+    String combinedFilter = filterUtility.combineFiltersWithOr(inputProcessor.getFilter(),
+    inputProcessor.getFilter2());
+    inputProcessor.filterMapReducer(combinedFilter);
     return mapRed.filter(combinedFilter);
   }
 
-  public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, ExecutionUtils.MatchType>, OSMEntitySnapshot> aggregateByFilterMatching(MapAggregator<OSHDBTimestamp, OSMEntitySnapshot> mapAggregator) {
+  public MapAggregator<? extends Comparable, ? extends Comparable> aggregateByFilterMatching(MapAggregator<OSHDBTimestamp,
+      OSMEntitySnapshot> mapAggregator) {
     filterUtility.checkFilter(inputProcessor.getFilter2());
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = filterUtility.parseFilter(fp, inputProcessor.getFilter());
@@ -152,7 +161,10 @@ public class Ratio implements Operation, SnapshotView {
 
   @Override
   public Response getResponse(List result) {
-    return new RatioResponse(result);
+    if (servletRequest.getRequestURL().toString().contains("groupBy/boundary")) {
+      new RatioGroupByBoundaryResponse(result, this);
+    }
+    return new RatioResponse(result, this);
   }
 
   @Override
@@ -163,5 +175,18 @@ public class Ratio implements Operation, SnapshotView {
   @Override
   public String getUnit() {
     return "";
+  }
+
+  @Override
+  public String getMetadataDescription() {
+    if (servletRequest.getRequestURL().toString().contains("groupBy/boundary")) {
+      return Description.aggregateRatioGroupByBoundary(this.getDescription(), this.getUnit());
+    }
+    return Description.aggregateRatio(this.getDescription(), this.getUnit());
+  }
+
+  @Override
+  public InputProcessor getInputProcessor() {
+    return inputProcessor;
   }
 }

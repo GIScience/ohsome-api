@@ -5,17 +5,18 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedMap;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
+import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
+import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -28,21 +29,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>>, SnapshotView {
+public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>> {
 
   @Autowired
-  InputProcessor inputProcessor;
-  @Autowired
-  SnapshotView snapshotView;
-  @Autowired
   ResultUtility resultUtility;
-  @Autowired
-  DefaultAggregationResponse defaultAggregationResponse;
   Integer [] keysInt;
+  @Getter
+  private InputProcessor inputProcessor;
 
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> compute() throws Exception {
-    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters(snapshotView);
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     keysInt = getOSHDBKeysOfMultipleTags();
     return aggregate(mapRed);
   }
@@ -53,7 +50,7 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
     String groupByName = "";
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
-      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), null);
+      List<Result> results = resultUtility.fillElementsResult(entry.getValue(), null, inputProcessor);
       // check for non-remainder objects (which do have the defined key)
       if (entry.getKey() != -1) {
         groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
@@ -88,7 +85,7 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
 
   @Override
   public Response getResponse(List resultSet) {
-    return defaultAggregationResponse.getResponse(this, resultSet);
+    return new GroupByResponse(resultSet, this);
   }
 
   @Override
@@ -99,5 +96,11 @@ public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCo
   @Override
   public String getUnit() {
     return "";
+  }
+
+  @Override
+  public String getMetadataDescription(){
+    return Description.aggregateGroupByKey(this.getDescription(),
+        this.getUnit());
   }
 }
