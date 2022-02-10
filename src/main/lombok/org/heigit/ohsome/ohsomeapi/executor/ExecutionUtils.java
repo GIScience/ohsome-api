@@ -39,11 +39,8 @@ import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.geojson.GeoJsonObject;
-import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
@@ -52,27 +49,20 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.ohsome.ohsomeapi.output.Attribution;
-import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
-import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.OSHDBTag;
@@ -102,21 +92,18 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.Puntal;
 import org.locationtech.jts.precision.GeometryPrecisionReducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 /** Holds helper methods that are used by the executor classes. */
-@RequiredArgsConstructor
+@Component
 public class ExecutionUtils implements Serializable {
+
   private AtomicReference<Boolean> isFirst;
-  private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
   @Autowired
-  HttpServletRequest servletRequest;
-  @Autowired
-  ExtractMetadata extractMetadata;
-  @Autowired
-  Attribution attribution;
+  private HttpServletRequest servletRequest;
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
@@ -196,7 +183,7 @@ public class ExecutionUtils implements Serializable {
    * @return evaluated mapper function or cached value stored in the user data of the
    *         <code>Geometry</code> object
    */
-  public static Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
+  public Double cacheInUserData(Geometry geom, SerializableSupplier<Double> mapper) {
     if (geom.getUserData() == null) {
       geom.setUserData(mapper.get());
     }
@@ -284,7 +271,7 @@ public class ExecutionUtils implements Serializable {
           return;
         } else {
           GroupByResult result = (GroupByResult) resultSet[0];
-          if (result.getResult() instanceof ContributionsResult[]) {
+          if (result.getResult().get(0) instanceof ContributionsResult[]) {
             rows = createCsvResponseForUsersGroupBy(resultSet);
           } else {
             rows = createCsvResponseForElementsGroupBy(resultSet);
@@ -449,7 +436,7 @@ public class ExecutionUtils implements Serializable {
    *         {@link org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator#sum() sum}
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public static <K extends Comparable<K> & Serializable, V extends Number>
+  public <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, K>, V> computeResult(
       Operation operation,
       MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, K>, OSMEntitySnapshot> mapAgg)
@@ -481,7 +468,7 @@ public class ExecutionUtils implements Serializable {
    * <code>MapAggregator</code> object as input and returning a <code>SortedMap</code>.
    */
   @SuppressWarnings({"unchecked"}) // intentionally suppressed as type format is valid
-  public static <K extends Comparable<K> & Serializable, V extends Number>
+  public <K extends Comparable<K> & Serializable, V extends Number>
       SortedMap<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>, V>
       computeNestedResult(Operation operation,
       MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, K>, OSHDBTimestamp>,
@@ -527,20 +514,19 @@ public class ExecutionUtils implements Serializable {
   }
 
   /** Fills the ElementsResult array with respective ElementsResult objects. */
-  public static ElementsResult[] fillElementsResult(
+  public static List<ElementsResult> fillElementsResult(
       SortedMap<OSHDBTimestamp, ? extends Number> entryVal, boolean isDensity, DecimalFormat df,
       Geometry geom) {
-    ElementsResult[] results = new ElementsResult[entryVal.entrySet().size()];
+    List<ElementsResult> results = new ArrayList<>();
     int count = 0;
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
-        results[count] = new ElementsResult(
+        results.add(new ElementsResult(
             TimestampFormatter.getInstance().isoDateTime(entry.getKey()), Double.parseDouble(
-                df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001))));
+                df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) * 0.000001)))));
       } else {
-        results[count] =
-            new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
-                Double.parseDouble(df.format(entry.getValue().doubleValue())));
+        results.add(new ElementsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+                Double.parseDouble(df.format(entry.getValue().doubleValue()))));
       }
       count++;
     }
@@ -548,22 +534,21 @@ public class ExecutionUtils implements Serializable {
   }
 
   /** Fills the ContributionsResult array with respective ContributionsResult objects. */
-  public static ContributionsResult[] fillContributionsResult(
+  public static List<ContributionsResult> fillContributionsResult(
       SortedMap<OSHDBTimestamp, ? extends Number> entryVal, boolean isDensity,
       InputProcessor inputProcessor, DecimalFormat df, Geometry geom) {
-    ContributionsResult[] results = new ContributionsResult[entryVal.entrySet().size()];
+    List<ContributionsResult> results = new ArrayList<>();
     int count = 0;
     String[] toTimestamps = inputProcessor.getUtils().getToTimestamps();
     for (Entry<OSHDBTimestamp, ? extends Number> entry : entryVal.entrySet()) {
       if (isDensity) {
-        results[count] =
-            new ContributionsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
+        results.add(new ContributionsResult(TimestampFormatter.getInstance().isoDateTime(entry.getKey()),
                 toTimestamps[count + 1], Double.parseDouble(
-                    df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000))));
+                    df.format(entry.getValue().doubleValue() / (Geo.areaOf(geom) / 1000000)))));
       } else {
-        results[count] = new ContributionsResult(
+        results.add(new ContributionsResult(
             TimestampFormatter.getInstance().isoDateTime(entry.getKey()), toTimestamps[count + 1],
-            Double.parseDouble(df.format(entry.getValue().doubleValue())));
+            Double.parseDouble(df.format(entry.getValue().doubleValue()))));
       }
       count++;
     }
@@ -621,84 +606,84 @@ public class ExecutionUtils implements Serializable {
   }
 
   /** Creates a RatioResponse. */
-  public Response createRatioResponse(String[] timeArray, Double[] value1, Double[] value2,
-      long startTime, Operation operation, String requestUrl,
-      HttpServletResponse servletResponse) {
-    RatioResult[] resultSet = new RatioResult[timeArray.length];
-    for (int i = 0; i < timeArray.length; i++) {
-      double ratio = value2[i] / value1[i];
-      // in case ratio has the values "NaN", "Infinity", etc.
-      try {
-        ratio = Double.parseDouble(ratioDf.format(ratio));
-      } catch (Exception e) {
-        // do nothing --> just return ratio without rounding (trimming)
-      }
-      resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
-    }
-    Metadata metadata = null;
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          Description.aggregateRatio(operation.getDescription(), operation.getUnit()), requestUrl);
-    }
-    //RequestParameters requestParameters = processingData.getRequestParameters();
-    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(extractMetadata.getAttributionUrl(),
-          extractMetadata.getAttributionShort(), Application.API_VERSION, metadata));
-      return null;
-    }
-    return new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
-  }
+//  public Response createRatioResponse(String[] timeArray, Double[] value1, Double[] value2,
+//      long startTime, Operation operation, String requestUrl,
+//      HttpServletResponse servletResponse) {
+//    RatioResult[] resultSet = new RatioResult[timeArray.length];
+//    for (int i = 0; i < timeArray.length; i++) {
+//      double ratio = value2[i] / value1[i];
+//      // in case ratio has the values "NaN", "Infinity", etc.
+//      try {
+//        ratio = Double.parseDouble(ratioDf.format(ratio));
+//      } catch (Exception e) {
+//        // do nothing --> just return ratio without rounding (trimming)
+//      }
+//      resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
+//    }
+//    Metadata metadata = null;
+//    if (processingData.isShowMetadata()) {
+//      long duration = System.currentTimeMillis() - startTime;
+//      metadata = new Metadata(duration,
+//          Description.aggregateRatio(operation.getDescription(), operation.getUnit()), requestUrl);
+//    }
+//    //RequestParameters requestParameters = processingData.getRequestParameters();
+//    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(extractMetadata.getAttributionUrl(),
+//          extractMetadata.getAttributionShort(), Application.API_VERSION, metadata));
+//      return null;
+//    }
+//    return new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
+//  }
 
   /** Creates a RatioGroupByBoundaryResponse. */
-  public Response createRatioGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
-      Double[] resultValues1, Double[] resultValues2, long startTime, Operation operation,
-      String requestUrl, HttpServletResponse servletResponse) {
-    Metadata metadata = null;
-    int boundaryIdsLength = boundaryIds.length;
-    int timeArrayLenth = timeArray.length;
-    RatioGroupByResult[] groupByResultSet = new RatioGroupByResult[boundaryIdsLength];
-    for (int i = 0; i < boundaryIdsLength; i++) {
-      Object groupByName = boundaryIds[i];
-      RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
-      int innerCount = 0;
-      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-        double ratio = resultValues2[j] / resultValues1[j];
-        // in case ratio has the values "NaN", "Infinity", etc.
-        try {
-          ratio = Double.parseDouble(ratioDf.format(ratio));
-        } catch (Exception e) {
-          // do nothing --> just return ratio without rounding (trimming)
-        }
-        ratioResultSet[innerCount] =
-            new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
-        innerCount++;
-      }
-      groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
-    }
-    if (processingData.isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
-      metadata = new Metadata(duration,
-          Description.aggregateRatioGroupByBoundary(operation.getDescription(), operation.getUnit()),
-          requestUrl);
-    }
-    //RequestParameters requestParameters = processingData.getRequestParameters();
-//    Attribution attribution =
-//        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort());
-    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
-      return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-          "FeatureCollection",
-          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-      writeCsvResponse(groupByResultSet, servletResponse,
-          createCsvTopComments(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort(),
-              Application.API_VERSION, metadata));
-      return null;
-    }
-    return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
-        groupByResultSet);
-  }
+//  public Response createRatioGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
+//      Double[] resultValues1, Double[] resultValues2, long startTime, Operation operation,
+//      String requestUrl, HttpServletResponse servletResponse) {
+//    Metadata metadata = null;
+//    int boundaryIdsLength = boundaryIds.length;
+//    int timeArrayLenth = timeArray.length;
+//    RatioGroupByResult[] groupgroupByResultSet = new RatioGroupByResult[boundaryIdsLength];
+//    for (int i = 0; i < boundaryIdsLength; i++) {
+//      Object groupByName = boundaryIds[i];
+//      RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
+//      int innerCount = 0;
+//      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
+//        double ratio = resultValues2[j] / resultValues1[j];
+//        // in case ratio has the values "NaN", "Infinity", etc.
+//        try {
+//          ratio = Double.parseDouble(ratioDf.format(ratio));
+//        } catch (Exception e) {
+//          // do nothing --> just return ratio without rounding (trimming)
+//        }
+//        ratioResultSet[innerCount] =
+//            new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
+//        innerCount++;
+//      }
+//      groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
+//    }
+//    if (processingData.isShowMetadata()) {
+//      long duration = System.currentTimeMillis() - startTime;
+//      metadata = new Metadata(duration,
+//          Description.aggregateRatioGroupByBoundary(operation.getDescription(), operation.getUnit()),
+//          requestUrl);
+//    }
+//    //RequestParameters requestParameters = processingData.getRequestParameters();
+////    Attribution attribution =
+////        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort());
+//    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
+//      return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
+//          "FeatureCollection",
+//          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
+//    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
+//      writeCsvResponse(groupByResultSet, servletResponse,
+//          createCsvTopComments(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort(),
+//              Application.API_VERSION, metadata));
+//      return null;
+//    }
+//    return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
+//        groupByResultSet);
+//  }
 
   /**
    * Extracts and returns a geometry out of the given contribution. The boolean values specify if it
@@ -753,8 +738,8 @@ public class ExecutionUtils implements Serializable {
       } else {
         columnNames.add(groupByObject.toString());
       }
-      for (int j = 0; j < groupByResult.getResult().length; j++) {
-        ElementsResult elemResult = (ElementsResult) groupByResult.getResult()[j];
+      for (int j = 0; j < groupByResult.getResult().size(); j++) {
+        ElementsResult elemResult = (ElementsResult) groupByResult.getResult().get(j);
         if (i == 0) {
           String[] row = new String[resultSet.length + 1];
           row[0] = elemResult.getTimestamp();
@@ -821,9 +806,9 @@ public class ExecutionUtils implements Serializable {
     for (int i = 0; i < resultSet.length; i++) {
       GroupByResult groupByResult = (GroupByResult) resultSet[i];
       columnNames.add(groupByResult.getGroupByObject().toString());
-      for (int j = 0; j < groupByResult.getResult().length; j++) {
+      for (int j = 0; j < groupByResult.getResult().size(); j++) {
         ContributionsResult contributionsResult =
-            (ContributionsResult) groupByResult.getResult()[j];
+            (ContributionsResult) groupByResult.getResult().get(j);
         if (i == 0) {
           String[] row = new String[resultSet.length + 2];
           row[0] = contributionsResult.getFromTimestamp();
@@ -932,7 +917,7 @@ public class ExecutionUtils implements Serializable {
   private HttpServletResponse setCsvSettingsInServletResponse(HttpServletResponse servletResponse) {
     servletResponse.setCharacterEncoding("UTF-8");
     servletResponse.setContentType("text/csv");
-    if (!RequestUtils.cacheNotAllowed(processingData.getRequestUrl(),
+    if (!RequestUtils.cacheNotAllowed(servletRequest.getRequestURL().toString(),
         servletRequest.getParameterValues("time"))) {
       servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
     }

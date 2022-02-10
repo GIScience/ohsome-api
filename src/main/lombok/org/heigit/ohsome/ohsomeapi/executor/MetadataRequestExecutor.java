@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
 import javax.servlet.http.HttpServletRequest;
-import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -16,13 +15,13 @@ import org.springframework.stereotype.Component;
 public class MetadataRequestExecutor {
 
   @Autowired
-  ExtractMetadata extractMetadata;
+  private ExtractMetadata extractMetadata;
   @Autowired
-  ExtractRegion extractRegion;
+  private ExtractRegion extractRegion;
   @Autowired
-  Attribution attribution;
+  private Attribution attribution;
   @Autowired
-  MetadataResponse metadataResponse;
+  private MetadataResponse metadataResponse;
 
   /**
    * Returns the metadata of the underlying extract-file.
@@ -35,15 +34,9 @@ public class MetadataRequestExecutor {
       throw new BadRequestException("The endpoint 'metadata' does not require parameters");
     }
     metadataResponse.setAttribution(attribution);
-    metadataResponse.setApiVersion(Application.API_VERSION);
     metadataResponse.setExtractRegion(extractRegion);
     metadataResponse.setTimeout(ProcessingData.getTimeout());
     metadataResponse.getExtractRegion().setSpatialExtent(extractMetadata.getDataPolyJson());
     return metadataResponse;
-//    return new MetadataResponse(attribution,
-//        Application.API_VERSION, ProcessingData.getTimeout(),
-//        new ExtractRegion(extractMetadata.getDataPolyJson(),
-//            new TemporalExtent(extractMetadata.getFromTstamp(), extractMetadata.getToTstamp()),
-//            extractMetadata.getReplicationSequenceNumber()));
   }
 }
