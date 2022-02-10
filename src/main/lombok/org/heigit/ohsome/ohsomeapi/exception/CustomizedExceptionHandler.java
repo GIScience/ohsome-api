@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.util.exceptions.OSHDBTimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,6 +17,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @RestController
 public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
+
+  @Autowired
+  private RequestUtils requestUtils;
+  @Autowired
+  private HttpServletRequest httpServletRequest;
 
   @ExceptionHandler(BadRequestException.class)
   public final ResponseEntity<ErrorDetails> handleBadRequestException(BadRequestException ex,
@@ -75,7 +81,6 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
   private ResponseEntity<ErrorDetails> createExceptionResponse(Exception ex, HttpStatus status,
       HttpServletRequest servletRequest) {
     ErrorDetails errorDetails;
-    RequestUtils requestUtils = new RequestUtils();
     String servletRequestUrl = requestUtils.extractRequestUrl();
     if (servletRequestUrl.endsWith("?")) {
       servletRequestUrl += "null";
