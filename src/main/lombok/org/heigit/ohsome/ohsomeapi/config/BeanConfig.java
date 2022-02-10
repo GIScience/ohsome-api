@@ -3,9 +3,9 @@ package org.heigit.ohsome.ohsomeapi.config;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.ContributionView;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.ViewOnData;
+import org.heigit.ohsome.ohsomeapi.refactoring.viewsondata.ContributionView;
+import org.heigit.ohsome.ohsomeapi.refactoring.viewsondata.SnapshotView;
+import org.heigit.ohsome.ohsomeapi.refactoring.viewsondata.ViewOnData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import org.springframework.web.context.annotation.RequestScope;
 public class BeanConfig {
 
   @Autowired
-  HttpServletRequest servletRequest;
+  private HttpServletRequest servletRequest;
 
   @Bean
   @RequestScope

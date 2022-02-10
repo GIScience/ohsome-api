@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -40,8 +40,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Primary
 public class SwaggerConfig implements SwaggerResourcesProvider {
   private enum OhsomeApiResourceSpec {
-    DATA_AGGREGATION("DataProcessingType Aggregation", 1),
-    DATA_EXTRACTION("DataProcessingType Extraction", 2),
+    DATA_AGGREGATION("Data Aggregation", 1),
+    DATA_EXTRACTION("Data Extraction", 2),
     METADATA("Metadata", 9);
 
     private final String name;
@@ -52,6 +52,9 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
     }
   }
 
+  @Autowired
+  @Qualifier("ohsomeAPIVersion")
+  private String ohsomeAPIVersion;
   private final InMemorySwaggerResourcesProvider resourcesProvider;
   private final Map<String, Integer> resourcesSorting = new HashMap<>();
 
@@ -154,7 +157,7 @@ public class SwaggerConfig implements SwaggerResourcesProvider {
             + "through allowing to access some of its functionalities via HTTP requests. \n"
             + "The official documentation can be found "
             + "<a href=\"https://docs.ohsome.org/ohsome-api/stable\" target=\"_blank\">here</a>. ",
-        Application.API_VERSION, "",
+        ohsomeAPIVersion, "",
         new Contact("Heidelberg Institute for Geoinformation Technology", "https://www.heigit.org",
             "info@heigit.org"),
         "License of the used data", "https://ohsome.org/copyrights", Collections.emptyList());
