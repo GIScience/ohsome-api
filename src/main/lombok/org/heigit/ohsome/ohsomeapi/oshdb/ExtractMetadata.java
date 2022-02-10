@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** Holds the metadata that is derived from the data-extract. */
-@Component
 @Getter
 @Setter
+@Component
 public class ExtractMetadata {
 
   private String fromTstamp = null;
@@ -19,4 +20,6 @@ public class ExtractMetadata {
   private Geometry dataPoly = null;
   private JsonNode dataPolyJson = null;
   private int replicationSequenceNumber;
+  @Autowired
+  private String apiVersion;
 }
