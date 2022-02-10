@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
-import com.opencsv.CSVWriter;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,14 +16,11 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -37,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,20 +45,13 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
-import org.heigit.ohsome.ohsomeapi.output.Metadata;
-import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
-import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
-import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
-import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
-import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
 import org.heigit.ohsome.ohsomeapi.utilities.TimeUtility;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.OSHDBTag;
@@ -101,10 +89,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 public class ExecutionUtils implements Serializable {
 
   private AtomicReference<Boolean> isFirst;
-  private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
-  @Autowired
-  private HttpServletRequest servletRequest;
   @Autowired
   private TimeUtility timeUtility;
 
@@ -165,19 +150,6 @@ public class ExecutionUtils implements Serializable {
   }
 
   /**
-   * Defines a certain decimal format.
-   *
-   * @param format <code>String</code> defining the format (e.g.: "#.####" for getting 4 digits
-   *        after the comma)
-   * @return <code>DecimalFormatDefiner</code> object with the defined format.
-   */
-  public static DecimalFormat defineDecimalFormat(String format) {
-    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-    otherSymbols.setDecimalSeparator('.');
-    return new DecimalFormat(format, otherSymbols);
-  }
-
-  /**
    * Caches the given mapper value in the user data of the <code>Geometry</code> object.
    *
    * @param geom <code>Geometry</code> of an OSMEntitySnapshot object
@@ -192,8 +164,6 @@ public class ExecutionUtils implements Serializable {
     }
     return (Double) geom.getUserData();
   }
-
-
 
   /**
    * Streams the result of /elements, /elementsFullHistory and /contributions endpoints as an
@@ -221,21 +191,17 @@ public class ExecutionUtils implements Serializable {
       Stream<org.wololo.geojson.Feature> resultStream) throws Exception {
     JsonFactory jsonFactory = new JsonFactory();
     ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
-
     ObjectMapper objMapper = new ObjectMapper();
     objMapper.enable(SerializationFeature.INDENT_OUTPUT);
     try (var jsonGenerator = jsonFactory.createGenerator(tempStream, JsonEncoding.UTF8)) {
       jsonGenerator.setCodec(objMapper);
       jsonGenerator.writeObject(osmData);
     }
-
     String scaffold =
         tempStream.toString(StandardCharsets.UTF_8).replaceFirst("\\s*]\\s*}\\s*$", "");
-
     servletResponse.setContentType("application/geo+json; charset=utf-8");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
     outputStream.write(scaffold.getBytes(StandardCharsets.UTF_8));
-
     ThreadLocal<ByteArrayOutputStream> outputBuffers =
         ThreadLocal.withInitial(ByteArrayOutputStream::new);
     ThreadLocal<JsonGenerator> outputJsonGen = ThreadLocal.withInitial(() -> {
@@ -260,78 +226,6 @@ public class ExecutionUtils implements Serializable {
     servletResponse.flushBuffer();
   }
 
-  /** Writes a response in the csv format for /groupBy requests. */
-  public void writeCsvResponse(GroupByObject[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    try {
-      servletResponse = setCsvSettingsInServletResponse(servletResponse);
-      CSVWriter writer = writeComments(servletResponse, comments);
-      Pair<List<String>, List<String[]>> rows;
-      if (resultSet instanceof GroupByResult[]) {
-        if (resultSet.length == 0) {
-          writer.writeNext(new String[] {"timestamp"}, false);
-          writer.close();
-          return;
-        } else {
-          GroupByResult result = (GroupByResult) resultSet[0];
-          if (result.getResult().get(0) instanceof ContributionsResult[]) {
-            rows = createCsvResponseForUsersGroupBy(resultSet);
-          } else {
-            rows = createCsvResponseForElementsGroupBy(resultSet);
-          }
-        }
-      } else {
-        rows = createCsvResponseForElementsRatioGroupBy(resultSet);
-      }
-      writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
-      writer.writeAll(rows.getRight(), false);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Writes a response in the csv format for /count|length|perimeter|area(/density)(/ratio)
-   * requests.
-   */
-  public void writeCsvResponse(Result[] resultSet, HttpServletResponse servletResponse,
-      List<String[]> comments) {
-    try {
-      servletResponse = setCsvSettingsInServletResponse(servletResponse);
-      CSVWriter writer = writeComments(servletResponse, comments);
-      if (resultSet instanceof ElementsResult[]) {
-        writer.writeNext(new String[] {"timestamp", "value"}, false);
-        for (Result result : resultSet) {
-          ElementsResult elementsResult = (ElementsResult) result;
-          writer.writeNext(new String[] {elementsResult.getTimestamp(),
-              String.valueOf(elementsResult.getValue())});
-        }
-      } else if (resultSet instanceof ContributionsResult[]) {
-        writer.writeNext(new String[] {"fromTimestamp", "toTimestamp", "value"}, false);
-        for (Result result : resultSet) {
-          ContributionsResult contributionsResult = (ContributionsResult) result;
-          writer.writeNext(new String[] {
-              contributionsResult.getFromTimestamp(),
-              contributionsResult.getToTimestamp(),
-              String.valueOf(contributionsResult.getValue())
-          });
-        }
-      } else if (resultSet instanceof RatioResult[]) {
-        writer.writeNext(new String[] {"timestamp", "value", "value2", "ratio"}, false);
-        for (Result result : resultSet) {
-          RatioResult ratioResult = (RatioResult) result;
-          writer.writeNext(
-              new String[] {ratioResult.getTimestamp(), String.valueOf(ratioResult.getValue()),
-                  String.valueOf(ratioResult.getValue2()), String.valueOf(ratioResult.getRatio())});
-        }
-      }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
   /**
    * Sets the boolean values for the respective simple feature type: 0 = hasPoint, 1 = hasLine, 2 =
    * hasPolygon, 3 = hasOther.
@@ -350,23 +244,6 @@ public class ExecutionUtils implements Serializable {
       }
     }
     return simpleFeatureArray;
-  }
-
-  /** Creates the comments of the csv response (Attribution, API-Version and optional Metadata). */
-  public static List<String[]> createCsvTopComments(String url, String text, String apiVersion,
-      Metadata metadata) {
-    List<String[]> comments = new LinkedList<>();
-    comments.add(new String[] {"# Copyright URL: " + url});
-    comments.add(new String[] {"# Copyright Text: " + text});
-    comments.add(new String[] {"# API Version: " + apiVersion});
-    if (metadata != null) {
-      comments.add(new String[] {"# Execution Time: " + metadata.getExecutionTime()});
-      comments.add(new String[] {"# Description: " + metadata.getDescription()});
-      if (metadata.getRequestUrl() != null) {
-        comments.add(new String[] {"# Request URL: " + metadata.getRequestUrl()});
-      }
-    }
-    return comments;
   }
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
@@ -608,86 +485,6 @@ public class ExecutionUtils implements Serializable {
     return new ImmutablePair<>(new ImmutablePair<>(-1, -1), f);
   }
 
-  /** Creates a RatioResponse. */
-//  public Response createRatioResponse(String[] timeArray, Double[] value1, Double[] value2,
-//      long startTime, Operation operation, String requestUrl,
-//      HttpServletResponse servletResponse) {
-//    RatioResult[] resultSet = new RatioResult[timeArray.length];
-//    for (int i = 0; i < timeArray.length; i++) {
-//      double ratio = value2[i] / value1[i];
-//      // in case ratio has the values "NaN", "Infinity", etc.
-//      try {
-//        ratio = Double.parseDouble(ratioDf.format(ratio));
-//      } catch (Exception e) {
-//        // do nothing --> just return ratio without rounding (trimming)
-//      }
-//      resultSet[i] = new RatioResult(timeArray[i], value1[i], value2[i], ratio);
-//    }
-//    Metadata metadata = null;
-//    if (processingData.isShowMetadata()) {
-//      long duration = System.currentTimeMillis() - startTime;
-//      metadata = new Metadata(duration,
-//          Description.aggregateRatio(operation.getDescription(), operation.getUnit()), requestUrl);
-//    }
-//    //RequestParameters requestParameters = processingData.getRequestParameters();
-//    if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-//      writeCsvResponse(resultSet, servletResponse, createCsvTopComments(extractMetadata.getAttributionUrl(),
-//          extractMetadata.getAttributionShort(), Application.API_VERSION, metadata));
-//      return null;
-//    }
-//    return new RatioResponse(attribution, Application.API_VERSION, metadata, resultSet);
-//  }
-
-  /** Creates a RatioGroupByBoundaryResponse. */
-//  public Response createRatioGroupByBoundaryResponse(Object[] boundaryIds, String[] timeArray,
-//      Double[] resultValues1, Double[] resultValues2, long startTime, Operation operation,
-//      String requestUrl, HttpServletResponse servletResponse) {
-//    Metadata metadata = null;
-//    int boundaryIdsLength = boundaryIds.length;
-//    int timeArrayLenth = timeArray.length;
-//    RatioGroupByResult[] groupgroupByResultSet = new RatioGroupByResult[boundaryIdsLength];
-//    for (int i = 0; i < boundaryIdsLength; i++) {
-//      Object groupByName = boundaryIds[i];
-//      RatioResult[] ratioResultSet = new RatioResult[timeArrayLenth];
-//      int innerCount = 0;
-//      for (int j = i; j < timeArrayLenth * boundaryIdsLength; j += boundaryIdsLength) {
-//        double ratio = resultValues2[j] / resultValues1[j];
-//        // in case ratio has the values "NaN", "Infinity", etc.
-//        try {
-//          ratio = Double.parseDouble(ratioDf.format(ratio));
-//        } catch (Exception e) {
-//          // do nothing --> just return ratio without rounding (trimming)
-//        }
-//        ratioResultSet[innerCount] =
-//            new RatioResult(timeArray[innerCount], resultValues1[j], resultValues2[j], ratio);
-//        innerCount++;
-//      }
-//      groupByResultSet[i] = new RatioGroupByResult(groupByName, ratioResultSet);
-//    }
-//    if (processingData.isShowMetadata()) {
-//      long duration = System.currentTimeMillis() - startTime;
-//      metadata = new Metadata(duration,
-//          Description.aggregateRatioGroupByBoundary(operation.getDescription(), operation.getUnit()),
-//          requestUrl);
-//    }
-//    //RequestParameters requestParameters = processingData.getRequestParameters();
-////    Attribution attribution =
-////        new Attribution(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort());
-//    if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-//      GeoJsonObject[] geoJsonGeoms = processingData.getGeoJsonGeoms();
-//      return RatioGroupByBoundaryResponse.of(attribution, Application.API_VERSION, metadata,
-//          "FeatureCollection",
-//          GroupByBoundaryGeoJsonGenerator.createGeoJsonFeatures(groupByResultSet, geoJsonGeoms));
-//    } else if ("csv".equalsIgnoreCase(servletRequest.getParameter("format"))) {
-//      writeCsvResponse(groupByResultSet, servletResponse,
-//          createCsvTopComments(extractMetadata.getAttributionUrl(), extractMetadata.getAttributionShort(),
-//              Application.API_VERSION, metadata));
-//      return null;
-//    }
-//    return new RatioGroupByBoundaryResponse(attribution, Application.API_VERSION, metadata,
-//        groupByResultSet);
-//  }
-
   /**
    * Extracts and returns a geometry out of the given contribution. The boolean values specify if it
    * should be clipped/unclipped and if the geometry before/after a contribution should be taken.
@@ -718,113 +515,6 @@ public class ExecutionUtils implements Serializable {
       return "";
     }
     return "(" + firstFilter + ") or (" + secondFilter + ")";
-  }
-
-  /**
-   * Creates the csv response for /elements/_/groupBy requests.
-   *
-   * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
-   *        containing <code>ElementsResult</code> objects
-   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
-   */
-  private static ImmutablePair<List<String>, List<String[]>> createCsvResponseForElementsGroupBy(
-      GroupByObject[] resultSet) {
-    List<String> columnNames = new LinkedList<>();
-    columnNames.add("timestamp");
-    List<String[]> rows = new LinkedList<>();
-    for (int i = 0; i < resultSet.length; i++) {
-      GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      Object groupByObject = groupByResult.getGroupByObject();
-      if (groupByObject instanceof Object[]) {
-        Object[] groupByObjectArr = (Object[]) groupByObject;
-        columnNames.add(groupByObjectArr[0].toString() + "_" + groupByObjectArr[1].toString());
-      } else {
-        columnNames.add(groupByObject.toString());
-      }
-      for (int j = 0; j < groupByResult.getResult().size(); j++) {
-        ElementsResult elemResult = (ElementsResult) groupByResult.getResult().get(j);
-        if (i == 0) {
-          String[] row = new String[resultSet.length + 1];
-          row[0] = elemResult.getTimestamp();
-          row[1] = String.valueOf(elemResult.getValue());
-          rows.add(row);
-        } else {
-          rows.get(j)[i + 1] = String.valueOf(elemResult.getValue());
-        }
-      }
-    }
-    return new ImmutablePair<>(columnNames, rows);
-  }
-
-  /**
-   * Creates the csv response for /elements/_/ratio/groupBy requests.
-   *
-   * @param resultSet <code>GroupByObject</code> array containing <code>RatioGroupByResult</code>
-   *        objects containing <code>RatioResult</code> objects
-   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
-   */
-  private static ImmutablePair<List<String>, List<String[]>>
-      createCsvResponseForElementsRatioGroupBy(GroupByObject[] resultSet) {
-    List<String> columnNames = new LinkedList<>();
-    columnNames.add("timestamp");
-    List<String[]> rows = new LinkedList<>();
-    for (int i = 0; i < resultSet.length; i++) {
-      RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
-      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
-      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
-      columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
-      for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
-        RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
-        if (i == 0) {
-          String[] row = new String[resultSet.length * 3 + 1];
-          row[0] = ratioResult.getTimestamp();
-          row[1] = String.valueOf(ratioResult.getValue());
-          row[2] = String.valueOf(ratioResult.getValue2());
-          row[3] = String.valueOf(ratioResult.getRatio());
-          rows.add(row);
-        } else {
-          int count = i * 3 + 1;
-          rows.get(j)[count] = String.valueOf(ratioResult.getValue());
-          rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
-          rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
-        }
-      }
-    }
-    return new ImmutablePair<>(columnNames, rows);
-  }
-
-  /**
-   * Creates the csv response for /users/_/groupBy requests.
-   *
-   * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
-   *        containing <code>ContributionsResult</code> objects
-   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
-   */
-  private static ImmutablePair<List<String>, List<String[]>> createCsvResponseForUsersGroupBy(
-      GroupByObject[] resultSet) {
-    List<String> columnNames = new LinkedList<>();
-    columnNames.add("fromTimestamp");
-    columnNames.add("toTimestamp");
-    List<String[]> rows = new LinkedList<>();
-    for (int i = 0; i < resultSet.length; i++) {
-      GroupByResult groupByResult = (GroupByResult) resultSet[i];
-      columnNames.add(groupByResult.getGroupByObject().toString());
-      for (int j = 0; j < groupByResult.getResult().size(); j++) {
-        ContributionsResult contributionsResult =
-            (ContributionsResult) groupByResult.getResult().get(j);
-        if (i == 0) {
-          String[] row = new String[resultSet.length + 2];
-          row[0] = contributionsResult.getFromTimestamp();
-          row[1] = contributionsResult.getToTimestamp();
-          row[2] = String.valueOf(contributionsResult.getValue());
-          rows.add(row);
-        } else {
-          int count = i + 2;
-          rows.get(j)[count] = String.valueOf(contributionsResult.getValue());
-        }
-      }
-    }
-    return new ImmutablePair<>(columnNames, rows);
   }
 
   /**
@@ -914,31 +604,6 @@ public class ExecutionUtils implements Serializable {
       }
       outputStream.flush();
     }
-  }
-
-  /** Defines character encoding, content type and cache header in given servlet response object. */
-  private HttpServletResponse setCsvSettingsInServletResponse(HttpServletResponse servletResponse) {
-    servletResponse.setCharacterEncoding("UTF-8");
-    servletResponse.setContentType("text/csv");
-    if (!RequestUtils.cacheNotAllowed(servletRequest.getRequestURL().toString(),
-        servletRequest.getParameterValues("time"))) {
-      servletResponse.setHeader("Cache-Control", "no-transform, public, max-age=31556926");
-    }
-    return servletResponse;
-  }
-
-  /**
-   * Creates a new CSVWriter, writes the given comments and returns the writer object.
-   *
-   * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
-   */
-  private static CSVWriter writeComments(
-      HttpServletResponse servletResponse, List<String[]> comments) throws IOException {
-    CSVWriter writer =
-        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
-            CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-    writer.writeAll(comments, false);
-    return writer;
   }
 
   /** Adds contribution types properties like creation to the feature. */

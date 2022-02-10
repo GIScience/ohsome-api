@@ -13,6 +13,7 @@ import org.heigit.ohsome.ohsomeapi.output.contributions.ContributionsResult;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByObject;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,5 +160,90 @@ public class CSVResponse {
       }
     }
     return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /**
+   * Creates the csv response for /elements/_/ratio/groupBy requests.
+   *
+   * @param resultSet <code>GroupByObject</code> array containing <code>RatioGroupByResult</code>
+   *        objects containing <code>RatioResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private static ImmutablePair<List<String>, List<String[]>>
+  createCsvResponseForElementsRatioGroupBy(GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("timestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      RatioGroupByResult ratioGroupByResult = (RatioGroupByResult) resultSet[i];
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
+      columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
+      for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
+        RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
+        if (i == 0) {
+          String[] row = new String[resultSet.length * 3 + 1];
+          row[0] = ratioResult.getTimestamp();
+          row[1] = String.valueOf(ratioResult.getValue());
+          row[2] = String.valueOf(ratioResult.getValue2());
+          row[3] = String.valueOf(ratioResult.getRatio());
+          rows.add(row);
+        } else {
+          int count = i * 3 + 1;
+          rows.get(j)[count] = String.valueOf(ratioResult.getValue());
+          rows.get(j)[count + 1] = String.valueOf(ratioResult.getValue2());
+          rows.get(j)[count + 2] = String.valueOf(ratioResult.getRatio());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /**
+   * Creates the csv response for /users/_/groupBy requests.
+   *
+   * @param resultSet <code>GroupByObject</code> array containing <code>GroupByResult</code> objects
+   *        containing <code>ContributionsResult</code> objects
+   * @return <code>Pair</code> containing the column names (left) and the data rows (right)
+   */
+  private static ImmutablePair<List<String>, List<String[]>> createCsvResponseForUsersGroupBy(
+      GroupByObject[] resultSet) {
+    List<String> columnNames = new LinkedList<>();
+    columnNames.add("fromTimestamp");
+    columnNames.add("toTimestamp");
+    List<String[]> rows = new LinkedList<>();
+    for (int i = 0; i < resultSet.length; i++) {
+      GroupByResult groupByResult = (GroupByResult) resultSet[i];
+      columnNames.add(groupByResult.getGroupByObject().toString());
+      for (int j = 0; j < groupByResult.getResult().size(); j++) {
+        ContributionsResult contributionsResult =
+            (ContributionsResult) groupByResult.getResult().get(j);
+        if (i == 0) {
+          String[] row = new String[resultSet.length + 2];
+          row[0] = contributionsResult.getFromTimestamp();
+          row[1] = contributionsResult.getToTimestamp();
+          row[2] = String.valueOf(contributionsResult.getValue());
+          rows.add(row);
+        } else {
+          int count = i + 2;
+          rows.get(j)[count] = String.valueOf(contributionsResult.getValue());
+        }
+      }
+    }
+    return new ImmutablePair<>(columnNames, rows);
+  }
+
+  /**
+   * Creates a new CSVWriter, writes the given comments and returns the writer object.
+   *
+   * @throws IOException thrown by {@link javax.servlet.ServletResponse#getWriter() getWriter}
+   */
+  private static CSVWriter writeComments(
+      HttpServletResponse servletResponse, List<String[]> comments) throws IOException {
+    CSVWriter writer =
+        new CSVWriter(servletResponse.getWriter(), ';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
+            CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+    writer.writeAll(comments, false);
+    return writer;
   }
 }
