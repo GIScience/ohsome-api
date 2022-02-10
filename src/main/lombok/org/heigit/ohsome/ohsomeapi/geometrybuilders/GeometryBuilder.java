@@ -21,10 +21,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public abstract class GeometryBuilder {
+
   @Autowired
-  HttpServletRequest request;
+  private HttpServletRequest request;
   @Autowired
-  SpatialUtility spatialUtility;
+  private SpatialUtility spatialUtility;
 
   /**
    * Computes the union of the given geometries and checks if it is completely within the underlying
@@ -52,7 +53,6 @@ public abstract class GeometryBuilder {
     MultiPolygon mp = geometryFactory.createMultiPolygon(polys);
     // merge all input geometries to single (multi) polygon
     Geometry result = mp.union();
-    //SpatialUtility utils = new SpatialUtility();
     if (!spatialUtility.isWithin(result)) {
       throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
     }

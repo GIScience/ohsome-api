@@ -2,6 +2,8 @@ package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
@@ -15,11 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
+@Setter
 public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoordinates {
+
   private List<Geometry> geometryList;
   private Geometry geometry;
   @Autowired
-  SpatialUtility spatialUtility;
+  private SpatialUtility spatialUtility;
 
   /**
    * Creates a <code>Polygon</code> out of the coordinates in the given array. If more polygons are
@@ -52,10 +57,6 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
         throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
       }
       geometryList.add(bpoly);
-//      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-//          inputProcessor.getProcessingData());
-//      inputProcessor.getProcessingData().setBoundaryList(geometryList);
-//      inputProcessor.getProcessingData().setRequestGeom(bpoly);
       return bpoly;
     }
     Coordinate firstPoint = null;
@@ -80,27 +81,9 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
         }
       }
       geometry = unifyPolys(geometryList);
-//      inputProcessor.getProcessingData().setBoundaryList(geometryList);
-//      inputProcessor.getProcessingData().setRequestGeom(geometry);
       return geometry;
     } catch (NumberFormatException | MismatchedDimensionException e) {
       throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);
     }
-  }
-
-  public List<Geometry> getGeometryList() {
-    return geometryList;
-  }
-
-  public void setGeometryList(ArrayList<Geometry> geometryList) {
-    this.geometryList = geometryList;
-  }
-
-  public Geometry getGeometry() {
-    return geometry;
-  }
-
-  public void setGeometry(Geometry geometry) {
-    this.geometry = geometry;
   }
 }

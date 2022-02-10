@@ -2,6 +2,8 @@ package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
@@ -21,11 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
+@Setter
 public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoordinates {
+
   private List<Geometry> geometryList;
   private Geometry geom;
   @Autowired
-  SpatialUtility spatialUtility;
+  private SpatialUtility spatialUtility;
 
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
@@ -44,7 +49,6 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
     CoordinateReferenceSystem targetCrs;
     MathTransform transform = null;
     geometryList = new ArrayList<Geometry>();
-    //SpatialUtility utils = new SpatialUtility();
     try {
       for (int i = 0; i < bpoints.length; i += 3) {
         sourceCrs = CRS.decode("EPSG:4326", true);
@@ -62,38 +66,16 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
             throw new NotFoundException(ExceptionMessages.BOUNDARY_NOT_IN_DATA_EXTRACT);
           }
           geometryList.add(geom);
-//          geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-//              inputProcessor.getProcessingData());
-//          inputProcessor.getProcessingData().setBoundaryList(geometryList);
-//          inputProcessor.getProcessingData().setRequestGeom(geom);
           return geom;
         }
         geometryList.add(geom);
       }
       Geometry result = unifyPolys(geometryList);
-//      inputProcessor.getProcessingData().setBoundaryList(geometryList);
-//      inputProcessor.getProcessingData().setRequestGeom(result);
       return result;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {
       throw new BadRequestException(
           "Each bcircle must consist of a lon/lat coordinate pair plus a buffer in meters.");
     }
-  }
-
-  public List<Geometry> getGeometryList() {
-    return geometryList;
-  }
-
-  public void setGeometryList(ArrayList<Geometry> geometryList) {
-    this.geometryList = geometryList;
-  }
-
-  public Geometry getGeom() {
-    return geom;
-  }
-
-  public void setGeom(Geometry geom) {
-    this.geom = geom;
   }
 }

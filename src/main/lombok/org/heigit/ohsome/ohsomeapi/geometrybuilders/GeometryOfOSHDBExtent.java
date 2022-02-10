@@ -1,11 +1,13 @@
 package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONReader;
 
 @Component
+@Getter
 public class GeometryOfOSHDBExtent extends GeometryBuilder {
 
   private Geometry geometry;
@@ -26,9 +28,5 @@ public class GeometryOfOSHDBExtent extends GeometryBuilder {
       throw new RuntimeException("The GeoJSON that is derived out of the metadata, cannot be "
           + "converted. Please use a different data file and contact an admin about this issue.");
     }
-  }
-
-  public Geometry getGeometry() {
-    return geometry;
   }
 }

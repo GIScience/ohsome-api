@@ -10,18 +10,22 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+import lombok.Getter;
+import lombok.Setter;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONReader;
 @Component
+@Getter
+@Setter
 public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFromGeoJSON {
 
-  List<Geometry> geometryList;
-  GeoJsonObject[] geoJsonGeoms;
-  Geometry geometry;
-  Serializable[] boundaryIds;
+  private List<Geometry> geometryList;
+  private GeoJsonObject[] geoJsonGeoms;
+  private Geometry geometry;
+  private Serializable[] boundaryIds;
 
   /**
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
@@ -78,44 +82,6 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
       }
     }
     geometry = unifyPolys(geometryList);
-    //geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-      //  inputProcessor.getProcessingData());
-//    inputProcessor.getProcessingData().setGeoJsonGeoms(geoJsonGeoms);
-//    inputProcessor.getProcessingData().setBoundaryList(geometryList);
-//    inputProcessor.getProcessingData().setRequestGeom(geometry);
-//    inputProcessor.getUtils().getSpatialUtility().setBoundaryIds(boundaryIds);
     return geometry;
-  }
-
-  public List<Geometry> getGeometryList() {
-    return geometryList;
-  }
-
-  public void setGeometryList(ArrayList<Geometry> geometryList) {
-    this.geometryList = geometryList;
-  }
-
-  public GeoJsonObject[] getGeoJsonGeoms() {
-    return geoJsonGeoms;
-  }
-
-  public void setGeoJsonGeoms(GeoJsonObject[] geoJsonGeoms) {
-    this.geoJsonGeoms = geoJsonGeoms;
-  }
-
-  public Geometry getGeometry() {
-    return geometry;
-  }
-
-  public void setGeometry(Geometry geometry) {
-    this.geometry = geometry;
-  }
-
-  public Serializable[] getBoundaryIds() {
-    return boundaryIds;
-  }
-
-  public void setBoundaryIds(Serializable[] boundaryIds) {
-    this.boundaryIds = boundaryIds;
   }
 }

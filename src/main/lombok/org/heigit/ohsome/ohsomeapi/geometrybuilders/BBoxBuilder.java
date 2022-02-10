@@ -2,6 +2,8 @@ package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
@@ -10,9 +12,12 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
+@Setter
 public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordinates {
-  List<Geometry> geometryList;
-  Geometry unifiedBbox;
+
+  private List<Geometry> geometryList;
+  private Geometry unifiedBbox;
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
@@ -48,31 +53,11 @@ public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordina
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
       Geometry result = this.unifyPolys(geometryList);
-//      geometryBuilder = new org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder(
-//          inputProcessor.getProcessingData());
-//      inputProcessor.getProcessingData().setBoundaryList(geometryList);
-//      inputProcessor.getProcessingData().setRequestGeom(unifiedBbox);
       return result;
     } catch (NumberFormatException e) {
       throw new BadRequestException(
           "Apart from the custom ids, the bboxeses array must contain double-parseable values "
               + "in the following order: minLon, minLat, maxLon, maxLat.");
     }
-  }
-
-  public List<Geometry> getGeometryList() {
-    return geometryList;
-  }
-
-  public Geometry getUnifiedBbox() {
-    return unifiedBbox;
-  }
-
-  public void setGeometryList(ArrayList<Geometry> geometryList) {
-    this.geometryList = geometryList;
-  }
-
-  public void setUnifiedBbox(Geometry unifiedBbox) {
-    this.unifiedBbox = unifiedBbox;
   }
 }
