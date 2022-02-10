@@ -4,19 +4,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
-import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
-import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
@@ -39,27 +32,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class PerimeterController {
 
   @Autowired
-  AggregateRequestExecutor aggregateRequestExecutor;
+  private Perimeter perimeter;
   @Autowired
-  ElementsRequestExecutor elementsRequestExecutor;
+  private Ratio ratio;
   @Autowired
-  Perimeter perimeter;
+  private GroupByBoundary groupByBoundary;
   @Autowired
-  Ratio ratio;
+  private GroupByTag groupByTag;
   @Autowired
-  GroupByBoundary groupByBoundary;
+  private GroupByType groupByType;
   @Autowired
-  GroupByTag groupByTag;
+  private GroupByKey groupByKey;
   @Autowired
-  GroupByType groupByType;
-  @Autowired
-  GroupByKey groupByKey;
-  @Autowired
-  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
-  @Autowired
-  Operator operator;
-  @Autowired
-  Density density;
+  private GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
 
   /**
    * Gives the perimeter of polygonal OSM objects.
@@ -221,15 +206,15 @@ public class PerimeterController {
       nickname = "perimeterDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response perimeterDensity(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-//        servletRequest, servletResponse, true);
-    operator.setOperation(perimeter);
-    operator.setOperation(density);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregate();
-  }
+//  public Response perimeterDensity(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+////    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
+////        servletRequest, servletResponse, true);
+//    operator.setOperation(perimeter);
+//    operator.setOperation(density);
+//    return operator.compute();
+//    //return aggregateRequestExecutor.aggregate();
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
@@ -241,23 +226,23 @@ public class PerimeterController {
    *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the type",
-      nickname = "perimeterDensityGroupByType", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-      dataType = "string", required = false)
-  @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(density);
-    operator.setOperation(groupByType);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
-//        servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the type",
+//      nickname = "perimeterDensityGroupByType", response = GroupByResponse.class)
+//  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+//      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+//      dataType = "string", required = false)
+//  @RequestMapping(value = "density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response perimeterDensityGroupByType(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    operator.setOperation(perimeter);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByType);
+//    return operator.compute();
+////    return elementsRequestExecutor.aggregateGroupByType(RequestResource.PERIMETER, servletRequest,
+////        servletResponse, true, true);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the boundary parameter (bounding
@@ -270,21 +255,21 @@ public class PerimeterController {
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
-  @ApiOperation(
-      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "perimeterDensityGroupByBoundary", response = GroupByResponse.class)
-  @RequestMapping(value = "/density/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
-//        servletRequest, servletResponse, true);
-    operator.setOperation(perimeter);
-    operator.setOperation(density);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregateGroupByBoundary();
-  }
+//  @ApiOperation(
+//      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+//      nickname = "perimeterDensityGroupByBoundary", response = GroupByResponse.class)
+//  @RequestMapping(value = "/density/groupBy/boundary",
+//      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+//  public Response perimeterDensityGroupByBoundary(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+////    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
+////        servletRequest, servletResponse, true);
+//    operator.setOperation(perimeter);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByBoundary);
+//    return operator.compute();
+//    //return aggregateRequestExecutor.aggregateGroupByBoundary();
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
@@ -296,27 +281,27 @@ public class PerimeterController {
    *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
-  @ApiOperation(value = "Density of  grouped by the boundary and the tag",
-      nickname = "perimeterDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(density);
-    operator.setOperation(groupByBoundary);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
-//        servletRequest, servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of  grouped by the boundary and the tag",
+//      nickname = "perimeterDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+//          dataType = "string", required = true),
+//      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+//          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+//  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
+//      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+//  public Response perimeterDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    operator.setOperation(perimeter);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByBoundary);
+//    operator.setOperation(groupByTag);
+//    return operator.compute();
+////    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.PERIMETER,
+////        servletRequest, servletResponse, true, true);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the tag.
@@ -328,26 +313,26 @@ public class PerimeterController {
    *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
    *         boolean) aggregateGroupByTag}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the tag",
-      nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response perimeterDensityGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(perimeter);
-    operator.setOperation(density);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
-//        servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the tag",
+//      nickname = "perimeterDensityGroupByTag", response = GroupByResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+//          dataType = "string", required = true),
+//      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+//          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+//  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response perimeterDensityGroupByTag(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    operator.setOperation(perimeter);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByTag);
+//    return operator.compute();
+////    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.PERIMETER, servletRequest,
+////        servletResponse, true, true);
+//  }
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
@@ -359,17 +344,17 @@ public class PerimeterController {
    *         #aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
    *         aggregateRatio}
    */
-  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
-      nickname = "perimeterRatio", response = RatioResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
-          dataType = "string", required = true)})
-  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
+//  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
+//      nickname = "perimeterRatio", response = RatioResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+//          dataType = "string", required = false),
+//      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
+//          dataType = "string", required = true)})
+//  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
   public Response perimeterRatio() throws Exception {
     var mapReducer = ratio.compute();
     var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());

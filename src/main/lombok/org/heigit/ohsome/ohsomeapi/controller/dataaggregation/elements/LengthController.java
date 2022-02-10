@@ -4,19 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
-import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
-import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
@@ -39,27 +33,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class LengthController {
 
   @Autowired
-  AggregateRequestExecutor aggregateRequestExecutor;
+  private Length length;
   @Autowired
-  ElementsRequestExecutor elementsRequestExecutor;
+  private Ratio ratio;
   @Autowired
-  Length length;
+  private GroupByBoundary groupByBoundary;
   @Autowired
-  Ratio ratio;
+  private GroupByTag groupByTag;
   @Autowired
-  GroupByBoundary groupByBoundary;
+  private GroupByType groupByType;
   @Autowired
-  GroupByTag groupByTag;
+  private GroupByKey groupByKey;
   @Autowired
-  GroupByType groupByType;
+  private GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
   @Autowired
-  GroupByKey groupByKey;
-  @Autowired
-  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
-  @Autowired
-  Operator operator;
-  @Autowired
-  Density density;
+  private Operator operator;
 
   /**
    * Gives the length of OSM elements.
@@ -219,15 +207,15 @@ public class LengthController {
       nickname = "lengthDensity", response = DefaultAggregationResponse.class)
   @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
-  public Response lengthDensity(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    operator.setOperation(length);
-    operator.setOperation(density);
-    return operator.compute();
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
-//    return aggregateRequestExecutor.aggregate();
-  }
+//  public Response lengthDensity(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    operator.setOperation(length);
+//    operator.setOperation(density);
+//    return operator.compute();
+////    AggregateRequestExecutor executor =
+////        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
+////    return aggregateRequestExecutor.aggregate();
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
@@ -239,20 +227,20 @@ public class LengthController {
    *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the OSM type",
-      nickname = "lengthDensityGroupByType", response = GroupByResponse.class)
-  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response lengthDensityGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(density);
-    operator.setOperation(groupByType);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
-//        servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the OSM type",
+//      nickname = "lengthDensityGroupByType", response = GroupByResponse.class)
+//  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response lengthDensityGroupByType(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    operator.setOperation(length);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByType);
+//    return operator.compute();
+////    return elementsRequestExecutor.aggregateGroupByType(RequestResource.LENGTH, servletRequest,
+////        servletResponse, true, true);
+//  }
 
   /**
    * Gives density of OSM elements grouped by the boundary parameter (bounding box/circle/polygon).
@@ -264,23 +252,23 @@ public class LengthController {
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor
    *         #aggregateGroupByBoundary() aggregateGroupByBoundary}
    */
-  @ApiOperation(
-      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
-      nickname = "lengthDensityGroupByBoundary", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
-      paramType = "query", dataType = "string", required = false)
-  @RequestMapping(value = "/density/groupBy/boundary",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
-    operator.setOperation(length);
-    operator.setOperation(density);
-    operator.setOperation(groupByBoundary);
-    return operator.compute();
-    //return aggregateRequestExecutor.aggregateGroupByBoundary();
-  }
+//  @ApiOperation(
+//      value = "Density of OSM elements grouped by the boundary (bboxes, bcircles, or bpolys)",
+//      nickname = "lengthDensityGroupByBoundary", response = GroupByResponse.class)
+//  @ApiImplicitParam(name = "format", value = ParameterDescriptions.FORMAT, defaultValue = "",
+//      paramType = "query", dataType = "string", required = false)
+//  @RequestMapping(value = "/density/groupBy/boundary",
+//      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+//  public Response lengthDensityGroupByBoundary(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+////    AggregateRequestExecutor executor =
+////        new AggregateRequestExecutor(RequestResource.LENGTH, servletRequest, servletResponse, true);
+//    operator.setOperation(length);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByBoundary);
+//    return operator.compute();
+//    //return aggregateRequestExecutor.aggregateGroupByBoundary();
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the boundary and the tag.
@@ -292,27 +280,27 @@ public class LengthController {
    *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
-      nickname = "lengthDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response lengthDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(density);
-    operator.setOperation(groupByBoundary);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
-//        servletRequest, servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
+//      nickname = "lengthDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+//          dataType = "string", required = true),
+//      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+//          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+//  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
+//      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+//  public Response lengthDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    operator.setOperation(length);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByBoundary);
+//    operator.setOperation(groupByTag);
+//    return operator.compute();
+////    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(RequestResource.LENGTH,
+////        servletRequest, servletResponse, true, true);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the tag.
@@ -324,26 +312,26 @@ public class LengthController {
    *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByTag}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the tag",
-      nickname = "lengthDensityGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response lengthDensityGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    operator.setOperation(length);
-    operator.setOperation(density);
-    operator.setOperation(groupByTag);
-    return operator.compute();
-//    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
-//        servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the tag",
+//      nickname = "lengthDensityGroupByTag", response = GroupByResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+//          defaultValue = DefaultSwaggerParameters.HIGHWAY_KEY, paramType = "query",
+//          dataType = "string", required = true),
+//      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+//          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+//  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response lengthDensityGroupByTag(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    operator.setOperation(length);
+//    operator.setOperation(density);
+//    operator.setOperation(groupByTag);
+//    return operator.compute();
+////    return elementsRequestExecutor.aggregateGroupByTag(RequestResource.LENGTH, servletRequest,
+////        servletResponse, true, true);
+//  }
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
@@ -355,17 +343,17 @@ public class LengthController {
    *         #aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
    *         aggregateRatio}
    */
-  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
-      nickname = "lengthRatio", response = RatioResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER2, paramType = "query",
-          dataType = "string", required = false),
-      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
-          dataType = "string", required = true)})
-  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
+//  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
+//      nickname = "lengthRatio", response = RatioResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+//          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER2, paramType = "query",
+//          dataType = "string", required = false),
+//      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+//          defaultValue = DefaultSwaggerParameters.HIGHWAY_FILTER, paramType = "query",
+//          dataType = "string", required = true)})
+//  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
   public Response lengthRatio() throws Exception {
     var mapReducer = ratio.compute();
     var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());

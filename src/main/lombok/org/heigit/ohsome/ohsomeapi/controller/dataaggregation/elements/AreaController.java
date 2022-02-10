@@ -4,26 +4,26 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.checkerframework.checker.units.qual.Time;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
-import org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor;
-import org.heigit.ohsome.ohsomeapi.executor.ElementsRequestExecutor;
+import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Density;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByType;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Ratio;
+import org.heigit.ohsome.oshdb.OSHDBTimestamp;
+import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,29 +36,22 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "Elements Area")
 @RestController
 @RequestMapping("/elements/area")
-@Time
 public class AreaController {
 
   @Autowired
-  Area area;
+  private Area area;
   @Autowired
-  AggregateRequestExecutor aggregateRequestExecutor;
+  private GroupByBoundary groupByBoundary;
   @Autowired
-  ElementsRequestExecutor elementsRequestExecutor;
+  private GroupByType groupByType;
   @Autowired
-  GroupByBoundary groupByBoundary;
+  private GroupByKey groupByKey;
   @Autowired
-  Density density;
+  private GroupByTag groupByTag;
   @Autowired
-  GroupByType groupByType;
+  private GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
   @Autowired
-  GroupByKey groupByKey;
-  @Autowired
-  GroupByTag groupByTag;
-  @Autowired
-  GroupByBoundaryGroupByTag groupByBoundaryGroupByTag;
-  @Autowired
-  Ratio ratio;
+  private Ratio ratio;
 
   /**
    * Gives the area of OSM objects.
@@ -213,18 +206,18 @@ public class AreaController {
    * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
-  @ApiOperation(
-      value = "Density of OSM elements (area of elements divided "
-          + "by the total area in square-kilometers)",
-      nickname = "areaDensity", response = DefaultAggregationResponse.class)
-  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response areaDensity(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-//    AggregateRequestExecutor executor =
-//        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
-    return aggregateRequestExecutor.aggregate(area);
-  }
+//  @ApiOperation(
+//      value = "Density of OSM elements (area of elements divided "
+//          + "by the total area in square-kilometers)",
+//      nickname = "areaDensity", response = DefaultAggregationResponse.class)
+//  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response areaDensity(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+////    AggregateRequestExecutor executor =
+////        new AggregateRequestExecutor(RequestResource.AREA, servletRequest, servletResponse, true);
+//    return aggregateRequestExecutor.aggregate(area);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the OSM type.
@@ -236,19 +229,19 @@ public class AreaController {
    *         #aggregateGroupByType(RequestResource, HttpServletRequest, HttpServletResponse,
    *         boolean, boolean) aggregateGroupByType}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the type",
-      nickname = "areaDensityGroupByType", response = GroupByResponse.class)
-  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-      dataType = "string", required = false)
-  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response areaDensityGroupByType(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-   // ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return elementsRequestExecutor.aggregateGroupByType(area, servletRequest,
-        servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the type",
+//      nickname = "areaDensityGroupByType", response = GroupByResponse.class)
+//  @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+//      defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+//      dataType = "string", required = false)
+//  @RequestMapping(value = "/density/groupBy/type", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response areaDensityGroupByType(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//   // ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    return elementsRequestExecutor.aggregateGroupByType(area, servletRequest,
+//        servletResponse, true, true);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the boundary parameter (bounding
@@ -288,22 +281,22 @@ public class AreaController {
    *         #aggregateGroupByBoundaryGroupByTag(RequestResource, HttpServletRequest,
    *         HttpServletResponse, boolean, boolean) aggregateGroupByBoundaryGroupByTag}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
-      nickname = "areaDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
-      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
-  public Response areaDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(area,
-        servletRequest, servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the boundary and the tag",
+//      nickname = "areaDensityGroupByBoundaryGroupByTag", response = GroupByResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+//          dataType = "string", required = true),
+//      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+//          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+//  @RequestMapping(value = "/density/groupBy/boundary/groupBy/tag",
+//      method = {RequestMethod.GET, RequestMethod.POST}, produces = {"application/json", "text/csv"})
+//  public Response areaDensityGroupByBoundaryGroupByTag(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    return elementsRequestExecutor.aggregateGroupByBoundaryGroupByTag(area,
+//        servletRequest, servletResponse, true, true);
+//  }
 
   /**
    * Gives the density of OSM elements grouped by the tag.
@@ -315,22 +308,22 @@ public class AreaController {
    *         #aggregateGroupByTag(RequestResource, HttpServletRequest, HttpServletResponse, boolean,
    *         boolean) aggregateGroupByTag}
    */
-  @ApiOperation(value = "Density of OSM elements grouped by the tag",
-      nickname = "areaDensityGroupByTag", response = GroupByResponse.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
-          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
-          dataType = "string", required = true),
-      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
-          defaultValue = "", paramType = "query", dataType = "string", required = false)})
-  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
-  public Response areaDensityGroupByTag(HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse) throws Exception {
-    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
-    return elementsRequestExecutor.aggregateGroupByTag(area, servletRequest,
-        servletResponse, true, true);
-  }
+//  @ApiOperation(value = "Density of OSM elements grouped by the tag",
+//      nickname = "areaDensityGroupByTag", response = GroupByResponse.class)
+//  @ApiImplicitParams({
+//      @ApiImplicitParam(name = "groupByKey", value = ParameterDescriptions.GROUP_BY_KEY,
+//          defaultValue = DefaultSwaggerParameters.BUILDING_KEY, paramType = "query",
+//          dataType = "string", required = true),
+//      @ApiImplicitParam(name = "groupByValues", value = ParameterDescriptions.VALUES,
+//          defaultValue = "", paramType = "query", dataType = "string", required = false)})
+//  @RequestMapping(value = "/density/groupBy/tag", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
+//  public Response areaDensityGroupByTag(HttpServletRequest servletRequest,
+//      HttpServletResponse servletResponse) throws Exception {
+//    //ElementsRequestExecutor executor = new ElementsRequestExecutor();
+//    return elementsRequestExecutor.aggregateGroupByTag(area, servletRequest,
+//        servletResponse, true, true);
+//  }
 
   /**
    * Gives the ratio of OSM elements satisfying filter2 within items selected by filter.
@@ -359,7 +352,8 @@ public class AreaController {
     var mapReducer = ratio.compute();
     var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());
     var areaResult = area.getAreaResult(mapAggregator);
-    var values = ratio.getValues(areaResult);
+    var values = ratio.getValues(
+        (SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, MatchType>, ? extends Number>) areaResult);
     var result = ratio.getRatioResult(values);
     return ratio.getResponse(result);
   }
