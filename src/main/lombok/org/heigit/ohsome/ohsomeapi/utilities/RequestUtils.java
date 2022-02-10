@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.utils;
+package org.heigit.ohsome.ohsomeapi.utilities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
 public class RequestUtils {
 
   @Autowired
-  HttpServletRequest servletRequest;
+  private HttpServletRequest servletRequest;
   @Autowired
-  ExtractMetadata extractMetadata;
+  private ExtractMetadata extractMetadata;
   @Autowired
-  GeometryOfOSHDBExtent geometryOfOSHDBExtent;
+  private GeometryOfOSHDBExtent geometryOfOSHDBExtent;
 
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.

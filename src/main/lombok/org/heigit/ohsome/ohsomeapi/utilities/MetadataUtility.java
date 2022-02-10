@@ -6,19 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MetadataUtility implements Utility {
+public class MetadataUtility {
+
   @Autowired
-  InputProcessor inputProcessor;
+  private StartTimeOfRequest startTimeOfRequest;
 
   /**
    * Creates the metadata for the JSON response containing info like execution time, request URL and
    * a short description of the returned data.
    */
-  public Metadata generateMetadata(String description) {
-    final long startTime = System.currentTimeMillis();
+  public Metadata generateMetadata(String description, InputProcessor inputProcessor) {
     Metadata metadata = null;
     if (inputProcessor.getProcessingData().isShowMetadata()) {
-      long duration = System.currentTimeMillis() - startTime;
+      long duration = System.currentTimeMillis() - startTimeOfRequest.getSTART_TIME();
       metadata = new Metadata(duration, description,
           inputProcessor.getRequestUrlIfGetRequest());
     }

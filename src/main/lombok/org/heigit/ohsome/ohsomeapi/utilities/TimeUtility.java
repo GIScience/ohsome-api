@@ -19,14 +19,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TimeUtility implements Serializable {
-  @Autowired
-  ExtractMetadata extractMetadata;
-  //private final InputProcessingUtils inputProcessingUtils;
-  private String[] toTimestamps;
 
-  //public TimeUtility(InputProcessingUtils inputProcessingUtils) {
-   // this.inputProcessingUtils = inputProcessingUtils;
-  //}
+  @Autowired
+  private ExtractMetadata extractMetadata;
+  private String[] toTimestamps;
 
   /**
    * Defines the toTimestamps for the result json object for /users responses.

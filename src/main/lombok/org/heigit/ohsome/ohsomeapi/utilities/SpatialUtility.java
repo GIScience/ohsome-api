@@ -8,7 +8,6 @@ import java.util.Set;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.BoundaryType;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
@@ -26,10 +25,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SpatialUtility implements Serializable {
+
   public static final String GEOMCOLLTYPE = "GeometryCollection";
   private Serializable[] boundaryIds;
   @Autowired
-  ExtractMetadata extractMetadata;
+  private ExtractMetadata extractMetadata;
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link
