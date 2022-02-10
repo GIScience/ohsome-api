@@ -10,7 +10,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,9 +24,11 @@ import org.heigit.ohsome.ohsomeapi.geometrybuilders.BBoxBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BCircleBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonBuilder;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.BPolygonFromGeoJSON;
+import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryFrom;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryOfOSHDBExtent;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.ContributionView;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.SnapshotView;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.ViewOnData;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
@@ -62,19 +63,19 @@ import org.wololo.jts2geojson.GeoJSONWriter;
  * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws
  * exceptions depending on their validity.
  */
-@Component
+@Getter
+@Setter
+@Component("inputProcessor")
 @RequestScope
 public class InputProcessor {
 
-  /*
-   * Represents about 1/500 of 180° * 360°.
-   */
+  private HttpServletRequest servletRequest;
+  //Represents about 1/500 of 180° * 360°.
   public final int COMPUTE_MODE_THRESHOLD = 130;
-  //private final StartupConfig startupConfig = new StartupConfig(this);
   private GeometryBuilder geomBuilder;
-  @Autowired
-  InputProcessingUtils utils;
-  private static ProcessingData processingData;
+  private BPolygonFromGeoJSON fromGeoJSONbuilder;
+  private InputProcessingUtils utils;
+  private ProcessingData processingData;
   private String requestUrl;
   private String requestTimeout;
   private Map<String, String[]> requestParameters;
@@ -82,118 +83,104 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean includeContributionTypes;
   private boolean clipGeometry = true;
-  @Autowired
-  HttpServletRequest servletRequest;
-  @Getter @Setter
-  private boolean isSnapshot;
-  @Getter @Setter
   private boolean isDensity;
-  @Getter @Setter
-  String[] time;
-  @Getter @Setter
-  String[] keys;
-  @Getter @Setter
-  String bboxes;
-  @Getter @Setter
-  String bcircles;
-  @Getter @Setter
-  String bpolys;
-  @Getter @Setter
-  String[] types;
-  @Getter @Setter
-  String format;
-  @Getter @Setter
-  String showMetadata;
-  @Getter @Setter
-  String filter;
-  @Getter @Setter
-  String filter2;
-  @Getter @Setter
-  double timeout;
-  @Getter @Setter
-  String[] values;
-  @Autowired
-  RequestUtils requestUtils;
-  @Autowired
-  ExtractMetadata extractMetadata;
-  @Autowired
-  BBoxBuilder bboxBuilder;
-  @Autowired
-  GeometryOfOSHDBExtent geometryOfOSHDBExtent;
-  //  public InputProcessor(){
-//
-//  }
-//  public InputProcessor(ProcessingData processionData){
-//    processingData = processionData;
-//  }
+  private String[] time;
+  private String[] keys;
+  private String bboxes;
+  private String bcircles;
+  private String bpolys;
+  private String[] types;
+  private String format;
+  private String showMetadata;
+  private String filter;
+  private String filter2;
+  private double timeout;
+  private String[] values;
+  private RequestUtils requestUtils;
+  private ExtractMetadata extractMetadata;
+  private BBoxBuilder bboxBuilder;
+  private GeometryOfOSHDBExtent geometryOfOSHDBExtent;
+  private GeometryFrom geometryFrom;
+  private ViewOnData viewOnData;
+  private Geometry boundary;
+  private MapReducer<? extends OSHDBMapReducible> mapRed;
 
-//  public InputProcessor(HttpServletRequest servletRequest, boolean isSnapshot, boolean isDensity) {
-//    if (DbConnData.db instanceof OSHDBIgnite) {
-//      checkClusterAvailability();
-//    }
-//    checkContentTypeHeader(servletRequest);
-//    checkParameters(servletRequest);
-//    //this.servletRequest = servletRequest;
-//    this.isSnapshot = isSnapshot;
-//    this.isDensity = isDensity;
-//    processingData =
-//        new ProcessingData(servletRequest.getRequestURL().toString());
-//    this.requestUrl = RequestUtils.extractRequestUrl(servletRequest);
-//    this.requestTimeout = servletRequest.getParameter("timeout");
-//    this.requestParameters = servletRequest.getParameterMap();
-//  }
-
-  @PostConstruct
-  public void create() {
+  @Autowired
+  public InputProcessor(HttpServletRequest servletRequest, RequestUtils requestUtils,
+      InputProcessingUtils utils, BBoxBuilder bboxBuilder, GeometryBuilder geomBuilder,
+      BPolygonFromGeoJSON fromGeoJSONbuilder, ExtractMetadata extractMetadata,
+      GeometryOfOSHDBExtent geometryOfOSHDBExtent) {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
-    //this.servletRequest = servletRequest;
+    this.servletRequest = servletRequest;
     checkContentTypeHeader();
     checkParameters();
-    //this.servletRequest = servletRequest;
-//    this.isSnapshot = isSnapshot;
-//    this.isDensity = isDensity;
-    processingData =
-        new ProcessingData(servletRequest.getRequestURL().toString());
-    //RequestUtils requestUtils = new RequestUtils();
+    this.requestUtils = requestUtils;
+    this.utils = utils;
+    this.bboxBuilder = bboxBuilder;
+    this.geomBuilder = geomBuilder;
+    this.fromGeoJSONbuilder = fromGeoJSONbuilder;
+    this.extractMetadata = extractMetadata;
+    this.geometryOfOSHDBExtent = geometryOfOSHDBExtent;
     this.requestUrl = requestUtils.extractRequestUrl();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
-    System.out.println(servletRequest.getRequestURL().toString());
-    System.out.println(servletRequest.getRequestURI());
     if (servletRequest.getRequestURI().contains("density")) {
       this.setDensity(true);
+    }
+    processingData = new ProcessingData(servletRequest.getRequestURL().toString());
+    processQuery();
+    setBoundaries();
+  }
+
+  /**
+   * Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or
+   * 'multipart/form-data'.
+   *
+   * @throws BadRequestException if an unsupported header is given.
+   */
+  private void checkContentTypeHeader() {
+    String contentType = servletRequest.getHeader("content-type");
+    if (contentType == null) {
+      return;
+    }
+    if (!contentType.contains("application/x-www-form-urlencoded")
+        && !contentType.contains("multipart/form-data")) {
+      throw new BadRequestException("Unsupported content-type header found. Please make sure to "
+          + "use either 'multipart/form-data' or 'application/x-www-form-urlencoded'.");
     }
   }
 
   /**
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *         #processParameters(ComputeMode) processParameters}
-   */
-//  public <T extends OSHDBMapReducible> MapReducer<T> processParameters() throws Exception {
-//    return this.processParameters(null);
-//  }
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ViewOnData viewOnData) throws Exception {
-    return this.processParameters(null, viewOnData);
-  }
-  /**
-   * Processes the input parameters from the given request.
+   * Checks, if the request does not specify any parameter or if it specifies false or repeated
+   * parameters. In case of false or repeated parameters, it suggests possible parameters based on
+   * fuzzy matching scores.
    *
-   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
-   *         including the settings derived from the given parameters.
-   * @throws BadRequestException if the boundary parameter is not defined or it has an invalid
-   *         format, if the geometry of given boundary cannot be parsed for the creation of the
-   *         response GeoJSON or if the keys, values and types parameters are not empty, while the
-   *         filter parameter is set.
-   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *         #extractTime(MapReducer, String[], boolean) extractTime}
+   * @throws BadRequestException in case of no parameters, invalid parameters or if parameters are
+   *     given more than once.
    */
-  @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
-  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode, ViewOnData viewOnData)
-      throws Exception {
-//  public <T extends OSHDBMapReducible> MapReducer<T> processParameters(ComputeMode forceComputeMode)
-//      throws Exception {
+  private void checkParameters() {
+    if (servletRequest.getParameterMap().isEmpty()) {
+      throw new BadRequestException(ExceptionMessages.NO_DEFINED_PARAMS);
+    }
+    List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
+    List<String> unexpectedParams =
+        ResourceParameters.checkUnexpectedParams(servletRequest, possibleParameters);
+    if (!unexpectedParams.isEmpty()) {
+      String unexpectedParam = unexpectedParams.get(0);
+      throw new BadRequestException(
+          StringSimilarity.findSimilarParameters(unexpectedParam, possibleParameters));
+    }
+    for (var parameter : servletRequest.getParameterMap().entrySet()) {
+      if (parameter.getValue().length != 1) {
+        throw new BadRequestException("Every parameter has to be unique. "
+            + "You can't give more than one '" + parameter + "' parameter.");
+      }
+    }
+  }
+
+  private void processQuery() {
     bboxes = createEmptyStringIfNull(servletRequest.getParameter("bboxes"));
     bcircles = createEmptyStringIfNull(servletRequest.getParameter("bcircles"));
     bpolys = createEmptyStringIfNull(servletRequest.getParameter("bpolys"));
@@ -211,68 +198,35 @@ public class InputProcessor {
     filter = createEmptyStringIfNull(servletRequest.getParameter("filter"));
     filter2 = createEmptyStringIfNull(servletRequest.getParameter("filter2"));
     timeout = defineRequestTimeout();
-
-    // overwriting RequestParameters object with splitted/non-null parameters
-//    processingData
-//        .setRequestParameters(new RequestParameters(isSnapshot, isDensity, bboxes,
-//            bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
- //   processingData.setFormat(format);
-    MapReducer<? extends OSHDBMapReducible> mapRed = null;
-    processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
-    //geomBuilder = new GeometryBuilder(processingData);
-    //utils = new InputProcessingUtils();
-    Geometry boundary;
-    try {
-      switch (processingData.getBoundaryType()) {
-        case NOBOUNDARY:
-          if (extractMetadata.getDataPoly() == null) {
-            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
-          }
-          boundary = extractMetadata.getDataPoly();
-          break;
-        case BBOXES:
-          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
-          //BBoxBuilder bboxBuilder = new BBoxBuilder();
-          boundary = bboxBuilder.create(processingData.getBoundaryValues());
-          this.getProcessingData().setBoundaryList(bboxBuilder.getGeometryList());
-          this.getProcessingData().setRequestGeom(bboxBuilder.getUnifiedBbox());
-          break;
-        case BCIRCLES:
-          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
-          BCircleBuilder bcircleBuilder = new BCircleBuilder();
-          boundary = bcircleBuilder.create(processingData.getBoundaryValues());
-          this.getProcessingData().setBoundaryList(bcircleBuilder.getGeometryList());
-          this.getProcessingData().setRequestGeom(bcircleBuilder.getGeom());
-          break;
-        case BPOLYS:
-          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
-            //processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
-            BPolygonFromGeoJSON fromGeoJSONbuilder = new BPolygonFromGeoJSON();
-            boundary = fromGeoJSONbuilder.create(bpolys);
-            this.getProcessingData().setGeoJsonGeoms(fromGeoJSONbuilder.getGeoJsonGeoms());
-            this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getGeometryList());
-            this.getProcessingData().setRequestGeom(fromGeoJSONbuilder.getGeometry());
-            this.getUtils().getSpatialUtility().setBoundaryIds(fromGeoJSONbuilder.getBoundaryIds());
-          } else {
-            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
-            BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
-            boundary = bpolyBuilder.create(processingData.getBoundaryValues());
-            this.getProcessingData().setBoundaryList(bpolyBuilder.getGeometryList());
-            this.getProcessingData().setRequestGeom(bpolyBuilder.getGeometry());
-          }
-          break;
-        default:
-          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
-      }
-    } catch (ClassCastException e) {
-      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
-    }
-
-    //startupConfig.extracted(forceComputeMode, boundary);
-    DbConnData.db.timeout(timeout);
-    mapRed = setMapReducer(boundary, viewOnData);
     processShowMetadata(showMetadata);
     checkFormat(servletRequest.getParameter("format"));
+    formatIsGEOJSON();
+    setQueryTimeout();
+  }
+
+  /**
+   * Processes the given showMetadata parameter and sets the respective value in the processingData
+   * object.
+   */
+  private void processShowMetadata(String showMetadata) {
+    processingData.setShowMetadata(processBooleanParam("showMetadata", showMetadata));
+  }
+
+  /**
+   * Checks the content of the given format parameter.
+   *
+   * @throws BadRequestException if the given format parameter is invalid.
+   */
+  private void checkFormat(String format) {
+    if (format != null && !format.isEmpty() && !"geojson".equalsIgnoreCase(format)
+        && !"json".equalsIgnoreCase(format) && !"csv".equalsIgnoreCase(format)) {
+      throw new BadRequestException(
+          "The given 'format' parameter is invalid. Please choose between 'geojson'(only available"
+              + " for /groupBy/boundary and data extraction requests), 'json', or 'csv'.");
+    }
+  }
+
+  private void formatIsGEOJSON() {
     if ("geojson".equalsIgnoreCase(servletRequest.getParameter("format"))) {
       GeoJSONWriter writer = new GeoJSONWriter();
       Collection<Geometry> boundaryColl = processingData.getBoundaryList();
@@ -287,41 +241,120 @@ public class InputProcessor {
       }
       processingData.setGeoJsonGeoms(geoJsonGeoms);
     }
-    mapRed = defineTypes(types, mapRed);
-    // the OSM type will be set in the ratio implementation within the ElementsRequestExecutor.java
-    if (!processingData.isRatio()) {
-      mapRed = mapRed.osmType(processingData.getOsmTypes());
+  }
+
+  private void setQueryTimeout() {
+    DbConnData.db.timeout(timeout);
+  }
+
+  private void setBoundaries() {
+    processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
+    try {
+      switch (processingData.getBoundaryType()) {
+        case NOBOUNDARY:
+          if (extractMetadata.getDataPoly() == null) {
+            throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
+          }
+          boundary = extractMetadata.getDataPoly();
+          break;
+        case BBOXES:
+          processingData.setBoundaryValues(utils.splitBboxes(bboxes).toArray(new String[] {}));
+          boundary = bboxBuilder.create(processingData.getBoundaryValues());
+          this.getProcessingData().setBoundaryList(bboxBuilder.getGeometryList());
+          this.getProcessingData().setRequestGeom(bboxBuilder.getUnifiedBbox());
+          geometryFrom = bboxBuilder;
+          break;
+        case BCIRCLES:
+          processingData.setBoundaryValues(utils.splitBcircles(bcircles).toArray(new String[] {}));
+          BCircleBuilder bcircleBuilder = new BCircleBuilder();
+          boundary = bcircleBuilder.create(processingData.getBoundaryValues());
+          this.getProcessingData().setBoundaryList(bcircleBuilder.getGeometryList());
+          this.getProcessingData().setRequestGeom(bcircleBuilder.getGeom());
+          geometryFrom = bcircleBuilder;
+          break;
+        case BPOLYS:
+          if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
+            boundary = fromGeoJSONbuilder.create(bpolys);
+            this.getProcessingData().setGeoJsonGeoms(fromGeoJSONbuilder.getGeoJsonGeoms());
+            this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getGeometryList());
+            this.getProcessingData().setRequestGeom(fromGeoJSONbuilder.getGeometry());
+            this.getUtils().getSpatialUtility().setBoundaryIds(fromGeoJSONbuilder.getBoundaryIds());
+            geometryFrom = fromGeoJSONbuilder;
+          } else {
+            processingData.setBoundaryValues(utils.splitBpolys(bpolys).toArray(new String[] {}));
+            BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
+            boundary = bpolyBuilder.create(processingData.getBoundaryValues());
+            this.getProcessingData().setBoundaryList(bpolyBuilder.getGeometryList());
+            this.getProcessingData().setRequestGeom(bpolyBuilder.getGeometry());
+            geometryFrom = bpolyBuilder;
+          }
+          break;
+        default:
+          throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT_OR_COUNT);
+      }
+    } catch (ClassCastException e) {
+      throw new BadRequestException(ExceptionMessages.BOUNDARY_PARAM_FORMAT);
     }
+  }
+
+  /**
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #getMapReducer(ComputeMode) getMapReducer}
+   */
+  public <T extends OSHDBMapReducible> MapReducer<T> getMapReducer() throws Exception {
+    return this.getMapReducer(null);
+  }
+
+  /**
+   * Processes the input parameters from the given request.
+   *
+   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
+   *         including the settings derived from the given parameters.
+   * @throws BadRequestException if the boundary parameter is not defined or it has an invalid
+   *         format, if the geometry of given boundary cannot be parsed for the creation of the
+   *         response GeoJSON or if the keys, values and types parameters are not empty, while the
+   *         filter parameter is set.
+   * @throws Exception thrown by {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #extractTime(MapReducer, String[], boolean) extractTime}
+   */
+  @SuppressWarnings("unchecked") // unchecked to allow cast of (MapReducer<T>) to mapRed
+  public <T extends OSHDBMapReducible> MapReducer<T> getMapReducer(ComputeMode forceComputeMode)
+      throws Exception {
+    setComputeMode(forceComputeMode);
+    setUpMapReducer();
+    defineTypes();
+    // the OSM type will be set in the ratio implementation within the ElementsRequestExecutor.java
+    setOSMType();
     if (processingData.isContainingSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
         && !processingData.isRatio() && !processingData.isGroupByBoundary()
         && !processingData.isFullHistory()) {
       mapRed = filterOnSimpleFeatures(mapRed);
     }
-    mapRed = extractTime(mapRed, time, isSnapshot);
-    if (!"".equals(filter)) {
-      if (keys.length != 0 || values.length != 0 || types.length != 0) {
-        throw new BadRequestException(ExceptionMessages.FILTER_PARAM);
-      } else {
-        // call translator and add filters to mapRed
-        FilterParser fp = new FilterParser(DbConnData.tagTranslator);
-        FilterExpression filterExpr = utils.parseFilter(fp, filter);
-        processingData.setFilterExpression(filterExpr);
-        if (!(processingData.isRatio()
-            || processingData.isGroupByBoundary()
-            || processingData.isFullHistory())) {
-          // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-          mapRed = mapRed.filter(filterExpr);
-        }
-      }
-    } else {
-      mapRed = extractKeysValues(mapRed, keys, values);
-    }
+    extractTime();
+    filterMapReducer(filter);
     return (MapReducer<T>) mapRed;
   }
 
-  private MapReducer<? extends OSHDBMapReducible> setMapReducer(Geometry boundary, ViewOnData viewOnData) {
-    MapReducer<? extends OSHDBMapReducible> mapRed;
+  private void setComputeMode(ComputeMode forceComputeMode) {
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      final OSHDBIgnite dbIgnite = (OSHDBIgnite) DbConnData.db;
+      if (forceComputeMode != null) {
+        dbIgnite.computeMode(forceComputeMode);
+      } else {
+        ComputeMode computeMode;
+        double boundarySize = boundary.getEnvelope().getArea();
+        if (boundarySize <= COMPUTE_MODE_THRESHOLD) {
+          computeMode = ComputeMode.LOCAL_PEEK;
+        } else {
+          computeMode = ComputeMode.SCAN_QUERY;
+        }
+        dbIgnite.computeMode(computeMode);
+      }
+    }
+  }
+
+  private void setUpMapReducer() {
     if (viewOnData instanceof SnapshotView) {
       if (DbConnData.keytables == null) {
         mapRed = OSMEntitySnapshotView.on(DbConnData.db);
@@ -345,15 +378,7 @@ public class InputProcessor {
         throw new BadRequestException(ExceptionMessages.BPOLYS_PARAM_GEOMETRY + e.getMessage());
       }
     }
-    return mapRed;
   }
-
-
-  private void extracted(ComputeMode forceComputeMode, Geometry boundary) {
-    //startupConfig.extracted(forceComputeMode, boundary);
-  }
-
-
 
   /**
    * Defines the type(s) out of the given String[].
@@ -362,8 +387,7 @@ public class InputProcessor {
    *        relation), or simple feature types (point, line, polygon, other). If the array is empty,
    *        all three OSM types are used.
    */
-  public <T extends OSHDBMapReducible> MapReducer<T> defineTypes(String[] types,
-      MapReducer<T> mapRed) {
+  public void defineTypes() {
     types = createEmptyArrayIfNull(types);
     checkTypes(types);
     processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
@@ -388,7 +412,121 @@ public class InputProcessor {
         }
       }
     }
-    return mapRed;
+  }
+
+  private void setOSMType() {
+    if (!processingData.isRatio()) {
+      mapRed = mapRed.osmType(processingData.getOsmTypes());
+    }
+  }
+
+  /**
+   * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
+   *
+   * @return MapReducer with filtered geometries
+   * @throws RuntimeException if {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
+   *         #filterOnSimpleFeatures(Mappable) filterOnSimpleFeatures} was called on mapped entries
+   */
+  // suppressed, as filter always returns the same mappable type T
+  @SuppressWarnings("unchecked")
+  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed) {
+    Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
+    return (T) mapRed.filter(data -> {
+      if (data instanceof OSMEntitySnapshot) {
+        Geometry snapshotGeom;
+        if (clipGeometry) {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
+        } else {
+          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
+        }
+        return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
+      } else if (data instanceof OSMContribution) {
+        Geometry contribGeomBefore;
+        Geometry contribGeomAfter;
+        if (clipGeometry) {
+          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
+        } else {
+          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
+          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
+        }
+        return contribGeomBefore != null
+            && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
+            || contribGeomAfter != null
+            && utils.checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
+      } else {
+        assert false : "filterOnSimpleFeatures() called on mapped entries";
+        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
+      }
+    });
+  }
+
+  /**
+   * Extracts the information from the given time array and fills the toTimestamps[] with content
+   * (in case of isSnapshot=false).
+   */
+  private void extractTime() {
+    String[] toTimestamps = null;
+    String[] timeData;
+    if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
+      if (viewOnData instanceof ContributionView) {
+        toTimestamps = new String[] {extractMetadata.getFromTstamp(), extractMetadata.getToTstamp()};
+        mapRed = mapRed.timestamps(extractMetadata.getFromTstamp(), extractMetadata.getToTstamp());
+      } else {
+        mapRed = mapRed.timestamps(extractMetadata.getToTstamp());
+      }
+    } else if (time.length == 1) {
+      timeData = utils.extractIsoTime(time[0]);
+      if (viewOnData instanceof ContributionView) {
+        toTimestamps = utils.defineToTimestamps(timeData);
+      }
+      if (timeData[2] != null) {
+        // interval is given
+        mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
+      } else if (timeData[1] != null) {
+        mapRed = mapRed.timestamps(timeData[0], timeData[1]);
+      } else {
+        if (viewOnData instanceof ContributionView) {
+          throw new BadRequestException(ExceptionMessages.TIME_FORMAT_CONTRIBUTION);
+        }
+        mapRed = mapRed.timestamps(timeData[0]);
+      }
+    } else {
+      utils.checkTimestampsOnIsoConformity(time);
+      for (String timestamp : time) {
+        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
+        utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
+      }
+      timeData = utils.sortTimestamps(time);
+      if (viewOnData instanceof ContributionView) {
+        toTimestamps = utils.defineToTimestamps(timeData);
+      }
+      String firstElem = timeData[0];
+      timeData = ArrayUtils.remove(timeData, 0);
+      mapRed = mapRed.timestamps(firstElem, firstElem, timeData);
+    }
+    utils.setToTimestamps(toTimestamps);
+  }
+
+  public void filterMapReducer(String filter) {
+    if (!"".equals(filter)) {
+      if (keys.length != 0 || values.length != 0 || types.length != 0) {
+        throw new BadRequestException(ExceptionMessages.FILTER_PARAM);
+      } else {
+        // call translator and add filters to mapRed
+        FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+        FilterExpression filterExpr = utils.parseFilter(fp, filter);
+        processingData.setFilterExpression(filterExpr);
+        if (!(processingData.isRatio()
+            || processingData.isGroupByBoundary()
+            || processingData.isFullHistory())) {
+          // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
+          mapRed = mapRed.filter(filterExpr);
+        }
+      }
+    } else {
+      mapRed = extractKeysValues(mapRed, keys, values);
+    }
   }
 
   /** Defines the simple feature types and corresponding OSM types out of the given String array. */
@@ -533,49 +671,6 @@ public class InputProcessor {
   }
 
   /**
-   * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
-   *
-   * @return MapReducer with filtered geometries
-   * @throws RuntimeException if {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *         #filterOnSimpleFeatures(Mappable) filterOnSimpleFeatures} was called on mapped entries
-   */
-  // suppressed, as filter always returns the same mappable type T
-  @SuppressWarnings("unchecked")
-  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed) {
-    Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    return (T) mapRed.filter(data -> {
-      if (data instanceof OSMEntitySnapshot) {
-        Geometry snapshotGeom;
-        if (clipGeometry) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
-        } else {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        }
-        return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
-      } else if (data instanceof OSMContribution) {
-        Geometry contribGeomBefore;
-        Geometry contribGeomAfter;
-        if (clipGeometry) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
-        } else {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        }
-        return contribGeomBefore != null
-            && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
-            || contribGeomAfter != null
-                && utils.checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
-      } else {
-        assert false : "filterOnSimpleFeatures() called on mapped entries";
-        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
-      }
-    });
-  }
-
-
-
-  /**
    * Checks the given keys and values parameters on their length and includes them in the
    * {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
    * or {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
@@ -609,55 +704,6 @@ public class InputProcessor {
   }
 
   /**
-   * Extracts the information from the given time array and fills the toTimestamps[] with content
-   * (in case of isSnapshot=false).
-   */
-  private MapReducer<? extends OSHDBMapReducible> extractTime(
-      MapReducer<? extends OSHDBMapReducible> mapRed, String[] time, boolean isSnapshot) {
-    String[] toTimestamps = null;
-    String[] timeData;
-    if (time.length == 0 || time[0].replaceAll("\\s", "").length() == 0 && time.length == 1) {
-      if (!isSnapshot) {
-        toTimestamps = new String[] {extractMetadata.getFromTstamp(), extractMetadata.getToTstamp()};
-        mapRed = mapRed.timestamps(extractMetadata.getFromTstamp(), extractMetadata.getToTstamp());
-      } else {
-        mapRed = mapRed.timestamps(extractMetadata.getToTstamp());
-      }
-    } else if (time.length == 1) {
-      timeData = utils.extractIsoTime(time[0]);
-      if (!isSnapshot) {
-        toTimestamps = utils.defineToTimestamps(timeData);
-      }
-      if (timeData[2] != null) {
-        // interval is given
-        mapRed = mapRed.timestamps(new OSHDBTimestamps(timeData[0], timeData[1], timeData[2]));
-      } else if (timeData[1] != null) {
-        mapRed = mapRed.timestamps(timeData[0], timeData[1]);
-      } else {
-        if (!isSnapshot) {
-          throw new BadRequestException(ExceptionMessages.TIME_FORMAT_CONTRIBUTION);
-        }
-        mapRed = mapRed.timestamps(timeData[0]);
-      }
-    } else {
-      utils.checkTimestampsOnIsoConformity(time);
-      for (String timestamp : time) {
-        ZonedDateTime zdt = IsoDateTimeParser.parseIsoDateTime(timestamp);
-        utils.checkTemporalExtend(zdt.format(DateTimeFormatter.ISO_DATE_TIME));
-      }
-      timeData = utils.sortTimestamps(time);
-      if (!isSnapshot) {
-        toTimestamps = utils.defineToTimestamps(timeData);
-      }
-      String firstElem = timeData[0];
-      timeData = ArrayUtils.remove(timeData, 0);
-      mapRed = mapRed.timestamps(firstElem, firstElem, timeData);
-    }
-    utils.setToTimestamps(toTimestamps);
-    return mapRed;
-  }
-
-  /**
    * Checks the given type(s) String[] on its length and content.
    *
    * @throws BadRequestException if the given types parameter is invalid.
@@ -682,20 +728,6 @@ public class InputProcessor {
           }
         }
       }
-    }
-  }
-
-  /**
-   * Checks the content of the given format parameter.
-   *
-   * @throws BadRequestException if the given format parameter is invalid.
-   */
-  private void checkFormat(String format) {
-    if (format != null && !format.isEmpty() && !"geojson".equalsIgnoreCase(format)
-        && !"json".equalsIgnoreCase(format) && !"csv".equalsIgnoreCase(format)) {
-      throw new BadRequestException(
-          "The given 'format' parameter is invalid. Please choose between 'geojson'(only available"
-              + " for /groupBy/boundary and data extraction requests), 'json', or 'csv'.");
     }
   }
 
@@ -770,60 +802,6 @@ public class InputProcessor {
   }
 
   /**
-   * Checks, if the given content-type header is either 'application/x-www-form-urlencoded' or
-   * 'multipart/form-data'.
-   *
-   * @throws BadRequestException if an unsupported header is given.
-   */
-  private void checkContentTypeHeader() {
-    String contentType = servletRequest.getHeader("content-type");
-    if (contentType == null) {
-      return;
-    }
-    if (!contentType.contains("application/x-www-form-urlencoded")
-        && !contentType.contains("multipart/form-data")) {
-      throw new BadRequestException("Unsupported content-type header found. Please make sure to "
-          + "use either 'multipart/form-data' or 'application/x-www-form-urlencoded'.");
-    }
-  }
-
-  /**
-   * Checks, if the request does not specify any parameter or if it specifies false or repeated
-   * parameters. In case of false or repeated parameters, it suggests possible parameters based on
-   * fuzzy matching scores.
-   *
-   * @throws BadRequestException in case of no parameters, invalid parameters or if parameters are
-   *     given more than once.
-   */
-  private void checkParameters() {
-    if (servletRequest.getParameterMap().isEmpty()) {
-      throw new BadRequestException(ExceptionMessages.NO_DEFINED_PARAMS);
-    }
-    List<String> possibleParameters = ResourceParameters.getResourceSpecificParams(servletRequest);
-    List<String> unexpectedParams =
-        ResourceParameters.checkUnexpectedParams(servletRequest, possibleParameters);
-    if (!unexpectedParams.isEmpty()) {
-      String unexpectedParam = unexpectedParams.get(0);
-      throw new BadRequestException(
-          StringSimilarity.findSimilarParameters(unexpectedParam, possibleParameters));
-    }
-    for (var parameter : servletRequest.getParameterMap().entrySet()) {
-      if (parameter.getValue().length != 1) {
-        throw new BadRequestException("Every parameter has to be unique. "
-            + "You can't give more than one '" + parameter + "' parameter.");
-      }
-    }
-  }
-
-  /**
-   * Processes the given showMetadata parameter and sets the respective value in the processingData
-   * object.
-   */
-  private void processShowMetadata(String showMetadata) {
-    processingData.setShowMetadata(processBooleanParam("showMetadata", showMetadata));
-  }
-
-  /**
    * Tries to extract and set a boolean value out of the given parameter. Assumes that the default
    * value of the parameter is false.
    *
@@ -859,45 +837,5 @@ public class InputProcessor {
       geom = processingData.getRequestGeom();
     }
     return geom;
-  }
-
-  public GeometryBuilder getGeomBuilder() {
-    return geomBuilder;
-  }
-
-  public InputProcessingUtils getUtils() {
-    return utils;
-  }
-
-  public void setUtils(InputProcessingUtils utils) {
-    this.utils = utils;
-  }
-
-  public ProcessingData getProcessingData() {
-    return processingData;
-  }
-
-  public void setProcessingData(ProcessingData processingData) {
-    InputProcessor.processingData = processingData;
-  }
-
-  public String getRequestUrl() {
-    return requestUrl;
-  }
-
-  public boolean includeTags() {
-    return includeTags;
-  }
-
-  public boolean includeOSMMetadata() {
-    return includeOSMMetadata;
-  }
-
-  public boolean includeContributionTypes() {
-    return includeContributionTypes;
-  }
-
-  public boolean isClipGeometry() {
-    return clipGeometry;
   }
 }
