@@ -27,8 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class GeometryBuilderTest {
-  //private GeometryBuilder geomBuilder;
-  //private final ProcessingData processingData = new ProcessingData(null);
+
   @Autowired
   private BBoxBuilder bBoxBuilder;
   @Autowired
@@ -38,14 +37,13 @@ public class GeometryBuilderTest {
   @Autowired
   private BPolygonFromGeoJSON bPolygonFromGeoJSON;
   private final GeometryOfOSHDBExtent geometryOfOSHDBExtent = new GeometryOfOSHDBExtent();
-  //private final InputProcessor inputProcessor = new InputProcessor(processingData);
 
   private final boolean isSnapshot = true;
   private final String bboxes = "8.67,49.39,8.71,49.42";
   private final String bcircles = "8.6528,49.3683,1000|8.7294,49.4376,1000";
-  private final String bpolys = "8.65821,49.41129,8.65821,49.41825,8.70053,49.41825,8.70053," +
-      "49.41129,8.65821,49.41129|8.67817,49.42147,8.67817,49.4342,8.70053,49.4342,8.70053," +
-      "49.42147,8.67817,49.42147";
+  private final String bpolys = "8.65821,49.41129,8.65821,49.41825,8.70053,49.41825,8.70053,"
+      + "49.41129,8.65821,49.41129|8.67817,49.42147,8.67817,49.4342,8.70053,49.4342,8.70053,"
+      + "49.42147,8.67817,49.42147";
   private final String[] time = {"2014-01-01,2017-01-01"};
   private final String format = "json";
   private final String showMetadata = "true";
@@ -57,12 +55,6 @@ public class GeometryBuilderTest {
   public static void checkJunitProperty() {
     assumeTrue(TestProperties.JUNIT == null || !TestProperties.JUNIT.equalsIgnoreCase("no"));
   }
-
-  //@Before
-  //public void setup() {    geomBuilder = new GeometryBuilder();
- // }
-
-  // bboxes tests
 
   @Test(expected = BadRequestException.class)
   public void createPolygonWithWrongCoordinatesFromBboxes() {
@@ -181,20 +173,6 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{\"id\":\"Weststadt\"},\"geometry\":{\"type\":"
             + "\"Polygon\",\"coordinates\":[[[8.6801,49.39874],[8.6801,49.40586],[8.69615,"
             + "49.40586],[8.69615,49.39874],[8.6801,49.39874]]]}}]}";
-//    String testURL = "http://localhost:8080/elements/count";
-//    ProcessingData processingData = new ProcessingData(new RequestParameters(false,
-//        false,"", "", geoJson, new String[0], new String[0], new String[0],
-//        new String[]{"2014-01-01,2017-01-01"}, "", "", 400,
-//        "type:way and natural=*"), testURL);
-//    HttpServletRequest mockedServletRequest = Mockito.mock(HttpServletRequest.class);
-//    Mockito.when(mockedServletRequest.getParameter("bpolys")).thenReturn(geoJson);
-//    Mockito.when(mockedServletRequest.getParameter("time")).thenReturn("2014-01-01,2017-01-01");
-//    Mockito.when(mockedServletRequest.getParameter("filter")).thenReturn("type:way and natural=*");
-//    Mockito.when(mockedServletRequest.getParameter("format")).thenReturn("json");
-//    Mockito.when(mockedServletRequest.getParameter("timeout")).thenReturn("400");
-
-    //InputProcessor inputProcessor = new InputProcessor(processingData);
-    //inputProcessor.setUtils(new InputProcessingUtils());
     Geometry geom = bPolygonFromGeoJSON.create(geoJson);
     assertTrue(geom instanceof MultiPolygon);
   }
@@ -209,8 +187,6 @@ public class GeometryBuilderTest {
             + "{\"type\":\"Feature\",\"properties\":{\"id\":\"Handschuhsheim\"},\"geometry\":"
             + "{\"type\":\"Polygon\",\"coordinates\":[[[8.67817,49.42147],[8.67817,49.4342],"
             + "[8.70053,49.4342],[8.70053,49.42147],[8.67817,49.42147]]]}}]}";
-    //InputProcessor inputProcessor = new InputProcessor(processingData);
-    //inputProcessor.setUtils(new InputProcessingUtils());
     Geometry geom = bPolygonFromGeoJSON.create(geoJson);
     assertTrue(geom instanceof Polygon);
   }
