@@ -1,11 +1,9 @@
 package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
-import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
@@ -29,10 +27,9 @@ import org.springframework.stereotype.Component;
 public class GroupByType extends Group implements Operation {
 
   @Autowired
-  ResultUtility resultUtility;
+  private ResultUtility resultUtility;
   @Autowired
-  InputProcessor inputProcessor;
-  public static final DecimalFormat df = ExecutionUtils.defineDecimalFormat("#.##");
+  private InputProcessor inputProcessor;
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the OSM type.
