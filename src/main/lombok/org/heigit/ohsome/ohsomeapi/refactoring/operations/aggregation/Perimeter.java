@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
 import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
@@ -19,17 +20,25 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@Component
+@Service
+@RequestScope
 public class Perimeter implements Operation {
 
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final ResultUtility resultUtility;
+  private final ExecutionUtils executionUtils;
+
   @Autowired
-  private InputProcessor inputProcessor;
-  @Autowired
-  ResultUtility resultUtility;
-  @Autowired
-  ExecutionUtils executionUtils;
+  public Perimeter(InputProcessor inputProcessor, ResultUtility resultUtility,
+      ExecutionUtils executionUtils) {
+    this.inputProcessor = inputProcessor;
+    this.resultUtility = resultUtility;
+    this.executionUtils = executionUtils;
+  }
 
   @Override
   public List compute() throws Exception {
@@ -86,10 +95,5 @@ public class Perimeter implements Operation {
   public String getMetadataDescription() {
     return Description.aggregate(inputProcessor.isDensity(),
         this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return inputProcessor;
   }
 }

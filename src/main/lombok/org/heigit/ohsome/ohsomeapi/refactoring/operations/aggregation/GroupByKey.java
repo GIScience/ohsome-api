@@ -26,21 +26,30 @@ import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@Component
-public class GroupByKey extends Group implements Operation<MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>> {
+@Service
+@RequestScope
+public class GroupByKey implements Operation<MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot>> {
+
+  private final ResultUtility resultUtility;
+  private Integer [] keysInt;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final Group group;
 
   @Autowired
-  ResultUtility resultUtility;
-  Integer [] keysInt;
-  @Getter
-  private InputProcessor inputProcessor;
+  public GroupByKey(Group group, ResultUtility resultUtility, InputProcessor inputProcessor) {
+    this.group = group;
+    this.resultUtility = resultUtility;
+    this.inputProcessor = inputProcessor;
+  }
 
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> compute() throws Exception {
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
-    keysInt = getOSHDBKeysOfMultipleTags();
+    keysInt = group.getOSHDBKeysOfMultipleTags();
     return aggregate(mapRed);
   }
 

@@ -29,19 +29,25 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
-public abstract class Group {
+@RequestScope
+public class Group {
+
+  private final DecimalFormatDefiner df;
+  private final HttpServletRequest servletRequest;
+  private final ExecutionUtils executionUtils;
+  private final InputProcessor inputProcessor;
 
   @Autowired
-  DecimalFormatDefiner df;
-  @Autowired
-  HttpServletRequest servletRequest;
-  @Autowired
-  ExecutionUtils executionUtils;
-  @Autowired
-  InputProcessor inputProcessor;
-
+  public Group(DecimalFormatDefiner df, HttpServletRequest servletRequest,
+      ExecutionUtils executionUtils, InputProcessor inputProcessor) {
+    this.df = df;
+    this.servletRequest = servletRequest;
+    this.executionUtils = executionUtils;
+    this.inputProcessor = inputProcessor;
+  }
 
   public int getOSHDBKeyOfOneTag() throws Exception {
     String[] groupByKey = inputProcessor.splitParamOnComma(

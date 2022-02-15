@@ -31,21 +31,31 @@ import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@Component
-public class GroupByBoundaryGroupByTag extends Group implements Operation {
+@Service
+@RequestScope
+public class GroupByBoundaryGroupByTag implements Operation {
+
+  private final SpatialUtility spatialUtility;
+  private int keysInt;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final  Group group;
 
   @Autowired
-  SpatialUtility spatialUtility;
-  int keysInt;
-  @Getter
-  private InputProcessor inputProcessor;
+  public GroupByBoundaryGroupByTag(Group group, SpatialUtility spatialUtility,
+      InputProcessor inputProcessor) {
+    this.group = group;
+    this.spatialUtility = spatialUtility;
+    this.inputProcessor = inputProcessor;
+  }
 
   public MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, OSMEntitySnapshot> compute() throws Exception {
-    keysInt = this.getOSHDBKeyOfOneTag();
-    Integer[] valuesInt = this.getOSHDBTag();
-    List<Pair<Integer, Integer>> zeroFill = this.getListOfKeyValuePair(keysInt, valuesInt);
+    keysInt = group.getOSHDBKeyOfOneTag();
+    Integer[] valuesInt = group.getOSHDBTag();
+    List<Pair<Integer, Integer>> zeroFill = group.getListOfKeyValuePair(keysInt, valuesInt);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     return aggregate(mapRed, keysInt, valuesInt, zeroFill);
   }
@@ -60,8 +70,8 @@ public class GroupByBoundaryGroupByTag extends Group implements Operation {
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
-      List<ElementsResult> results =
-      fillElementsResult(entry.getValue(), inputProcessor.isDensity(),
+      List<ElementsResult> results = group.fillElementsResult(entry.getValue(),
+          inputProcessor.isDensity(),
           boundaries.get(boundaryIdentifier));
       int tagValue = entry.getKey().getSecondIndex().getValue();
       String tagIdentifier;

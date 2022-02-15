@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -30,32 +31,42 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@Component
-public class GroupByTag extends Group implements Operation {
+@Service
+@RequestScope
+public class GroupByTag implements Operation {
 
-  @Autowired
-  private HttpServletRequest servletRequest;
-  @Autowired
-  private ResultUtility resultUtility;
+  private final HttpServletRequest servletRequest;
+  private final ResultUtility resultUtility;
   private int keysInt;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final FilterUtility filterUtility;
+  private final Group group;
+
   @Autowired
-  private InputProcessor inputProcessor;
-  @Autowired
-  private FilterUtility filterUtility;
+  public GroupByTag(Group group, HttpServletRequest servletRequest, ResultUtility resultUtility,
+      InputProcessor inputProcessor, FilterUtility filterUtility) {
+    this.group = group;
+    this.servletRequest = servletRequest;
+    this.resultUtility = resultUtility;
+    this.inputProcessor = inputProcessor;
+    this.filterUtility = filterUtility;
+  }
 
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> compute() throws Exception {
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
-    keysInt = getOSHDBKeyOfOneTag();
-    Integer[] valuesInt = getOSHDBTag();
-    List<Pair<Integer, Integer>> zeroFill = this.getListOfKeyValuePair(keysInt, valuesInt);
+    keysInt = group.getOSHDBKeyOfOneTag();
+    Integer[] valuesInt = group.getOSHDBTag();
+    List<Pair<Integer, Integer>> zeroFill = group.getListOfKeyValuePair(keysInt, valuesInt);
     return aggregate(mapRed, keysInt, valuesInt, zeroFill);
   }
 
   public List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Number> preResult) {
-    var groupByResult = nest(preResult);
+    var groupByResult = Group.nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     String groupByName = "";
     Geometry geom = inputProcessor.getGeometry();
@@ -113,10 +124,5 @@ public class GroupByTag extends Group implements Operation {
   public String getMetadataDescription() {
     return Description.aggregateGroupByTag(inputProcessor.isDensity(),
         this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return inputProcessor;
   }
 }

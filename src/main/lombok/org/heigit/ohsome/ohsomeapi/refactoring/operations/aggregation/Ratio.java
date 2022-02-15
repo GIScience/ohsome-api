@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.SortedMap;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils.MatchType;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -31,22 +32,32 @@ import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@Component
+@Service
+@RequestScope
 public class Ratio implements Operation {
 
-  @Autowired
-  private InputProcessor inputProcessor;
-  @Autowired
-  private DecimalFormatDefiner decimalFormatDefiner;
-  @Autowired
-  private FilterUtility filterUtility;
-  @Autowired
-  private HttpServletRequest servletRequest;
-  @Autowired
-  private SpatialUtility spatialUtility;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final DecimalFormatDefiner decimalFormatDefiner;
+  private final FilterUtility filterUtility;
+  private final HttpServletRequest servletRequest;
+  private final SpatialUtility spatialUtility;
   private DecimalFormat decimalFormat;
+
+  @Autowired
+  public Ratio(InputProcessor inputProcessor, DecimalFormatDefiner decimalFormatDefiner,
+      FilterUtility filterUtility, HttpServletRequest servletRequest, SpatialUtility spatialUtility,
+      DecimalFormat decimalFormat) {
+    this.inputProcessor = inputProcessor;
+    this.decimalFormatDefiner = decimalFormatDefiner;
+    this.filterUtility = filterUtility;
+    this.servletRequest = servletRequest;
+    this.spatialUtility = spatialUtility;
+    this.decimalFormat = decimalFormat;
+  }
 
   @PostConstruct
   public void init() {
@@ -183,10 +194,5 @@ public class Ratio implements Operation {
       return Description.aggregateRatioGroupByBoundary(this.getDescription(), this.getUnit());
     }
     return Description.aggregateRatio(this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return inputProcessor;
   }
 }

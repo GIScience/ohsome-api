@@ -68,7 +68,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
  */
 @Getter
 @Setter
-@Component("inputProcessor")
+@Component
 @RequestScope
 public class InputProcessor {
 
@@ -84,7 +84,7 @@ public class InputProcessor {
   private boolean includeOSMMetadata;
   private boolean includeContributionTypes;
   private boolean clipGeometry = true;
-  private boolean isDensity = false;
+  private boolean isDensity;
   private String[] time;
   private String[] keys;
   private String bboxes;
@@ -105,21 +105,19 @@ public class InputProcessor {
   private ViewOnData viewOnData;
   private Geometry boundary;
   private MapReducer<? extends OSHDBMapReducible> mapRed;
-  @Autowired
   private SpatialUtility spatialUtility;
-  @Autowired
   private TimeUtility timeUtility;
-  @Autowired
   private FilterUtility filterUtility;
 
   @Autowired
-  public InputProcessor(HttpServletRequest servletRequest, RequestUtils requestUtils,
+  public InputProcessor(HttpServletRequest httpServletRequest, RequestUtils requestUtils,
       BBoxBuilder bboxBuilder, BPolygonFromGeoJSON fromGeoJSONbuilder,
-      ExtractMetadata extractMetadata, GeometryOfOSHDBExtent geometryOfOSHDBExtent) {
+      ExtractMetadata extractMetadata, GeometryOfOSHDBExtent geometryOfOSHDBExtent,
+      SpatialUtility spatialUtility, TimeUtility timeUtility, FilterUtility filterUtility) {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
     }
-    this.servletRequest = servletRequest;
+    this.servletRequest = httpServletRequest;
     checkContentTypeHeader();
     checkParameters();
     this.requestUtils = requestUtils;
@@ -130,9 +128,10 @@ public class InputProcessor {
     this.requestUrl = requestUtils.extractRequestUrl();
     this.requestTimeout = servletRequest.getParameter("timeout");
     this.requestParameters = servletRequest.getParameterMap();
-    if (servletRequest.getRequestURI().contains("density")) {
-      this.setDensity(true);
-    }
+    this.spatialUtility = spatialUtility;
+    this.timeUtility = timeUtility;
+    this.filterUtility = filterUtility;
+    this.isDensity = servletRequest.getRequestURI().contains("density");
     processingData = new ProcessingData(servletRequest.getRequestURL().toString());
     processQuery();
     setBoundaries();

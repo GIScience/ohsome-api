@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
 import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Description;
@@ -17,14 +18,21 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Component
+@RequestScope
 public class Count implements Operation {
 
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final ResultUtility resultUtility;
+
   @Autowired
-  private InputProcessor inputProcessor;
-  @Autowired
-  ResultUtility resultUtility;
+  public Count(InputProcessor inputProcessor, ResultUtility resultUtility) {
+    this.inputProcessor = inputProcessor;
+    this.resultUtility = resultUtility;
+  }
 
   @Override
   public List compute() throws Exception {
@@ -67,10 +75,5 @@ public class Count implements Operation {
   public String getMetadataDescription() {
     return Description.aggregate(inputProcessor.isDensity(),
         this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return inputProcessor;
   }
 }

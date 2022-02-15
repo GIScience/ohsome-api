@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import javax.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.Description;
 import org.heigit.ohsome.ohsomeapi.output.Response;
@@ -21,15 +22,24 @@ import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@Component
-public class GroupByType extends Group implements Operation {
+@Service
+@RequestScope
+public class GroupByType implements Operation {
+
+  private final ResultUtility resultUtility;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final Group group;
 
   @Autowired
-  private ResultUtility resultUtility;
-  @Autowired
-  private InputProcessor inputProcessor;
+  public GroupByType(Group group, ResultUtility resultUtility, InputProcessor inputProcessor) {
+    this.group = group;
+    this.resultUtility = resultUtility;
+    this.inputProcessor = inputProcessor;
+  }
 
   /**
    * Performs a count|length|perimeter|area calculation grouped by the OSM type.
@@ -55,7 +65,7 @@ public class GroupByType extends Group implements Operation {
 
   public <T> List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Number> preResult) {
 
-    var groupByResult = nest(preResult);
+    var groupByResult = Group.nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     Geometry geom = inputProcessor.getGeometry();
     for (var entry : groupByResult.entrySet()) {
@@ -95,10 +105,5 @@ public class GroupByType extends Group implements Operation {
   public String getMetadataDescription(){
     return Description.countPerimeterAreaGroupByType(inputProcessor.isDensity(),
             this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return inputProcessor;
   }
 }

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.geometrybuilders.GeometryFrom;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
@@ -30,20 +31,30 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
-public class GroupByBoundary extends Group implements Operation {
+@RequestScope
+public class GroupByBoundary implements Operation {
+
+  private final ResultUtility resultUtility;
+  private final GeometryFrom geometryFrom;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final SpatialUtility spatialUtility;
+  private  final Group group;
 
   @Autowired
-  private ResultUtility resultUtility;
-  private GeometryFrom geometryFrom;
-  @Autowired
-  private InputProcessor inputProcessor;
-  @Autowired
-  private SpatialUtility spatialUtility;
+  public GroupByBoundary(Group group, ResultUtility resultUtility, GeometryFrom geometryFrom,
+      InputProcessor inputProcessor, SpatialUtility spatialUtility) {
+    this.group  = group;
+    this.resultUtility = resultUtility;
+    this.geometryFrom = geometryFrom;
+    this.inputProcessor = inputProcessor;
+    this.spatialUtility = spatialUtility;
+  }
 
   public MapAggregator compute() throws Exception {
-    geometryFrom = inputProcessor.getGeometryFrom();
     inputProcessor.getProcessingData().setGroupByBoundary(true);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     return aggregate(mapRed);
@@ -51,7 +62,7 @@ public class GroupByBoundary extends Group implements Operation {
 
   public List getResult(SortedMap sortedMap) throws Exception {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = nest(sortedMap);
+    groupByResult = Group.nest(sortedMap);
     List<GroupByResult> resultSet = new ArrayList<>();
     Object groupByName;
     Object[] boundaryIds = spatialUtility.getBoundaryIds();
@@ -150,10 +161,5 @@ public class GroupByBoundary extends Group implements Operation {
   public String getMetadataDescription(){
     return Description.aggregate(inputProcessor.isDensity(),
         this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return inputProcessor;
   }
 }

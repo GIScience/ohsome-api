@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
 import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
+import lombok.Getter;
 import org.heigit.ohsome.ohsomeapi.executor.ExecutionUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
@@ -19,19 +20,20 @@ import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
+@RequestScope
 public class Area implements Operation {
 
-  InputProcessor inputProcessor;
-  ResultUtility resultUtility;
-  ExecutionUtils executionUtils;
+  @Getter
+  private final InputProcessor inputProcessor;
+  private final ResultUtility resultUtility;
+  private final ExecutionUtils executionUtils;
 
   @Autowired
-  public Area(@Qualifier("inputProcessor") InputProcessor inputProcessor,
-      ResultUtility resultUtility,
+  public Area(InputProcessor inputProcessor, ResultUtility resultUtility,
       ExecutionUtils executionUtils) {
     this.inputProcessor = inputProcessor;
     this.resultUtility = resultUtility;
@@ -83,10 +85,5 @@ public class Area implements Operation {
   public String getMetadataDescription() {
     return Description.aggregate(inputProcessor.isDensity(),
       this.getDescription(), this.getUnit());
-  }
-
-  @Override
-  public InputProcessor getInputProcessor() {
-    return this.inputProcessor;
   }
 }
