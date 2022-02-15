@@ -10,5 +10,4 @@ import org.springframework.web.context.annotation.RequestScope;
 public class StartTimeOfRequest {
 
   private final long START_TIME = System.currentTimeMillis();
-
 }

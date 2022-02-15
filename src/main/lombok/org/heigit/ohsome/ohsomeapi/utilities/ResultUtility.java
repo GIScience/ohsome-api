@@ -17,8 +17,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResultUtility {
 
+  private final DecimalFormatDefiner formatDefiner;
+
   @Autowired
-  private DecimalFormatDefiner formatDefiner;
+  public ResultUtility(DecimalFormatDefiner formatDefiner) {
+    this.formatDefiner = formatDefiner;
+  }
 
   /** Fills the ElementsResult array with respective ElementsResult objects.
    */

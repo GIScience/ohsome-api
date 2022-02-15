@@ -12,17 +12,24 @@ import org.heigit.ohsome.oshdb.api.db.OSHDBDatabase;
 import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 /** Utils class containing request-specific static utility methods. */
 @Component
+@RequestScope
 public class RequestUtils {
 
+  private final HttpServletRequest servletRequest;
+  private final ExtractMetadata extractMetadata;
+  private final GeometryOfOSHDBExtent geometryOfOSHDBExtent;
+
   @Autowired
-  private HttpServletRequest servletRequest;
-  @Autowired
-  private ExtractMetadata extractMetadata;
-  @Autowired
-  private GeometryOfOSHDBExtent geometryOfOSHDBExtent;
+  public RequestUtils(HttpServletRequest servletRequest, ExtractMetadata extractMetadata,
+      GeometryOfOSHDBExtent geometryOfOSHDBExtent) {
+    this.servletRequest = servletRequest;
+    this.extractMetadata = extractMetadata;
+    this.geometryOfOSHDBExtent = geometryOfOSHDBExtent;
+  }
 
   /**
    * Extracts the request URL from the given <code>HttpServletRequest</code> object.

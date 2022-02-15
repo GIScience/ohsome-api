@@ -3,10 +3,10 @@ package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.ohsome.ohsomeapi.utilities.GeometryBuilderUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -18,13 +18,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Getter
-@Setter
-public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoordinates {
+public class BPolygonBuilder implements GeometryFromCoordinates {
 
   private List<Geometry> geometryList;
   private Geometry geometry;
+  private final SpatialUtility spatialUtility;
+  private final GeometryBuilderUtility geometryBuilderUtility;
+
   @Autowired
-  private SpatialUtility spatialUtility;
+  public BPolygonBuilder(SpatialUtility spatialUtility, GeometryBuilderUtility geometryBuilderUtility) {
+    this.spatialUtility = spatialUtility;
+    this.geometryBuilderUtility = geometryBuilderUtility;
+  }
 
   /**
    * Creates a <code>Polygon</code> out of the coordinates in the given array. If more polygons are
@@ -80,7 +85,7 @@ public class BPolygonBuilder extends GeometryBuilder implements GeometryFromCoor
           }
         }
       }
-      geometry = unifyPolys(geometryList);
+      geometry = geometryBuilderUtility.unifyPolys(geometryList);
       return geometry;
     } catch (NumberFormatException | MismatchedDimensionException e) {
       throw new BadRequestException(ExceptionMessages.BPOLYS_FORMAT);

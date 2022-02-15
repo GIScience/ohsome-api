@@ -18,10 +18,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
+  private final RequestUtils requestUtils;
+  private final HttpServletRequest httpServletRequest;
+
   @Autowired
-  private RequestUtils requestUtils;
-  @Autowired
-  private HttpServletRequest httpServletRequest;
+  public CustomizedExceptionHandler(RequestUtils requestUtils,
+      HttpServletRequest httpServletRequest) {
+    this.requestUtils = requestUtils;
+    this.httpServletRequest = httpServletRequest;
+  }
 
   @ExceptionHandler(BadRequestException.class)
   public final ResponseEntity<ErrorDetails> handleBadRequestException(BadRequestException ex,

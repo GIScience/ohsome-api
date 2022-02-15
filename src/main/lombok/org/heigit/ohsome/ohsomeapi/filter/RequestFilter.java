@@ -22,8 +22,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestFilter extends OncePerRequestFilter {
 
+  private final RequestUtils requestUtils;
+
   @Autowired
-  private RequestUtils requestUtils;
+  public RequestFilter(RequestUtils requestUtils) {
+    this.requestUtils = requestUtils;
+  }
 
   /**
    * @throws IOException thrown by {@link RequestUtils

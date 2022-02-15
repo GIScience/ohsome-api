@@ -5,19 +5,27 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.utilities.GeometryBuilderUtility;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Getter
 @Setter
-public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordinates {
+public class BBoxBuilder implements GeometryFromCoordinates {
 
   private List<Geometry> geometryList;
   private Geometry unifiedBbox;
+  private final GeometryBuilderUtility geometryBuilderUtility;
+
+  @Autowired
+  public BBoxBuilder(GeometryBuilderUtility geometryBuilderUtility) {
+    this.geometryBuilderUtility = geometryBuilderUtility;
+  }
 
   /**
    * Creates a unified <code>Geometry</code> object out of the content of the given
@@ -52,7 +60,7 @@ public class BBoxBuilder extends GeometryBuilder implements GeometryFromCoordina
         geometryList.add(OSHDBGeometryBuilder.getGeometry(bbox));
         unifiedBbox = unifiedBbox.union(OSHDBGeometryBuilder.getGeometry(bbox));
       }
-      Geometry result = this.unifyPolys(geometryList);
+      Geometry result = geometryBuilderUtility.unifyPolys(geometryList);
       return result;
     } catch (NumberFormatException e) {
       throw new BadRequestException(

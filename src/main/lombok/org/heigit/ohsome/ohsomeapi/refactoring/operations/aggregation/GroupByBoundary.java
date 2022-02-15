@@ -18,6 +18,7 @@ import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utilities.GroupByUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -42,12 +43,12 @@ public class GroupByBoundary implements Operation {
   @Getter
   private final InputProcessor inputProcessor;
   private final SpatialUtility spatialUtility;
-  private  final Group group;
+  private  final GroupByUtility groupByUtility;
 
   @Autowired
-  public GroupByBoundary(Group group, ResultUtility resultUtility, GeometryFrom geometryFrom,
+  public GroupByBoundary(GroupByUtility groupByUtility, ResultUtility resultUtility, GeometryFrom geometryFrom,
       InputProcessor inputProcessor, SpatialUtility spatialUtility) {
-    this.group  = group;
+    this.groupByUtility = groupByUtility;
     this.resultUtility = resultUtility;
     this.geometryFrom = geometryFrom;
     this.inputProcessor = inputProcessor;
@@ -62,7 +63,7 @@ public class GroupByBoundary implements Operation {
 
   public List getResult(SortedMap sortedMap) throws Exception {
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
-    groupByResult = Group.nest(sortedMap);
+    groupByResult = GroupByUtility.nest(sortedMap);
     List<GroupByResult> resultSet = new ArrayList<>();
     Object groupByName;
     Object[] boundaryIds = spatialUtility.getBoundaryIds();

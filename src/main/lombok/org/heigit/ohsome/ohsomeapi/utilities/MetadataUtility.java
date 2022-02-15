@@ -4,12 +4,18 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Component
+@RequestScope
 public class MetadataUtility {
 
+  private final StartTimeOfRequest startTimeOfRequest;
+
   @Autowired
-  private StartTimeOfRequest startTimeOfRequest;
+  public MetadataUtility(StartTimeOfRequest startTimeOfRequest) {
+    this.startTimeOfRequest = startTimeOfRequest;
+  }
 
   /**
    * Creates the metadata for the JSON response containing info like execution time, request URL and

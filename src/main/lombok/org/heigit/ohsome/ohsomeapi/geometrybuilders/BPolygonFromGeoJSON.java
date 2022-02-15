@@ -10,22 +10,30 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+import javax.servlet.http.HttpServletRequest;
 import lombok.Getter;
-import lombok.Setter;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
+import org.heigit.ohsome.ohsomeapi.utilities.GeometryBuilderUtility;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.wololo.jts2geojson.GeoJSONReader;
+
 @Component
 @Getter
-@Setter
-public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFromGeoJSON {
+public class BPolygonFromGeoJSON implements GeometryFromGeoJSON {
 
   private List<Geometry> geometryList;
   private GeoJsonObject[] geoJsonGeoms;
   private Geometry geometry;
   private Serializable[] boundaryIds;
+  private final GeometryBuilderUtility geometryBuilderUtility;
+
+  @Autowired
+  public BPolygonFromGeoJSON(GeometryBuilderUtility geometryBuilderUtility) {
+    this.geometryBuilderUtility = geometryBuilderUtility;
+  }
 
   /**
    * Creates a Geometry object from the given GeoJSON String. It must be of type 'FeatureCollection'
@@ -35,7 +43,7 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
    *     is not of the type 'FeatureCollection', or if the provided custom id(s) cannot be
    *     parsed
    */
-  public Geometry create(String geoJson) {
+  public Geometry create(String geoJson, HttpServletRequest servletRequest) {
     geometryList = new ArrayList<>();
     JsonObject root = null;
     JsonArray features;
@@ -55,9 +63,11 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
       JsonObject properties = feature.getJsonObject("properties");
       try {
         if (feature.containsKey("id")) {
-          boundaryIds[count] = createBoundaryIdFromJsonObjectId(feature);
+          boundaryIds[count] = geometryBuilderUtility.createBoundaryIdFromJsonObjectId(feature,
+              servletRequest);
         } else if (properties != null && properties.containsKey("id")) {
-          boundaryIds[count] = createBoundaryIdFromJsonObjectId(properties);
+          boundaryIds[count] = geometryBuilderUtility.createBoundaryIdFromJsonObjectId(properties,
+              servletRequest);
         } else {
           boundaryIds[count] = "feature" + (count + 1);
         }
@@ -69,7 +79,7 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
       }
       try {
         JsonObject geomObj = feature.getJsonObject("geometry");
-        this.checkGeometryTypeOfFeature(geomObj);
+        geometryBuilderUtility.checkGeometryTypeOfFeature(geomObj);
         GeoJSONReader reader = new GeoJSONReader();
         Geometry currentResult = reader.read(geomObj.toString());
         geometryList.add(currentResult);
@@ -81,7 +91,7 @@ public class BPolygonFromGeoJSON extends GeometryBuilder implements GeometryFrom
             + "fitting GeoJSON input file.");
       }
     }
-    geometry = unifyPolys(geometryList);
+    geometry = geometryBuilderUtility.unifyPolys(geometryList);
     return geometry;
   }
 }

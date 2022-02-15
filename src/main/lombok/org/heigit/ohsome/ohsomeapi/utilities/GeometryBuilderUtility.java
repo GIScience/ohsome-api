@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.geometrybuilders;
+package org.heigit.ohsome.ohsomeapi.utilities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
-import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
@@ -20,12 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class GeometryBuilder {
+public class GeometryBuilderUtility {
+
+  private final SpatialUtility spatialUtility;
 
   @Autowired
-  private HttpServletRequest request;
-  @Autowired
-  private SpatialUtility spatialUtility;
+  protected GeometryBuilderUtility(SpatialUtility spatialUtility) {
+    this.spatialUtility = spatialUtility;
+  }
 
   /**
    * Computes the union of the given geometries and checks if it is completely within the underlying
@@ -66,10 +67,11 @@ public abstract class GeometryBuilder {
    * @return <code>Object</code> having the custom id of type <code>String</code> or
    *         <code>Integer</code>
    */
-  public Serializable createBoundaryIdFromJsonObjectId(JsonObject jsonObject) {
+  public Serializable createBoundaryIdFromJsonObjectId(JsonObject jsonObject,
+      HttpServletRequest servletRequest) {
     if (jsonObject.get("id").getValueType().compareTo(JsonValue.ValueType.STRING) == 0) {
       String id = jsonObject.getString("id");
-      if ("csv".equalsIgnoreCase(InputProcessor.createEmptyStringIfNull(request.getParameter("format")))) {
+      if ("csv".equalsIgnoreCase(InputProcessor.createEmptyStringIfNull(servletRequest.getParameter("format")))) {
         spatialUtility.checkCustomBoundaryId(id);
       }
       return id;

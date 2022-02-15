@@ -20,6 +20,7 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
 import org.heigit.ohsome.ohsomeapi.utilities.FilterUtility;
+import org.heigit.ohsome.ohsomeapi.utilities.GroupByUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -44,12 +45,12 @@ public class GroupByTag implements Operation {
   @Getter
   private final InputProcessor inputProcessor;
   private final FilterUtility filterUtility;
-  private final Group group;
+  private final GroupByUtility groupByUtility;
 
   @Autowired
-  public GroupByTag(Group group, HttpServletRequest servletRequest, ResultUtility resultUtility,
+  public GroupByTag(GroupByUtility groupByUtility, HttpServletRequest servletRequest, ResultUtility resultUtility,
       InputProcessor inputProcessor, FilterUtility filterUtility) {
-    this.group = group;
+    this.groupByUtility = groupByUtility;
     this.servletRequest = servletRequest;
     this.resultUtility = resultUtility;
     this.inputProcessor = inputProcessor;
@@ -59,14 +60,14 @@ public class GroupByTag implements Operation {
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, OSMEntitySnapshot> compute() throws Exception {
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
-    keysInt = group.getOSHDBKeyOfOneTag();
-    Integer[] valuesInt = group.getOSHDBTag();
-    List<Pair<Integer, Integer>> zeroFill = group.getListOfKeyValuePair(keysInt, valuesInt);
+    keysInt = groupByUtility.getOSHDBKeyOfOneTag();
+    Integer[] valuesInt = groupByUtility.getOSHDBTag();
+    List<Pair<Integer, Integer>> zeroFill = groupByUtility.getListOfKeyValuePair(keysInt, valuesInt);
     return aggregate(mapRed, keysInt, valuesInt, zeroFill);
   }
 
   public List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Number> preResult) {
-    var groupByResult = Group.nest(preResult);
+    var groupByResult = GroupByUtility.nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     String groupByName = "";
     Geometry geom = inputProcessor.getGeometry();

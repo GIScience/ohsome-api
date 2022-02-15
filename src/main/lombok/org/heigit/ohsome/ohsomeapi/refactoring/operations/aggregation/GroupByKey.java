@@ -17,6 +17,7 @@ import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utilities.GroupByUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -37,11 +38,11 @@ public class GroupByKey implements Operation<MapAggregator<OSHDBCombinedIndex<OS
   private Integer [] keysInt;
   @Getter
   private final InputProcessor inputProcessor;
-  private final Group group;
+  private final GroupByUtility groupByUtility;
 
   @Autowired
-  public GroupByKey(Group group, ResultUtility resultUtility, InputProcessor inputProcessor) {
-    this.group = group;
+  public GroupByKey(GroupByUtility groupByUtility, ResultUtility resultUtility, InputProcessor inputProcessor) {
+    this.groupByUtility = groupByUtility;
     this.resultUtility = resultUtility;
     this.inputProcessor = inputProcessor;
   }
@@ -49,7 +50,7 @@ public class GroupByKey implements Operation<MapAggregator<OSHDBCombinedIndex<OS
   @Override
   public MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> compute() throws Exception {
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
-    keysInt = group.getOSHDBKeysOfMultipleTags();
+    keysInt = groupByUtility.getOSHDBKeysOfMultipleTags();
     return aggregate(mapRed);
   }
 

@@ -8,11 +8,10 @@ import org.wololo.jts2geojson.GeoJSONReader;
 
 @Component
 @Getter
-public class GeometryOfOSHDBExtent extends GeometryBuilder {
+public class GeometryOfOSHDBExtent {
 
   private Geometry geometry;
 
-//TODO this class should implement GeometryFrom GeoJSON
   /**
    * Creates a Geometry object from the given GeoJSON String, which is derived from the metadata.
    *

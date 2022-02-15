@@ -20,13 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 public class TimeUtility implements Serializable {
 
-  @Autowired
-  private ExtractMetadata extractMetadata;
-  @Getter
+  private final ExtractMetadata extractMetadata;
   @Setter
   private String[] toTimestamps;
+
+  @Autowired
+  public TimeUtility(ExtractMetadata extractMetadata) {
+    this.extractMetadata = extractMetadata;
+  }
 
   /**
    * Defines the toTimestamps for the result json object for /users responses.

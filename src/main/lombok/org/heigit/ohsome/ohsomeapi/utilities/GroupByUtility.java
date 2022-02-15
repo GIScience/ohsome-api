@@ -1,4 +1,4 @@
-package org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation;
+package org.heigit.ohsome.ohsomeapi.utilities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,7 +17,10 @@ import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.utilities.DecimalFormatDefiner;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Area;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Length;
+import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Perimeter;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
@@ -33,7 +36,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 @Service
 @RequestScope
-public class Group {
+public class GroupByUtility {
 
   private final DecimalFormatDefiner df;
   private final HttpServletRequest servletRequest;
@@ -41,7 +44,7 @@ public class Group {
   private final InputProcessor inputProcessor;
 
   @Autowired
-  public Group(DecimalFormatDefiner df, HttpServletRequest servletRequest,
+  public GroupByUtility(DecimalFormatDefiner df, HttpServletRequest servletRequest,
       ExecutionUtils executionUtils, InputProcessor inputProcessor) {
     this.df = df;
     this.servletRequest = servletRequest;

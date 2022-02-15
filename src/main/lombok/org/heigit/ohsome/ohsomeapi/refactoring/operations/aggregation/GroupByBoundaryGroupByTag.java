@@ -20,6 +20,7 @@ import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utilities.GroupByUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -42,20 +43,20 @@ public class GroupByBoundaryGroupByTag implements Operation {
   private int keysInt;
   @Getter
   private final InputProcessor inputProcessor;
-  private final  Group group;
+  private final GroupByUtility groupByUtility;
 
   @Autowired
-  public GroupByBoundaryGroupByTag(Group group, SpatialUtility spatialUtility,
+  public GroupByBoundaryGroupByTag(GroupByUtility groupByUtility, SpatialUtility spatialUtility,
       InputProcessor inputProcessor) {
-    this.group = group;
+    this.groupByUtility = groupByUtility;
     this.spatialUtility = spatialUtility;
     this.inputProcessor = inputProcessor;
   }
 
   public MapAggregator<OSHDBCombinedIndex<OSHDBCombinedIndex<Integer, Pair<Integer, Integer>>, OSHDBTimestamp>, OSMEntitySnapshot> compute() throws Exception {
-    keysInt = group.getOSHDBKeyOfOneTag();
-    Integer[] valuesInt = group.getOSHDBTag();
-    List<Pair<Integer, Integer>> zeroFill = group.getListOfKeyValuePair(keysInt, valuesInt);
+    keysInt = groupByUtility.getOSHDBKeyOfOneTag();
+    Integer[] valuesInt = groupByUtility.getOSHDBTag();
+    List<Pair<Integer, Integer>> zeroFill = groupByUtility.getListOfKeyValuePair(keysInt, valuesInt);
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.getMapReducer();
     return aggregate(mapRed, keysInt, valuesInt, zeroFill);
   }
@@ -70,7 +71,7 @@ public class GroupByBoundaryGroupByTag implements Operation {
     TagTranslator tt = DbConnData.tagTranslator;
     for (var entry : groupByResult.entrySet()) {
       int boundaryIdentifier = entry.getKey().getFirstIndex();
-      List<ElementsResult> results = group.fillElementsResult(entry.getValue(),
+      List<ElementsResult> results = groupByUtility.fillElementsResult(entry.getValue(),
           inputProcessor.isDensity(),
           boundaries.get(boundaryIdentifier));
       int tagValue = entry.getKey().getSecondIndex().getValue();

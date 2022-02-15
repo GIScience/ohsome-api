@@ -12,6 +12,7 @@ import org.heigit.ohsome.ohsomeapi.output.Result;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
+import org.heigit.ohsome.ohsomeapi.utilities.GroupByUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.ResultUtility;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
@@ -32,11 +33,11 @@ public class GroupByType implements Operation {
   private final ResultUtility resultUtility;
   @Getter
   private final InputProcessor inputProcessor;
-  private final Group group;
+  private final GroupByUtility groupByUtility;
 
   @Autowired
-  public GroupByType(Group group, ResultUtility resultUtility, InputProcessor inputProcessor) {
-    this.group = group;
+  public GroupByType(GroupByUtility groupByUtility, ResultUtility resultUtility, InputProcessor inputProcessor) {
+    this.groupByUtility = groupByUtility;
     this.resultUtility = resultUtility;
     this.inputProcessor = inputProcessor;
   }
@@ -65,7 +66,7 @@ public class GroupByType implements Operation {
 
   public <T> List<GroupByResult> getResult(SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Number> preResult) {
 
-    var groupByResult = Group.nest(preResult);
+    var groupByResult = GroupByUtility.nest(preResult);
     List<GroupByResult> resultSet = new ArrayList<>();
     Geometry geom = inputProcessor.getGeometry();
     for (var entry : groupByResult.entrySet()) {

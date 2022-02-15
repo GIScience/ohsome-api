@@ -89,9 +89,14 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 public class ExecutionUtils implements Serializable {
 
   private AtomicReference<Boolean> isFirst;
-  private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
+  private final GeometryPrecisionReducer gpr;
+  private final TimeUtility timeUtility;
+
   @Autowired
-  private TimeUtility timeUtility;
+  public ExecutionUtils(TimeUtility timeUtility) {
+    this.timeUtility = timeUtility;
+    gpr = createGeometryPrecisionReducer();
+  }
 
   /** Applies a filter on the given MapReducer object using the given parameters. */
   public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,

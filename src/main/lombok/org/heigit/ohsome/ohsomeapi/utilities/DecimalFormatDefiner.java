@@ -7,11 +7,10 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 public class DecimalFormatDefiner {
 
-  @Getter
   private final DecimalFormat decimalFormat = defineDecimalFormat("#.##");
-  @Getter
   private final DecimalFormat decimalFormatForRatioRequests = defineDecimalFormat("#.######");
 
   /**

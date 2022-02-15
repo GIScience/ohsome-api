@@ -3,12 +3,12 @@ package org.heigit.ohsome.ohsomeapi.geometrybuilders;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.exception.NotFoundException;
+import org.heigit.ohsome.ohsomeapi.utilities.GeometryBuilderUtility;
 import org.heigit.ohsome.ohsomeapi.utilities.SpatialUtility;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -24,13 +24,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Getter
-@Setter
-public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoordinates {
+public class BCircleBuilder implements GeometryFromCoordinates {
 
   private List<Geometry> geometryList;
   private Geometry geom;
+  private final SpatialUtility spatialUtility;
+  private final GeometryBuilderUtility geometryBuilderUtility;
+
   @Autowired
-  private SpatialUtility spatialUtility;
+  public BCircleBuilder(SpatialUtility spatialUtility, GeometryBuilderUtility geometryBuilderUtility) {
+    this.spatialUtility = spatialUtility;
+    this.geometryBuilderUtility = geometryBuilderUtility;
+  }
 
   /**
    * Creates a <code>Geometry</code> object around the coordinates of the given <code>String</code>
@@ -70,7 +75,7 @@ public class BCircleBuilder extends GeometryBuilder implements GeometryFromCoord
         }
         geometryList.add(geom);
       }
-      Geometry result = unifyPolys(geometryList);
+      Geometry result = geometryBuilderUtility.unifyPolys(geometryList);
       return result;
     } catch (NumberFormatException | FactoryException | MismatchedDimensionException
         | TransformException | ArrayIndexOutOfBoundsException e) {

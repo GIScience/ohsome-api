@@ -28,8 +28,12 @@ public class SpatialUtility implements Serializable {
 
   public static final String GEOMCOLLTYPE = "GeometryCollection";
   private Serializable[] boundaryIds;
+  private final ExtractMetadata extractMetadata;
+
   @Autowired
-  private ExtractMetadata extractMetadata;
+  public SpatialUtility(ExtractMetadata extractMetadata) {
+    this.extractMetadata = extractMetadata;
+  }
 
   /**
    * Finds and returns the EPSG code of the given point, which is needed for {@link
