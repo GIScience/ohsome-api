@@ -9,6 +9,7 @@ import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
+import org.heigit.ohsome.ohsomeapi.utilities.RequestUtils;
 import org.heigit.ohsome.oshdb.api.db.OSHDBH2;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
@@ -77,7 +78,7 @@ public class Application implements ApplicationRunner {
    * @throws OSHDBKeytablesNotFoundException thrown by {@link
    *         org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator
    *         #TagTranslator(java.sql.Connection) TagTranslator}
-   * @throws IOException thrown by {@link org.heigit.ohsome.ohsomeapi.utils.RequestUtils
+   * @throws IOException thrown by {@link RequestUtils
    *         #extractOSHDBMetadata() extractOSHDBMetadata}
    */
   public static void preRun(ApplicationArguments args)
