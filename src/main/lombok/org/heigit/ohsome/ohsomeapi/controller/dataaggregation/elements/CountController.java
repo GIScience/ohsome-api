@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import java.util.SortedMap;
 import org.heigit.ohsome.ohsomeapi.controller.DefaultSwaggerParameters;
 import org.heigit.ohsome.ohsomeapi.controller.ParameterDescriptions;
@@ -13,7 +12,7 @@ import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
-import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operator;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.Count;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
@@ -37,8 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/elements/count")
 public class CountController {
 
-  @Autowired
-  private Operator operator;
   @Autowired
   private Count count;
   @Autowired
@@ -68,7 +65,7 @@ public class CountController {
   @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST},
       produces = {"application/json", "text/csv"})
   public Response count() throws Exception {
-    List result = count.compute();
+    var result = count.compute();
     return count.getResponse(result);
   }
 
@@ -208,12 +205,12 @@ public class CountController {
    * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
-  @ApiOperation(
-      value = "Density of OSM elements (number of elements divided by "
-          + "the total area in square-kilometers)",
-      nickname = "countDensity", response = DefaultAggregationResponse.class)
-  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
+//  @ApiOperation(
+//      value = "Density of OSM elements (number of elements divided by "
+//          + "the total area in square-kilometers)",
+//      nickname = "countDensity", response = DefaultAggregationResponse.class)
+//  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
 //  public Response countDensity(HttpServletRequest servletRequest,
 //      HttpServletResponse servletResponse) throws Exception {
 ////    AggregateRequestExecutor executor =
@@ -354,17 +351,17 @@ public class CountController {
    *         #aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
    *         aggregateRatio}
    */
-//  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
-//      nickname = "countRatio", response = RatioResponse.class)
-//  @ApiImplicitParams({
-//      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-//          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-//          dataType = "string", required = false),
-//      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-//          defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
-//          dataType = "string", required = true)})
-//  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
-//      produces = {"application/json", "text/csv"})
+  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
+      nickname = "countRatio", response = RatioResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.HOUSENUMBER_FILTER, paramType = "query",
+          dataType = "string", required = true)})
+  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = {"application/json", "text/csv"})
   public Response countRatio() throws Exception {
     var mapReducer = ratio.compute();
     var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());

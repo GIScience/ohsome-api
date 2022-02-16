@@ -10,6 +10,7 @@ import org.heigit.ohsome.ohsomeapi.output.DefaultAggregationResponse;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioGroupByBoundaryResponse;
+import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundary;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByBoundaryGroupByTag;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.aggregation.GroupByKey;
@@ -200,12 +201,12 @@ public class PerimeterController {
    * @throws Exception thrown by {@link
    *         org.heigit.ohsome.ohsomeapi.executor.AggregateRequestExecutor#aggregate() aggregate}
    */
-  @ApiOperation(
-      value = "Density of OSM elements (perimeter of elements divided by "
-          + "the total area in square-kilometers)",
-      nickname = "perimeterDensity", response = DefaultAggregationResponse.class)
-  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
-      produces = {"application/json", "text/csv"})
+//  @ApiOperation(
+//      value = "Density of OSM elements (perimeter of elements divided by "
+//          + "the total area in square-kilometers)",
+//      nickname = "perimeterDensity", response = DefaultAggregationResponse.class)
+//  @RequestMapping(value = "/density", method = {RequestMethod.GET, RequestMethod.POST},
+//      produces = {"application/json", "text/csv"})
 //  public Response perimeterDensity(HttpServletRequest servletRequest,
 //      HttpServletResponse servletResponse) throws Exception {
 ////    AggregateRequestExecutor executor = new AggregateRequestExecutor(RequestResource.PERIMETER,
@@ -344,17 +345,17 @@ public class PerimeterController {
    *         #aggregateRatio(RequestResource, HttpServletRequest, HttpServletResponse)
    *         aggregateRatio}
    */
-//  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
-//      nickname = "perimeterRatio", response = RatioResponse.class)
-//  @ApiImplicitParams({
-//      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
-//          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
-//          dataType = "string", required = false),
-//      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
-//          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
-//          dataType = "string", required = true)})
-//  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
-//      produces = {"application/json", "text/csv"})
+  @ApiOperation(value = "Ratio of OSM elements satisfying filter2 within items selected by filter",
+      nickname = "perimeterRatio", response = RatioResponse.class)
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "filter", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER, paramType = "query",
+          dataType = "string", required = false),
+      @ApiImplicitParam(name = "filter2", value = ParameterDescriptions.FILTER,
+          defaultValue = DefaultSwaggerParameters.BUILDING_FILTER2, paramType = "query",
+          dataType = "string", required = true)})
+  @RequestMapping(value = "/ratio", method = {RequestMethod.GET, RequestMethod.POST},
+      produces = {"application/json", "text/csv"})
   public Response perimeterRatio() throws Exception {
     var mapReducer = ratio.compute();
     var mapAggregator = ratio.aggregateByFilterMatching(mapReducer.aggregateByTimestamp());
