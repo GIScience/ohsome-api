@@ -15,14 +15,9 @@ import org.locationtech.jts.geom.Geometry;
 @Getter
 @Setter
 public class ProcessingData implements Serializable {
-  @Getter
-  @Setter
+
   private static Geometry dataPolyGeom;
-  @Getter
-  @Setter
   private static double timeout;
-  @Getter
-  @Setter
   private static int numberOfDataExtractionThreads = 1;
   private String requestUrl;
   private BoundaryType boundaryType;
@@ -30,14 +25,11 @@ public class ProcessingData implements Serializable {
   private String boundaryValuesGeoJson;
   private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
-  //private String format;
   private Geometry requestGeom;
   private List<Geometry> boundaryList;
   private GeoJsonObject[] geoJsonGeoms;
   private boolean isContainingSimpleFeatureTypes;
   private EnumSet<SimpleFeatureType> simpleFeatureTypes;
-  @Getter
-  @Setter
   private static int numberOfClusterNodes;
   private boolean isRatio;
   private boolean isGroupByBoundary;
