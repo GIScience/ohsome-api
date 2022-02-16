@@ -16,7 +16,7 @@ import org.heigit.ohsome.ohsomeapi.output.Attribution;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
 import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.refactoring.operations.Operation;
-import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.heigit.ohsome.ohsomeapi.utilities.GroupByBoundaryGeoJsonGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
