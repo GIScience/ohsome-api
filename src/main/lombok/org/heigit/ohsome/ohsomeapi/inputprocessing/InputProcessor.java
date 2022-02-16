@@ -61,7 +61,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 /**
  * Holds general input processing and validation methods and validates specific parameters given by
  * the request. Uses geometry methods from {@link
- * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilder} and
+ * org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder GeometryBuilderUtility} and
  * inputProcessingUtils from {@link
  * org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils InputProcessingUtils}. Throws
  * exceptions depending on their validity.
@@ -72,7 +72,20 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 @RequestScope
 public class InputProcessor {
 
-  private HttpServletRequest servletRequest;
+  private final HttpServletRequest servletRequest;
+  private final RequestUtils requestUtils;
+  private final ExtractMetadata extractMetadata;
+  private final BBoxBuilder bboxBuilder;
+  private final BPolygonBuilder bPolygonBuilder;
+  private final BCircleBuilder bCircleBuilder;
+  private final GeometryOfOSHDBExtent geometryOfOSHDBExtent;
+  private final SpatialUtility spatialUtility;
+  private final TimeUtility timeUtility;
+  private final FilterUtility filterUtility;
+  private GeometryFrom geometryFrom;
+  private ViewOnData viewOnData;
+  private Geometry boundary;
+  private MapReducer<? extends OSHDBMapReducible> mapRed;
   //Represents about 1/500 of 180° * 360°.
   public final int COMPUTE_MODE_THRESHOLD = 130;
   private BPolygonFromGeoJSON fromGeoJSONbuilder;
@@ -97,22 +110,12 @@ public class InputProcessor {
   private String filter2;
   private double timeout;
   private String[] values;
-  private RequestUtils requestUtils;
-  private ExtractMetadata extractMetadata;
-  private BBoxBuilder bboxBuilder;
-  private GeometryOfOSHDBExtent geometryOfOSHDBExtent;
-  private GeometryFrom geometryFrom;
-  private ViewOnData viewOnData;
-  private Geometry boundary;
-  private MapReducer<? extends OSHDBMapReducible> mapRed;
-  private SpatialUtility spatialUtility;
-  private TimeUtility timeUtility;
-  private FilterUtility filterUtility;
 
   @Autowired
   public InputProcessor(HttpServletRequest httpServletRequest, RequestUtils requestUtils,
-      BBoxBuilder bboxBuilder, BPolygonFromGeoJSON fromGeoJSONbuilder,
-      ExtractMetadata extractMetadata, GeometryOfOSHDBExtent geometryOfOSHDBExtent,
+      BBoxBuilder bboxBuilder, BPolygonBuilder bPolygonBuilder, BCircleBuilder bCircleBuilder,
+      BPolygonFromGeoJSON fromGeoJSONbuilder, ExtractMetadata extractMetadata,
+      GeometryOfOSHDBExtent geometryOfOSHDBExtent,
       SpatialUtility spatialUtility, TimeUtility timeUtility, FilterUtility filterUtility) {
     if (DbConnData.db instanceof OSHDBIgnite) {
       checkClusterAvailability();
@@ -122,6 +125,8 @@ public class InputProcessor {
     checkParameters();
     this.requestUtils = requestUtils;
     this.bboxBuilder = bboxBuilder;
+    this.bPolygonBuilder = bPolygonBuilder;
+    this.bCircleBuilder = bCircleBuilder;
     this.fromGeoJSONbuilder = fromGeoJSONbuilder;
     this.extractMetadata = extractMetadata;
     this.geometryOfOSHDBExtent = geometryOfOSHDBExtent;
@@ -269,15 +274,14 @@ public class InputProcessor {
           break;
         case BCIRCLES:
           processingData.setBoundaryValues(spatialUtility.splitBcircles(bcircles).toArray(new String[] {}));
-          BCircleBuilder bcircleBuilder = new BCircleBuilder();
-          boundary = bcircleBuilder.create(processingData.getBoundaryValues());
-          this.getProcessingData().setBoundaryList(bcircleBuilder.getGeometryList());
-          this.getProcessingData().setRequestGeom(bcircleBuilder.getGeom());
-          geometryFrom = bcircleBuilder;
+          boundary = bCircleBuilder.create(processingData.getBoundaryValues());
+          this.getProcessingData().setBoundaryList(bCircleBuilder.getGeometryList());
+          this.getProcessingData().setRequestGeom(bCircleBuilder.getGeom());
+          geometryFrom = bCircleBuilder;
           break;
         case BPOLYS:
           if (bpolys.matches("^\\s*\\{[\\s\\S]*")) {
-            boundary = fromGeoJSONbuilder.create(bpolys);
+            boundary = fromGeoJSONbuilder.create(bpolys, servletRequest);
             this.getProcessingData().setGeoJsonGeoms(fromGeoJSONbuilder.getGeoJsonGeoms());
             this.getProcessingData().setBoundaryList(fromGeoJSONbuilder.getGeometryList());
             this.getProcessingData().setRequestGeom(fromGeoJSONbuilder.getGeometry());
@@ -285,11 +289,10 @@ public class InputProcessor {
             geometryFrom = fromGeoJSONbuilder;
           } else {
             processingData.setBoundaryValues(spatialUtility.splitBpolys(bpolys).toArray(new String[] {}));
-            BPolygonBuilder bpolyBuilder = new BPolygonBuilder();
-            boundary = bpolyBuilder.create(processingData.getBoundaryValues());
-            this.getProcessingData().setBoundaryList(bpolyBuilder.getGeometryList());
-            this.getProcessingData().setRequestGeom(bpolyBuilder.getGeometry());
-            geometryFrom = bpolyBuilder;
+            boundary = bPolygonBuilder.create(processingData.getBoundaryValues());
+            this.getProcessingData().setBoundaryList(bPolygonBuilder.getGeometryList());
+            this.getProcessingData().setRequestGeom(bPolygonBuilder.getGeometry());
+            geometryFrom = bPolygonBuilder;
           }
           break;
         default:
