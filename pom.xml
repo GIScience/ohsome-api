@@ -38,7 +38,7 @@
     <oshdb.version>0.7.2</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <sonar.sources>src/main/lombok</sonar.sources>
-    <springboot.version>2.0.3.RELEASE</springboot.version>
+    <springboot.version>2.5.12</springboot.version>
     <springfox.version>2.9.2</springfox.version>
   </properties>
 
