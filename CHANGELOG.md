@@ -21,6 +21,13 @@ Changelog
 [#230]: https://github.com/GIScience/ohsome-api/pull/230
 
 
+## 1.6.3
+
+* upgrade `spring-boot` dependency to version 2.5.12 (and `spring` to version 5.3.18) ([#272])
+
+[#272]: https://github.com/GIScience/ohsome-api/pull/272
+
+
 ## 1.6.2
 
 * remove unused `log4j-api` dependency ([#251])
