@@ -14,7 +14,7 @@
   <url>https://api.ohsome.org</url>
   <description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
   <packaging>jar</packaging>
-  <version>1.6.2</version>
+  <version>1.6.3</version>
 
   <scm>
     <connection>scm:git:git@github.com:GIScience/ohsome-api.git</connection>
@@ -38,7 +38,8 @@
     <oshdb.version>0.7.2</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <sonar.sources>src/main/lombok</sonar.sources>
-    <springboot.version>2.0.3.RELEASE</springboot.version>
+    <springboot.version>2.5.12</springboot.version>
+    <spring.version>5.3.18</spring.version>
     <springfox.version>2.9.2</springfox.version>
   </properties>
 
@@ -59,6 +60,16 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
       <version>${springboot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
     </dependency>
     <!-- to have a basic auth with a user+key security on first request <dependency>
       <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId>
