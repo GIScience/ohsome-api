@@ -13,12 +13,14 @@ Changelog
 
 * fix bug which prevented error messages from being returned for non-unique parameters in POST requests ([#228])
 * fix a regression causing `…/groupBy/boundary` to crash when used with a geometry type filter using the (deprecated) types/keys/values parameter syntax ([#230])
+* fix changed name of property setting HTTP POST size ([#274])
 
 [#217]: https://github.com/GIScience/ohsome-api/issues/217
 [#224]: https://github.com/GIScience/ohsome-api/issues/224
 [#227]: https://github.com/GIScience/ohsome-api/issues/227
 [#228]: https://github.com/GIScience/ohsome-api/pull/228
 [#230]: https://github.com/GIScience/ohsome-api/pull/230
+[#274]: https://github.com/GIScience/ohsome-api/pull/274
 
 
 ## 1.6.3
