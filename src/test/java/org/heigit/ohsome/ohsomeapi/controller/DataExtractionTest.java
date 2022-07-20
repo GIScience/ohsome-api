@@ -1,9 +1,9 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
@@ -13,9 +13,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class DataExtractionTest {
   private String server = TestProperties.SERVER;
 
   /** Starts this application context. */
-  @BeforeClass
+  @BeforeAll
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT3 != null && (TestProperties.INTEGRATION == null
         || !TestProperties.INTEGRATION.equalsIgnoreCase("no")));
@@ -41,7 +41,7 @@ public class DataExtractionTest {
   }
 
   /** Stops this application context. */
-  @AfterClass
+  @AfterAll
   public static void applicationMainShutdown() {
     if (Application.getApplicationContext() != null) {
       SpringApplication.exit(Application.getApplicationContext(), () -> 0);

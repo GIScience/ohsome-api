@@ -135,13 +135,14 @@ public class ExecutionUtils implements Serializable {
       Set<SimpleFeatureType> simpleFeatureTypes, Integer[] keysInt, Integer[] valuesInt) {
     boolean matchesTags = true;
     OSMEntity entity = snapshot.getEntity();
+    entity.getTags();
     if (osmTypes.contains(entity.getType())) {
       for (int i = 0; i < keysInt.length; i++) {
         boolean matchesTag;
         if (i < valuesInt.length) {
-          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
+          matchesTag = entity.getTags().hasTagValue(keysInt[i], valuesInt[i]);
         } else {
-          matchesTag = entity.hasTagKey(keysInt[i]);
+          matchesTag = entity.getTags().hasTagKey(keysInt[i]);
         }
         if (!matchesTag) {
           matchesTags = false;

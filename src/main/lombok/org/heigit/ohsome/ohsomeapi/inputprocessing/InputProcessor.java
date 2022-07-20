@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -21,6 +23,7 @@ import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.ohsomeapi.utils.FilterUtil;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
@@ -234,7 +237,7 @@ public class InputProcessor {
     mapRed = defineTypes(types, mapRed);
     // the OSM type will be set in the ratio implementation within the ElementsRequestExecutor.java
     if (!processingData.isRatio()) {
-      mapRed = mapRed.osmType((EnumSet<OSMType>) processingData.getOsmTypes());
+      mapRed = mapRed.filter(FilterUtil.filter(processingData.getOsmTypes()));
     }
     if (processingData.isContainingSimpleFeatureTypes()
         // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
@@ -519,14 +522,17 @@ public class InputProcessor {
     }
     // prerequisites: both arrays (keys and values) must be of the same length
     // and key-value pairs need to be at the same index in both arrays
+    var filters = new ArrayList<String>();
+
     for (int i = 0; i < keys.length; i++) {
       if ("".equals(values[i])) {
-        mapRed = mapRed.osmTag(keys[i]);
+        filters.add(keys[i] + "=*");
       } else {
-        mapRed = mapRed.osmTag(keys[i], values[i]);
+        filters.add(keys[i] + "=" + values[i]);
       }
     }
-    return mapRed;
+    var filter = filters.stream().collect(Collectors.joining(" and ", "(", ")"));
+    return mapRed.filter(filter);
   }
 
   /**
