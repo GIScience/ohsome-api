@@ -531,7 +531,7 @@ public class InputProcessor {
         filters.add(keys[i] + "=" + values[i]);
       }
     }
-    var filter = filters.stream().collect(Collectors.joining(" and ", "(", ")"));
+    var filter = filters.stream().collect(Collectors.joining(" and "));
     return mapRed.filter(filter);
   }
 

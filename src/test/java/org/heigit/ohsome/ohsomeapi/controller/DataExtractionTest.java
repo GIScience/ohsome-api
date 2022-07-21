@@ -87,12 +87,12 @@ public class DataExtractionTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
             + "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994"
-            + "&time=2019-01-02&filter=building=* and (geometry:other or geometry:line)",
+            + "&time=2019-01-02&filter=building=*",
         JsonNode.class);
     assertTrue("GeometryCollection"
         .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
   }
-
+  
   @Test
   public void elementsGeomUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
@@ -143,7 +143,7 @@ public class DataExtractionTest {
   public void elementsClipGeometryParamTrueFalseTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String uri = "/elements/geometry?bboxes=8.700582,49.4143039,8.701247,49.414994&time=2018-01-02"
-        + "&filter=building=* and (geometry:other or geometry:line)";
+        + "&filter=building=*";
     ResponseEntity<JsonNode> clipGeometryFalseResponse =
         restTemplate.getForEntity(server + port + uri + "&clipGeometry=false", JsonNode.class);
     ResponseEntity<JsonNode> clipGeometryTrueResponse =

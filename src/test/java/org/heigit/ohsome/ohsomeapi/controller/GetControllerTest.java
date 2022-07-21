@@ -1130,7 +1130,7 @@ public class GetControllerTest {
     // expect result to have 3 entry rows (1 row per time interval), with 3 columns
     final double expectedValue = 28.85;
     String responseBody = getResponseBody(
-        "users/count/density?bcircles=8.68628,49.41117,200|8.68761,49.40819,200"
+        "/users/count/density?bcircles=8.68628,49.41117,200|8.68761,49.40819,200"
             + "&format=csv&time=2014-01-01/2017-01-01/P1Y&filter=type:way and wheelchair=yes");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
@@ -1144,7 +1144,7 @@ public class GetControllerTest {
   public void getUsersCountDensityGroupByTypeCsvTest() throws IOException {
     // expect result to have 3 entry rows (1 row per time interval)
     final double expectedValue = 3854.35;
-    String responseBody = getResponseBody("users/count/density/groupBy/type?"
+    String responseBody = getResponseBody("/users/count/density/groupBy/type?"
         + "bboxes=8.691773,49.413804,8.692149,49.413975&format=csv&time=2014-01-01/2017-01-01/P1Y"
         + "&filter=addr:housenumber=5 and (type:way or type:node)");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1160,7 +1160,7 @@ public class GetControllerTest {
     // expect result to have 3 entry rows (1 row per time interval)
     final double expectedValue = 2.0;
     String responseBody =
-        getResponseBody("users/count/groupBy/tag?bboxes=8.691865,49.413835,8.692605,49.414756"
+        getResponseBody("/users/count/groupBy/tag?bboxes=8.691865,49.413835,8.692605,49.414756"
             + "&format=csv&groupByKey=shop&time=2015-01-01/2018-01-01/P1Y"
             + "&groupByValues=clothes,wine&filter=type:node");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1175,7 +1175,7 @@ public class GetControllerTest {
   public void getUsersCountGroupByTypeCsvTest() throws IOException {
     // expect result to have 3 entry rows (1 row per time interval)
     final double expectedValue = 1.0;
-    String responseBody = getResponseBody("users/count/groupBy/type?"
+    String responseBody = getResponseBody("/users/count/groupBy/type?"
         + "bboxes=8.700609,49.409336,8.701488,49.409591&format=csv&time=2010-01-01/2013-01-01/P1Y"
         + "&filter=(type:way or type:node) and addr:housenumber=* and addr:street=\"Plöck\"");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);

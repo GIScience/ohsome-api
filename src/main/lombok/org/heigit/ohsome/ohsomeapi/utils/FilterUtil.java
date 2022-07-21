@@ -10,6 +10,6 @@ public class FilterUtil {
   public static String filter(Set<OSMType> types) {
     return types.stream()
       .map(type -> "type:" + type.toString().toLowerCase())
-      .collect(Collectors.joining(" or ", "(",")"));
+      .collect(Collectors.joining(" or ", "( "," )"));
   }
 }
