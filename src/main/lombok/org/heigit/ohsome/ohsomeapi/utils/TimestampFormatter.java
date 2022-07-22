@@ -1,4 +1,4 @@
-package org.heigit.ohsome.oshdb.util.time;
+package org.heigit.ohsome.ohsomeapi.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

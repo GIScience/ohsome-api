@@ -26,7 +26,7 @@
     <apachecommons-csv.version>1.9.0</apachecommons-csv.version>
     <apachecommons.version>3.12.0</apachecommons.version>
     <geojson-jackson.version>1.14</geojson-jackson.version>
-    <geotools.version>24.6</geotools.version>
+    <geotools.version>27.0</geotools.version>
     <gitcommitplugin.version>2.2.6</gitcommitplugin.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <jacksondatatype.version>2.13.3</jacksondatatype.version>
@@ -155,10 +155,14 @@
       <artifactId>javax.json</artifactId>
       <version>${javaxjson.version}</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-geometry</artifactId>
+      <artifactId>gt-opengis</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
       <version>${geotools.version}</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->

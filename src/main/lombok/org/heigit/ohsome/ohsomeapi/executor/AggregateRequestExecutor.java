@@ -36,6 +36,7 @@ import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
@@ -44,7 +45,6 @@ import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
-import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 
