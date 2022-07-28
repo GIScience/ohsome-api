@@ -15,12 +15,16 @@ Changelog
 * fix a regression causing `…/groupBy/boundary` to crash when used with a geometry type filter using the (deprecated) types/keys/values parameter syntax ([#230])
 * fix changed name of property setting HTTP POST size ([#274])
 
+### Other Changes
+* update OSHDB to version 1.0.0-beta-1 ([#278])
+
 [#217]: https://github.com/GIScience/ohsome-api/issues/217
 [#224]: https://github.com/GIScience/ohsome-api/issues/224
 [#227]: https://github.com/GIScience/ohsome-api/issues/227
 [#228]: https://github.com/GIScience/ohsome-api/pull/228
 [#230]: https://github.com/GIScience/ohsome-api/pull/230
 [#274]: https://github.com/GIScience/ohsome-api/pull/274
+[#278]: https://github.com/GIScience/ohsome-api/pull/278
 
 
 ## 1.6.3
