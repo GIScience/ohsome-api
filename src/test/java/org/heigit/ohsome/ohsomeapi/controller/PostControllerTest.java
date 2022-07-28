@@ -960,7 +960,7 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("relation")),
         expectedValue * deltaPercentage);
   }
 
@@ -1139,8 +1139,8 @@ public class PostControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(1.0, Double.parseDouble(records.get(0).get("RELATION")), 0.0);
-    assertEquals(1.0, Double.parseDouble(records.get(0).get("WAY")), 0.0);
+    assertEquals(1.0, Double.parseDouble(records.get(0).get("relation")), 0.0);
+    assertEquals(1.0, Double.parseDouble(records.get(0).get("way")), 0.0);
   }
 
   /*

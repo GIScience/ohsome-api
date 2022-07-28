@@ -895,7 +895,7 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("relation")),
         expectedValue * deltaPercentage);
   }
 
@@ -975,7 +975,7 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("WAY")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("way")),
         expectedValue * deltaPercentage);
   }
 
@@ -1057,9 +1057,9 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue1, Double.parseDouble(records.get(0).get("WAY")),
+    assertEquals(expectedValue1, Double.parseDouble(records.get(0).get("way")),
         expectedValue1 * deltaPercentage);
-    assertEquals(expectedValue2, Double.parseDouble(records.get(0).get("RELATION")),
+    assertEquals(expectedValue2, Double.parseDouble(records.get(0).get("relation")),
         expectedValue2 * deltaPercentage);
   }
 
@@ -1091,7 +1091,7 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("WAY")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("way")),
         expectedValue * deltaPercentage);
   }
 
@@ -1151,7 +1151,7 @@ public class GetControllerTest {
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("NODE")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("node")),
         expectedValue * deltaPercentage);
   }
 
@@ -1182,7 +1182,7 @@ public class GetControllerTest {
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(2).get("WAY")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(2).get("way")),
         expectedValue * deltaPercentage);
   }
 
