@@ -1,7 +1,10 @@
 Changelog
 =========
 
-## 1.7.0-SNAPSHOT (current master)
+## 1.8.0-SNAPSHOT (current master)
+
+
+## 1.7.0
 
 ### Breaking Changes
 * update OSHDB to version 1.0.0-beta-1 ([#278])
