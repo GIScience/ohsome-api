@@ -68,6 +68,7 @@ import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResponse;
 import org.heigit.ohsome.ohsomeapi.output.ratio.RatioResult;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
+import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.OSHDBBoundingBox;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
@@ -87,7 +88,6 @@ import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Lineal;
@@ -135,13 +135,14 @@ public class ExecutionUtils implements Serializable {
       Set<SimpleFeatureType> simpleFeatureTypes, Integer[] keysInt, Integer[] valuesInt) {
     boolean matchesTags = true;
     OSMEntity entity = snapshot.getEntity();
+
     if (osmTypes.contains(entity.getType())) {
       for (int i = 0; i < keysInt.length; i++) {
         boolean matchesTag;
         if (i < valuesInt.length) {
-          matchesTag = entity.hasTagValue(keysInt[i], valuesInt[i]);
+          matchesTag = entity.getTags().hasTagValue(keysInt[i], valuesInt[i]);
         } else {
-          matchesTag = entity.hasTagKey(keysInt[i]);
+          matchesTag = entity.getTags().hasTagKey(keysInt[i]);
         }
         if (!matchesTag) {
           matchesTags = false;
@@ -404,7 +405,7 @@ public class ExecutionUtils implements Serializable {
     }
     if (includeOSMMetadata) {
       properties.put("@version", entity.getVersion());
-      properties.put("@osmType", entity.getType());
+      properties.put("@osmType", entity.getType().toString());
       properties.put("@changesetId", entity.getChangesetId());
       if (isContributionsEndpoint) {
         properties = addContributionTypes(properties, contributionTypes);

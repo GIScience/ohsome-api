@@ -40,7 +40,9 @@ import org.heigit.ohsome.ohsomeapi.output.Response;
 import org.heigit.ohsome.ohsomeapi.output.elements.ElementsResult;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResponse;
 import org.heigit.ohsome.ohsomeapi.output.groupby.GroupByResult;
+import org.heigit.ohsome.ohsomeapi.utils.FilterUtil;
 import org.heigit.ohsome.ohsomeapi.utils.GroupByBoundaryGeoJsonGenerator;
+import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
@@ -57,7 +59,6 @@ import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
-import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.wololo.geojson.Feature;
@@ -485,6 +486,8 @@ public class ElementsRequestExecutor {
         resultSet);
   }
 
+
+
   /**
    * Performs a count|length|perimeter|area|ratio calculation.
    *
@@ -576,7 +579,7 @@ public class ElementsRequestExecutor {
     } else {
       mapRed = inputProcessor.processParameters();
     }
-    mapRed = mapRed.osmType(osmTypes);
+    mapRed = mapRed.filter(FilterUtil.filter(osmTypes));
     mapRed = ExecutionUtils.snapshotFilter(mapRed, osmTypes1, osmTypes2, simpleFeatureTypes1,
         simpleFeatureTypes2, keysInt1, keysInt2, valuesInt1, valuesInt2);
     var preResult = mapRed.aggregateByTimestamp().aggregateBy(snapshot -> {
@@ -825,7 +828,7 @@ public class ElementsRequestExecutor {
     } else {
       mapRed = inputProcessor.processParameters();
     }
-    mapRed = mapRed.osmType(osmTypes);
+    mapRed = mapRed.filter(FilterUtil.filter(osmTypes));
     ArrayList<Geometry> arrGeoms = new ArrayList<>(processingData.getBoundaryList());
     // intentionally as check for P on Polygonal is already performed
     @SuppressWarnings({"unchecked"})

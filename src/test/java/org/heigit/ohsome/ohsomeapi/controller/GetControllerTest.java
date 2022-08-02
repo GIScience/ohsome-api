@@ -1,8 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
@@ -17,9 +17,9 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class GetControllerTest {
   private final double deltaPercentage = TestProperties.DELTA_PERCENTAGE;
 
   /** Starts this application context. */
-  @BeforeClass
+  @BeforeAll
   public static void applicationMainStartup() {
     assumeTrue(TestProperties.PORT1 != null && (TestProperties.INTEGRATION == null
         || !TestProperties.INTEGRATION.equalsIgnoreCase("no")));
@@ -44,7 +44,7 @@ public class GetControllerTest {
   }
 
   /** Stops this application context. */
-  @AfterClass
+  @AfterAll
   public static void applicationMainShutdown() {
     if (Application.getApplicationContext() != null) {
       SpringApplication.exit(Application.getApplicationContext(), () -> 0);
@@ -895,7 +895,7 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("RELATION")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("relation")),
         expectedValue * deltaPercentage);
   }
 
@@ -975,7 +975,7 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("WAY")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("way")),
         expectedValue * deltaPercentage);
   }
 
@@ -1057,9 +1057,9 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue1, Double.parseDouble(records.get(0).get("WAY")),
+    assertEquals(expectedValue1, Double.parseDouble(records.get(0).get("way")),
         expectedValue1 * deltaPercentage);
-    assertEquals(expectedValue2, Double.parseDouble(records.get(0).get("RELATION")),
+    assertEquals(expectedValue2, Double.parseDouble(records.get(0).get("relation")),
         expectedValue2 * deltaPercentage);
   }
 
@@ -1091,7 +1091,7 @@ public class GetControllerTest {
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(4, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("WAY")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("way")),
         expectedValue * deltaPercentage);
   }
 
@@ -1130,7 +1130,7 @@ public class GetControllerTest {
     // expect result to have 3 entry rows (1 row per time interval), with 3 columns
     final double expectedValue = 28.85;
     String responseBody = getResponseBody(
-        "users/count/density?bcircles=8.68628,49.41117,200|8.68761,49.40819,200"
+        "/users/count/density?bcircles=8.68628,49.41117,200|8.68761,49.40819,200"
             + "&format=csv&time=2014-01-01/2017-01-01/P1Y&filter=type:way and wheelchair=yes");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
@@ -1144,14 +1144,14 @@ public class GetControllerTest {
   public void getUsersCountDensityGroupByTypeCsvTest() throws IOException {
     // expect result to have 3 entry rows (1 row per time interval)
     final double expectedValue = 3854.35;
-    String responseBody = getResponseBody("users/count/density/groupBy/type?"
+    String responseBody = getResponseBody("/users/count/density/groupBy/type?"
         + "bboxes=8.691773,49.413804,8.692149,49.413975&format=csv&time=2014-01-01/2017-01-01/P1Y"
         + "&filter=addr:housenumber=5 and (type:way or type:node)");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("NODE")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(0).get("node")),
         expectedValue * deltaPercentage);
   }
 
@@ -1160,7 +1160,7 @@ public class GetControllerTest {
     // expect result to have 3 entry rows (1 row per time interval)
     final double expectedValue = 2.0;
     String responseBody =
-        getResponseBody("users/count/groupBy/tag?bboxes=8.691865,49.413835,8.692605,49.414756"
+        getResponseBody("/users/count/groupBy/tag?bboxes=8.691865,49.413835,8.692605,49.414756"
             + "&format=csv&groupByKey=shop&time=2015-01-01/2018-01-01/P1Y"
             + "&groupByValues=clothes,wine&filter=type:node");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
@@ -1175,14 +1175,14 @@ public class GetControllerTest {
   public void getUsersCountGroupByTypeCsvTest() throws IOException {
     // expect result to have 3 entry rows (1 row per time interval)
     final double expectedValue = 1.0;
-    String responseBody = getResponseBody("users/count/groupBy/type?"
+    String responseBody = getResponseBody("/users/count/groupBy/type?"
         + "bboxes=8.700609,49.409336,8.701488,49.409591&format=csv&time=2010-01-01/2013-01-01/P1Y"
         + "&filter=(type:way or type:node) and addr:housenumber=* and addr:street=\"Plöck\"");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(3, Helper.getCsvRecords(responseBody).size());
     Map<String, Integer> headers = Helper.getCsvHeaders(responseBody);
     assertEquals(5, headers.size());
-    assertEquals(expectedValue, Double.parseDouble(records.get(2).get("WAY")),
+    assertEquals(expectedValue, Double.parseDouble(records.get(2).get("way")),
         expectedValue * deltaPercentage);
   }
 

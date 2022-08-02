@@ -1,8 +1,9 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -13,7 +14,7 @@ import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Geometry;
 
 /**
@@ -42,9 +43,10 @@ public class ContributionsExecutorTest {
     assertTrue(filter.test(createOSMContribution(EnumSet.of(ContributionType.DELETION))));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void contributionsFilterInvalid() {
-    ExecutionUtils.contributionsFilter("doesnotexist");
+    assertThrows(BadRequestException.class, () -> ExecutionUtils.contributionsFilter("doesnotexist"));
+
   }
 
   private OSMContribution createOSMContribution(Set<ContributionType> contributionTypes) {

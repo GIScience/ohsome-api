@@ -11,12 +11,12 @@ import java.util.TreeMap;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
+import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
-import org.heigit.ohsome.oshdb.util.time.TimestampFormatter;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.geojson.Feature;
 

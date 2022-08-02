@@ -23,22 +23,22 @@
   </scm>
 
   <properties>
-    <apachecommons-csv.version>1.6</apachecommons-csv.version>
-    <apachecommons.version>3.7</apachecommons.version>
-    <geojson-jackson.version>1.8</geojson-jackson.version>
-    <geotools.version>20.2</geotools.version>
+    <apachecommons-csv.version>1.9.0</apachecommons-csv.version>
+    <apachecommons.version>3.12.0</apachecommons.version>
+    <geojson-jackson.version>1.14</geojson-jackson.version>
+    <geotools.version>27.0</geotools.version>
     <gitcommitplugin.version>2.2.6</gitcommitplugin.version>
-    <hikaricp.version>3.4.2</hikaricp.version>
-    <jacksondatatype.version>2.9.8</jacksondatatype.version>
+    <hikaricp.version>5.0.1</hikaricp.version>
+    <jacksondatatype.version>2.13.3</jacksondatatype.version>
     <javaxjson.version>1.1.4</javaxjson.version>
-    <jsonpath.version>2.2.0</jsonpath.version>
-    <jts2geojson.version>0.13.0</jts2geojson.version>
+    <jsonpath.version>2.7.0</jsonpath.version>
+    <jts2geojson.version>0.17.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
-    <opencsv.version>4.0</opencsv.version>
-    <oshdb.version>0.7.2</oshdb.version>
+    <opencsv.version>5.6</opencsv.version>
+    <oshdb.version>1.0.0-beta-1</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <sonar.sources>src/main/lombok</sonar.sources>
-    <springboot.version>2.5.12</springboot.version>
+    <springboot.version>2.5.14</springboot.version>
     <spring.version>5.3.18</spring.version>
     <springfox.version>2.9.2</springfox.version>
   </properties>
@@ -155,10 +155,14 @@
       <artifactId>javax.json</artifactId>
       <version>${javaxjson.version}</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.geotools/gt-geometry -->
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-geometry</artifactId>
+      <artifactId>gt-opengis</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
       <version>${geotools.version}</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql -->

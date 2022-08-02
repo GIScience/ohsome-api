@@ -42,7 +42,7 @@ Description of the custom response parameters that are marked with a leading ``@
 * ``@osmId`` - id of the OSM element, including its type (e.g. node/1)
 * ``@version`` - version number of the OSM element
 * ``@changesetId`` - id of the OSM changeset which last increased the version of this OSM element
-* ``@osmType`` - type of the OSM element (NODE, WAY or RELATION)
+* ``@osmType`` - type of the OSM element (node, way or relation)
 
 **specific for /elements**
 

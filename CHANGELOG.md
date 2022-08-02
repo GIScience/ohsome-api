@@ -3,6 +3,10 @@ Changelog
 
 ## 1.7.0-SNAPSHOT (current master)
 
+### Breaking Changes
+* update OSHDB to version 1.0.0-beta-1 ([#278])
+  * OSM type strings change to `node`, `way`, `relation`
+
 ### New Features
 
 * add `contributions/count[/density]/groupBy/boundary` endpoints to fetch contribution counts/densities grouped by boundary ([#217])
@@ -21,6 +25,7 @@ Changelog
 [#228]: https://github.com/GIScience/ohsome-api/pull/228
 [#230]: https://github.com/GIScience/ohsome-api/pull/230
 [#274]: https://github.com/GIScience/ohsome-api/pull/274
+[#278]: https://github.com/GIScience/ohsome-api/pull/278
 
 
 ## 1.6.3

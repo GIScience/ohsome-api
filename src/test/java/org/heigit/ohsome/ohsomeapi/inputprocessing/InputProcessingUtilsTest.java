@@ -1,14 +1,16 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import org.heigit.ohsome.ohsomeapi.controller.TestProperties;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Test class for the
@@ -20,12 +22,12 @@ public class InputProcessingUtilsTest {
   private InputProcessingUtils inProUtils;
 
   /** Checks the value of the junit property. */
-  @BeforeClass
+  @BeforeAll
   public static void checkJunitProperty() {
     assumeTrue(TestProperties.JUNIT == null || !TestProperties.JUNIT.equalsIgnoreCase("no"));
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     inProUtils = new InputProcessingUtils();
     ExtractMetadata.fromTstamp = "2008-01-01T00:00:00Z";
@@ -53,51 +55,51 @@ public class InputProcessingUtilsTest {
     assertTrue(inProUtils.splitBpolys(bpolys).get(9).equals("49.113"));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void splitBboxesParamWithAndWithoutColon() throws Exception {
     String bboxes = "A:8.67567,49.40695,8.69434,49.40882|[idWithoutColon]8.67568,49.40694,"
         + "8.69433,49.40881";
-    inProUtils.splitBboxes(bboxes);
+    assertThrows(BadRequestException.class, () -> inProUtils.splitBboxes(bboxes));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void splitBcirclesParamWithAndWithoutColon() throws Exception {
     String bcircles = "A:8.6528,49.3683,1000|[idWithoutColon]8.7294,49.4376,1000";
-    inProUtils.splitBcircles(bcircles);
+    assertThrows(BadRequestException.class, () -> inProUtils.splitBcircles(bcircles));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void splitBpolysParamWithAndWithoutColon() throws Exception {
     String bpolys = "A:8.5992,49.3567,8.7499,49.4371,8.7499,49.4379,8.5992,49.3567|"
         + "[idWithoutColon]9.1638,49.113,9.2672,49.1766,9.2672,49.1775,9.1638,49.113";
-    inProUtils.splitBpolys(bpolys);
+    assertThrows(BadRequestException.class, () -> inProUtils.splitBpolys(bpolys));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void splitBboxesParamWithoutPipe() throws Exception {
     String bboxes = "A:8.67567,49.40695,8.69434,49.40882,B:8.67568,49.40694,8.69433,49.40881";
-    inProUtils.splitBboxes(bboxes);
+    assertThrows(BadRequestException.class, () -> inProUtils.splitBboxes(bboxes));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void splitBcirclesParamWithoutPipe() throws Exception {
     String bcircles = "A:8.6528,49.3683,1000,B:8.7294,49.4376,1000";
-    inProUtils.splitBcircles(bcircles);
+    assertThrows(BadRequestException.class, () -> inProUtils.splitBcircles(bcircles));
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void splitBpolysParamWithoutPipe() throws Exception {
     String bpolys = "A:8.5992,49.3567,8.7499,49.4371,8.7499,49.4379,8.5992,49.3567,B:9.1638,49.113,"
         + "9.2672,49.1766,9.2672,49.1775,9.1638,49.113";
-    inProUtils.splitBpolys(bpolys);
+    assertThrows(BadRequestException.class, () -> inProUtils.splitBpolys(bpolys));
   }
 
   // time tests
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void provideNonIsoConformTimeParameter() throws Exception {
     String time = "2015-01-01/2016-01-01/[invalid input]";
-    inProUtils.extractIsoTime(time);
+    assertThrows(BadRequestException.class, () -> inProUtils.extractIsoTime(time));
   }
 
   @Test
