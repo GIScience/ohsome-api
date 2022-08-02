@@ -1,9 +1,6 @@
 Changelog
 =========
 
-## 1.8.0-SNAPSHOT (current master)
-
-
 ## 1.7.0
 
 ### Breaking Changes
