@@ -405,7 +405,7 @@ public class ExecutionUtils implements Serializable {
     }
     if (includeOSMMetadata) {
       properties.put("@version", entity.getVersion());
-      properties.put("@osmType", entity.getType());
+      properties.put("@osmType", entity.getType().toString());
       properties.put("@changesetId", entity.getChangesetId());
       if (isContributionsEndpoint) {
         properties = addContributionTypes(properties, contributionTypes);
