@@ -18,6 +18,9 @@ import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 
 public class ApplicationUtils {
+
+  private ApplicationUtils() {}
+
   public static void preRun(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
     final String dbProperty = "database.db";
