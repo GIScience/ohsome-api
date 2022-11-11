@@ -97,7 +97,7 @@ public class ConfigureApplication {
   }
 
   // refactor remainder back to Application.java
-  public static void preRun(ApplicationArguments args)
+  public static void parseArguments(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
     var config = new ConfigureApplication(args);
     switch (config.databaseType) {

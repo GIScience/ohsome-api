@@ -74,7 +74,7 @@ public class Application implements ApplicationRunner {
    */
   public static void preRun(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
-    ConfigureApplication.preRun(args);
+    ConfigureApplication.parseArguments(args);
   }
 
   @Override
