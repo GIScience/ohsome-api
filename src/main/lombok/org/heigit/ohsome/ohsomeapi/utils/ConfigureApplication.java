@@ -19,6 +19,10 @@ import org.springframework.boot.ApplicationArguments;
 
 public class ConfigureApplication {
 
+  private enum DatabaseType {
+    H2, JDBC, IGNITE, NONE
+  }
+
   private boolean multithreading = true;
   private boolean caching = false;
   private String dbPrefix = null;
@@ -28,12 +32,12 @@ public class ConfigureApplication {
   private String databaseClassName;
   private String databaseUser;
   private String databasePassword;
-  private String databaseType;
+  private DatabaseType databaseType = DatabaseType.NONE;
   private String databaseUrl;
   private String keytablesClassName;
   private String keytablesUser;
   private String keytablesPassword;
-  private String keytablesType;
+  private DatabaseType keytablesType = DatabaseType.NONE;
   private String keytablesUrl;
 
   private ConfigureApplication(ApplicationArguments args) {
@@ -41,11 +45,11 @@ public class ConfigureApplication {
       switch (paramName) {
         // TODO change to "database.h2" for a future stable version
         case "database.db":
-          databaseType = "h2";
+          databaseType = DatabaseType.H2;
           databaseUrl = args.getOptionValues(paramName).get(0);
           break;
         case "database.jdbc":
-          databaseType = "jdbc";
+          databaseType = DatabaseType.JDBC;
           String[] jdbcParam = args.getOptionValues(paramName).get(0).split(";");
           databaseClassName = jdbcParam[0];
           databaseUrl = jdbcParam[1];
@@ -53,15 +57,15 @@ public class ConfigureApplication {
           databasePassword = jdbcParam[3];
           break;
         case "database.ignite":
-          databaseType = "ignite";
+          databaseType = DatabaseType.IGNITE;
           databaseUrl = args.getOptionValues(paramName).get(0);
           break;
         case "database.keytables":
-          keytablesType = "h2";
+          keytablesType = DatabaseType.H2;
           keytablesUrl = args.getOptionValues(paramName).get(0);
           break;
         case "database.keytables.jdbc":
-          keytablesType = "jdbc";
+          keytablesType = DatabaseType.JDBC;
           String[] keytablesJdbcParam = args.getOptionValues(paramName).get(0).split(";");
           keytablesClassName = keytablesJdbcParam[0];
           keytablesUrl = keytablesJdbcParam[1];
@@ -101,24 +105,24 @@ public class ConfigureApplication {
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
     var config = new ConfigureApplication(args);
     switch (config.databaseType) {
-      case "h2":
+      case H2:
         DbConnData.db = new OSHDBH2(config.databaseUrl);
         break;
-      case "jdbc":
+      case JDBC:
         DbConnData.db = new OSHDBJdbc(config.databaseClassName, config.databaseUrl,
             config.databaseUser, config.databasePassword);
         break;
-      case "ignite":
+      case IGNITE:
         DbConnData.db = new OSHDBIgnite(config.databaseUrl);
         break;
       default:
         throw new IllegalStateException("Unexpected value: " + config.databaseType);
     }
     switch (config.keytablesType) {
-      case "h2":
+      case H2:
         DbConnData.db = new OSHDBH2(config.keytablesUrl);
         break;
-      case "jdbc":
+      case JDBC:
         DbConnData.db = new OSHDBJdbc(config.keytablesClassName, config.keytablesUrl,
             config.keytablesUser, config.keytablesPassword);
         DbConnData.mapTagTranslator = new RemoteTagTranslator(() -> {
