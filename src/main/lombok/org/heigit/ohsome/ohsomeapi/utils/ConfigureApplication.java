@@ -147,6 +147,8 @@ public class ConfigureApplication {
     }
 
     // initialize TagTranslator
+    // TODO replace with reasonable values
+    // TODO make configurable
     long maxBytesValues = Long.MAX_VALUE;
     int maxNumRoles = Integer.MAX_VALUE;
     DbConnData.tagTranslator = new CachedTagTranslator(DbConnData.db.getTagTranslator(),
