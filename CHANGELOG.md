@@ -3,6 +3,10 @@ Changelog
 
 ## 1.8.0-SNAPSHOT (current master)
 
+### Breaking Changes
+* remove caching command line parameter (TODO)
+* update to OSHDB 1.0.0-SNAPSHOT (TODO)
+
 
 ## 1.7.0
 

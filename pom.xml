@@ -35,7 +35,8 @@
     <jts2geojson.version>0.17.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>5.6</opencsv.version>
-    <oshdb.version>1.0.0-beta-1</oshdb.version>
+    <!-- TODO: change to non-snapshot version after oshdb release -->
+    <oshdb.version>1.0.0-SNAPSHOT</oshdb.version>
     <projectlombok.version>1.18.16</projectlombok.version>
     <sonar.sources>src/main/lombok</sonar.sources>
     <springboot.version>2.5.14</springboot.version>

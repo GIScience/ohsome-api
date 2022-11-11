@@ -1,20 +1,19 @@
 package org.heigit.ohsome.ohsomeapi.utils;
 
 import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.nio.file.Path;
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.heigit.ohsome.ohsomeapi.Application;
-import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
-import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
-import org.heigit.ohsome.ohsomeapi.oshdb.RemoteTagTranslator;
+import org.heigit.ohsome.oshdb.api.db.H2Support;
 import org.heigit.ohsome.oshdb.api.db.OSHDBH2;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBJdbc;
 import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
-import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
+import org.heigit.ohsome.oshdb.util.tagtranslator.CachedTagTranslator;
 import org.springframework.boot.ApplicationArguments;
 
 public class ConfigureApplication {
@@ -24,8 +23,7 @@ public class ConfigureApplication {
   }
 
   private boolean multithreading = true;
-  private boolean caching = false;
-  private String dbPrefix = null;
+  private String dbPrefix = "";
   private long timeoutInMilliseconds = Application.DEFAULT_TIMEOUT_IN_MILLISECONDS;
   private int numberOfClusterNodes = Application.DEFAULT_NUMBER_OF_CLUSTER_NODES;
   private int numberOfDataExtractionThreads = Application.DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
@@ -77,11 +75,6 @@ public class ConfigureApplication {
             multithreading = false;
           }
           break;
-        case "database.caching":
-          if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("true")) {
-            caching = true;
-          }
-          break;
         case "database.prefix":
           dbPrefix = args.getOptionValues(paramName).get(0);
           break;
@@ -102,58 +95,49 @@ public class ConfigureApplication {
 
   // refactor remainder back to Application.java
   public static void parseArguments(ApplicationArguments args)
-      throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
+      throws OSHDBKeytablesNotFoundException, IOException {
     var config = new ConfigureApplication(args);
     switch (config.keytablesType) {
       case H2:
-        DbConnData.db = new OSHDBH2(config.keytablesUrl);
+        DbConnData.keytablesDbSource = JdbcConnectionPool.create(
+            H2Support.pathToUrl(Path.of(config.keytablesUrl)), "sa", "");
         break;
       case JDBC:
-        DbConnData.db = new OSHDBJdbc(config.keytablesClassName, config.keytablesUrl,
-            config.keytablesUser, config.keytablesPassword);
-        DbConnData.mapTagTranslator = new RemoteTagTranslator(() -> {
-          try {
-            Class.forName(config.keytablesClassName);
-            return new TagTranslator(
-                DriverManager.getConnection(config.keytablesUrl, config.keytablesUser,
-                    config.keytablesPassword));
-          } catch (ClassNotFoundException e) {
-            throw new RuntimeException("A class with this specific name could not be found");
-          } catch (OSHDBKeytablesNotFoundException | SQLException e) {
-            throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
-          }
-        });
-        HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(config.keytablesUrl);
-        hikariConfig.setUsername(config.keytablesUser);
-        hikariConfig.setPassword(config.keytablesPassword);
-        hikariConfig.setMaximumPoolSize(config.numberOfDataExtractionThreads);
-        DbConnData.keytablesDbPoolConfig = hikariConfig;
+        var keytablesHc = new HikariConfig();
+        keytablesHc.setJdbcUrl(config.keytablesUrl);
+        keytablesHc.setUsername(config.keytablesUser);
+        keytablesHc.setPassword(config.keytablesPassword);
+        keytablesHc.setMaximumPoolSize(config.numberOfDataExtractionThreads);
+        DbConnData.keytablesDbSource = new HikariDataSource(keytablesHc);
         break;
       default:
-        if (config.databaseType != DatabaseType.IGNITE) {
-          break;
-        }
-        throw new IllegalStateException("Unexpected value: " + config.keytablesType);
+        break;
     }
     switch (config.databaseType) {
       case H2:
         DbConnData.db = new OSHDBH2(config.databaseUrl);
         break;
       case JDBC:
-        DbConnData.db = new OSHDBJdbc(config.databaseClassName, config.databaseUrl,
-            config.databaseUser, config.databasePassword);
+        var hc = new HikariConfig();
+        hc.setJdbcUrl(config.databaseUrl);
+        hc.setUsername(config.databaseUser);
+        hc.setPassword(config.databasePassword);
+        DbConnData.dbSource =  new HikariDataSource(hc);
+        DbConnData.db = new OSHDBJdbc(DbConnData.dbSource, config.dbPrefix,
+            DbConnData.keytablesDbSource == null ? DbConnData.dbSource
+                : DbConnData.keytablesDbSource);
         break;
       case IGNITE:
-        DbConnData.db = new OSHDBIgnite(config.databaseUrl);
+        if (DbConnData.keytablesDbSource == null) {
+          throw new IllegalArgumentException("Keytables parameter missing");
+        }
+        DbConnData.db = new OSHDBIgnite(config.databaseUrl, config.dbPrefix,
+            DbConnData.keytablesDbSource);
         break;
       default:
-        throw new IllegalStateException("Unexpected value: " + config.databaseType);
-    }
-    if (DbConnData.db == null) {
-      throw new RuntimeException(
-          "You have to define one of the following three database parameters: '--database.db', "
-              + "'--database.ignite', or '--database.jdbc'.");
+        throw new IllegalArgumentException(
+            "You have to define one of the following three database parameters: '--database.db', "
+                + "'--database.ignite', or '--database.jdbc'.");
     }
     ProcessingData.setTimeout(config.timeoutInMilliseconds / 1000.0);
     DbConnData.db.timeoutInMilliseconds(config.timeoutInMilliseconds);
@@ -162,35 +146,20 @@ public class ConfigureApplication {
     if (DbConnData.db instanceof OSHDBJdbc) {
       DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(config.multithreading);
     }
-    if (DbConnData.db instanceof OSHDBH2) {
-      DbConnData.db = ((OSHDBH2) DbConnData.db).inMemory(config.caching);
-    }
-    if (DbConnData.keytables != null) {
-      DbConnData.tagTranslator = new TagTranslator(DbConnData.keytables.getConnection());
-    } else {
-      if (!(DbConnData.db instanceof OSHDBJdbc)) {
-        throw new DatabaseAccessException("Missing keytables.");
-      }
-      DbConnData.tagTranslator = new TagTranslator(((OSHDBJdbc) DbConnData.db).getConnection());
-    }
+
+    // initialize TagTranslator
+    long maxBytesValues = Long.MAX_VALUE;
+    int maxNumRoles = Integer.MAX_VALUE;
+    DbConnData.tagTranslator = new CachedTagTranslator(DbConnData.db.getTagTranslator(),
+        maxBytesValues, maxNumRoles);
+
+    // extract metadata
     RequestUtils.extractOSHDBMetadata();
-    if (DbConnData.mapTagTranslator == null) {
-      DbConnData.mapTagTranslator = new RemoteTagTranslator(DbConnData.tagTranslator);
-    }
+
     if (DbConnData.db instanceof OSHDBIgnite) {
-      RemoteTagTranslator mtt = DbConnData.mapTagTranslator;
       ((OSHDBIgnite) DbConnData.db).onClose(() -> {
-        try {
-          if (mtt.wasEvaluated()) {
-            mtt.get().getConnection().close();
-          }
-        } catch (SQLException e) {
-          throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
-        }
+        // TODO add connections to close
       });
-    }
-    if (config.dbPrefix != null) {
-      DbConnData.db = DbConnData.db.prefix(config.dbPrefix);
     }
   }
 }

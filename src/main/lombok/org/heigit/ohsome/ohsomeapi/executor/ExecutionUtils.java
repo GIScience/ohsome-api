@@ -10,12 +10,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import com.opencsv.CSVWriter;
-import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -46,7 +44,6 @@ import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
-import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
@@ -78,15 +75,14 @@ import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.OSHDBTagKey;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
-import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.ohsome.oshdb.util.function.SerializablePredicate;
 import org.heigit.ohsome.oshdb.util.function.SerializableSupplier;
 import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
-import org.heigit.ohsome.oshdb.util.tagtranslator.OSMTag;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -140,7 +136,7 @@ public class ExecutionUtils implements Serializable {
       for (int i = 0; i < keysInt.length; i++) {
         boolean matchesTag;
         if (i < valuesInt.length) {
-          matchesTag = entity.getTags().hasTagValue(keysInt[i], valuesInt[i]);
+          matchesTag = entity.getTags().hasTag(keysInt[i], valuesInt[i]);
         } else {
           matchesTag = entity.getTags().hasTagKey(keysInt[i]);
         }
@@ -856,20 +852,7 @@ public class ExecutionUtils implements Serializable {
       final ServletOutputStream outputStream)
       throws ExecutionException, InterruptedException, IOException {
     ThreadLocal<TagTranslator> tts;
-    HikariDataSource keytablesConnectionPool;
-    if (DbConnData.keytablesDbPoolConfig != null) {
-      keytablesConnectionPool = new HikariDataSource(DbConnData.keytablesDbPoolConfig);
-      tts = ThreadLocal.withInitial(() -> {
-        try {
-          return new TagTranslator(keytablesConnectionPool.getConnection());
-        } catch (OSHDBKeytablesNotFoundException | SQLException e) {
-          throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
-        }
-      });
-    } else {
-      keytablesConnectionPool = null;
-      tts = ThreadLocal.withInitial(() -> DbConnData.tagTranslator);
-    }
+    tts = ThreadLocal.withInitial(() -> DbConnData.tagTranslator);
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean errored = new AtomicBoolean(false);
     ForkJoinPool threadPool = new ForkJoinPool(ProcessingData.getNumberOfDataExtractionThreads());
@@ -879,11 +862,10 @@ public class ExecutionUtils implements Serializable {
         Map<String, Object> props = data.getProperties();
         OSHDBTag[] tags = (OSHDBTag[]) props.remove("@tags");
         if (tags != null) {
-          for (OSHDBTag tag : tags) {
-            OSMTag osmTag = tts.get().getOSMTagOf(tag);
+          tts.get().lookupTag(Set.of(tags)).forEach((oshdbTag, osmTag) -> {
             String key = osmTag.getKey();
             props.put(key.startsWith("@") ? "@" + key : key, osmTag.getValue());
-          }
+          });
         }
         // 1. convert features to geojson
         try {
@@ -921,9 +903,6 @@ public class ExecutionUtils implements Serializable {
       })).get();
     } finally {
       threadPool.shutdown();
-      if (keytablesConnectionPool != null) {
-        keytablesConnectionPool.close();
-      }
       outputStream.flush();
     }
   }
@@ -987,7 +966,7 @@ public class ExecutionUtils implements Serializable {
     if (keys.length != 0) {
       keysInt = new HashSet<>(keys.length);
       for (String key : keys) {
-        keysInt.add(tt.getOSHDBTagKeyOf(key).toInt());
+        tt.getOSHDBTagKeyOf(key).map(OSHDBTagKey::toInt).ifPresent(keysInt::add);
       }
     } else {
       keysInt = Collections.emptySet();
