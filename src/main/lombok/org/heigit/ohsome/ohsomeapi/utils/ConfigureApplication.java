@@ -99,8 +99,7 @@ public class ConfigureApplication {
     var config = new ConfigureApplication(args);
     switch (config.keytablesType) {
       case H2:
-        DbConnData.keytablesDbSource = JdbcConnectionPool.create(
-            H2Support.pathToUrl(Path.of(config.keytablesUrl)), "sa", "");
+        DbConnData.keytablesDbSource = H2Support.createJdbcPoolFromPath(config.keytablesUrl);
         break;
       case JDBC:
         var keytablesHc = new HikariConfig();
