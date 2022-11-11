@@ -36,7 +36,7 @@ public class ConfigureApplication {
   private String keytablesType;
   private String keytablesUrl;
 
-  public ConfigureApplication(ApplicationArguments args) {
+  private ConfigureApplication(ApplicationArguments args) {
     for (String paramName : args.getOptionNames()) {
       switch (paramName) {
         // TODO change to "database.h2" for a future stable version
