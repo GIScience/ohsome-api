@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
 import org.heigit.ohsome.ohsomeapi.exception.DatabaseAccessException;
-import org.heigit.ohsome.ohsomeapi.utils.ApplicationUtils;
+import org.heigit.ohsome.ohsomeapi.utils.ConfigureApplication;
 import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -74,7 +74,7 @@ public class Application implements ApplicationRunner {
    */
   public static void preRun(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
-    ApplicationUtils.preRun(args);
+    ConfigureApplication.preRun(args);
   }
 
   @Override

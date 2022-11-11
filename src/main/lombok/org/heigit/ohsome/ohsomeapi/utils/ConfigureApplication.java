@@ -17,7 +17,7 @@ import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.springframework.boot.ApplicationArguments;
 
-public class ApplicationUtils {
+public class ConfigureApplication {
 
   private boolean multithreading = true;
   private boolean caching = false;
@@ -36,7 +36,7 @@ public class ApplicationUtils {
   private String keytablesType;
   private String keytablesUrl;
 
-  public ApplicationUtils(ApplicationArguments args) {
+  public ConfigureApplication(ApplicationArguments args) {
     for (String paramName : args.getOptionNames()) {
       switch (paramName) {
         // TODO change to "database.h2" for a future stable version
@@ -99,7 +99,7 @@ public class ApplicationUtils {
   // refactor remainder back to Application.java
   public static void preRun(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
-    var config = new ApplicationUtils(args);
+    var config = new ConfigureApplication(args);
     switch (config.databaseType) {
       case "h2":
         DbConnData.db = new OSHDBH2(config.databaseUrl);
