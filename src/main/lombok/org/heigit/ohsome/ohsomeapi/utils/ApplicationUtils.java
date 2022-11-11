@@ -19,55 +19,54 @@ import org.springframework.boot.ApplicationArguments;
 
 public class ApplicationUtils {
 
-  private ApplicationUtils() {}
+  private boolean multithreading = true;
+  private boolean caching = false;
+  private String dbPrefix = null;
+  private long timeoutInMilliseconds = Application.DEFAULT_TIMEOUT_IN_MILLISECONDS;
+  private int numberOfClusterNodes = Application.DEFAULT_NUMBER_OF_CLUSTER_NODES;
+  private int numberOfDataExtractionThreads = Application.DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
+  private String databaseClassName;
+  private String databaseUser;
+  private String databasePassword;
+  private String databaseType;
+  private String databaseUrl;
+  private String keytablesClassName;
+  private String keytablesUser;
+  private String keytablesPassword;
+  private String keytablesType;
+  private String keytablesUrl;
 
-  public static void preRun(ApplicationArguments args)
-      throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
-    boolean multithreading = true;
-    boolean caching = false;
-    String dbPrefix = null;
-    long timeoutInMilliseconds = Application.DEFAULT_TIMEOUT_IN_MILLISECONDS;
-    int numberOfClusterNodes = Application.DEFAULT_NUMBER_OF_CLUSTER_NODES;
-    int numberOfDataExtractionThreads = Application.DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
+  public ApplicationUtils(ApplicationArguments args) {
     for (String paramName : args.getOptionNames()) {
       switch (paramName) {
+        // TODO change to "database.h2" for a future stable version
         case "database.db":
-          DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
+          databaseType = "h2";
+          databaseUrl = args.getOptionValues(paramName).get(0);
           break;
         case "database.jdbc":
+          databaseType = "jdbc";
           String[] jdbcParam = args.getOptionValues(paramName).get(0).split(";");
-          DbConnData.db = new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
+          databaseClassName = jdbcParam[0];
+          databaseUrl = jdbcParam[1];
+          databaseUser = jdbcParam[2];
+          databasePassword = jdbcParam[3];
           break;
         case "database.ignite":
-          if (DbConnData.db != null) {
-            break;
-          }
-          DbConnData.db = new OSHDBIgnite(args.getOptionValues(paramName).get(0));
+          databaseType = "ignite";
+          databaseUrl = args.getOptionValues(paramName).get(0);
           break;
         case "database.keytables":
-          DbConnData.keytables = new OSHDBH2(args.getOptionValues(paramName).get(0));
+          keytablesType = "h2";
+          keytablesUrl = args.getOptionValues(paramName).get(0);
           break;
         case "database.keytables.jdbc":
-          jdbcParam = args.getOptionValues(paramName).get(0).split(";");
-          DbConnData.keytables =
-              new OSHDBJdbc(jdbcParam[0], jdbcParam[1], jdbcParam[2], jdbcParam[3]);
-          DbConnData.mapTagTranslator = new RemoteTagTranslator(() -> {
-            try {
-              Class.forName(jdbcParam[0]);
-              return new TagTranslator(
-                  DriverManager.getConnection(jdbcParam[1], jdbcParam[2], jdbcParam[3]));
-            } catch (ClassNotFoundException e) {
-              throw new RuntimeException("A class with this specific name could not be found");
-            } catch (OSHDBKeytablesNotFoundException | SQLException e) {
-              throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
-            }
-          });
-          HikariConfig hikariConfig = new HikariConfig();
-          hikariConfig.setJdbcUrl(jdbcParam[1]);
-          hikariConfig.setUsername(jdbcParam[2]);
-          hikariConfig.setPassword(jdbcParam[3]);
-          hikariConfig.setMaximumPoolSize(numberOfDataExtractionThreads);
-          DbConnData.keytablesDbPoolConfig = hikariConfig;
+          keytablesType = "jdbc";
+          String[] keytablesJdbcParam = args.getOptionValues(paramName).get(0).split(";");
+          keytablesClassName = keytablesJdbcParam[0];
+          keytablesUrl = keytablesJdbcParam[1];
+          keytablesUser = keytablesJdbcParam[2];
+          keytablesPassword = keytablesJdbcParam[3];
           break;
         case "database.multithreading":
           if (args.getOptionValues(paramName).get(0).equalsIgnoreCase("false")) {
@@ -95,20 +94,69 @@ public class ApplicationUtils {
           break;
       }
     }
+  }
+
+  // refactor remainder back to Application.java
+  public static void preRun(ApplicationArguments args)
+      throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
+    var config = new ApplicationUtils(args);
+    switch (config.databaseType) {
+      case "h2":
+        DbConnData.db = new OSHDBH2(config.databaseUrl);
+        break;
+      case "jdbc":
+        DbConnData.db = new OSHDBJdbc(config.databaseClassName, config.databaseUrl,
+            config.databaseUser, config.databasePassword);
+        break;
+      case "ignite":
+        DbConnData.db = new OSHDBIgnite(config.databaseUrl);
+        break;
+      default:
+        throw new IllegalStateException("Unexpected value: " + config.databaseType);
+    }
+    switch (config.keytablesType) {
+      case "h2":
+        DbConnData.db = new OSHDBH2(config.keytablesUrl);
+        break;
+      case "jdbc":
+        DbConnData.db = new OSHDBJdbc(config.keytablesClassName, config.keytablesUrl,
+            config.keytablesUser, config.keytablesPassword);
+        DbConnData.mapTagTranslator = new RemoteTagTranslator(() -> {
+          try {
+            Class.forName(config.keytablesClassName);
+            return new TagTranslator(
+                DriverManager.getConnection(config.keytablesUrl, config.keytablesUser,
+                    config.keytablesPassword));
+          } catch (ClassNotFoundException e) {
+            throw new RuntimeException("A class with this specific name could not be found");
+          } catch (OSHDBKeytablesNotFoundException | SQLException e) {
+            throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
+          }
+        });
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(config.keytablesUrl);
+        hikariConfig.setUsername(config.keytablesUser);
+        hikariConfig.setPassword(config.keytablesPassword);
+        hikariConfig.setMaximumPoolSize(config.numberOfDataExtractionThreads);
+        DbConnData.keytablesDbPoolConfig = hikariConfig;
+        break;
+      default:
+        throw new IllegalStateException("Unexpected value: " + config.keytablesType);
+    }
     if (DbConnData.db == null) {
       throw new RuntimeException(
           "You have to define one of the following three database parameters: '--database.db', "
               + "'--database.ignite', or '--database.jdbc'.");
     }
-    ProcessingData.setTimeout(timeoutInMilliseconds / 1000.0);
-    DbConnData.db.timeoutInMilliseconds(timeoutInMilliseconds);
-    ProcessingData.setNumberOfClusterNodes(numberOfClusterNodes);
-    ProcessingData.setNumberOfDataExtractionThreads(numberOfDataExtractionThreads);
+    ProcessingData.setTimeout(config.timeoutInMilliseconds / 1000.0);
+    DbConnData.db.timeoutInMilliseconds(config.timeoutInMilliseconds);
+    ProcessingData.setNumberOfClusterNodes(config.numberOfClusterNodes);
+    ProcessingData.setNumberOfDataExtractionThreads(config.numberOfDataExtractionThreads);
     if (DbConnData.db instanceof OSHDBJdbc) {
-      DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(multithreading);
+      DbConnData.db = ((OSHDBJdbc) DbConnData.db).multithreading(config.multithreading);
     }
     if (DbConnData.db instanceof OSHDBH2) {
-      DbConnData.db = ((OSHDBH2) DbConnData.db).inMemory(caching);
+      DbConnData.db = ((OSHDBH2) DbConnData.db).inMemory(config.caching);
     }
     if (DbConnData.keytables != null) {
       DbConnData.tagTranslator = new TagTranslator(DbConnData.keytables.getConnection());
@@ -134,8 +182,8 @@ public class ApplicationUtils {
         }
       });
     }
-    if (dbPrefix != null) {
-      DbConnData.db = DbConnData.db.prefix(dbPrefix);
+    if (config.dbPrefix != null) {
+      DbConnData.db = DbConnData.db.prefix(config.dbPrefix);
     }
   }
 }
