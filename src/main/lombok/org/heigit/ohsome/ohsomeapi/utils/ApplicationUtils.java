@@ -23,20 +23,15 @@ public class ApplicationUtils {
 
   public static void preRun(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
-    final String dbProperty = "database.db";
     boolean multithreading = true;
     boolean caching = false;
     String dbPrefix = null;
     long timeoutInMilliseconds = Application.DEFAULT_TIMEOUT_IN_MILLISECONDS;
     int numberOfClusterNodes = Application.DEFAULT_NUMBER_OF_CLUSTER_NODES;
     int numberOfDataExtractionThreads = Application.DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
-    // only used when tests are executed directly in Eclipse
-    if (System.getProperty(dbProperty) != null) {
-      DbConnData.db = new OSHDBH2(System.getProperty(dbProperty));
-    }
     for (String paramName : args.getOptionNames()) {
       switch (paramName) {
-        case dbProperty:
+        case "database.db":
           DbConnData.db = new OSHDBH2(args.getOptionValues(paramName).get(0));
           break;
         case "database.jdbc":
