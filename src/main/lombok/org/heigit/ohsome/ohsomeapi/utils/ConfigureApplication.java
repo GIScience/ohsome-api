@@ -104,20 +104,6 @@ public class ConfigureApplication {
   public static void parseArguments(ApplicationArguments args)
       throws ClassNotFoundException, SQLException, OSHDBKeytablesNotFoundException, IOException {
     var config = new ConfigureApplication(args);
-    switch (config.databaseType) {
-      case H2:
-        DbConnData.db = new OSHDBH2(config.databaseUrl);
-        break;
-      case JDBC:
-        DbConnData.db = new OSHDBJdbc(config.databaseClassName, config.databaseUrl,
-            config.databaseUser, config.databasePassword);
-        break;
-      case IGNITE:
-        DbConnData.db = new OSHDBIgnite(config.databaseUrl);
-        break;
-      default:
-        throw new IllegalStateException("Unexpected value: " + config.databaseType);
-    }
     switch (config.keytablesType) {
       case H2:
         DbConnData.db = new OSHDBH2(config.keytablesUrl);
@@ -149,6 +135,20 @@ public class ConfigureApplication {
           break;
         }
         throw new IllegalStateException("Unexpected value: " + config.keytablesType);
+    }
+    switch (config.databaseType) {
+      case H2:
+        DbConnData.db = new OSHDBH2(config.databaseUrl);
+        break;
+      case JDBC:
+        DbConnData.db = new OSHDBJdbc(config.databaseClassName, config.databaseUrl,
+            config.databaseUser, config.databasePassword);
+        break;
+      case IGNITE:
+        DbConnData.db = new OSHDBIgnite(config.databaseUrl);
+        break;
+      default:
+        throw new IllegalStateException("Unexpected value: " + config.databaseType);
     }
     if (DbConnData.db == null) {
       throw new RuntimeException(
