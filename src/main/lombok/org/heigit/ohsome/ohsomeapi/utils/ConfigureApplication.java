@@ -145,6 +145,9 @@ public class ConfigureApplication {
         DbConnData.keytablesDbPoolConfig = hikariConfig;
         break;
       default:
+        if (config.databaseType != DatabaseType.IGNITE) {
+          break;
+        }
         throw new IllegalStateException("Unexpected value: " + config.keytablesType);
     }
     if (DbConnData.db == null) {
