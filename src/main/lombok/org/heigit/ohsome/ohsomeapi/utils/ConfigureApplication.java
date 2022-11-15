@@ -36,8 +36,7 @@ public class ConfigureApplication {
   private String keytablesPassword;
   private DatabaseType keytablesType = DatabaseType.NONE;
   private String keytablesUrl;
-  // TODO replace the following two with reasonable values
-  private long ttMaxBytesValue = Long.MAX_VALUE;
+  private long ttMaxBytesValue = 512L * 1024L * 1024L;
   private int ttMaxNumRoles = Integer.MAX_VALUE;
 
   private ConfigureApplication(ApplicationArguments args) {
