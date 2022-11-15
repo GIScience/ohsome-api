@@ -14,6 +14,9 @@ import org.heigit.ohsome.oshdb.util.exceptions.OSHDBKeytablesNotFoundException;
 import org.heigit.ohsome.oshdb.util.tagtranslator.CachedTagTranslator;
 import org.springframework.boot.ApplicationArguments;
 
+/**
+ * Utility Class for parsing and configuration the ohsome API application.
+ */
 public class ConfigureApplication {
 
   private enum DatabaseType {
@@ -87,7 +90,10 @@ public class ConfigureApplication {
     }
   }
 
-  // refactor remainder back to Application.java
+  /**
+   * Method run by the Application class to parse incoming command line arguments
+   * @param args ApplicationArguments from spring to be parsed.
+   */
   public static void parseArguments(ApplicationArguments args)
       throws OSHDBKeytablesNotFoundException, IOException {
     var config = new ConfigureApplication(args);
