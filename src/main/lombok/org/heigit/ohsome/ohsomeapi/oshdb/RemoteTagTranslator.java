@@ -4,6 +4,9 @@ import org.heigit.ohsome.oshdb.util.celliterator.LazyEvaluatedObject;
 import org.heigit.ohsome.oshdb.util.function.SerializableSupplier;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 
+
+// TODO: Remove
+
 /**
  * A tag-translator that can be used in map/flatMap/aggregateBy functions that may be executed on
  * remote machines.

@@ -3,6 +3,15 @@ Changelog
 
 ## 1.8.0-SNAPSHOT (current master)
 
+### Breaking Changes
+* remove caching command line parameter ([#281])
+* update to OSHDB 1.0.0-SNAPSHOT ([#281])
+
+### New Features
+* tag translator parameter are now configurable via CLI parameter: `tt.maxbytesvalue`, `tt.maxnumroles` ([#281])
+
+[#281]: https://github.com/GIScience/ohsome-api/pull/281
+
 
 ## 1.7.0
 

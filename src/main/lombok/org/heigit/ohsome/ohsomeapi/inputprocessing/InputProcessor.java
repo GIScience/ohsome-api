@@ -196,17 +196,9 @@ public class InputProcessor {
     }
     DbConnData.db.timeout(timeout);
     if (isSnapshot) {
-      if (DbConnData.keytables == null) {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.db);
-      } else {
-        mapRed = OSMEntitySnapshotView.on(DbConnData.db).keytables(DbConnData.keytables);
-      }
+      mapRed = OSMEntitySnapshotView.on(DbConnData.db);
     } else {
-      if (DbConnData.keytables == null) {
-        mapRed = OSMContributionView.on(DbConnData.db);
-      } else {
-        mapRed = OSMContributionView.on(DbConnData.db).keytables(DbConnData.keytables);
-      }
+      mapRed = OSMContributionView.on(DbConnData.db);
     }
     if (boundary.isRectangle()) {
       mapRed =

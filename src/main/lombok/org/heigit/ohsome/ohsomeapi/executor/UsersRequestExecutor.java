@@ -30,6 +30,7 @@ import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.osm.OSMType;
+import org.heigit.ohsome.oshdb.util.OSHDBTagKey;
 import org.heigit.ohsome.oshdb.util.function.SerializableFunction;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
@@ -119,10 +120,11 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
-    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).toInt();
+    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-1);
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).getValue();
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).map(OSHDBTag::getValue)
+            .orElse(-j);
         zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
       }
     }
@@ -172,7 +174,7 @@ public class UsersRequestExecutor {
       } else if (entry.getKey().getKey() == -1 && entry.getKey().getValue() == -1) {
         groupByName = "remainder";
       } else {
-        groupByName = tt.getOSMTagOf(keysInt, entry.getKey().getValue()).toString();
+        groupByName = tt.lookupTag(keysInt, entry.getKey().getValue()).toString();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -214,7 +216,7 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
-      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).toInt();
+      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).map(OSHDBTagKey::toInt).orElse(-i);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     result = mapRed
@@ -256,7 +258,7 @@ public class UsersRequestExecutor {
       } else if (entry.getKey() == -1) {
         groupByName = "remainder";
       } else {
-        groupByName = tt.getOSMTagKeyOf(entry.getKey().intValue()).toString();
+        groupByName = tt.lookupTag(entry.getKey(), 0).getKey();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;

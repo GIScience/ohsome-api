@@ -131,7 +131,6 @@ Now you should have a running local API, which is ready for receiving requests u
 *Note:*
 * additionally you can add optional run-parameters:
     * to disable multithreading: `--database.multithreading=false`
-    * to enable in-memory-caching: `--database.caching=true` (caution.. enabling this option requires quite some memory, but makes processing much faster)
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
     * in Eclipse: *Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'*
 * if you want to get information about the code directly, you can access the [Javadoc](https://docs.ohsome.org/java/ohsome-api/), which gets updated daily.

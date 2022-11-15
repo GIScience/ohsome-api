@@ -359,11 +359,12 @@ public class InputProcessingUtils implements Serializable {
   public <T extends OSHDBMapReducible> MapReducer<T> filterOnPlanarRelations(MapReducer<T> mapRed) {
     // further filtering to not look at all relations
     TagTranslator tt = DbConnData.tagTranslator;
-    OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon");
-    OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary");
+    OSHDBTag typeMultipolygon = tt.getOSHDBTagOf("type", "multipolygon")
+        .orElse(new OSHDBTag(-1, -1));
+    OSHDBTag typeBoundary = tt.getOSHDBTagOf("type", "boundary").orElse(new OSHDBTag(-1, -1));
     return mapRed.filter(Filter.byOSMEntity(entity -> !entity.getType().equals(OSMType.RELATION)
-        || entity.getTags().hasTagValue(typeMultipolygon.getKey(), typeMultipolygon.getValue())
-        || entity.getTags().hasTagValue(typeBoundary.getKey(), typeBoundary.getValue())));
+        || entity.getTags().hasTag(typeMultipolygon.getKey(), typeMultipolygon.getValue())
+        || entity.getTags().hasTag(typeBoundary.getKey(), typeBoundary.getValue())));
   }
 
   /**
