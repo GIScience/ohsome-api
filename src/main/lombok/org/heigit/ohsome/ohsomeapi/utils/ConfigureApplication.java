@@ -3,8 +3,6 @@ package org.heigit.ohsome.ohsomeapi.utils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
-import java.nio.file.Path;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
@@ -27,12 +25,10 @@ public class ConfigureApplication {
   private long timeoutInMilliseconds = Application.DEFAULT_TIMEOUT_IN_MILLISECONDS;
   private int numberOfClusterNodes = Application.DEFAULT_NUMBER_OF_CLUSTER_NODES;
   private int numberOfDataExtractionThreads = Application.DEFAULT_NUMBER_OF_DATA_EXTRACTION_THREADS;
-  private String databaseClassName;
   private String databaseUser;
   private String databasePassword;
   private DatabaseType databaseType = DatabaseType.NONE;
   private String databaseUrl;
-  private String keytablesClassName;
   private String keytablesUser;
   private String keytablesPassword;
   private DatabaseType keytablesType = DatabaseType.NONE;
@@ -49,7 +45,6 @@ public class ConfigureApplication {
         case "database.jdbc":
           databaseType = DatabaseType.JDBC;
           String[] jdbcParam = args.getOptionValues(paramName).get(0).split(";");
-          databaseClassName = jdbcParam[0];
           databaseUrl = jdbcParam[1];
           databaseUser = jdbcParam[2];
           databasePassword = jdbcParam[3];
@@ -65,7 +60,6 @@ public class ConfigureApplication {
         case "database.keytables.jdbc":
           keytablesType = DatabaseType.JDBC;
           String[] keytablesJdbcParam = args.getOptionValues(paramName).get(0).split(";");
-          keytablesClassName = keytablesJdbcParam[0];
           keytablesUrl = keytablesJdbcParam[1];
           keytablesUser = keytablesJdbcParam[2];
           keytablesPassword = keytablesJdbcParam[3];
