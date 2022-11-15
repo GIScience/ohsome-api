@@ -140,6 +140,7 @@ public class ConfigureApplication {
         }
         DbConnData.db = new OSHDBIgnite(config.databaseUrl, config.dbPrefix,
             DbConnData.keytablesDbSource);
+        DbConnData.keytables = new OSHDBJdbc(DbConnData.keytablesDbSource, "");
         break;
       default:
         throw new IllegalArgumentException(
