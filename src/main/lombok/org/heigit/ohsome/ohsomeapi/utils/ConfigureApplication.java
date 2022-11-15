@@ -36,6 +36,9 @@ public class ConfigureApplication {
   private String keytablesPassword;
   private DatabaseType keytablesType = DatabaseType.NONE;
   private String keytablesUrl;
+  // TODO replace the following two with reasonable values
+  private long ttMaxBytesValue = Long.MAX_VALUE;
+  private int ttMaxNumRoles = Integer.MAX_VALUE;
 
   private ConfigureApplication(ApplicationArguments args) {
     for (String paramName : args.getOptionNames()) {
@@ -83,6 +86,12 @@ public class ConfigureApplication {
           break;
         case "cluster.dataextraction.threadcount":
           numberOfDataExtractionThreads = Integer.parseInt(args.getOptionValues(paramName).get(0));
+          break;
+        case "tt.maxbytesvalue":
+          ttMaxBytesValue = Long.parseLong(args.getOptionValues(paramName).get(0));
+          break;
+        case "tt.maxnumroles":
+          ttMaxNumRoles = Integer.parseInt(args.getOptionValues(paramName).get(0));
           break;
         default:
           break;
@@ -147,12 +156,8 @@ public class ConfigureApplication {
     }
 
     // initialize TagTranslator
-    // TODO replace with reasonable values
-    // TODO make configurable
-    long maxBytesValues = Long.MAX_VALUE;
-    int maxNumRoles = Integer.MAX_VALUE;
     DbConnData.tagTranslator = new CachedTagTranslator(DbConnData.db.getTagTranslator(),
-        maxBytesValues, maxNumRoles);
+        config.ttMaxBytesValue, config.ttMaxNumRoles);
 
     // extract metadata
     RequestUtils.extractOSHDBMetadata();
