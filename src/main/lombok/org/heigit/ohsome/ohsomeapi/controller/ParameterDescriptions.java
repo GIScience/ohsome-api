@@ -15,9 +15,6 @@ public class ParameterDescriptions {
           + "FeatureCollection. The first point has to be the same as the last point and "
           + "MultiPolygons are only supported in GeoJSON; no default value "
           + "(one boundary parameter must be defined)";
-  public static final String TYPES =
-      "OSM type(s) 'node' and/or 'way' and/or 'relation' OR simple feature type(s) 'point' and/or "
-          + "'line' and/or 'polygon'; default: all three OSM types";
   public static final String KEYS = "OSM key(s) e.g.: 'highway', 'building'; default: no key";
   public static final String GROUP_BY_KEY = "OSM key e.g.: 'highway', 'building'; no default "
       + "value (one groupByKey parameter must be defined)";

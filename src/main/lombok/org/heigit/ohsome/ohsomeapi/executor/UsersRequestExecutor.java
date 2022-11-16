@@ -3,6 +3,7 @@ package org.heigit.ohsome.ohsomeapi.executor;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -56,10 +57,9 @@ public class UsersRequestExecutor {
   public static Response countGroupByType(HttpServletRequest servletRequest,
       HttpServletResponse servletResponse, boolean isDensity) throws Exception {
     long startTime = System.currentTimeMillis();
-    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result = null;
-    MapReducer<OSMContribution> mapRed = null;
+    SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, OSMType>, Integer> result;
     InputProcessor inputProcessor = new InputProcessor(servletRequest, false, isDensity);
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMContribution> mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     result = mapRed.filter(ExecutionUtils.contributionsFilter(servletRequest.getParameter(
@@ -67,7 +67,7 @@ public class UsersRequestExecutor {
         .aggregateByTimestamp()
         .aggregateBy(
             (SerializableFunction<OSMContribution, OSMType>) f -> f.getEntityAfter().getType(),
-            processingData.getOsmTypes())
+            EnumSet.allOf(OSMType.class))
         .map(OSMContribution::getContributorUserId)
         .countUniq();
     SortedMap<OSMType, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
@@ -111,8 +111,7 @@ public class UsersRequestExecutor {
     if (groupByKey.length != 1) {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEY_PARAM);
     }
-    MapReducer<OSMContribution> mapRed = null;
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMContribution> mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     String[] groupByValues = inputProcessor.splitParamOnComma(inputProcessor.createEmptyArrayIfNull(
@@ -209,8 +208,7 @@ public class UsersRequestExecutor {
     if (groupByKeys == null || groupByKeys.length == 0) {
       throw new BadRequestException(ExceptionMessages.GROUP_BY_KEYS_PARAM);
     }
-    MapReducer<OSMContribution> mapRed = null;
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMContribution> mapRed = inputProcessor.processParameters();
     ProcessingData processingData = inputProcessor.getProcessingData();
     RequestParameters requestParameters = processingData.getRequestParameters();
     TagTranslator tt = DbConnData.tagTranslator;
@@ -248,7 +246,7 @@ public class UsersRequestExecutor {
     SortedMap<Integer, SortedMap<OSHDBTimestamp, Integer>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
-    String groupByName = "";
+    String groupByName;
     int count = 0;
     for (Entry<Integer, SortedMap<OSHDBTimestamp, Integer>> entry : groupByResult.entrySet()) {
       ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),

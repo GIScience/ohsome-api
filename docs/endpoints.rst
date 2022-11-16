@@ -4,9 +4,6 @@ API Endpoints
 .. note:: For **POST requests** the fields are given analogous to **GET requests**. When you just have a smaller set of spatial parameters,
     a GET request fits perfectly. POST mostly makes sense when you start to use GeoJSON as input geometries.
 
-    The usage of the parameters **types**, **keys** and **values** is not recommended as they are deprecated. Please use the
-    filter_ parameter for your requests.
-
 Elements Aggregation
 --------------------
 
@@ -22,9 +19,6 @@ Elements Aggregation
    :query format: 'json' or 'csv'; default: 'json'
    :query showMetadata: add additional metadata information to the response: 'true', 'false', 'yes', 'no'; default: 'false'
    :query timeout: custom timeout to limit the processing time in seconds; default: dependent on server settings, retrievable via the /metadata request
-   :query types: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM type(s) ‘node’ and/or ‘way’ and/or ‘relation’ OR simple feature type(s) ‘point’ and/or ‘line’ and/or 'polygon’ and/or 'other'; default: all three OSM types
-   :query keys: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM key(s) given as a list and combined with the 'AND' operator; default: empty
-   :query values: Deprecated! Use **filter** parameter instead! Old parameter which allowed to specify OSM value(s) given as a list and combined with the 'AND' operator; values(n) MUST fit to keys(n); default: empty
 
 **Example request**:
 
@@ -217,9 +211,6 @@ What is the density of restaurants with wheelchair access in Heidelberg?
 
    :query <other>: see above_
    :query filter2: see filter_
-   :query keys2: Deprecated! see **filter2**
-   :query types2: Deprecated! use **filter2**
-   :query values2: Deprecated! see **filter2**
 
 .. note:: The result of a **ratio request** may contain the value **"NaN"**, when the ratio calculation involves a division of zero by zero.
 
@@ -819,9 +810,6 @@ Compare length of different types of streets for two or more regions.
 
    :query <other>: see above_
    :query filter2: see filter_
-   :query keys2: Deprecated! see **filter2**
-   :query types2: Deprecated! use **filter2**
-   :query values2: Deprecated! see **filter2**
 
 Users Aggregation
 -----------------
@@ -1008,7 +996,7 @@ Contributions Aggregation
 
 .. http:post :: /contributions/count
 
-   Get the count of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters. List of endpoints:
+   Get the count of the contributions provided to the OSM data. List of endpoints:
 
     * **/count**
     * **/count/density**
@@ -1126,7 +1114,7 @@ Number of contributions to the building 'Stadthalle Heidelberg' between 2010 and
 
 .. http:post :: /contributions/count/density
 
-   Get the density of the count of contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the density of the count of contributions in the total query area in counts per square-kilometers.
 
 **Example request**:
 
@@ -1230,7 +1218,7 @@ Density of contributions to shops within the oldtown area of Heidelberg between 
 
 .. http:post :: /contributions/latest/count
 
-   Get the count of the latest contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the count of the latest contributions provided to the OSM data.
 
 **Example request**:
 
@@ -1334,7 +1322,7 @@ Number of the latest contributions to residential buildings with a geometry chan
 
 .. http:post :: /contributions/latest/count/density
 
-  Get the density of the count of the latest contributions in the total query area in counts per square-kilometers. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+  Get the density of the count of the latest contributions in the total query area in counts per square-kilometers.
 
 **Example request**:
 
@@ -1438,7 +1426,7 @@ Density of the latest contributions with a geometry change to shops within the o
 
 .. http:post :: /contributions/count/groupBy/boundary
 
-  Get the count of the contributions provided to the OSM data grouped by the specified boundaries of the query. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+  Get the count of the contributions provided to the OSM data grouped by the specified boundaries of the query.
 
 **Example request**:
 
@@ -1574,7 +1562,7 @@ Number of contributions to shops in different suburbs of Heidelberg (Altstadt an
 
 .. http:post :: /contributions/count/density/groupBy/boundary
 
-   Get the density of the count of contributions in the total query area in counts per square-kilometers grouped by the specified boundaries of the query. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the density of the count of contributions in the total query area in counts per square-kilometers grouped by the specified boundaries of the query.
 
 **Example request**:
 
@@ -1975,7 +1963,7 @@ Contributions Extraction
 
 .. http:post :: /contributions/(geometryType)
 
-   Get the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the contributions provided to the OSM data.
    This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
 
    :query <other>: see above_ (except **format**)
@@ -2327,7 +2315,7 @@ Get the changes of pharmacies with opening hours in a certain area of Heidelberg
 
 .. http:post :: /contributions/latest/(geometryType)
 
-   Get the the latest state of the contributions provided to the OSM data. This endpoint does not support the deprecated ``types``, ``keys``, ``values`` parameters.
+   Get the the latest state of the contributions provided to the OSM data.
    This endpoint supports the geometry types ``bbox``, ``centroid`` and ``geometry``.
 
    :query <other>: see above_ (except **format**)

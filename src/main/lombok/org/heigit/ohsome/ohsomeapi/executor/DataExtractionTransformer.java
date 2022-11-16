@@ -6,11 +6,8 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.osm.OSMEntity;
@@ -39,14 +36,7 @@ public class DataExtractionTransformer implements Serializable {
   private final boolean includeOSMMetadata;
   private final boolean includeContributionTypes;
   private final ElementsGeometry outputGeometry;
-  private final InputProcessingUtils inputUtils;
   private final ExecutionUtils exeUtils;
-  @Deprecated
-  private final Set<Integer> keysInt;
-  @Deprecated
-  private final Set<SimpleFeatureType> simpleFeatureTypes;
-  @Deprecated
-  private final boolean isContainingSimpleFeatureTypes;
 
   /**
    * Creates a new data extraction transformer, adhering to the given parameters.
@@ -66,37 +56,26 @@ public class DataExtractionTransformer implements Serializable {
    *        changeset id, timestamp, version number)
    * @param includeContributionTypes set true if the result should include the contribution type
    *        for `/elements/contributions` resources
-   * @param inputUtils input processing utility object
    * @param exeUtils the execution utils object
-   * @param keysInt (for the deprecated `keys` filter parameter) set the list of always to be
-   *        returned OSM tags in the GeoJSON's features' properties
    * @param outputGeometry specifies what should be returned as the GeoJSON feature's geometry:
    *        either the full geometry, its bbox or its centroid.
-   * @param simpleFeatureTypes if the query uses the (deprecated) types parameter, and it contains
-   *        simple feature "geometry" types, specify the set of to be returned geometry types here
-   * @param isContainingSimpleFeatureTypes set true if the query uses the (deprecated) types
    */
   public DataExtractionTransformer(String startTimestamp, String endTimestamp,
       FilterExpression filter, boolean isContributionsEndpoint,
       boolean isContributionsLatestEndpoint, boolean clipGeometries, boolean includeTags,
-      boolean includeOSMMetadata, boolean includeContributionTypes, InputProcessingUtils inputUtils,
-      ExecutionUtils exeUtils, Set<Integer> keysInt, ElementsGeometry outputGeometry,
-      Set<SimpleFeatureType> simpleFeatureTypes, boolean isContainingSimpleFeatureTypes) {
+      boolean includeOSMMetadata, boolean includeContributionTypes,
+      ExecutionUtils exeUtils, ElementsGeometry outputGeometry) {
     this.isContributionsLatestEndpoint = isContributionsLatestEndpoint;
     this.isContributionsEndpoint = isContributionsEndpoint;
     this.exeUtils = exeUtils;
     this.clipGeometries = clipGeometries;
     this.startTimestamp = startTimestamp;
-    this.inputUtils = inputUtils;
-    this.simpleFeatureTypes = simpleFeatureTypes;
     this.filter = filter;
-    this.keysInt = keysInt;
     this.includeTags = includeTags;
     this.includeOSMMetadata = includeOSMMetadata;
     this.includeContributionTypes = includeContributionTypes;
     this.outputGeometry = outputGeometry;
     this.endTimestamp = endTimestamp;
-    this.isContainingSimpleFeatureTypes = isContainingSimpleFeatureTypes;
   }
 
   /**
@@ -156,7 +135,7 @@ public class DataExtractionTransformer implements Serializable {
               properties.put(TIMESTAMP_PROPERTY, validTo);
               properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, contribution.getChangesetId());
             }
-            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties,
                 includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
                 outputGeometry, contribution.getContributionTypes()));
           }
@@ -192,7 +171,7 @@ public class DataExtractionTransformer implements Serializable {
       if (!currentGeom.isEmpty()) {
         boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
         if (addToOutput) {
-          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties,
               includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
               outputGeometry, lastContribution.getContributionTypes()));
         }
@@ -204,7 +183,7 @@ public class DataExtractionTransformer implements Serializable {
       properties.put(TIMESTAMP_PROPERTY,
           TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
       properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, lastContribution.getChangesetId());
-      output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
+      output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, false,
           includeOSMMetadata, includeContributionTypes, isContributionsEndpoint, outputGeometry,
           lastContribution.getContributionTypes()));
     }
@@ -238,7 +217,7 @@ public class DataExtractionTransformer implements Serializable {
     boolean addToOutput = addEntityToOutput(entity, geom);
     if (addToOutput) {
       return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
-          keysInt, includeTags, includeOSMMetadata, includeContributionTypes,
+          includeTags, includeOSMMetadata, includeContributionTypes,
           isContributionsEndpoint, outputGeometry, EnumSet.noneOf(ContributionType.class)));
     } else {
       return Collections.emptyList();
@@ -247,10 +226,6 @@ public class DataExtractionTransformer implements Serializable {
 
   /** Checks whether the given entity should be added to the output (true) or not (false). */
   private boolean addEntityToOutput(OSMEntity currentEntity, Geometry currentGeom) {
-    if (isContainingSimpleFeatureTypes) {
-      return inputUtils.checkGeometryOnSimpleFeatures(currentGeom, simpleFeatureTypes);
-    } else {
-      return filter == null || filter.applyOSMGeometry(currentEntity, currentGeom);
-    }
+    return filter == null || filter.applyOSMGeometry(currentEntity, currentGeom);
   }
 }

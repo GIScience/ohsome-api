@@ -25,7 +25,7 @@ public class ResourceParameters {
   public static List<String> getResourceSpecificParams(HttpServletRequest servletRequest) {
     String uri = servletRequest.getRequestURI();
     List<String> possibleParams = new LinkedList<>(Arrays.asList("bboxes", "bcircles", "bpolys",
-        "types", "keys", "values", "timeout", "time", "showMetadata", "filter"));
+        "timeout", "time", "showMetadata", "filter"));
     if (uri.contains("/count") || uri.contains("/length") || uri.contains("/area")
         || uri.contains("/perimeter")) {
       possibleParams.add("format");
@@ -37,21 +37,12 @@ public class ResourceParameters {
       possibleParams.add("groupByKeys");
     } else if (uri.contains("/ratio")) {
       possibleParams.add("filter2");
-      possibleParams.add("keys2");
-      possibleParams.add("types2");
-      possibleParams.add("values2");
     } else if (uri.contains("/bbox") || uri.contains("/centroid") || uri.contains("/geometry")) {
       possibleParams.add("properties");
       possibleParams.add("clipGeometry");
     }
-    if (uri.contains("/contributions")) {
-      // removing deprecated params from newer endpoint
-      possibleParams.remove("types");
-      possibleParams.remove("keys");
-      possibleParams.remove("values");
-      if (uri.contains("/count")) {
-        possibleParams.add("contributionType");
-      }
+    if (uri.contains("/contributions") && uri.contains("/count")) {
+      possibleParams.add("contributionType");
     }
     if (uri.contains("/users")) {
       possibleParams.add("contributionType");
