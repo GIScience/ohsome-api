@@ -92,15 +92,7 @@ public class RequestUtils {
    *         #readTree(String) readTree}
    */
   public static void extractOSHDBMetadata() throws IOException {
-    OSHDBDatabase db;
-    if (DbConnData.keytables != null) {
-      db = DbConnData.keytables;
-    } else {
-      if (!(DbConnData.db instanceof OSHDBJdbc)) {
-        throw new DatabaseAccessException(ExceptionMessages.DATABASE_ACCESS);
-      }
-      db = DbConnData.db;
-    }
+    OSHDBDatabase db = DbConnData.db;
     if (db.metadata("extract.region") != null) {
       String dataPolyString = db.metadata("extract.region");
       ObjectMapper mapper = new ObjectMapper();
