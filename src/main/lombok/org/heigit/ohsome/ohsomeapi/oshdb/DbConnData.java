@@ -9,7 +9,6 @@ import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 public class DbConnData {
 
   public static OSHDBDatabase db = null;
-  public static OSHDBJdbc keytables = null;
   public static TagTranslator tagTranslator = null;
   public static DataSource dbSource = null;
   public static DataSource keytablesDbSource = null;
