@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 1.8.0-SNAPSHOT (current master)
+## 1.8.0
 
 ### Breaking Changes
 * remove caching command line parameter ([#281])
