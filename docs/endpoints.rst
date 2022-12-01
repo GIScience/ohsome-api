@@ -1244,7 +1244,7 @@ Number of the latest contributions to residential buildings with a geometry chan
 
     .. code-tab:: bash curl (POST)
 
-       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/count' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlenconde 'contributionType=geometryChange' --data-urlencode 'filter=building=residential' --data-urlencode 'time=2014-01-01,2015-01-01'
+       curl -X POST 'https://api.ohsome.org/v1/contributions/latest/count' --data-urlencode 'bboxes=8.69282,49.40766,8.71673,49.4133' --data-urlencode 'contributionType=geometryChange' --data-urlencode 'filter=building=residential' --data-urlencode 'time=2014-01-01,2015-01-01'
 
     .. code-tab:: python Python
 
