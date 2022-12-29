@@ -3,19 +3,22 @@ Changelog
 
 ## 1.9.0-SNAPSHOT (current master)
 
+### Breaking Changes
+* remove deprecated parameters (`types`/`keys`/`values` and `types2`/`keys2`/`values2`) which were legacy variants of the new [filters](https://docs.ohsome.org/ohsome-api/v1/filter.html) (`filter`/`filter2` parameters) ([#282])
+
+[#282]: https://github.com/GIScience/ohsome-api/pull/282
+
 
 ## 1.8.0
 
 ### Breaking Changes
 * remove caching command line parameter ([#281])
 * update to OSHDB 1.0.0 ([#281], [#283])
-* remove deprecated parameters (`types`/`keys`/`values` and `types2`/`keys2`/`values2`) which were legacy variants of the new [filters](https://docs.ohsome.org/ohsome-api/v1/filter.html) (`filter`/`filter2` parameters) ([#282])
 
 ### New Features
 * tag translator parameter are now configurable via CLI parameter: `tt.maxbytesvalue`, `tt.maxnumroles` ([#281])
 
 [#281]: https://github.com/GIScience/ohsome-api/pull/281
-[#282]: https://github.com/GIScience/ohsome-api/pull/282
 [#283]: https://github.com/GIScience/ohsome-api/pull/283
 
 
