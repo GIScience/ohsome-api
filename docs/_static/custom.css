@@ -1,0 +1,4 @@
+html.writer-html5 .rst-content table.docutils td > p, html.writer-html5 .rst-content table.docutils th > p {
+  /* this setting is changed in the theme for tables, but shouldn't change for us. */
+  line-height: 24px;
+}
