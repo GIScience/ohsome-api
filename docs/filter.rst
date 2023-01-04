@@ -162,7 +162,7 @@ Examples
 Here's some useful examples for querying some OSM features:
 
 .. table::
-    :widths: 24 50 24
+    :widths: 24 34 34
 
     +------------------+--------------------------------------------------------+------------------------------+
     | **OSM Feature**  | **filter**                                             | **comment**                  |
@@ -195,12 +195,12 @@ Here's some useful examples for querying some OSM features:
     |                  |                                                        | not one.                     |
     +------------------+--------------------------------------------------------+------------------------------+
     | highways         | | ``type:way and (highway in (motorway,``              | The list of used tags        |
-    |                  | | ``motorway_link, trunk, trunk_link, primary,``       | depends on the exact         |
-    |                  | | ``primary_link, secondary, secondary_link,``         | definition of a              |
-    |                  | | ``tertiary, tertiary_link, unclassified,``           | "highway". In a              |
-    |                  | | ``residential, living_street, pedestrian) or``       | different context, it may    |
-    |                  | | ``(highway=service and service=alley))``             | also include less or even    |
-    |                  |                                                        | more tags                    |
+    |                  | | ``motorway_link, trunk, trunk_link,``                | depends on the exact         |
+    |                  | | ``primary, primary_link, secondary,``                | definition of a              |
+    |                  | | ``secondary_link, tertiary,``                        | "highway". In a              |
+    |                  | | ``tertiary_link, unclassified,``                     | different context, it may    |
+    |                  | | ``residential, living_street, pedestrian)``          | also include less or even    |
+    |                  | | ``or (highway=service and service=alley))``          | more tags                    |
     |                  |                                                        | (``footway``, ``cycleway``,  |
     |                  |                                                        | ``track``, ``path``, all     |
     |                  |                                                        | ``highway=service``, etc.)   |
@@ -213,8 +213,8 @@ Here's some useful examples for querying some OSM features:
     |                  |                                                        | with the ``noname`` tag      |
     |                  |                                                        | in OSM.                      |
     +------------------+--------------------------------------------------------+------------------------------+
-    | implausibly      | | ``geometry:polygon and building=* and building!=no`` | The currently largest        |
-    | large            | | ``and area:(1E6..)``                                 | building by footprint area   |
+    | implausibly      | | ``geometry:polygon and building=* and``              | The currently largest        |
+    | large            | | ``building!=no and area:(1E6..)``                    | building by footprint area   |
     | buildings        |                                                        | is a car factory building    |
     |                  |                                                        | measuring about 887,800 m².  |
     +------------------+--------------------------------------------------------+------------------------------+
