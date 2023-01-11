@@ -11,8 +11,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVRecord;
 import org.heigit.ohsome.ohsomeapi.Application;
@@ -178,6 +180,41 @@ public class GetControllerTest {
   }
 
   @Test
+  public void getElementsCountGroupByBoundaryGroupByTagUnknownValuesTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "time=2016-11-09&groupByKey=building&groupByValues=xxx,yyy,zzz&filter=type:way and building=*",
+        JsonNode.class);
+    assertEquals(
+        Set.of("building=xxx", "building=yyy", "building=zzz", "remainder"),
+        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode ->
+                "boundary1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText()))
+            .map(jsonNode -> jsonNode.get("groupByObject").get(1).asText())
+            .collect(Collectors.toSet()));
+  }
+
+  @Test
+  public void getElementsCountGroupByBoundaryGroupByTagUnknownKeyTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/elements/count/groupBy/boundary/groupBy/tag?bboxes=8.68086,49.39948,8.69401,49.40609&"
+        + "time=2016-11-09&groupByKey=DoesNotExist&groupByValues=xxx&"
+        + "filter=type:way and building=*",
+        JsonNode.class);
+    assertEquals(
+        Set.of("DoesNotExist=xxx", "remainder"),
+        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .filter(jsonNode ->
+                "boundary1".equalsIgnoreCase(jsonNode.get("groupByObject").get(0).asText()))
+            .map(jsonNode -> jsonNode.get("groupByObject").get(1).asText())
+            .collect(Collectors.toSet()));
+  }
+
+  @Test
   public void getElementsCountGroupByTypeTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
     ResponseEntity<JsonNode> response = restTemplate.getForEntity(
@@ -204,6 +241,38 @@ public class GetControllerTest {
             response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("building=yes"))
         .findFirst().get().get("result").get(0).get("value").asInt());
+  }
+
+  @Test
+  public void getElementsCountGroupByTagUnknownValuesTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/tag?bboxes=8.67859,49.41189,8.67964,49.41263&"
+            + "time=2017-01-01&groupByKey=building&groupByValues=xxx,yyy,zzz&"
+            + "filter=building=* and type:way",
+        JsonNode.class);
+    assertEquals(
+        Set.of("building=xxx", "building=yyy", "building=zzz", "remainder"),
+        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+            response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+        .map(jsonNode -> jsonNode.get("groupByObject").asText())
+        .collect(Collectors.toSet()));
+  }
+
+  @Test
+  public void getElementsCountGroupByTagUnknownKeyTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(
+        server + port + "/elements/count/groupBy/tag?bboxes=8.67859,49.41189,8.67964,49.41263&"
+            + "time=2017-01-01&groupByKey=DoesNotExist&groupByValues=xxx&"
+            + "filter=building=* and type:way",
+        JsonNode.class);
+    assertEquals(
+        Set.of("DoesNotExist=xxx", "remainder"),
+        StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED), false)
+            .map(jsonNode -> jsonNode.get("groupByObject").asText())
+            .collect(Collectors.toSet()));
   }
 
   @Test

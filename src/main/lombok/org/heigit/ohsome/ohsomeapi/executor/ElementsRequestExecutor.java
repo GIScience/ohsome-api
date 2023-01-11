@@ -181,11 +181,12 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
-    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-1);
+    int keyInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-2);
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).map(OSHDBTag::getValue).orElse(-j);
-        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j])
+            .map(OSHDBTag::getValue).orElse(-j - 1);
+        zeroFill.add(new ImmutablePair<>(keyInt, valuesInt[j]));
       }
     }
     var arrGeoms = new ArrayList<>(processingData.getBoundaryList());
@@ -201,7 +202,7 @@ public class ElementsRequestExecutor {
       mapAgg = mapAgg.filter(filter.get());
     }
     var result = ExecutionUtils.computeNestedResult(requestResource,
-        mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+        mapAgg.map(f -> ExecutionUtils.mapSnapshotToTags(keyInt, valuesInt, f))
             .aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue)
             .aggregateByTimestamp(OSMEntitySnapshot::getTimestamp));
     var groupByResult = OSHDBCombinedIndex.nest(result);
@@ -217,10 +218,12 @@ public class ElementsRequestExecutor {
       int tagValue = entry.getKey().getSecondIndex().getValue();
       String tagIdentifier;
       // check for non-remainder objects (which do have the defined key and value)
-      if (entry.getKey().getSecondIndex().getKey() != -1 && tagValue != -1) {
-        tagIdentifier = tt.lookupTag(keysInt, tagValue).toString();
-      } else {
+      if (entry.getKey().getSecondIndex().getKey() == -1) {
         tagIdentifier = "remainder";
+      } else if (tagValue < 0) {
+        tagIdentifier = groupByKey[0] + '=' + groupByValues[-tagValue - 1];
+      } else {
+        tagIdentifier = tt.lookupTag(keyInt, tagValue).toString();
       }
       resultSet[count] =
           new GroupByResult(new Object[] {boundaryIds[boundaryIdentifier], tagIdentifier}, results);
@@ -288,14 +291,15 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
-    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-1);
+    int keyInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-2);
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).map(OSHDBTag::getValue).orElse(-j);
-        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j])
+            .map(OSHDBTag::getValue).orElse(-j - 1);
+        zeroFill.add(new ImmutablePair<>(keyInt, valuesInt[j]));
       }
     }
-    var preResult = mapRed.map(f -> ExecutionUtils.mapSnapshotToTags(keysInt, valuesInt, f))
+    var preResult = mapRed.map(f -> ExecutionUtils.mapSnapshotToTags(keyInt, valuesInt, f))
         .aggregateByTimestamp().aggregateBy(Pair::getKey, zeroFill).map(Pair::getValue);
     var result = ExecutionUtils.computeResult(requestResource, preResult);
     var groupByResult = ExecutionUtils.nest(result);
@@ -307,10 +311,12 @@ public class ElementsRequestExecutor {
       ElementsResult[] results = ExecutionUtils.fillElementsResult(
           entry.getValue(), requestParameters.isDensity(), df, geom);
       // check for non-remainder objects (which do have the defined key and value)
-      if (entry.getKey().getKey() != -1 && entry.getKey().getValue() != -1) {
-        groupByName = tt.lookupTag(keysInt, entry.getKey().getValue()).toString();
-      } else {
+      if (entry.getKey().getKey() == -1) {
         groupByName = "remainder";
+      } else if (entry.getKey().getValue() < 0) {
+        groupByName = groupByKey[0] + '=' + groupByValues[-entry.getKey().getValue() - 1];
+      } else {
+        groupByName = tt.lookupTag(keyInt, entry.getKey().getValue()).toString();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -431,7 +437,7 @@ public class ElementsRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
-      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).map(OSHDBTagKey::toInt).orElse(-i);
+      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).map(OSHDBTagKey::toInt).orElse(-i - 2);
     }
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> preResult =
         mapRed.flatMap(f -> {
@@ -460,10 +466,12 @@ public class ElementsRequestExecutor {
       ElementsResult[] results = ExecutionUtils.fillElementsResult(
           entry.getValue(), requestParameters.isDensity(), df, null);
       // check for non-remainder objects (which do have the defined key)
-      if (entry.getKey() != -1) {
-        groupByName = tt.lookupTag(entry.getKey(), 0).getKey();
-      } else {
+      if (entry.getKey() == -1) {
         groupByName = "remainder";
+      } else if (entry.getKey() < -1) {
+        groupByName = groupByKeys[-entry.getKey() - 2];
+      } else {
+        groupByName = tt.lookupTag(entry.getKey(), 0).getKey();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -531,18 +539,19 @@ public class ElementsRequestExecutor {
     Integer[] keysInt2 = new Integer[keys2.length];
     Integer[] valuesInt2 = new Integer[values2.length];
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
-      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).map(OSHDBTagKey::toInt)
-          .orElse(-i);
+      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i])
+          .map(OSHDBTagKey::toInt).orElse(-i - 1);
       if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
         valuesInt1[i] =
             tt.getOSHDBTagOf(requestParameters.getKeys()[i], requestParameters.getValues()[i])
-                .map(OSHDBTag::getValue).orElse(-i);
+                .map(OSHDBTag::getValue).orElse(-i - 1);
       }
     }
     for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).map(OSHDBTagKey::toInt).orElse(-i);
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).map(OSHDBTagKey::toInt).orElse(-i - 1);
       if (i < values2.length) {
-        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).map(OSHDBTag::getValue).orElse(-i);
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i])
+            .map(OSHDBTag::getValue).orElse(-i - 1);
       }
     }
     EnumSet<OSMType> osmTypes1 =
@@ -782,18 +791,19 @@ public class ElementsRequestExecutor {
     Integer[] valuesInt2 = new Integer[values2.length];
     TagTranslator tt = DbConnData.tagTranslator;
     for (int i = 0; i < requestParameters.getKeys().length; i++) {
-      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i]).map(OSHDBTagKey::toInt)
-          .orElse(-i);
+      keysInt1[i] = tt.getOSHDBTagKeyOf(requestParameters.getKeys()[i])
+          .map(OSHDBTagKey::toInt).orElse(-i - 1);
       if (requestParameters.getValues() != null && i < requestParameters.getValues().length) {
         valuesInt1[i] =
             tt.getOSHDBTagOf(requestParameters.getKeys()[i], requestParameters.getValues()[i])
-                .map(OSHDBTag::getValue).orElse(-i);
+                .map(OSHDBTag::getValue).orElse(-i - 1);
       }
     }
     for (int i = 0; i < keys2.length; i++) {
-      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).map(OSHDBTagKey::toInt).orElse(-i);
+      keysInt2[i] = tt.getOSHDBTagKeyOf(keys2[i]).map(OSHDBTagKey::toInt).orElse(-i - 1);
       if (i < values2.length) {
-        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i]).map(OSHDBTag::getValue).orElse(-i);
+        valuesInt2[i] = tt.getOSHDBTagOf(keys2[i], values2[i])
+            .map(OSHDBTag::getValue).orElse(-i - 1);
       }
     }
     EnumSet<OSMType> osmTypes1 = (EnumSet<OSMType>) processingData.getOsmTypes();
