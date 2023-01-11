@@ -120,12 +120,12 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] valuesInt = new Integer[groupByValues.length];
     ArrayList<Pair<Integer, Integer>> zeroFill = new ArrayList<>();
-    int keysInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-1);
+    int keyInt = tt.getOSHDBTagKeyOf(groupByKey[0]).map(OSHDBTagKey::toInt).orElse(-3);
     if (groupByValues.length != 0) {
       for (int j = 0; j < groupByValues.length; j++) {
-        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j]).map(OSHDBTag::getValue)
-            .orElse(-j);
-        zeroFill.add(new ImmutablePair<>(keysInt, valuesInt[j]));
+        valuesInt[j] = tt.getOSHDBTagOf(groupByKey[0], groupByValues[j])
+            .map(OSHDBTag::getValue).orElse(-j - 1);
+        zeroFill.add(new ImmutablePair<>(keyInt, valuesInt[j]));
       }
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Pair<Integer, Integer>>, Integer> result = null;
@@ -138,7 +138,7 @@ public class UsersRequestExecutor {
           for (OSHDBTag tag : tags) {
             int tagKeyId = tag.getKey();
             int tagValueId = tag.getValue();
-            if (tagKeyId == keysInt) {
+            if (tagKeyId == keyInt) {
               if (valuesInt.length == 0) {
                 res.add(new ImmutablePair<>(new ImmutablePair<>(tagKeyId, tagValueId), f));
               }
@@ -169,12 +169,14 @@ public class UsersRequestExecutor {
         groupByResult.entrySet()) {
       ContributionsResult[] results = ExecutionUtils.fillContributionsResult(entry.getValue(),
           requestParameters.isDensity(), inputProcessor, df, geom);
-      if (entry.getKey().getKey() == -2 && entry.getKey().getValue() == -2) {
+      if (entry.getKey().getKey() == -2) {
         groupByName = "total";
-      } else if (entry.getKey().getKey() == -1 && entry.getKey().getValue() == -1) {
+      } else if (entry.getKey().getKey() == -1) {
         groupByName = "remainder";
+      } else if (entry.getKey().getValue() < 0) {
+        groupByName = groupByKey[0] + '=' + groupByValues[-entry.getKey().getValue() - 1];
       } else {
-        groupByName = tt.lookupTag(keysInt, entry.getKey().getValue()).toString();
+        groupByName = tt.lookupTag(keyInt, entry.getKey().getValue()).toString();
       }
       resultSet[count] = new GroupByResult(groupByName, results);
       count++;
@@ -216,7 +218,7 @@ public class UsersRequestExecutor {
     TagTranslator tt = DbConnData.tagTranslator;
     Integer[] keysInt = new Integer[groupByKeys.length];
     for (int i = 0; i < groupByKeys.length; i++) {
-      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).map(OSHDBTagKey::toInt).orElse(-i);
+      keysInt[i] = tt.getOSHDBTagKeyOf(groupByKeys[i]).map(OSHDBTagKey::toInt).orElse(-i - 3);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, Integer> result = null;
     result = mapRed
@@ -257,6 +259,8 @@ public class UsersRequestExecutor {
         groupByName = "total";
       } else if (entry.getKey() == -1) {
         groupByName = "remainder";
+      } else if (entry.getKey() < -2) {
+        groupByName = groupByKeys[-entry.getKey() - 3];
       } else {
         groupByName = tt.lookupTag(entry.getKey(), 0).getKey();
       }
