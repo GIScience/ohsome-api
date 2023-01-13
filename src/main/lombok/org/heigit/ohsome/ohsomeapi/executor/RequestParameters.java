@@ -17,9 +17,6 @@ public class RequestParameters implements Serializable {
   private String bboxes;
   private String bcircles;
   private String bpolys;
-  private String[] types;
-  private String[] keys;
-  private String[] values;
   private String[] time;
   private String format;
   private String showMetadata;

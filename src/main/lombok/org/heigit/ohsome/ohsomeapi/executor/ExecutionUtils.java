@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import com.opencsv.CSVWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,7 +70,6 @@ import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.OSHDBTimestamp;
 import org.heigit.ohsome.oshdb.api.generic.OSHDBCombinedIndex;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapAggregator;
-import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.osm.OSMType;
@@ -100,16 +98,6 @@ public class ExecutionUtils implements Serializable {
   private final ProcessingData processingData;
   private final DecimalFormat ratioDf = defineDecimalFormat("#.######");
   private final GeometryPrecisionReducer gpr = createGeometryPrecisionReducer();
-
-  /** Applies a filter on the given MapReducer object using the given parameters. */
-  public static MapReducer<OSMEntitySnapshot> snapshotFilter(MapReducer<OSMEntitySnapshot> mapRed,
-      Set<OSMType> osmTypes1, Set<OSMType> osmTypes2, Set<SimpleFeatureType> simpleFeatureTypes1,
-      Set<SimpleFeatureType> simpleFeatureTypes2, Integer[] keysInt1, Integer[] keysInt2,
-      Integer[] valuesInt1, Integer[] valuesInt2) {
-    return mapRed.filter(
-        snapshot -> snapshotMatches(snapshot, osmTypes1, simpleFeatureTypes1, keysInt1, valuesInt1)
-            || snapshotMatches(snapshot, osmTypes2, simpleFeatureTypes2, keysInt2, valuesInt2));
-  }
 
   /**
    * Applies a filter on the given MapReducer object using the given parameters. Used in
@@ -386,8 +374,8 @@ public class ExecutionUtils implements Serializable {
 
   /** Creates the <code>Feature</code> objects in the OSM data response. */
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
-      Map<String, Object> properties, Set<Integer> keysInt, boolean includeTags,
-      boolean includeOSMMetadata, boolean includeContributionTypes, boolean isContributionsEndpoint,
+      Map<String, Object> properties, boolean includeTags, boolean includeOSMMetadata,
+      boolean includeContributionTypes, boolean isContributionsEndpoint,
       ElementsGeometry elemGeom, EnumSet<ContributionType> contributionTypes) {
     if (geometry.isEmpty() && !contributionTypes.contains(ContributionType.DELETION)) {
       // skip invalid geometries (e.g. ways with 0 nodes)
@@ -395,9 +383,6 @@ public class ExecutionUtils implements Serializable {
     }
     if (includeTags) {
       properties.put("@tags", Iterables.toArray(entity.getTags(), OSHDBTag.class));
-    } else if (!keysInt.isEmpty()) {
-      properties.put("@tags", Streams.stream(entity.getTags())
-          .filter(t -> keysInt.contains(t.getKey())).toArray(OSHDBTag[]::new));
     }
     if (includeOSMMetadata) {
       properties.put("@version", entity.getVersion());

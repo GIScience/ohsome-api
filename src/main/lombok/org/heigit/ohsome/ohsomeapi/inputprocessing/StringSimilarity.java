@@ -2,7 +2,6 @@ package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import org.apache.commons.text.similarity.FuzzyScore;

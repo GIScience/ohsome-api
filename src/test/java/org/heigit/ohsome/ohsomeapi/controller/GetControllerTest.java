@@ -1034,8 +1034,8 @@ public class GetControllerTest {
     // remainder , value 1 , ... , value N)
     final double expectedValue = 3190.17;
     String responseBody = getResponseBody("/elements/length/density/groupBy/boundary"
-        + "/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401"
-        + ",49.40609|b2:8.68081,49.39943,8.69408,49.40605&types=way&time=2017-10-08&keys=highway&"
+        + "/groupBy/tag?bboxes=b1:8.68086,49.39948,8.69401,49.40609|"
+        + "b2:8.68081,49.39943,8.69408,49.40605&time=2017-10-08&filter=type:way and highway=*&"
         + "groupByKey=highway&format=csv&groupByValues=residential,primary");
     List<CSVRecord> records = Helper.getCsvRecords(responseBody);
     assertEquals(1, Helper.getCsvRecords(responseBody).size());
@@ -1252,26 +1252,6 @@ public class GetControllerTest {
         server + port + "/elements/count/ratio?bboxes=8.687337,49.415067,8.687493,49.415172&"
             + "time=2010-01-01&filter=building=*",
         JsonNode.class);
-    assertEquals(400, response.getBody().get("status").asInt());
-  }
-
-  @Test
-  public void getElementsCountWrongFilterTypesCombinationTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response =
-        restTemplate.getForEntity(server + port + "/elements/count?bboxes=8.67452,49.40961,"
-            + "8.70392,49.41823&time=2015-01-01&filter=building=*&types=way", JsonNode.class);
-    assertEquals(400, response.getBody().get("status").asInt());
-  }
-
-  @Test
-  public void getElementsCountWrongFilterKeysCombinationTest() {
-    TestRestTemplate restTemplate = new TestRestTemplate();
-    ResponseEntity<JsonNode> response =
-        restTemplate.getForEntity(
-            server + port + "/elements/count?bboxes=8.67452,49.40961,"
-                + "8.70392,49.41823&time=2015-01-01&filter=building=*&keys=building",
-            JsonNode.class);
     assertEquals(400, response.getBody().get("status").asInt());
   }
 

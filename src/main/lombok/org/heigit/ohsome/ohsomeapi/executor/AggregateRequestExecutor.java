@@ -79,8 +79,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
    */
   public Response aggregate() throws Exception {
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
-    MapReducer<OSMEntitySnapshot> mapRed = null;
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
     var mapRedGeom = mapRed.map(OSMEntitySnapshot::getGeometry);
     switch (requestResource) {
       case COUNT:
@@ -136,7 +135,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
     MapReducer<OSMEntitySnapshot> mapRed = inputProcessor.processParameters();
     InputProcessingUtils utils = inputProcessor.getUtils();
     var result = computeCountLengthPerimeterAreaGbB(requestResource,
-        processingData.getBoundaryType(), mapRed, inputProcessor);
+        processingData.getBoundaryType(), mapRed);
     SortedMap<Integer, ? extends SortedMap<OSHDBTimestamp, ? extends Number>> groupByResult;
     groupByResult = ExecutionUtils.nest(result);
     GroupByResult[] resultSet = new GroupByResult[groupByResult.size()];
@@ -336,8 +335,7 @@ public class AggregateRequestExecutor extends RequestExecutor {
    */
   private <P extends Geometry & Polygonal> SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, Integer>,
         ? extends Number> computeCountLengthPerimeterAreaGbB(RequestResource requestResource,
-        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed,
-        InputProcessor inputProcessor) throws Exception {
+        BoundaryType boundaryType, MapReducer<OSMEntitySnapshot> mapRed) throws Exception {
     if (boundaryType == BoundaryType.NOBOUNDARY) {
       throw new BadRequestException(ExceptionMessages.NO_BOUNDARY);
     }
@@ -347,9 +345,6 @@ public class AggregateRequestExecutor extends RequestExecutor {
         .collect(Collectors.toMap(idx -> idx, idx -> (P) arrGeoms.get(idx)));
     MapAggregator<OSHDBCombinedIndex<OSHDBTimestamp, Integer>, OSMEntitySnapshot> mapAgg =
         mapRed.aggregateByTimestamp().aggregateByGeometry(geoms);
-    if (processingData.isContainingSimpleFeatureTypes()) {
-      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
-    }
     Optional<FilterExpression> filter = processingData.getFilterExpression();
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());

@@ -3,6 +3,11 @@ Changelog
 
 ## 1.9.0-SNAPSHOT (current master)
 
+### Breaking Changes
+* remove deprecated parameters (`types`/`keys`/`values` and `types2`/`keys2`/`values2`) which were legacy variants of the new [filters](https://docs.ohsome.org/ohsome-api/v1/filter.html) (`filter`/`filter2` parameters) ([#282])
+
+[#282]: https://github.com/GIScience/ohsome-api/pull/282
+
 
 ## 1.8.0
 

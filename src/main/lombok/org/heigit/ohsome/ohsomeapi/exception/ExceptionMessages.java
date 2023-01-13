@@ -25,16 +25,12 @@ public class ExceptionMessages {
           + "bcircles, or bpolys) does not fit its format, or you defined more than one boundary "
           + "parameter.";
   public static final String DATABASE_ACCESS = "Keytables not found or access to database failed";
-  public static final String FILTER_PARAM = "The keys, values and types parameters must be empty, "
-      + "when you set the filter parameter.";
   public static final String FILTER_SYNTAX = "Invalid filter syntax. Please look at the additional "
       + "info and examples about the filter parameter at https://docs.ohsome.org/ohsome-api.";
   public static final String GROUP_BY_KEY_PARAM =
       "You need to give one groupByKey parameter, if you want to use groupBy/tag.";
   public static final String GROUP_BY_KEYS_PARAM =
       "You need to give one groupByKeys parameter, if you want to use groupBy/key.";
-  public static final String KEYS_VALUES_RATIO_INVALID = "There cannot be more input values in the "
-      + "values|values2 than in the keys|keys2 parameter, as values_n must fit to keys_n.";
   public static final String NO_DEFINED_PARAMS = "The query did not specify any parameter. "
           + "Please remember: " + ExceptionMessages.NO_BOUNDARY;
   public static final String NO_BOUNDARY =

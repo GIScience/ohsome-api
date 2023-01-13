@@ -1,9 +1,9 @@
 package org.heigit.ohsome.ohsomeapi.executor;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -45,7 +45,8 @@ public class ContributionsExecutorTest {
 
   @Test
   public void contributionsFilterInvalid() {
-    assertThrows(BadRequestException.class, () -> ExecutionUtils.contributionsFilter("doesnotexist"));
+    assertThrows(BadRequestException.class, () ->
+        ExecutionUtils.contributionsFilter("doesnotexist"));
 
   }
 

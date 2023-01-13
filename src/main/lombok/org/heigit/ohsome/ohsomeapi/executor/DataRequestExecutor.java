@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,10 +12,8 @@ import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.ProcessingData;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.output.ExtractionResponse;
 import org.heigit.ohsome.ohsomeapi.output.Metadata;
@@ -26,7 +23,6 @@ import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
-import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
 import org.wololo.geojson.Feature;
 
@@ -63,8 +59,8 @@ public class DataRequestExecutor extends RequestExecutor {
     inputProcessor.getProcessingData().setFullHistory(true);
     InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
     snapshotInputProcessor.getProcessingData().setFullHistory(true);
-    MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
-    MapReducer<OSMContribution> mapRedContribution = null;
+    MapReducer<OSMEntitySnapshot> mapRedSnapshot;
+    MapReducer<OSMContribution> mapRedContribution;
     if (DbConnData.db instanceof OSHDBIgnite) {
       // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
       // of result data, without buffering the whole result in memory before returning the result.
@@ -75,20 +71,15 @@ public class DataRequestExecutor extends RequestExecutor {
       mapRedSnapshot = snapshotInputProcessor.processParameters();
       mapRedContribution = inputProcessor.processParameters();
     }
-    RequestParameters requestParameters = processingData.getRequestParameters();
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
     if (time.length != 2) {
       throw new BadRequestException(
           ExceptionMessages.TIME_FORMAT_CONTRS_EXTRACTION_AND_FULL_HISTORY);
     }
-    TagTranslator tt = DbConnData.tagTranslator;
-    String[] keys = requestParameters.getKeys();
-    final Set<Integer> keysInt = ExecutionUtils.keysToKeysInt(keys, tt);
     final ExecutionUtils exeUtils = new ExecutionUtils(processingData);
     inputProcessor.processPropertiesParam();
     inputProcessor.processIsUnclippedParam();
-    InputProcessingUtils utils = inputProcessor.getUtils();
     final boolean includeTags = inputProcessor.includeTags();
     final boolean includeOSMMetadata = inputProcessor.includeOSMMetadata();
     final boolean includeContributionTypes = inputProcessor.includeContributionTypes();
@@ -97,7 +88,7 @@ public class DataRequestExecutor extends RequestExecutor {
         requestResource.equals(RequestResource.CONTRIBUTIONSLATEST);
     final boolean isContributionsEndpoint =
         isContributionsLatestEndpoint || requestResource.equals(RequestResource.CONTRIBUTIONS);
-    final Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
+    RequestParameters requestParameters = processingData.getRequestParameters();
     String startTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[0])
         .format(DateTimeFormatter.ISO_DATE_TIME);
     String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
@@ -109,13 +100,10 @@ public class DataRequestExecutor extends RequestExecutor {
       mapRedSnapshots = mapRedSnapshots.filter(filter.get());
       mapRedContributions = mapRedContributions.filter(filter.get());
     }
-    final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
     DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
         startTimestamp, endTimestamp, filter.orElse(null), isContributionsEndpoint,
-        isContributionsLatestEndpoint,
-        clipGeometries, includeTags, includeOSMMetadata, includeContributionTypes, utils, exeUtils,
-        keysInt, elementsGeometry, simpleFeatureTypes,
-        isContainingSimpleFeatureTypes);
+        isContributionsLatestEndpoint, clipGeometries, includeTags, includeOSMMetadata,
+        includeContributionTypes, exeUtils, elementsGeometry);
     MapReducer<Feature> contributionPreResult = mapRedContributions
         .flatMap(dataExtractionTransformer::buildChangedFeatures)
         .filter(Objects::nonNull);

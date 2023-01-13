@@ -1,7 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
 import java.io.Serializable;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
@@ -9,7 +8,6 @@ import lombok.Setter;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
-import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.locationtech.jts.geom.Geometry;
 
 /** Holds the relevant objects for processing the request and creating the response.*/
@@ -30,14 +28,11 @@ public class ProcessingData implements Serializable {
   private BoundaryType boundaryType;
   private String[] boundaryValues;
   private String boundaryValuesGeoJson;
-  private EnumSet<OSMType> osmTypes;
   private boolean showMetadata;
   private String format;
   private Geometry requestGeom;
   private List<Geometry> boundaryList;
   private GeoJsonObject[] geoJsonGeoms;
-  private boolean isContainingSimpleFeatureTypes;
-  private EnumSet<SimpleFeatureType> simpleFeatureTypes;
   @Getter
   @Setter
   private static int numberOfClusterNodes;

@@ -4,18 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.GeoJsonObject;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.exception.ExceptionMessages;
@@ -23,21 +16,16 @@ import org.heigit.ohsome.ohsomeapi.exception.ServiceUnavailableException;
 import org.heigit.ohsome.ohsomeapi.executor.RequestParameters;
 import org.heigit.ohsome.ohsomeapi.oshdb.DbConnData;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
-import org.heigit.ohsome.ohsomeapi.utils.FilterUtil;
 import org.heigit.ohsome.ohsomeapi.utils.RequestUtils;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
-import org.heigit.ohsome.oshdb.api.mapreducer.Mappable;
 import org.heigit.ohsome.oshdb.api.mapreducer.OSMContributionView;
 import org.heigit.ohsome.oshdb.api.mapreducer.OSMEntitySnapshotView;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.filter.FilterParser;
-import org.heigit.ohsome.oshdb.osm.OSMType;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.heigit.ohsome.oshdb.util.mappable.OSHDBMapReducible;
-import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
-import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.time.IsoDateTimeParser;
 import org.heigit.ohsome.oshdb.util.time.OSHDBTimestamps;
 import org.locationtech.jts.geom.Geometry;
@@ -88,8 +76,7 @@ public class InputProcessor {
     processingData =
         new ProcessingData(new RequestParameters(servletRequest.getMethod(), isSnapshot, isDensity,
             servletRequest.getParameter("bboxes"), servletRequest.getParameter("bcircles"),
-            servletRequest.getParameter("bpolys"), servletRequest.getParameterValues("types"),
-            servletRequest.getParameterValues("keys"), servletRequest.getParameterValues("values"),
+            servletRequest.getParameter("bpolys"),
             servletRequest.getParameterValues("time"), servletRequest.getParameter("format"),
             servletRequest.getParameter("showMetadata"), ProcessingData.getTimeout(),
             servletRequest.getParameter("filter")), servletRequest.getRequestURL().toString());
@@ -125,12 +112,6 @@ public class InputProcessor {
     String bboxes = createEmptyStringIfNull(processingData.getRequestParameters().getBboxes());
     String bcircles = createEmptyStringIfNull(processingData.getRequestParameters().getBcircles());
     String bpolys = createEmptyStringIfNull(processingData.getRequestParameters().getBpolys());
-    String[] types =
-        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTypes()));
-    String[] keys =
-        splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getKeys()));
-    String[] values = splitParamOnComma(
-        createEmptyArrayIfNull(processingData.getRequestParameters().getValues()));
     String[] time =
         splitParamOnComma(createEmptyArrayIfNull(processingData.getRequestParameters().getTime()));
     String format = createEmptyStringIfNull(processingData.getRequestParameters().getFormat());
@@ -141,9 +122,9 @@ public class InputProcessor {
     // overwriting RequestParameters object with splitted/non-null parameters
     processingData
         .setRequestParameters(new RequestParameters(requestMethod, isSnapshot, isDensity, bboxes,
-            bcircles, bpolys, types, keys, values, time, format, showMetadata, timeout, filter));
+            bcircles, bpolys, time, format, showMetadata, timeout, filter));
     processingData.setFormat(format);
-    MapReducer<? extends OSHDBMapReducible> mapRed = null;
+    MapReducer<? extends OSHDBMapReducible> mapRed;
     processingData.setBoundaryType(setBoundaryType(bboxes, bcircles, bpolys));
     geomBuilder = new GeometryBuilder(processingData);
     utils = new InputProcessingUtils();
@@ -226,95 +207,19 @@ public class InputProcessor {
       }
       processingData.setGeoJsonGeoms(geoJsonGeoms);
     }
-    mapRed = defineTypes(types, mapRed);
-    // the OSM type will be set in the ratio implementation within the ElementsRequestExecutor.java
-    if (!processingData.isRatio()) {
-      mapRed = mapRed.filter(FilterUtil.filter(processingData.getOsmTypes()));
-    }
-    if (processingData.isContainingSimpleFeatureTypes()
-        // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-        && !processingData.isRatio() && !processingData.isGroupByBoundary()
-        && !processingData.isFullHistory()) {
-      mapRed = filterOnSimpleFeatures(mapRed);
-    }
     mapRed = extractTime(mapRed, time, isSnapshot);
-    if (!"".equals(filter)) {
-      if (keys.length != 0 || values.length != 0 || types.length != 0) {
-        throw new BadRequestException(ExceptionMessages.FILTER_PARAM);
-      } else {
-        // call translator and add filters to mapRed
-        FilterParser fp = new FilterParser(DbConnData.tagTranslator);
-        FilterExpression filterExpr = utils.parseFilter(fp, filter);
-        processingData.setFilterExpression(filterExpr);
-        if (!(processingData.isRatio()
-            || processingData.isGroupByBoundary()
-            || processingData.isFullHistory())) {
-          // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
-          mapRed = mapRed.filter(filterExpr);
-        }
-      }
-    } else {
-      mapRed = extractKeysValues(mapRed, keys, values);
+    // call translator and add filters to mapRed
+    FilterParser fp = new FilterParser(DbConnData.tagTranslator);
+    FilterExpression filterExpr = utils.parseFilter(fp, filter);
+    processingData.setFilterExpression(filterExpr);
+    if (!(processingData.isRatio()
+        || processingData.isGroupByBoundary()
+        || processingData.isFullHistory())) {
+      // skip in ratio or groupByBoundary requests -> needs to be done later in the processing
+      mapRed = mapRed.filter(filterExpr);
     }
+
     return (MapReducer<T>) mapRed;
-  }
-
-  /**
-   * Defines the type(s) out of the given String[].
-   *
-   * @param types <code>String</code> array containing one, two, or all 3 OSM types (node, way,
-   *        relation), or simple feature types (point, line, polygon, other). If the array is empty,
-   *        all three OSM types are used.
-   */
-  public <T extends OSHDBMapReducible> MapReducer<T> defineTypes(String[] types,
-      MapReducer<T> mapRed) {
-    types = createEmptyArrayIfNull(types);
-    checkTypes(types);
-    processingData.setOsmTypes(EnumSet.noneOf(OSMType.class));
-    if (types.length == 0 || types.length == 1 && types[0].isEmpty()) {
-      processingData.setOsmTypes(EnumSet.of(OSMType.NODE, OSMType.WAY, OSMType.RELATION));
-    } else {
-      if (!processingData.isContainingSimpleFeatureTypes()) {
-        for (String type : types) {
-          if ("node".equalsIgnoreCase(type)) {
-            processingData.getOsmTypes().add(OSMType.NODE);
-          } else if ("way".equalsIgnoreCase(type)) {
-            processingData.getOsmTypes().add(OSMType.WAY);
-          } else {
-            processingData.getOsmTypes().add(OSMType.RELATION);
-          }
-        }
-      } else {
-        processingData.setSimpleFeatureTypes(defineSimpleFeatureTypes(types));
-        if (!processingData.isRatio() && (processingData.getOsmTypes().contains(OSMType.WAY)
-            || processingData.getOsmTypes().contains(OSMType.RELATION))) {
-          mapRed = utils.filterOnPlanarRelations(mapRed);
-        }
-      }
-    }
-    return mapRed;
-  }
-
-  /** Defines the simple feature types and corresponding OSM types out of the given String array. */
-  public EnumSet<SimpleFeatureType> defineSimpleFeatureTypes(String[] types) {
-    EnumSet<SimpleFeatureType> simpleFeatures = EnumSet.noneOf(SimpleFeatureType.class);
-    for (String type : types) {
-      if ("point".equalsIgnoreCase(type)) {
-        simpleFeatures.add(SimpleFeatureType.POINT);
-        processingData.getOsmTypes().add(OSMType.NODE);
-      } else if ("line".equalsIgnoreCase(type)) {
-        simpleFeatures.add(SimpleFeatureType.LINE);
-        processingData.getOsmTypes().add(OSMType.WAY);
-      } else if ("polygon".equalsIgnoreCase(type)) {
-        simpleFeatures.add(SimpleFeatureType.POLYGON);
-        processingData.getOsmTypes().add(OSMType.WAY);
-        processingData.getOsmTypes().add(OSMType.RELATION);
-      } else if ("other".equalsIgnoreCase(type)) {
-        simpleFeatures.add(SimpleFeatureType.OTHER);
-        processingData.getOsmTypes().add(OSMType.RELATION);
-      }
-    }
-    return simpleFeatures;
   }
 
   /**
@@ -358,34 +263,6 @@ public class InputProcessor {
   }
 
   /**
-   * Checks the given keys and values String[] on their length.
-   *
-   * @throws BadRequestException if values_n doesn't fit to keys_n. There cannot be more input
-   *         values in the values|values2 than in the keys|keys2 parameter.
-   */
-  public void checkKeysValues(String[] keys, String[] values) {
-    if (values != null && keys.length < values.length) {
-      throw new BadRequestException(ExceptionMessages.KEYS_VALUES_RATIO_INVALID);
-    }
-  }
-
-  /**
-   * Compares the keys and values arrays with each other. Returns true only if keys=keys2 and
-   * values=values2.
-   */
-  public boolean compareKeysValues(String[] keys, String[] keys2, String[] values,
-      String[] values2) {
-    return Arrays.equals(keys, keys2) && Arrays.equals(values, values2);
-  }
-
-  /** Used in /ratio requests. */
-  public Pair<String[], String[]> processKeys2Vals2(String[] keys2, String[] values2) {
-    keys2 = createEmptyArrayIfNull(keys2);
-    values2 = createEmptyArrayIfNull(values2);
-    return new ImmutablePair<>(keys2, values2);
-  }
-
-  /**
    * Processes the properties parameter used in data-extraction resources and sets the respective
    * boolean values includeTags, includeOSMMetadata, unclippedGeometries, and
    * includeContributionTypes (only for the /contributions endpoints).
@@ -396,14 +273,10 @@ public class InputProcessor {
     String[] properties =
         splitParamOnComma(createEmptyArrayIfNull(requestParameters.get("properties")));
     for (String property : properties) {
-      @Deprecated
-      boolean oldUnclippedParameter = "unclipped".equalsIgnoreCase(property);
       if ("tags".equalsIgnoreCase(property)) {
         this.includeTags = true;
       } else if ("metadata".equalsIgnoreCase(property)) {
         this.includeOSMMetadata = true;
-      } else if (oldUnclippedParameter) {
-        this.clipGeometry = false;
       } else if (RequestUtils.isContributionsExtraction(requestUrl)) {
         if ("contributionTypes".equalsIgnoreCase(property)) {
           this.includeContributionTypes = true;
@@ -437,47 +310,6 @@ public class InputProcessor {
   }
 
   /**
-   * Applies respective Puntal|Lineal|Polygonal filter(s) on features of the given MapReducer.
-   *
-   * @return MapReducer with filtered geometries
-   * @throws RuntimeException if {@link org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor
-   *         #filterOnSimpleFeatures(Mappable) filterOnSimpleFeatures} was called on mapped entries
-   */
-  // suppressed, as filter always returns the same mappable type T
-  @SuppressWarnings("unchecked")
-  public <T extends Mappable<? extends OSHDBMapReducible>> T filterOnSimpleFeatures(T mapRed) {
-    Set<SimpleFeatureType> simpleFeatureTypes = processingData.getSimpleFeatureTypes();
-    return (T) mapRed.filter(data -> {
-      if (data instanceof OSMEntitySnapshot) {
-        Geometry snapshotGeom;
-        if (clipGeometry) {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometry();
-        } else {
-          snapshotGeom = ((OSMEntitySnapshot) data).getGeometryUnclipped();
-        }
-        return utils.checkGeometryOnSimpleFeatures(snapshotGeom, simpleFeatureTypes);
-      } else if (data instanceof OSMContribution) {
-        Geometry contribGeomBefore;
-        Geometry contribGeomAfter;
-        if (clipGeometry) {
-          contribGeomBefore = ((OSMContribution) data).getGeometryBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryAfter();
-        } else {
-          contribGeomBefore = ((OSMContribution) data).getGeometryUnclippedBefore();
-          contribGeomAfter = ((OSMContribution) data).getGeometryUnclippedAfter();
-        }
-        return contribGeomBefore != null
-            && utils.checkGeometryOnSimpleFeatures(contribGeomBefore, simpleFeatureTypes)
-            || contribGeomAfter != null
-                && utils.checkGeometryOnSimpleFeatures(contribGeomAfter, simpleFeatureTypes);
-      } else {
-        assert false : "filterOnSimpleFeatures() called on mapped entries";
-        throw new RuntimeException("filterOnSimpleFeatures() called on mapped entries");
-      }
-    });
-  }
-
-  /**
    * Checks the given filter parameter if it's null or blank. Currently used for filter2 parameter
    * of /ratio processing.
    *
@@ -489,42 +321,6 @@ public class InputProcessor {
       throw new BadRequestException(
           "The filter2 parameter has to be defined when using a /ratio endpoint.");
     }
-  }
-
-  /**
-   * Checks the given keys and values parameters on their length and includes them in the
-   * {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String) osmTag(key)},
-   * or {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer#osmTag(String, String)
-   * osmTag(key, value)} method.
-   *
-   * @param mapRed current {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer}
-   * @return {@link org.heigit.ohsome.oshdb.api.mapreducer.MapReducer MapReducer} object
-   *         including the filters derived from the given parameters.
-   */
-  private MapReducer<? extends OSHDBMapReducible> extractKeysValues(
-      MapReducer<? extends OSHDBMapReducible> mapRed, String[] keys, String[] values) {
-    checkKeysValues(keys, values);
-    if (keys.length != values.length) {
-      String[] tempVal = new String[keys.length];
-      System.arraycopy(values, 0, tempVal, 0, values.length);
-      for (int i = values.length; i < keys.length; i++) {
-        tempVal[i] = "";
-      }
-      values = tempVal;
-    }
-    // prerequisites: both arrays (keys and values) must be of the same length
-    // and key-value pairs need to be at the same index in both arrays
-    var filters = new ArrayList<String>();
-
-    for (int i = 0; i < keys.length; i++) {
-      if ("".equals(values[i])) {
-        filters.add(keys[i] + "=*");
-      } else {
-        filters.add(keys[i] + "=" + values[i]);
-      }
-    }
-    var filter = filters.stream().collect(Collectors.joining(" and "));
-    return mapRed.filter(filter);
   }
 
   /**
@@ -574,34 +370,6 @@ public class InputProcessor {
     }
     utils.setToTimestamps(toTimestamps);
     return mapRed;
-  }
-
-  /**
-   * Checks the given type(s) String[] on its length and content.
-   *
-   * @throws BadRequestException if the given types parameter is invalid.
-   */
-  private void checkTypes(String[] types) {
-    if (types.length > 4) {
-      throw new BadRequestException(
-          "Parameter 'types' (and 'types2') cannot have more than 4 entries.");
-    } else if (types.length == 0 || types.length == 1 && types[0].isEmpty()) {
-      // do nothing
-    } else {
-      processingData.setContainingSimpleFeatureTypes(!"node".equalsIgnoreCase(types[0])
-          && !"way".equalsIgnoreCase(types[0]) && !"relation".equalsIgnoreCase(types[0]));
-      for (String type : types) {
-        if (utils.isSimpleFeatureType(type)) {
-          if (!processingData.isContainingSimpleFeatureTypes()) {
-            throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
-          }
-        } else {
-          if (processingData.isContainingSimpleFeatureTypes()) {
-            throw new BadRequestException(ExceptionMessages.TYPES_PARAM);
-          }
-        }
-      }
-    }
   }
 
   /**

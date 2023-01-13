@@ -5,9 +5,6 @@ The filter parameter combines the following: definition of the OSM type,
 the geometry (simple feature) type, as well as the OSM tag. The filter syntax is defined in textual form. 
 A filter expression can be composed out of several actual filters, which are combined with boolean operators and parentheses.
 
-.. note:: Please note that you **cannot combine**
-          the filter parameter with the **deprecated types, keys and values** parameters.
-
 |
 
 Selectors

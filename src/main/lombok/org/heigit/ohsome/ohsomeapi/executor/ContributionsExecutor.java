@@ -78,7 +78,6 @@ public class ContributionsExecutor extends RequestExecutor {
    */
   public Response count(boolean isUsersRequest, boolean isContributionsLatestCount)
       throws UnsupportedOperationException, Exception {
-    MapReducer<OSMContribution> mapRed;
     final SortedMap<OSHDBTimestamp, ? extends Number> result;
     if (isContributionsLatestCount) {
       // the setFullHistory flag needs to be set, because
@@ -87,7 +86,7 @@ public class ContributionsExecutor extends RequestExecutor {
       inputProcessor.getProcessingData()
           .setFullHistory(true);
     }
-    mapRed = inputProcessor.processParameters();
+    MapReducer<OSMContribution> mapRed = inputProcessor.processParameters();
     if (isUsersRequest) {
       result = usersCount(mapRed);
     } else {
@@ -191,7 +190,7 @@ public class ContributionsExecutor extends RequestExecutor {
       V extends Comparable<V> & Serializable> Response countGroupByBoundary(boolean isUsersRequest)
       throws Exception {
     inputProcessor.getProcessingData().setGroupByBoundary(true);
-    var mapRed = inputProcessor.processParameters();
+    MapReducer<OSMContribution> mapRed = inputProcessor.processParameters();
     final var requestParameters = processingData.getRequestParameters();
     List<Geometry> arrGeoms = processingData.getBoundaryList();
     var arrGeomIds = inputProcessor.getUtils()
@@ -210,9 +209,6 @@ public class ContributionsExecutor extends RequestExecutor {
         .getFilterExpression();
     if (filter.isPresent()) {
       mapAgg = mapAgg.filter(filter.get());
-    }
-    if (isUsersRequest && processingData.isContainingSimpleFeatureTypes()) {
-      mapAgg = inputProcessor.filterOnSimpleFeatures(mapAgg);
     }
     SortedMap<OSHDBCombinedIndex<OSHDBTimestamp, V>, Integer> result;
     if (isUsersRequest) {
