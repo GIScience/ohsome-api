@@ -92,7 +92,7 @@ public class DataExtractionTest {
     assertTrue("GeometryCollection"
         .equals(response.getBody().get("features").get(0).get("geometry").get("type").asText()));
   }
-  
+
   @Test
   public void elementsGeomUsingNoTagsTest() {
     TestRestTemplate restTemplate = new TestRestTemplate();
