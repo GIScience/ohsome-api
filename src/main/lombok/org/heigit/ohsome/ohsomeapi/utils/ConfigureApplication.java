@@ -99,7 +99,8 @@ public class ConfigureApplication {
   }
 
   /**
-   * Method run by the Application class to parse incoming command line arguments
+   * Method run by the Application class to parse incoming command line arguments.
+   *
    * @param args ApplicationArguments from spring to be parsed.
    */
   public static void parseArguments(ApplicationArguments args)

@@ -124,7 +124,8 @@ public class GeometryBuilderTest {
             + "{\"id\":\"Neuenheim\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[[[8.68465,"
             + "49.41769]]]}}]}";
     InputProcessor inputProcessor = new InputProcessor(processingData);
-    assertThrows(BadRequestException.class, () -> geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor));
+    assertThrows(BadRequestException.class, () ->
+        geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor));
   }
 
   @Test
@@ -136,14 +137,16 @@ public class GeometryBuilderTest {
             + "[8.2933214,49.4329125],[8.2936734,49.4330121],[8.2940745,49.4331354],"
             + "[8.2950478,49.4317345],[8.2944706,49.4313443]]]]}]}";
     InputProcessor inputProcessor = new InputProcessor(processingData);
-    assertThrows(BadRequestException.class, () -> geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor));
+    assertThrows(BadRequestException.class, () ->
+        geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor));
   }
 
   @Test
   public void createGeometryFromInvalidInputGeoJson() {
     String geoJson = "{\"type\": \"FeatureCollection\"}";
     InputProcessor inputProcessor = new InputProcessor(processingData);
-    assertThrows(BadRequestException.class, () -> geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor));
+    assertThrows(BadRequestException.class, () ->
+        geomBuilder.createGeometryFromGeoJson(geoJson, inputProcessor));
   }
 
   @Test
@@ -194,6 +197,7 @@ public class GeometryBuilderTest {
   @Test
   public void createGeometryFromWrongMetadataGeoJson() {
     String geoJson = "{\"type\":\"Polygon\",\"coordinates\":[Invalid-Input]}";
-    assertThrows(RuntimeException.class, () ->geomBuilder.createGeometryFromMetadataGeoJson(geoJson));
+    assertThrows(RuntimeException.class, () ->
+        geomBuilder.createGeometryFromMetadataGeoJson(geoJson));
   }
 }
