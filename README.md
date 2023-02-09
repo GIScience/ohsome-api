@@ -10,7 +10,7 @@
 
 The ohsome API is a generic web API for in-depth analysis of OpenStreetMap (OSM) data with a focus on its history. It allows to get aggregated statistics about the evolution of OSM data itself and about the contributors behind the data. Furthermore, data extraction methods are provided to access the historic development of individual OSM features.
 
-The functionalities of the ohsome API can be accessed via HTTP requests. As a basis underneath serves the [OSHDB API](https://github.com/GIScience/oshdb). The current stable version is [v1.8.0](https://github.com/GIScience/ohsome-api/releases/tag/1.8.0). Developed and maintained by [HeiGIT](https://heigit.org/).
+The functionalities of the ohsome API can be accessed via HTTP requests. As a basis underneath serves the [OSHDB API](https://github.com/GIScience/oshdb). The current stable version is [v1.8.1](https://github.com/GIScience/ohsome-api/releases/tag/1.8.1). Developed and maintained by [HeiGIT](https://heigit.org/).
 
 ## Using the ohsome API
 
@@ -39,7 +39,7 @@ Here you see an example response giving the length of residential roads for a bo
         "url": "https://ohsome.org/copyrights",
         "text": "© OpenStreetMap contributors"
     },
-    "apiVersion": "1.8.0",
+    "apiVersion": "1.8.1",
     "metadata": {
         "executionTime": 858,
         "description": "Total length of items in meters.",
@@ -122,8 +122,8 @@ These instructions will get you a copy of the project up and running on your loc
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 3. enter the command `mvn -DskipTests=true package` to build the project (if you want to build it running the integrated tests too, look at the section [Testing](#testing))
 4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
-    * keytables included: `java -jar target/ohsome-api-1.8.0.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
-    * keytables not included: `java -jar target/ohsome-api-1.8.0.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
+    * keytables included: `java -jar target/ohsome-api-1.8.1.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
+    * keytables not included: `java -jar target/ohsome-api-1.8.1.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
 
 Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
 <br>To check if it is running properly, you should be able to visit the swagger documentation under *http://localhost:8080/swagger-ui.html*.

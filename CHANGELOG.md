@@ -3,10 +3,16 @@ Changelog
 
 ## 1.9.0-SNAPSHOT (current master)
 
-### Bug Fixes
 
+## 1.8.1
+
+### Bug Fixes
 * Fix crash and incorrect output of `…/groupBy/tag` and `…/groupBy/key` endpoints when non-existing tag keys or values are used in a query ([#291])
 
+### Documentation
+* Complete documentation of ohsome filters ([#290])
+
+[#290]: https://github.com/GIScience/ohsome-api/pull/290
 [#291]: https://github.com/GIScience/ohsome-api/pull/291
 
 
