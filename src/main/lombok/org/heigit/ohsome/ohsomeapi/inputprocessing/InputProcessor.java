@@ -245,6 +245,9 @@ public class InputProcessor {
         // call translator and add filters to mapRed
         FilterParser fp = new FilterParser(DbConnData.tagTranslator);
         FilterExpression filterExpr = utils.parseFilter(fp, filter);
+        if (isSnapshot && !InputProcessingUtils.filterSuitableForSnapshots(filterExpr)) {
+          throw new BadRequestException(ExceptionMessages.FILTER_INVALID_CHANGESET);
+        }
         processingData.setFilterExpression(filterExpr);
         if (!(processingData.isRatio()
             || processingData.isGroupByBoundary()

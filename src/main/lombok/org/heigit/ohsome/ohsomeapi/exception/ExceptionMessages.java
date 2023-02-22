@@ -29,6 +29,9 @@ public class ExceptionMessages {
       + "when you set the filter parameter.";
   public static final String FILTER_SYNTAX = "Invalid filter syntax. Please look at the additional "
       + "info and examples about the filter parameter at https://docs.ohsome.org/ohsome-api.";
+  public static final String FILTER_INVALID_CHANGESET = "Invalid filter: The changeset filters can "
+      + "only be used in contribution based API endpoints. Please look at the additional "
+      + "info and examples about the filter parameter at https://docs.ohsome.org/ohsome-api.";
   public static final String GROUP_BY_KEY_PARAM =
       "You need to give one groupByKey parameter, if you want to use groupBy/tag.";
   public static final String GROUP_BY_KEYS_PARAM =
