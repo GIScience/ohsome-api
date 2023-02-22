@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -7,6 +8,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import org.heigit.ohsome.ohsomeapi.controller.TestProperties;
 import org.heigit.ohsome.ohsomeapi.exception.BadRequestException;
 import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
+import org.heigit.ohsome.oshdb.filter.FilterParser;
+import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -110,5 +113,15 @@ public class InputProcessingUtilsTest {
     assertTrue(timeVals[0].equals("2015-01-01T00:00:00Z"));
     assertTrue(timeVals[1].equals("2017-01-01T00:00:00Z"));
     assertTrue(timeVals[2].equals("P1Y"));
+  }
+
+  @SuppressWarnings("DataFlowIssue")
+  @Test void filterSuitableForSnapshots() {
+    TagTranslator dummyTagTranslator = new DummyTagTranslator();
+    FilterParser filterParser = new FilterParser(dummyTagTranslator);
+    assertTrue(InputProcessingUtils.filterSuitableForSnapshots(inProUtils.parseFilter(filterParser,
+        "type:node and id:42")));
+    assertFalse(InputProcessingUtils.filterSuitableForSnapshots(inProUtils.parseFilter(filterParser,
+        "type:node and changeset:42")));
   }
 }
