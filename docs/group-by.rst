@@ -25,7 +25,9 @@ Groups the result by the given keys that are defined through the ``groupByKeys``
 
     :param aggregation: aggregation type, one of ``area``, ``count``, ``length``, ``perimeter``
     :query <params>: see query-parameters_ at /elements(aggregation) endpoint
-    :query groupByKeys: OSM key(s) given as a list and combined with the ‘AND’ operator; default: empty;
+    :query groupByKeys: OSM key(s) given as a comma separated list (e.g. "key1,key2"), mandatory, no default value
+
+The result of this grouping will contain separate results for each key specified in ``groupByKeys`` and - if applicable - a ``remainder`` for all objects that fulfilled the filter but had none of the 'groupByKeys'. Note that if more than one key is defined in ``groupByKeys``, the sum of the result values can be higher than the total result of a simple (not-grouped) aggregation: this is because an element can match none, one, or multiple of the specified ``groupByKeys``.
 
 Here you can find a groupByKey_ example.
 
@@ -42,8 +44,10 @@ Groups the result by the given tags that are defined through the ``groupByKey`` 
 
     :param aggregation: aggregation type, one of ``area``, ``count``, ``length``, ``perimeter``
     :query <params>: see query-parameters_ at /elements(aggregation) endpoint
-    :query groupByKey: OSM key e.g.: 'highway’; mandatory, no default value (only one groupByKey can be defined), non matching objects (if any) will be summarised in a 'remainder' category
-    :query groupByValues: OSM value(s) for the specified key given as a list and combined with the ‘AND’ operator, default: no value
+    :query groupByKey: OSM key e.g.: 'highway’; mandatory, no default value, only one groupByKey can be defined
+    :query groupByValues: OSM value(s) for the specified key given as a comma separated list (e.g. "value1,value2"), default: no value
+
+The result of this grouping will contain separate results for each specified tag having the key defined in ``groupByKey`` and a value as given in ``groupByValue``. A ``remainder`` object contains results for all elements which do not match any of these tags, if there are any. If the ``groupByValues`` parameter is left empty, all occuring tag values which are found in the filtered OSM data will be present in the output.
 
 Here you can find a groupByTag_ example. 
 
@@ -67,8 +71,10 @@ Groups the result by the given boundary and the tags.
 
     :param aggregation: aggregation type, one of ``area``, ``count``, ``length``, ``perimeter``
     :query <params>: see query-parameters_ at /elements(aggregation) endpoint
-    :query groupByKey: OSM key(s) given as a list and combined with the ‘AND’ operator, e.g.: 'highway’, 'building’; (one groupByKey parameter must be defined)
-    :query groupByValues: OSM value(s) given as a list and combined with the ‘AND’ operator, default: no value
+    :query groupByKey: OSM key e.g.: 'highway’; mandatory, no default value, only one groupByKey can be defined
+    :query groupByValues: OSM value(s) for the specified key given as a comma separated list (e.g. "value1,value2"), default: no value
+
+The result of this grouping will contain separate results for each conbination of boundary and OSM tag. The semantics are otherwise the same as for the individual groupings described above.
 
 Here you can find a groupByBoundaryGroupByTag_ example.
 
