@@ -1,12 +1,16 @@
 Changelog
 =========
 
-## 1.9.0-SNAPSHOT (current master)
+## 1.9.0
 
 ### Bug Fixes
 * Show proper error message when a `changeset` filter is used on a snapshot based endpoint ([#289])
 
-[#289] https://github.com/GIScience/ohsome-api/issues/289
+### Other Changes
+* Upgrade OSHDB to version 1.1.0
+* This version requires Java 17 to run
+
+[#289]: https://github.com/GIScience/ohsome-api/issues/289
 
 
 ## 1.8.1
