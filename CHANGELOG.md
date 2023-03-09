@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 1.9.0-SNAPSHOT (current master)
+## 1.9.0
 
 ### Bug Fixes
 * Show proper error message when a `changeset` filter is used on a snapshot based endpoint ([#289])
