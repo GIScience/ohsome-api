@@ -36,7 +36,8 @@
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>5.6</opencsv.version>
     <oshdb.version>1.0.0</oshdb.version>
-    <projectlombok.version>1.18.16</projectlombok.version>
+    <projectlombok.version>1.18.26</projectlombok.version>
+    <projectlombok-maven-plugin.version>1.18.20.0</projectlombok-maven-plugin.version>
     <sonar.sources>src/main/lombok</sonar.sources>
     <springboot.version>2.5.14</springboot.version>
     <spring.version>5.3.18</spring.version>
@@ -238,7 +239,14 @@
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
-        <version>${projectlombok.version}.0</version>
+        <version>${projectlombok-maven-plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${projectlombok.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <phase>generate-sources</phase>
