@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,9 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.ChangesetIdFilterEquals;
+import org.heigit.ohsome.oshdb.filter.ChangesetIdFilterEqualsAnyOf;
+import org.heigit.ohsome.oshdb.filter.ChangesetIdFilterRange;
 import org.heigit.ohsome.oshdb.filter.Filter;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
 import org.heigit.ohsome.oshdb.filter.FilterParser;
@@ -394,6 +398,19 @@ public class InputProcessingUtils implements Serializable {
       throw new BadRequestException(ExceptionMessages.FILTER_SYNTAX + " Detailed error message: "
           + ex.getMessage().replace("\n", " "));
     }
+  }
+
+  /**
+   * Returns whether a given filter is suitable for snapshots based endpoints.
+   *
+   * <p>For example, `changeset:*` filter can only be used on contribution based endpoints,
+   * see also <a href="https://github.com/GIScience/ohsome-api/issues/289">#289</a>.</p>
+   */
+  public static boolean filterSuitableForSnapshots(FilterExpression filter) {
+    return filter.normalize().stream().flatMap(Collection::stream)
+        .noneMatch(f -> f instanceof ChangesetIdFilterEquals
+                     || f instanceof ChangesetIdFilterRange
+                     || f instanceof ChangesetIdFilterEqualsAnyOf);
   }
 
   /**

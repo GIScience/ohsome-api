@@ -681,6 +681,10 @@ public class ElementsRequestExecutor {
     FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
+    if (!(InputProcessingUtils.filterSuitableForSnapshots(filterExpr1)
+        && InputProcessingUtils.filterSuitableForSnapshots(filterExpr2))) {
+      throw new BadRequestException(ExceptionMessages.FILTER_INVALID_CHANGESET);
+    }
     RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
         isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
         servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
@@ -985,6 +989,10 @@ public class ElementsRequestExecutor {
     final FilterParser fp = new FilterParser(DbConnData.tagTranslator);
     final FilterExpression filterExpr1 = inputProcessor.getUtils().parseFilter(fp, filter1);
     final FilterExpression filterExpr2 = inputProcessor.getUtils().parseFilter(fp, filter2);
+    if (!(InputProcessingUtils.filterSuitableForSnapshots(filterExpr1)
+        && InputProcessingUtils.filterSuitableForSnapshots(filterExpr2))) {
+      throw new BadRequestException(ExceptionMessages.FILTER_INVALID_CHANGESET);
+    }
     RequestParameters requestParamsCombined = new RequestParameters(servletRequest.getMethod(),
         isSnapshot, isDensity, servletRequest.getParameter("bboxes"),
         servletRequest.getParameter("bcircles"), servletRequest.getParameter("bpolys"),
