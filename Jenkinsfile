@@ -173,7 +173,7 @@ pipeline {
           javadc_dir = "/srv/javadoc/java/" + REPO_NAME + "/" + VERSION + "/"
           echo javadc_dir
 
-          rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS clean javadoc:javadoc -Dadditionalparam=-Xdoclint:none -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
+          rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS clean javadoc:javadoc -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
           sh "echo ${javadc_dir}"
           // make sure jenkins uses bash not dash!
           sh "mkdir -p ${javadc_dir} && rm -Rf ${javadc_dir}* && find . -path '*/target/site/apidocs' -exec cp -R --parents {} ${javadc_dir} \\; && find ${javadc_dir} -path '*/target/site/apidocs' | while read line; do echo \$line; neu=\${line/target\\/site\\/apidocs/} ;  mv \$line/* \$neu ; done && find ${javadc_dir} -type d -empty -delete"
