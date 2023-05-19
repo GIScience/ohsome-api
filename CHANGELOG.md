@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## 1.9.1
+* Upgrade OSHDB to version 1.1.2 [#302]
+
+[#302]: https://github.com/GIScience/ohsome-api/issues/302
+
+
 ## 1.9.0
 
 ### Bug Fixes
