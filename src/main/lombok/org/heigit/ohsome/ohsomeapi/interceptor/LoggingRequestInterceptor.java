@@ -31,6 +31,7 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
       requestUri = request.getRequestURL().toString();
     }
     logger.info("accessed URI: " + requestUri);
+    logger.info("query filter: " + request.getParameterMap().getOrDefault("filter", new String[] { "<none>" })[0]);
     logger.info("processing time: " + (System.currentTimeMillis() - startTime));
     logger.info("response code: " + response.getStatus());
   }
