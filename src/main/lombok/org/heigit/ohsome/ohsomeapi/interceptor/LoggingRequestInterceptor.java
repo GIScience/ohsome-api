@@ -40,9 +40,11 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
       var boundary = inputProcessor.getGeometry();
       var envelope = boundary.getEnvelopeInternal();
       var bbox = OSHDBGeometryBuilder.boundingBoxOf(envelope);
+      logger.info("query boundary type: "
+          + inputProcessor.getProcessingData().getBoundaryType().toString());
       logger.info("query boundary bbox: " + bbox.toString());
     } catch (Exception e) {
-      logger.info("query boundary bbox: <error while processing request params>");
+      logger.info("query boundary: <error while processing request params>");
     }
     logger.info("processing time: " + (System.currentTimeMillis() - startTime));
     logger.info("response code: " + response.getStatus());
