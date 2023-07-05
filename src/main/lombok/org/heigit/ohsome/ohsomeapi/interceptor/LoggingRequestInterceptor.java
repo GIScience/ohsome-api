@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.heigit.ohsome.ohsomeapi.Application;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessor;
+import org.heigit.ohsome.oshdb.util.geometry.Geo;
 import org.heigit.ohsome.oshdb.util.geometry.OSHDBGeometryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
       logger.info("query boundary type: "
           + inputProcessor.getProcessingData().getBoundaryType().toString());
       logger.info("query boundary bbox: " + bbox.toString());
+      logger.info("query boundary area: " + String.format("%.2f", Geo.areaOf(boundary) / 1E6));
     } catch (Exception e) {
       logger.info("query boundary: <error while processing request params>");
     }
