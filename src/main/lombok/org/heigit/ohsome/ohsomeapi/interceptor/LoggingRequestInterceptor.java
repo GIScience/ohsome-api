@@ -34,7 +34,10 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
       requestUri = request.getRequestURL().toString();
     }
     logger.info("accessed URI: " + requestUri);
-    logger.info("query filter: " + request.getParameterMap().getOrDefault("filter", new String[] { "<none>" })[0]);
+    logger.info("query filter: "
+        + request.getParameterMap().getOrDefault("filter", new String[] { "<none>" })[0]);
+    logger.info("query time: "
+        + request.getParameterMap().getOrDefault("time", new String[] { "<none>" })[0]);
     try {
       var inputProcessor = new InputProcessor(request, false, false);
       inputProcessor.processParameters();
