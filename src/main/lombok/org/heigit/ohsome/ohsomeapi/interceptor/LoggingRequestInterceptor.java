@@ -39,7 +39,7 @@ public class LoggingRequestInterceptor extends HandlerInterceptorAdapter {
     logger.info("query time: "
         + request.getParameterMap().getOrDefault("time", new String[] { "<none>" })[0]);
     try {
-      var inputProcessor = new InputProcessor(request, true, false);
+      var inputProcessor = new InputProcessor(request, false, false);
       inputProcessor.processParameters();
       var boundary = inputProcessor.getGeometry();
       var envelope = boundary.getEnvelopeInternal();
