@@ -460,6 +460,20 @@ public class DataExtractionTest {
     assertEquals("14227603", feature.get("properties").get("@contributionChangesetId").asText());
   }
 
+  @Test
+  public void contributionsChangesetFilterTest() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/bbox?bboxes=8.67,49.39,8.71,49.42&clipGeometry=true&"
+        + "filter=id:way/25316163 and changeset:14227603&"
+        + "properties=metadata,contributionTypes&time=2012-12-10,2017-12-11",
+        JsonNode.class);
+    var features = response.getBody().get("features");
+    assertEquals(1, features.size());
+    assertEquals("14227603",
+        features.get(0).get("properties").get("@contributionChangesetId").asText());
+  }
+
   /*
    * ./contributions/latest tests
    */

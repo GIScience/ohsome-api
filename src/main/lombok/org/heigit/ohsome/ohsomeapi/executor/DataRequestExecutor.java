@@ -24,6 +24,7 @@ import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite;
 import org.heigit.ohsome.oshdb.api.db.OSHDBIgnite.ComputeMode;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
 import org.heigit.ohsome.oshdb.filter.FilterExpression;
+import org.heigit.ohsome.oshdb.util.mappable.OSHDBMapReducible;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
@@ -61,20 +62,7 @@ public class DataRequestExecutor extends RequestExecutor {
    */
   public void extract() throws Exception {
     inputProcessor.getProcessingData().setFullHistory(true);
-    InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
-    snapshotInputProcessor.getProcessingData().setFullHistory(true);
-    MapReducer<OSMEntitySnapshot> mapRedSnapshot = null;
-    MapReducer<OSMContribution> mapRedContribution = null;
-    if (DbConnData.db instanceof OSHDBIgnite) {
-      // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
-      // of result data, without buffering the whole result in memory before returning the result.
-      // This allows to write data out to the client via a chunked HTTP response.
-      mapRedSnapshot = snapshotInputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
-      mapRedContribution = inputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
-    } else {
-      mapRedSnapshot = snapshotInputProcessor.processParameters();
-      mapRedContribution = inputProcessor.processParameters();
-    }
+    final MapReducer<List<OSMContribution>> mapRedContributions = getMapReducer(inputProcessor);
     RequestParameters requestParameters = processingData.getRequestParameters();
     String[] time = inputProcessor.splitParamOnComma(
         inputProcessor.createEmptyArrayIfNull(servletRequest.getParameterValues("time")));
@@ -102,17 +90,10 @@ public class DataRequestExecutor extends RequestExecutor {
         .format(DateTimeFormatter.ISO_DATE_TIME);
     String endTimestamp = IsoDateTimeParser.parseIsoDateTime(requestParameters.getTime()[1])
         .format(DateTimeFormatter.ISO_DATE_TIME);
-    MapReducer<List<OSMContribution>> mapRedContributions = mapRedContribution.groupByEntity();
-    MapReducer<List<OSMEntitySnapshot>> mapRedSnapshots = mapRedSnapshot.groupByEntity();
-    Optional<FilterExpression> filter = processingData.getFilterExpression();
-    if (filter.isPresent()) {
-      mapRedSnapshots = mapRedSnapshots.filter(filter.get());
-      mapRedContributions = mapRedContributions.filter(filter.get());
-    }
     final boolean isContainingSimpleFeatureTypes = processingData.isContainingSimpleFeatureTypes();
     DataExtractionTransformer dataExtractionTransformer = new DataExtractionTransformer(
-        startTimestamp, endTimestamp, filter.orElse(null), isContributionsEndpoint,
-        isContributionsLatestEndpoint,
+        startTimestamp, endTimestamp, processingData.getFilterExpression().orElse(null),
+        isContributionsEndpoint, isContributionsLatestEndpoint,
         clipGeometries, includeTags, includeOSMMetadata, includeContributionTypes, utils, exeUtils,
         keysInt, elementsGeometry, simpleFeatureTypes,
         isContainingSimpleFeatureTypes);
@@ -128,6 +109,9 @@ public class DataRequestExecutor extends RequestExecutor {
         metadata, "FeatureCollection", Collections.emptyList());
     MapReducer<Feature> snapshotPreResult = null;
     if (!isContributionsEndpoint) {
+      InputProcessor snapshotInputProcessor = new InputProcessor(servletRequest, true, false);
+      snapshotInputProcessor.getProcessingData().setFullHistory(true);
+      MapReducer<List<OSMEntitySnapshot>> mapRedSnapshots = getMapReducer(snapshotInputProcessor);
       // handles cases where valid_from = t_start, valid_to = t_end; i.e. non-modified data
       snapshotPreResult = mapRedSnapshots
           .filter(snapshots -> snapshots.size() == 2)
@@ -145,5 +129,22 @@ public class DataRequestExecutor extends RequestExecutor {
       exeUtils.streamResponse(servletResponse, osmData,
           Stream.concat(contributionStream, snapshotStream));
     }
+  }
+
+  private <X extends OSHDBMapReducible> MapReducer<List<X>> getMapReducer(
+      InputProcessor inputProcessor) throws Exception {
+    MapReducer<X> mapRed;
+    if (DbConnData.db instanceof OSHDBIgnite) {
+      // on ignite: Use AffinityCall backend, which is the only one properly supporting streaming
+      // of result data, without buffering the whole result in memory before returning the result.
+      // This allows to write data out to the client via a chunked HTTP response.
+      mapRed = inputProcessor.processParameters(ComputeMode.AFFINITY_CALL);
+    } else {
+      mapRed = inputProcessor.processParameters();
+    }
+    MapReducer<List<X>> mapRedGrouped = mapRed.groupByEntity();
+    Optional<FilterExpression> filter = processingData.getFilterExpression();
+    return filter.map(mapRedGrouped::filter)
+        .orElse(mapRedGrouped);
   }
 }

@@ -1,7 +1,16 @@
 Changelog
 =========
 
+## 1.10.0-SNAPSHOT (current master)
+
+### Bug Fixes
+* Fix bug which prevented some filters (which only work on ContributionView-based queries) to correctly work in contribution extraction endpoints ([#305])
+
+[#305]: https://github.com/GIScience/ohsome-api/issues/305
+
+
 ## 1.9.1
+
 * Upgrade OSHDB to version 1.1.2 [#302]
 
 [#302]: https://github.com/GIScience/ohsome-api/issues/302
