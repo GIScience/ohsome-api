@@ -1,21 +1,26 @@
 Changelog
 =========
 
-## 1.10.0-SNAPSHOT (current master)
+## 1.10.0
+
+### Performance Improvements
+* Upgrade OSHDB to version 1.2.0, significantly speeding up queries which touch many entities, i.e. frequent tags like `building` ([oshdb#511])
 
 ### Bug Fixes
 * Fix bug which prevented some filters (which only work on ContributionView-based queries) to correctly work in contribution extraction endpoints ([#305])
 
 ### Other
 * Add additional query metrics to log output: the used `filter`, `time` and some stats about the boundary parameter (type, bounding box and area) ([#304])
+* Update ohsome parent module, switch to new HeiGIT maven repository ([#307])
 
 [#304]: https://github.com/GIScience/ohsome-api/pull/304
 [#305]: https://github.com/GIScience/ohsome-api/issues/305
+[oshdb#511]: https://github.com/GIScience/oshdb/pull/511
 
 
 ## 1.9.1
 
-* Upgrade OSHDB to version 1.1.2 [#302]
+* Upgrade OSHDB to version 1.1.2 ([#302])
 
 [#302]: https://github.com/GIScience/ohsome-api/issues/302
 
