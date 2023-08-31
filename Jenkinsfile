@@ -3,6 +3,9 @@ pipeline {
   options {
     timeout(time: 30, unit: 'MINUTES')
   }
+  tools {
+    maven 'Maven 3'
+  }
 
   environment {
     REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
@@ -12,7 +15,7 @@ pipeline {
 
     MAVEN_GENERAL_OPTIONS = '--batch-mode --update-snapshots'
     // START CUSTOM ohsome API
-    MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty="--database.db=/opt/data/heidelberg-v1.0-beta.oshdb"'
+    MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty=--database.db=/opt/data/heidelberg-v1.0-beta.oshdb'
     // END CUSTOM ohsome API
     SNAPSHOT_BRANCH_REGEX = /(^master$)/
     RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
@@ -41,15 +44,8 @@ pipeline {
           }
         }
         script {
-          server = Artifactory.server 'HeiGIT Repo'
-          rtMaven = Artifactory.newMavenBuild()
-
-          rtMaven.resolver server: server, releaseRepo: 'main', snapshotRepo: 'main'
-          rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
-          rtMaven.deployer.deployArtifacts = false
-
           withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS clean compile javadoc:jar source:jar verify -P jacoco,sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE'
+            sh 'mvn $MAVEN_GENERAL_OPTIONS clean compile javadoc:jar source:jar verify -P jacoco,sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE'
           }
         }
       }
@@ -90,7 +86,7 @@ pipeline {
           sh "mkdir -p ${report_dir} && rm -Rf ${report_dir}* && find . -path '*/target/site/jacoco' -exec cp -R --parents {} ${report_dir} \\; && find ${report_dir} -path '*/target/site/jacoco' | while read line; do echo \$line; neu=\${line/target\\/site\\/jacoco/} ;  mv \$line/* \$neu ; done && find ${report_dir} -type d -empty -delete"
 
           // warnings plugin
-          rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS -V -e compile checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
+          sh 'mvn $MAVEN_GENERAL_OPTIONS -V -e compile checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
 
           recordIssues enabledForFailure: true, tools: [mavenConsole(),  java(), javaDoc()]
           recordIssues enabledForFailure: true, tool: checkStyle()
@@ -114,11 +110,12 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          withCredentials([
+              file(credentialsId: 'nexus-settings', variable: 'settingsFile'),
+              string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')
+          ]) {
+            sh 'mvn $MAVEN_GENERAL_OPTIONS clean compile -s $settingsFile javadoc:jar source:jar deploy -P sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
           }
-          rtMaven.deployer.deployArtifacts buildInfo
-          server.publishBuildInfo buildInfo
           SNAPSHOT_DEPLOY = true
         }
       }
@@ -137,11 +134,12 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')]) {
-            buildInfo = rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS clean compile javadoc:jar source:jar install -P sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
+          withCredentials([
+              file(credentialsId: 'nexus-settings', variable: 'settingsFile'),
+              string(credentialsId: 'gpg-signing-key-passphrase', variable: 'PASSPHRASE')
+          ]) {
+            sh 'mvn $MAVEN_GENERAL_OPTIONS clean compile -s $settingsFile javadoc:jar source:jar deploy -P sign,git -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS -Dgpg.passphrase=$PASSPHRASE -DskipTests=true'
           }
-          rtMaven.deployer.deployArtifacts buildInfo
-          server.publishBuildInfo buildInfo
           RELEASE_DEPLOY = true
         }
         withCredentials([
@@ -168,12 +166,12 @@ pipeline {
       steps {
         script {
           // load dependencies to artifactory
-          rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
+          sh 'mvn $MAVEN_GENERAL_OPTIONS org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
 
           javadc_dir = "/srv/javadoc/java/" + REPO_NAME + "/" + VERSION + "/"
           echo javadc_dir
 
-          rtMaven.run pom: 'pom.xml', goals: '$MAVEN_GENERAL_OPTIONS clean javadoc:javadoc -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
+          sh 'mvn $MAVEN_GENERAL_OPTIONS clean javadoc:javadoc -Dmaven.repo.local=.m2 $MAVEN_TEST_OPTIONS'
           sh "echo ${javadc_dir}"
           // make sure jenkins uses bash not dash!
           sh "mkdir -p ${javadc_dir} && rm -Rf ${javadc_dir}* && find . -path '*/target/site/apidocs' -exec cp -R --parents {} ${javadc_dir} \\; && find ${javadc_dir} -path '*/target/site/apidocs' | while read line; do echo \$line; neu=\${line/target\\/site\\/apidocs/} ;  mv \$line/* \$neu ; done && find ${javadc_dir} -type d -empty -delete"
