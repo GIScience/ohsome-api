@@ -6,6 +6,10 @@ Changelog
 ### Bug Fixes
 * Fix bug which prevented some filters (which only work on ContributionView-based queries) to correctly work in contribution extraction endpoints ([#305])
 
+### Other
+* Add additional query metrics to log output: the used `filter`, `time` and some stats about the boundary parameter (type, bounding box and area) ([#304])
+
+[#304]: https://github.com/GIScience/ohsome-api/pull/304
 [#305]: https://github.com/GIScience/ohsome-api/issues/305
 
 
