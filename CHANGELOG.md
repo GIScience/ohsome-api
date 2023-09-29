@@ -3,6 +3,12 @@ Changelog
 
 ## 1.11.0-SNAPSHOT (current master)
 
+## 1.10.1
+
+* Fix performance degradation in previous release (version 1.10.0) which made data extractions very slow for medium to large query areas ([oshdb#516])
+
+[oshdb#516]: https://github.com/GIScience/oshdb/pull/516
+
 
 ## 1.10.0
 
