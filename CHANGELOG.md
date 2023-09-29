@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## 1.10.1
+
+* Fix performance degradation in previous release (version 1.10.0) which made data extractions very slow for medium to large query areas ([oshdb#516])
+
+[oshdb#516]: https://github.com/GIScience/oshdb/pull/516
+
+
 ## 1.10.0
 
 ### Performance Improvements
@@ -15,6 +22,7 @@ Changelog
 
 [#304]: https://github.com/GIScience/ohsome-api/pull/304
 [#305]: https://github.com/GIScience/ohsome-api/issues/305
+[#307]: https://github.com/GIScience/ohsome-api/pull/307
 [oshdb#511]: https://github.com/GIScience/oshdb/pull/511
 
 
