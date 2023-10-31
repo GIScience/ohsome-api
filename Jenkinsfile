@@ -94,6 +94,9 @@ pipeline {
                         equals expected: true, actual: SNAPSHOT_DEPLOY
                     }
                 }
+                agent {
+                    label 'builtin'
+                }
                 steps {
                     script {
                         DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
