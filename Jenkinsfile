@@ -87,7 +87,7 @@ pipeline {
         }
 
             // START CUSTOM ohsome API
-            stage('Compile API Docs') {
+            stage('Publish API Docs') {
                 when {
                     anyOf {
                         equals expected: true, actual: RELEASE_DEPLOY
@@ -103,55 +103,35 @@ pipeline {
                         DOCS_DEPLOYMENT = 'development'
                         API_DOCS_PATH = 'development'
                         if (VERSION ==~ DOC_RELEASE_REGEX) {
-                        DOCS_DEPLOYMENT = 'release'
-                        API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
+                            DOCS_DEPLOYMENT = 'release'
+                            API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && python3 get_pom_metadata.py | awk \'/^Path:/{ print $2 }\'').trim()
                         }
+                        publish_dir = "/var/lib/jenkins/apidocs/${REPO_NAME}/${API_DOCS_PATH}/"
 
                         if (!fileExists('venv')) {
-                        sh 'python3 -m venv venv'
+                            sh 'python3 -m venv venv'
                         }
 
-                        sh '''
+                        sh """
+                        # activate venv and install dependencies
                         . venv/bin/activate
                         venv/bin/pip install --upgrade pip
                         venv/bin/pip install -r docs/requirements.txt
                         cd docs
-                        ../venv/bin/sphinx-build -b html . _build
-                        '''
-                        sh 'rm -rf venv'
-                    }
-                }
-                post {
-                    failure {
-                        rocket_basicsend('Compile of API Docs failed on ${env.BRANCH_NAME}')
-                    }
-                }
-            }
 
-            stage('Publish API Docs') {
-                when {
-                    anyOf {
-                        equals expected: true, actual: RELEASE_DEPLOY
-                        equals expected: true, actual: SNAPSHOT_DEPLOY
-                    }
-                }
-                agent {
-                    label 'builtin'
-                }
-                steps {
-                    script {
-                        working_dir = sh(returnStdout: true, script: 'basename $(pwd)').trim()
-                        publish_dir = "/var/lib/jenkins/apidocs/${REPO_NAME}/${API_DOCS_PATH}/"
-                        sh """
+                        # compile
+                        ../venv/bin/sphinx-build -b html . _build
+
+                        # publish
                         rm -rf ${publish_dir}
                         mkdir -p ${publish_dir}
-                        cp -r /var/lib/jenkins/workspace/${working_dir}/docs/_build/* ${publish_dir}
+                        cp -r _build/* ${publish_dir}
                         """
                     }
                 }
                 post {
                     failure {
-                        rocket_basicsend('Publishing of API Docs failed on ${env.BRANCH_NAME}')
+                        rocket_basicsend("Publishing of API Docs failed on ${env.BRANCH_NAME}")
                     }
                 }
             }
