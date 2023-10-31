@@ -1,6 +1,6 @@
 # ohsome API
 
-[![Build Status](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
+[![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome%20api/master)](https://jenkins.heigit.org/job/ohsome%20api/job/master/)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.heigit.ohsome:ohsome-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.heigit.ohsome:ohsome-api)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.heigit.ohsome/ohsome-api/badge.svg)](https://search.maven.org/artifact/org.heigit.ohsome/ohsome-api)
 [![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
