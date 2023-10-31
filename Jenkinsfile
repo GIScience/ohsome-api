@@ -1,5 +1,7 @@
 pipeline {
-    agent { label 'worker' }
+    agent {
+        label 'worker'
+    }
     options {
         timeout(time: 30, unit: 'MINUTES')
     }
@@ -11,6 +13,7 @@ pipeline {
         // START CUSTOM ohsome API
         MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty=--database.db=/data/heidelberg-v1.0-beta.oshdb'
         // END CUSTOM ohsome API
+        // this regex determines which branch is deployed as a snapshot
         SNAPSHOT_BRANCH_REGEX = /(^master$)/
         RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
         RELEASE_DEPLOY = false
@@ -47,9 +50,11 @@ pipeline {
             }
             steps {
                 deploy_snapshot('clean compile javadoc:jar source:jar deploy -P sign,git')
+                // START CUSTOM ohsome API
                 script {
                     SNAPSHOT_DEPLOY = true
                 }
+                // END CUSTOM ohsome API
             }
             post {
                 failure {
@@ -68,9 +73,11 @@ pipeline {
                 deploy_release('clean compile javadoc:jar source:jar deploy -P sign,git')
 
                 deploy_release_central('clean compile javadoc:jar source:jar deploy -P sign,git,deploy-central')
+                // START CUSTOM ohsome API
                 script {
                     RELEASE_DEPLOY = true
                 }
+                // END CUSTOM ohsome API
             }
             post {
                 failure {
@@ -151,7 +158,7 @@ pipeline {
             when {
                 expression {
                     if (currentBuild.number > 1) {
-                        return (((currentBuild.getStartTimeInMillis() - currentBuild.previousBuild.getStartTimeInMillis()) > 2592000000000) && (env.BRANCH_NAME ==~ SNAPSHOT_BRANCH_REGEX)) //2592000000000 one month in milliseconds
+                        return (((currentBuild.getStartTimeInMillis() - currentBuild.previousBuild.getStartTimeInMillis()) > 2592000000) && (env.BRANCH_NAME ==~ SNAPSHOT_BRANCH_REGEX)) //2592000000 30 days in milliseconds
                     }
                     return false
                 }
