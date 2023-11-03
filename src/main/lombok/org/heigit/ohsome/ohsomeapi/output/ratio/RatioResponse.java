@@ -27,5 +27,5 @@ public class RatioResponse implements Response {
   @ApiModelProperty(notes = "Metadata describing the output")
   private Metadata metadata;
   @ApiModelProperty(notes = "ElementsResult for /ratio requests", required = true)
-  private RatioResult[] ratioResult;
+  private RatioResult[] result;
 }

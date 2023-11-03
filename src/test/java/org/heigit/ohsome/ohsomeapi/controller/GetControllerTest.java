@@ -319,7 +319,7 @@ public class GetControllerTest {
             + "addr:housenumber=*",
         JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -335,10 +335,10 @@ public class GetControllerTest {
     assertEquals(expectedValue, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
-        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(),
+        .findFirst().get().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -527,7 +527,7 @@ public class GetControllerTest {
             + "&time=2011-12-13&&filter=type:way and highway=*&filter2=railway=*",
         JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -543,10 +543,10 @@ public class GetControllerTest {
     assertEquals(expectedValue, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("boundary1"))
-        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(),
+        .findFirst().get().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -1349,7 +1349,7 @@ public class GetControllerTest {
             + "2018-01-01&filter=building=* and type:way&filter2=building=* and type:relation",
         JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -1365,10 +1365,10 @@ public class GetControllerTest {
     assertEquals(expectedValue, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("b2"))
-        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(),
+        .findFirst().get().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -1381,7 +1381,7 @@ public class GetControllerTest {
             + "filter2=highway=*&time=2019-01-01",
         JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 

@@ -414,23 +414,23 @@ How often information about the roof of buildings is present?
               },
               "apiVersion" : "1.10.1",
               "groupByResult" : [ {
+                "groupByObject" : "remainder",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 23225.0
-                } ],
-                "groupByObject" : "remainder"
+                } ]
               }, {
+                "groupByObject" : "building:roof",              
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1418.0
-                } ],
-                "groupByObject" : "building:roof"
+                } ]
               }, {
+                "groupByObject" : "building:roof:colour",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1178.0
-                } ],
-                "groupByObject" : "building:roof:colour"
+                } ]
               } ]
             }
 
@@ -443,23 +443,23 @@ How often information about the roof of buildings is present?
               },
               "apiVersion" : "1.10.1",
               "groupByResult" : [ {
+                "groupByObject" : "remainder",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 23225.0
-                } ],
-                "groupByObject" : "remainder"
+                } ]
               }, {
+                "groupByObject" : "building:roof",              
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1418.0
-                } ],
-                "groupByObject" : "building:roof"
+                } ]
               }, {
+                "groupByObject" : "building:roof:colour",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1178.0
-                } ],
-                "groupByObject" : "building:roof:colour"
+                } ]
               } ]
             }
 
@@ -472,23 +472,23 @@ How often information about the roof of buildings is present?
               },
               "apiVersion" : "1.10.1",
               "groupByResult" : [ {
+                "groupByObject" : "remainder",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 23225.0
-                } ],
-                "groupByObject" : "remainder"
+                } ]
               }, {
+                "groupByObject" : "building:roof",              
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1418.0
-                } ],
-                "groupByObject" : "building:roof"
+                } ]
               }, {
+                "groupByObject" : "building:roof:colour",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1178.0
-                } ],
-                "groupByObject" : "building:roof:colour"
+                } ]
               } ]
             }
 
@@ -501,23 +501,23 @@ How often information about the roof of buildings is present?
               },
               "apiVersion" : "1.10.1",
               "groupByResult" : [ {
+                "groupByObject" : "remainder",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 23225.0
-                } ],
-                "groupByObject" : "remainder"
+                } ]
               }, {
+                "groupByObject" : "building:roof",              
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1418.0
-                } ],
-                "groupByObject" : "building:roof"
+                } ]
               }, {
+                "groupByObject" : "building:roof:colour",
                 "result" : [ {
                   "timestamp" : "2018-01-01T00:00:00Z",
                   "value" : 1178.0
-                } ],
-                "groupByObject" : "building:roof:colour"
+                } ]
               } ]
             }
 
@@ -584,53 +584,53 @@ Compare length of different types of streets for two or more regions.
              },
              "apiVersion" : "1.10.1",
              "groupByResult" : [ {
+               "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 1650245.08
-               } ],
-               "groupByObject" : [ "Heidelberg", "remainder" ]
+               } ]         
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 48637.96
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 29114.72
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 35297.95
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=primary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 56493.26
-               } ],
-               "groupByObject" : [ "Plankstadt", "remainder" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 3399.22
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 954.7
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 0.0
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=primary" ]
+               } ]
              } ]
            }
 
@@ -643,53 +643,53 @@ Compare length of different types of streets for two or more regions.
              },
              "apiVersion" : "1.10.1",
              "groupByResult" : [ {
+               "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 1650245.08
-               } ],
-               "groupByObject" : [ "Heidelberg", "remainder" ]
+               } ]         
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 48637.96
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 29114.72
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 35297.95
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=primary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 56493.26
-               } ],
-               "groupByObject" : [ "Plankstadt", "remainder" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 3399.22
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 954.7
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 0.0
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=primary" ]
+               } ]
              } ]
            }
 
@@ -702,112 +702,112 @@ Compare length of different types of streets for two or more regions.
              },
              "apiVersion" : "1.10.1",
              "groupByResult" : [ {
+               "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 1650245.08
-               } ],
-               "groupByObject" : [ "Heidelberg", "remainder" ]
+               } ]         
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 48637.96
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 29114.72
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 35297.95
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=primary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 56493.26
-               } ],
-               "groupByObject" : [ "Plankstadt", "remainder" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 3399.22
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 954.7
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 0.0
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=primary" ]
+               } ]
              } ]
            }
 
          .. code-tab:: json R
 
-           {
+          {
              "attribution" : {
                "url" : "https://ohsome.org/copyrights",
                "text" : "© OpenStreetMap contributors"
              },
              "apiVersion" : "1.10.1",
              "groupByResult" : [ {
+               "groupByObject" : [ "Heidelberg", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 1650245.08
-               } ],
-               "groupByObject" : [ "Heidelberg", "remainder" ]
+               } ]         
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 48637.96
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 29114.72
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Heidelberg", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 35297.95
-               } ],
-               "groupByObject" : [ "Heidelberg", "highway=primary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "remainder" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 56493.26
-               } ],
-               "groupByObject" : [ "Plankstadt", "remainder" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=tertiary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 3399.22
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=tertiary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=secondary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 954.7
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=secondary" ]
+               } ]
              }, {
+               "groupByObject" : [ "Plankstadt", "highway=primary" ],
                "result" : [ {
                  "timestamp" : "2018-01-01T00:00:00Z",
                  "value" : 0.0
-               } ],
-               "groupByObject" : [ "Plankstadt", "highway=primary" ]
+               } ]
              } ]
            }
 

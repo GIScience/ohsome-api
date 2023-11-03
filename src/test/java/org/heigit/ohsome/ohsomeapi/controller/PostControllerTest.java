@@ -454,7 +454,7 @@ public class PostControllerTest {
     ResponseEntity<JsonNode> response = restTemplate
         .postForEntity(server + port + "/elements/perimeter/ratio", map, JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -473,10 +473,10 @@ public class PostControllerTest {
     assertEquals(expectedValue, StreamSupport
         .stream(
             Spliterators.spliteratorUnknownSize(
-                response.getBody().get("groupByBoundaryResult").iterator(), Spliterator.ORDERED),
+                response.getBody().get("groupByResult").iterator(), Spliterator.ORDERED),
             false)
         .filter(jsonNode -> jsonNode.get("groupByObject").asText().equalsIgnoreCase("Neuenheim"))
-        .findFirst().get().get("ratioResult").get(0).get("ratio").asDouble(),
+        .findFirst().get().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -724,7 +724,7 @@ public class PostControllerTest {
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 
@@ -740,8 +740,8 @@ public class PostControllerTest {
     map.add("filter2", "type:relation and building=*");
     ResponseEntity<JsonNode> response = restTemplate.postForEntity(
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
-    assertEquals(expectedValue, response.getBody().get("groupByBoundaryResult").get(1)
-        .get("ratioResult").get(0).get("ratio").asDouble(), expectedValue * deltaPercentage);
+    assertEquals(expectedValue, response.getBody().get("groupByResult").get(1)
+        .get("result").get(0).get("ratio").asDouble(), expectedValue * deltaPercentage);
   }
 
   @Test
@@ -858,7 +858,7 @@ public class PostControllerTest {
     ResponseEntity<JsonNode> response =
         restTemplate.postForEntity(server + port + "/elements/area/ratio", map, JsonNode.class);
     assertEquals(expectedValue,
-        response.getBody().get("ratioResult").get(0).get("ratio").asDouble(),
+        response.getBody().get("result").get(0).get("ratio").asDouble(),
         expectedValue * deltaPercentage);
   }
 

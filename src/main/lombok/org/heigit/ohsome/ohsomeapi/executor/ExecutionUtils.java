@@ -783,8 +783,8 @@ public class ExecutionUtils implements Serializable {
       columnNames.add(ratioGroupByResult.getGroupByObject() + "_value");
       columnNames.add(ratioGroupByResult.getGroupByObject() + "_value2");
       columnNames.add(ratioGroupByResult.getGroupByObject() + "_ratio");
-      for (int j = 0; j < ratioGroupByResult.getRatioResult().length; j++) {
-        RatioResult ratioResult = ratioGroupByResult.getRatioResult()[j];
+      for (int j = 0; j < ratioGroupByResult.getResult().length; j++) {
+        RatioResult ratioResult = ratioGroupByResult.getResult()[j];
         if (i == 0) {
           String[] row = new String[resultSet.length * 3 + 1];
           row[0] = ratioResult.getTimestamp();
