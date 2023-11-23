@@ -3,6 +3,12 @@ Changelog
 
 ## 1.11.0-SNAPSHOT (current master)
 
+### Bug Fixes
+* Fix inconsistent timestamp format in `/elements/(aggregation)/ratio/groupBy/boundary` request responses ([#318])
+
+[#318]: https://github.com/GIScience/ohsome-api/issues/318
+
+
 ## 1.10.1
 
 * Fix performance degradation in previous release (version 1.10.0) which made data extractions very slow for medium to large query areas ([oshdb#516])
