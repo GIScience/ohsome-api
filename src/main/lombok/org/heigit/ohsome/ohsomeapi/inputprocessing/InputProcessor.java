@@ -325,11 +325,11 @@ public class InputProcessor {
    * Returns a String array containing the splits.
    *
    * @param param <code>String</code> array containing the content to split
-   * @return <code>String</code> array containing the splitted parameter content
+   * @return <code>String</code> array containing the split parameter content
    */
   public String[] splitParamOnComma(String[] param) {
     if (param.length == 1 && param[0].contains(",")) {
-      return param[0].replaceAll("\\s", "").split(",");
+      return Arrays.stream(param[0].split(",")).map(String::trim).toArray(String[]::new);
     }
     return param;
   }
