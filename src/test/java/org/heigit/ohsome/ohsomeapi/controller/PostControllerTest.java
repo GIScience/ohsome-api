@@ -742,6 +742,8 @@ public class PostControllerTest {
         server + port + "/elements/area/ratio/groupBy/boundary", map, JsonNode.class);
     assertEquals(expectedValue, response.getBody().get("groupByBoundaryResult").get(1)
         .get("ratioResult").get(0).get("ratio").asDouble(), expectedValue * deltaPercentage);
+    assertEquals("2017-01-01T00:00:00Z", response.getBody().get("groupByBoundaryResult").get(1)
+        .get("ratioResult").get(0).get("timestamp").asText());
   }
 
   @Test

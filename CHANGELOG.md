@@ -5,8 +5,10 @@ Changelog
 
 ### Bug Fixes
 * Fix spaces from being removed from parameters like `groupByValues` ([#305])
+* Fix inconsistent timestamp format in `/elements/(aggregation)/ratio/groupBy/boundary` request responses ([#318])
 
 [#313]: https://github.com/GIScience/ohsome-api/issues/313
+[#318]: https://github.com/GIScience/ohsome-api/issues/318
 
 
 ## 1.10.1

@@ -923,9 +923,10 @@ public class ElementsRequestExecutor {
           resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           if (!timeArrayFilled) {
-            String time = innerEntry.getKey().getFirstIndex().toString();
+            String time = TimestampFormatter.getInstance().isoDateTime(
+                innerEntry.getKey().getFirstIndex());
             if (matchesBothCount == 0 || !timeArray[timeArrayCount - 1].equals(time)) {
-              timeArray[timeArrayCount] = innerEntry.getKey().getFirstIndex().toString();
+              timeArray[timeArrayCount] = time;
               timeArrayCount++;
             }
           }
@@ -1083,9 +1084,10 @@ public class ElementsRequestExecutor {
           resultValues2[matchesBothCount] = resultValues2[matchesBothCount]
               + Double.parseDouble(df.format(innerEntry.getValue().doubleValue()));
           if (!timeArrayFilled) {
-            String time = innerEntry.getKey().getFirstIndex().toString();
+            String time = TimestampFormatter.getInstance().isoDateTime(
+                innerEntry.getKey().getFirstIndex());
             if (matchesBothCount == 0 || !timeArray[timeArrayCount - 1].equals(time)) {
-              timeArray[timeArrayCount] = innerEntry.getKey().getFirstIndex().toString();
+              timeArray[timeArrayCount] = time;
               timeArrayCount++;
             }
           }
