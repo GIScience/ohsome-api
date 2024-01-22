@@ -31,7 +31,7 @@
     <hikaricp.version>5.0.1</hikaricp.version>
     <jacksondatatype.version>2.13.3</jacksondatatype.version>
     <javaxjson.version>1.1.4</javaxjson.version>
-    <jsonpath.version>2.7.0</jsonpath.version>
+    <jsonpath.version>2.9.0</jsonpath.version>
     <jts2geojson.version>0.17.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>5.6</opencsv.version>
