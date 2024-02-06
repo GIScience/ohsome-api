@@ -31,7 +31,6 @@
     <hikaricp.version>5.0.1</hikaricp.version>
     <jacksondatatype.version>2.13.3</jacksondatatype.version>
     <javaxjson.version>1.1.4</javaxjson.version>
-    <jsonpath.version>2.9.0</jsonpath.version>
     <jts2geojson.version>0.17.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>5.6</opencsv.version>
@@ -71,15 +70,6 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <version>${spring.version}</version>
-    </dependency>
-    <!-- to have a basic auth with a user+key security on first request <dependency>
-      <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-security</artifactId>
-      </dependency> -->
-    <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>${jsonpath.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.heigit.ohsome</groupId>
