@@ -225,4 +225,4 @@ Further Information
 -------------------
 
 The filter parameter is powered by a separate Java module, which can be used independently as a maven library.
-You can find further information in the `Readme of the *oshdb-filter* module <https://github.com/GIScience/oshdb/tree/master/oshdb-filter>`_.
+You can find further information in the `Readme of the *oshdb-filter* module <https://github.com/GIScience/oshdb/tree/main/oshdb-filter>`_.
