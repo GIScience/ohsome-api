@@ -14,7 +14,7 @@ pipeline {
         MAVEN_TEST_OPTIONS = '-Dport_get=8081 -Dport_post=8082 -Dport_data=8083 -DdbFilePathProperty=--database.db=/data/heidelberg-v1.0-beta.oshdb'
         // END CUSTOM ohsome API
         // this regex determines which branch is deployed as a snapshot
-        SNAPSHOT_BRANCH_REGEX = /(^master$)/
+        SNAPSHOT_BRANCH_REGEX = /(^main$)/
         RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
         RELEASE_DEPLOY = false
         SNAPSHOT_DEPLOY = false

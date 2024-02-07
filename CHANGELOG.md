@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 1.11.0-SNAPSHOT (current master)
+## 1.11.0-SNAPSHOT (current main)
 
 ### Bug Fixes
 * Fix spaces from being removed from parameters like `groupByValues` ([#305])

@@ -1,6 +1,6 @@
 # ohsome API
 
-[![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome%20api/master)](https://jenkins.heigit.org/job/ohsome%20api/job/master/)
+[![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome%20api/main)](https://jenkins.heigit.org/job/ohsome%20api/job/main/)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.heigit.ohsome:ohsome-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.heigit.ohsome:ohsome-api)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.heigit.ohsome/ohsome-api/badge.svg)](https://search.maven.org/artifact/org.heigit.ohsome/ohsome-api)
 [![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
@@ -104,11 +104,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 17](https://openjdk.java.net/projects/jdk/17/) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* data: [download](https://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-etl/README.md)
+* data: [download](https://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/main/oshdb-etl/README.md)
 
 ### IDE Settings
 
-* [Code style](/CONTRIBUTING.md#code-style): For some popular IDEs and code linting tools you can find configuration files of the used code style in the OSHDB repository: [config/ide](https://github.com/GIScience/oshdb/tree/master/config/ide).
+* [Code style](/CONTRIBUTING.md#code-style): For some popular IDEs and code linting tools you can find configuration files of the used code style in the OSHDB repository: [config/ide](https://github.com/GIScience/oshdb/tree/main/config/ide).
 * [Lombok](https://projectlombok.org/): Please check the [setup instructions](https://projectlombok.org/setup/overview) for your IDE.
 * In some cases you have to mark some directories manually by their type:
    * `src/main/lombok` as a _source_ directory,
