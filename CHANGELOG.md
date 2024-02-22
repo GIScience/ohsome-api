@@ -3,9 +3,14 @@ Changelog
 
 ## 1.11.0-SNAPSHOT (current main)
 
+
+## 1.10.2
+
 ### Bug Fixes
 * Fix spaces from being removed from parameters like `groupByValues` ([#305])
 * Fix inconsistent timestamp format in `/elements/(aggregation)/ratio/groupBy/boundary` request responses ([#318])
+### Other
+* Upgrade OSHDB to version 1.10.2
 
 [#313]: https://github.com/GIScience/ohsome-api/issues/313
 [#318]: https://github.com/GIScience/ohsome-api/issues/318
