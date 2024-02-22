@@ -1,6 +1,6 @@
 # ohsome API
 
-[![Build Status](http://jenkins.ohsome.org/buildStatus/icon?job=ohsome-api/master)](http://jenkins.ohsome.org/blue/organizations/jenkins/ohsome-api/activity)
+[![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome%20api/main)](https://jenkins.heigit.org/job/ohsome%20api/job/main/)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=org.heigit.ohsome:ohsome-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.heigit.ohsome:ohsome-api)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.heigit.ohsome/ohsome-api/badge.svg)](https://search.maven.org/artifact/org.heigit.ohsome/ohsome-api)
 [![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
@@ -10,7 +10,7 @@
 
 The ohsome API is a generic web API for in-depth analysis of OpenStreetMap (OSM) data with a focus on its history. It allows to get aggregated statistics about the evolution of OSM data itself and about the contributors behind the data. Furthermore, data extraction methods are provided to access the historic development of individual OSM features.
 
-The functionalities of the ohsome API can be accessed via HTTP requests. As a basis underneath serves the [OSHDB API](https://github.com/GIScience/oshdb). The current stable version is [v1.10.1](https://github.com/GIScience/ohsome-api/releases/tag/1.10.1). Developed and maintained by [HeiGIT](https://heigit.org/).
+The functionalities of the ohsome API can be accessed via HTTP requests. As a basis underneath serves the [OSHDB API](https://github.com/GIScience/oshdb). The current stable version is [v1.10.2](https://github.com/GIScience/ohsome-api/releases/tag/1.10.2). Developed and maintained by [HeiGIT](https://heigit.org/).
 
 ## Using the ohsome API
 
@@ -39,7 +39,7 @@ Here you see an example response giving the length of residential roads for a bo
         "url": "https://ohsome.org/copyrights",
         "text": "© OpenStreetMap contributors"
     },
-    "apiVersion": "1.10.1",
+    "apiVersion": "1.10.2",
     "metadata": {
         "executionTime": 858,
         "description": "Total length of items in meters.",
@@ -104,11 +104,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Java 17](https://openjdk.java.net/projects/jdk/17/) or higher
 * [Apache Maven 3.5](https://maven.apache.org/download.cgi) or higher
-* data: [download](https://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/master/oshdb-etl/README.md)
+* data: [download](https://downloads.ohsome.org/OSHDB/) it directly, or work through a guide on [how to prepare a new OSHDB extract](https://github.com/GIScience/oshdb/blob/main/oshdb-etl/README.md)
 
 ### IDE Settings
 
-* [Code style](/CONTRIBUTING.md#code-style): For some popular IDEs and code linting tools you can find configuration files of the used code style in the OSHDB repository: [config/ide](https://github.com/GIScience/oshdb/tree/master/config/ide).
+* [Code style](/CONTRIBUTING.md#code-style): For some popular IDEs and code linting tools you can find configuration files of the used code style in the OSHDB repository: [config/ide](https://github.com/GIScience/oshdb/tree/main/config/ide).
 * [Lombok](https://projectlombok.org/): Please check the [setup instructions](https://projectlombok.org/setup/overview) for your IDE.
 * In some cases you have to mark some directories manually by their type:
    * `src/main/lombok` as a _source_ directory,
@@ -122,8 +122,8 @@ These instructions will get you a copy of the project up and running on your loc
 2. move to your Maven project directory in a shell (e.g. Windows PowerShell)
 3. enter the command `mvn -DskipTests=true package` to build the project (if you want to build it running the integrated tests too, look at the section [Testing](#testing))
 4. to run the jar file enter the following (if no additional keytables file is given, you can assume that it is included):
-    * keytables included: `java -jar target/ohsome-api-1.10.1.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
-    * keytables not included: `java -jar target/ohsome-api-1.10.1.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
+    * keytables included: `java -jar target/ohsome-api-1.10.2.jar --database.db=C:/path-to-your-data/ba-wue.oshdb`
+    * keytables not included: `java -jar target/ohsome-api-1.10.2.jar --database.db=C:/path-to-your-data/ba-wue.oshdb --database.keytables=C:/path-to-your-keytablesFile/keytables`
 
 Now you should have a running local API, which is ready for receiving requests under *http://localhost:8080/*.
 <br>To check if it is running properly, you should be able to visit the swagger documentation under *http://localhost:8080/swagger-ui.html*.

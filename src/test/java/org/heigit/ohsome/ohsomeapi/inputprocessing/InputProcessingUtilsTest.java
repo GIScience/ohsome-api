@@ -1,5 +1,6 @@
 package org.heigit.ohsome.ohsomeapi.inputprocessing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,6 +13,7 @@ import org.heigit.ohsome.oshdb.filter.FilterParser;
 import org.heigit.ohsome.oshdb.util.tagtranslator.TagTranslator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 
@@ -123,5 +125,48 @@ public class InputProcessingUtilsTest {
         "type:node and id:42")));
     assertFalse(InputProcessingUtils.filterSuitableForSnapshots(inProUtils.parseFilter(filterParser,
         "type:node and changeset:42")));
+  }
+
+  // splitParamOnComma
+  @Nested
+  class SplitParamOnCommaTest {
+    InputProcessor dummyInputProcessor = new InputProcessor(null);
+
+    @Test
+    public void splitsString() {
+      var in = new String[]{ "A,B" };
+      var out = dummyInputProcessor.splitParamOnComma(in);
+      assertEquals(2, out.length);
+      assertEquals("A", out[0]);
+      assertEquals("B", out[1]);
+    }
+
+    @Test
+    public void preservesExistingList() {
+      var in = new String[]{ "A", "B", "C" };
+      var out = dummyInputProcessor.splitParamOnComma(in);
+      assertEquals(3, out.length);
+      assertEquals("A", out[0]);
+      assertEquals("B", out[1]);
+      assertEquals("C", out[2]);
+    }
+
+    @Test
+    public void trimsWhitespace() {
+      var in = new String[]{ "A , B" };
+      var out = dummyInputProcessor.splitParamOnComma(in);
+      assertEquals(2, out.length);
+      assertEquals("A", out[0]);
+      assertEquals("B", out[1]);
+    }
+
+    @Test
+    public void preservesSpacesInString() {
+      var in = new String[]{ "A B,C" };
+      var out = dummyInputProcessor.splitParamOnComma(in);
+      assertEquals(2, out.length);
+      assertEquals("A B", out[0]);
+      assertEquals("C", out[1]);
+    }
   }
 }
