@@ -5,7 +5,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.heigit.ohsome/ohsome-api/badge.svg)](https://search.maven.org/artifact/org.heigit.ohsome/ohsome-api)
 [![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
 [![API docs](https://img.shields.io/badge/API-docs-blue.svg)](https://docs.ohsome.org/ohsome-api/stable)
-[![JavaDocs](https://img.shields.io/badge/Java-docs-blue.svg)](https://docs.ohsome.org/java/ohsome-api)
+[![javadoc](https://javadoc.io/badge2/org.heigit.ohsome/ohsome-api/javadoc.svg)](https://javadoc.io/doc/org.heigit.ohsome/ohsome-api)
 [![status: active](https://github.com/GIScience/badges/raw/master/status/active.svg)](https://github.com/GIScience/badges#active)
 
 The ohsome API is a generic web API for in-depth analysis of OpenStreetMap (OSM) data with a focus on its history. It allows to get aggregated statistics about the evolution of OSM data itself and about the contributors behind the data. Furthermore, data extraction methods are provided to access the historic development of individual OSM features.
@@ -133,7 +133,7 @@ Now you should have a running local API, which is ready for receiving requests u
     * to disable multithreading: `--database.multithreading=false`
 * if you want to run the maven project in your IDE, you need to set the paths to your data in the run configurations
     * in Eclipse: *Run As --> Run Configurations --> (x)= Arguments --> Program arguments: 'enter the parameters here'*
-* if you want to get information about the code directly, you can access the [Javadoc](https://docs.ohsome.org/java/ohsome-api/), which gets updated daily.
+* if you want to get information about the code directly, you can access the [Javadoc](https://javadoc.io/doc/org.heigit.ohsome/ohsome-api), which gets updated daily.
 
 ## Testing
 
