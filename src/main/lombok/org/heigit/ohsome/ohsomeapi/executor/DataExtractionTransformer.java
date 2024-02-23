@@ -147,7 +147,8 @@ public class DataExtractionTransformer implements Serializable {
       properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, contribution.getChangesetId());
       output.add(exeUtils.createOSMFeature(entityAfter, geometryAfter, properties, keysInt,
           includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
-          outputGeometry, contribution.getContributionTypes()));
+          outputGeometry, contribution::getContributionTypes,
+          contribution.is(ContributionType.DELETION)));
     }
 
     return output;
@@ -185,7 +186,8 @@ public class DataExtractionTransformer implements Serializable {
           properties.put(VALID_TO_PROPERTY, validTo);
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
               includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
-              outputGeometry, contribution.getContributionTypes()));
+              outputGeometry, contribution::getContributionTypes,
+              contribution.is(ContributionType.DELETION)));
         }
       }
       skipNext = false;
@@ -215,7 +217,8 @@ public class DataExtractionTransformer implements Serializable {
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
               includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
-              outputGeometry, lastContribution.getContributionTypes()));
+              outputGeometry, lastContribution::getContributionTypes,
+              lastContribution.is(ContributionType.DELETION)));
         }
       }
     }
@@ -251,7 +254,8 @@ public class DataExtractionTransformer implements Serializable {
     if (addToOutput) {
       return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
           keysInt, includeTags, includeOSMMetadata, includeContributionTypes,
-          isContributionsEndpoint, outputGeometry, EnumSet.noneOf(ContributionType.class)));
+          isContributionsEndpoint, outputGeometry,
+          () -> EnumSet.noneOf(ContributionType.class), false));
     } else {
       return Collections.emptyList();
     }
