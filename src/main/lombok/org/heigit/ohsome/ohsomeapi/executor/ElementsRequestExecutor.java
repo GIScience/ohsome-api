@@ -130,7 +130,7 @@ public class ElementsRequestExecutor {
       }
       return exeUtils.createOSMFeature(snapshot.getEntity(), geom, properties, keysInt, includeTags,
           includeOSMMetadata, false, false, elemGeom,
-          EnumSet.noneOf(ContributionType.class));
+          () -> EnumSet.noneOf(ContributionType.class), false);
     }).filter(Objects::nonNull);
     Metadata metadata = null;
     if (processingData.isShowMetadata()) {
