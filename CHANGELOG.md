@@ -3,6 +3,11 @@ Changelog
 
 ## 1.11.0-SNAPSHOT (current main)
 
+### Bug Fixes
+* Fix contributions extractions endpoints which were missing _deletion_ contributions that were later reverted ([#324])
+
+[#324]: https://github.com/GIScience/ohsome-api/pull/324
+
 
 ## 1.10.2
 
