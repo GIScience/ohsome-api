@@ -45,10 +45,10 @@ Selectors
     | ``id:osm-type/osm-id``             | matches the entity with the given  | ``id:node/1234``                  |
     |                                    | osm type and id                    |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
-    | ``id:(id list)``                   | matches all entities with the      | ``id:(1, 42, 1234)``              |
+    | ``id:(osm-id list)``               | matches all entities with the      | ``id:(1, 42, 1234)``              |
     |                                    | given osm ids [1]_                 |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
-    | ``id:(id list)``                   | matches all entities with the      | ``id:(node/1, way/3)``            |
+    | ``id:(osm-type/osm-id list)``      | matches all entities with the      | ``id:(node/1, way/3)``            |
     |                                    | given osm types and ids            |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``id:(id range)``                  | matches all entities with an id    | ``id:(1 .. 9999)``                |

@@ -3,6 +3,11 @@ Changelog
 
 ## 1.11.0-SNAPSHOT (current main)
 
+### Other
+* Fix filter documentation ([#326])
+
+[#326]: https://github.com/GIScience/ohsome-api/pull/326
+
 
 ## 1.10.2
 
