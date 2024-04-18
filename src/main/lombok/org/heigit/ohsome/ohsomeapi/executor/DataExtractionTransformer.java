@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import org.heigit.ohsome.ohsomeapi.controller.dataextraction.elements.ElementsGeometry;
-import org.heigit.ohsome.ohsomeapi.inputprocessing.GeometryBuilder;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.InputProcessingUtils;
 import org.heigit.ohsome.ohsomeapi.inputprocessing.SimpleFeatureType;
 import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
@@ -18,12 +17,9 @@ import org.heigit.ohsome.oshdb.osm.OSMEntity;
 import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 import org.wololo.geojson.Feature;
-import org.wololo.geojson.Point;
 
 /**
  * Used by data extraction requests to create GeoJSON features from OSM entities.
