@@ -1,6 +1,8 @@
 package org.heigit.ohsome.ohsomeapi.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -472,6 +474,38 @@ public class DataExtractionTest {
     assertEquals(1, features.size());
     assertEquals("14227603",
         features.get(0).get("properties").get("@contributionChangesetId").asText());
+  }
+
+  @Test
+  public void contributionsDeletedEntity() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+            + "/contributions/bbox?bboxes=8.67,49.39,8.72,49.42"
+            + "&filter=type:node and id:1639495193&time=2012-01-01,2019-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    var features = response.getBody().get("features");
+    assertEquals(2, features.size());
+    assertEquals(1, features.get(0).get("properties").get("@version").asInt());
+    assertFalse(features.get(0).get("geometry").isNull());
+    assertEquals(2, features.get(1).get("properties").get("@version").asInt());
+    assertTrue(features.get(1).get("geometry").isNull());
+  }
+
+  @Test
+  public void contributionsUndeletedEntity() {
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    ResponseEntity<JsonNode> response = restTemplate.getForEntity(server + port
+        + "/contributions/bbox?bboxes=8.67,49.39,8.72,49.42"
+        + "&filter=type:node and id:3451640407&time=2015-01-01,2016-01-01&properties=metadata&clipGeometry=false",
+        JsonNode.class);
+    var features = response.getBody().get("features");
+    assertEquals(3, features.size());
+    assertEquals(1, features.get(0).get("properties").get("@version").asInt());
+    assertFalse(features.get(0).get("geometry").isNull());
+    assertEquals(2, features.get(1).get("properties").get("@version").asInt());
+    assertTrue(features.get(1).get("geometry").isNull());
+    assertEquals(3, features.get(2).get("properties").get("@version").asInt());
+    assertFalse(features.get(2).get("geometry").isNull());
   }
 
   /*

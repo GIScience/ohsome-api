@@ -33,6 +33,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -388,8 +389,9 @@ public class ExecutionUtils implements Serializable {
   public org.wololo.geojson.Feature createOSMFeature(OSMEntity entity, Geometry geometry,
       Map<String, Object> properties, Set<Integer> keysInt, boolean includeTags,
       boolean includeOSMMetadata, boolean includeContributionTypes, boolean isContributionsEndpoint,
-      ElementsGeometry elemGeom, EnumSet<ContributionType> contributionTypes) {
-    if (geometry.isEmpty() && !contributionTypes.contains(ContributionType.DELETION)) {
+      ElementsGeometry elemGeom, Supplier<EnumSet<ContributionType>> contributionTypes,
+      boolean isDeletion) {
+    if (geometry.isEmpty() && !isDeletion) {
       // skip invalid geometries (e.g. ways with 0 nodes)
       return null;
     }
@@ -404,15 +406,15 @@ public class ExecutionUtils implements Serializable {
       properties.put("@osmType", entity.getType().toString());
       properties.put("@changesetId", entity.getChangesetId());
       if (isContributionsEndpoint) {
-        properties = addContributionTypes(properties, contributionTypes);
+        properties = addContributionTypes(properties, contributionTypes.get());
       }
     }
     if (includeContributionTypes && !includeOSMMetadata) {
-      properties = addContributionTypes(properties, contributionTypes);
+      properties = addContributionTypes(properties, contributionTypes.get());
     }
     properties.put("@osmId", entity.getType().toString().toLowerCase() + "/" + entity.getId());
     GeoJSONWriter gjw = new GeoJSONWriter();
-    if (isContributionsEndpoint && contributionTypes.contains(ContributionType.DELETION)) {
+    if (isContributionsEndpoint && isDeletion) {
       return new org.wololo.geojson.Feature(null, properties);
     }
     Geometry outputGeometry;

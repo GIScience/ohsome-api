@@ -18,6 +18,7 @@ import org.heigit.ohsome.oshdb.util.celliterator.ContributionType;
 import org.heigit.ohsome.oshdb.util.mappable.OSMContribution;
 import org.heigit.ohsome.oshdb.util.mappable.OSMEntitySnapshot;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.wololo.geojson.Feature;
 
 /**
@@ -113,6 +114,43 @@ public class DataExtractionTransformer implements Serializable {
    * @return list of GeoJSON features corresponding to the given OSM entity's modifications.
    */
   public List<Feature> buildChangedFeatures(List<OSMContribution> contributions) {
+    if (isContributionsEndpoint) {
+      return buildChangedFeaturesContributions(contributions);
+    } else {
+      return buildChangedFeaturesFullHistory(contributions);
+    }
+  }
+
+  private List<Feature> buildChangedFeaturesContributions(List<OSMContribution> contributions) {
+    List<Feature> output = new LinkedList<>();
+
+    for (int i = 0; i < contributions.size(); i++) {
+      if (isContributionsLatestEndpoint && i < contributions.size() - 1) {
+        // skip to end the loop when using contributions/latest endpoint
+        continue;
+      }
+      var contribution = contributions.get(i);
+      var geometryAfter = ExecutionUtils.getGeometry(contribution, clipGeometries, false);
+      if (geometryAfter == null) {
+        geometryAfter = new GeometryFactory().createEmpty(-1);
+      }
+      var entityAfter = contribution.getEntityAfter();
+      var timestamp = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
+
+      Map<String, Object> properties = new TreeMap<>();
+
+      properties.put(TIMESTAMP_PROPERTY, timestamp);
+      properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, contribution.getChangesetId());
+      output.add(exeUtils.createOSMFeature(entityAfter, geometryAfter, properties, keysInt,
+          includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
+          outputGeometry, contribution::getContributionTypes,
+          contribution.is(ContributionType.DELETION)));
+    }
+
+    return output;
+  }
+
+  private List<Feature> buildChangedFeaturesFullHistory(List<OSMContribution> contributions) {
     List<Feature> output = new LinkedList<>();
     Map<String, Object> properties;
     Geometry currentGeom = null;
@@ -120,59 +158,46 @@ public class DataExtractionTransformer implements Serializable {
     String validFrom = null;
     String validTo;
     boolean skipNext = false;
-    if (!isContributionsLatestEndpoint) {
-      // first contribution:
-      OSMContribution firstContribution = contributions.get(0);
-      if (firstContribution.is(ContributionType.CREATION) && !isContributionsEndpoint) {
+
+    // first contribution:
+    OSMContribution firstContribution = contributions.get(0);
+    if (firstContribution.is(ContributionType.CREATION)) {
+      skipNext = true;
+    } else {
+      // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
+      currentEntity = firstContribution.getEntityBefore();
+      currentGeom = ExecutionUtils.getGeometry(firstContribution, clipGeometries, true);
+      validFrom = startTimestamp;
+    }
+
+    // then for each contribution:
+    for (OSMContribution contribution : contributions) {
+      // set valid_to of previous row
+      validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
+      if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
+        boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
+        if (addToOutput) {
+          properties = new TreeMap<>();
+          properties.put(VALID_FROM_PROPERTY, validFrom);
+          properties.put(VALID_TO_PROPERTY, validTo);
+          output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
+              includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
+              outputGeometry, contribution::getContributionTypes,
+              contribution.is(ContributionType.DELETION)));
+        }
+      }
+      skipNext = false;
+      if (contribution.is(ContributionType.DELETION)) {
+        // if deletion: skip output of next row
         skipNext = true;
       } else {
-        // if not "creation": take "before" as starting "row" (geom, tags), valid_from = t_start
-        currentEntity = firstContribution.getEntityBefore();
-        currentGeom = ExecutionUtils.getGeometry(firstContribution, clipGeometries, true);
-        validFrom = startTimestamp;
-      }
-      // then for each contribution:
-      for (int i = 0; i < contributions.size(); i++) {
-        if (i == contributions.size() - 1 && isContributionsEndpoint) {
-          // end the loop when last contribution is reached as it gets added later on
-          break;
-        }
-        OSMContribution contribution = contributions.get(i);
-        if (isContributionsEndpoint) {
-          currentEntity = contribution.getEntityAfter();
-          currentGeom = ExecutionUtils.getGeometry(contribution, clipGeometries, false);
-          validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-        }
-        // set valid_to of previous row
-        validTo = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-        if (!skipNext && currentGeom != null && !currentGeom.isEmpty()) {
-          boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
-          if (addToOutput) {
-            properties = new TreeMap<>();
-            if (!isContributionsEndpoint) {
-              properties.put(VALID_FROM_PROPERTY, validFrom);
-              properties.put(VALID_TO_PROPERTY, validTo);
-            } else {
-              properties.put(TIMESTAMP_PROPERTY, validTo);
-              properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, contribution.getChangesetId());
-            }
-            output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
-                includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
-                outputGeometry, contribution.getContributionTypes()));
-          }
-        }
-        skipNext = false;
-        if (contribution.is(ContributionType.DELETION)) {
-          // if deletion: skip output of next row
-          skipNext = true;
-        } else if (!isContributionsEndpoint) {
-          // else: take "after" as next row
-          currentEntity = contribution.getEntityAfter();
-          currentGeom = ExecutionUtils.getGeometry(contribution, clipGeometries, false);
-          validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
-        }
+        // else: take "after" as next row
+        currentEntity = contribution.getEntityAfter();
+        currentGeom = ExecutionUtils.getGeometry(contribution, clipGeometries, false);
+        validFrom = TimestampFormatter.getInstance().isoDateTime(contribution.getTimestamp());
       }
     }
+
     // after loop:
     OSMContribution lastContribution = contributions.get(contributions.size() - 1);
     currentGeom = ExecutionUtils.getGeometry(lastContribution, clipGeometries, false);
@@ -181,33 +206,19 @@ public class DataExtractionTransformer implements Serializable {
       // if last contribution was not "deletion": set valid_to = t_end
       validTo = endTimestamp;
       properties = new TreeMap<>();
-      if (!isContributionsEndpoint) {
-        properties.put(VALID_FROM_PROPERTY, validFrom);
-        properties.put(VALID_TO_PROPERTY, validTo);
-      } else {
-        properties.put(TIMESTAMP_PROPERTY,
-            TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
-        properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, lastContribution.getChangesetId());
-      }
+      properties.put(VALID_FROM_PROPERTY, validFrom);
+      properties.put(VALID_TO_PROPERTY, validTo);
       if (!currentGeom.isEmpty()) {
         boolean addToOutput = addEntityToOutput(currentEntity, currentGeom);
         if (addToOutput) {
           output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt,
               includeTags, includeOSMMetadata, includeContributionTypes, isContributionsEndpoint,
-              outputGeometry, lastContribution.getContributionTypes()));
+              outputGeometry, lastContribution::getContributionTypes,
+              lastContribution.is(ContributionType.DELETION)));
         }
       }
-    } else if (isContributionsEndpoint) {
-      // adds the deletion feature for a /contributions request
-      currentGeom = ExecutionUtils.getGeometry(lastContribution, clipGeometries, true);
-      properties = new TreeMap<>();
-      properties.put(TIMESTAMP_PROPERTY,
-          TimestampFormatter.getInstance().isoDateTime(lastContribution.getTimestamp()));
-      properties.put(CONTRIBUTION_CHANGESET_ID_PROPERTY, lastContribution.getChangesetId());
-      output.add(exeUtils.createOSMFeature(currentEntity, currentGeom, properties, keysInt, false,
-          includeOSMMetadata, includeContributionTypes, isContributionsEndpoint, outputGeometry,
-          lastContribution.getContributionTypes()));
     }
+
     return output;
   }
 
@@ -239,7 +250,8 @@ public class DataExtractionTransformer implements Serializable {
     if (addToOutput) {
       return Collections.singletonList(exeUtils.createOSMFeature(entity, geom, properties,
           keysInt, includeTags, includeOSMMetadata, includeContributionTypes,
-          isContributionsEndpoint, outputGeometry, EnumSet.noneOf(ContributionType.class)));
+          isContributionsEndpoint, outputGeometry,
+          () -> EnumSet.noneOf(ContributionType.class), false));
     } else {
       return Collections.emptyList();
     }
