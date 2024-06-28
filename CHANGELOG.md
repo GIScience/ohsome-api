@@ -1,6 +1,19 @@
 Changelog
 =========
 
+## 1.10.3
+
+### Bug Fixes
+* Fix contributions extractions endpoints which were missing _deletion_ contributions that were later reverted ([#324])
+
+### Other
+* Fix filter documentation ([#326])
+* Upgrade to OSHDB [v1.2.3](https://github.com/GIScience/oshdb/blob/main/CHANGELOG.md#123)
+
+[#324]: https://github.com/GIScience/ohsome-api/pull/324
+[#326]: https://github.com/GIScience/ohsome-api/pull/326
+
+
 ## 1.10.2
 
 ### Bug Fixes

@@ -14,7 +14,7 @@
   <url>https://api.ohsome.org</url>
   <description>A public Web-RESTful-API for "ohsome" OpenStreetMap history data.</description>
   <packaging>jar</packaging>
-  <version>1.10.2</version>
+  <version>1.10.3</version>
 
   <scm>
     <connection>scm:git:git@github.com:GIScience/ohsome-api.git</connection>
@@ -34,7 +34,7 @@
     <jts2geojson.version>0.17.0</jts2geojson.version>
     <mavenjar.version>3.2.0</mavenjar.version>
     <opencsv.version>5.6</opencsv.version>
-    <oshdb.version>1.2.2</oshdb.version>
+    <oshdb.version>1.2.3</oshdb.version>
     <projectlombok.version>1.18.26</projectlombok.version>
     <projectlombok-maven-plugin.version>1.18.20.0</projectlombok-maven-plugin.version>
     <sonar.sources>src/main/lombok</sonar.sources>
