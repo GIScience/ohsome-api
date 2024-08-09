@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## 1.10.4
+
+### Bug Fixes
+* Fix crash in non-contribution based endpoints caused by very long and complex filters ([#330])
+
+[#330]: https://github.com/GIScience/ohsome-api/issues/330
+
+
 ## 1.10.3
 
 ### Bug Fixes
