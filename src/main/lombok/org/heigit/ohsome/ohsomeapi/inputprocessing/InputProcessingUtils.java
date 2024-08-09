@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +16,7 @@ import org.heigit.ohsome.ohsomeapi.oshdb.ExtractMetadata;
 import org.heigit.ohsome.ohsomeapi.utils.TimestampFormatter;
 import org.heigit.ohsome.oshdb.OSHDBTag;
 import org.heigit.ohsome.oshdb.api.mapreducer.MapReducer;
+import org.heigit.ohsome.oshdb.filter.BinaryOperator;
 import org.heigit.ohsome.oshdb.filter.ChangesetIdFilterEquals;
 import org.heigit.ohsome.oshdb.filter.ChangesetIdFilterEqualsAnyOf;
 import org.heigit.ohsome.oshdb.filter.ChangesetIdFilterRange;
@@ -407,10 +407,16 @@ public class InputProcessingUtils implements Serializable {
    * see also <a href="https://github.com/GIScience/ohsome-api/issues/289">#289</a>.</p>
    */
   public static boolean filterSuitableForSnapshots(FilterExpression filter) {
-    return filter.normalize().stream().flatMap(Collection::stream)
-        .noneMatch(f -> f instanceof ChangesetIdFilterEquals
-                     || f instanceof ChangesetIdFilterRange
-                     || f instanceof ChangesetIdFilterEqualsAnyOf);
+    if (filter instanceof ChangesetIdFilterEquals
+        || filter instanceof ChangesetIdFilterRange
+        || filter instanceof ChangesetIdFilterEqualsAnyOf) {
+      return false;
+    }
+    if (filter instanceof BinaryOperator operator) {
+      return filterSuitableForSnapshots(operator.getLeftOperand())
+          && filterSuitableForSnapshots(operator.getRightOperand());
+    }
+    return true;
   }
 
   /**
