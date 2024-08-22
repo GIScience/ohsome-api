@@ -3,6 +3,9 @@ Changelog
 
 ## 1.10.4
 
+
+## 1.10.4
+
 ### Bug Fixes
 * Fix crash in non-contribution based endpoints caused by very long and complex filters ([#330])
 
