@@ -40,7 +40,7 @@
     <sonar.sources>src/main/lombok</sonar.sources>
     <springboot.version>2.5.14</springboot.version>
     <spring.version>5.3.18</spring.version>
-    <springfox.version>2.9.2</springfox.version>
+    <springfox.version>2.10.0</springfox.version>
   </properties>
 
   <dependencies>
