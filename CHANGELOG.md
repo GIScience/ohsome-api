@@ -3,6 +3,8 @@ Changelog
 
 ## 1.11.0-SNAPSHOT (current main)
 
+### New Features
+* add new endpoint `/filter/validate` that checks a given ohsome filter string for syntax errors.
 
 ## 1.10.4
 
