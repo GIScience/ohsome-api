@@ -39,7 +39,7 @@
     <projectlombok-maven-plugin.version>1.18.20.0</projectlombok-maven-plugin.version>
     <sonar.sources>src/main/lombok</sonar.sources>
     <springboot.version>2.5.14</springboot.version>
-    <spring.version>5.3.18</spring.version>
+    <spring.version>6.1.14</spring.version>
     <springfox.version>2.9.2</springfox.version>
   </properties>
 
