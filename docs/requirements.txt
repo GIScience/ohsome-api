@@ -10,3 +10,6 @@ sphinx-copybutton
 
 # workaround because of https://github.com/miyakogi/m2r/issues/66
 mistune<2.0.0
+
+# workaround because sphinxcontrib-openapi is missing setuptools --2025-03-07
+setuptools
