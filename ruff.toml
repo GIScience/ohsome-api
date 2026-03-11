@@ -1,0 +1,28 @@
+[lint]
+select = [
+    "A",    # flake8-builtins
+    "E",    # pycodestyle Error
+    "F",    # Pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "Q",    # flake8-quotes
+    "W",    # pycodestyle Warning
+    "C90",  # mccabe
+    "TRY",  # tryceratops
+    "RUF",  # ruff-specific rules
+    "FURB", # refurb
+    "PERF", # perflint
+    "S",    # bandit
+    "B",    # bugbear
+    "SIM",  # simplify
+    "PL",   # Pylint
+]
+
+[lint.mccabe]
+max-complexity = 4
+
+[lint.pylint]
+max-statements = 20
+
+[lint.extend-per-file-ignores]
+"tests/*" = ["S101"]
