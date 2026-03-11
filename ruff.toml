@@ -16,6 +16,7 @@ select = [
     "B",    # bugbear
     "SIM",  # simplify
     "PL",   # Pylint
+    "ANN",  # flake8-annotations
 ]
 
 [lint.mccabe]
@@ -25,4 +26,4 @@ max-complexity = 4
 max-statements = 17
 
 [lint.extend-per-file-ignores]
-"tests/*" = ["S101"]
+"tests/*" = ["S101", "ANN201"]
