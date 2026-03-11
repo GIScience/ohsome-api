@@ -22,7 +22,7 @@ select = [
 max-complexity = 4
 
 [lint.pylint]
-max-statements = 20
+max-statements = 17
 
 [lint.extend-per-file-ignores]
 "tests/*" = ["S101"]
