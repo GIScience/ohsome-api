@@ -3,4 +3,5 @@ repos:
     rev: v0.15.5
     hooks:
       - id: ruff-check
-      #- id: ruff-format
+      - id: ruff-format
+        args: ["--check", "--diff"]
