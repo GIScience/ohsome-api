@@ -1,3 +1,6 @@
+ci:
+  skip: [ty]
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.5
@@ -5,3 +8,10 @@ repos:
       - id: ruff-check
       - id: ruff-format
         args: ["--check", "--diff"]
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty check
+        entry: ty check
+        language: python
+        types_or: [python]
