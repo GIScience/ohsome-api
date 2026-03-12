@@ -23,5 +23,5 @@ uv run pytest
 
 ```sh
 export LOG_LEVEL=INFO
-uv run fastapi dev --entrypoint ohsome_api.main:app
+uv run fastapi dev
 ```
