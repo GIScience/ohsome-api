@@ -22,6 +22,7 @@ spec:
       containers:
         - name: ohsome-api
           image: repo.heigit.org/heigit/ohsome-api:main
+          imagePullPolicy: Always
           resources:
             requests:
               memory: "256Mi"
