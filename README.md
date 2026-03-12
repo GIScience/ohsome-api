@@ -22,5 +22,6 @@ uv run pytest
 ### Run Development Server
 
 ```sh
+export LOG_LEVEL=INFO
 uv run fastapi dev --entrypoint ohsome_api.main:app
 ```
