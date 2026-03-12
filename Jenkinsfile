@@ -86,6 +86,24 @@ pipeline {
             }
         }
 
+        stage('Build and Deploy Release Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://repo.heigit.org', DOCKER_CREDENTIALS_ID) {
+                        dockerImage = docker.build(DOCKER_REPOSITORY + ':' + 'main')
+                        dockerImage.push()
+                        dockerImage.push('main')
+                    }
+                }
+            }
+            post {
+                failure {
+                    rocket_releasedeployfail()
+                }
+            }
+        }
+
+
         stage('Wrapping Up') {
             steps {
                 encourage()
