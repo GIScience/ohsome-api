@@ -12,6 +12,6 @@ repos:
     hooks:
       - id: ty
         name: ty check
-        entry: ty check
+        entry: uv run ty check
         language: python
         types_or: [python]
