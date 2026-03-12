@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ohsome-api-integration
+  annotations:
+    cert-manager.io/cluster-issuer: kta-internal
+  labels:
+    app.kubernetes.io/name: ohsome-api
+    app.kubernetes.io/instance: ohsome-api-integration
+    app.kubernetes.io/version: v0.0.0
+    app.kubernetes.io/managed-by: ArgoCD
+spec:
+  ingressClassName: internal
+  rules:
+    - host: ohsome-api.heigitk8s.de
+      http:
+        paths:
+        - pathType: ImplementationSpecific
+          path: "/"
+          backend:
+            service:
+              name: ohsome-api-integration
+              port: 
+                number: 80
+  tls:
+    - hosts:
+      - ohsome-api.heigitk8s.de
+      secretName: ohsome-api.heigitk8s.de-tls

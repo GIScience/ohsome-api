@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ohsome-api-integration
+  labels:
+    app.kubernetes.io/name: ohsome-api
+    app.kubernetes.io/instance: ohsome-api-integration
+    app.kubernetes.io/version: v0.0.0
+    app.kubernetes.io/managed-by: ArgoCD
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ohsome-api
+      app.kubernetes.io/instance: ohsome-api-integration
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ohsome-api
+        app.kubernetes.io/instance: ohsome-api-integration
+    spec:
+      containers:
+        - name: ohsome-api
+          image: repo.heigit.org/heigit/ohsome-api:main
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
