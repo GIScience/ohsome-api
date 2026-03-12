@@ -13,8 +13,14 @@ We use:
 
 ### Initial Setup
 
-```bash
+```sh
 uv sync
 uv run prek install
 uv run pytest
+```
+
+### Run Development Server
+
+```sh
+uv run fastapi dev --entrypoint ohsome_api.main:app
 ```
