@@ -4,15 +4,14 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
     }
 
-    environment {
-        REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
-        VERSION = sh(returnStdout: true, script: 'uv version --short').trim()
-        LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
-        LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
-    }
-
     stages {
         stage('Setup') {
+            environment {
+                REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
+                VERSION = sh(returnStdout: true, script: 'uv version --short').trim()
+                LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
+                LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
+            }
             steps {
                 script {
                     echo REPO_NAME
