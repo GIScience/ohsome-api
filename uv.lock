@@ -495,6 +495,7 @@ version = "0.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "fastapi-cli" },
 ]
 
 [package.dev-dependencies]
@@ -508,7 +509,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "fastapi", specifier = ">=0.135.1" }]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.135.1" },
+    { name = "fastapi-cli", specifier = ">=0.0.24" },
+]
 
 [package.metadata.requires-dev]
 dev = [

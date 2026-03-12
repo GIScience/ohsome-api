@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.135.1",
+    "fastapi-cli>=0.0.24",
 ]
 
 [project.scripts]

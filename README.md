@@ -25,3 +25,10 @@ uv run pytest
 export LOG_LEVEL=INFO
 uv run fastapi dev
 ```
+
+## Production Setup
+
+```sh
+docker build -t ohsome-api .
+docker run ohsome-api -p 8080:80
+```
