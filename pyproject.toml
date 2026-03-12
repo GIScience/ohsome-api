@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "HeiGIT gGmbH", email = "ohsome@heigit.org" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "fastapi>=0.135.1",
     "fastapi-cli>=0.0.24",
