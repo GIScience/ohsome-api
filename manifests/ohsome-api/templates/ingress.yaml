@@ -16,7 +16,7 @@ spec:
           path: "/"
           backend:
             service:
-              name: ohsome-api-integration
+              name: {{ include "ohsome-api.fullname" . }}
               port: 
                 number: 80
   tls:
