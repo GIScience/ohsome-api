@@ -1,14 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ohsome-api-integration
+  name: {{ include "ohsome-api.fullname" . }}
   annotations:
     cert-manager.io/cluster-issuer: kta-internal
   labels:
-    app.kubernetes.io/name: ohsome-api
-    app.kubernetes.io/instance: ohsome-api-integration
-    app.kubernetes.io/version: v0.0.0
-    app.kubernetes.io/managed-by: ArgoCD
+    {{- include "ohsome-api.labels" . | nindent 4 }}
 spec:
   ingressClassName: internal
   rules:
