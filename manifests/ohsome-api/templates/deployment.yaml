@@ -16,7 +16,6 @@ spec:
     spec:
       containers:
         - name: ohsome-api
-          image: repo.heigit.org/heigit/ohsome-api:main
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
           resources:
