@@ -1,16 +1,28 @@
+from pathlib import Path
 from typing import Iterable
 
 import psycopg
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from psycopg import Connection
+from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
 
 @pytest.fixture
-def ohsomedb_testcontainer(
-    monkeypatch: pytest.MonkeyPatch,
-) -> Iterable[PostgresContainer]:
-    with PostgresContainer("citusdata/citus:latest", driver=None) as postgres:
+def ohsomedb_image() -> Iterable[DockerImage]:
+    test_resource_path = Path(__file__).parent / "resources"
+    with DockerImage(
+        path=test_resource_path,
+        clean_up=False,
+        tag="ohsomedb-testcontainer",
+    ) as image:
+        yield image
+
+
+@pytest.fixture
+def ohsomedb_testcontainer(ohsomedb_image: DockerImage, monkeypatch: MonkeyPatch):
+    with PostgresContainer(ohsomedb_image.short_id, driver=None) as postgres:
         monkeypatch.setattr(
             "ohsome_api.service.CONNECTION_STRING",
             postgres.get_connection_url(),
