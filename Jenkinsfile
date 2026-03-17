@@ -28,7 +28,7 @@ pipeline {
                     echo env.TAG_NAME
                 }
                 script {
-                    sh 'uv sync --locked --no-editable'
+                    sh 'uv sync --locked'
                 }
             }
             post {
