@@ -5,13 +5,16 @@ import pytest
 from psycopg import Connection
 from testcontainers.postgres import PostgresContainer
 
-from ohsome_api import service
-
 
 @pytest.fixture
-def ohsomedb_testcontainer() -> Iterable[PostgresContainer]:
+def ohsomedb_testcontainer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterable[PostgresContainer]:
     with PostgresContainer("citusdata/citus:latest", driver=None) as postgres:
-        service.CONNECTION_STRING = postgres.get_connection_url()
+        monkeypatch.setattr(
+            "ohsome_api.service.CONNECTION_STRING",
+            postgres.get_connection_url(),
+        )
         yield postgres
 
 
