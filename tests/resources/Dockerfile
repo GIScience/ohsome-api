@@ -5,3 +5,4 @@ RUN apt update \
       postgresql-18-postgis-3
 
 COPY 01-init.sql /docker-entrypoint-initdb.d/01-init.sql
+COPY 02-schema.sql /docker-entrypoint-initdb/02-schema.sql
