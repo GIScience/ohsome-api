@@ -35,12 +35,13 @@ async def get_metadata() -> MetadataResponse:
     return MetadataResponse(latest_timestamp=timestamp.isoformat())
 
 
+class ContributionsCountResponse(BaseResponse):
+    result: int
+
+
 # TODO: return request params in response?
 # TODO: make CSV response type
 @app.get("/contributions/count")
-async def get_contributions_count() -> dict:
+async def get_contributions_count() -> ContributionsCountResponse:
     result = service.get_contributions_count()
-    return {
-        "apiVersion": version("ohsome-api"),
-        "result": result,
-    }
+    return ContributionsCountResponse(result=result)
