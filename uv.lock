@@ -423,6 +423,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "fastapi-cli" },
+    { name = "ohsomedb-schema" },
     { name = "psycopg", extra = ["binary"] },
 ]
 
@@ -442,6 +443,7 @@ dev = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.135.1" },
     { name = "fastapi-cli", specifier = ">=0.0.24" },
+    { name = "ohsomedb-schema", git = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsomedb/ohsomedb-schema.git?tag=0.1.1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
 ]
 
@@ -456,6 +458,11 @@ dev = [
     { name = "testcontainers", extras = ["postgres"], specifier = ">=4.14.1" },
     { name = "ty", specifier = ">=0.0.21" },
 ]
+
+[[package]]
+name = "ohsomedb-schema"
+version = "0.1.1"
+source = { git = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsomedb/ohsomedb-schema.git?tag=0.1.1#57e066a510fa124c477390aa6b6286bdf4d83a28" }
 
 [[package]]
 name = "packaging"
