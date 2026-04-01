@@ -23,6 +23,10 @@ uv run pytest
 
 Copy `.env.sample` to `.env` and change content to provide credentials to an ohsomedb.
 
+```sh
+set -a; source .env; set +a
+```
+
 ### Run Development Server
 
 ```sh
