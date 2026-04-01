@@ -12,6 +12,7 @@ dependencies = [
     "fastapi-cli>=0.0.24",
     "ohsomedb-schema",
     "psycopg[binary]>=3.3.3",
+    "pydantic>=2.12.5",
 ]
 
 [project.scripts]

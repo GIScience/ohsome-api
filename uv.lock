@@ -425,6 +425,7 @@ dependencies = [
     { name = "fastapi-cli" },
     { name = "ohsomedb-schema" },
     { name = "psycopg", extra = ["binary"] },
+    { name = "pydantic" },
 ]
 
 [package.dev-dependencies]
@@ -445,6 +446,7 @@ requires-dist = [
     { name = "fastapi-cli", specifier = ">=0.0.24" },
     { name = "ohsomedb-schema", git = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsomedb/ohsomedb-schema.git?tag=0.1.1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
+    { name = "pydantic", specifier = ">=2.12.5" },
 ]
 
 [package.metadata.requires-dev]
