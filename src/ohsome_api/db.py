@@ -15,3 +15,15 @@ def get_latest_timestamp() -> datetime:
         if not isinstance(record[0], datetime):
             raise TypeError()
         return record[0]
+
+
+def get_contributions_count() -> int:
+    query = "SELECT COUNT(*) FROM next.contributions"
+    # TODO: factor out connection handling
+    with psycopg.connect(CONNECTION_STRING) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            record = cursor.fetchone()
+            if record is None:
+                raise ValueError()
+            return record[0]
