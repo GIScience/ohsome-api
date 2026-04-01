@@ -19,6 +19,10 @@ uv run prek install
 uv run pytest
 ```
 
+### Configuration
+
+Copy `.env.sample` to `.env` and change content to provide credentials to an ohsomedb.
+
 ### Run Development Server
 
 ```sh
