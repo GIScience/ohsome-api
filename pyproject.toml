@@ -13,6 +13,7 @@ dependencies = [
     "ohsomedb-schema",
     "psycopg[binary]>=3.3.3",
     "pydantic>=2.12.5",
+    "pydantic-settings>=2.13.1",
 ]
 
 [project.scripts]
