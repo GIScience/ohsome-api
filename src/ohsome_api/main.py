@@ -17,6 +17,10 @@ async def get_metadata() -> dict:
 
     return {
         "apiVersion": version("ohsome-api"),
+        "attribution": {
+            "url": "https://ohsome.org/copyrights",
+            "text": "© OpenStreetMap contributors",
+        },
         "latestTimestamp": timestamp.isoformat(),
     }
 

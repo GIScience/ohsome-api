@@ -15,11 +15,10 @@ def test_metadata():
     assert response.json() == {
         "latestTimestamp": "2026-02-27T10:22:37+00:00",
         "apiVersion": "0.0.0",
-        # TODO:
-        # "attribution": {
-        #     "url": "https://ohsome.org/copyrights",
-        #     "text": "© OpenStreetMap contributors",
-        # },
+        "attribution": {
+            "url": "https://ohsome.org/copyrights",
+            "text": "© OpenStreetMap contributors",
+        },
     }
 
 
