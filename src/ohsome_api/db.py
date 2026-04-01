@@ -1,29 +1,31 @@
 from datetime import datetime
 
 import psycopg
+from psycopg.sql import SQL
 
 CONNECTION_STRING: str = ""
 
 
-def get_latest_timestamp() -> datetime:
-    with psycopg.connect(CONNECTION_STRING) as connection:
-        query = "SELECT last_timestamp FROM next.contributions_state"
-        cursor = connection.execute(query)
-        record = cursor.fetchone()
-        if record is None:
-            raise ValueError()
-        if not isinstance(record[0], datetime):
-            raise TypeError()
-        return record[0]
-
-
-def get_contributions_count() -> int:
-    query = "SELECT COUNT(*) FROM next.contributions"
-    # TODO: factor out connection handling
+def fetch_one(sql: SQL) -> tuple:
     with psycopg.connect(CONNECTION_STRING) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(sql)
             record = cursor.fetchone()
             if record is None:
                 raise ValueError()
-            return record[0]
+            else:
+                return record
+
+
+def get_latest_timestamp() -> datetime:
+    sql = SQL("SELECT last_timestamp FROM next.contributions_state")
+    record = fetch_one(sql)
+    if not isinstance(record[0], datetime):
+        raise TypeError()
+    return record[0]
+
+
+def get_contributions_count() -> int:
+    sql = SQL("SELECT COUNT(*) FROM next.contributions")
+    record = fetch_one(sql)
+    return record[0]
