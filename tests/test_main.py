@@ -1,6 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from starlette.status import HTTP_200_OK
+from starlette.status import (
+    HTTP_200_OK,
+)
 
 from ohsome_api.main import app
 
@@ -22,9 +24,15 @@ def test_metadata():
     }
 
 
-@pytest.mark.usefixtures("ohsomedb_testcontainer")
 def test_contributions_count():
-    headers = {"Accept": "application/json"}
-    response = client.get("/contributions/count", headers=headers)
+    response = client.get("/contributions/count.json")
     assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/json"
     assert response.json()["result"] == 44009
+
+
+def test_contributions_count_as_csv():
+    response = client.get("/contributions/count.csv")
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert "foo" in response.text

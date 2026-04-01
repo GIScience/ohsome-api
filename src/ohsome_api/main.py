@@ -1,7 +1,11 @@
+# TODO: return request params in response?
+
 import logging
 from importlib.metadata import version
+from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -11,37 +15,56 @@ app = FastAPI()
 logger = logging.getLogger(__name__)
 
 
+class CSVResponse(Response):
+    media_type = "text/csv"
+
+    def render(self, content: dict) -> bytes:
+        return str("foo").encode()
+
+
+class AcceptCsvHeader(BaseModel):
+    accept: Literal["text/csv"]
+
+
+class AcceptJsonHeader(BaseModel):
+    accept: Literal["application/json"]
+
+
 class Attribution(BaseModel):
     url: str = "https://ohsome.org/copyrights"
     text: str = "© OpenStreetMap contributors"
 
 
-class BaseResponse(BaseModel):
+class BaseResponseModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     api_version: str = version("ohsome-api")
     attribution: Attribution = Attribution()
 
 
-class MetadataResponse(BaseResponse):
+class MetadataResponseModel(BaseResponseModel):
     latest_timestamp: str
 
 
 @app.get("/metadata")
-async def get_metadata() -> MetadataResponse:
+async def get_metadata() -> MetadataResponseModel:
     """Metadata of the underlying ohsomedb."""
     logger.info("Get metadata from ohsomedb.")
     timestamp = service.get_latest_timestamp()
 
-    return MetadataResponse(latest_timestamp=timestamp.isoformat())
+    return MetadataResponseModel(latest_timestamp=timestamp.isoformat())
 
 
-class ContributionsCountResponse(BaseResponse):
+class ContributionsCountResponseModel(BaseResponseModel):
     result: int
 
 
-# TODO: return request params in response?
-# TODO: make CSV response type
-@app.get("/contributions/count")
-async def get_contributions_count() -> ContributionsCountResponse:
+@app.get("/contributions/count.json", response_class=JSONResponse)
+async def get_contributions_count_as_json() -> ContributionsCountResponseModel:
     result = service.get_contributions_count()
-    return ContributionsCountResponse(result=result)
+    return ContributionsCountResponseModel(result=result)
+
+
+@app.get("/contributions/count.csv", response_class=CSVResponse)
+async def get_contributions_count_as_csv() -> ContributionsCountResponseModel:
+    result = service.get_contributions_count()
+    return ContributionsCountResponseModel(result=result)
