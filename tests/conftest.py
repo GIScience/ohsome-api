@@ -27,6 +27,10 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage, monkeypatch: MonkeyPatch
             "ohsome_api.service.CONNECTION_STRING",
             postgres.get_connection_url(),
         )
+        monkeypatch.setattr(
+            "ohsome_api.db.CONNECTION_STRING",
+            postgres.get_connection_url(),
+        )
         yield postgres
 
 
