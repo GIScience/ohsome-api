@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import psycopg
-from psycopg.sql import SQL
+from psycopg.sql import SQL, Identifier
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -39,7 +39,8 @@ CONNECTION_STRING: str = Config().connection_string
 def fetch_one(sql: SQL) -> tuple:
     with psycopg.connect(CONNECTION_STRING) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(sql)
+            composed_sql = sql.format(schemaname=Identifier(Config().schemaname))
+            cursor.execute(composed_sql)
             record = cursor.fetchone()
             if record is None:
                 raise ValueError()
@@ -48,7 +49,7 @@ def fetch_one(sql: SQL) -> tuple:
 
 
 def get_latest_timestamp() -> datetime:
-    sql = SQL("SELECT last_timestamp FROM next.contributions_state")
+    sql = SQL("SELECT last_timestamp FROM {schemaname}.contributions_state")
     record = fetch_one(sql)
     if not isinstance(record[0], datetime):
         raise TypeError()
@@ -56,6 +57,6 @@ def get_latest_timestamp() -> datetime:
 
 
 def get_contributions_count() -> int:
-    sql = SQL("SELECT COUNT(*) FROM next.contributions")
+    sql = SQL("SELECT COUNT(*) FROM {schemaname}.contributions")
     record = fetch_one(sql)
     return record[0]
