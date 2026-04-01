@@ -27,10 +27,6 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
         MonkeyPatch.context() as mp,
     ):
         mp.setattr(
-            "ohsome_api.service.CONNECTION_STRING",
-            postgres.get_connection_url(),
-        )
-        mp.setattr(
             "ohsome_api.db.CONNECTION_STRING",
             postgres.get_connection_url(),
         )

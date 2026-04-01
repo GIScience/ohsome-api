@@ -1,11 +1,7 @@
-import psycopg
+from datetime import datetime
 
-CONNECTION_STRING: str = ""
+from ohsome_api import db
 
 
-def get_result() -> str:
-    with psycopg.connect(CONNECTION_STRING) as connection:
-        result = connection.execute("SELECT 'Database'").fetchone()
-        if result is None:
-            raise ValueError()
-        return result[0]
+def get_latest_timestamp() -> datetime:
+    return db.get_latest_timestamp()

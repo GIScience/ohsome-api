@@ -1,15 +1,21 @@
 import logging
+from importlib.metadata import version
 
 from fastapi import FastAPI
 
-from ohsome_api.service import get_result
+from ohsome_api.service import get_latest_timestamp
 
 app = FastAPI()
 logger = logging.getLogger(__name__)
 
 
-@app.get("/", name="Hello World endpoint")
-async def read_root() -> dict:
-    """Returns Hello World as a key/value pair"""
-    logger.info("hello world request")
-    return {"Hello": get_result()}
+@app.get("/metadata")
+async def get_metadata() -> dict:
+    """Metadata of the underlying ohsomedb."""
+    logger.info("Get metadata from ohsomedb.")
+    timestamp = get_latest_timestamp()
+
+    return {
+        "apiVersion": version("ohsome-api"),
+        "latestTimestamp": timestamp.isoformat(),
+    }

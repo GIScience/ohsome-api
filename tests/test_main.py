@@ -8,7 +8,10 @@ client = TestClient(app)
 
 
 @pytest.mark.usefixtures("ohsomedb_testcontainer")
-def test_read_root():
-    response = client.get("/")
+def test_metadata():
+    response = client.get("/metadata")
     assert response.status_code == HTTP_200_OK
-    assert response.json() == {"Hello": "Database"}
+    assert response.json() == {
+        "latestTimestamp": "2026-02-27T10:22:37+00:00",
+        "apiVersion": "0.0.0",
+    }
