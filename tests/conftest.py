@@ -9,7 +9,7 @@ from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def ohsomedb_image() -> Iterable[DockerImage]:
     test_resource_path = Path(__file__).parent / "resources"
     with DockerImage(
@@ -20,21 +20,24 @@ def ohsomedb_image() -> Iterable[DockerImage]:
         yield image
 
 
-@pytest.fixture
-def ohsomedb_testcontainer(ohsomedb_image: DockerImage, monkeypatch: MonkeyPatch):
-    with PostgresContainer(ohsomedb_image.short_id, driver=None) as postgres:
-        monkeypatch.setattr(
+@pytest.fixture(scope="session")
+def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
+    with (
+        PostgresContainer(ohsomedb_image.short_id, driver=None) as postgres,
+        MonkeyPatch.context() as mp,
+    ):
+        mp.setattr(
             "ohsome_api.service.CONNECTION_STRING",
             postgres.get_connection_url(),
         )
-        monkeypatch.setattr(
+        mp.setattr(
             "ohsome_api.db.CONNECTION_STRING",
             postgres.get_connection_url(),
         )
         yield postgres
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def ohsomedb_connection(
     ohsomedb_testcontainer: PostgresContainer,
 ) -> Iterable[Connection]:
