@@ -55,7 +55,7 @@ class MetadataResponseModel(BaseResponseModel):
 async def get_metadata() -> MetadataResponseModel:
     """Metadata of the underlying ohsomedb."""
     logger.info("Get metadata from ohsomedb.")
-    timestamp = service.get_latest_timestamp()
+    timestamp = await service.get_latest_timestamp()
 
     return MetadataResponseModel(latest_timestamp=timestamp.isoformat())
 
@@ -68,7 +68,7 @@ class CountResponseModel(BaseResponseModel):
 async def get_contributions_count_as_json(
     ohsome_filter: Annotated[OhsomeFilter, Query(alias="filter")],
 ) -> CountResponseModel:
-    result = service.get_contributions_count(ohsome_filter=ohsome_filter)
+    result = await service.get_contributions_count(ohsome_filter=ohsome_filter)
     return CountResponseModel(result=result)
 
 
@@ -76,5 +76,5 @@ async def get_contributions_count_as_json(
 async def get_contributions_count_as_csv(
     ohsome_filter: Annotated[OhsomeFilter, Query(alias="filter")],
 ) -> CountResponseModel:
-    result = service.get_contributions_count(ohsome_filter=ohsome_filter)
+    result = await service.get_contributions_count(ohsome_filter=ohsome_filter)
     return CountResponseModel(result=result)

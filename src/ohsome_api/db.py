@@ -1,7 +1,7 @@
 from datetime import datetime
 
-import psycopg
-from psycopg.sql import SQL, Identifier
+import asyncpg
+from asyncpg import Connection, Record
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -33,31 +33,31 @@ class Config(BaseSettings):
         )
 
 
-CONNECTION_STRING: str = Config().connection_string
+CONFIG = Config()
+CONNECTION_STRING: str = CONFIG.connection_string
 
 
-def fetch_one(sql: SQL) -> tuple:
-    with psycopg.connect(CONNECTION_STRING) as connection:
-        with connection.cursor() as cursor:
-            composed_sql = sql.format(schemaname=Identifier(Config().schemaname))
-            cursor.execute(composed_sql)
-            record = cursor.fetchone()
-            if record is None:
-                raise ValueError()
-            else:
-                return record
+async def fetch_row(sql: str) -> Record:
+    # TODO: implement a resource manager for db connection
+    connection: Connection = await asyncpg.connect(CONNECTION_STRING)
+    record: Record = await connection.fetchrow(sql)
+    await connection.close()
+    if record is None:
+        raise ValueError()
+    else:
+        return record
 
 
-def get_latest_timestamp() -> datetime:
-    sql = SQL("SELECT last_timestamp FROM {schemaname}.contributions_state")
-    record = fetch_one(sql)
-    if not isinstance(record[0], datetime):
+async def get_latest_timestamp() -> datetime:
+    sql = f"SELECT last_timestamp FROM {CONFIG.schemaname}.contributions_state"  # noqa: S608
+    record = await fetch_row(sql)
+    if not isinstance(record["last_timestamp"], datetime):
         raise TypeError()
-    return record[0]
+    return record["last_timestamp"]
 
 
 # TODO: ohsome filter support
-def get_contributions_count(query_where_clause: str, query_args: tuple) -> int:  # type: ignore
-    sql = SQL("SELECT COUNT(*) FROM {schemaname}.contributions")
-    record = fetch_one(sql)
-    return record[0]
+async def get_contributions_count(query_where_clause: str, query_args: tuple) -> int:  # type: ignore
+    sql = f"SELECT COUNT(*) as count FROM {CONFIG.schemaname}.contributions"  # noqa: S608
+    record = await fetch_row(sql)
+    return record["count"]

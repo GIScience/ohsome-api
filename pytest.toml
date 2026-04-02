@@ -1,2 +1,2 @@
 [pytest]
-addopts = ["--cov=ohsome_api", "--cov-fail-under=80"]
+addopts = ["--cov=ohsome_api", "--cov-fail-under=80", "--asyncio-mode=auto"]
