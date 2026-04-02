@@ -19,7 +19,13 @@ class CSVResponse(Response):
     media_type = "text/csv"
 
     def render(self, content: dict) -> bytes:
-        return str("foo").encode()
+        result = f"""# apiVersion: {content["apiVersion"]}
+# attribution.url: {content["attribution"]["url"]}
+# attribution.text: {content["attribution"]["text"]}
+result
+{content["result"]}
+"""
+        return result.encode()
 
 
 class AcceptCsvHeader(BaseModel):
@@ -54,17 +60,17 @@ async def get_metadata() -> MetadataResponseModel:
     return MetadataResponseModel(latest_timestamp=timestamp.isoformat())
 
 
-class ContributionsCountResponseModel(BaseResponseModel):
+class CountResponseModel(BaseResponseModel):
     result: int
 
 
 @app.get("/contributions/count.json", response_class=JSONResponse)
-async def get_contributions_count_as_json() -> ContributionsCountResponseModel:
+async def get_contributions_count_as_json() -> CountResponseModel:
     result = service.get_contributions_count()
-    return ContributionsCountResponseModel(result=result)
+    return CountResponseModel(result=result)
 
 
 @app.get("/contributions/count.csv", response_class=CSVResponse)
-async def get_contributions_count_as_csv() -> ContributionsCountResponseModel:
+async def get_contributions_count_as_csv() -> CountResponseModel:
     result = service.get_contributions_count()
-    return ContributionsCountResponseModel(result=result)
+    return CountResponseModel(result=result)

@@ -35,4 +35,10 @@ def test_contributions_count_as_csv():
     response = client.get("/contributions/count.csv")
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
-    assert "foo" in response.text
+    expected_result = """# apiVersion: 0.0.0
+# attribution.url: https://ohsome.org/copyrights
+# attribution.text: © OpenStreetMap contributors
+result
+44009
+"""
+    assert response.text == expected_result
