@@ -6,3 +6,5 @@ image:
   repository: repo.heigit.org/heigit/ohsome-api
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+extraDeploy: []
