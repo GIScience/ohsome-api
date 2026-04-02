@@ -25,8 +25,6 @@ def test_metadata():
     }
 
 
-# TODO
-@pytest.mark.skip(reason="Not yet correnctly implemented")
 def test_contributions_count():
     response = client.get(
         "/contributions/count.json",
@@ -34,7 +32,7 @@ def test_contributions_count():
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"] < 44009
+    assert response.json()["result"] == 3340
 
 
 def test_contributions_count_as_csv():
@@ -48,7 +46,7 @@ def test_contributions_count_as_csv():
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 result
-44009
+3340
 """
     assert response.text == expected_result
 
