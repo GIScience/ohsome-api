@@ -56,7 +56,6 @@ async def get_latest_timestamp() -> datetime:
     return record["last_timestamp"]
 
 
-# TODO: ohsome filter support
 async def get_contributions_count(query_where_clause: str, query_args: tuple) -> int:
     sql = f"""
         SELECT COUNT(*) as count
