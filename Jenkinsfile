@@ -4,16 +4,16 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
     }
 
-		environment {
-				REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
-				VERSION = sh(returnStdout: true, script: 'uv version --short').trim()
-				LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
-				LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
+    environment {
+        REPO_NAME = sh(returnStdout: true, script: 'basename `git remote get-url origin` .git').trim()
+        VERSION = sh(returnStdout: true, script: 'uv version --short').trim()
+        LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
+        LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
         MAIN_BRANCH_REGEX = /(^main$)/
 
         DOCKER_CREDENTIALS_ID = 'docker-heigit-ci-service'
         DOCKER_REPOSITORY = 'repo.heigit.org/heigit/ohsome-api'
-		}
+    }
 
     stages {
         stage('Setup') {
@@ -96,9 +96,9 @@ pipeline {
                 script {
                     docker.withRegistry('https://repo.heigit.org', DOCKER_CREDENTIALS_ID) {
                         if (env.BRANCH_NAME ==~ MAIN_BRANCH_REGEX) {
-														dockerImage = docker.build(DOCKER_REPOSITORY + ':' + env.BRANCH_NAME)
-														dockerImage.push()
-												}
+                            dockerImage = docker.build(DOCKER_REPOSITORY + ':' + env.BRANCH_NAME)
+                            dockerImage.push()
+                        }
                     }
                 }
             }
