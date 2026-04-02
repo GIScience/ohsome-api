@@ -1,11 +1,11 @@
 # TODO: return request params in response?
-
 import logging
 from importlib.metadata import version
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Query, Response
 from fastapi.responses import JSONResponse
+from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -65,12 +65,16 @@ class CountResponseModel(BaseResponseModel):
 
 
 @app.get("/contributions/count.json", response_class=JSONResponse)
-async def get_contributions_count_as_json() -> CountResponseModel:
-    result = service.get_contributions_count()
+async def get_contributions_count_as_json(
+    ohsome_filter: Annotated[OhsomeFilter, Query(alias="filter")],
+) -> CountResponseModel:
+    result = service.get_contributions_count(ohsome_filter=ohsome_filter)
     return CountResponseModel(result=result)
 
 
 @app.get("/contributions/count.csv", response_class=CSVResponse)
-async def get_contributions_count_as_csv() -> CountResponseModel:
-    result = service.get_contributions_count()
+async def get_contributions_count_as_csv(
+    ohsome_filter: Annotated[OhsomeFilter, Query(alias="filter")],
+) -> CountResponseModel:
+    result = service.get_contributions_count(ohsome_filter=ohsome_filter)
     return CountResponseModel(result=result)

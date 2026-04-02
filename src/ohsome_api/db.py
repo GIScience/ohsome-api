@@ -56,7 +56,8 @@ def get_latest_timestamp() -> datetime:
     return record[0]
 
 
-def get_contributions_count() -> int:
+# TODO: ohsome filter support
+def get_contributions_count(query_where_clause: str, query_args: tuple) -> int:  # type: ignore
     sql = SQL("SELECT COUNT(*) FROM {schemaname}.contributions")
     record = fetch_one(sql)
     return record[0]

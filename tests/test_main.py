@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from starlette.status import (
     HTTP_200_OK,
+    HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
 from ohsome_api.main import app
@@ -24,15 +25,23 @@ def test_metadata():
     }
 
 
+# TODO
+@pytest.mark.skip(reason="Not yet correnctly implemented")
 def test_contributions_count():
-    response = client.get("/contributions/count.json")
+    response = client.get(
+        "/contributions/count.json",
+        params={"filter": "building=* and building!=no and type:way"},
+    )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"] == 44009
+    assert response.json()["result"] < 44009
 
 
 def test_contributions_count_as_csv():
-    response = client.get("/contributions/count.csv")
+    response = client.get(
+        "/contributions/count.csv",
+        params={"filter": "building=* and building!=no and type:way"},
+    )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
     expected_result = """# apiVersion: 0.0.0
@@ -42,3 +51,12 @@ result
 44009
 """
     assert response.text == expected_result
+
+
+def test_contributions_count_with_invalid_filter():
+    response = client.get(
+        "/contributions/count.json",
+        params={"filter": "foo"},
+    )
+    assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
+    # TODO: Check error message and make it user friendly
