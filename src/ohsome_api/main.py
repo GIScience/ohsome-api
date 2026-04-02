@@ -66,7 +66,16 @@ class CountResponseModel(BaseResponseModel):
 
 @app.get("/contributions/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
-    ohsome_filter: Annotated[OhsomeFilter, Query(alias="filter")],
+    ohsome_filter: Annotated[
+        OhsomeFilter,
+        Query(
+            alias="filter",
+            description="""[filter language documentation](
+            https://docs.ohsome.org/ohsome-api/v1/filter.html)
+        """,
+            example="type:node and natural=tree",
+        ),
+    ],
 ) -> CountResponseModel:
     result = await service.get_contributions_count(ohsome_filter=ohsome_filter)
     return CountResponseModel(result=result)
@@ -74,7 +83,16 @@ async def get_contributions_count_as_json(
 
 @app.get("/contributions/count.csv", response_class=CSVResponse)
 async def get_contributions_count_as_csv(
-    ohsome_filter: Annotated[OhsomeFilter, Query(alias="filter")],
+    ohsome_filter: Annotated[
+        OhsomeFilter,
+        Query(
+            alias="filter",
+            description="""[filter language documentation](
+            https://docs.ohsome.org/ohsome-api/v1/filter.html)
+        """,
+            example="type:node and natural=tree",
+        ),
+    ],
 ) -> CountResponseModel:
     result = await service.get_contributions_count(ohsome_filter=ohsome_filter)
     return CountResponseModel(result=result)
