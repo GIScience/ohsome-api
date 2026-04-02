@@ -42,7 +42,6 @@ pipeline {
             environment {
                 VIRTUAL_ENV="${WORKSPACE}/.venv"
                 PATH="${VIRTUAL_ENV}/bin:${PATH}"
-                OHSOME_API_OHSOMEDB_SCHEMANAME="next"
             }
             steps {
                 script {
