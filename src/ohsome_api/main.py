@@ -10,6 +10,8 @@ from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
 
+VERSION = version("ohsome-api")
+
 app = FastAPI()
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class Attribution(BaseModel):
 
 class BaseResponseModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
-    api_version: str = version("ohsome-api")
+    api_version: str = VERSION
     attribution: Attribution = Attribution()
 
 
@@ -72,7 +74,25 @@ async def get_contributions_count_as_json(
     return CountResponseModel(result=result)
 
 
-@app.post("/contributions/count.csv", response_class=CSVResponse)
+@app.post(
+    "/contributions/count.csv",
+    response_class=CSVResponse,
+    responses={
+        200: {
+            "content": {
+                "text/csv": {
+                    "schema": {"type": "string"},
+                    "example": f"""# apiVersion: {VERSION}
+# attribution.url: https://ohsome.org/copyrights
+# attribution.text: © OpenStreetMap contributors
+result
+0
+""",
+                },
+            },
+        },
+    },
+)
 async def get_contributions_count_as_csv(
     query_parameters: Parameters,
 ) -> CountResponseModel:
