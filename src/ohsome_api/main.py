@@ -1,7 +1,6 @@
 # TODO: return request params in response?
 import logging
 from importlib.metadata import version
-from typing import Literal
 
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
@@ -26,14 +25,6 @@ result
 {content["result"]}
 """
         return result.encode()
-
-
-class AcceptCsvHeader(BaseModel):
-    accept: Literal["text/csv"]
-
-
-class AcceptJsonHeader(BaseModel):
-    accept: Literal["application/json"]
 
 
 class Attribution(BaseModel):
