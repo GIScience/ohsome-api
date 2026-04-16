@@ -55,7 +55,7 @@ class CountResponseModel(BaseResponseModel):
     result: int
 
 
-class QueryParameters(BaseModel):
+class Parameters(BaseModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
         description="""[filter language documentation](
@@ -66,15 +66,15 @@ class QueryParameters(BaseModel):
 
 @app.post("/contributions/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
-    query_parameters: QueryParameters,
+    parameters: Parameters,
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(**query_parameters.model_dump())
+    result = await service.get_contributions_count(**parameters.model_dump())
     return CountResponseModel(result=result)
 
 
 @app.post("/contributions/count.csv", response_class=CSVResponse)
 async def get_contributions_count_as_csv(
-    query_parameters: QueryParameters,
+    query_parameters: Parameters,
 ) -> CountResponseModel:
     result = await service.get_contributions_count(**query_parameters.model_dump())
     return CountResponseModel(result=result)
