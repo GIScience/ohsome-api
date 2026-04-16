@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, Query, Response
 from fastapi.responses import JSONResponse
 from ohsome_filter_to_sql import OhsomeFilter
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
@@ -64,35 +64,26 @@ class CountResponseModel(BaseResponseModel):
     result: int
 
 
+class QueryParameters(BaseModel):
+    ohsome_filter: OhsomeFilter = Field(
+        alias="filter",
+        description="""[filter language documentation](
+        https://docs.ohsome.org/ohsome-api/v1/filter.html)""",
+        example="type:node and natural=tree",
+    )
+
+
 @app.get("/contributions/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
-    ohsome_filter: Annotated[
-        OhsomeFilter,
-        Query(
-            alias="filter",
-            description="""[filter language documentation](
-            https://docs.ohsome.org/ohsome-api/v1/filter.html)
-        """,
-            example="type:node and natural=tree",
-        ),
-    ],
+    query_parameters: Annotated[QueryParameters, Query()],
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(ohsome_filter=ohsome_filter)
+    result = await service.get_contributions_count(**query_parameters.model_dump())
     return CountResponseModel(result=result)
 
 
 @app.get("/contributions/count.csv", response_class=CSVResponse)
 async def get_contributions_count_as_csv(
-    ohsome_filter: Annotated[
-        OhsomeFilter,
-        Query(
-            alias="filter",
-            description="""[filter language documentation](
-            https://docs.ohsome.org/ohsome-api/v1/filter.html)
-        """,
-            example="type:node and natural=tree",
-        ),
-    ],
+    query_parameters: Annotated[QueryParameters, Query()],
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(ohsome_filter=ohsome_filter)
+    result = await service.get_contributions_count(**query_parameters.model_dump())
     return CountResponseModel(result=result)
