@@ -62,7 +62,8 @@ async def get_contributions_count(
     filter_args: tuple,
     start: datetime,
     end: datetime,
-) -> int:
+    period: str | None,
+) -> list[dict[str, int | datetime]]:
     filter_args_count = len(filter_args)
     sql = f"""
         SELECT COUNT(*) as count
@@ -71,4 +72,10 @@ async def get_contributions_count(
         AND valid_from BETWEEN ${filter_args_count + 1} AND ${filter_args_count + 2}
     """  # noqa: S608
     record = await fetch_row(sql, *filter_args, start, end)  # order matters!
-    return record["count"]
+    return [
+        {
+            "value": record["count"],
+            "start": start,
+            "end": end,
+        }
+    ]

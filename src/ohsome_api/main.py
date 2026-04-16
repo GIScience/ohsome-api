@@ -24,8 +24,8 @@ class CSVResponse(Response):
         result = f"""# apiVersion: {content["apiVersion"]}
 # attribution.url: {content["attribution"]["url"]}
 # attribution.text: {content["attribution"]["text"]}
-result
-{content["result"]}
+start,end,value
+{content["result"][0]["start"]},{content["result"][0]["end"]},{content["result"][0]["value"]}
 """
         return result.encode()
 
@@ -55,12 +55,15 @@ async def get_metadata() -> MetadataResponseModel:
 
 
 class CountResponseModel(BaseResponseModel):
-    result: int
+    result: list[dict[str, int | datetime]]  # TODO: define as model
 
 
 class Time(BaseModel):
     start: datetime = Field(example="2026-01-01T00:00:00Z")
     end: datetime = Field(example="2026-04-17T00:00:00Z")
+    period: str | None = Field(example="P1M", default=None)  # TODO: validate
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class Parameters(BaseModel):
@@ -75,6 +78,8 @@ class Parameters(BaseModel):
         https://docs.ohsome.org/ohsome-api/v1/time.html)""",
     )
 
+    model_config = ConfigDict(extra="forbid")
+
 
 @app.post("/contributions/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
@@ -84,6 +89,7 @@ async def get_contributions_count_as_json(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time.start,
         end=parameters.time.end,
+        period=parameters.time.period,
     )
     return CountResponseModel(result=result)
 
@@ -114,5 +120,6 @@ async def get_contributions_count_as_csv(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time.start,
         end=parameters.time.end,
+        period=parameters.time.period,
     )
     return CountResponseModel(result=result)
