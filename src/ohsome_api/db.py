@@ -37,10 +37,10 @@ CONFIG = Config()
 CONNECTION_STRING: str = CONFIG.connection_string
 
 
-async def fetch_row(sql: str, query_args: tuple = ()) -> Record:
+async def fetch_row(sql: str, *args: str | datetime) -> Record:
     # TODO: implement a resource manager for db connection
     connection: Connection = await asyncpg.connect(CONNECTION_STRING)
-    record: Record = await connection.fetchrow(sql, *query_args)
+    record: Record = await connection.fetchrow(sql, *args)
     await connection.close()
     if record is None:
         raise ValueError()
@@ -56,11 +56,17 @@ async def get_latest_timestamp() -> datetime:
     return record["last_timestamp"]
 
 
-async def get_contributions_count(query_where_clause: str, query_args: tuple) -> int:
+async def get_contributions_count(
+    query_where_clause: str,
+    query_args: tuple,
+    start: datetime,
+    end: datetime,
+) -> int:
     sql = f"""
         SELECT COUNT(*) as count
         FROM {CONFIG.schemaname}.contributions
         WHERE {query_where_clause}
+        AND valid_from BETWEEN ${len(query_args) + 1} AND ${len(query_args) + 2}
     """  # noqa: S608
-    record = await fetch_row(sql, query_args)
+    record = await fetch_row(sql, *query_args, start, end)
     return record["count"]

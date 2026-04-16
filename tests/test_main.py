@@ -36,7 +36,7 @@ def test_contributions_count_as_json():
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"] == 3340
+    assert response.json()["result"] == 131
 
 
 def test_contributions_count_as_csv():
@@ -53,7 +53,7 @@ def test_contributions_count_as_csv():
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 result
-3340
+131
 """
     assert response.text == expected_result
 

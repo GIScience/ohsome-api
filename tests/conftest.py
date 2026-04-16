@@ -14,6 +14,7 @@ def ohsomedb_image() -> Iterable[DockerImage]:
         path=test_resource_path,
         clean_up=False,
         tag="ohsomedb-testcontainer",
+        platform="linux/amd64",
     ) as image:
         yield image
 
