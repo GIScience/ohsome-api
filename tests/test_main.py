@@ -29,7 +29,10 @@ def test_metadata():
 def test_contributions_count_as_json():
     response = client.post(
         "/contributions/count.json",
-        json={"filter": "building=* and building!=no and type:way"},
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "time": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
@@ -39,7 +42,10 @@ def test_contributions_count_as_json():
 def test_contributions_count_as_csv():
     response = client.post(
         "/contributions/count.csv",
-        json={"filter": "building=* and building!=no and type:way"},
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "time": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
@@ -55,15 +61,31 @@ result
 def test_contributions_count_with_invalid_filter():
     response = client.post(
         "/contributions/count.json",
-        json={"filter": "foo"},
+        json={"filter": "foo", "time": {"start": "2025-01-01", "end": "2025-12-31"}},
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
     # TODO: Check error message and make it user friendly
 
 
+@pytest.mark.parametrize(
+    "case",
+    [
+        "2025-02-31",  # invalid date
+        "",  # empty
+        "foo",  # garbage
+    ],
+)
+def test_contributions_count_with_invalid_time(case: str):
+    response = client.post(
+        "/contributions/count.json",
+        json={"filter": "id:1", "time": {"start": case, "end": "2025-12-31"}},
+    )
+    assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
+
+
 def test_contributions_count_without_format():
     response = client.post(
         "/contributions/count",
-        json={"filter": "id:1"},
+        json={"filter": "id:1", "time": {"start": "2025-01-01", "end": "2025-12-31"}},
     )
     assert response.status_code == HTTP_404_NOT_FOUND

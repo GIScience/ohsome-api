@@ -1,5 +1,6 @@
 # TODO: return request params in response?
 import logging
+from datetime import datetime
 from importlib.metadata import version
 
 from fastapi import FastAPI, Response
@@ -57,6 +58,11 @@ class CountResponseModel(BaseResponseModel):
     result: int
 
 
+class Time(BaseModel):
+    start: datetime = Field(example="2026-01-01T00:00:00Z")
+    end: datetime = Field(example="2026-04-17T00:00:00Z")
+
+
 class Parameters(BaseModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
@@ -64,13 +70,21 @@ class Parameters(BaseModel):
         https://docs.ohsome.org/ohsome-api/v1/filter.html)""",
         example="type:node and natural=tree",
     )
+    time: Time = Field(
+        description="""[time documentation](
+        https://docs.ohsome.org/ohsome-api/v1/time.html)""",
+    )
 
 
 @app.post("/contributions/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
     parameters: Parameters,
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(**parameters.model_dump())
+    result = await service.get_contributions_count(
+        ohsome_filter=parameters.ohsome_filter,
+        start=parameters.time.start,
+        end=parameters.time.end,
+    )
     return CountResponseModel(result=result)
 
 
@@ -94,7 +108,11 @@ result
     },
 )
 async def get_contributions_count_as_csv(
-    query_parameters: Parameters,
+    parameters: Parameters,
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(**query_parameters.model_dump())
+    result = await service.get_contributions_count(
+        ohsome_filter=parameters.ohsome_filter,
+        start=parameters.time.start,
+        end=parameters.time.end,
+    )
     return CountResponseModel(result=result)
