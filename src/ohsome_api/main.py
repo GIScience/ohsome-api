@@ -1,9 +1,9 @@
 # TODO: return request params in response?
 import logging
 from importlib.metadata import version
-from typing import Annotated, Literal
+from typing import Literal
 
-from fastapi import FastAPI, Query, Response
+from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import BaseModel, ConfigDict, Field
@@ -73,17 +73,17 @@ class QueryParameters(BaseModel):
     )
 
 
-@app.get("/contributions/count.json", response_class=JSONResponse)
+@app.post("/contributions/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
-    query_parameters: Annotated[QueryParameters, Query()],
+    query_parameters: QueryParameters,
 ) -> CountResponseModel:
     result = await service.get_contributions_count(**query_parameters.model_dump())
     return CountResponseModel(result=result)
 
 
-@app.get("/contributions/count.csv", response_class=CSVResponse)
+@app.post("/contributions/count.csv", response_class=CSVResponse)
 async def get_contributions_count_as_csv(
-    query_parameters: Annotated[QueryParameters, Query()],
+    query_parameters: QueryParameters,
 ) -> CountResponseModel:
     result = await service.get_contributions_count(**query_parameters.model_dump())
     return CountResponseModel(result=result)

@@ -26,9 +26,9 @@ def test_metadata():
 
 
 def test_contributions_count():
-    response = client.get(
+    response = client.post(
         "/contributions/count.json",
-        params={"filter": "building=* and building!=no and type:way"},
+        json={"filter": "building=* and building!=no and type:way"},
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
@@ -36,9 +36,9 @@ def test_contributions_count():
 
 
 def test_contributions_count_as_csv():
-    response = client.get(
+    response = client.post(
         "/contributions/count.csv",
-        params={"filter": "building=* and building!=no and type:way"},
+        json={"filter": "building=* and building!=no and type:way"},
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
@@ -52,9 +52,9 @@ result
 
 
 def test_contributions_count_with_invalid_filter():
-    response = client.get(
+    response = client.post(
         "/contributions/count.json",
-        params={"filter": "foo"},
+        json={"filter": "foo"},
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
     # TODO: Check error message and make it user friendly
