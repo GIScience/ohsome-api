@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from starlette.status import (
     HTTP_200_OK,
+    HTTP_404_NOT_FOUND,
     HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
@@ -25,7 +26,7 @@ def test_metadata():
     }
 
 
-def test_contributions_count():
+def test_contributions_count_as_json():
     response = client.post(
         "/contributions/count.json",
         json={"filter": "building=* and building!=no and type:way"},
@@ -58,3 +59,11 @@ def test_contributions_count_with_invalid_filter():
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
     # TODO: Check error message and make it user friendly
+
+
+def test_contributions_count_without_format():
+    response = client.post(
+        "/contributions/count",
+        json={"filter": "id:1"},
+    )
+    assert response.status_code == HTTP_404_NOT_FOUND
