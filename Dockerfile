@@ -34,4 +34,4 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
 
-ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.main:app", "--port", "80"]
+ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app", "--port", "80"]

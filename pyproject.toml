@@ -37,7 +37,7 @@ dev = [
 ]
 
 [tool.fastapi]
-entrypoint = "ohsome_api.main:app"
+entrypoint = "ohsome_api.api:app"
 
 [tool.uv.sources]
 ohsomedb-schema = { git = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsomedb/ohsomedb-schema.git", tag = "0.1.1" }

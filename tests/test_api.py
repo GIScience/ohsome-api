@@ -6,7 +6,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
-from ohsome_api.main import app
+from ohsome_api.api import app
 
 client = TestClient(app)
 
