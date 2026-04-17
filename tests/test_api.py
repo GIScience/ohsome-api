@@ -51,8 +51,8 @@ def test_contributions_count_as_json_time_period():
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 131
-    assert len(response.json()["result"]) == 1
+    assert len(response.json()["result"]) == 12
+    assert response.json()["result"][0]["value"] == 1
 
 
 def test_contributions_count_as_csv():
@@ -69,7 +69,7 @@ def test_contributions_count_as_csv():
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 start,end,value
-2025-01-01T00:00:00,2025-12-31T00:00:00,131
+2025-01-01T00:00:00Z,2025-12-31T00:00:00Z,131
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result

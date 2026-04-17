@@ -1,8 +1,9 @@
 # TODO: return request params in response?
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from importlib.metadata import version
 
+import pydantic
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from ohsome_filter_to_sql import OhsomeFilter
@@ -66,6 +67,15 @@ class Time(BaseModel):
     period: str | None = Field(example="P1M", default=None)  # TODO: validate
 
     model_config = ConfigDict(extra="forbid")
+
+    @pydantic.field_validator("start", "end")
+    @classmethod
+    def validate_datetime(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value
+
+    # TODO: validate that start and end have same timzone
 
 
 class Parameters(BaseModel):

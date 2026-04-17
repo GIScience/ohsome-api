@@ -17,10 +17,18 @@ async def get_contributions_count(
     period: str | None,
 ) -> list[RowModel]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
-    return await db.get_contributions_count(
-        query_where_clause,
-        query_args,
-        start,
-        end,
-        period,
-    )
+    if period is None:
+        return await db.get_contributions_count_single_interval(
+            query_where_clause,
+            query_args,
+            start,
+            end,
+        )
+    else:
+        return await db.get_contributions_count(
+            query_where_clause,
+            query_args,
+            start,
+            end,
+            period,
+        )
