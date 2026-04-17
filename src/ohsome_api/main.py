@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
+from ohsome_api.models import RowModel
 
 VERSION = version("ohsome-api")
 
@@ -54,8 +55,9 @@ async def get_metadata() -> MetadataResponseModel:
     return MetadataResponseModel(latest_timestamp=timestamp.isoformat())
 
 
+# TODO: Rename
 class CountResponseModel(BaseResponseModel):
-    result: list[dict[str, int | datetime]]  # TODO: define as model
+    result: list[RowModel]
 
 
 class Time(BaseModel):

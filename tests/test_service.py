@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from ohsome_api.models import RowModel
 from ohsome_api.service import get_contributions_count
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer")]
@@ -17,11 +18,11 @@ async def test_get_contributions_count():
         period=None,
     )
     assert result == [
-        {
-            "start": start,
-            "end": end,
-            "value": 122,
-        }
+        RowModel(
+            start=start,
+            end=end,
+            value=122,
+        )
     ]
 
 

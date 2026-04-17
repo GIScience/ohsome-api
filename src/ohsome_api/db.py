@@ -6,6 +6,8 @@ from asyncpg import Connection, Record
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from ohsome_api.models import RowModel
+
 
 class Config(BaseSettings):
     user: str = "ohsomedb"
@@ -63,7 +65,7 @@ async def get_contributions_count(
     start: datetime,
     end: datetime,
     period: str | None,
-) -> list[dict[str, int | datetime]]:
+) -> list[RowModel]:
     filter_args_count = len(filter_args)
     sql = f"""
         SELECT COUNT(*) as count
@@ -73,9 +75,9 @@ async def get_contributions_count(
     """  # noqa: S608
     record = await fetch_row(sql, *filter_args, start, end)  # order matters!
     return [
-        {
-            "value": record["count"],
-            "start": start,
-            "end": end,
-        }
+        RowModel(
+            value=record["count"],
+            start=start,
+            end=end,
+        )
     ]
