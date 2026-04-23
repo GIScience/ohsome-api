@@ -5,7 +5,7 @@ import pytest
 from ohsome_api.models import RowModel
 from ohsome_api.service import get_contributions_count
 
-pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer")]
+pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
 
 async def test_get_contributions_count():

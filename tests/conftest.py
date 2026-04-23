@@ -2,9 +2,12 @@ from pathlib import Path
 from typing import Iterable
 
 import pytest
+import pytest_asyncio
 from _pytest.monkeypatch import MonkeyPatch
 from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
+
+from ohsome_api.database import db
 
 
 @pytest.fixture(scope="session")
@@ -26,7 +29,14 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
         MonkeyPatch.context() as mp,
     ):
         mp.setattr(
-            "ohsome_api.db.CONNECTION_STRING",
+            "ohsome_api.database.CONNECTION_STRING",
             postgres.get_connection_url(),
         )
         yield
+
+
+@pytest_asyncio.fixture()
+async def database_pool():
+    await db.connect()
+    yield
+    await db.disconnect()

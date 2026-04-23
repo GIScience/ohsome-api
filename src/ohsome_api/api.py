@@ -1,7 +1,9 @@
 # TODO: return request params in response?
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from importlib.metadata import version
+from typing import AsyncIterator
 
 import pydantic
 from fastapi import FastAPI, Response
@@ -11,12 +13,23 @@ from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
+from ohsome_api.database import db
 from ohsome_api.models import RowModel
 
 VERSION = version("ohsome-api")
 
-app = FastAPI()
+
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    await db.connect()
+    yield
+    await db.disconnect()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class CSVResponse(Response):
