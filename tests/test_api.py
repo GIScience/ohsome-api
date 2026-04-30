@@ -112,3 +112,14 @@ def test_contributions_count_without_format(client: TestClient):
         json={"filter": "id:1", "time": {"start": "2025-01-01", "end": "2025-12-31"}},
     )
     assert response.status_code == HTTP_404_NOT_FOUND
+
+
+def test_time_request(client: TestClient):
+    response = client.post(
+        "/contributions/count.json",
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "time": {"start": "2025-01-01", "end": "2025-12-31T00:00Z"},
+        },
+    )
+    assert response.status_code == HTTP_200_OK

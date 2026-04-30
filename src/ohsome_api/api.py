@@ -1,15 +1,21 @@
 # TODO: return request params in response?
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from importlib.metadata import version
-from typing import AsyncIterator
+from typing import AsyncIterator, Self
 
-import pydantic
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from ohsome_filter_to_sql import OhsomeFilter
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    TypeAdapter,
+    field_validator,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
@@ -20,6 +26,8 @@ VERSION = version("ohsome-api")
 
 
 logger = logging.getLogger(__name__)
+
+td_adapter = TypeAdapter(timedelta)
 
 
 @asynccontextmanager
@@ -75,20 +83,46 @@ class CountResponseModel(BaseResponseModel):
 
 
 class Time(BaseModel):
-    start: datetime = Field(example="2026-01-01T00:00:00Z")
-    end: datetime = Field(example="2026-04-17T00:00:00Z")
+    start: datetime = Field(
+        example="2026-01-01T00:00:00Z",
+        description="""
+            Only UTC timestamps are supported.
+            Earliest OSM timestamp is 2007-10-08T00:00:00Z.
+            """,
+    )
+    end: datetime = Field(
+        example="2026-04-17T00:00:00Z",
+        description="Only UTC timestamps are supported.",
+    )
     period: str | None = Field(example="P1M", default=None)  # TODO: validate
 
     model_config = ConfigDict(extra="forbid")
 
-    @pydantic.field_validator("start", "end")
-    @classmethod
-    def validate_datetime(cls, value: datetime) -> datetime:
-        if value.tzinfo is None:
-            value = value.replace(tzinfo=timezone.utc)
-        return value
+    @model_validator(mode="after")
+    def validate_end_greater_than_start(self) -> Self:
+        if self.end > self.start:
+            return self
 
-    # TODO: validate that start and end have same timzone
+        raise ValueError("End timestamp needs to be greater than start timestamp.")
+
+    @field_validator("start", "end")
+    @classmethod
+    def validate_timezone(cls, value: datetime) -> datetime:
+        """Allow only UTC."""
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+
+        if value.tzinfo == timezone.utc:
+            return value
+
+        raise ValueError("Only UTC timestamps are supported.")
+
+    @field_validator("period")
+    @classmethod
+    def validate_period(cls, value: str) -> str:
+        # uses Pydantic internal logic to validate as timedelta
+        td_adapter.validate_python(value)
+        return value
 
 
 class Parameters(BaseModel):
