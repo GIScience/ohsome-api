@@ -26,6 +26,35 @@ async def test_get_contributions_count():
     ]
 
 
+async def test_get_contributions_count_with_period():
+    start = datetime(year=2022, month=7, day=1, tzinfo=timezone.utc)
+    end = datetime(year=2022, month=10, day=1, tzinfo=timezone.utc)
+    result = await get_contributions_count(
+        "building=* and building!=no and type:way",
+        start,
+        end,
+        "P1M",
+    )
+
+    assert result == [
+        RowModel(
+            start=datetime(year=2022, month=7, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
+            value=29,
+        ),
+        RowModel(
+            start=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
+            value=0,  # NOTE: zero filled value
+        ),
+        RowModel(
+            start=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2022, month=10, day=1, tzinfo=timezone.utc),
+            value=3,
+        ),
+    ]
+
+
 async def test_get_contributions_count_by_month():
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
     end = start + timedelta(days=365)
