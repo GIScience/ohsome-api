@@ -1,3 +1,5 @@
+[![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome-api/main)](https://jenkins.heigit.org/job/ohsome-api/job/main/)
+
 # ohsome api
 
 ## Development Setup
