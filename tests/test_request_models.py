@@ -77,7 +77,7 @@ def test_time_start_end_timezone_invalid():
         )
 
 
-async def test_time_period():
+async def test_time_bucket_size():
     time = Time(
         start_timestamp=datetime(2024, 1, 1),
         end_timestamp=datetime(2024, 3, 1),
@@ -88,7 +88,7 @@ async def test_time_period():
     assert time.bucket_size == "P1M"
 
 
-async def test_time_period_invalid():
+async def test_time_bucket_size_invalid():
     with pytest.raises(ValidationError):
         Time(
             start_timestamp=datetime(2024, 1, 1),

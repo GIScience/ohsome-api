@@ -26,7 +26,7 @@ async def test_get_contributions_count():
     ]
 
 
-async def test_get_contributions_count_with_period():
+async def test_get_contributions_count_with_bucket_size():
     start = datetime(year=2022, month=7, day=1, tzinfo=timezone.utc)
     end = datetime(year=2022, month=10, day=1, tzinfo=timezone.utc)
     result = await get_contributions_count(
@@ -76,12 +76,12 @@ async def test_get_contributions_count_by_month():
 
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
     end = start + timedelta(days=365 * 2)
-    period = "P1Y"
+    bucket_size = "P1Y"
     bins = await get_contributions_count(
         "building=* and building!=no and type:way",
         start,
         end,
-        period,
+        bucket_size,
     )
     assert bins == [
         RowModel(

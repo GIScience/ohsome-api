@@ -55,7 +55,7 @@ def test_contributions_count_as_json_time_period(client: TestClient):
             "time": {
                 "start_timestamp": "2025-01-01",
                 "end_timestamp": "2025-12-31",
-                "period": "P1M",
+                "bucket_size": "P1M",
             },
         },
     )

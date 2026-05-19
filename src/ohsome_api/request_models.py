@@ -56,7 +56,7 @@ class Time(BaseModel):
 
     @field_validator("bucket_size")
     @classmethod
-    def validate_period(cls, value: str) -> str:
+    def validate_bucket_size(cls, value: str) -> str:
         # uses Pydantic internal logic to validate as timedelta
         td_adapter.validate_python(value)
         return value
