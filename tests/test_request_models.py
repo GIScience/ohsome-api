@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pydantic import ValidationError
 
-from ohsome_api.api import Time
+from ohsome_api.request_models import Time
 
 
 def test_time_start_end():
