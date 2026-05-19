@@ -31,7 +31,7 @@ class Time(BaseModel):
         example="2026-04-17T00:00:00Z",
         description="Only UTC timestamps are supported.",
     )
-    period: str | None = Field(example="P1M", default=None)  # TODO: validate
+    bucket_size: str | None = Field(example="P1M", default=None)  # TODO: validate
 
     model_config = ConfigDict(extra="forbid")
 
@@ -54,7 +54,7 @@ class Time(BaseModel):
 
         raise ValueError("Only UTC timestamps are supported.")
 
-    @field_validator("period")
+    @field_validator("bucket_size")
     @classmethod
     def validate_period(cls, value: str) -> str:
         # uses Pydantic internal logic to validate as timedelta

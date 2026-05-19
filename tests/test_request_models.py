@@ -81,11 +81,11 @@ async def test_time_period():
     time = Time(
         start_timestamp=datetime(2024, 1, 1),
         end_timestamp=datetime(2024, 3, 1),
-        period="P1M",
+        bucket_size="P1M",
     )
     # validation happens via timedelta datatype,
     # but string representation is kept
-    assert time.period == "P1M"
+    assert time.bucket_size == "P1M"
 
 
 async def test_time_period_invalid():
@@ -93,5 +93,5 @@ async def test_time_period_invalid():
         Time(
             start_timestamp=datetime(2024, 1, 1),
             end_timestamp=datetime(2024, 3, 1),
-            period="P1",
+            bucket_size="P1",
         )

@@ -87,7 +87,7 @@ async def get_contributions_count_as_json(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time.start_timestamp,
         end=parameters.time.end_timestamp,
-        period=parameters.time.period,
+        period=parameters.time.bucket_size,
     )
     return CountResponseModel(result=result)
 
@@ -118,6 +118,6 @@ async def get_contributions_count_as_csv(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time.start_timestamp,
         end=parameters.time.end_timestamp,
-        period=parameters.time.period,
+        period=parameters.time.bucket_size,
     )
     return CountResponseModel(result=result)
