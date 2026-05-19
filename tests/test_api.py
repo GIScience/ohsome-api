@@ -36,7 +36,7 @@ def test_contributions_count_as_json(client: TestClient):
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "time": {"start": "2025-01-01", "end": "2025-12-31"},
+            "time": {"start_timestamp": "2025-01-01", "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -52,7 +52,11 @@ def test_contributions_count_as_json_time_period(client: TestClient):
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "time": {"start": "2025-01-01", "end": "2025-12-31", "period": "P1M"},
+            "time": {
+                "start_timestamp": "2025-01-01",
+                "end": "2025-12-31",
+                "period": "P1M",
+            },
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -66,7 +70,7 @@ def test_contributions_count_as_csv(client: TestClient):
         "/contributions/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
-            "time": {"start": "2025-01-01", "end": "2025-12-31"},
+            "time": {"start_timestamp": "2025-01-01", "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -84,7 +88,10 @@ start,end,value
 def test_contributions_count_with_invalid_filter(client: TestClient):
     response = client.post(
         "/contributions/count.json",
-        json={"filter": "foo", "time": {"start": "2025-01-01", "end": "2025-12-31"}},
+        json={
+            "filter": "foo",
+            "time": {"start_timestamp": "2025-01-01", "end": "2025-12-31"},
+        },
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
     # TODO: Check error message and make it user friendly
@@ -101,7 +108,7 @@ def test_contributions_count_with_invalid_filter(client: TestClient):
 def test_contributions_count_with_invalid_time(client: TestClient, case: str):
     response = client.post(
         "/contributions/count.json",
-        json={"filter": "id:1", "time": {"start": case, "end": "2025-12-31"}},
+        json={"filter": "id:1", "time": {"start_timestamp": case, "end": "2025-12-31"}},
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
 
@@ -109,7 +116,10 @@ def test_contributions_count_with_invalid_time(client: TestClient, case: str):
 def test_contributions_count_without_format(client: TestClient):
     response = client.post(
         "/contributions/count",
-        json={"filter": "id:1", "time": {"start": "2025-01-01", "end": "2025-12-31"}},
+        json={
+            "filter": "id:1",
+            "time": {"start_timestamp": "2025-01-01", "end": "2025-12-31"},
+        },
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
@@ -120,7 +130,7 @@ def test_time_request(client: TestClient):
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "time": {"start": "2025-01-01", "end": "2025-12-31T00:00Z"},
+            "time": {"start_timestamp": "2025-01-01", "end": "2025-12-31T00:00Z"},
         },
     )
     assert response.status_code == HTTP_200_OK

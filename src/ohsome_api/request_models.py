@@ -19,7 +19,7 @@ td_adapter = TypeAdapter(timedelta)
 
 
 class Time(BaseModel):
-    start: datetime = Field(
+    start_timestamp: datetime = Field(
         example="2026-01-01T00:00:00Z",
         description="""
             Only UTC timestamps are supported.
@@ -37,12 +37,12 @@ class Time(BaseModel):
 
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
-        if self.end > self.start:
+        if self.end > self.start_timestamp:
             return self
 
         raise ValueError("End timestamp needs to be greater than start timestamp.")
 
-    @field_validator("start", "end")
+    @field_validator("start_timestamp", "end")
     @classmethod
     def validate_timezone(cls, value: datetime) -> datetime:
         """Allow only UTC."""
