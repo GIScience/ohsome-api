@@ -40,10 +40,11 @@ def test_time_start_equals_end():
 def test_time_start_before_osm():
     # NOTE: valid but could be restricted/unwanted
     # Earliest OSM timestamp is 2007-10-08T00:00:00Z"
-    Time(
-        start=datetime(1998, 10, 8),  # before OSM
-        end=datetime(2024, 1, 1),
-    )
+    with pytest.raises(ValidationError):
+        Time(
+            start=datetime(1998, 10, 8),  # before OSM
+            end=datetime(2024, 1, 1),
+        )
 
 
 def test_time_start_end_with_explicit_timezone():

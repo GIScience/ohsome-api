@@ -89,6 +89,7 @@ class Time(BaseModel):
             Only UTC timestamps are supported.
             Earliest OSM timestamp is 2007-10-08T00:00:00Z.
             """,
+        ge=datetime(2007, 10, 8),
     )
     end: datetime = Field(
         example="2026-04-17T00:00:00Z",
