@@ -27,7 +27,7 @@ class Time(BaseModel):
             """,
         ge=datetime(2007, 10, 8),
     )
-    end: datetime = Field(
+    end_timestamp: datetime = Field(
         example="2026-04-17T00:00:00Z",
         description="Only UTC timestamps are supported.",
     )
@@ -37,12 +37,12 @@ class Time(BaseModel):
 
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
-        if self.end > self.start_timestamp:
+        if self.end_timestamp > self.start_timestamp:
             return self
 
         raise ValueError("End timestamp needs to be greater than start timestamp.")
 
-    @field_validator("start_timestamp", "end")
+    @field_validator("start_timestamp", "end_timestamp")
     @classmethod
     def validate_timezone(cls, value: datetime) -> datetime:
         """Allow only UTC."""
