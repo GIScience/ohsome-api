@@ -22,7 +22,6 @@ def test_time_start_end_invalid():
 
 
 def test_time_start_end_future():
-    # NOTE: valid but could be restricted/unwanted
     Time(
         start=datetime(2024, 3, 1),
         end=datetime.now() + timedelta(days=30),  # future
