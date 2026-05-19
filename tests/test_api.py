@@ -45,9 +45,7 @@ def test_contributions_count_as_json(client: TestClient):
     assert len(response.json()["result"]) == 1
 
 
-# TODO: parametrize period
-@pytest.mark.skip(reason="last time bin is none")
-def test_contributions_count_as_json_time_period(client: TestClient):
+def test_contributions_count_as_json_time_bucket_size(client: TestClient):
     response = client.post(
         "/contributions/count.json",
         json={
