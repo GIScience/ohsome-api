@@ -78,7 +78,7 @@ def test_contributions_count_as_csv(client: TestClient):
     expected_result = """# apiVersion: 0.0.0
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
-start,end,value
+start_timestamp,end_timestamp,value
 2025-01-01T00:00:00Z,2025-12-31T00:00:00Z,131
 """
     # TODO: Why no timezone in response?

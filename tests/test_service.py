@@ -15,12 +15,12 @@ async def test_get_contributions_count():
         "building=* and building!=no and type:way",
         start,
         end,
-        period=None,
+        bucket_size=None,
     )
     assert result == [
         RowModel(
-            start=start,
-            end=end,
+            start_timestamp=start,
+            end_timestamp=end,
             value=122,
         )
     ]
@@ -38,18 +38,18 @@ async def test_get_contributions_count_with_period():
 
     assert result == [
         RowModel(
-            start=datetime(year=2022, month=7, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
+            start_timestamp=datetime(year=2022, month=7, day=1, tzinfo=timezone.utc),
+            end_timestamp=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
             value=29,
         ),
         RowModel(
-            start=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
+            start_timestamp=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
+            end_timestamp=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
             value=0,  # NOTE: zero filled value
         ),
         RowModel(
-            start=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2022, month=10, day=1, tzinfo=timezone.utc),
+            start_timestamp=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
+            end_timestamp=datetime(year=2022, month=10, day=1, tzinfo=timezone.utc),
             value=3,
         ),
     ]
@@ -62,7 +62,7 @@ async def test_get_contributions_count_by_month():
         "building=* and building!=no and type:way",
         start,
         end,
-        period=None,
+        bucket_size=None,
     )
 
     start = datetime(year=2023, month=1, day=1, tzinfo=timezone.utc)
@@ -71,7 +71,7 @@ async def test_get_contributions_count_by_month():
         "building=* and building!=no and type:way",
         start,
         end,
-        period=None,
+        bucket_size=None,
     )
 
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
@@ -85,13 +85,13 @@ async def test_get_contributions_count_by_month():
     )
     assert bins == [
         RowModel(
-            start=start,
-            end=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
+            start_timestamp=start,
+            end_timestamp=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
             value=bin_2022[0].value,
         ),
         RowModel(
-            start=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
-            end=end,
+            start_timestamp=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
+            end_timestamp=end,
             value=bin_2023[0].value,
         ),
     ]

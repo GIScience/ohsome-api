@@ -51,8 +51,8 @@ async def get_latest_timestamp() -> datetime:
 async def get_contributions_count(
     filter_where_clause: str,
     filter_args: tuple,
-    start: datetime,
-    end: datetime,
+    start_timestamp: datetime,
+    end_timestamp: datetime,
     series: list[datetime],
 ) -> list[RowModel]:
     filter_args_count = len(filter_args)
@@ -70,8 +70,8 @@ async def get_contributions_count(
     records = await db.fetch_rows(
         sql,
         *filter_args,
-        start,
-        end,
+        start_timestamp,
+        end_timestamp,
         series,
     )  # order matters!
 
@@ -84,8 +84,8 @@ async def get_contributions_count(
     return [
         RowModel(
             value=count,
-            start=series[time_bin],
-            end=series[time_bin + 1],
+            start_timestamp=series[time_bin],
+            end_timestamp=series[time_bin + 1],
         )
         for time_bin, count in zerofilled_series.items()
     ]

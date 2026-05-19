@@ -13,16 +13,20 @@ async def get_latest_timestamp() -> datetime:
 
 async def get_contributions_count(
     ohsome_filter: OhsomeFilter,
-    start: datetime,
-    end: datetime,
-    period: str | None,
+    start_timestamp: datetime,
+    end_timestamp: datetime,
+    bucket_size: str | None,
 ) -> list[RowModel]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
-    series = await generate_timestamp_series(start, end, period)
+    series = await generate_timestamp_series(
+        start_timestamp,
+        end_timestamp,
+        bucket_size,
+    )
     return await db.get_contributions_count(
         query_where_clause,
         query_args,
-        start,
-        end,
+        start_timestamp,
+        end_timestamp,
         series,
     )
