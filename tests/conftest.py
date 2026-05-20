@@ -35,8 +35,34 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
         yield
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def database_pool():
     await db.connect()
     yield
     await db.disconnect()
+
+
+@pytest.fixture
+def aoi_geojson_heigit():
+    # Small bounding box around HeiGIT
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [8.674585743714516, 49.418922925485816],
+                            [8.674585743714516, 49.417888246956096],
+                            [8.676354634855528, 49.417888246956096],
+                            [8.676354634855528, 49.418922925485816],
+                            [8.674585743714516, 49.418922925485816],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            }
+        ],
+    }

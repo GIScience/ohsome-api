@@ -31,12 +31,13 @@ def test_metadata(client: TestClient):
     }
 
 
-def test_contributions_count_as_json(client: TestClient):
+def test_contributions_count_as_json(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -45,7 +46,9 @@ def test_contributions_count_as_json(client: TestClient):
     assert len(response.json()["result"]) == 1
 
 
-def test_contributions_count_as_json_time_bin_size(client: TestClient):
+def test_contributions_count_as_json_time_bin_size(
+    client: TestClient, aoi_geojson_heigit: dict
+):
     response = client.post(
         "/contributions/count.json",
         json={
@@ -55,6 +58,7 @@ def test_contributions_count_as_json_time_bin_size(client: TestClient):
                 "end": "2025-12-31",
                 "binSize": "P1M",
             },
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -63,12 +67,13 @@ def test_contributions_count_as_json_time_bin_size(client: TestClient):
     assert response.json()["result"][0]["value"] == 1
 
 
-def test_contributions_count_as_csv(client: TestClient):
+def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
         "/contributions/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -83,12 +88,15 @@ start,end,value
     assert response.text == expected_result
 
 
-def test_contributions_count_with_invalid_filter(client: TestClient):
+def test_contributions_count_with_invalid_filter(
+    client: TestClient, aoi_geojson_heigit: dict
+):
     response = client.post(
         "/contributions/count.json",
         json={
             "filter": "foo",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
@@ -103,30 +111,36 @@ def test_contributions_count_with_invalid_filter(client: TestClient):
         "foo",  # garbage
     ],
 )
-def test_contributions_count_with_invalid_time(client: TestClient, case: str):
+def test_contributions_count_with_invalid_time(
+    client: TestClient, case: str, aoi_geojson_heigit: dict
+):
     response = client.post(
         "/contributions/count.json",
         json={
             "filter": "id:1",
             "timeBins": {"start": case, "end": "2025-12-31"},
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
 
 
-def test_contributions_count_without_format(client: TestClient):
+def test_contributions_count_without_format(
+    client: TestClient, aoi_geojson_heigit: dict
+):
     response = client.post(
         "/contributions/count",
         json={
             "filter": "id:1",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
 # TODO: extract to own module indepedend of testcontainer
-def test_time_request(client: TestClient):
+def test_time_request(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
         "/contributions/count.json",
         json={
@@ -135,6 +149,7 @@ def test_time_request(client: TestClient):
                 "start": "2025-01-01",
                 "end": "2025-12-31T00:00Z",
             },
+            "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK

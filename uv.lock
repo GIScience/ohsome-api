@@ -330,6 +330,18 @@ wheels = [
 ]
 
 [[package]]
+name = "geojson-pydantic"
+version = "2.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d9/76/77c6f2e608028a2885e4d9d9a28cb6801879972d4bb3106c1dca02201df6/geojson_pydantic-2.1.1.tar.gz", hash = "sha256:3b64fa2dcd98108ff8a19bfb01eee3dab41bc230be2481804aefd7c1659d1c23", size = 8156, upload-time = "2026-04-07T09:48:07.252Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/97/d59d999f00aec90fc7a4efb742fc11e6c160552aa1b313438d3497998644/geojson_pydantic-2.1.1-py3-none-any.whl", hash = "sha256:55354f22ededc3c070e3210fec6f518d784b65c4368c1763f2c6dc4bab79b898", size = 9456, upload-time = "2026-04-07T09:48:05.772Z" },
+]
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -470,6 +482,7 @@ dependencies = [
     { name = "asyncpg" },
     { name = "fastapi" },
     { name = "fastapi-cli" },
+    { name = "geojson-pydantic" },
     { name = "ohsome-filter-to-sql" },
     { name = "ohsomedb-schema" },
     { name = "pydantic" },
@@ -493,6 +506,7 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "fastapi", specifier = ">=0.135.1" },
     { name = "fastapi-cli", specifier = ">=0.0.24" },
+    { name = "geojson-pydantic", specifier = ">=2.1.1" },
     { name = "ohsome-filter-to-sql", specifier = ">=0.8.0" },
     { name = "ohsomedb-schema", git = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsomedb/ohsomedb-schema.git?tag=0.1.1" },
     { name = "pydantic", specifier = ">=2.12.5" },

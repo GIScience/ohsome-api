@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Self
 
+from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
     BaseModel,
@@ -25,6 +26,19 @@ class BaseRequestModel(BaseModel):
         populate_by_name=True,
         extra="forbid",
     )
+
+
+class GeoJsonFeatureCollection(
+    FeatureCollection[Feature[Polygon | MultiPolygon, dict]]
+):
+    @field_validator("features")
+    @classmethod
+    def validate_features_not_empty(cls, value: list[Feature]) -> list[Feature]:
+        if len(value) == 0:
+            raise ValueError(
+                "GeoJSON FeatureCollection must contain at least one Feature."
+            )
+        return value
 
 
 class TimeBins(BaseRequestModel):
@@ -80,3 +94,4 @@ class Parameters(BaseRequestModel):
         description="""[time documentation](
         https://docs.ohsome.org/ohsome-api/v1/time.html)""",
     )
+    aoi: GeoJsonFeatureCollection
