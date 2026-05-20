@@ -85,9 +85,9 @@ async def get_contributions_count_as_json(
 ) -> CountResponseModel:
     result = await service.get_contributions_count(
         ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time.start,
-        end=parameters.time.end,
-        bin_size=parameters.time.bin_size,
+        start=parameters.time_bins.start,
+        end=parameters.time_bins.end,
+        bin_size=parameters.time_bins.bin_size,
     )
     return CountResponseModel(result=result)
 
@@ -116,8 +116,8 @@ async def get_contributions_count_as_csv(
 ) -> CountResponseModel:
     result = await service.get_contributions_count(
         ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time.start,
-        end=parameters.time.end,
-        bin_size=parameters.time.bin_size,
+        start=parameters.time_bins.start,
+        end=parameters.time_bins.end,
+        bin_size=parameters.time_bins.bin_size,
     )
     return CountResponseModel(result=result)

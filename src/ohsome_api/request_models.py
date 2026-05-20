@@ -12,13 +12,22 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+from pydantic.alias_generators import to_camel
 
 logger = logging.getLogger(__name__)
 
 td_adapter = TypeAdapter(timedelta)
 
 
-class TimeBins(BaseModel):
+class BaseRequestModel(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        extra="forbid",
+    )
+
+
+class TimeBins(BaseRequestModel):
     start: datetime = Field(
         example="2026-01-01T00:00:00Z",
         description="""
@@ -32,8 +41,6 @@ class TimeBins(BaseModel):
         description="Only UTC timestamps are supported.",
     )
     bin_size: str | None = Field(example="P1M", default=None)  # TODO: validate
-
-    model_config = ConfigDict(extra="forbid")
 
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
@@ -62,16 +69,14 @@ class TimeBins(BaseModel):
         return value
 
 
-class Parameters(BaseModel):
+class Parameters(BaseRequestModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
         description="""[filter language documentation](
         https://docs.ohsome.org/ohsome-api/v1/filter.html)""",
         example="type:node and natural=tree",
     )
-    time: TimeBins = Field(
+    time_bins: TimeBins = Field(
         description="""[time documentation](
         https://docs.ohsome.org/ohsome-api/v1/time.html)""",
     )
-
-    model_config = ConfigDict(extra="forbid")
