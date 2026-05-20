@@ -46,7 +46,7 @@ async def generate_timestamp_series(
 
 
 async def get_latest_timestamp() -> datetime:
-    sql = f"SELECT last_timestamp FROM {SCHEMA}.contributions_state"  # noqa: S608
+    sql = f'SELECT last_timestamp FROM "{SCHEMA}".contributions_state'  # noqa: S608
     record = await db.fetch_row(sql)
     if not isinstance(record["last_timestamp"], datetime):
         raise TypeError()
@@ -65,7 +65,7 @@ async def get_contributions_count(
         SELECT
             COUNT(*) AS count,
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
-        FROM {SCHEMA}.contributions
+        FROM "{SCHEMA}".contributions
         WHERE ({filter_where_clause})
         AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
                            AND ${filter_args_count + 2}::timestamptz
