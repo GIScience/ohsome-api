@@ -69,6 +69,7 @@ async def get_contributions_count(  # noqa: PLR0913 # TODO
         AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
                            AND ${filter_args_count + 2}::timestamptz
         AND ST_Intersects(geom, ST_GeomFromText(${filter_args_count + 4}, 4326))
+        AND (status_geom_type).status = 'latest'
         GROUP BY time_bin
         ORDER BY time_bin
     """  # noqa: S608, E501

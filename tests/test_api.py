@@ -42,7 +42,7 @@ def test_contributions_count_as_json(client: TestClient, aoi_geojson_heigit: dic
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 7
+    assert response.json()["result"][0]["value"] == 4
     assert len(response.json()["result"]) == 1
 
 
@@ -64,7 +64,7 @@ def test_contributions_count_as_json_time_bin_size(
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
     assert len(response.json()["result"]) == 2
-    assert response.json()["result"][0]["value"] == 3
+    assert response.json()["result"][1]["value"] == 4
 
 
 def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict):
@@ -82,7 +82,7 @@ def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 start,end,value
-2024-01-01T00:00:00Z,2025-12-31T00:00:00Z,7
+2024-01-01T00:00:00Z,2025-12-31T00:00:00Z,4
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result

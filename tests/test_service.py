@@ -9,7 +9,7 @@ pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")
 
 
 async def test_get_contributions_count(aoi_wkt_heigit: str):
-    start = datetime(year=2024, month=1, day=1)
+    start = datetime(year=2025, month=1, day=1)
     end = start + timedelta(days=365)
     result = await get_contributions_count(
         "building=* and building!=no and type:way",
@@ -22,14 +22,14 @@ async def test_get_contributions_count(aoi_wkt_heigit: str):
         RowModel(
             start=start,
             end=end,
-            value=3,
+            value=4,
         )
     ]
 
 
 async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
-    start = datetime(year=2024, month=7, day=1, tzinfo=timezone.utc)
-    end = datetime(year=2024, month=10, day=1, tzinfo=timezone.utc)
+    start = datetime(year=2025, month=7, day=1, tzinfo=timezone.utc)
+    end = datetime(year=2025, month=10, day=1, tzinfo=timezone.utc)
     result = await get_contributions_count(
         "building=* and building!=no and type:way",
         start,
@@ -40,19 +40,19 @@ async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
 
     assert result == [
         RowModel(
-            start=datetime(year=2024, month=7, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2024, month=8, day=1, tzinfo=timezone.utc),
-            value=0,  # NOTE: zero filled value
-        ),
-        RowModel(
-            start=datetime(year=2024, month=8, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2024, month=9, day=1, tzinfo=timezone.utc),
+            start=datetime(year=2025, month=7, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
             value=2,
         ),
         RowModel(
-            start=datetime(year=2024, month=9, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2024, month=10, day=1, tzinfo=timezone.utc),
-            value=1,
+            start=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2025, month=9, day=1, tzinfo=timezone.utc),
+            value=0,  # NOTE: zero filled value
+        ),
+        RowModel(
+            start=datetime(year=2025, month=9, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2025, month=10, day=1, tzinfo=timezone.utc),
+            value=0,  # NOTE: zero filled value
         ),
     ]
 
