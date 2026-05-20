@@ -88,6 +88,7 @@ async def get_contributions_count_as_json(
         start=parameters.time_bins.start,
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
+        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
     )
     return CountResponseModel(result=result)
 
@@ -119,5 +120,6 @@ async def get_contributions_count_as_csv(
         start=parameters.time_bins.start,
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
+        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
     )
     return CountResponseModel(result=result)

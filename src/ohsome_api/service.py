@@ -16,6 +16,7 @@ async def get_contributions_count(
     start: datetime,
     end: datetime,
     bin_size: str | None,
+    aoi_wkt: str,
 ) -> list[RowModel]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
@@ -25,4 +26,5 @@ async def get_contributions_count(
         start,
         end,
         series,
+        aoi_wkt,
     )

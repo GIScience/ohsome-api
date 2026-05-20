@@ -8,6 +8,7 @@ from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
 from ohsome_api.database import db
+from ohsome_api.request_models import GeoJsonFeatureCollection
 
 
 @pytest.fixture(scope="session")
@@ -66,3 +67,9 @@ def aoi_geojson_heigit():
             }
         ],
     }
+
+
+@pytest.fixture
+def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
+    parsed = GeoJsonFeatureCollection(**aoi_geojson_heigit)
+    return parsed.features[0].geometry.wkt

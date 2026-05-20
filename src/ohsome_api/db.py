@@ -51,12 +51,13 @@ async def get_latest_timestamp() -> datetime:
     return record["last_timestamp"]
 
 
-async def get_contributions_count(
+async def get_contributions_count(  # noqa: PLR0913 # TODO
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
     end: datetime,
     series: list[datetime],
+    aoi_wkt: str,
 ) -> list[RowModel]:
     filter_args_count = len(filter_args)
     sql = f"""
@@ -67,6 +68,7 @@ async def get_contributions_count(
         WHERE ({filter_where_clause})
         AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
                            AND ${filter_args_count + 2}::timestamptz
+        AND ST_Intersects(geom, ST_GeomFromText(${filter_args_count + 4}, 4326))
         GROUP BY time_bin
         ORDER BY time_bin
     """  # noqa: S608, E501
@@ -76,6 +78,7 @@ async def get_contributions_count(
         start,
         end,
         series,
+        aoi_wkt,
     )  # order matters!
 
     # TODO: extract post-processing to function

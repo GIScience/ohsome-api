@@ -8,54 +8,56 @@ from ohsome_api.service import get_contributions_count
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
 
-async def test_get_contributions_count():
-    start = datetime(year=2022, month=1, day=1)
+async def test_get_contributions_count(aoi_wkt_heigit: str):
+    start = datetime(year=2024, month=1, day=1)
     end = start + timedelta(days=365)
     result = await get_contributions_count(
         "building=* and building!=no and type:way",
         start,
         end,
         bin_size=None,
+        aoi_wkt=aoi_wkt_heigit,
     )
     assert result == [
         RowModel(
             start=start,
             end=end,
-            value=122,
+            value=3,
         )
     ]
 
 
-async def test_get_contributions_count_with_bin_size():
-    start = datetime(year=2022, month=7, day=1, tzinfo=timezone.utc)
-    end = datetime(year=2022, month=10, day=1, tzinfo=timezone.utc)
+async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
+    start = datetime(year=2024, month=7, day=1, tzinfo=timezone.utc)
+    end = datetime(year=2024, month=10, day=1, tzinfo=timezone.utc)
     result = await get_contributions_count(
         "building=* and building!=no and type:way",
         start,
         end,
         "P1M",
+        aoi_wkt_heigit,
     )
 
     assert result == [
         RowModel(
-            start=datetime(year=2022, month=7, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
-            value=29,
-        ),
-        RowModel(
-            start=datetime(year=2022, month=8, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
+            start=datetime(year=2024, month=7, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2024, month=8, day=1, tzinfo=timezone.utc),
             value=0,  # NOTE: zero filled value
         ),
         RowModel(
-            start=datetime(year=2022, month=9, day=1, tzinfo=timezone.utc),
-            end=datetime(year=2022, month=10, day=1, tzinfo=timezone.utc),
-            value=3,
+            start=datetime(year=2024, month=8, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2024, month=9, day=1, tzinfo=timezone.utc),
+            value=2,
+        ),
+        RowModel(
+            start=datetime(year=2024, month=9, day=1, tzinfo=timezone.utc),
+            end=datetime(year=2024, month=10, day=1, tzinfo=timezone.utc),
+            value=1,
         ),
     ]
 
 
-async def test_get_contributions_count_by_month():
+async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
     end = start + timedelta(days=365)
     bin_2022 = await get_contributions_count(
@@ -63,6 +65,7 @@ async def test_get_contributions_count_by_month():
         start,
         end,
         bin_size=None,
+        aoi_wkt=aoi_wkt_heigit,
     )
 
     start = datetime(year=2023, month=1, day=1, tzinfo=timezone.utc)
@@ -72,6 +75,7 @@ async def test_get_contributions_count_by_month():
         start,
         end,
         bin_size=None,
+        aoi_wkt=aoi_wkt_heigit,
     )
 
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
@@ -82,6 +86,7 @@ async def test_get_contributions_count_by_month():
         start,
         end,
         bin_size,
+        aoi_wkt_heigit,
     )
     assert bins == [
         RowModel(

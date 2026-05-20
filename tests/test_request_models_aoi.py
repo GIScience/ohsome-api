@@ -29,3 +29,9 @@ def test_geojson_empty_features_list(aoi_geojson_heigit: dict):
     aoi_geojson_heigit["features"] = []
     with pytest.raises(ValidationError):
         GeoJsonFeatureCollection(**aoi_geojson_heigit)
+
+
+def test_geojson_null_feature_geometry(aoi_geojson_heigit: dict):
+    aoi_geojson_heigit["features"][0]["geometry"] = None
+    with pytest.raises(ValidationError):
+        GeoJsonFeatureCollection(**aoi_geojson_heigit)

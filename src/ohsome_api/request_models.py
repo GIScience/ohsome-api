@@ -28,9 +28,12 @@ class BaseRequestModel(BaseModel):
     )
 
 
-class GeoJsonFeatureCollection(
-    FeatureCollection[Feature[Polygon | MultiPolygon, dict]]
-):
+class GeoJsonFeature(Feature):
+    geometry: Polygon | MultiPolygon
+    properties: dict | None
+
+
+class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
     @field_validator("features")
     @classmethod
     def validate_features_not_empty(cls, value: list[Feature]) -> list[Feature]:

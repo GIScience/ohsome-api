@@ -36,13 +36,13 @@ def test_contributions_count_as_json(client: TestClient, aoi_geojson_heigit: dic
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
+            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 131
+    assert response.json()["result"][0]["value"] == 7
     assert len(response.json()["result"]) == 1
 
 
@@ -54,17 +54,17 @@ def test_contributions_count_as_json_time_bin_size(
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {
-                "start": "2025-01-01",
+                "start": "2024-01-01",
                 "end": "2025-12-31",
-                "binSize": "P1M",
+                "binSize": "P1Y",
             },
             "aoi": aoi_geojson_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert len(response.json()["result"]) == 12
-    assert response.json()["result"][0]["value"] == 1
+    assert len(response.json()["result"]) == 2
+    assert response.json()["result"][0]["value"] == 3
 
 
 def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict):
@@ -72,7 +72,7 @@ def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict
         "/contributions/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
+            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_geojson_heigit,
         },
     )
@@ -82,7 +82,7 @@ def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 start,end,value
-2025-01-01T00:00:00Z,2025-12-31T00:00:00Z,131
+2024-01-01T00:00:00Z,2025-12-31T00:00:00Z,7
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result
