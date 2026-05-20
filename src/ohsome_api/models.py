@@ -5,5 +5,5 @@ from pydantic import BaseModel
 
 class RowModel(BaseModel):
     value: int
-    start_timestamp: datetime
-    end_timestamp: datetime
+    start: datetime
+    end: datetime

@@ -36,7 +36,7 @@ def test_contributions_count_as_json(client: TestClient):
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "time": {"start_timestamp": "2025-01-01", "end_timestamp": "2025-12-31"},
+            "time": {"start": "2025-01-01", "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -45,15 +45,15 @@ def test_contributions_count_as_json(client: TestClient):
     assert len(response.json()["result"]) == 1
 
 
-def test_contributions_count_as_json_time_bucket_size(client: TestClient):
+def test_contributions_count_as_json_time_bin_size(client: TestClient):
     response = client.post(
         "/contributions/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "time": {
-                "start_timestamp": "2025-01-01",
-                "end_timestamp": "2025-12-31",
-                "bucket_size": "P1M",
+                "start": "2025-01-01",
+                "end": "2025-12-31",
+                "bin_size": "P1M",
             },
         },
     )
@@ -68,7 +68,7 @@ def test_contributions_count_as_csv(client: TestClient):
         "/contributions/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
-            "time": {"start_timestamp": "2025-01-01", "end_timestamp": "2025-12-31"},
+            "time": {"start": "2025-01-01", "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -76,7 +76,7 @@ def test_contributions_count_as_csv(client: TestClient):
     expected_result = """# apiVersion: 0.0.0
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
-start_timestamp,end_timestamp,value
+start,end,value
 2025-01-01T00:00:00Z,2025-12-31T00:00:00Z,131
 """
     # TODO: Why no timezone in response?
@@ -88,7 +88,7 @@ def test_contributions_count_with_invalid_filter(client: TestClient):
         "/contributions/count.json",
         json={
             "filter": "foo",
-            "time": {"start_timestamp": "2025-01-01", "end_timestamp": "2025-12-31"},
+            "time": {"start": "2025-01-01", "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
@@ -108,7 +108,7 @@ def test_contributions_count_with_invalid_time(client: TestClient, case: str):
         "/contributions/count.json",
         json={
             "filter": "id:1",
-            "time": {"start_timestamp": case, "end_timestamp": "2025-12-31"},
+            "time": {"start": case, "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
@@ -119,7 +119,7 @@ def test_contributions_count_without_format(client: TestClient):
         "/contributions/count",
         json={
             "filter": "id:1",
-            "time": {"start_timestamp": "2025-01-01", "end_timestamp": "2025-12-31"},
+            "time": {"start": "2025-01-01", "end": "2025-12-31"},
         },
     )
     assert response.status_code == HTTP_404_NOT_FOUND
@@ -132,8 +132,8 @@ def test_time_request(client: TestClient):
         json={
             "filter": "building=* and building!=no and type:way",
             "time": {
-                "start_timestamp": "2025-01-01",
-                "end_timestamp": "2025-12-31T00:00Z",
+                "start": "2025-01-01",
+                "end": "2025-12-31T00:00Z",
             },
         },
     )

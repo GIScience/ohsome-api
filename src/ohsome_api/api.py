@@ -44,8 +44,8 @@ class CSVResponse(Response):
         result = f"""# apiVersion: {content["apiVersion"]}
 # attribution.url: {content["attribution"]["url"]}
 # attribution.text: {content["attribution"]["text"]}
-start_timestamp,end_timestamp,value
-{content["result"][0]["start_timestamp"]},{content["result"][0]["end_timestamp"]},{content["result"][0]["value"]}
+start,end,value
+{content["result"][0]["start"]},{content["result"][0]["end"]},{content["result"][0]["value"]}
 """
         return result.encode()
 
@@ -85,9 +85,9 @@ async def get_contributions_count_as_json(
 ) -> CountResponseModel:
     result = await service.get_contributions_count(
         ohsome_filter=parameters.ohsome_filter,
-        start_timestamp=parameters.time.start_timestamp,
-        end_timestamp=parameters.time.end_timestamp,
-        bucket_size=parameters.time.bucket_size,
+        start=parameters.time.start,
+        end=parameters.time.end,
+        bin_size=parameters.time.bin_size,
     )
     return CountResponseModel(result=result)
 
@@ -116,8 +116,8 @@ async def get_contributions_count_as_csv(
 ) -> CountResponseModel:
     result = await service.get_contributions_count(
         ohsome_filter=parameters.ohsome_filter,
-        start_timestamp=parameters.time.start_timestamp,
-        end_timestamp=parameters.time.end_timestamp,
-        bucket_size=parameters.time.bucket_size,
+        start=parameters.time.start,
+        end=parameters.time.end,
+        bin_size=parameters.time.bin_size,
     )
     return CountResponseModel(result=result)

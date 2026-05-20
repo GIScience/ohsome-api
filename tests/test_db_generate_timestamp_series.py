@@ -17,16 +17,16 @@ async def test_generate_timestamp_series_single_time_bin():
 async def test_generate_timestamp_series_monthly_1_month():
     start = datetime(2026, 11, 1, tzinfo=timezone.utc)
     end_one_month_later = datetime(2026, 12, 1, tzinfo=timezone.utc)
-    bucket_size = "P1M"
-    series = await generate_timestamp_series(start, end_one_month_later, bucket_size)
+    bin_size = "P1M"
+    series = await generate_timestamp_series(start, end_one_month_later, bin_size)
     assert series == [start, end_one_month_later]
 
 
 async def test_generate_timestamp_series_monthly_half_month():
     start = datetime(2026, 11, 1, tzinfo=timezone.utc)
     end_6_weeks_later = datetime(2026, 12, 15, tzinfo=timezone.utc)
-    bucket_size = "P1M"
-    series = await generate_timestamp_series(start, end_6_weeks_later, bucket_size)
+    bin_size = "P1M"
+    series = await generate_timestamp_series(start, end_6_weeks_later, bin_size)
     assert series == [
         start,
         datetime(2026, 12, 1, tzinfo=timezone.utc),
@@ -37,8 +37,8 @@ async def test_generate_timestamp_series_monthly_half_month():
 async def test_generate_timestamp_series_monthly_12_month():
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     end_one_year_later = datetime(2026, 1, 1, tzinfo=timezone.utc)
-    bucket_size = "P1M"
-    series = await generate_timestamp_series(start, end_one_year_later, bucket_size)
+    bin_size = "P1M"
+    series = await generate_timestamp_series(start, end_one_year_later, bin_size)
     assert len(series) == 13
     assert series == [
         start,
@@ -60,6 +60,6 @@ async def test_generate_timestamp_series_monthly_12_month():
 async def test_generate_timestamp_series_exceeds_limit():
     start = datetime(2023, 11, 1, tzinfo=timezone.utc)
     end_one_month_later = datetime(2026, 12, 1, tzinfo=timezone.utc)
-    bucket_size = "PT1S"
+    bin_size = "PT1S"
     with pytest.raises(ValueError):
-        await generate_timestamp_series(start, end_one_month_later, bucket_size)
+        await generate_timestamp_series(start, end_one_month_later, bin_size)

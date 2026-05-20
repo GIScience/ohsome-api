@@ -8,13 +8,13 @@ SCHEMA = CONFIG.ohsomedb.schemaname
 
 
 async def generate_timestamp_series(
-    start_timestamp: datetime,
-    end_timestamp: datetime,
-    bucket_size: str | None,
+    start: datetime,
+    end: datetime,
+    bin_size: str | None,
     limit: int = 10_000,
 ) -> list[datetime]:
-    if bucket_size is None:
-        return [start_timestamp, end_timestamp]
+    if bin_size is None:
+        return [start, end]
 
     sql = """
         SELECT generate_series(
@@ -24,24 +24,22 @@ async def generate_timestamp_series(
         ) as ts
         LIMIT $4
     """
-    records = await db.fetch_rows(
-        sql, start_timestamp, end_timestamp, bucket_size, limit + 1
-    )
+    records = await db.fetch_rows(sql, start, end, bin_size, limit + 1)
 
     if len(records) > limit:
         # TODO: Use custom exception and handle it in fastapi
         # TODO: Write API integration test to check if error gets to user
         # TODO: Add limitation to docs
         raise ValueError(
-            "Time parameters including bucket_size lead to "
+            "Time parameters including bin_size lead to "
             f"a time series larger than {limit} bins."
         )
 
     # TODO: Extract post-processing to own function and write unit-tests
     results = [r["ts"] for r in records]
-    if results[-1] != end_timestamp:
+    if results[-1] != end:
         # include uneven time bin
-        results.append(end_timestamp)
+        results.append(end)
     return results
 
 
@@ -56,8 +54,8 @@ async def get_latest_timestamp() -> datetime:
 async def get_contributions_count(
     filter_where_clause: str,
     filter_args: tuple,
-    start_timestamp: datetime,
-    end_timestamp: datetime,
+    start: datetime,
+    end: datetime,
     series: list[datetime],
 ) -> list[RowModel]:
     filter_args_count = len(filter_args)
@@ -75,8 +73,8 @@ async def get_contributions_count(
     records = await db.fetch_rows(
         sql,
         *filter_args,
-        start_timestamp,
-        end_timestamp,
+        start,
+        end,
         series,
     )  # order matters!
 
@@ -89,8 +87,8 @@ async def get_contributions_count(
     return [
         RowModel(
             value=count,
-            start_timestamp=series[time_bin],
-            end_timestamp=series[time_bin + 1],
+            start=series[time_bin],
+            end=series[time_bin + 1],
         )
         for time_bin, count in zerofilled_series.items()
     ]
