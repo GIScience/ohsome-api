@@ -70,6 +70,32 @@ def aoi_geojson_heigit():
 
 
 @pytest.fixture
+def aoi_geojson_invalid_topology():
+    # Small bounding box around HeiGIT
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "coordinates": [
+                        [
+                            [8.674585743714516, 49.418922925485816],
+                            [8.676354634855528, 49.417888246956096],
+                            [8.674585743714516, 49.417888246956096],
+                            [8.676354634855528, 49.418922925485816],
+                            [8.674585743714516, 49.418922925485816],
+                        ]
+                    ],
+                    "type": "Polygon",
+                },
+            }
+        ],
+    }
+
+
+@pytest.fixture
 def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
     parsed = GeoJsonFeatureCollection(**aoi_geojson_heigit)
     return parsed.features[0].geometry.wkt

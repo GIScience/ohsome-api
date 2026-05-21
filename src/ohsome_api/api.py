@@ -5,7 +5,8 @@ from datetime import timedelta
 from importlib.metadata import version
 from typing import AsyncIterator
 
-from fastapi import FastAPI, Response
+import asyncpg
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import (
     BaseModel,
@@ -77,6 +78,27 @@ async def get_metadata() -> MetadataResponseModel:
 # TODO: Rename
 class CountResponseModel(BaseResponseModel):
     result: list[RowModel]
+
+
+@app.exception_handler(asyncpg.InternalServerError)
+async def postgres_internal_server_error_handler(
+    request: Request, exception: asyncpg.InternalServerError
+) -> JSONResponse:
+    msg = str(exception)
+    if "TopologyException" in msg:
+        return JSONResponse(
+            status_code=422,
+            content={
+                "detail": [
+                    {
+                        "type": "topology_exception",
+                        "msg": """Topology Exception occurred while processing request.
+            Check if input area of interest is valid.""",
+                    }
+                ]
+            },
+        )
+    raise exception
 
 
 @app.post("/currentness/{measure}.json", response_class=JSONResponse)
