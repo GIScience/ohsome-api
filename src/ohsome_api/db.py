@@ -64,7 +64,9 @@ async def get_currentness(  # noqa: PLR0913 # TODO
     filter_args_count = len(filter_args)
     match measure:
         case Measure.COUNT:
-            aggregation_clause = "COUNT(*) AS count"
+            aggregation_clause = "COUNT(*) AS value"
+        case Measure.LENGTH:
+            aggregation_clause = "ROUND(SUM(length)) AS value"  # [m]
     sql = f"""
         SELECT
             {aggregation_clause},
@@ -91,7 +93,7 @@ async def get_currentness(  # noqa: PLR0913 # TODO
     zerofilled_series = {i: 0 for i in range(len(series) - 1)}
 
     for record in records:
-        zerofilled_series[record["time_bin"] - 1] = record["count"]
+        zerofilled_series[record["time_bin"] - 1] = record["value"]
 
     return [
         RowModel(
