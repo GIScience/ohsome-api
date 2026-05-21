@@ -4,7 +4,7 @@ from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api import db
 from ohsome_api.db import generate_timestamp_series
-from ohsome_api.models import RowModel
+from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure
 
 
@@ -19,9 +19,36 @@ async def get_currentness(  # noqa: PLR0913
     bin_size: str | None,
     aoi_wkt: str,
     measure: Measure,
-) -> list[RowModel]:
+) -> list[TimeBinsRowModel]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
     return await db.get_currentness(
-        query_where_clause, query_args, start, end, series, aoi_wkt, measure
+        query_where_clause,
+        query_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+        measure,
+    )
+
+
+async def get_features(  # noqa: PLR0913
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
+    interval: str | None,
+    aoi_wkt: str,
+    measure: Measure,
+) -> list[FeaturesRowModel]:
+    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+    series = await generate_timestamp_series(start, end, interval)
+    return await db.get_features(
+        query_where_clause,
+        query_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+        measure,
     )

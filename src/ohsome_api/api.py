@@ -19,8 +19,8 @@ from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
 from ohsome_api.database import db
-from ohsome_api.models import RowModel
-from ohsome_api.request_models import Measure, Parameters
+from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
+from ohsome_api.request_models import Measure, TimeBinsParameters, TimeSeriesParameters
 
 VERSION = version("ohsome-api")
 
@@ -79,7 +79,11 @@ async def get_metadata() -> MetadataResponseModel:
 
 # TODO: Rename
 class CountResponseModel(BaseResponseModel):
-    result: list[RowModel]
+    result: list[TimeBinsRowModel]
+
+
+class FeaturesResponseModel(BaseResponseModel):
+    result: list[FeaturesRowModel]
 
 
 @app.exception_handler(asyncpg.InternalServerError)
@@ -106,7 +110,7 @@ async def postgres_internal_server_error_handler(
 # TODO: Rename to currentness
 @app.post("/currentness/{measure}.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
-    parameters: Parameters,
+    parameters: TimeBinsParameters,
     measure: Measure,
 ) -> CountResponseModel:
     result = await service.get_currentness(
@@ -140,7 +144,7 @@ result
     },
 )
 async def get_currentness_as_csv(
-    parameters: Parameters,
+    parameters: TimeBinsParameters,
     measure: Measure,
 ) -> CountResponseModel:
     result = await service.get_currentness(
@@ -152,3 +156,19 @@ async def get_currentness_as_csv(
         measure=measure,
     )
     return CountResponseModel(result=result)
+
+
+@app.post("/features/{measure}.json", response_class=JSONResponse)
+async def get_features_as_json(
+    parameters: TimeSeriesParameters,
+    measure: Measure,
+) -> FeaturesResponseModel:
+    result = await service.get_features(
+        ohsome_filter=parameters.ohsome_filter,
+        start=parameters.time_series.start,
+        end=parameters.time_series.end,
+        interval=parameters.time_series.interval,
+        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        measure=measure,
+    )
+    return FeaturesResponseModel(result=result)

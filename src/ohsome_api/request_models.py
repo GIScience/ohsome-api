@@ -72,7 +72,7 @@ class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
     )
 
 
-class TimeBins(BaseRequestModel):
+class BaseTime(BaseRequestModel):
     start: datetime = Field(
         example="2026-01-01T00:00:00Z",
         description="""
@@ -85,7 +85,6 @@ class TimeBins(BaseRequestModel):
         example="2026-04-17T00:00:00Z",
         description="Only UTC timestamps are supported.",
     )
-    bin_size: str | None = Field(example="P1M", default=None)  # TODO: validate
 
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
@@ -106,6 +105,10 @@ class TimeBins(BaseRequestModel):
 
         raise ValueError("Only UTC timestamps are supported.")
 
+
+class TimeBins(BaseTime):
+    bin_size: str | None = Field(example="P1M", default=None)
+
     @field_validator("bin_size")
     @classmethod
     def validate_bin_size(cls, value: str) -> str:
@@ -114,16 +117,23 @@ class TimeBins(BaseRequestModel):
         return value
 
 
-class Parameters(BaseRequestModel):
+class TimeSeries(BaseTime):
+    interval: str | None = Field(example="P1M", default=None)
+
+    @field_validator("interval")
+    @classmethod
+    def validate_interval(cls, value: str) -> str:
+        # uses Pydantic internal logic to validate as timedelta
+        td_adapter.validate_python(value)
+        return value
+
+
+class BaseParameters(BaseRequestModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
         description="""[filter language documentation](
         https://docs.ohsome.org/ohsome-api/v1/filter.html)""",
         example="type:node and natural=tree",
-    )
-    time_bins: TimeBins = Field(
-        description="""[time documentation](
-        https://docs.ohsome.org/ohsome-api/v1/time.html)""",
     )
     aoi: GeoJsonFeatureCollection = Field(
         description="""Area of interest as a GeoJSON
@@ -132,4 +142,18 @@ class Parameters(BaseRequestModel):
         are supplied, the result will include results for each
         Feature separately.
         """,
+    )
+
+
+class TimeBinsParameters(BaseParameters):
+    time_bins: TimeBins = Field(
+        description="""[time documentation](
+        https://docs.ohsome.org/ohsome-api/v1/time.html)""",
+    )
+
+
+class TimeSeriesParameters(BaseParameters):
+    time_series: TimeSeries = Field(
+        description="""[time documentation](
+        https://docs.ohsome.org/ohsome-api/v1/time.html)""",
     )

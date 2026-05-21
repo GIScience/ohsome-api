@@ -2,7 +2,7 @@ from datetime import datetime
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.models import RowModel
+from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure
 
 SCHEMA = CONFIG.ohsomedb.schemaname
@@ -11,10 +11,10 @@ SCHEMA = CONFIG.ohsomedb.schemaname
 async def generate_timestamp_series(
     start: datetime,
     end: datetime,
-    bin_size: str | None,
+    interval: str | None,
     limit: int = 10_000,
 ) -> list[datetime]:
-    if bin_size is None:
+    if interval is None:
         return [start, end]
 
     sql = """
@@ -25,7 +25,7 @@ async def generate_timestamp_series(
         ) as ts
         LIMIT $4
     """
-    records = await db.fetch_rows(sql, start, end, bin_size, limit + 1)
+    records = await db.fetch_rows(sql, start, end, interval, limit + 1)
 
     if len(records) > limit:
         # TODO: Use custom exception and handle it in fastapi
@@ -62,7 +62,7 @@ async def get_currentness(  # noqa: C901, PLR0913
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
-) -> list[RowModel]:
+) -> list[TimeBinsRowModel]:
     filter_args_count = len(filter_args)
     match measure:
         case Measure.COUNT:
@@ -141,10 +141,113 @@ async def get_currentness(  # noqa: C901, PLR0913
         zerofilled_series[record["time_bin"] - 1] = record["value"]
 
     return [
-        RowModel(
+        TimeBinsRowModel(
             value=count,
             start=series[time_bin],
             end=series[time_bin + 1],
         )
         for time_bin, count in zerofilled_series.items()
+    ]
+
+
+# TODO: decide what to do about too many arguments linter
+# TODO: fix complexity lint warning
+async def get_features(  # noqa: C901, PLR0913
+    filter_where_clause: str,
+    filter_args: tuple,
+    start: datetime,
+    end: datetime,
+    series: list[datetime],
+    aoi_wkt: str,
+    measure: Measure,
+) -> list[FeaturesRowModel]:
+    filter_args_count = len(filter_args)
+    match measure:
+        case Measure.COUNT:
+            aggregation_clause = "COUNT(*) AS value"
+        case Measure.LENGTH:
+            # [m]
+            aggregation_clause = """
+            ROUND(
+                SUM(
+                    CASE
+                        WHEN ST_Within(
+                            c.geom,
+                            aoi.geom
+                        )
+                        THEN c.length -- Use precomputed length from ohsome-planet
+                        ELSE ST_Length(
+                            ST_Intersection(
+                                c.geom,
+                                aoi.geom
+                            )::geography
+                        )
+                    END
+                )
+            ) AS value
+        """
+        case Measure.AREA:
+            # [m²]
+            aggregation_clause = """
+            ROUND(
+                SUM(
+                    CASE
+                        WHEN ST_Within(
+                            c.geom,
+                            aoi.geom
+                        )
+                        THEN c.area -- Use precomputed area from ohsome-planet
+                        ELSE ST_Area(
+                            ST_Intersection(
+                                c.geom,
+                                aoi.geom
+                            )::geography
+                        )
+                    END
+                )
+            ) AS value
+        """
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+        ),
+        series AS (
+            SELECT unnest(${filter_args_count + 3}::timestamptz[]) AS ts
+        )
+        SELECT
+            {aggregation_clause},
+            series.ts AS ts
+        FROM "{SCHEMA}".contributions c, aoi, series
+        WHERE 1=1
+            AND ({filter_where_clause})
+            -- global time filter
+            AND valid_from <= ${filter_args_count + 2}::timestamptz
+            AND valid_to > ${filter_args_count + 1}::timestamptz
+            AND ST_Intersects(c.geom, aoi.geom)
+            -- exclude deleted and invalid states
+            AND (status_geom_type).status in ('history', 'latest')
+            -- join by timestamp
+            AND valid_from <= series.ts
+            AND valid_to > series.ts
+        GROUP BY series.ts
+        ORDER BY series.ts
+    """  # noqa: S608
+    records = await db.fetch_rows(
+        sql,
+        *filter_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+    )  # order matters!
+
+    # TODO: extract post-processing to function
+    zerofilled_series = {ts: 0 for ts in series}
+
+    for record in records:
+        zerofilled_series[record["ts"]] = record["value"]
+
+    return [
+        FeaturesRowModel(value=value, timestamp=ts)
+        for ts, value in zerofilled_series.items()
     ]
