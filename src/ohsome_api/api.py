@@ -1,4 +1,6 @@
 # TODO: return request params in response?
+# TODO: rename post function def from get_... to post_...
+# TODO: split file into smaller files (FastAPI router?)
 import logging
 from contextlib import asynccontextmanager
 from datetime import timedelta
@@ -101,6 +103,7 @@ async def postgres_internal_server_error_handler(
     raise exception
 
 
+# TODO: Rename to currentness
 @app.post("/currentness/{measure}.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
     parameters: Parameters,
