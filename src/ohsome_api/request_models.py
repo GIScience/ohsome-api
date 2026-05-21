@@ -34,6 +34,8 @@ class GeoJsonFeature(Feature):
 
 
 class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
+    features: list[GeoJsonFeature] = Field(..., min_length=1)
+
     model_config = ConfigDict(
         json_schema_extra={
             "examples": [
@@ -61,15 +63,6 @@ class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
             ]
         }
     )
-
-    @field_validator("features")
-    @classmethod
-    def validate_features_not_empty(cls, value: list[Feature]) -> list[Feature]:
-        if len(value) == 0:
-            raise ValueError(
-                "GeoJSON FeatureCollection must contain at least one Feature."
-            )
-        return value
 
 
 class TimeBins(BaseRequestModel):
