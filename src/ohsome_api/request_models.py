@@ -118,4 +118,11 @@ class Parameters(BaseRequestModel):
         description="""[time documentation](
         https://docs.ohsome.org/ohsome-api/v1/time.html)""",
     )
-    aoi: GeoJsonFeatureCollection
+    aoi: GeoJsonFeatureCollection = Field(
+        description="""Area of interest as a GeoJSON
+        FeatureCollection. Only Polygon and MultiPolygon
+        geometry types are allowed. If more than one Feature
+        are supplied, the result will include results for each
+        Feature separately.
+        """,
+    )
