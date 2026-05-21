@@ -3,6 +3,7 @@ from datetime import datetime
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.models import RowModel
+from ohsome_api.request_models import Measure
 
 SCHEMA = CONFIG.ohsomedb.schemaname
 
@@ -58,11 +59,15 @@ async def get_currentness(  # noqa: PLR0913 # TODO
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
+    measure: Measure,
 ) -> list[RowModel]:
     filter_args_count = len(filter_args)
+    match measure:
+        case Measure.COUNT:
+            aggregation_clause = "COUNT(*) AS count"
     sql = f"""
         SELECT
-            COUNT(*) AS count,
+            {aggregation_clause},
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
         FROM "{SCHEMA}".contributions
         WHERE ({filter_where_clause})

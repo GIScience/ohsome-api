@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from ohsome_api.models import RowModel
+from ohsome_api.request_models import Measure
 from ohsome_api.service import get_currentness
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
@@ -17,6 +18,7 @@ async def test_get_contributions_count(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
+        measure=Measure.COUNT,
     )
     assert result == [
         RowModel(
@@ -36,6 +38,7 @@ async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
         end,
         "P1M",
         aoi_wkt_heigit,
+        measure=Measure.COUNT,
     )
 
     assert result == [
@@ -66,6 +69,7 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
+        measure=Measure.COUNT,
     )
 
     start = datetime(year=2023, month=1, day=1, tzinfo=timezone.utc)
@@ -76,6 +80,7 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
+        measure=Measure.COUNT,
     )
 
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
@@ -87,6 +92,7 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
         end,
         bin_size,
         aoi_wkt_heigit,
+        measure=Measure.COUNT,
     )
     assert bins == [
         RowModel(

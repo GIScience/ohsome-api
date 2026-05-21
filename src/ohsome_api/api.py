@@ -90,6 +90,7 @@ async def get_contributions_count_as_json(
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        measure=measure,
     )
     return CountResponseModel(result=result)
 
@@ -123,5 +124,6 @@ async def get_currentness_as_csv(
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        measure=measure,
     )
     return CountResponseModel(result=result)
