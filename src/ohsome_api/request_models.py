@@ -32,6 +32,7 @@ class BaseRequestModel(BaseModel):
 class Measure(StrEnum):
     COUNT = "count"
     LENGTH = "length"
+    AREA = "area"
 
 
 class GeoJsonFeature(Feature):

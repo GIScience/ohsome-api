@@ -61,6 +61,21 @@ def test_currentness_length_as_json(client: TestClient, aoi_geojson_heigit: dict
     assert len(response.json()["result"]) == 1
 
 
+def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
+    response = client.post(
+        "/currentness/area.json",
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "aoi": aoi_geojson_heigit,
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/json"
+    assert response.json()["result"][0]["value"] == 1797
+    assert len(response.json()["result"]) == 1
+
+
 def test_currentness_as_json_time_bin_size(
     client: TestClient, aoi_geojson_heigit: dict
 ):

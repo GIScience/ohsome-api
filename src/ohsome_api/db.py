@@ -52,7 +52,9 @@ async def get_latest_timestamp() -> datetime:
     return record["last_timestamp"]
 
 
-async def get_currentness(  # noqa: PLR0913 # TODO
+# TODO: decide what to do about too many arguments linter
+# TODO: fix complexity lint warning
+async def get_currentness(  # noqa: C901, PLR0913
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
@@ -77,6 +79,27 @@ async def get_currentness(  # noqa: PLR0913 # TODO
                         )
                         THEN c.length -- Use precomputed length from ohsome-planet
                         ELSE ST_Length(
+                            ST_Intersection(
+                                c.geom,
+                                aoi.geom
+                            )::geography
+                        )
+                    END
+                )
+            ) AS value
+        """
+        case Measure.AREA:
+            # [m²]
+            aggregation_clause = """
+            ROUND(
+                SUM(
+                    CASE
+                        WHEN ST_Within(
+                            c.geom,
+                            aoi.geom
+                        )
+                        THEN c.area -- Use precomputed area from ohsome-planet
+                        ELSE ST_Area(
                             ST_Intersection(
                                 c.geom,
                                 aoi.geom
