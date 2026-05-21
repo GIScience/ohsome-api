@@ -34,6 +34,34 @@ class GeoJsonFeature(Feature):
 
 
 class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": {},
+                            "geometry": {
+                                "coordinates": [
+                                    [
+                                        [8.72362, 49.41582],
+                                        [8.68812, 49.41582],
+                                        [8.68812, 49.40390],
+                                        [8.72362, 49.40390],
+                                        [8.72362, 49.41582],
+                                    ]
+                                ],
+                                "type": "Polygon",
+                            },
+                        }
+                    ],
+                }
+            ]
+        }
+    )
+
     @field_validator("features")
     @classmethod
     def validate_features_not_empty(cls, value: list[Feature]) -> list[Feature]:
