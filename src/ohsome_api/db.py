@@ -66,16 +66,38 @@ async def get_currentness(  # noqa: PLR0913 # TODO
         case Measure.COUNT:
             aggregation_clause = "COUNT(*) AS value"
         case Measure.LENGTH:
-            aggregation_clause = "ROUND(SUM(length)) AS value"  # [m]
+            # [m]
+            aggregation_clause = """
+            ROUND(
+                SUM(
+                    CASE
+                        WHEN ST_Within(
+                            c.geom,
+                            aoi.geom
+                        )
+                        THEN c.length -- Use precomputed length from ohsome-planet
+                        ELSE ST_Length(
+                            ST_Intersection(
+                                c.geom,
+                                aoi.geom
+                            )::geography
+                        )
+                    END
+                )
+            ) AS value
+        """
     sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+        )
         SELECT
             {aggregation_clause},
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
-        FROM "{SCHEMA}".contributions
+        FROM "{SCHEMA}".contributions c, aoi
         WHERE ({filter_where_clause})
         AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
                            AND ${filter_args_count + 2}::timestamptz
-        AND ST_Intersects(geom, ST_GeomFromText(${filter_args_count + 4}, 4326))
+        AND ST_Intersects(c.geom, aoi.geom)
         AND (status_geom_type).status = 'latest'
         GROUP BY time_bin
         ORDER BY time_bin
