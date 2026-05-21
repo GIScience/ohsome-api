@@ -1,6 +1,7 @@
 # TODO: return request params in response?
 import logging
 from datetime import datetime, timedelta, timezone
+from enum import StrEnum
 from typing import Self
 
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
@@ -26,6 +27,10 @@ class BaseRequestModel(BaseModel):
         populate_by_name=True,
         extra="forbid",
     )
+
+
+class Measure(StrEnum):
+    COUNT = "count"
 
 
 class GeoJsonFeature(Feature):

@@ -17,7 +17,7 @@ from pydantic.alias_generators import to_camel
 from ohsome_api import service
 from ohsome_api.database import db
 from ohsome_api.models import RowModel
-from ohsome_api.request_models import Parameters
+from ohsome_api.request_models import Measure, Parameters
 
 VERSION = version("ohsome-api")
 
@@ -79,9 +79,10 @@ class CountResponseModel(BaseResponseModel):
     result: list[RowModel]
 
 
-@app.post("/currentness/count.json", response_class=JSONResponse)
+@app.post("/currentness/{measure}.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
     parameters: Parameters,
+    measure: Measure,
 ) -> CountResponseModel:
     result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
@@ -94,7 +95,7 @@ async def get_contributions_count_as_json(
 
 
 @app.post(
-    "/currentness/count.csv",
+    "/currentness/{measure}.csv",
     response_class=CSVResponse,
     responses={
         200: {
@@ -114,6 +115,7 @@ result
 )
 async def get_currentness_as_csv(
     parameters: Parameters,
+    measure: Measure,
 ) -> CountResponseModel:
     result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
