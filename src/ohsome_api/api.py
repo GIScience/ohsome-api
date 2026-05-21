@@ -79,11 +79,11 @@ class CountResponseModel(BaseResponseModel):
     result: list[RowModel]
 
 
-@app.post("/contributions/count.json", response_class=JSONResponse)
+@app.post("/currentness/count.json", response_class=JSONResponse)
 async def get_contributions_count_as_json(
     parameters: Parameters,
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(
+    result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_bins.start,
         end=parameters.time_bins.end,
@@ -94,7 +94,7 @@ async def get_contributions_count_as_json(
 
 
 @app.post(
-    "/contributions/count.csv",
+    "/currentness/count.csv",
     response_class=CSVResponse,
     responses={
         200: {
@@ -112,10 +112,10 @@ result
         },
     },
 )
-async def get_contributions_count_as_csv(
+async def get_currentness_as_csv(
     parameters: Parameters,
 ) -> CountResponseModel:
-    result = await service.get_contributions_count(
+    result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_bins.start,
         end=parameters.time_bins.end,

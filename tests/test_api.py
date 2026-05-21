@@ -31,9 +31,9 @@ def test_metadata(client: TestClient):
     }
 
 
-def test_contributions_count_as_json(client: TestClient, aoi_geojson_heigit: dict):
+def test_currentness_as_json(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/contributions/count.json",
+        "/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -46,11 +46,11 @@ def test_contributions_count_as_json(client: TestClient, aoi_geojson_heigit: dic
     assert len(response.json()["result"]) == 1
 
 
-def test_contributions_count_as_json_time_bin_size(
+def test_currentness_as_json_time_bin_size(
     client: TestClient, aoi_geojson_heigit: dict
 ):
     response = client.post(
-        "/contributions/count.json",
+        "/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {
@@ -67,9 +67,9 @@ def test_contributions_count_as_json_time_bin_size(
     assert response.json()["result"][1]["value"] == 4
 
 
-def test_contributions_count_as_csv(client: TestClient, aoi_geojson_heigit: dict):
+def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/contributions/count.csv",
+        "/currentness/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -88,11 +88,9 @@ start,end,value
     assert response.text == expected_result
 
 
-def test_contributions_count_with_invalid_filter(
-    client: TestClient, aoi_geojson_heigit: dict
-):
+def test_currentness_with_invalid_filter(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/contributions/count.json",
+        "/currentness/count.json",
         json={
             "filter": "foo",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
@@ -111,11 +109,11 @@ def test_contributions_count_with_invalid_filter(
         "foo",  # garbage
     ],
 )
-def test_contributions_count_with_invalid_time(
+def test_currentness_with_invalid_time(
     client: TestClient, case: str, aoi_geojson_heigit: dict
 ):
     response = client.post(
-        "/contributions/count.json",
+        "/currentness/count.json",
         json={
             "filter": "id:1",
             "timeBins": {"start": case, "end": "2025-12-31"},
@@ -125,11 +123,9 @@ def test_contributions_count_with_invalid_time(
     assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
 
 
-def test_contributions_count_without_format(
-    client: TestClient, aoi_geojson_heigit: dict
-):
+def test_currentness_without_format(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/contributions/count",
+        "/currentness/count",
         json={
             "filter": "id:1",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
@@ -142,7 +138,7 @@ def test_contributions_count_without_format(
 # TODO: extract to own module indepedend of testcontainer
 def test_time_request(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/contributions/count.json",
+        "/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {

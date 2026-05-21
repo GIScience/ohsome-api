@@ -11,7 +11,7 @@ async def get_latest_timestamp() -> datetime:
     return await db.get_latest_timestamp()
 
 
-async def get_contributions_count(
+async def get_currentness(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
@@ -20,7 +20,7 @@ async def get_contributions_count(
 ) -> list[RowModel]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
-    return await db.get_contributions_count(
+    return await db.get_currentness(
         query_where_clause,
         query_args,
         start,

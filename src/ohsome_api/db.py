@@ -51,7 +51,7 @@ async def get_latest_timestamp() -> datetime:
     return record["last_timestamp"]
 
 
-async def get_contributions_count(  # noqa: PLR0913 # TODO
+async def get_currentness(  # noqa: PLR0913 # TODO
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
