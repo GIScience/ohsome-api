@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 import pytest
 from fastapi.testclient import TestClient
 from starlette.status import (
@@ -7,6 +9,8 @@ from starlette.status import (
 )
 
 from ohsome_api.api import app
+
+VERSION = version("ohsome-api")
 
 
 @pytest.fixture(scope="module")
@@ -23,7 +27,7 @@ def test_metadata(client: TestClient):
     assert response.status_code == HTTP_200_OK
     assert response.json() == {
         "latestTimestamp": "2026-02-27T10:22:37+00:00",
-        "apiVersion": "0.0.0",
+        "apiVersion": VERSION,
         "attribution": {
             "url": "https://ohsome.org/copyrights",
             "text": "© OpenStreetMap contributors",
@@ -108,7 +112,7 @@ def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
-    expected_result = """# apiVersion: 0.0.0
+    expected_result = f"""# apiVersion: {VERSION}
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 start,end,value
