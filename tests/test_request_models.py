@@ -77,15 +77,19 @@ def test_time_start_end_timezone_invalid():
         )
 
 
-async def test_time_bin_size():
+@pytest.mark.parametrize(
+    "bin_size",
+    ("P1M", "P40D", "P1Y1D", "P3DT4H59M"),
+)
+async def test_time_bin_size(bin_size: str):
     time = TimeBins(
         start=datetime(2024, 1, 1),
         end=datetime(2024, 3, 1),
-        bin_size="P1M",
+        bin_size=bin_size,
     )
     # validation happens via timedelta datatype,
     # but string representation is kept
-    assert time.bin_size == "P1M"
+    assert time.bin_size == bin_size
 
 
 async def test_time_bin_size_invalid():
