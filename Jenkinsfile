@@ -45,7 +45,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'pytest --cov-report=xml --maxfail=1'
+                    sh 'pytest --maxfail=1 --cov-report=xml --cov=ohsome_api --cov-fail-under=80'
                 }
             }
             post {
