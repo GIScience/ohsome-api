@@ -97,9 +97,10 @@ class TimeBins(BaseTime):
 
     @field_validator("bin_size")
     @classmethod
-    def validate_bin_size(cls, value: str) -> str:
-        # uses Pydantic internal logic to validate as timedelta
-        td_adapter.validate_python(value)
+    def validate_bin_size(cls, value: str | None) -> str | None:
+        if value is not None:
+            # uses Pydantic internal logic to validate as timedelta
+            td_adapter.validate_python(value)
         return value
 
 
@@ -112,9 +113,10 @@ class TimeSeries(BaseTime):
 
     @field_validator("interval")
     @classmethod
-    def validate_interval(cls, value: str) -> str:
-        # uses Pydantic internal logic to validate as timedelta
-        td_adapter.validate_python(value)
+    def validate_interval(cls, value: str | None) -> str | None:
+        if value is not None:
+            # uses Pydantic internal logic to validate as timedelta
+            td_adapter.validate_python(value)
         return value
 
 
