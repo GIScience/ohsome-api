@@ -32,7 +32,7 @@ set -a; source .env; set +a
 ### Run Development Server
 
 ```sh
-export LOG_LEVEL=INFO
+export OHSOME_API_LOG_LEVEL=INFO
 uv run fastapi dev
 ```
 
