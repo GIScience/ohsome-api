@@ -8,18 +8,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
-from ohsome_api.api import app
-
 VERSION = version("ohsome-api")
-
-
-@pytest.fixture(scope="module")
-def client():
-    with TestClient(app) as client:
-        yield client
-
-
-pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer")]
 
 
 def test_metadata(client: TestClient):
@@ -35,7 +24,7 @@ def test_metadata(client: TestClient):
     }
 
 
-def test_currentness_as_json(client: TestClient, aoi_geojson_heigit: dict):
+def test_currentness_count_as_json(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
         "/currentness/count.json",
         json={

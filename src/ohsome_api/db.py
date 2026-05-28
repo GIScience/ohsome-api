@@ -150,6 +150,56 @@ async def get_currentness(  # noqa: C901, PLR0913
     ]
 
 
+async def get_users_activity(  # noqa: PLR0913
+    filter_where_clause: str,
+    filter_args: tuple,
+    start: datetime,
+    end: datetime,
+    series: list[datetime],
+    aoi_wkt: str,
+) -> list[TimeBinsRowModel]:
+    filter_args_count = len(filter_args)
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+        )
+        SELECT
+            count(distinct user_id) AS value,
+            width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
+        FROM "{SCHEMA}".contributions c, aoi
+        WHERE ({filter_where_clause})
+        AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
+                           AND ${filter_args_count + 2}::timestamptz
+        AND ST_Intersects(c.geom, aoi.geom)
+        GROUP BY time_bin
+        ORDER BY time_bin
+    """  # noqa: S608, E501
+
+    records = await db.fetch_rows(
+        sql,
+        *filter_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+    )  # order matters!
+
+    # TODO: extract post-processing to function
+    zerofilled_series = {i: 0 for i in range(len(series) - 1)}
+
+    for record in records:
+        zerofilled_series[record["time_bin"] - 1] = record["value"]
+
+    return [
+        TimeBinsRowModel(
+            value=count,
+            start=series[time_bin],
+            end=series[time_bin + 1],
+        )
+        for time_bin, count in zerofilled_series.items()
+    ]
+
+
 # TODO: decide what to do about too many arguments linter
 # TODO: fix complexity lint warning
 async def get_features(  # noqa: C901, PLR0913

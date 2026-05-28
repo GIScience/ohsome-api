@@ -154,6 +154,21 @@ async def post_currentness_as_csv(
     return CountResponseModel(result=result)
 
 
+@app.post("/activity/users.json", response_class=JSONResponse)
+async def post_users_activity_as_json(
+    parameters: TimeBinsParameters,
+) -> CountResponseModel:
+    result = await service.get_users_activity(
+        ohsome_filter=parameters.ohsome_filter,
+        start=parameters.time_bins.start,
+        end=parameters.time_bins.end,
+        bin_size=parameters.time_bins.bin_size,
+        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+    )
+
+    return CountResponseModel(result=result)
+
+
 @app.post("/features/{measure}.json", response_class=JSONResponse)
 async def post_features_as_json(
     parameters: TimeSeriesParameters,

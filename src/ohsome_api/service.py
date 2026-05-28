@@ -33,6 +33,25 @@ async def get_currentness(  # noqa: PLR0913
     )
 
 
+async def get_users_activity(
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
+    bin_size: str | None,
+    aoi_wkt: str,
+) -> list[TimeBinsRowModel]:
+    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+    series = await generate_timestamp_series(start, end, bin_size)
+    return await db.get_users_activity(
+        query_where_clause,
+        query_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+    )
+
+
 async def get_features(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
