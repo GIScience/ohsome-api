@@ -1,5 +1,3 @@
-from importlib.metadata import version
-
 import pytest
 from fastapi.testclient import TestClient
 from starlette.status import (
@@ -8,20 +6,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
-VERSION = version("ohsome-api")
-
-
-def test_metadata(client: TestClient):
-    response = client.get("/metadata")
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == {
-        "latestTimestamp": "2026-02-27T10:22:37+00:00",
-        "apiVersion": VERSION,
-        "attribution": {
-            "url": "https://ohsome.org/copyrights",
-            "text": "© OpenStreetMap contributors",
-        },
-    }
+from tests.api.conftest import VERSION
 
 
 def test_currentness_count_as_json(client: TestClient, aoi_geojson_heigit: dict):

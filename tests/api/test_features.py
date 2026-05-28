@@ -1,18 +1,5 @@
-import pytest
 from fastapi.testclient import TestClient
 from starlette.status import HTTP_200_OK
-
-from ohsome_api.api import app
-
-
-# TODO: Factor out to common conftest.py in tests/api/conftest.py
-@pytest.fixture(scope="module")
-def client():
-    with TestClient(app) as client:
-        yield client
-
-
-pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer")]
 
 
 def test_features_as_json(client: TestClient, aoi_geojson_heigit: dict):
