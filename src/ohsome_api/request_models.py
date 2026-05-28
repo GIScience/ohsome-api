@@ -1,5 +1,4 @@
 # TODO: return request params in response?
-import logging
 from datetime import datetime, timedelta, timezone
 from enum import StrEnum
 from typing import Self
@@ -15,8 +14,6 @@ from pydantic import (
     model_validator,
 )
 from pydantic.alias_generators import to_camel
-
-logger = logging.getLogger("ohsome-api")
 
 td_adapter = TypeAdapter(timedelta)
 

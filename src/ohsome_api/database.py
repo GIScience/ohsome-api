@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 import asyncpg
@@ -6,6 +7,8 @@ from asyncpg import Record
 from ohsome_api.config import CONFIG
 
 CONNECTION_STRING = CONFIG.ohsomedb.connection_string
+
+logger = logging.getLogger("ohsome-api")
 
 
 class Database:
@@ -19,12 +22,12 @@ class Database:
             min_size=5,
             max_size=20,
         )
-        print("Database connection pool established")
+        logging.info("Database connection pool established.")
 
     async def disconnect(self) -> None:
         if self.pool:
             await self.pool.close()
-            print("Database connection pool closed")
+            logging.info("Database connection pool closed.")
 
     async def fetch_row(self, sql: str, *args: Any) -> Record:  # noqa: ANN401
         if self.pool is None:

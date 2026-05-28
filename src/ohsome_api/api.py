@@ -1,7 +1,6 @@
 # TODO: return request params in response?
 # TODO: rename post function def from get_... to post_...
 # TODO: split file into smaller files (FastAPI router?)
-import logging
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from importlib.metadata import version
@@ -24,8 +23,6 @@ from ohsome_api.request_models import Measure, TimeBinsParameters, TimeSeriesPar
 
 VERSION = version("ohsome-api")
 
-
-logger = logging.getLogger("ohsome-api")
 
 td_adapter = TypeAdapter(timedelta)
 
@@ -71,7 +68,6 @@ class MetadataResponseModel(BaseResponseModel):
 @app.get("/metadata")
 async def get_metadata() -> MetadataResponseModel:
     """Metadata of the underlying ohsomedb."""
-    logger.info("Get metadata from ohsomedb.")
     timestamp = await service.get_latest_timestamp()
 
     return MetadataResponseModel(latest_timestamp=timestamp.isoformat())
