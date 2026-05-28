@@ -1,9 +1,11 @@
 # TODO: return request params in response?
 # TODO: rename post function def from get_... to post_...
 # TODO: split file into smaller files (FastAPI router?)
+import csv
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from importlib.metadata import version
+from io import StringIO
 from typing import AsyncIterator
 
 import asyncpg
@@ -41,13 +43,26 @@ class CSVResponse(Response):
     media_type = "text/csv"
 
     def render(self, content: dict) -> bytes:
-        result = f"""# apiVersion: {content["apiVersion"]}
-# attribution.url: {content["attribution"]["url"]}
-# attribution.text: {content["attribution"]["text"]}
-start,end,value
-{content["result"][0]["start"]},{content["result"][0]["end"]},{content["result"][0]["value"]}
-"""
-        return result.encode()
+        csvfile = StringIO()
+        writer = csv.writer(csvfile, lineterminator="\n")
+        comment = [
+            [f"# apiVersion: {content['apiVersion']}"],
+            [f"# attribution.url: {content['attribution']['url']}"],
+            [f"# attribution.text: {content['attribution']['text']}"],
+        ]
+        header = ["start", "end", "value"]
+        rows = [
+            (
+                r["start"],
+                r["end"],
+                r["value"],
+            )
+            for r in content["result"]
+        ]
+        writer.writerows(comment)
+        writer.writerow(header)
+        writer.writerows(rows)
+        return csvfile.getvalue().encode()
 
 
 class Attribution(BaseModel):

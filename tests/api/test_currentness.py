@@ -80,7 +80,7 @@ def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
         "/currentness/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "timeBins": {"start": "2023-01-01", "end": "2025-12-31", "binSize": "P1Y"},
             "aoi": aoi_geojson_heigit,
         },
     )
@@ -90,7 +90,9 @@ def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
 start,end,value
-2024-01-01T00:00:00Z,2025-12-31T00:00:00Z,4
+2023-01-01T00:00:00Z,2024-01-01T00:00:00Z,0
+2024-01-01T00:00:00Z,2025-01-01T00:00:00Z,0
+2025-01-01T00:00:00Z,2025-12-31T00:00:00Z,4
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result
