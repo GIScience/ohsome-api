@@ -30,7 +30,7 @@ loggers:
   ohsome-api:
     level: INFO
     handlers: [ohsome-api]
-    propagate: no
+    propagate: true
   uvicorn:
     handlers: [uvicorn]
     level: INFO
