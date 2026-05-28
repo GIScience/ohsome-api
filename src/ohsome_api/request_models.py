@@ -16,7 +16,7 @@ from pydantic import (
 )
 from pydantic.alias_generators import to_camel
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ohsome-api")
 
 td_adapter = TypeAdapter(timedelta)
 

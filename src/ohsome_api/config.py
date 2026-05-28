@@ -1,5 +1,9 @@
-from pydantic import BaseModel, computed_field
+from pathlib import Path
+
+from pydantic import BaseModel, FilePath, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# NOTE: Logging is configured in `ohsome_api/__init__.py
 
 
 class DatabaseConfig(BaseModel):
@@ -26,6 +30,7 @@ class DatabaseConfig(BaseModel):
 
 class Config(BaseSettings):
     ohsomedb: DatabaseConfig = DatabaseConfig()
+    log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
 
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API_",

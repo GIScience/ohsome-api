@@ -25,7 +25,7 @@ from ohsome_api.request_models import Measure, TimeBinsParameters, TimeSeriesPar
 VERSION = version("ohsome-api")
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ohsome-api")
 
 td_adapter = TypeAdapter(timedelta)
 

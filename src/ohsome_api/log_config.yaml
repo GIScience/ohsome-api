@@ -1,0 +1,45 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  ohsome-api:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(funcName)s -
+      %(message)s'
+  uvicorn:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  uvicorn.access:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(client_addr)s -
+      "%(request_line)s" - %(status_code)s'
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  ohsome-api:
+    class: logging.StreamHandler
+    formatter: ohsome-api
+    stream: ext://sys.stderr
+  uvicorn:
+    class: logging.StreamHandler
+    formatter: uvicorn
+    stream: ext://sys.stderr
+  uvicorn.access:
+    class: logging.StreamHandler
+    formatter: uvicorn.access
+    stream: ext://sys.stderr
+
+loggers:
+  ohsome-api:
+    level: INFO
+    handlers: [ohsome-api]
+    propagate: no
+  uvicorn:
+    handlers: [uvicorn]
+    level: INFO
+    propagate: false
+  uvicorn.access:
+    handlers: [uvicorn.access]
+    level: INFO
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [ohsome-api]
