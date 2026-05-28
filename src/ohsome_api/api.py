@@ -109,7 +109,7 @@ async def postgres_internal_server_error_handler(
 
 # TODO: Rename to currentness
 @app.post("/currentness/{measure}.json", response_class=JSONResponse)
-async def get_contributions_count_as_json(
+async def post_contributions_count_as_json(
     parameters: TimeBinsParameters,
     measure: Measure,
 ) -> CountResponseModel:
@@ -143,7 +143,7 @@ result
         },
     },
 )
-async def get_currentness_as_csv(
+async def post_currentness_as_csv(
     parameters: TimeBinsParameters,
     measure: Measure,
 ) -> CountResponseModel:
@@ -159,7 +159,7 @@ async def get_currentness_as_csv(
 
 
 @app.post("/features/{measure}.json", response_class=JSONResponse)
-async def get_features_as_json(
+async def post_features_as_json(
     parameters: TimeSeriesParameters,
     measure: Measure,
 ) -> FeaturesResponseModel:
