@@ -8,15 +8,15 @@ formatters:
   uvicorn:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
   uvicorn.access:
+    "()": uvicorn.logging.AccessFormatter
     format: '%(asctime)s - %(name)s - %(levelname)s - %(client_addr)s -
       "%(request_line)s" - %(status_code)s'
-    datefmt: "%Y-%m-%d %H:%M:%S"
 
 handlers:
   ohsome-api:
     class: logging.StreamHandler
     formatter: ohsome-api
-    stream: ext://sys.stderr
+    stream: ext://sys.stdout
   uvicorn:
     class: logging.StreamHandler
     formatter: uvicorn
@@ -24,13 +24,13 @@ handlers:
   uvicorn.access:
     class: logging.StreamHandler
     formatter: uvicorn.access
-    stream: ext://sys.stderr
+    stream: ext://sys.stdout
 
 loggers:
   ohsome-api:
     level: INFO
     handlers: [ohsome-api]
-    propagate: true
+    propagate: false
   uvicorn:
     handlers: [uvicorn]
     level: INFO
