@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from starlette.status import HTTP_200_OK
 
-from tests.api.conftest import VERSION
+from ohsome_api.api import VERSION
 
 
 def test_metadata(client: TestClient):

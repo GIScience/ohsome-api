@@ -6,7 +6,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
-from tests.api.conftest import VERSION
+from ohsome_api.api import VERSION
 
 
 def test_currentness_count_as_json(client: TestClient, aoi_geojson_heigit: dict):

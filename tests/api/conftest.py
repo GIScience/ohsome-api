@@ -1,11 +1,7 @@
-from importlib.metadata import version
-
 import pytest
 from fastapi.testclient import TestClient
 
 from ohsome_api.api import app
-
-VERSION = version("ohsome-api")
 
 
 @pytest.fixture(scope="module")
