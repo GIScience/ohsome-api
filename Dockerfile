@@ -33,5 +33,6 @@ ENV VIRTUAL_ENV=/app/.venv \
 WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
+COPY static static
 
 ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app", "--port", "80"]
