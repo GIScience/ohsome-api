@@ -1,16 +1,18 @@
 from importlib.metadata import version
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from ohsome_api import service
+from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import Measure, TimeBinsParameters
 from ohsome_api.response_models import CountResponseModel
 from ohsome_api.response_renderers import CSVResponse
 
 VERSION = version("ohsome-api")
-
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(api_key_header_scheme)],
+)
 
 
 @router.post("/currentness/{measure}.json", response_class=JSONResponse)

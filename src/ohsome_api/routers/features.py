@@ -1,12 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from ohsome_api import service
+from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import FeaturesRowModel
 from ohsome_api.request_models import Measure, TimeSeriesParameters
 from ohsome_api.response_models import BaseResponseModel
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(api_key_header_scheme)],
+)
 
 
 class FeaturesResponseModel(BaseResponseModel):
