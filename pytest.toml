@@ -1,2 +1,2 @@
 [pytest]
-addopts = ["--asyncio-mode=auto --cov=ohsome_api"]
+addopts = ["--asyncio-mode=auto", "--cov=ohsome_api"]
