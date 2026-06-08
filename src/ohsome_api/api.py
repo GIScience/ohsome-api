@@ -42,7 +42,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await db.disconnect()
 
 
-app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None)
+app = FastAPI(
+    lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None,
+    version=VERSION,
+    title="ohsome-api",
+    contact={
+        "name": "HeiGIT gGmbH",
+        "email": "ohsome@heigit.org",
+    },
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
