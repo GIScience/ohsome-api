@@ -13,17 +13,15 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import (
-    BaseModel,
-    ConfigDict,
     TypeAdapter,
 )
-from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
 from ohsome_api.database import db
 from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure, TimeBinsParameters, TimeSeriesParameters
-from ohsome_api.routers import docs
+from ohsome_api.response_models import BaseResponseModel
+from ohsome_api.routers import docs, metadata
 
 VERSION = version("ohsome-api")
 
@@ -51,6 +49,7 @@ app = FastAPI(
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(docs.router)
+app.include_router(metadata.router)
 
 
 class CSVResponse(Response):
@@ -77,29 +76,6 @@ class CSVResponse(Response):
         writer.writerow(header)
         writer.writerows(rows)
         return csvfile.getvalue().encode()
-
-
-class Attribution(BaseModel):
-    url: str = "https://ohsome.org/copyrights"
-    text: str = "© OpenStreetMap contributors"
-
-
-class BaseResponseModel(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
-    api_version: str = VERSION
-    attribution: Attribution = Attribution()
-
-
-class MetadataResponseModel(BaseResponseModel):
-    latest_timestamp: str
-
-
-@app.get("/metadata")
-async def get_metadata() -> MetadataResponseModel:
-    """Metadata of the underlying ohsomedb."""
-    timestamp = await service.get_latest_timestamp()
-
-    return MetadataResponseModel(latest_timestamp=timestamp.isoformat())
 
 
 # TODO: Rename
