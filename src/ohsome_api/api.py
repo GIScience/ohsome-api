@@ -18,10 +18,10 @@ from pydantic import (
 
 from ohsome_api import service
 from ohsome_api.database import db
-from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
-from ohsome_api.request_models import Measure, TimeBinsParameters, TimeSeriesParameters
+from ohsome_api.models import TimeBinsRowModel
+from ohsome_api.request_models import Measure, TimeBinsParameters
 from ohsome_api.response_models import BaseResponseModel
-from ohsome_api.routers import docs, metadata
+from ohsome_api.routers import docs, features, metadata
 
 VERSION = version("ohsome-api")
 
@@ -50,6 +50,7 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(docs.router)
 app.include_router(metadata.router)
+app.include_router(features.router)
 
 
 class CSVResponse(Response):
@@ -81,10 +82,6 @@ class CSVResponse(Response):
 # TODO: Rename
 class CountResponseModel(BaseResponseModel):
     result: list[TimeBinsRowModel]
-
-
-class FeaturesResponseModel(BaseResponseModel):
-    result: list[FeaturesRowModel]
 
 
 @app.exception_handler(asyncpg.InternalServerError)
@@ -172,19 +169,3 @@ async def post_users_activity_as_json(
     )
 
     return CountResponseModel(result=result)
-
-
-@app.post("/features/{measure}.json", response_class=JSONResponse)
-async def post_features_as_json(
-    parameters: TimeSeriesParameters,
-    measure: Measure,
-) -> FeaturesResponseModel:
-    result = await service.get_features(
-        ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time_series.start,
-        end=parameters.time_series.end,
-        interval=parameters.time_series.interval,
-        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
-        measure=measure,
-    )
-    return FeaturesResponseModel(result=result)
