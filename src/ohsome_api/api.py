@@ -10,12 +10,7 @@ from typing import AsyncIterator
 
 import asyncpg
 from fastapi import FastAPI, Request, Response
-from fastapi.openapi.docs import (
-    get_redoc_html,
-    get_swagger_ui_html,
-    get_swagger_ui_oauth2_redirect_html,
-)
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import (
     BaseModel,
@@ -28,6 +23,7 @@ from ohsome_api import service
 from ohsome_api.database import db
 from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure, TimeBinsParameters, TimeSeriesParameters
+from ohsome_api.routers import docs
 
 VERSION = version("ohsome-api")
 
@@ -54,6 +50,7 @@ app = FastAPI(
     },
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(docs.router)
 
 
 class CSVResponse(Response):
@@ -95,31 +92,6 @@ class BaseResponseModel(BaseModel):
 
 class MetadataResponseModel(BaseResponseModel):
     latest_timestamp: str
-
-
-@app.get("/docs", include_in_schema=False)
-async def custom_swagger_ui_html() -> HTMLResponse:
-    return get_swagger_ui_html(
-        openapi_url=app.openapi_url,  # ty:ignore[invalid-argument-type]
-        title=app.title + " - Swagger UI",
-        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="/static/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui.css",
-    )
-
-
-@app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)  # ty:ignore[invalid-argument-type]
-async def swagger_ui_redirect() -> HTMLResponse:
-    return get_swagger_ui_oauth2_redirect_html()
-
-
-@app.get("/redoc", include_in_schema=False)
-async def redoc_html() -> HTMLResponse:
-    return get_redoc_html(
-        openapi_url=app.openapi_url,  # ty:ignore[invalid-argument-type]
-        title=app.title + " - ReDoc",
-        redoc_js_url="/static/redoc.standalone.js",
-    )
 
 
 @app.get("/metadata")
