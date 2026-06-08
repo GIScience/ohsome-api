@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from fastapi.openapi.docs import (
-    get_redoc_html,
     get_swagger_ui_html,
 )
 from fastapi.responses import HTMLResponse
@@ -16,13 +15,4 @@ async def custom_swagger_ui_html() -> HTMLResponse:
         oauth2_redirect_url=None,
         swagger_js_url="/static/swagger-ui-bundle.js",
         swagger_css_url="/static/swagger-ui.css",
-    )
-
-
-@router.get("/redoc", include_in_schema=False)
-async def redoc_html() -> HTMLResponse:
-    return get_redoc_html(
-        openapi_url="/openapi.json",
-        title="ohsome-api - ReDoc",
-        redoc_js_url="/static/redoc.standalone.js",
     )
