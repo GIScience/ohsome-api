@@ -95,6 +95,7 @@ pipeline {
                 script {
                     docker.withRegistry('https://repo.heigit.org', DOCKER_CREDENTIALS_ID) {
                         if (env.BRANCH_NAME ==~ MAIN_BRANCH_REGEX) {
+							sh 'uv version "$VERSION+$LATEST_COMMIT_ID"'
                             dockerImage = docker.build(DOCKER_REPOSITORY + ':' + env.BRANCH_NAME)
                             dockerImage.push()
                         }
