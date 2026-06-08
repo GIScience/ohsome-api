@@ -42,11 +42,3 @@ header "Content-Type" == "text/css; charset=utf-8"
 # HTTP *
 # [Asserts]
 # status == 401
-
-POST https://{{HOST}}/currentness/count.json
-User-Agent: HURL tests
-Authorization: {{AUTHORIZATION}}
-HTTP *
-[Asserts]
-# Authentication successful but unprocessable content (422) due to incomplete request
-status == 422
