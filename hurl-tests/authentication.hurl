@@ -1,0 +1,52 @@
+# /metadata /docs /openapi.json /swagger-ui-bundle /swagger-ui.css
+# should be accessible without authorization
+
+GET https://{{HOST}}/metadata
+User-Agent: HURL tests
+HTTP *
+[Asserts]
+status == 200
+header "Content-Type" == "application/json"
+
+GET https://{{HOST}}/docs
+User-Agent: HURL tests
+HTTP *
+[Asserts]
+status == 200
+header "Content-Type" == "text/html; charset=utf-8"
+
+GET	https://{{HOST}}/openapi.json
+User-Agent: HURL tests
+HTTP *
+[Asserts]
+status == 200
+header "Content-Type" == "application/json"
+
+GET https://{{HOST}}/static/swagger-ui-bundle.js
+User-Agent: HURL tests
+HTTP *
+[Asserts]
+status == 200
+header "Content-Type" == "text/javascript; charset=utf-8"
+
+GET https://{{HOST}}/static/swagger-ui.css
+User-Agent: HURL tests
+HTTP *
+[Asserts]
+status == 200
+header "Content-Type" == "text/css; charset=utf-8"
+
+# TODO: Enable once user management is integrated
+# POST https://{{HOST}}/currentness/count.json
+# User-Agent: HURL tests
+# HTTP *
+# [Asserts]
+# status == 401
+
+POST https://{{HOST}}/currentness/count.json
+User-Agent: HURL tests
+Authorization: {{AUTHORIZATION}}
+HTTP *
+[Asserts]
+# Authentication successful but unprocessable content (422) due to incomplete request
+status == 422
