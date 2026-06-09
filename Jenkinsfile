@@ -23,7 +23,7 @@ pipeline {
                     echo LATEST_AUTHOR
                     echo LATEST_COMMIT_ID
                     echo VERSION
-                    
+
                     echo env.BUILD_NUMBER
                     echo env.TAG_NAME
                 }
@@ -109,6 +109,21 @@ pipeline {
             }
         }
 
+        stage('End-to-end authorization tests with HURL against production') {
+            environment {
+				HURL_VARIABLE_HOST="ohsome-api.heigitk8s.de"
+            }
+            steps {
+				script {
+					sh 'hurl --test hurl-tests/*.hurl'
+				}
+            }
+            post {
+                failure {
+                  rocket_testfail()
+                }
+            }
+        }
 
         stage('Wrapping Up') {
             steps {
