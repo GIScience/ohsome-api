@@ -12,6 +12,7 @@ from pydantic import (
     TypeAdapter,
 )
 
+from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import activity, currentness, docs, features, metadata
 
@@ -44,6 +45,12 @@ app.mount(
     "/static",
     StaticFiles(directory="static"),
     name="static",
+)
+# Required for production deployment
+app.mount(
+    f"{CONFIG.url_path_prefix}/static",
+    StaticFiles(directory="static"),
+    name="static-2",
 )
 
 app.include_router(docs.router)
