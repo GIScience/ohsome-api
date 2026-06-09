@@ -35,4 +35,4 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY static static
 
-ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app", "--port", "80"]
+ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app", "--port", "80", "--forwarded-allow-ips", "'*'", "--root-path", "/ohsome-api/v2"]
