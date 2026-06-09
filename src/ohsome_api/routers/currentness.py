@@ -40,9 +40,8 @@ class CSVResponse(Response):
         return csvfile.getvalue().encode()
 
 
-# TODO: Rename to currentness
 @router.post("/currentness/{measure}.json", response_class=JSONResponse)
-async def post_contributions_count_as_json(
+async def post_currentness_as_json(
     parameters: TimeBinsParameters,
     measure: Measure,
 ) -> CountResponseModel:
