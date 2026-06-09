@@ -59,8 +59,10 @@ async def postgres_internal_server_error_handler(
                 "detail": [
                     {
                         "type": "topology_exception",
-                        "msg": """Topology Exception occurred while processing request.
-            Check if input area of interest is valid.""",
+                        "msg": (
+                            "Topology Exception occurred while processing request."
+                            "Check if input area of interest is valid."
+                        ),
                     }
                 ]
             },
