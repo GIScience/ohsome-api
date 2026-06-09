@@ -18,10 +18,9 @@ from pydantic import (
 
 from ohsome_api import service
 from ohsome_api.database import db
-from ohsome_api.models import TimeBinsRowModel
 from ohsome_api.request_models import Measure, TimeBinsParameters
-from ohsome_api.response_models import BaseResponseModel
-from ohsome_api.routers import docs, features, metadata
+from ohsome_api.response_models import CountResponseModel
+from ohsome_api.routers import activity, docs, features, metadata
 
 VERSION = version("ohsome-api")
 
@@ -51,6 +50,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(docs.router)
 app.include_router(metadata.router)
 app.include_router(features.router)
+app.include_router(activity.router)
 
 
 class CSVResponse(Response):
@@ -77,11 +77,6 @@ class CSVResponse(Response):
         writer.writerow(header)
         writer.writerows(rows)
         return csvfile.getvalue().encode()
-
-
-# TODO: Rename
-class CountResponseModel(BaseResponseModel):
-    result: list[TimeBinsRowModel]
 
 
 @app.exception_handler(asyncpg.InternalServerError)
@@ -153,19 +148,4 @@ async def post_currentness_as_csv(
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
         measure=measure,
     )
-    return CountResponseModel(result=result)
-
-
-@app.post("/activity/users.json", response_class=JSONResponse)
-async def post_users_activity_as_json(
-    parameters: TimeBinsParameters,
-) -> CountResponseModel:
-    result = await service.get_users_activity(
-        ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time_bins.start,
-        end=parameters.time_bins.end,
-        bin_size=parameters.time_bins.bin_size,
-        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
-    )
-
     return CountResponseModel(result=result)
