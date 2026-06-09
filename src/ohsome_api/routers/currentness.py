@@ -1,43 +1,16 @@
-import csv
 from importlib.metadata import version
-from io import StringIO
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from ohsome_api import service
 from ohsome_api.request_models import Measure, TimeBinsParameters
 from ohsome_api.response_models import CountResponseModel
+from ohsome_api.response_renderers import CSVResponse
 
 VERSION = version("ohsome-api")
 
 router = APIRouter()
-
-
-class CSVResponse(Response):
-    media_type = "text/csv"
-
-    def render(self, content: dict) -> bytes:
-        csvfile = StringIO()
-        writer = csv.writer(csvfile, lineterminator="\n")
-        comment = [
-            [f"# apiVersion: {content['apiVersion']}"],
-            [f"# attribution.url: {content['attribution']['url']}"],
-            [f"# attribution.text: {content['attribution']['text']}"],
-        ]
-        header = ["start", "end", "value"]
-        rows = [
-            (
-                r["start"],
-                r["end"],
-                r["value"],
-            )
-            for r in content["result"]
-        ]
-        writer.writerows(comment)
-        writer.writerow(header)
-        writer.writerows(rows)
-        return csvfile.getvalue().encode()
 
 
 @router.post("/currentness/{measure}.json", response_class=JSONResponse)
