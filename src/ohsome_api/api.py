@@ -48,7 +48,7 @@ app.mount(
 app.mount(
     f"{CONFIG.url_path_prefix}/static",
     StaticFiles(directory="static"),
-    name="static",
+    name="static-2",
 )
 app.include_router(docs.router)
 app.include_router(metadata.router)
