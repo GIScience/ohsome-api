@@ -12,6 +12,7 @@ from pydantic import (
     TypeAdapter,
 )
 
+from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import activity, currentness, docs, features, metadata
 
@@ -39,7 +40,11 @@ app = FastAPI(
         "email": "ohsome@heigit.org",
     },
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount(
+    f"{CONFIG.url_path_prefix}/static",
+    StaticFiles(directory="static"),
+    name="static",
+)
 app.include_router(docs.router)
 app.include_router(metadata.router)
 app.include_router(features.router)

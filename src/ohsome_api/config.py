@@ -31,6 +31,7 @@ class DatabaseConfig(BaseModel):
 class Config(BaseSettings):
     ohsomedb: DatabaseConfig = DatabaseConfig()
     log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
+    url_path_prefix: str = ""
 
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API_",

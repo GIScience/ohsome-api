@@ -4,6 +4,8 @@ from fastapi.openapi.docs import (
 )
 from fastapi.responses import HTMLResponse
 
+from ohsome_api.config import CONFIG
+
 router = APIRouter()
 
 
@@ -13,6 +15,6 @@ async def custom_swagger_ui_html() -> HTMLResponse:
         openapi_url="/openapi.json",
         title="ohsome-api - Swagger UI",
         oauth2_redirect_url=None,
-        swagger_js_url="/static/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui.css",
+        swagger_js_url=f"{CONFIG.url_path_prefix}/static/swagger-ui-bundle.js",
+        swagger_css_url=f"{CONFIG.url_path_prefix}/static/swagger-ui.css",
     )
