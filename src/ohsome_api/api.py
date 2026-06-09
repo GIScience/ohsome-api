@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     lifespan=lifespan,
-    docs_url=None,
+    docs_url=None,  # configured in routers/docs.py
     redoc_url=None,
     version=VERSION,
     title="ohsome-api",
@@ -40,16 +40,19 @@ app = FastAPI(
         "email": "ohsome@heigit.org",
     },
 )
+
 app.mount(
     "/static",
     StaticFiles(directory="static"),
     name="static",
 )
+# Required for production deployment
 app.mount(
     f"{CONFIG.url_path_prefix}/static",
     StaticFiles(directory="static"),
     name="static-2",
 )
+
 app.include_router(docs.router)
 app.include_router(metadata.router)
 app.include_router(features.router)

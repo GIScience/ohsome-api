@@ -31,6 +31,8 @@ class DatabaseConfig(BaseModel):
 class Config(BaseSettings):
     ohsomedb: DatabaseConfig = DatabaseConfig()
     log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
+    # Serve static assets (swagger-ui.css/js, openapi.json) with url path prefix.
+    # Required for production deployment
     url_path_prefix: str = ""
 
     model_config = SettingsConfigDict(
