@@ -2,6 +2,7 @@
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from importlib.metadata import version
+from pathlib import Path
 from typing import AsyncIterator
 
 import asyncpg
@@ -12,7 +13,6 @@ from pydantic import (
     TypeAdapter,
 )
 
-from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import activity, currentness, docs, features, metadata
 
@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     lifespan=lifespan,
-    openapi_url=f"{CONFIG.url_path_prefix}/openapi.json",
+    openapi_url="/openapi.json",
     docs_url=None,  # configured in routers/docs.py
     redoc_url=None,
     version=VERSION,
@@ -44,14 +44,8 @@ app = FastAPI(
 
 app.mount(
     "/static",
-    StaticFiles(directory="static"),
+    StaticFiles(directory=Path(__file__).parent.parent.parent / "static"),
     name="static",
-)
-# Required for production deployment
-app.mount(
-    f"{CONFIG.url_path_prefix}/static",
-    StaticFiles(directory="static"),
-    name="static-2",
 )
 
 app.include_router(docs.router)
