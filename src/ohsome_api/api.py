@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     lifespan=lifespan,
-    openapi_url="/ohsome-api/v2/openapi.json",
+    openapi_url="/openapi.json",
     docs_url=None,  # configured in routers/docs.py
     redoc_url=None,
     version=VERSION,
@@ -45,11 +45,6 @@ app.mount(
     "/static",
     StaticFiles(directory="static"),
     name="static",
-)
-app.mount(
-    "/ohsome-api/v2/static",
-    StaticFiles(directory="static"),
-    name="static-ohsome-api-v2",
 )
 
 app.include_router(docs.router)
