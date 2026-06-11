@@ -31,6 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     lifespan=lifespan,
+    openapi_url=f"{CONFIG.url_path_prefix}/openapi.json",
     docs_url=None,  # configured in routers/docs.py
     redoc_url=None,
     version=VERSION,
