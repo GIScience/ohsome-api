@@ -2,7 +2,6 @@
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from importlib.metadata import version
-from pathlib import Path
 from typing import AsyncIterator
 
 import asyncpg
@@ -44,7 +43,7 @@ app = FastAPI(
 
 app.mount(
     "/static",
-    StaticFiles(directory=Path(__file__).parent.parent.parent / "static"),
+    StaticFiles(directory="static"),
     name="static",
 )
 
