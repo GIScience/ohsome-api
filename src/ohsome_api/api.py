@@ -42,6 +42,11 @@ app = FastAPI(
 )
 
 app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static",
+)
+app.mount(
     "/ohsome-api/v2/static",
     StaticFiles(directory="static"),
     name="static-ohsome-api-v2",
