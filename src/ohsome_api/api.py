@@ -42,9 +42,9 @@ app = FastAPI(
 )
 
 app.mount(
-    "/static",
+    "/ohsome-api/v2/static",
     StaticFiles(directory="static"),
-    name="static",
+    name="static-ohsome-api-v2",
 )
 
 app.include_router(docs.router)
