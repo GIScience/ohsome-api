@@ -1,14 +1,24 @@
+import json
 import logging
-from typing import Any
+from typing import Any, AsyncIterator
 
 import asyncpg
-from asyncpg import Record
+from asyncpg import Connection, Record
 
 from ohsome_api.config import CONFIG
 
 CONNECTION_STRING = CONFIG.ohsomedb.connection_string
 
 logger = logging.getLogger("ohsome-api")
+
+
+async def jsonb_codec(connection: Connection) -> None:
+    await connection.set_type_codec(
+        "jsonb",
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema="pg_catalog",
+    )
 
 
 class Database:
@@ -21,6 +31,7 @@ class Database:
             dsn=CONNECTION_STRING,
             min_size=5,
             max_size=20,
+            init=jsonb_codec,
         )
         logging.info("Database connection pool established.")
 
@@ -49,6 +60,26 @@ class Database:
             records: list[Record] = await connection.fetch(sql, *args)
 
         return records
+
+    async def fetch_batch(  # noqa: C901
+        self,
+        sql: str,
+        *args: Any,  # noqa: ANN401
+        batch_size: int = 10000,
+    ) -> AsyncIterator[list[Record]]:
+        if self.pool is None:
+            raise ValueError("Database connection pool not initialized")
+
+        async with self.pool.acquire() as connection, connection.transaction():
+            batch: list[Record] = []
+            async for record in connection.cursor(sql, *args, prefetch=batch_size):
+                batch.append(record)
+                if len(batch) >= batch_size:
+                    yield batch
+                    batch = []
+
+            if batch:
+                yield batch
 
 
 db = Database()
