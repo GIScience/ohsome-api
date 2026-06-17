@@ -1,8 +1,9 @@
 from datetime import datetime
+from typing import AsyncIterator, cast
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
+from ohsome_api.models import ExtractionRow, FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure
 
 SCHEMA = CONFIG.ohsomedb.schemaname
@@ -301,3 +302,36 @@ async def get_features(  # noqa: C901, PLR0913
         FeaturesRowModel(value=value, timestamp=ts)
         for ts, value in zerofilled_series.items()
     ]
+
+
+def get_extracted_features(
+    filter_where_clause: str, filter_args: tuple
+) -> AsyncIterator[list[ExtractionRow]]:
+    sql = f"""
+        SELECT osm_type,
+               osm_id,
+               valid_from,
+               osm_version,
+               osm_edits,
+               user_id,
+               user_name,
+               changeset_id,
+               tags,
+               ST_XMin(geom) as xmin,
+               ST_YMin(geom) as ymin,
+               ST_XMax(geom) as xmax,
+               ST_YMax(geom) as ymax,
+               st_asbinary(geom) as geom
+        FROM {SCHEMA}.contributions
+        WHERE status_geom_type = ANY(array[
+           ('latest','Point')::{SCHEMA}.status_geom_type_type,
+           ('latest', 'LineString')::{SCHEMA}.status_geom_type_type,
+           ('latest','Polygon')::{SCHEMA}.status_geom_type_type])
+           AND ({filter_where_clause})
+    """  # noqa: S608
+    # cast generic asyncpg Record to ExtractionRow
+    # TODO: make batch size configurable (maybe as function arg)
+    return cast(
+        AsyncIterator[list[ExtractionRow]],
+        db.fetch_batch(sql, *filter_args, batch_size=10000),
+    )

@@ -1,10 +1,11 @@
 from datetime import datetime
 
+from fastapi.concurrency import run_in_threadpool
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api import db
 from ohsome_api.db import generate_timestamp_series
-from ohsome_api.models import FeaturesRowModel, TimeBinsRowModel
+from ohsome_api.models import ExtractionWriter, FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure
 
 
@@ -71,3 +72,17 @@ async def get_features(  # noqa: PLR0913
         aoi_wkt,
         measure,
     )
+
+
+async def get_extracted_features(
+    ohsome_filter: OhsomeFilter,
+    writer: ExtractionWriter,
+) -> None:
+    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+    try:
+        async for batch in db.get_extracted_features(query_where_clause, query_args):
+            # https://starlette.dev/threadpool/
+            # PERF: potentially we want to have our own thread pool
+            await run_in_threadpool(writer.write_batch, batch)
+    finally:
+        await run_in_threadpool(writer.close)
