@@ -14,8 +14,10 @@ dependencies = [
     "geojson-pydantic>=2.1.1",
     "ohsome-filter-to-sql>=0.8.0",
     "ohsomedb-schema",
+    "pyarrow>=24.0.0",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.13.1",
+    "pyproj>=3.7.2",
 ]
 
 [build-system]
