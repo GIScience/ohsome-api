@@ -2,9 +2,9 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from ohsome_api.models import TimeBinsRowModel
+from ohsome_api.models import ExtractionRow, TimeBinsRowModel
 from ohsome_api.request_models import Measure
-from ohsome_api.service import get_currentness
+from ohsome_api.service import get_currentness, get_extracted_features
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
@@ -106,3 +106,25 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
             value=bin_2023[0].value,
         ),
     ]
+
+
+class CollectingWriter:
+    def __init__(self) -> None:
+        self.rows: list[ExtractionRow] = []
+        self.closed = False
+
+    def write_batch(self, batch: list[ExtractionRow]) -> None:
+        self.rows.extend(batch)
+
+    def close(self) -> None:
+        self.closed = True
+
+
+async def test_extraction():
+    writer = CollectingWriter()
+    await get_extracted_features("id:way/274497164", writer)
+    assert len(writer.rows) == 1
+    assert writer.closed
+    assert writer.rows[0]["osm_type"] == "way"
+    assert writer.rows[0]["osm_id"] == 274497164
+    assert all(isinstance(row["tags"], dict) for row in writer.rows)

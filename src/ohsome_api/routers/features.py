@@ -1,14 +1,18 @@
+import asyncio
 import csv
 from importlib.metadata import version
 from io import StringIO
+from typing import AsyncIterator
 
 from fastapi import APIRouter, Depends, Response
-from fastapi.responses import JSONResponse
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import FeaturesRowModel
-from ohsome_api.request_models import Measure, TimeSeriesParameters
+from ohsome_api.parquet import AsyncParquetSink
+from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
 from ohsome_api.response_models import BaseResponseModel
 
 VERSION = version("ohsome-api")
@@ -94,3 +98,37 @@ async def post_features_as_csv(
         measure=measure,
     )
     return FeaturesResponseModel(result=result)
+
+
+# TODO: Address complexity
+@router.post("/features/extraction.parquet", response_class=StreamingResponse)
+async def post_contributions_extract(  # noqa: C901
+    parameters: BaseParameters,
+) -> StreamingResponse:
+    # TODO: if request is aborted producer should also cancel
+
+    # Database result is written to sink batch wise
+    sink = AsyncParquetSink(max_chunks=8)
+
+    async def stream() -> AsyncIterator[bytes]:
+        producer = asyncio.create_task(
+            service.get_extracted_features(parameters.ohsome_filter, sink)
+        )
+        try:
+            while True:
+                # Queue can be provided with timeout. Maybe useful for cancel policy.
+                chunk = run_in_threadpool(sink.io.queue.get, block=True)
+                if chunk is None:
+                    break
+                yield chunk
+
+            await producer
+        except asyncio.CancelledError:
+            producer.cancel()
+            raise
+
+    return StreamingResponse(
+        stream(),
+        media_type="application/vnd.apache.parquet",
+        headers={"Content-Disposition": 'attachment; filename="extractions.parquet"'},
+    )
