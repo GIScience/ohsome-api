@@ -6,6 +6,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from fastapi.testclient import TestClient
 from pyarrow import parquet
+from shapely import from_wkb, to_wkt
 from starlette.status import (
     HTTP_200_OK,
 )
@@ -58,10 +59,15 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
         8.6707624,
         49.4160772,
     ]
+    assert "crs" in metadata["columns"]["geom"]
     # TODO: validate attribution in API metadata
 
-    # Geometry (WGS84, EPSG 4326)
-    # Maybe include information if geometry has been clipped
+    geom = table["geom"][0].as_py()
+    geom = from_wkb(geom)
+    assert (
+        to_wkt(geom)
+        == "LINESTRING (8.670288 49.416011, 8.670559 49.416013, 8.670571 49.416012, 8.670762 49.416077)"  # noqa: E501
+    )
 
 
 def test_features_extraction_deleted_features(
