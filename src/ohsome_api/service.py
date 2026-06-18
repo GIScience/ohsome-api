@@ -8,6 +8,8 @@ from ohsome_api.db import generate_timestamp_series
 from ohsome_api.models import ExtractionWriter, FeaturesRowModel, TimeBinsRowModel
 from ohsome_api.request_models import Measure
 
+# TODO: Should we pass AOI as some kind of Geom Type instead of str through to DB?
+
 
 async def get_latest_timestamp() -> datetime:
     return await db.get_latest_timestamp()
@@ -82,10 +84,22 @@ async def get_extracted_features(
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     try:
         async for batch in db.get_extracted_features(
-            query_where_clause, query_args, aoi_wkt
+            query_where_clause,
+            query_args,
+            aoi_wkt,
         ):
             # https://starlette.dev/threadpool/
-            # PERF: potentially we want to have our own thread pool
+            # PERF: Potentially we want to have our own thread pool
+            # NOTE: Is it safe to write to the same Parquet file
+            #   in multiple threads simultaneously?
+            #   await run_in_threadpool(writer.write_batch, batch)
+            # PERF: What is the advantage of writing to parquet in parallel.
+            #   Bottleneck is probably network.
+
             await run_in_threadpool(writer.write_batch, batch)
+            # TODO: I expect sync/blocking call to work as well but it does not.
+            # writer.write_batch(batch)
     finally:
         await run_in_threadpool(writer.close)
+        # TODO: I expect sync/blocking call to work as well but it does not.
+        # writer.close()
