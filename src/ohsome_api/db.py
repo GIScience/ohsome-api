@@ -327,13 +327,14 @@ def get_extracted_features(
                ST_YMin(c.geom) as ymin,
                ST_XMax(c.geom) as xmax,
                ST_YMax(c.geom) as ymax,
-               st_asbinary(c.geom) as geom,
+               ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom,
                NOT ST_Within( c.geom, aoi.geom ) as clipped
         FROM {SCHEMA}.contributions as c, aoi
         WHERE status_geom_type = ANY(array[
            ('latest','Point')::{SCHEMA}.status_geom_type_type,
            ('latest', 'LineString')::{SCHEMA}.status_geom_type_type,
            ('latest','Polygon')::{SCHEMA}.status_geom_type_type])
+           AND ST_Intersects(c.geom, aoi.geom)
            AND ({filter_where_clause})
     """  # noqa: S608
     # cast generic asyncpg Record to ExtractionRow

@@ -52,7 +52,7 @@ async def database_pool():
 
 @pytest.fixture
 def aoi_geojson_heigit():
-    # Small bounding box around HeiGIT
+    # Small bounding box around HeiGIT in Heidelberg, Germany
     return {
         "type": "FeatureCollection",
         "features": [
@@ -70,6 +70,32 @@ def aoi_geojson_heigit():
                         ]
                     ],
                     "type": "Polygon",
+                },
+            }
+        ],
+    }
+
+
+@pytest.fixture
+def aoi_geojson_audimax():
+    # Small bounding box around Audimax in Heidelberg, Germany
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [8.670919, 49.417686],
+                            [8.673839, 49.417686],
+                            [8.673727, 49.416393],
+                            [8.671120, 49.416393],
+                            [8.670919, 49.417686],
+                        ]
+                    ],
                 },
             }
         ],
