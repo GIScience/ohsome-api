@@ -14,13 +14,13 @@ EXTRACTION_SCHEMA = pa.schema(
     [
         ("osm_type", pa.string()),
         ("osm_id", pa.int64()),
-        ("valid_from", pa.timestamp("us", tz="UTC")),
+        ("last_edit", pa.timestamp("us", tz="UTC")),
         ("osm_version", pa.int32()),
         ("osm_edits", pa.int32()),
-        ("user_id", pa.int32()),
-        ("user_name", pa.string()),
-        ("changeset_id", pa.int64()),
-        ("tags", pa.map_(pa.string(), pa.string())),
+        ("osm_user_id", pa.int32()),
+        ("osm_user_name", pa.string()),
+        ("osm_changeset_id", pa.int64()),
+        ("osm_tags", pa.map_(pa.string(), pa.string())),
         (
             "bbox",
             pa.struct(
@@ -101,7 +101,7 @@ class QueueBytesIO(io.RawIOBase):
 class AsyncParquetSink:
     def __init__(self, max_chunks: int = 8) -> None:
         self.io: QueueBytesIO = QueueBytesIO(max_chunks)
-        self._clsed = False
+        self._closed = False
         self.xmin = float("inf")
         self.ymin = float("inf")
         self.xmax = float("-inf")

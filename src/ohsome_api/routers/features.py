@@ -117,7 +117,7 @@ async def post_contributions_extract(  # noqa: C901
         try:
             while True:
                 # Queue can be provided with timeout. Maybe useful for cancel policy.
-                chunk = run_in_threadpool(sink.io.queue.get, block=True)
+                chunk = await run_in_threadpool(sink.io.queue.get, block=True)
                 if chunk is None:
                     break
                 yield chunk

@@ -1,19 +1,61 @@
+from datetime import datetime
 import io
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+from pyarrow import parquet
 from fastapi.testclient import TestClient
 from starlette.status import (
     HTTP_200_OK,
 )
 
 
-def test_contributions_extract(client: TestClient):
+def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
+    response = client.post(
+        "/features/extraction.parquet",
+        json={"filter": "id:way/274497164", "aoi": aoi_geojson_heigit},
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/vnd.apache.parquet"
+    table = parquet.read_table(io.BytesIO(response.content))
+    assert table.num_rows == 1
+
+    # https://www.openstreetmap.org/api/0.6/way/274497164
+    assert table["osm_id"][0].as_py() == 274497164
+    assert table["osm_type"][0].as_py() == "way"
+    assert table["osm_version"][0].as_py() == 5
+
+    # resets to 0 if major version has been bumped up
+    # assert table["minor_version"][0].as_py() == 6
+
+    assert table["osm_user_name"][0].as_py() == "Niiepce"
+    assert table["osm_changeset_id"][0].as_py() == 153583423
+    assert table["osm_tags"][0].as_py() == {
+        "foot": "yes",
+        "oneway": "no",
+        "bicycle": "yes",
+        "highway": "service",
+        "surface": "paving_stones",
+        "motor_vehicle": "private",
+    }
+
+    last_edit_expected = datetime.fromisoformat("2024-07-05 11:04:04.000000Z")
+    assert table["last_edit"][0].as_py() == last_edit_expected
+
+    # Geometry (WGS84, EPSG 4326)
+    # Maybe include information if geometry has been clipped
+
+
+def test_features_extraction_deleted_features():
+    pass
+
+
+def test_contributions_extract_stream(client: TestClient, aoi_geojson_heigit: dict):
     chunks = []
     with client.stream(
         "POST",
         "/features/extraction.parquet",
-        json={"filter": "id:way/274497164"},
+        json={"filter": "id:way/274497164", "aoi": aoi_geojson_heigit},
     ) as response:
         assert response.status_code == HTTP_200_OK
         assert response.headers["content-type"] == "application/vnd.apache.parquet"
