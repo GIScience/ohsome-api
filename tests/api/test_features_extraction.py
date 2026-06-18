@@ -1,10 +1,10 @@
-from datetime import datetime
 import io
+from datetime import datetime
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-from pyarrow import parquet
 from fastapi.testclient import TestClient
+from pyarrow import parquet
 from starlette.status import (
     HTTP_200_OK,
 )
@@ -30,14 +30,14 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
 
     assert table["osm_user_name"][0].as_py() == "Niiepce"
     assert table["osm_changeset_id"][0].as_py() == 153583423
-    assert table["osm_tags"][0].as_py() == {
-        "foot": "yes",
-        "oneway": "no",
-        "bicycle": "yes",
-        "highway": "service",
-        "surface": "paving_stones",
-        "motor_vehicle": "private",
-    }
+    assert table["osm_tags"][0].as_py() == [
+        ("foot", "yes"),
+        ("oneway", "no"),
+        ("bicycle", "yes"),
+        ("highway", "service"),
+        ("surface", "paving_stones"),
+        ("motor_vehicle", "private"),
+    ]
 
     last_edit_expected = datetime.fromisoformat("2024-07-05 11:04:04.000000Z")
     assert table["last_edit"][0].as_py() == last_edit_expected
@@ -51,7 +51,6 @@ def test_features_extraction_deleted_features():
 
 
 def test_contributions_extract_stream(client: TestClient, aoi_geojson_heigit: dict):
-    chunks = []
     with client.stream(
         "POST",
         "/features/extraction.parquet",
@@ -59,8 +58,7 @@ def test_contributions_extract_stream(client: TestClient, aoi_geojson_heigit: di
     ) as response:
         assert response.status_code == HTTP_200_OK
         assert response.headers["content-type"] == "application/vnd.apache.parquet"
-        for chunk in response.iter_bytes():
-            chunks.append(chunk)
+        chunks = [chunk for chunk in response.iter_bytes()]
 
     table = pq.read_table(io.BytesIO(b"".join(chunks)))
     assert table.num_rows == 1
