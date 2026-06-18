@@ -15,6 +15,7 @@ router = APIRouter(
 async def post_users_activity_as_json(
     parameters: TimeBinsParameters,
 ) -> CountResponseModel:
+    """Active users per time bin."""
     result = await service.get_users_activity(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_bins.start,
