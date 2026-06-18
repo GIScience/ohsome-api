@@ -33,9 +33,6 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
     assert table["osm_type"][0].as_py() == "way"
     assert table["osm_version"][0].as_py() == 5
 
-    # resets to 0 if major version has been bumped up
-    # assert table["minor_version"][0].as_py() == 6
-
     assert table["osm_user_name"][0].as_py() == "Niiepce"
     assert table["osm_changeset_id"][0].as_py() == 153583423
     assert table["osm_tags"][0].as_py() == [
@@ -47,20 +44,11 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
         ("motor_vehicle", "private"),
     ]
 
+    # resets to 0 if major version has been bumped up
+    # assert table["minor_version"][0].as_py() == 6
+    # assert not table["clipped"][0].as_py()
     last_edit_expected = datetime.fromisoformat("2024-07-05 11:04:04.000000Z")
     assert table["last_edit"][0].as_py() == last_edit_expected
-
-    metadata = parquet.read_metadata(response_file).metadata[b"geo"].decode("utf-8")
-    metadata = json.loads(metadata)
-
-    assert metadata["columns"]["geom"]["bbox"] == [
-        8.6702875,
-        49.416011,
-        8.6707624,
-        49.4160772,
-    ]
-    assert "crs" in metadata["columns"]["geom"]
-    # TODO: validate attribution in API metadata
 
     geom = table["geom"][0].as_py()
     geom = from_wkb(geom)
@@ -68,6 +56,24 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
         to_wkt(geom)
         == "LINESTRING (8.670288 49.416011, 8.670559 49.416013, 8.670571 49.416012, 8.670762 49.416077)"  # noqa: E501
     )
+
+    metadata = parquet.read_metadata(response_file).metadata
+    metadata_geo = metadata[b"geo"].decode("utf-8")
+    metadata_geo = json.loads(metadata_geo)
+
+    assert metadata_geo["columns"]["geom"]["bbox"] == [
+        8.6702875,
+        49.416011,
+        8.6707624,
+        49.4160772,
+    ]
+    assert "crs" in metadata_geo["columns"]["geom"]
+
+    # metadata_api = metadata[b"api"].decode("utf-8")
+    # metadata_api = json.loads(metadata_api)
+    # assert metadata_api["version"] == VERSION
+    # assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
+    # assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
 def test_features_extraction_deleted_features(
