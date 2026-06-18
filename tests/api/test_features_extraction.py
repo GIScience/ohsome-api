@@ -46,8 +46,17 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
     # Maybe include information if geometry has been clipped
 
 
-def test_features_extraction_deleted_features():
-    pass
+def test_features_extraction_deleted_features(
+    client: TestClient, aoi_geojson_heigit: dict
+):
+    response = client.post(
+        "/features/extraction.parquet",
+        json={"filter": "id:way/394983845", "aoi": aoi_geojson_heigit},
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/vnd.apache.parquet"
+    table = parquet.read_table(io.BytesIO(response.content))
+    assert table.num_rows == 0
 
 
 def test_contributions_extract_stream(client: TestClient, aoi_geojson_heigit: dict):
