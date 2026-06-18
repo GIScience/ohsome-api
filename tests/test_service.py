@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from ohsome_api.models import ExtractionRow, TimeBinsRowModel
+from ohsome_api.models import TimeBinsRowModel
 from ohsome_api.request_models import Measure
 from ohsome_api.service import get_currentness, get_extracted_features
 
@@ -108,23 +108,14 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
     ]
 
 
-class CollectingWriter:
-    def __init__(self) -> None:
-        self.rows: list[ExtractionRow] = []
-        self.closed = False
-
-    def write_batch(self, batch: list[ExtractionRow]) -> None:
-        self.rows.extend(batch)
-
-    def close(self) -> None:
-        self.closed = True
-
-
-async def test_extraction():
-    writer = CollectingWriter()
-    await get_extracted_features("id:way/274497164", writer)
-    assert len(writer.rows) == 1
-    assert writer.closed
-    assert writer.rows[0]["osm_type"] == "way"
-    assert writer.rows[0]["osm_id"] == 274497164
-    assert all(isinstance(row["tags"], dict) for row in writer.rows)
+async def test_extraction(aoi_wkt_audimax: str):
+    count = 0
+    async for chunk in get_extracted_features(
+        "id:node/1702635807", aoi_wkt=aoi_wkt_audimax
+    ):
+        assert len(chunk) == 1
+        assert chunk[0]["osm_type"] == "node"
+        assert chunk[0]["osm_id"] == 1702635807
+        assert isinstance(chunk[0]["tags"], dict)
+        count += 1
+    assert count == 1

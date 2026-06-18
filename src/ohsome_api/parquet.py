@@ -1,6 +1,5 @@
 import io
 import json
-import queue
 from copy import deepcopy
 
 import pyarrow as pa
@@ -76,32 +75,37 @@ def _geoparquet_meta(xmin: float, ymin: float, xmax: float, ymax: float) -> byte
 # FastAPI consumes bytes asynchronously from the queue.
 
 
-class QueueBytesIO(io.RawIOBase):
-    def __init__(self, max_chunks: int) -> None:
-        self.queue: queue.Queue[bytes | None] = queue.Queue(maxsize=max_chunks)
+class DummyBytesIO(io.RawIOBase):
+    def __init__(self) -> None:
         self.position = 0
+        self.data: list[bytes] = []
 
     # TODO: do we need this?
     def writable(self) -> bool:
         return True
 
     def write(self, buffer: Buffer, /) -> int:
-        data = bytes(buffer)
+        data: bytes = bytes(buffer)
         self.position += len(data)
-        self.queue.put(data)  # blocks for backpressure; safe from any thread
+        self.data.append(data)
         return len(data)
+
+    def fetch_all(self) -> list[bytes]:
+        res = self.data
+        self.data = []
+        return res
 
     # TODO: do we need this?
     def tell(self) -> int:
         return self.position
 
     def close(self) -> None:
-        self.queue.put(None)  # sentinel to signal end of stream
+        pass
 
 
 class AsyncParquetSink:
-    def __init__(self, max_chunks: int = 8) -> None:
-        self.io: QueueBytesIO = QueueBytesIO(max_chunks)
+    def __init__(self) -> None:
+        self.io: DummyBytesIO = DummyBytesIO()
         self._closed = False
         self.xmin = float("inf")
         self.ymin = float("inf")

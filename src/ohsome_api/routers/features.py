@@ -1,11 +1,9 @@
-import asyncio
 import csv
 from importlib.metadata import version
 from io import StringIO
 from typing import AsyncIterator
 
 from fastapi import APIRouter, Depends, Response
-from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from ohsome_api import service
@@ -108,26 +106,21 @@ async def post_contributions_extract(  # noqa: C901
     # TODO: if request is aborted producer should also cancel
 
     # Database result is written to sink batch wise
-    sink = AsyncParquetSink(max_chunks=8)
+    sink = AsyncParquetSink()
 
     async def stream() -> AsyncIterator[bytes]:
-        producer = asyncio.create_task(
-            service.get_extracted_features(
-                parameters.ohsome_filter, parameters.aoi.features[0].geometry.wkt, sink
-            )
+        producer = service.get_extracted_features(
+            parameters.ohsome_filter,
+            parameters.aoi.features[0].geometry.wkt,
         )
-        try:
-            while True:
-                # Queue can be provided with timeout. Maybe useful for cancel policy.
-                chunk = await run_in_threadpool(sink.io.queue.get, block=True)
-                if chunk is None:
-                    break
+        async for batch in producer:
+            sink.write_batch(batch)
+            for chunk in sink.io.fetch_all():
                 yield chunk
 
-            await producer
-        except asyncio.CancelledError:
-            producer.cancel()
-            raise
+        sink.close()
+        for chunk in sink.io.fetch_all():
+            yield chunk
 
     return StreamingResponse(
         stream(),

@@ -132,3 +132,9 @@ def aoi_geojson_invalid_topology():
 def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
     parsed = GeoJsonFeatureCollection(**aoi_geojson_heigit)
     return parsed.features[0].geometry.wkt
+
+
+@pytest.fixture
+def aoi_wkt_audimax(aoi_geojson_audimax: dict) -> str:
+    parsed = GeoJsonFeatureCollection(**aoi_geojson_audimax)
+    return parsed.features[0].geometry.wkt

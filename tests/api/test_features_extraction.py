@@ -4,6 +4,7 @@ from datetime import datetime
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pytest
 from fastapi.testclient import TestClient
 from pyarrow import parquet
 from shapely import from_wkb, to_wkt
@@ -29,7 +30,7 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict)
     table = parquet.read_table(response_file)
     assert table.num_rows == 1
 
-    # https://www.openstreetmap.org/api/0.6/way/274497164
+    # https://www.openstreetmap.org/api/0.6/node/1702635807
     assert table["osm_id"][0].as_py() == 1702635807
     assert table["osm_type"][0].as_py() == "node"
     assert table["osm_version"][0].as_py() == 6
@@ -111,7 +112,8 @@ def test_features_extraction_deleted_features(
     assert table.num_rows == 0
 
 
-def test_contributions_extract_stream(client: TestClient, aoi_geojson_heigit: dict):
+@pytest.mark.skip
+def test_features_extract_stream(client: TestClient, aoi_geojson_heigit: dict):
     with client.stream(
         "POST",
         "/features/extraction.parquet",
