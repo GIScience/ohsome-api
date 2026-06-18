@@ -1,4 +1,5 @@
 import io
+import json
 from datetime import datetime
 
 import pyarrow as pa
@@ -17,7 +18,13 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
-    table = parquet.read_table(io.BytesIO(response.content))
+    assert (
+        response.headers["content-disposition"]
+        == 'attachment; filename="extractions.parquet"'
+    )
+
+    response_file = io.BytesIO(response.content)
+    table = parquet.read_table(response_file)
     assert table.num_rows == 1
 
     # https://www.openstreetmap.org/api/0.6/way/274497164
@@ -41,6 +48,17 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
 
     last_edit_expected = datetime.fromisoformat("2024-07-05 11:04:04.000000Z")
     assert table["last_edit"][0].as_py() == last_edit_expected
+
+    metadata = parquet.read_metadata(response_file).metadata[b"geo"].decode("utf-8")
+    metadata = json.loads(metadata)
+
+    assert metadata["columns"]["geom"]["bbox"] == [
+        8.6702875,
+        49.416011,
+        8.6707624,
+        49.4160772,
+    ]
+    # TODO: validate attribution in API metadata
 
     # Geometry (WGS84, EPSG 4326)
     # Maybe include information if geometry has been clipped
