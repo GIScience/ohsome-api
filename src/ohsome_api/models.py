@@ -32,6 +32,7 @@ class ExtractionRow(TypedDict):
     ymin: float
     ymax: float
     geom: bytes
+    clipped: bool
 
 
 class ExtractionWriter(Protocol):

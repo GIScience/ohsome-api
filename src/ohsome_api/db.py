@@ -305,9 +305,15 @@ async def get_features(  # noqa: C901, PLR0913
 
 
 def get_extracted_features(
-    filter_where_clause: str, filter_args: tuple
+    filter_where_clause: str,
+    filter_args: tuple,
+    aoi_wkt: str,
 ) -> AsyncIterator[list[ExtractionRow]]:
+    filter_args_count = len(filter_args)
     sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+        )
         SELECT osm_type,
                osm_id,
                valid_from,
@@ -317,12 +323,13 @@ def get_extracted_features(
                user_name,
                changeset_id,
                tags,
-               ST_XMin(geom) as xmin,
-               ST_YMin(geom) as ymin,
-               ST_XMax(geom) as xmax,
-               ST_YMax(geom) as ymax,
-               st_asbinary(geom) as geom
-        FROM {SCHEMA}.contributions
+               ST_XMin(c.geom) as xmin,
+               ST_YMin(c.geom) as ymin,
+               ST_XMax(c.geom) as xmax,
+               ST_YMax(c.geom) as ymax,
+               st_asbinary(c.geom) as geom,
+               NOT ST_Within( c.geom, aoi.geom ) as clipped
+        FROM {SCHEMA}.contributions as c, aoi
         WHERE status_geom_type = ANY(array[
            ('latest','Point')::{SCHEMA}.status_geom_type_type,
            ('latest', 'LineString')::{SCHEMA}.status_geom_type_type,
@@ -333,5 +340,5 @@ def get_extracted_features(
     # TODO: make batch size configurable (maybe as function arg)
     return cast(
         AsyncIterator[list[ExtractionRow]],
-        db.fetch_batch(sql, *filter_args, batch_size=10000),
+        db.fetch_batch(sql, *filter_args, aoi_wkt, batch_size=10000),
     )

@@ -33,6 +33,7 @@ EXTRACTION_SCHEMA = pa.schema(
             ),
         ),
         ("geom", pa.binary()),
+        ("clipped", pa.bool_()),
     ]
 )
 
@@ -141,6 +142,7 @@ class AsyncParquetSink:
                     names=["xmin", "xmax", "ymin", "ymax"],
                 ),
                 pa.array([r["geom"] for r in batch], type=pa.binary()),
+                pa.array([r["clipped"] for r in batch], type=pa.bool_()),
             ],
             schema=EXTRACTION_SCHEMA,
         )

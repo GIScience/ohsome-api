@@ -15,7 +15,7 @@ from starlette.status import (
 def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
         "/features/extraction.parquet",
-        json={"filter": "id:way/274497164", "aoi": aoi_geojson_heigit},
+        json={"filter": "id:node/1702635807", "aoi": aoi_geojson_heigit},
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
@@ -29,43 +29,42 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_heigit: dict):
     assert table.num_rows == 1
 
     # https://www.openstreetmap.org/api/0.6/way/274497164
-    assert table["osm_id"][0].as_py() == 274497164
-    assert table["osm_type"][0].as_py() == "way"
-    assert table["osm_version"][0].as_py() == 5
+    assert table["osm_id"][0].as_py() == 1702635807
+    assert table["osm_type"][0].as_py() == "node"
+    assert table["osm_version"][0].as_py() == 6
 
-    assert table["osm_user_name"][0].as_py() == "Niiepce"
-    assert table["osm_changeset_id"][0].as_py() == 153583423
+    assert table["osm_user_name"][0].as_py() == "ezelo"
+    assert table["osm_changeset_id"][0].as_py() == 74974721
     assert table["osm_tags"][0].as_py() == [
-        ("foot", "yes"),
-        ("oneway", "no"),
-        ("bicycle", "yes"),
-        ("highway", "service"),
-        ("surface", "paving_stones"),
-        ("motor_vehicle", "private"),
+        ("name", "Dürer trifft Einstein auf Reisen"),
+        ("tourism", "artwork"),
+        ("material", "bronze"),
+        ("start_date", "2011"),
+        ("wheelchair", "yes"),
+        ("artist_name", "Sabrina Hohmann"),
+        ("artwork_type", "sculpture"),
     ]
 
     # resets to 0 if major version has been bumped up
     # assert table["minor_version"][0].as_py() == 6
-    # assert not table["clipped"][0].as_py()
-    last_edit_expected = datetime.fromisoformat("2024-07-05 11:04:04.000000Z")
+    assert table["clipped"][0].as_py() is True
+
+    last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
     assert table["last_edit"][0].as_py() == last_edit_expected
 
     geom = table["geom"][0].as_py()
     geom = from_wkb(geom)
-    assert (
-        to_wkt(geom)
-        == "LINESTRING (8.670288 49.416011, 8.670559 49.416013, 8.670571 49.416012, 8.670762 49.416077)"  # noqa: E501
-    )
+    assert to_wkt(geom) == "POINT (8.672892 49.416696)"
 
     metadata = parquet.read_metadata(response_file).metadata
     metadata_geo = metadata[b"geo"].decode("utf-8")
     metadata_geo = json.loads(metadata_geo)
 
     assert metadata_geo["columns"]["geom"]["bbox"] == [
-        8.6702875,
-        49.416011,
-        8.6707624,
-        49.4160772,
+        8.6728921,
+        49.4166963,
+        8.6728921,
+        49.4166963,
     ]
     assert "crs" in metadata_geo["columns"]["geom"]
 

@@ -76,11 +76,14 @@ async def get_features(  # noqa: PLR0913
 
 async def get_extracted_features(
     ohsome_filter: OhsomeFilter,
+    aoi_wkt: str,
     writer: ExtractionWriter,
 ) -> None:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     try:
-        async for batch in db.get_extracted_features(query_where_clause, query_args):
+        async for batch in db.get_extracted_features(
+            query_where_clause, query_args, aoi_wkt
+        ):
             # https://starlette.dev/threadpool/
             # PERF: potentially we want to have our own thread pool
             await run_in_threadpool(writer.write_batch, batch)

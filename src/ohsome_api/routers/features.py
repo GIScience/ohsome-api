@@ -112,7 +112,9 @@ async def post_contributions_extract(  # noqa: C901
 
     async def stream() -> AsyncIterator[bytes]:
         producer = asyncio.create_task(
-            service.get_extracted_features(parameters.ohsome_filter, sink)
+            service.get_extracted_features(
+                parameters.ohsome_filter, parameters.aoi.features[0].geometry.wkt, sink
+            )
         )
         try:
             while True:
