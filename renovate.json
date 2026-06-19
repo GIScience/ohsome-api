@@ -1,3 +1,24 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"lockFileMaintenance": {
+		"enabled": true,
+		"automerge": true
+	},
+	"packageRules": [
+		{
+			"description": "Automerge dev dependencies",
+			"matchDepTypes": ["devDependencies"],
+			"automerge": true
+		},
+		{
+			"description": "Automerge minor and patch dependencies excluding 0.x versions",
+			"matchUpdateTypes": ["minor", "patch"],
+			"matchCurrentVersion": "!/^0/",
+			"automerge": true
+		}
+	],
+	"minimumReleaseAge": "1 week",
+	"pre-commit": {
+		"enabled": true
+	}
 }
