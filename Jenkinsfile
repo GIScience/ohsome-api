@@ -115,7 +115,7 @@ pipeline {
             }
             steps {
 				script {
-					sh 'hurl --test hurl-tests/*.hurl'
+					sh 'hurl --test tests-end-to-end/*.hurl'
 				}
             }
             post {
