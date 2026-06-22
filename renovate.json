@@ -17,8 +17,10 @@
 			"automerge": true
 		}
 	],
-	"minimumReleaseAge": "1 week",
 	"pre-commit": {
 		"enabled": true
-	}
+	},
+	"minimumReleaseAge": "1 week",
+	"description": "Schedule daily before 9 AM",
+	"schedule": ["* 0-9 * * *"]
 }
