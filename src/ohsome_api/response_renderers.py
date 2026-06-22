@@ -9,7 +9,7 @@ class CSVResponse(Response):
 
     def render(self, content: dict) -> bytes:
         csvfile = StringIO()
-        writer = csv.writer(csvfile, lineterminator="\n")
+        writer = csv.writer(csvfile, delimiter=";", lineterminator="\n")
         comment = [
             [f"# apiVersion: {content['apiVersion']}"],
             [f"# attribution.url: {content['attribution']['url']}"],
