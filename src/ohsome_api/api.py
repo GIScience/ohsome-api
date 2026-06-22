@@ -81,7 +81,7 @@ async def postgres_internal_server_error_handler(
 
 
 class HealthCheck(BaseModel):
-    status: str = "Ok"
+    status: str = "OK"
 
 
 @app.head("/health")
