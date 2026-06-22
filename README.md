@@ -46,10 +46,3 @@ export OHSOME_API_LOG_LEVEL=DEBUG
 ```sh
 uv run fastapi dev
 ```
-
-## Production Setup
-
-```sh
-docker build -t ohsome-api .
-docker run ohsome-api -p 8080:80
-```
