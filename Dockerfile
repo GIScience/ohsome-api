@@ -35,6 +35,6 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY static static
 
-# TODO: Move deployment configuration such as `forward-allow-ips` and
-# 	`root-path` to infrastructure repository
-ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app", "--port", "80", "--forwarded-allow-ips", "'*'", "--root-path", "/ohsome-api/v2"]
+EXPOSE 8000
+
+ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app"]
