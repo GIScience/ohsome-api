@@ -13,6 +13,7 @@ from pydantic import (
     TypeAdapter,
 )
 
+from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import activity, currentness, docs, features, metadata
 
@@ -30,6 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
+    root_path=CONFIG.root_path,
     lifespan=lifespan,
     openapi_url="/openapi.json",
     docs_url=None,  # configured in routers/docs.py
