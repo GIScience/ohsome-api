@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import (
+    BaseModel,
     TypeAdapter,
 )
 
@@ -75,3 +76,13 @@ async def postgres_internal_server_error_handler(
             },
         )
     raise exception
+
+
+class HealthCheck(BaseModel):
+    status: str = "Ok"
+
+
+@app.head("/health")
+@app.get("/health")
+def health() -> HealthCheck:
+    return HealthCheck()
