@@ -9,7 +9,8 @@ router = APIRouter()
 
 @router.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html(request: Request) -> HTMLResponse:
-    root_path = request.scope.get("root_path")
+    # root_path = request.scope.get("root_path")
+    root_path = ""
     return get_swagger_ui_html(
         openapi_url=f"{root_path}/openapi.json",
         title="ohsome-api - Swagger UI",
