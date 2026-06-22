@@ -111,7 +111,7 @@ pipeline {
 
         stage('End-to-end authorization tests with HURL against production') {
             environment {
-				HURL_VARIABLE_HOST="ohsome-api.heigitk8s.de"
+				HURL_VARIABLE_HOST="staging-ohsome-api.heigitk8s.de"
             }
             steps {
 				script {
