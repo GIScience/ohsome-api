@@ -7,7 +7,6 @@ from typing import AsyncIterator
 import asyncpg
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import (
     BaseModel,
     TypeAdapter,
@@ -42,17 +41,6 @@ app = FastAPI(
         "name": "HeiGIT gGmbH",
         "email": "ohsome@heigit.org",
     },
-)
-
-app.mount(
-    "/static",
-    StaticFiles(directory="static"),
-    name="static",
-)
-app.mount(
-    f"{CONFIG.root_path}/static",
-    StaticFiles(directory="static"),
-    name="static-2",
 )
 
 app.include_router(docs.router)

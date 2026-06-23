@@ -22,20 +22,6 @@ HTTP *
 status == 200
 header "Content-Type" == "application/json"
 
-GET https://{{HOST}}/static/swagger-ui-bundle.js
-User-Agent: HURL tests
-HTTP *
-[Asserts]
-status == 200
-header "Content-Type" == "text/javascript; charset=utf-8"
-
-GET https://{{HOST}}/static/swagger-ui.css
-User-Agent: HURL tests
-HTTP *
-[Asserts]
-status == 200
-header "Content-Type" == "text/css; charset=utf-8"
-
 # TODO: Enable once user management is integrated
 # POST https://{{HOST}}/currentness/count.json
 # User-Agent: HURL tests
