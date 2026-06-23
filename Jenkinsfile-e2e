@@ -32,13 +32,13 @@ pipeline {
 
         stage('End-to-End Test') {
             environment {
-                HURL_VARIABLE_BASE_URL="https://staging.api.heigit.org/ohsome-api-staging/v2"
-				HURL_VARIABLE_SWAGGER_UI_CSS_URL="https://ohsome.org/static/swagger-ui.css"
-				HURL_VARIABLE_SWAGGER_UI_JS_URL="https://ohsome.org/static/swagger-ui-bundle.js"
+                HURL_VARIABLE_BASE_URL="https://api.heigit.org/ohsome-api-staging/v2"
+                HURL_VARIABLE_SWAGGER_UI_CSS_URL="https://ohsome.org/static/swagger-ui.css"
+                HURL_VARIABLE_SWAGGER_UI_JS_URL="https://ohsome.org/static/swagger-ui-bundle.js"
             }
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'heigit-api-staging-key', variable: 'HURL_SECRET_API_KEY')]) {
+                    withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'HURL_SECRET_API_KEY')]) {
                         sh 'hurl --test tests-end-to-end/*.hurl'
                     }
                 }
