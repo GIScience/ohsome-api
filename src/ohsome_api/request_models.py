@@ -71,16 +71,16 @@ class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
 
 class BaseTime(BaseRequestModel):
     start: datetime = Field(
-        example="2026-01-01T00:00:00Z",
         description="""
             Only UTC timestamps are supported.
             Earliest OSM timestamp is 2007-10-08T00:00:00Z.
             """,
         ge=datetime(2007, 10, 8),
+        json_schema_extra={"example": "2026-01-01T00:00:00Z"},
     )
     end: datetime = Field(
-        example="2026-04-17T00:00:00Z",
         description="Only UTC timestamps are supported.",
+        json_schema_extra={"example": "2026-04-17T00:00:00Z"},
     )
 
     @model_validator(mode="after")
@@ -104,7 +104,10 @@ class BaseTime(BaseRequestModel):
 
 
 class TimeBins(BaseTime):
-    bin_size: str | None = Field(example="P1M", default=None)
+    bin_size: str | None = Field(
+        default=None,
+        json_schema_extra={"example": "P1M"},
+    )
 
     @field_validator("bin_size")
     @classmethod
@@ -115,7 +118,10 @@ class TimeBins(BaseTime):
 
 
 class TimeSeries(BaseTime):
-    interval: str | None = Field(example="P1M", default=None)
+    interval: str | None = Field(
+        default=None,
+        json_schema_extra={"example": "P1M"},
+    )
 
     @field_validator("interval")
     @classmethod
@@ -130,7 +136,7 @@ class BaseParameters(BaseRequestModel):
         alias="filter",
         description="""[filter language documentation](
         https://docs.ohsome.org/ohsome-api/v1/filter.html)""",
-        example="type:node and natural=tree",
+        json_schema_extra={"example": "type:node and natural=tree"},
     )
     aoi: GeoJsonFeatureCollection = Field(
         description="""Area of interest as a GeoJSON
