@@ -80,11 +80,14 @@ class DummyBytesIO(io.RawIOBase):
         self.position = 0
         self.data: list[bytes] = []
 
-    # TODO: do we need this?
+    # TODO: do we need this? Yes it is called from ParquetWriter in the beginning
     def writable(self) -> bool:
         return True
 
-    def write(self, buffer: Buffer, /) -> int:
+    def write(
+        self,
+        buffer: Buffer,
+    ) -> int:
         data: bytes = bytes(buffer)
         self.position += len(data)
         self.data.append(data)
@@ -103,6 +106,15 @@ class DummyBytesIO(io.RawIOBase):
         pass
 
 
+def bbox(r: ExtractionRow) -> dict[str, float]:
+    return {
+        "xmin": r["xmin"],
+        "xmax": r["xmax"],
+        "ymin": r["ymin"],
+        "ymax": r["ymax"],
+    }
+
+
 class AsyncParquetSink:
     def __init__(self) -> None:
         self.io: DummyBytesIO = DummyBytesIO()
@@ -117,45 +129,33 @@ class AsyncParquetSink:
             compression="zstd",
         )
 
-    def write_batch(self, batch: list[ExtractionRow]) -> None:
+    def write_batch(self, rows: list[ExtractionRow]) -> None:
         if self._closed:
             raise ValueError("I/O operation on closed file.")
-        table = pa.Table.from_arrays(
+        batch = pa.RecordBatch.from_arrays(
+            #        batch = pa.record_batch(
             [
-                pa.array([r["osm_type"] for r in batch], type=pa.string()),
-                pa.array([r["osm_id"] for r in batch], type=pa.int64()),
-                pa.array(
-                    [r["valid_from"] for r in batch], type=pa.timestamp("us", tz="UTC")
-                ),
-                pa.array([r["osm_version"] for r in batch], type=pa.int32()),
-                pa.array([r["osm_edits"] for r in batch], type=pa.int32()),
-                pa.array([r["user_id"] for r in batch], type=pa.int32()),
-                pa.array([r["user_name"] for r in batch], type=pa.string()),
-                pa.array([r["changeset_id"] for r in batch], type=pa.int64()),
-                pa.array(
-                    [list(r["tags"].items()) for r in batch],
-                    type=pa.map_(pa.string(), pa.string()),
-                ),
-                pa.StructArray.from_arrays(
-                    [
-                        pa.array([r["xmin"] for r in batch], type=pa.float64()),
-                        pa.array([r["xmax"] for r in batch], type=pa.float64()),
-                        pa.array([r["ymin"] for r in batch], type=pa.float64()),
-                        pa.array([r["ymax"] for r in batch], type=pa.float64()),
-                    ],
-                    names=["xmin", "xmax", "ymin", "ymax"],
-                ),
-                pa.array([r["geom"] for r in batch], type=pa.binary()),
-                pa.array([r["clipped"] for r in batch], type=pa.bool_()),
+                [r["osm_type"] for r in rows],
+                [r["osm_id"] for r in rows],
+                [r["valid_from"].timestamp() * 1000000 for r in rows],
+                [r["osm_version"] for r in rows],
+                [r["osm_edits"] for r in rows],
+                [r["user_id"] for r in rows],
+                [r["user_name"] for r in rows],
+                [r["changeset_id"] for r in rows],
+                [r["tags"] for r in rows],
+                [bbox(r) for r in rows],
+                [r["geom"] for r in rows],
+                [r["clipped"] for r in rows],
             ],
             schema=EXTRACTION_SCHEMA,
         )
-        self.xmin = min(self.xmin, *(r["xmin"] for r in batch))
-        self.ymin = min(self.ymin, *(r["ymin"] for r in batch))
-        self.xmax = max(self.xmax, *(r["xmax"] for r in batch))
-        self.ymax = max(self.ymax, *(r["ymax"] for r in batch))
+        self.xmin = min(self.xmin, *(r["xmin"] for r in rows))
+        self.ymin = min(self.ymin, *(r["ymin"] for r in rows))
+        self.xmax = max(self.xmax, *(r["xmax"] for r in rows))
+        self.ymax = max(self.ymax, *(r["ymax"] for r in rows))
 
-        self.writer.write_table(table, row_group_size=10000)
+        self.writer.write(batch, row_group_size=10000)
 
     def close(self) -> None:
         self._closed = True
