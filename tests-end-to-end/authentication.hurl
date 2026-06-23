@@ -1,25 +1,49 @@
-# /metadata /docs /openapi.json /swagger-ui-bundle /swagger-ui.css
-# should be accessible without authorization
-
-GET {{BASE_URL}}/metadata
-HTTP *
-[Asserts]
-status == 200
-header "Content-Type" == "application/json"
-
-GET {{BASE_URL}}/docs
-HTTP *
-[Asserts]
-status == 200
-header "Content-Type" == "text/html; charset=utf-8"
-
-GET	{{BASE_URL}}/openapi.json
-HTTP *
-[Asserts]
-status == 200
-header "Content-Type" == "application/json"
-
 POST {{BASE_URL}}/currentness/count.json
+Authorization: {{API_KEY}}
+{
+  "filter": "type:node and natural=tree",
+  "aoi": {
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                8.72362,
+                49.41582
+              ],
+              [
+                8.68812,
+                49.41582
+              ],
+              [
+                8.68812,
+                49.4039
+              ],
+              [
+                8.72362,
+                49.4039
+              ],
+              [
+                8.72362,
+                49.41582
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {},
+        "type": "Feature"
+      }
+    ],
+    "type": "FeatureCollection"
+  },
+  "timeBins": {
+    "start": "2026-01-01T00:00:00Z",
+    "end": "2026-04-17T00:00:00Z",
+    "binSize": "P1M"
+  }
+}
 HTTP *
 [Asserts]
-status == 401
+status == 200

@@ -36,7 +36,9 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'hurl --test tests-end-to-end/*.hurl'
+                    withCredentials([string(credentialsId: 'heigit-api-staging-key', variable: 'HURL_SECRET_API_KEY')]) {
+                        sh 'hurl --test tests-end-to-end/*.hurl'
+                    }
                 }
             }
             post {
