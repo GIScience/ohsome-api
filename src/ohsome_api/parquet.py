@@ -31,7 +31,7 @@ EXTRACTION_SCHEMA = pa.schema(
                 ]
             ),
         ),
-        ("geom", pa.binary()),
+        ("geom", pa.geometry("WKB")),
         ("clipped", pa.bool_()),
     ]
 )
