@@ -1,6 +1,6 @@
 # End-to-end authorization tests with HURL against production
 
 ```sh
-export HURL_VARIABLE_HOST=ohsome-api.heigitk8s.de
+export HURL_VARIABLE_BASE_URL=http://localhost:8000
 hurl --test *.hurl
 ```

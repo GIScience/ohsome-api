@@ -95,7 +95,7 @@ pipeline {
                 script {
                     docker.withRegistry('https://repo.heigit.org', DOCKER_CREDENTIALS_ID) {
                         if (env.BRANCH_NAME ==~ MAIN_BRANCH_REGEX) {
-							sh 'uv version "$VERSION+$LATEST_COMMIT_ID"'
+                            sh 'uv version "$VERSION+$LATEST_COMMIT_ID"'
                             dockerImage = docker.build(DOCKER_REPOSITORY + ':' + env.BRANCH_NAME)
                             dockerImage.push()
                         }
@@ -109,18 +109,18 @@ pipeline {
             }
         }
 
-        stage('End-to-end authorization tests with HURL against production') {
-            environment {
-				HURL_VARIABLE_HOST="https://staging.api.heigit.org/ohsome-api-staging/v2/docs"
+        stage('Trigger End-to-End Tests') {
+            when {
+                expression {
+                    return env.BRANCH_NAME ==~ BENCHMARK_BRANCH_REGEX
+                }
             }
             steps {
-				script {
-					sh 'hurl --test tests-end-to-end/*.hurl'
-				}
+                build job: 'ohsome-api-end-to-end', quietPeriod: 300, wait: false
             }
             post {
                 failure {
-                  rocket_testfail()
+                    rocket_basicsend("Triggering of End-to-End Tests for ${REPO_NAME}-build nr. ${env.BUILD_NUMBER} *failed* on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>). Does the end-to-end job still exist?")
                 }
             }
         }

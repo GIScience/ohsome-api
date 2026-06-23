@@ -1,21 +1,21 @@
 # /metadata /docs /openapi.json /swagger-ui-bundle /swagger-ui.css
 # should be accessible without authorization
 
-GET https://{{HOST}}/metadata
+GET {{BASE_URL}}/metadata
 User-Agent: HURL tests
 HTTP *
 [Asserts]
 status == 200
 header "Content-Type" == "application/json"
 
-GET https://{{HOST}}/docs
+GET {{BASE_URL}}/docs
 User-Agent: HURL tests
 HTTP *
 [Asserts]
 status == 200
 header "Content-Type" == "text/html; charset=utf-8"
 
-GET	https://{{HOST}}/openapi.json
+GET	{{BASE_URL}}/openapi.json
 User-Agent: HURL tests
 HTTP *
 [Asserts]
@@ -23,7 +23,7 @@ status == 200
 header "Content-Type" == "application/json"
 
 # TODO: Enable once user management is integrated
-# POST https://{{HOST}}/currentness/count.json
+# POST {{BASE_URL}}/currentness/count.json
 # User-Agent: HURL tests
 # HTTP *
 # [Asserts]
