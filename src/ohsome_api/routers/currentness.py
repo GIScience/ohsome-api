@@ -7,7 +7,7 @@ from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import Measure, TimeBinsParameters
 from ohsome_api.response_models import CountResponseModel
-from ohsome_api.response_renderers import CSVResponse
+from ohsome_api.response_renderers import CSVCountResponse
 
 VERSION = version("ohsome-api")
 router = APIRouter(
@@ -33,7 +33,7 @@ async def post_currentness_as_json(
 
 @router.post(
     "/currentness/{measure}.csv",
-    response_class=CSVResponse,
+    response_class=CSVCountResponse,
     responses={
         200: {
             "content": {
@@ -42,8 +42,8 @@ async def post_currentness_as_json(
                     "example": f"""# apiVersion: {VERSION}
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: © OpenStreetMap contributors
-result
-0
+start;end;value
+1970-01-01T00:00:00Z;1970-02-01T00:00:00Z;0
 """,
                 },
             },

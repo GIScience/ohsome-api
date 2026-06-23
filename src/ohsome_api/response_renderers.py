@@ -4,7 +4,7 @@ from io import StringIO
 from fastapi import Response
 
 
-class CSVResponse(Response):
+class CSVCountResponse(Response):
     media_type = "text/csv"
 
     def render(self, content: dict) -> bytes:
