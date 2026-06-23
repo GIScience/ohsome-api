@@ -112,11 +112,11 @@ pipeline {
         stage('Trigger End-to-End Tests') {
             when {
                 expression {
-                    return env.BRANCH_NAME ==~ BENCHMARK_BRANCH_REGEX
+                    return env.BRANCH_NAME ==~ MAIN_BRANCH_REGEX
                 }
             }
             steps {
-                build job: 'ohsome-api-end-to-end', quietPeriod: 300, wait: false
+                build job: 'ohsome-api-end-to-end/main', quietPeriod: 300, wait: false
             }
             post {
                 failure {
