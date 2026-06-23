@@ -1,3 +1,4 @@
+# Authorization required
 POST {{BASE_URL}}/currentness/count.json
 Authorization: {{API_KEY}}
 {

@@ -1,5 +1,4 @@
-# /metadata /docs /openapi.json /swagger-ui-bundle /swagger-ui.css
-# should be accessible without authorization
+# These endpoints should be accessible without authorization.
 
 GET {{BASE_URL}}/metadata
 HTTP *
@@ -19,6 +18,7 @@ HTTP *
 status == 200
 header "Content-Type" == "application/json"
 
+# Authorization required.
 POST {{BASE_URL}}/currentness/count.json
 HTTP *
 [Asserts]
