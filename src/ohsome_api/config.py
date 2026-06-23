@@ -32,8 +32,12 @@ class Config(BaseSettings):
     ohsomedb: DatabaseConfig = DatabaseConfig()
     log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
     root_path: str = ""
-    swagger_js_url: str | None = None
-    swagger_css_url: str | None = None
+    swagger_js_url: str = (
+        "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"
+    )
+    swagger_css_url: str = (
+        "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"
+    )
 
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API_",
