@@ -2,21 +2,21 @@
 # should be accessible without authorization
 
 GET {{BASE_URL}}/metadata
-User-Agent: HURL tests
+User-Agent: HeiGIT ohsome API end-to-end tests
 HTTP *
 [Asserts]
 status == 200
 header "Content-Type" == "application/json"
 
 GET {{BASE_URL}}/docs
-User-Agent: HURL tests
+User-Agent: HeiGIT ohsome API end-to-end tests
 HTTP *
 [Asserts]
 status == 200
 header "Content-Type" == "text/html; charset=utf-8"
 
 GET	{{BASE_URL}}/openapi.json
-User-Agent: HURL tests
+User-Agent: HeiGIT ohsome API end-to-end tests
 HTTP *
 [Asserts]
 status == 200
