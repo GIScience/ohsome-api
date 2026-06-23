@@ -116,7 +116,7 @@ pipeline {
                 }
             }
             steps {
-                build job: 'ohsome-api-end-to-end/main', quietPeriod: 300, wait: false
+                build job: 'ohsome-api-end-to-end/main', quietPeriod: 180, wait: false
             }
             post {
                 failure {
