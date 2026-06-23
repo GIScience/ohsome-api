@@ -32,6 +32,8 @@ class Config(BaseSettings):
     ohsomedb: DatabaseConfig = DatabaseConfig()
     log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
     root_path: str = ""
+    swagger_js_url: str | None = None
+    swagger_css_url: str | None = None
 
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API_",
