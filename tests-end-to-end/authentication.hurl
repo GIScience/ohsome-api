@@ -22,9 +22,8 @@ HTTP *
 status == 200
 header "Content-Type" == "application/json"
 
-# TODO: Enable once user management is integrated
-# POST {{BASE_URL}}/currentness/count.json
-# User-Agent: HURL tests
-# HTTP *
-# [Asserts]
-# status == 401
+POST {{BASE_URL}}/currentness/count.json
+User-Agent: HeiGIT ohsome API end-to-end tests
+HTTP *
+[Asserts]
+status == 401
