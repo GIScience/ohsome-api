@@ -78,6 +78,12 @@ class HealthCheck(BaseModel):
 
 
 @app.head("/health")
+def head_health() -> None:
+    # TODO: actually perform a health check
+    pass
+
+
 @app.get("/health")
-def health() -> HealthCheck:
+def get_health() -> HealthCheck:
+    # TODO: actually perform a health check
     return HealthCheck()
