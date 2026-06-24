@@ -24,13 +24,20 @@ async def jsonb_codec(connection: Connection) -> None:
 class Database:
     def __init__(self) -> None:
         self.pool: asyncpg.Pool | None = None
+        self.pool_extraction: asyncpg.Pool | None = None
 
     async def connect(self) -> None:
-        # Initialize the pool once
+        # Initialize the pools once
         self.pool = await asyncpg.create_pool(
             dsn=CONNECTION_STRING,
-            min_size=5,
-            max_size=20,
+            min_size=1,
+            max_size=10,
+            init=jsonb_codec,
+        )
+        self.pool_extraction = await asyncpg.create_pool(
+            dsn=CONNECTION_STRING,
+            min_size=0,
+            max_size=5,
             init=jsonb_codec,
         )
         logging.info("Database connection pool established.")
@@ -67,10 +74,13 @@ class Database:
         *args: Any,  # noqa: ANN401
         batch_size: int = 10000,
     ) -> AsyncIterator[list[Record]]:
-        if self.pool is None:
-            raise ValueError("Database connection pool not initialized")
+        if self.pool_extraction is None:
+            raise ValueError("Database connection pool for extraction not initialized")
 
-        async with self.pool.acquire() as connection, connection.transaction():
+        async with (
+            self.pool_extraction.acquire(timeout=10) as connection,
+            connection.transaction(),
+        ):
             batch: list[Record] = []
             async for record in connection.cursor(sql, *args, prefetch=batch_size):
                 batch.append(record)
