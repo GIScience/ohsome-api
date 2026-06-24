@@ -2,9 +2,6 @@ import io
 import json
 from datetime import datetime
 
-import pyarrow as pa
-import pyarrow.parquet as pq
-import pytest
 from fastapi.testclient import TestClient
 from pyarrow import parquet
 from shapely import from_wkb, to_wkt
@@ -110,21 +107,3 @@ def test_features_extraction_deleted_features(
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
     table = parquet.read_table(io.BytesIO(response.content))
     assert table.num_rows == 0
-
-
-@pytest.mark.skip
-def test_features_extract_stream(client: TestClient, aoi_geojson_heigit: dict):
-    with client.stream(
-        "POST",
-        "/features/extraction.parquet",
-        json={"filter": "id:way/274497164", "aoi": aoi_geojson_heigit},
-    ) as response:
-        assert response.status_code == HTTP_200_OK
-        assert response.headers["content-type"] == "application/vnd.apache.parquet"
-        chunks = [chunk for chunk in response.iter_bytes()]
-
-    table = pq.read_table(io.BytesIO(b"".join(chunks)))
-    assert table.num_rows == 1
-    assert table.schema.field("tags").type == pa.map_(pa.string(), pa.string())
-    assert table["osm_type"][0].as_py() == "way"
-    assert table["osm_id"][0].as_py() == 274497164

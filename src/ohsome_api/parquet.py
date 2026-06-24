@@ -5,7 +5,6 @@ from copy import deepcopy
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pyproj
-from typing_extensions import Buffer
 
 from ohsome_api.models import ExtractionRow
 
@@ -69,43 +68,6 @@ def _geoparquet_meta(xmin: float, ymin: float, xmax: float, ymax: float) -> byte
     return json.dumps(meta).encode()
 
 
-# Sync file-like object for PyArrow.
-#
-# PyArrow calls write() from a worker thread.
-# FastAPI consumes bytes asynchronously from the queue.
-
-
-class DummyBytesIO(io.RawIOBase):
-    def __init__(self) -> None:
-        self.position = 0
-        self.data: list[bytes] = []
-
-    # TODO: do we need this? Yes it is called from ParquetWriter in the beginning
-    def writable(self) -> bool:
-        return True
-
-    def write(
-        self,
-        buffer: Buffer,
-    ) -> int:
-        data: bytes = bytes(buffer)
-        self.position += len(data)
-        self.data.append(data)
-        return len(data)
-
-    def fetch_all(self) -> list[bytes]:
-        res = self.data
-        self.data = []
-        return res
-
-    # TODO: do we need this?
-    def tell(self) -> int:
-        return self.position
-
-    def close(self) -> None:
-        pass
-
-
 def bbox(r: ExtractionRow) -> dict[str, float]:
     return {
         "xmin": r["xmin"],
@@ -115,25 +77,21 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
     }
 
 
-class AsyncParquetSink:
+class ParquetSink:
     def __init__(self) -> None:
-        self.io: DummyBytesIO = DummyBytesIO()
-        self._closed = False
+        self.buffer = io.BytesIO()
         self.xmin = float("inf")
         self.ymin = float("inf")
         self.xmax = float("-inf")
         self.ymax = float("-inf")
         self.writer = pq.ParquetWriter(
-            self.io,
+            self.buffer,
             schema=EXTRACTION_SCHEMA,
             compression="zstd",
         )
 
     def write_batch(self, rows: list[ExtractionRow]) -> None:
-        if self._closed:
-            raise ValueError("I/O operation on closed file.")
         batch = pa.RecordBatch.from_arrays(
-            #        batch = pa.record_batch(
             [
                 [r["osm_type"] for r in rows],
                 [r["osm_id"] for r in rows],
@@ -157,10 +115,17 @@ class AsyncParquetSink:
 
         self.writer.write(batch, row_group_size=10000)
 
-    def close(self) -> None:
-        self._closed = True
+    def read_batch(self) -> bytes:
+        content = self.buffer.getvalue()
+        self.buffer.seek(0)
+        self.buffer.truncate()
+        return content
+
+    def write_metadata(self) -> None:
         self.writer.add_key_value_metadata(
             {b"geo": _geoparquet_meta(self.xmin, self.ymin, self.xmax, self.ymax)}
         )
         self.writer.close()
-        self.io.close()
+
+    def close(self) -> None:
+        self.buffer.close()

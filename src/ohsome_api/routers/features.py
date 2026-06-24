@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import FeaturesRowModel
-from ohsome_api.parquet import AsyncParquetSink
+from ohsome_api.parquet import ParquetSink
 from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
 from ohsome_api.response_models import BaseResponseModel
 
@@ -100,13 +100,13 @@ async def post_features_as_csv(
 
 # TODO: Address complexity
 @router.post("/features/extraction.parquet", response_class=StreamingResponse)
-async def post_contributions_extract(  # noqa: C901
+async def post_contributions_extract(
     parameters: BaseParameters,
 ) -> StreamingResponse:
     # TODO: if request is aborted producer should also cancel
 
     # Database result is written to sink batch wise
-    sink = AsyncParquetSink()
+    sink = ParquetSink()
 
     async def stream() -> AsyncIterator[bytes]:
         producer = service.get_extracted_features(
@@ -115,13 +115,11 @@ async def post_contributions_extract(  # noqa: C901
         )
         async for batch in producer:
             sink.write_batch(batch)
-            for chunk in sink.io.fetch_all():
-                yield chunk
+            yield sink.read_batch()
 
+        sink.write_metadata()
+        yield sink.read_batch()
         sink.close()
-        # fetch and yield parquet metadata after sink.close
-        for chunk in sink.io.fetch_all():
-            yield chunk
 
     return StreamingResponse(
         stream(),
