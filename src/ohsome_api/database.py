@@ -15,7 +15,7 @@ logger = logging.getLogger("ohsome-api")
 async def jsonb_codec(connection: Connection) -> None:
     await connection.set_type_codec(
         "jsonb",
-        encoder=json.dumps,
+        encoder=(lambda x: x),
         decoder=json.loads,
         schema="pg_catalog",
     )
