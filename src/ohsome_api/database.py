@@ -68,7 +68,7 @@ class Database:
 
         return records
 
-    async def fetch_batch(  # noqa: C901
+    async def fetch_batch(
         self,
         sql: str,
         *args: Any,  # noqa: ANN401
@@ -88,8 +88,7 @@ class Database:
                     yield batch
                     batch = []
 
-            if batch:
-                yield batch
+            yield batch
 
 
 db = Database()

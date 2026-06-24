@@ -105,7 +105,6 @@ async def post_contributions_extract(
     # TODO: if request is aborted producer should also cancel
 
     # Database result is written to sink batch wise
-    sink = ParquetSink()
 
     producer = service.get_extracted_features(
         parameters.ohsome_filter,
@@ -116,16 +115,16 @@ async def post_contributions_extract(
     first_batch = await anext(producer)
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
-        sink.write_batch(first)
-        yield sink.read_batch()
+        with ParquetSink() as sink:
+            sink.write_batch(first)
+            yield sink.read_bytes()
 
-        async for batch in producer:
-            sink.write_batch(batch)
-            yield sink.read_batch()
+            async for batch in producer:
+                sink.write_batch(batch)
+                yield sink.read_bytes()
 
-        sink.write_metadata()
-        yield sink.read_batch()
-        sink.close()
+        # after sink is closed metadata and footer is written
+        yield sink.read_bytes()
 
     return StreamingResponse(
         stream(first_batch),

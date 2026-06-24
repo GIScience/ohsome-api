@@ -94,6 +94,9 @@ class ParquetSink:
         )
 
     def write_batch(self, rows: list[ExtractionRow]) -> None:
+        if not rows:
+            return
+
         batch = pa.RecordBatch.from_arrays(
             [
                 [r["osm_type"] for r in rows],
@@ -119,17 +122,23 @@ class ParquetSink:
         # Which group size should we use?
         self.writer.write(batch, row_group_size=10000)
 
-    def read_batch(self) -> bytes:
+    def read_bytes(self) -> bytes:
         content = self.buffer.getvalue()
         self.buffer.seek(0)
         self.buffer.truncate()
         return content
 
-    def write_metadata(self) -> None:
+    def _write_metadata(self) -> None:
         self.writer.add_key_value_metadata(
             {b"geo": _geoparquet_meta(self.xmin, self.ymin, self.xmax, self.ymax)}
         )
-        self.writer.close()
 
     def close(self) -> None:
-        self.buffer.close()
+        self._write_metadata()
+        self.writer.close()
+
+    def __enter__(self) -> ParquetSink:
+        return self
+
+    def __exit__(self, *exc) -> None:  # noqa: ANN002
+        self.close()
