@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import FeaturesRowModel
+from ohsome_api.models import ExtractionRow, FeaturesRowModel
 from ohsome_api.parquet import ParquetSink
 from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
 from ohsome_api.response_models import BaseResponseModel
@@ -107,11 +107,18 @@ async def post_contributions_extract(
     # Database result is written to sink batch wise
     sink = ParquetSink()
 
-    async def stream() -> AsyncIterator[bytes]:
-        producer = service.get_extracted_features(
-            parameters.ohsome_filter,
-            parameters.aoi.features[0].geometry.wkt,
-        )
+    producer = service.get_extracted_features(
+        parameters.ohsome_filter,
+        parameters.aoi.features[0].geometry.wkt,
+    )
+
+    # try to fetch first batch to check if we could get connection from database pool
+    first_batch = await anext(producer)
+
+    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
+        sink.write_batch(first)
+        yield sink.read_batch()
+
         async for batch in producer:
             sink.write_batch(batch)
             yield sink.read_batch()
@@ -121,7 +128,7 @@ async def post_contributions_extract(
         sink.close()
 
     return StreamingResponse(
-        stream(),
+        stream(first_batch),
         media_type="application/vnd.apache.parquet",
         headers={"Content-Disposition": 'attachment; filename="extractions.parquet"'},
     )

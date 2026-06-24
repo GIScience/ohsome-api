@@ -80,12 +80,9 @@ async def get_features(  # noqa: PLR0913
     )
 
 
-async def get_extracted_features(
+def get_extracted_features(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
 ) -> AsyncIterator[list[ExtractionRow]]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
-    async for batch in db.get_extracted_features(
-        query_where_clause, query_args, aoi_wkt
-    ):
-        yield batch
+    return db.get_extracted_features(query_where_clause, query_args, aoi_wkt)
