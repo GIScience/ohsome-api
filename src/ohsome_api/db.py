@@ -342,5 +342,7 @@ def get_extracted_features(
     # TODO: make batch size configurable (maybe as function arg)
     return cast(
         AsyncIterator[list[ExtractionRow]],
+        # PERF: batch_size should be different depending on expected row size
+        #   (e.g. GeometryType)
         db.fetch_batch(sql, *filter_args, aoi_wkt, batch_size=10000),
     )

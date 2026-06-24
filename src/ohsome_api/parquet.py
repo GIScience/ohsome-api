@@ -78,6 +78,9 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
 
 
 class ParquetSink:
+    # PERF: Current implementation result in copy of retrieved batches multiple times
+    #   -> Memory Issues?
+
     def __init__(self) -> None:
         self.buffer = io.BytesIO()
         self.xmin = float("inf")
@@ -113,6 +116,7 @@ class ParquetSink:
         self.xmax = max(self.xmax, *(r["xmax"] for r in rows))
         self.ymax = max(self.ymax, *(r["ymax"] for r in rows))
 
+        # Which group size should we use?
         self.writer.write(batch, row_group_size=10000)
 
     def read_batch(self) -> bytes:

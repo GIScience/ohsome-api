@@ -98,7 +98,6 @@ async def post_features_as_csv(
     return FeaturesResponseModel(result=result)
 
 
-# TODO: Address complexity
 @router.post("/features/extraction.parquet", response_class=StreamingResponse)
 async def post_contributions_extract(
     parameters: BaseParameters,
