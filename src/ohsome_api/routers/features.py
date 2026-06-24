@@ -119,6 +119,7 @@ async def post_contributions_extract(  # noqa: C901
                 yield chunk
 
         sink.close()
+        # fetch and yield parquet metadata after sink.close
         for chunk in sink.io.fetch_all():
             yield chunk
 
