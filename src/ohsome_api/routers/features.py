@@ -1,44 +1,21 @@
-import csv
 from importlib.metadata import version
-from io import StringIO
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
 from ohsome_api.response_models import SnapshotsResponseModel
+from ohsome_api.response_renderers import (
+    POST_FEATURES_AS_CSV_EXAMPLE,
+    CSVSnapshotsResponse,
+)
 
 VERSION = version("ohsome-api")
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
-
-
-class CSVFeatureResponse(Response):
-    media_type = "text/csv"
-
-    def render(self, content: dict) -> bytes:
-        csvfile = StringIO()
-        writer = csv.writer(csvfile, delimiter=";", lineterminator="\n")
-        comment = [
-            [f"# apiVersion: {content['apiVersion']}"],
-            [f"# attribution.url: {content['attribution']['url']}"],
-            [f"# attribution.text: {content['attribution']['text']}"],
-        ]
-        header = ["timestamp", "value"]
-        rows = [
-            (
-                r["timestamp"],
-                r["value"],
-            )
-            for r in content["result"]
-        ]
-        writer.writerows(comment)
-        writer.writerow(header)
-        writer.writerows(rows)
-        return csvfile.getvalue().encode()
 
 
 @router.post(
@@ -64,21 +41,9 @@ async def post_features_as_json(
 
 @router.post(
     "/features/{measure}.csv",
-    response_class=CSVFeatureResponse,
+    response_class=CSVSnapshotsResponse,
     responses={
-        200: {
-            "content": {
-                "text/csv": {
-                    "schema": {"type": "string"},
-                    "example": f"""# apiVersion: {VERSION}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: © OpenStreetMap contributors
-timestamp;result
-1970-01-01T00:00:00Z;0
-""",
-                },
-            },
-        },
+        200: POST_FEATURES_AS_CSV_EXAMPLE,
     },
     summary="Aggregate features by {measure}",
     tags=["History Statistics"],
