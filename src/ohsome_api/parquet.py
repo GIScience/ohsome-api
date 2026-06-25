@@ -3,36 +3,36 @@ import json
 from copy import deepcopy
 from types import TracebackType
 
-import pyarrow as pa
-import pyarrow.parquet as pq
+import pyarrow
 import pyproj
+from pyarrow import binary, bool_, float64, int32, int64, parquet, string, timestamp
 
 from ohsome_api.models import ExtractionRow
 
-EXTRACTION_SCHEMA = pa.schema(
+EXTRACTION_SCHEMA = pyarrow.schema(
     [
-        ("osm_type", pa.string()),
-        ("osm_id", pa.int64()),
-        ("last_edit", pa.timestamp("us", tz="UTC")),
-        ("osm_version", pa.int32()),
-        ("osm_edits", pa.int32()),
-        ("osm_user_id", pa.int32()),
-        ("osm_user_name", pa.string()),
-        ("osm_changeset_id", pa.int64()),
-        ("osm_tags", pa.map_(pa.string(), pa.string())),
+        ("osm_type", string()),
+        ("osm_id", int64()),
+        ("last_edit", timestamp("us", tz="UTC")),
+        ("osm_version", int32()),
+        ("osm_edits", int32()),
+        ("osm_user_id", int32()),
+        ("osm_user_name", string()),
+        ("osm_changeset_id", int64()),
+        ("osm_tags", pyarrow.map_(string(), string())),
         (
             "bbox",
-            pa.struct(
+            pyarrow.struct(
                 [
-                    ("xmin", pa.float64()),
-                    ("xmax", pa.float64()),
-                    ("ymin", pa.float64()),
-                    ("ymax", pa.float64()),
+                    ("xmin", float64()),
+                    ("xmax", float64()),
+                    ("ymin", float64()),
+                    ("ymax", float64()),
                 ]
             ),
         ),
-        ("geom", pa.binary()),
-        ("clipped", pa.bool_()),
+        ("geom", binary()),
+        ("clipped", bool_()),
     ]
 )
 
@@ -88,7 +88,7 @@ class ParquetSink:
         self.ymin = float("inf")
         self.xmax = float("-inf")
         self.ymax = float("-inf")
-        self.writer = pq.ParquetWriter(
+        self.writer = parquet.ParquetWriter(
             self.buffer,
             schema=EXTRACTION_SCHEMA,
             compression="zstd",
@@ -98,7 +98,7 @@ class ParquetSink:
         if not rows:
             return
 
-        batch = pa.RecordBatch.from_arrays(
+        batch = pyarrow.RecordBatch.from_arrays(
             [
                 [r["osm_type"] for r in rows],
                 [r["osm_id"] for r in rows],
