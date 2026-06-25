@@ -10,9 +10,12 @@ class MetadataResponseModel(BaseResponseModel):
     latest_timestamp: str
 
 
-@router.get("/metadata")
+@router.get(
+    "/metadata",
+    summary="Metadata of the underlying ohsomedb",
+    tags=["Metadata"],
+)
 async def get_metadata() -> MetadataResponseModel:
-    """Metadata of the underlying ohsomedb."""
     timestamp = await service.get_latest_timestamp()
 
     return MetadataResponseModel(latest_timestamp=timestamp.isoformat())

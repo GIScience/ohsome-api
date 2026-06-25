@@ -46,7 +46,12 @@ class CSVFeatureResponse(Response):
         return csvfile.getvalue().encode()
 
 
-@router.post("/features/{measure}.json", response_class=JSONResponse)
+@router.post(
+    "/features/{measure}.json",
+    response_class=JSONResponse,
+    summary="Aggregate features by {measure}",
+    tags=["History Statistics"],
+)
 async def post_features_as_json(
     parameters: TimeSeriesParameters,
     measure: Measure,
@@ -80,6 +85,8 @@ timestamp;result
             },
         },
     },
+    summary="Aggregate features by {measure}",
+    tags=["History Statistics"],
 )
 async def post_features_as_csv(
     parameters: TimeSeriesParameters,
@@ -96,7 +103,12 @@ async def post_features_as_csv(
     return FeaturesResponseModel(result=result)
 
 
-@router.post("/features/extraction.parquet", response_class=StreamingResponse)
+@router.post(
+    "/features/extraction.parquet",
+    response_class=StreamingResponse,
+    summary="Download features",
+    tags=["Data Extraction"],
+)
 async def post_contributions_extract(
     parameters: BaseParameters,
 ) -> StreamingResponse:
