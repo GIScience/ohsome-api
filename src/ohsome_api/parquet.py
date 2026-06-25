@@ -1,6 +1,7 @@
 import io
 import json
 from copy import deepcopy
+from importlib.metadata import version
 from types import TracebackType
 
 import pyarrow
@@ -8,6 +9,7 @@ import pyproj
 from pyarrow import binary, bool_, float64, int32, int64, parquet, string, timestamp
 
 from ohsome_api.models import ExtractionRow
+from ohsome_api.response_models import Attribution
 
 EXTRACTION_SCHEMA = pyarrow.schema(
     [
@@ -67,6 +69,15 @@ def _geoparquet_meta(xmin: float, ymin: float, xmax: float, ymax: float) -> byte
     meta = deepcopy(GEOPARQUET_META)
     meta["columns"]["geom"]["bbox"] = [xmin, ymin, xmax, ymax]  # type: ignore
     return json.dumps(meta).encode()
+
+
+def _api_meta() -> bytes:
+    return json.dumps(
+        {
+            "version": version("ohsome-api"),
+            "attribution": Attribution().model_dump(),
+        }
+    ).encode()
 
 
 def bbox(r: ExtractionRow) -> dict[str, float]:
@@ -131,7 +142,10 @@ class ParquetSink:
 
     def _write_metadata(self) -> None:
         self.writer.add_key_value_metadata(
-            {b"geo": _geoparquet_meta(self.xmin, self.ymin, self.xmax, self.ymax)}
+            {
+                b"geo": _geoparquet_meta(self.xmin, self.ymin, self.xmax, self.ymax),
+                b"api": _api_meta(),
+            }
         )
 
     def close(self) -> None:

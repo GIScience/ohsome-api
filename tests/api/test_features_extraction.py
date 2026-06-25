@@ -10,6 +10,8 @@ from starlette.status import (
     HTTP_200_OK,
 )
 
+from ohsome_api.api import VERSION
+
 
 def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict):
     response = client.post(
@@ -67,11 +69,11 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict)
     ]
     assert "crs" in metadata_geo["columns"]["geom"]
 
-    # metadata_api = metadata[b"api"].decode("utf-8")
-    # metadata_api = json.loads(metadata_api)
-    # assert metadata_api["version"] == VERSION
-    # assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
-    # assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
+    metadata_api = metadata[b"api"].decode("utf-8")
+    metadata_api = json.loads(metadata_api)
+    assert metadata_api["version"] == VERSION
+    assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
+    assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
 def test_features_extraction_post_clipped(
