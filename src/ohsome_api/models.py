@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Protocol, TypedDict
+from typing import TypedDict
 
 from pydantic import BaseModel
 
@@ -16,7 +16,6 @@ class FeaturesRowModel(BaseModel):
     timestamp: datetime
 
 
-# TODO: Use Pydantic Model to make sure openapi schema is generated?
 class ExtractionRow(TypedDict):
     osm_type: str
     osm_id: int
@@ -33,8 +32,3 @@ class ExtractionRow(TypedDict):
     ymax: float
     geom: bytes
     clipped: bool
-
-
-class ExtractionWriter(Protocol):
-    def write_batch(self, batch: list[ExtractionRow]) -> None: ...
-    def close(self) -> None: ...
