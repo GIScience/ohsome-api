@@ -33,7 +33,6 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict)
     assert table["osm_id"][0].as_py() == 1702635807
     assert table["osm_type"][0].as_py() == "node"
     assert table["osm_version"][0].as_py() == 6
-
     assert table["osm_user_name"][0].as_py() == "ezelo"
     assert table["osm_changeset_id"][0].as_py() == 74974721
     assert table["osm_tags"][0].as_py() == [
@@ -45,9 +44,7 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict)
         ("artist_name", "Sabrina Hohmann"),
         ("artwork_type", "sculpture"),
     ]
-
-    # resets to 0 if major version has been bumped up
-    # assert table["minor_version"][0].as_py() == 6
+    assert table["minor_version"][0].as_py() == 0
     assert table["clipped"][0].as_py() is False
 
     last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")

@@ -318,6 +318,7 @@ def extract_features(
                osm_id,
                valid_from,
                osm_version,
+               osm_minor_version,
                osm_edits,
                user_id,
                user_name,

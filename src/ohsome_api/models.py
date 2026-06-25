@@ -21,6 +21,7 @@ class ExtractionRow(TypedDict):
     osm_id: int
     valid_from: datetime
     osm_version: int
+    osm_minor_version: int
     osm_edits: int
     user_id: int
     user_name: str

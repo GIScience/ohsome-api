@@ -6,7 +6,18 @@ from types import TracebackType
 
 import pyarrow
 import pyproj
-from pyarrow import binary, bool_, float64, int32, int64, parquet, string, timestamp
+from pyarrow import (
+    binary,
+    bool_,
+    float64,
+    int32,
+    int64,
+    map_,
+    parquet,
+    string,
+    struct,
+    timestamp,
+)
 
 from ohsome_api.models import ExtractionRow
 from ohsome_api.response_models import Attribution
@@ -17,14 +28,15 @@ EXTRACTION_SCHEMA = pyarrow.schema(
         ("osm_id", int64()),
         ("last_edit", timestamp("us", tz="UTC")),
         ("osm_version", int32()),
+        ("minor_version", int32()),
         ("osm_edits", int32()),
         ("osm_user_id", int32()),
         ("osm_user_name", string()),
         ("osm_changeset_id", int64()),
-        ("osm_tags", pyarrow.map_(string(), string())),
+        ("osm_tags", map_(string(), string())),
         (
             "bbox",
-            pyarrow.struct(
+            struct(
                 [
                     ("xmin", float64()),
                     ("xmax", float64()),
@@ -115,6 +127,7 @@ class ParquetSink:
                 [r["osm_id"] for r in rows],
                 [r["valid_from"].timestamp() * 1000000 for r in rows],
                 [r["osm_version"] for r in rows],
+                [r["osm_minor_version"] for r in rows],
                 [r["osm_edits"] for r in rows],
                 [r["user_id"] for r in rows],
                 [r["user_name"] for r in rows],
