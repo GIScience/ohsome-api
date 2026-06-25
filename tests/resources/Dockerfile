@@ -1,4 +1,3 @@
-#FROM citusdata/citus:latest
 FROM postgres:17-bookworm
 
 RUN apt update \
