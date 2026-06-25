@@ -60,7 +60,7 @@ pipeline {
 						sh 'uvx schemathesis run \
 								--phases examples \
 								--config tests-end-to-end/schemathesis.toml \
-								$OPENAPI_URL
+								$OPENAPI_URL'
                     }
                 }
             }
