@@ -5,7 +5,7 @@ from importlib.metadata import version
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from ohsome_api.models import Attribution, SnapshotRowModel, TimeBinRowModel
+from ohsome_api.models import Attribution, SnapshotRow, TimeBinRow
 
 VERSION = version("ohsome-api")
 
@@ -17,8 +17,8 @@ class BaseResponseModel(BaseModel):
 
 
 class TimeBinsResponseModel(BaseResponseModel):
-    result: list[TimeBinRowModel]
+    result: list[TimeBinRow]
 
 
 class SnapshotsResponseModel(BaseResponseModel):
-    result: list[SnapshotRowModel]
+    result: list[SnapshotRow]

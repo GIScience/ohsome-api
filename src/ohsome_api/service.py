@@ -7,8 +7,9 @@ from ohsome_api import db
 from ohsome_api.db import generate_timestamp_series
 from ohsome_api.models import (
     ExtractionRow,
-    SnapshotRowModel,
-    TimeBinRowModel,
+    Metadata,
+    SnapshotRow,
+    TimeBinRow,
 )
 from ohsome_api.parquet import ParquetSink
 from ohsome_api.request_models import Measure
@@ -16,8 +17,9 @@ from ohsome_api.request_models import Measure
 # TODO: Should we pass AOI as some kind of Geom Type instead of str through to DB?
 
 
-async def get_ohsomedb_metadata() -> dict[str, datetime]:
-    return await db.get_metadata()
+async def get_ohsomedb_metadata() -> Metadata:
+    metadata = await db.get_metadata()
+    return Metadata(**metadata)
 
 
 async def get_currentness(  # noqa: PLR0913
@@ -27,7 +29,7 @@ async def get_currentness(  # noqa: PLR0913
     bin_size: str | None,
     aoi_wkt: str,
     measure: Measure,
-) -> list[TimeBinRowModel]:
+) -> list[TimeBinRow]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
     return await db.get_currentness(
@@ -47,7 +49,7 @@ async def get_users_activity(
     end: datetime,
     bin_size: str | None,
     aoi_wkt: str,
-) -> list[TimeBinRowModel]:
+) -> list[TimeBinRow]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
     return await db.get_users_activity(
@@ -67,7 +69,7 @@ async def get_features(  # noqa: PLR0913
     interval: str | None,
     aoi_wkt: str,
     measure: Measure,
-) -> list[SnapshotRowModel]:
+) -> list[SnapshotRow]:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, interval)
     return await db.get_features(

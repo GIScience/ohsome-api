@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import TimeBinRowModel
+from ohsome_api.models import TimeBinRow
 from ohsome_api.request_models import TimeBinsParameters
 from ohsome_api.response_models import TimeBinsResponseModel
 from ohsome_api.response_renderers import (
@@ -28,7 +28,7 @@ router = APIRouter(
 )
 async def post_users_activity_as_json(
     parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinRowModel]]:
+) -> dict[str, list[TimeBinRow]]:
     return await users_activity(parameters)
 
 
@@ -40,14 +40,14 @@ async def post_users_activity_as_json(
 )
 async def post_users_activity_as_csv(
     parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinRowModel]]:
+) -> dict[str, list[TimeBinRow]]:
     """Active users per time bin."""
     return await users_activity(parameters)
 
 
 async def users_activity(
     parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinRowModel]]:
+) -> dict[str, list[TimeBinRow]]:
     return {
         "result": await service.get_users_activity(
             ohsome_filter=parameters.ohsome_filter,

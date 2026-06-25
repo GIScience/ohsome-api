@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from ohsome_api.models import TimeBinRowModel
+from ohsome_api.models import TimeBinRow
 from ohsome_api.request_models import Measure
 from ohsome_api.service import get_currentness
 
@@ -21,7 +21,7 @@ async def test_get_contributions_count(aoi_wkt_heigit: str):
         measure=Measure.COUNT,
     )
     assert result == [
-        TimeBinRowModel(
+        TimeBinRow(
             start=start,
             end=end,
             value=2,
@@ -42,17 +42,17 @@ async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
     )
 
     assert result == [
-        TimeBinRowModel(
+        TimeBinRow(
             start=datetime(year=2025, month=7, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
             value=1,
         ),
-        TimeBinRowModel(
+        TimeBinRow(
             start=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=9, day=1, tzinfo=timezone.utc),
             value=0,  # NOTE: zero filled value
         ),
-        TimeBinRowModel(
+        TimeBinRow(
             start=datetime(year=2025, month=9, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=10, day=1, tzinfo=timezone.utc),
             value=0,  # NOTE: zero filled value
@@ -95,12 +95,12 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
         measure=Measure.COUNT,
     )
     assert bins == [
-        TimeBinRowModel(
+        TimeBinRow(
             start=start,
             end=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
             value=bin_2022[0].value,
         ),
-        TimeBinRowModel(
+        TimeBinRow(
             start=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
             end=end,
             value=bin_2023[0].value,

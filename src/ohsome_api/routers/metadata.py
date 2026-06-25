@@ -1,14 +1,14 @@
 from fastapi import APIRouter
 
 from ohsome_api import service
-from ohsome_api.models import TemporalExtent
+from ohsome_api.models import Metadata
 from ohsome_api.response_models import BaseResponseModel
 
 router = APIRouter()
 
 
 class MetadataResponseModel(BaseResponseModel):
-    temporal_extent: TemporalExtent
+    temporal_extent: Metadata
 
 
 @router.get(
@@ -17,6 +17,6 @@ class MetadataResponseModel(BaseResponseModel):
     tags=["Metadata"],
     response_model=MetadataResponseModel,
 )
-async def get_metadata() -> dict:
+async def get_metadata() -> dict[str, Metadata]:
     metadata = await service.get_ohsomedb_metadata()
     return {"temporal_extent": metadata}

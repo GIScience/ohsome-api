@@ -3,7 +3,7 @@ from typing import AsyncIterator, cast
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.models import ExtractionRow, SnapshotRowModel, TimeBinRowModel
+from ohsome_api.models import ExtractionRow, SnapshotRow, TimeBinRow
 from ohsome_api.request_models import Measure
 
 SCHEMA = CONFIG.ohsomedb.schemaname
@@ -73,7 +73,7 @@ async def get_currentness(  # noqa: C901, PLR0913
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
-) -> list[TimeBinRowModel]:
+) -> list[TimeBinRow]:
     filter_args_count = len(filter_args)
     match measure:
         case Measure.COUNT:
@@ -152,7 +152,7 @@ async def get_currentness(  # noqa: C901, PLR0913
         zerofilled_series[record["time_bin"] - 1] = record["value"]
 
     return [
-        TimeBinRowModel(
+        TimeBinRow(
             value=count,
             start=series[time_bin],
             end=series[time_bin + 1],
@@ -168,7 +168,7 @@ async def get_users_activity(  # noqa: PLR0913
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-) -> list[TimeBinRowModel]:
+) -> list[TimeBinRow]:
     filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
@@ -202,7 +202,7 @@ async def get_users_activity(  # noqa: PLR0913
         zerofilled_series[record["time_bin"] - 1] = record["value"]
 
     return [
-        TimeBinRowModel(
+        TimeBinRow(
             value=count,
             start=series[time_bin],
             end=series[time_bin + 1],
@@ -221,7 +221,7 @@ async def get_features(  # noqa: C901, PLR0913
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
-) -> list[SnapshotRowModel]:
+) -> list[SnapshotRow]:
     filter_args_count = len(filter_args)
     match measure:
         case Measure.COUNT:
@@ -309,7 +309,7 @@ async def get_features(  # noqa: C901, PLR0913
         zerofilled_series[record["ts"]] = record["value"]
 
     return [
-        SnapshotRowModel(value=value, timestamp=ts)
+        SnapshotRow(value=value, timestamp=ts)
         for ts, value in zerofilled_series.items()
     ]
 
