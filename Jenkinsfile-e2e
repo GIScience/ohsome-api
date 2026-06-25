@@ -59,7 +59,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'API_KEY')]) {
 						sh 'uvx schemathesis run \
 								--phases examples \
-								--config tests-end-to-end/schemathesis.toml \
+								--config-file tests-end-to-end/schemathesis.toml \
 								$OPENAPI_URL'
                     }
                 }
