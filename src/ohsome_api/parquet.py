@@ -1,6 +1,7 @@
 import io
 import json
 from copy import deepcopy
+from types import TracebackType
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -140,5 +141,10 @@ class ParquetSink:
     def __enter__(self) -> ParquetSink:
         return self
 
-    def __exit__(self, *exc) -> None:  # noqa: ANN002
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         self.close()
