@@ -16,8 +16,8 @@ from ohsome_api.request_models import Measure
 # TODO: Should we pass AOI as some kind of Geom Type instead of str through to DB?
 
 
-async def get_latest_timestamp() -> datetime:
-    return await db.get_latest_timestamp()
+async def get_ohsomedb_metadata() -> dict[str, datetime]:
+    return await db.get_metadata()
 
 
 async def get_currentness(  # noqa: PLR0913

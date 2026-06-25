@@ -20,7 +20,7 @@ def test_currentness_count_as_json(client: TestClient, aoi_geojson_heigit: dict)
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 4
+    assert response.json()["result"][0]["value"] == 2
     assert len(response.json()["result"]) == 1
 
 
@@ -35,7 +35,7 @@ def test_currentness_length_as_json(client: TestClient, aoi_geojson_heigit: dict
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 48
+    assert response.json()["result"][0]["value"] == 30
     assert len(response.json()["result"]) == 1
 
 
@@ -50,7 +50,7 @@ def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 1797
+    assert response.json()["result"][0]["value"] == 770
     assert len(response.json()["result"]) == 1
 
 
@@ -72,7 +72,7 @@ def test_currentness_as_json_time_bin_size(
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
     assert len(response.json()["result"]) == 2
-    assert response.json()["result"][1]["value"] == 4
+    assert response.json()["result"][1]["value"] == 2
 
 
 def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
@@ -92,7 +92,7 @@ def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
 start;end;value
 2023-01-01T00:00:00Z;2024-01-01T00:00:00Z;0
 2024-01-01T00:00:00Z;2025-01-01T00:00:00Z;0
-2025-01-01T00:00:00Z;2025-12-31T00:00:00Z;4
+2025-01-01T00:00:00Z;2025-12-31T00:00:00Z;2
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result

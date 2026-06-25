@@ -45,12 +45,22 @@ async def generate_timestamp_series(
     return results
 
 
-async def get_latest_timestamp() -> datetime:
-    sql = f'SELECT last_timestamp FROM "{SCHEMA}".contributions_state'  # noqa: S608
-    record = await db.fetch_row(sql)
-    if not isinstance(record["last_timestamp"], datetime):
-        raise TypeError()
-    return record["last_timestamp"]
+async def get_metadata() -> dict[str, datetime]:
+    sql = f"""
+    WITH
+        last_timestamp AS (
+            SELECT last_timestamp as latest_timestamp
+            FROM "{SCHEMA}".contributions_state
+        ),
+        valid_from AS (
+            SELECT value::timestamptz as earliest_timestamp
+            FROM "{SCHEMA}".ohsomedb_metadata
+            WHERE key = 'valid_from'
+        )
+    SELECT *
+    FROM last_timestamp, valid_from
+    """  # noqa: S608
+    return dict(await db.fetch_row(sql))
 
 
 # TODO: decide what to do about too many arguments linter

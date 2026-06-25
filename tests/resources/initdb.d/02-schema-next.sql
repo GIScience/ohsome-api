@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict XgIUnZ9H1gPOuAz9u1vXw2O69ru7J5Zafw1pq3HN4NRfmZI4lUsG6kzTSfrqxUo
+\restrict Ww6LbHsPhWNsJRI5K5cY0fO8EGOBT02PZDKWGjuoSK2zCqfdCEy6t9qiVs1i9b5
 
--- Dumped from database version 17.8 (Debian 17.8-1.pgdg12+1)
--- Dumped by pg_dump version 18.1 (Debian 18.1-2)
+-- Dumped from database version 17.7 (Debian 17.7-3.pgdg12+1)
+-- Dumped by pg_dump version 17.10 (Ubuntu 17.10-1.pgdg24.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,6 +29,11 @@ CREATE SCHEMA next;
 --
 -- Name: SCHEMA next; Type: COMMENT; Schema: -; Owner: -
 --
+
+COMMENT ON SCHEMA next IS 'ohsomeDB Schema Version: 0.3.1
+Initial Datasource: s3://heigit-ohsome-planet/data/v1/inf/2025-05-08
+Schema Creation Date: 2026-05-20 07:02:47.093827+00
+Number of Shards: 30';
 
 
 --
@@ -602,6 +607,8 @@ CREATE TABLE next.contributions_state (
 --
 
 CREATE TABLE next.import_state (
+    osm_type next.osm_type_type NOT NULL,
+    file_number integer NOT NULL,
     filenames character varying[] NOT NULL,
     import_type character varying NOT NULL,
     start_timestamp timestamp with time zone,
@@ -610,33 +617,12 @@ CREATE TABLE next.import_state (
 
 
 --
--- Name: staging_contribution_updates; Type: TABLE; Schema: next; Owner: -
+-- Name: ohsomedb_metadata; Type: TABLE; Schema: next; Owner: -
 --
 
-CREATE TABLE next.staging_contribution_updates (
-    valid_from timestamp with time zone NOT NULL,
-    valid_to timestamp with time zone NOT NULL,
-    osm_id bigint NOT NULL,
-    osm_type next.osm_type_type NOT NULL,
-    osm_version integer NOT NULL,
-    osm_minor_version integer NOT NULL,
-    osm_edits integer NOT NULL,
-    user_id integer NOT NULL,
-    contrib_type next.contrib_type_type NOT NULL,
-    changeset_id bigint NOT NULL,
-    area double precision NOT NULL,
-    area_delta double precision NOT NULL,
-    length double precision NOT NULL,
-    length_delta double precision NOT NULL,
-    contribution_id character varying NOT NULL,
-    user_name character varying NOT NULL,
-    tags jsonb NOT NULL,
-    tags_before jsonb NOT NULL,
-    centroid public.geometry(Point,4326),
-    geom public.geometry(Geometry,4326),
-    countries character varying[] NOT NULL,
-    status_geom_type next.status_geom_type_type NOT NULL,
-    members jsonb
+CREATE TABLE next.ohsomedb_metadata (
+    key character varying NOT NULL,
+    value character varying
 );
 
 
@@ -747,11 +733,19 @@ ALTER TABLE ONLY next.changesets
 
 
 --
--- Name: import_state import_state_filenames_import_type_key; Type: CONSTRAINT; Schema: next; Owner: -
+-- Name: import_state import_state_osm_type_file_number_import_type_key; Type: CONSTRAINT; Schema: next; Owner: -
 --
 
 ALTER TABLE ONLY next.import_state
-    ADD CONSTRAINT import_state_filenames_import_type_key UNIQUE (filenames, import_type);
+    ADD CONSTRAINT import_state_osm_type_file_number_import_type_key UNIQUE (osm_type, file_number, import_type);
+
+
+--
+-- Name: ohsomedb_metadata ohsomedb_metadata_key_key; Type: CONSTRAINT; Schema: next; Owner: -
+--
+
+ALTER TABLE ONLY next.ohsomedb_metadata
+    ADD CONSTRAINT ohsomedb_metadata_key_key UNIQUE (key);
 
 
 --
@@ -874,6 +868,20 @@ CREATE INDEX contributions_deleted_collection_tags_idx ON next.contributions_del
 
 
 --
+-- Name: contributions_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_user_id_idx ON ONLY next.contributions USING btree (user_id);
+
+
+--
+-- Name: contributions_deleted_collection_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_deleted_collection_user_id_idx ON next.contributions_deleted_collection USING btree (user_id);
+
+
+--
 -- Name: contributions_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -944,6 +952,13 @@ CREATE INDEX contributions_deleted_linestring_tags_idx ON next.contributions_del
 
 
 --
+-- Name: contributions_deleted_linestring_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_deleted_linestring_user_id_idx ON next.contributions_deleted_linestring USING btree (user_id);
+
+
+--
 -- Name: contributions_deleted_linestring_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -997,6 +1012,13 @@ CREATE INDEX contributions_deleted_null_status_idx ON next.contributions_deleted
 --
 
 CREATE INDEX contributions_deleted_null_tags_idx ON next.contributions_deleted_null USING gin (tags);
+
+
+--
+-- Name: contributions_deleted_null_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_deleted_null_user_id_idx ON next.contributions_deleted_null USING btree (user_id);
 
 
 --
@@ -1056,6 +1078,13 @@ CREATE INDEX contributions_deleted_point_tags_idx ON next.contributions_deleted_
 
 
 --
+-- Name: contributions_deleted_point_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_deleted_point_user_id_idx ON next.contributions_deleted_point USING btree (user_id);
+
+
+--
 -- Name: contributions_deleted_point_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -1109,6 +1138,13 @@ CREATE INDEX contributions_deleted_polygon_multipolygon_status_idx ON next.contr
 --
 
 CREATE INDEX contributions_deleted_polygon_multipolygon_tags_idx ON next.contributions_deleted_polygon_multipolygon USING gin (tags);
+
+
+--
+-- Name: contributions_deleted_polygon_multipolygon_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_deleted_polygon_multipolygon_user_id_idx ON next.contributions_deleted_polygon_multipolygon USING btree (user_id);
 
 
 --
@@ -1168,6 +1204,13 @@ CREATE INDEX contributions_history_collection_tags_idx ON next.contributions_his
 
 
 --
+-- Name: contributions_history_collection_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_history_collection_user_id_idx ON next.contributions_history_collection USING btree (user_id);
+
+
+--
 -- Name: contributions_history_collection_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -1221,6 +1264,13 @@ CREATE INDEX contributions_history_linestring_status_idx ON next.contributions_h
 --
 
 CREATE INDEX contributions_history_linestring_tags_idx ON next.contributions_history_linestring USING gin (tags);
+
+
+--
+-- Name: contributions_history_linestring_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_history_linestring_user_id_idx ON next.contributions_history_linestring USING btree (user_id);
 
 
 --
@@ -1280,6 +1330,13 @@ CREATE INDEX contributions_history_point_tags_idx ON next.contributions_history_
 
 
 --
+-- Name: contributions_history_point_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_history_point_user_id_idx ON next.contributions_history_point USING btree (user_id);
+
+
+--
 -- Name: contributions_history_point_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -1333,6 +1390,13 @@ CREATE INDEX contributions_history_polygon_multipolygon_status_idx ON next.contr
 --
 
 CREATE INDEX contributions_history_polygon_multipolygon_tags_idx ON next.contributions_history_polygon_multipolygon USING gin (tags);
+
+
+--
+-- Name: contributions_history_polygon_multipolygon_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_history_polygon_multipolygon_user_id_idx ON next.contributions_history_polygon_multipolygon USING btree (user_id);
 
 
 --
@@ -1392,6 +1456,13 @@ CREATE INDEX contributions_invalid_tags_idx ON next.contributions_invalid USING 
 
 
 --
+-- Name: contributions_invalid_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_invalid_user_id_idx ON next.contributions_invalid USING btree (user_id);
+
+
+--
 -- Name: contributions_invalid_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -1445,6 +1516,13 @@ CREATE INDEX contributions_latest_collection_status_idx ON next.contributions_la
 --
 
 CREATE INDEX contributions_latest_collection_tags_idx ON next.contributions_latest_collection USING gin (tags);
+
+
+--
+-- Name: contributions_latest_collection_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_latest_collection_user_id_idx ON next.contributions_latest_collection USING btree (user_id);
 
 
 --
@@ -1504,6 +1582,13 @@ CREATE INDEX contributions_latest_linestring_tags_idx ON next.contributions_late
 
 
 --
+-- Name: contributions_latest_linestring_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_latest_linestring_user_id_idx ON next.contributions_latest_linestring USING btree (user_id);
+
+
+--
 -- Name: contributions_latest_linestring_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -1560,6 +1645,13 @@ CREATE INDEX contributions_latest_point_tags_idx ON next.contributions_latest_po
 
 
 --
+-- Name: contributions_latest_point_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_latest_point_user_id_idx ON next.contributions_latest_point USING btree (user_id);
+
+
+--
 -- Name: contributions_latest_point_valid_from_idx; Type: INDEX; Schema: next; Owner: -
 --
 
@@ -1613,6 +1705,13 @@ CREATE INDEX contributions_latest_polygon_multipolygon_status_idx ON next.contri
 --
 
 CREATE INDEX contributions_latest_polygon_multipolygon_tags_idx ON next.contributions_latest_polygon_multipolygon USING gin (tags);
+
+
+--
+-- Name: contributions_latest_polygon_multipolygon_user_id_idx; Type: INDEX; Schema: next; Owner: -
+--
+
+CREATE INDEX contributions_latest_polygon_multipolygon_user_id_idx ON next.contributions_latest_polygon_multipolygon USING btree (user_id);
 
 
 --
@@ -1693,6 +1792,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_dele
 
 
 --
+-- Name: contributions_deleted_collection_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_deleted_collection_user_id_idx;
+
+
+--
 -- Name: contributions_deleted_collection_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -1746,6 +1852,13 @@ ALTER INDEX next.contributions___status_geom_type__status__idx ATTACH PARTITION 
 --
 
 ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_deleted_linestring_tags_idx;
+
+
+--
+-- Name: contributions_deleted_linestring_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_deleted_linestring_user_id_idx;
 
 
 --
@@ -1805,6 +1918,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_dele
 
 
 --
+-- Name: contributions_deleted_null_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_deleted_null_user_id_idx;
+
+
+--
 -- Name: contributions_deleted_null_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -1858,6 +1978,13 @@ ALTER INDEX next.contributions___status_geom_type__status__idx ATTACH PARTITION 
 --
 
 ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_deleted_point_tags_idx;
+
+
+--
+-- Name: contributions_deleted_point_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_deleted_point_user_id_idx;
 
 
 --
@@ -1917,6 +2044,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_dele
 
 
 --
+-- Name: contributions_deleted_polygon_multipolygon_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_deleted_polygon_multipolygon_user_id_idx;
+
+
+--
 -- Name: contributions_deleted_polygon_multipolygon_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -1970,6 +2104,13 @@ ALTER INDEX next.contributions___status_geom_type__status__idx ATTACH PARTITION 
 --
 
 ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_history_collection_tags_idx;
+
+
+--
+-- Name: contributions_history_collection_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_history_collection_user_id_idx;
 
 
 --
@@ -2029,6 +2170,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_hist
 
 
 --
+-- Name: contributions_history_linestring_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_history_linestring_user_id_idx;
+
+
+--
 -- Name: contributions_history_linestring_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -2082,6 +2230,13 @@ ALTER INDEX next.contributions___status_geom_type__status__idx ATTACH PARTITION 
 --
 
 ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_history_point_tags_idx;
+
+
+--
+-- Name: contributions_history_point_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_history_point_user_id_idx;
 
 
 --
@@ -2141,6 +2296,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_hist
 
 
 --
+-- Name: contributions_history_polygon_multipolygon_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_history_polygon_multipolygon_user_id_idx;
+
+
+--
 -- Name: contributions_history_polygon_multipolygon_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -2194,6 +2356,13 @@ ALTER INDEX next.contributions___status_geom_type__status__idx ATTACH PARTITION 
 --
 
 ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_invalid_tags_idx;
+
+
+--
+-- Name: contributions_invalid_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_invalid_user_id_idx;
 
 
 --
@@ -2253,6 +2422,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_late
 
 
 --
+-- Name: contributions_latest_collection_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_latest_collection_user_id_idx;
+
+
+--
 -- Name: contributions_latest_collection_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -2306,6 +2482,13 @@ ALTER INDEX next.contributions___status_geom_type__status__idx ATTACH PARTITION 
 --
 
 ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_latest_linestring_tags_idx;
+
+
+--
+-- Name: contributions_latest_linestring_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_latest_linestring_user_id_idx;
 
 
 --
@@ -2365,6 +2548,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_late
 
 
 --
+-- Name: contributions_latest_point_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_latest_point_user_id_idx;
+
+
+--
 -- Name: contributions_latest_point_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -2421,6 +2611,13 @@ ALTER INDEX next.contributions_tags_idx ATTACH PARTITION next.contributions_late
 
 
 --
+-- Name: contributions_latest_polygon_multipolygon_user_id_idx; Type: INDEX ATTACH; Schema: next; Owner: -
+--
+
+ALTER INDEX next.contributions_user_id_idx ATTACH PARTITION next.contributions_latest_polygon_multipolygon_user_id_idx;
+
+
+--
 -- Name: contributions_latest_polygon_multipolygon_valid_from_idx; Type: INDEX ATTACH; Schema: next; Owner: -
 --
 
@@ -2438,5 +2635,5 @@ ALTER INDEX next.contributions_valid_to_idx ATTACH PARTITION next.contributions_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict XgIUnZ9H1gPOuAz9u1vXw2O69ru7J5Zafw1pq3HN4NRfmZI4lUsG6kzTSfrqxUo
+\unrestrict Ww6LbHsPhWNsJRI5K5cY0fO8EGOBT02PZDKWGjuoSK2zCqfdCEy6t9qiVs1i9b5
 

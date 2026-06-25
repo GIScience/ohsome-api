@@ -24,7 +24,7 @@ async def test_get_contributions_count(aoi_wkt_heigit: str):
         TimeBinRowModel(
             start=start,
             end=end,
-            value=4,
+            value=2,
         )
     ]
 
@@ -45,7 +45,7 @@ async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
         TimeBinRowModel(
             start=datetime(year=2025, month=7, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
-            value=2,
+            value=1,
         ),
         TimeBinRowModel(
             start=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
