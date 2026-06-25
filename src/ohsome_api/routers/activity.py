@@ -5,9 +5,9 @@ from fastapi.responses import JSONResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import TimeBinsRowModel
+from ohsome_api.models import TimeBinRowModel
 from ohsome_api.request_models import TimeBinsParameters
-from ohsome_api.response_models import CountResponseModel
+from ohsome_api.response_models import TimeBinsResponseModel
 from ohsome_api.response_renderers import CSVCountResponse
 
 VERSION = version("ohsome-api")
@@ -19,20 +19,20 @@ router = APIRouter(
 @router.post(
     "/activity/users.json",
     response_class=JSONResponse,
-    response_model=CountResponseModel,
+    response_model=TimeBinsResponseModel,
     summary="Active users per time bin",
     tags=["History Statistics"],
 )
 async def post_users_activity_as_json(
     parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinsRowModel]]:
+) -> dict[str, list[TimeBinRowModel]]:
     return await users_activity(parameters)
 
 
 @router.post(
     "/activity/users.csv",
     response_class=CSVCountResponse,
-    response_model=CountResponseModel,
+    response_model=TimeBinsResponseModel,
     responses={
         200: {
             "content": {
@@ -51,14 +51,14 @@ start;end;value
 )
 async def post_users_activity_as_csv(
     parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinsRowModel]]:
+) -> dict[str, list[TimeBinRowModel]]:
     """Active users per time bin."""
     return await users_activity(parameters)
 
 
 async def users_activity(
     parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinsRowModel]]:
+) -> dict[str, list[TimeBinRowModel]]:
     return {
         "result": await service.get_users_activity(
             ohsome_filter=parameters.ohsome_filter,

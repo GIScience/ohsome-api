@@ -7,18 +7,13 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import FeaturesRowModel
 from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
-from ohsome_api.response_models import BaseResponseModel
+from ohsome_api.response_models import SnapshotsResponseModel
 
 VERSION = version("ohsome-api")
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
-
-
-class FeaturesResponseModel(BaseResponseModel):
-    result: list[FeaturesRowModel]
 
 
 class CSVFeatureResponse(Response):
@@ -55,7 +50,7 @@ class CSVFeatureResponse(Response):
 async def post_features_as_json(
     parameters: TimeSeriesParameters,
     measure: Measure,
-) -> FeaturesResponseModel:
+) -> SnapshotsResponseModel:
     result = await service.get_features(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_series.start,
@@ -64,7 +59,7 @@ async def post_features_as_json(
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
         measure=measure,
     )
-    return FeaturesResponseModel(result=result)
+    return SnapshotsResponseModel(result=result)
 
 
 @router.post(
@@ -91,7 +86,7 @@ timestamp;result
 async def post_features_as_csv(
     parameters: TimeSeriesParameters,
     measure: Measure,
-) -> FeaturesResponseModel:
+) -> SnapshotsResponseModel:
     result = await service.get_features(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_series.start,
@@ -100,7 +95,7 @@ async def post_features_as_csv(
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
         measure=measure,
     )
-    return FeaturesResponseModel(result=result)
+    return SnapshotsResponseModel(result=result)
 
 
 @router.post(

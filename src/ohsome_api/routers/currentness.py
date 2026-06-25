@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import Measure, TimeBinsParameters
-from ohsome_api.response_models import CountResponseModel
+from ohsome_api.response_models import TimeBinsResponseModel
 from ohsome_api.response_renderers import CSVCountResponse
 
 VERSION = version("ohsome-api")
@@ -24,7 +24,7 @@ router = APIRouter(
 async def post_currentness_as_json(
     parameters: TimeBinsParameters,
     measure: Measure,
-) -> CountResponseModel:
+) -> TimeBinsResponseModel:
     result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_bins.start,
@@ -33,7 +33,7 @@ async def post_currentness_as_json(
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
         measure=measure,
     )
-    return CountResponseModel(result=result)
+    return TimeBinsResponseModel(result=result)
 
 
 @router.post(
@@ -60,7 +60,7 @@ start;end;value
 async def post_currentness_as_csv(
     parameters: TimeBinsParameters,
     measure: Measure,
-) -> CountResponseModel:
+) -> TimeBinsResponseModel:
     result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
         start=parameters.time_bins.start,
@@ -69,4 +69,4 @@ async def post_currentness_as_csv(
         aoi_wkt=parameters.aoi.features[0].geometry.wkt,
         measure=measure,
     )
-    return CountResponseModel(result=result)
+    return TimeBinsResponseModel(result=result)
