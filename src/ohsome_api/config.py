@@ -14,6 +14,10 @@ class DatabaseConfig(BaseModel):
     dbname: str = "ohsomedb"
     schemaname: str = "current"
     application_name: str = "ohsome-api"
+    pool_min_size: int = 1
+    pool_max_size: int = 10
+    pool_min_size_extraction: int = 0
+    pool_max_size_extraction: int = 5
 
     @computed_field
     @property

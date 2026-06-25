@@ -30,14 +30,14 @@ class Database:
         # Initialize the pools once
         self.pool = await asyncpg.create_pool(
             dsn=CONNECTION_STRING,
-            min_size=1,
-            max_size=10,
+            min_size=CONFIG.ohsomedb.pool_min_size,
+            max_size=CONFIG.ohsomedb.pool_max_size,
             init=jsonb_codec,
         )
         self.pool_extraction = await asyncpg.create_pool(
             dsn=CONNECTION_STRING,
-            min_size=0,
-            max_size=5,
+            min_size=CONFIG.ohsomedb.pool_min_size_extraction,
+            max_size=CONFIG.ohsomedb.pool_max_size_extraction,
             init=jsonb_codec,
         )
         logging.info("Database connection pool established.")
