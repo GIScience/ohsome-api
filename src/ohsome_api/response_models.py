@@ -5,14 +5,9 @@ from importlib.metadata import version
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from ohsome_api.models import SnapshotRowModel, TimeBinRowModel
+from ohsome_api.models import Attribution, SnapshotRowModel, TimeBinRowModel
 
 VERSION = version("ohsome-api")
-
-
-class Attribution(BaseModel):
-    url: str = "https://ohsome.org/copyrights"
-    text: str = "© OpenStreetMap contributors"
 
 
 class BaseResponseModel(BaseModel):

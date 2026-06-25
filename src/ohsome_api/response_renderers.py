@@ -1,9 +1,10 @@
 import csv
+from importlib.metadata import version
 from io import StringIO
 
 from fastapi import Response
 
-from ohsome_api.api import VERSION
+VERSION = version("ohsome-api")
 
 
 class CSVTimeBinsResponse(Response):

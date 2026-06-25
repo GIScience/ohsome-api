@@ -1,10 +1,21 @@
 from datetime import datetime
 from typing import TypedDict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
 
-# TODO: find common name scheme for row and response models
+class Attribution(BaseModel):
+    url: str = "https://ohsome.org/copyrights"
+    text: str = "© OpenStreetMap contributors"
+
+
+class TemporalExtent(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    latest_timestamp: datetime
+    earliest_timestamp: datetime
+
+
 class TimeBinRowModel(BaseModel):
     value: int
     start: datetime

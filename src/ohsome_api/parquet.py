@@ -19,8 +19,7 @@ from pyarrow import (
     timestamp,
 )
 
-from ohsome_api.models import ExtractionRow
-from ohsome_api.response_models import Attribution
+from ohsome_api.models import Attribution, ExtractionRow
 
 EXTRACTION_SCHEMA = pyarrow.schema(
     [

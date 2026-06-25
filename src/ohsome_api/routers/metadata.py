@@ -1,19 +1,10 @@
-from datetime import datetime
-
 from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict
-from pydantic.alias_generators import to_camel
 
 from ohsome_api import service
+from ohsome_api.models import TemporalExtent
 from ohsome_api.response_models import BaseResponseModel
 
 router = APIRouter()
-
-
-class TemporalExtent(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
-    latest_timestamp: datetime
-    earliest_timestamp: datetime
 
 
 class MetadataResponseModel(BaseResponseModel):
@@ -28,5 +19,4 @@ class MetadataResponseModel(BaseResponseModel):
 )
 async def get_metadata() -> dict:
     metadata = await service.get_ohsomedb_metadata()
-
     return {"temporal_extent": metadata}
