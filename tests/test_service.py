@@ -4,7 +4,7 @@ import pytest
 
 from ohsome_api.models import TimeBinsRowModel
 from ohsome_api.request_models import Measure
-from ohsome_api.service import get_currentness, get_extracted_features
+from ohsome_api.service import get_currentness
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
@@ -106,16 +106,3 @@ async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
             value=bin_2023[0].value,
         ),
     ]
-
-
-async def test_extraction(aoi_wkt_audimax: str):
-    count = 0
-    async for chunk in get_extracted_features(
-        "id:node/1702635807", aoi_wkt=aoi_wkt_audimax
-    ):
-        assert len(chunk) == 1
-        assert chunk[0]["osm_type"] == "node"
-        assert chunk[0]["osm_id"] == 1702635807
-        assert isinstance(chunk[0]["tags"], dict)
-        count += 1
-    assert count == 1

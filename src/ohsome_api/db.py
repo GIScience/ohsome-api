@@ -304,7 +304,7 @@ async def get_features(  # noqa: C901, PLR0913
     ]
 
 
-def get_extracted_features(
+def extract_features(
     filter_where_clause: str,
     filter_args: tuple,
     aoi_wkt: str,
