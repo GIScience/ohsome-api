@@ -30,7 +30,7 @@ pipeline {
             }
         }
 
-        stage('End-to-End Test') {
+        stage('End-to-End HURL Test') {
             environment {
                 HURL_VARIABLE_BASE_URL="https://api.heigit.org/ohsome-api-staging/v2"
                 HURL_VARIABLE_SWAGGER_UI_CSS_URL="https://ohsome.org/static/swagger-ui.css"
@@ -40,6 +40,27 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'HURL_SECRET_API_KEY')]) {
                         sh 'hurl --test tests-end-to-end/*.hurl'
+                    }
+                }
+            }
+            post {
+               failure {
+                  rocket_testfail()
+               }
+            }
+        }
+
+        stage('End-to-End Schemathesis Test') {
+            environment {
+                OPENAPI_URL="https://api.heigit.org/ohsome-api-staging/v2/openapi.json"
+            }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'API_KEY')]) {
+						sh 'uvx schemathesis run \
+								--phases examples \
+								--config tests-end-to-end/schemathesis.toml \
+								$OPENAPI_URL
                     }
                 }
             }
