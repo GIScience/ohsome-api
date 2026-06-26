@@ -8,7 +8,7 @@ from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import Measure, TimeBinsParameters
 from ohsome_api.response_models import TimeBinsResponseModel
 from ohsome_api.response_renderers import (
-    POST_CURRENTNESS_AS_CSV_EXAMPLE,
+    CURRENTNESS_AS_CSV_EXAMPLE,
     CSVTimeBinsResponse,
 )
 
@@ -43,7 +43,7 @@ async def post_currentness_as_json(
     "/currentness/{measure}.csv",
     response_class=CSVTimeBinsResponse,
     responses={
-        200: POST_CURRENTNESS_AS_CSV_EXAMPLE,
+        200: CURRENTNESS_AS_CSV_EXAMPLE,
     },
     summary="Currentness of features",
     tags=["History Statistics"],

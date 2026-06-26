@@ -33,7 +33,7 @@ class CSVTimeBinsResponse(Response):
         return csvfile.getvalue().encode()
 
 
-POST_ACTIVITY_AS_CSV_EXAMPLE = {
+ACTIVITY_AS_CSV_EXAMPLE = {
     "content": {
         "text/csv": {
             "schema": {"type": "string"},
@@ -47,7 +47,7 @@ start;end;value
     },
 }
 
-POST_CURRENTNESS_AS_CSV_EXAMPLE = {
+CURRENTNESS_AS_CSV_EXAMPLE = {
     "content": {
         "text/csv": {
             "schema": {"type": "string"},
@@ -87,7 +87,7 @@ class CSVSnapshotsResponse(Response):
         return csvfile.getvalue().encode()
 
 
-POST_FEATURES_AS_CSV_EXAMPLE = {
+FEATURES_AS_CSV_EXAMPLE = {
     "content": {
         "text/csv": {
             "schema": {"type": "string"},

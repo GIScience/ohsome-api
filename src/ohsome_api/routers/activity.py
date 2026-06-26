@@ -9,7 +9,7 @@ from ohsome_api.models import TimeBinRow
 from ohsome_api.request_models import TimeBinsParameters
 from ohsome_api.response_models import TimeBinsResponseModel
 from ohsome_api.response_renderers import (
-    POST_ACTIVITY_AS_CSV_EXAMPLE,
+    ACTIVITY_AS_CSV_EXAMPLE,
     CSVTimeBinsResponse,
 )
 
@@ -36,7 +36,7 @@ async def post_users_activity_as_json(
     "/activity/users.csv",
     response_class=CSVTimeBinsResponse,
     response_model=TimeBinsResponseModel,
-    responses={200: POST_ACTIVITY_AS_CSV_EXAMPLE},
+    responses={200: ACTIVITY_AS_CSV_EXAMPLE},
     summary="Active users per time bin",
     tags=["History Statistics"],
 )

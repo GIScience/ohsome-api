@@ -8,7 +8,7 @@ from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
 from ohsome_api.response_models import SnapshotsResponseModel
 from ohsome_api.response_renderers import (
-    POST_FEATURES_AS_CSV_EXAMPLE,
+    FEATURES_AS_CSV_EXAMPLE,
     CSVSnapshotsResponse,
 )
 
@@ -43,7 +43,7 @@ async def post_features_as_json(
     "/features/{measure}.csv",
     response_class=CSVSnapshotsResponse,
     responses={
-        200: POST_FEATURES_AS_CSV_EXAMPLE,
+        200: FEATURES_AS_CSV_EXAMPLE,
     },
     summary="Aggregate features by {measure}",
     tags=["History Statistics"],
