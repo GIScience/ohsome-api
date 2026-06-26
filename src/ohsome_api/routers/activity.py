@@ -54,6 +54,6 @@ async def users_activity(
             start=parameters.time_bins.start,
             end=parameters.time_bins.end,
             bin_size=parameters.time_bins.bin_size,
-            aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+            aoi_wkt=parameters.aoi_wkt,
         )
     }

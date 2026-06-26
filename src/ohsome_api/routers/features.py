@@ -33,7 +33,7 @@ async def post_features_as_json(
         start=parameters.time_series.start,
         end=parameters.time_series.end,
         interval=parameters.time_series.interval,
-        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        aoi_wkt=parameters.aoi_wkt,
         measure=measure,
     )
     return SnapshotsResponseModel(result=result)
@@ -57,7 +57,7 @@ async def post_features_as_csv(
         start=parameters.time_series.start,
         end=parameters.time_series.end,
         interval=parameters.time_series.interval,
-        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        aoi_wkt=parameters.aoi_wkt,
         measure=measure,
     )
     return SnapshotsResponseModel(result=result)
@@ -74,7 +74,7 @@ async def post_contributions_extract(
 ) -> StreamingResponse:
     parquet_stream = await service.extract_features_as_parquet(
         parameters.ohsome_filter,
-        parameters.aoi.features[0].geometry.wkt,
+        parameters.aoi_wkt,
     )
     return StreamingResponse(
         parquet_stream,

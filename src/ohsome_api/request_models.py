@@ -3,13 +3,14 @@ from datetime import datetime, timedelta, timezone
 from enum import StrEnum
 from typing import Self
 
-from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
+from geojson_pydantic import MultiPolygon, Polygon
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
     TypeAdapter,
+    computed_field,
     field_validator,
     model_validator,
 )
@@ -30,43 +31,6 @@ class Measure(StrEnum):
     COUNT = "count"
     LENGTH = "length"
     AREA = "area"
-
-
-class GeoJsonFeature(Feature):
-    geometry: Polygon | MultiPolygon
-    properties: dict | None
-
-
-class GeoJsonFeatureCollection(FeatureCollection[GeoJsonFeature]):
-    features: list[GeoJsonFeature] = Field(..., min_length=1)
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "examples": [
-                {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": {},
-                            "geometry": {
-                                "coordinates": [
-                                    [
-                                        [8.72362, 49.41582],
-                                        [8.68812, 49.41582],
-                                        [8.68812, 49.40390],
-                                        [8.72362, 49.40390],
-                                        [8.72362, 49.41582],
-                                    ]
-                                ],
-                                "type": "Polygon",
-                            },
-                        }
-                    ],
-                }
-            ]
-        }
-    )
 
 
 class BaseTime(BaseRequestModel):
@@ -138,14 +102,14 @@ class BaseParameters(BaseRequestModel):
         https://docs.ohsome.org/ohsome-api/v1/filter.html)""",
         json_schema_extra={"example": "type:node and natural=tree"},
     )
-    aoi: GeoJsonFeatureCollection = Field(
-        description="""Area of interest as a GeoJSON
-        FeatureCollection. Only Polygon and MultiPolygon
-        geometry types are allowed. If more than one Feature
-        are supplied, the result will include results for each
-        Feature separately.
-        """,
+    aoi: Polygon | MultiPolygon = Field(
+        description="Area of interest as a GeoJSON Geometry (Polygon or MultiPolygon).",
     )
+
+    @computed_field()
+    @property
+    def aoi_wkt(self) -> str:
+        return self.aoi.wkt
 
 
 class TimeBinsParameters(BaseParameters):

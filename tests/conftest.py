@@ -4,11 +4,11 @@ from typing import Iterable
 import pytest
 import pytest_asyncio
 from _pytest.monkeypatch import MonkeyPatch
+from geojson_pydantic.geometries import parse_geometry_obj
 from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
 from ohsome_api.database import db
-from ohsome_api.request_models import GeoJsonFeatureCollection
 
 
 @pytest.fixture(scope="session")
@@ -54,24 +54,15 @@ async def database_pool():
 def aoi_geojson_heigit():
     # Small bounding box around HeiGIT in Heidelberg, Germany
     return {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "coordinates": [
-                        [
-                            [8.674585743714516, 49.418922925485816],
-                            [8.674585743714516, 49.417888246956096],
-                            [8.676354634855528, 49.417888246956096],
-                            [8.676354634855528, 49.418922925485816],
-                            [8.674585743714516, 49.418922925485816],
-                        ]
-                    ],
-                    "type": "Polygon",
-                },
-            }
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [8.674585743714516, 49.418922925485816],
+                [8.674585743714516, 49.417888246956096],
+                [8.676354634855528, 49.417888246956096],
+                [8.676354634855528, 49.418922925485816],
+                [8.674585743714516, 49.418922925485816],
+            ]
         ],
     }
 
@@ -80,24 +71,15 @@ def aoi_geojson_heigit():
 def aoi_geojson_audimax():
     # Small bounding box around Audimax in Heidelberg, Germany
     return {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [8.670919, 49.417686],
-                            [8.673839, 49.417686],
-                            [8.673727, 49.416393],
-                            [8.671120, 49.416393],
-                            [8.670919, 49.417686],
-                        ]
-                    ],
-                },
-            }
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [8.670919, 49.417686],
+                [8.673839, 49.417686],
+                [8.673727, 49.416393],
+                [8.671120, 49.416393],
+                [8.670919, 49.417686],
+            ]
         ],
     }
 
@@ -106,35 +88,26 @@ def aoi_geojson_audimax():
 def aoi_geojson_invalid_topology():
     # Small bounding box around HeiGIT
     return {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "coordinates": [
-                        [
-                            [8.674585743714516, 49.418922925485816],
-                            [8.676354634855528, 49.417888246956096],
-                            [8.674585743714516, 49.417888246956096],
-                            [8.676354634855528, 49.418922925485816],
-                            [8.674585743714516, 49.418922925485816],
-                        ]
-                    ],
-                    "type": "Polygon",
-                },
-            }
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [8.674585743714516, 49.418922925485816],
+                [8.676354634855528, 49.417888246956096],
+                [8.674585743714516, 49.417888246956096],
+                [8.676354634855528, 49.418922925485816],
+                [8.674585743714516, 49.418922925485816],
+            ]
         ],
     }
 
 
 @pytest.fixture
 def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
-    parsed = GeoJsonFeatureCollection(**aoi_geojson_heigit)
-    return parsed.features[0].geometry.wkt
+    parsed = parse_geometry_obj(aoi_geojson_heigit)
+    return parsed.wkt
 
 
 @pytest.fixture
 def aoi_wkt_audimax(aoi_geojson_audimax: dict) -> str:
-    parsed = GeoJsonFeatureCollection(**aoi_geojson_audimax)
-    return parsed.features[0].geometry.wkt
+    parsed = parse_geometry_obj(aoi_geojson_audimax)
+    return parsed.wkt

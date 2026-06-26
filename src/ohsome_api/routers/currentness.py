@@ -33,7 +33,7 @@ async def post_currentness_as_json(
         start=parameters.time_bins.start,
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
-        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        aoi_wkt=parameters.aoi_wkt,
         measure=measure,
     )
     return TimeBinsResponseModel(result=result)
@@ -57,7 +57,7 @@ async def post_currentness_as_csv(
         start=parameters.time_bins.start,
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
-        aoi_wkt=parameters.aoi.features[0].geometry.wkt,
+        aoi_wkt=parameters.aoi_wkt,
         measure=measure,
     )
     return TimeBinsResponseModel(result=result)
