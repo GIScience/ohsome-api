@@ -37,6 +37,8 @@ async def post_users_activity_as_json(
     response_class=CSVTimeBinsResponse,
     response_model=TimeBinsResponseModel,
     responses={200: POST_ACTIVITY_AS_CSV_EXAMPLE},
+    summary="Active users per time bin",
+    tags=["History Statistics"],
 )
 async def post_users_activity_as_csv(
     parameters: TimeBinsParameters,
