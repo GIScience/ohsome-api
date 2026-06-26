@@ -43,7 +43,6 @@ async def post_users_activity_as_json(
 async def post_users_activity_as_csv(
     parameters: TimeBinsParameters,
 ) -> dict[str, list[TimeBinRow]]:
-    """Active users per time bin."""
     return await users_activity(parameters)
 
 
