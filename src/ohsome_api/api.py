@@ -1,7 +1,7 @@
 # TODO: return request params in response?
+import importlib.metadata
 from contextlib import asynccontextmanager
 from datetime import timedelta
-from importlib.metadata import version
 from typing import AsyncIterator
 
 import asyncpg
@@ -16,8 +16,8 @@ from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import activity, currentness, docs, features, metadata
 
-VERSION = version("ohsome-api")
-
+VERSION = importlib.metadata.version("ohsome-api")
+METADATA = importlib.metadata.metadata("ohsome-api")
 
 td_adapter = TypeAdapter(timedelta)
 
@@ -36,11 +36,9 @@ app = FastAPI(
     docs_url=None,  # configured in routers/docs.py
     redoc_url=None,
     version=VERSION,
-    title="ohsome-api",
-    contact={
-        "name": "HeiGIT gGmbH",
-        "email": "ohsome@heigit.org",
-    },
+    title=METADATA["Name"],
+    description=METADATA["Summary"],
+    contact={"name": METADATA["Author"], "email": METADATA["Author-email"]},
 )
 
 app.include_router(docs.router)
