@@ -10,7 +10,8 @@ from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import Measure, TimeBinsParameters
 from ohsome_api.response_models import TimeBinsResponseModel
 from ohsome_api.response_renderers import (
-    CURRENTNESS_AS_CSV_EXAMPLE,
+    CSV_RESPONSE_DESCRIPTION,
+    CSV_TIME_BINS_RESPONSE_EXAMPLE,
     CSVTimeBinsResponse,
 )
 
@@ -23,29 +24,40 @@ router = APIRouter(
 @router.post(
     "/currentness/{measure}.json",
     response_class=JSONResponse,
+    response_model=TimeBinsResponseModel,
     summary="Currentness of features in time bins.",
     tags=["History Statistics"],
 )
 async def post_currentness_as_json(
     parameters: TimeBinsParameters,
     measure: Measure,
-) -> TimeBinsResponseModel:
-    result = await service.get_currentness(
-        ohsome_filter=parameters.ohsome_filter,
-        start=cast(datetime, parameters.time_bins.start),
-        end=parameters.time_bins.end,
-        bin_size=parameters.time_bins.bin_size,
-        aoi_wkt=parameters.aoi_wkt,
-        measure=measure,
-    )
-    return TimeBinsResponseModel(result=result)
+) -> dict[str, list]:
+    return {
+        "result": await service.get_currentness(
+            ohsome_filter=parameters.ohsome_filter,
+            start=cast(datetime, parameters.time_bins.start),
+            end=parameters.time_bins.end,
+            bin_size=parameters.time_bins.bin_size,
+            aoi_wkt=parameters.aoi_wkt,
+            measure=measure,
+        )
+    }
 
 
 @router.post(
     "/currentness/{measure}.csv",
     response_class=CSVTimeBinsResponse,
+    response_model=TimeBinsResponseModel,
     responses={
-        200: CURRENTNESS_AS_CSV_EXAMPLE,
+        200: {
+            "description": CSV_RESPONSE_DESCRIPTION,
+            "content": {
+                "text/csv": {
+                    "schema": {"type": "string"},
+                    "example": CSV_TIME_BINS_RESPONSE_EXAMPLE,
+                },
+            },
+        },
     },
     summary="Currentness of features in time bins.",
     tags=["History Statistics"],
@@ -53,13 +65,14 @@ async def post_currentness_as_json(
 async def post_currentness_as_csv(
     parameters: TimeBinsParameters,
     measure: Measure,
-) -> TimeBinsResponseModel:
-    result = await service.get_currentness(
-        ohsome_filter=parameters.ohsome_filter,
-        start=cast(datetime, parameters.time_bins.start),
-        end=parameters.time_bins.end,
-        bin_size=parameters.time_bins.bin_size,
-        aoi_wkt=parameters.aoi_wkt,
-        measure=measure,
-    )
-    return TimeBinsResponseModel(result=result)
+) -> dict[str, list]:
+    return {
+        "result": await service.get_currentness(
+            ohsome_filter=parameters.ohsome_filter,
+            start=cast(datetime, parameters.time_bins.start),
+            end=parameters.time_bins.end,
+            bin_size=parameters.time_bins.bin_size,
+            aoi_wkt=parameters.aoi_wkt,
+            measure=measure,
+        )
+    }

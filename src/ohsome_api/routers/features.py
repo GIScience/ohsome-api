@@ -10,7 +10,8 @@ from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
 from ohsome_api.response_models import SnapshotsResponseModel
 from ohsome_api.response_renderers import (
-    FEATURES_AS_CSV_EXAMPLE,
+    CSV_RESPONSE_DESCRIPTION,
+    CSV_SNAPSHOT_EXAMPLE,
     CSVSnapshotsResponse,
 )
 
@@ -23,29 +24,40 @@ router = APIRouter(
 @router.post(
     "/features/{measure}.json",
     response_class=JSONResponse,
+    response_model=SnapshotsResponseModel,
     summary="Aggregate features by {measure} as time series.",
     tags=["History Statistics"],
 )
 async def post_features_as_json(
     parameters: TimeSeriesParameters,
     measure: Measure,
-) -> SnapshotsResponseModel:
-    result = await service.get_features(
-        ohsome_filter=parameters.ohsome_filter,
-        start=cast(datetime, parameters.time_series.start),
-        end=parameters.time_series.end,
-        interval=parameters.time_series.interval,
-        aoi_wkt=parameters.aoi_wkt,
-        measure=measure,
-    )
-    return SnapshotsResponseModel(result=result)
+) -> dict[str, list]:
+    return {
+        "result": await service.get_features(
+            ohsome_filter=parameters.ohsome_filter,
+            start=cast(datetime, parameters.time_series.start),
+            end=parameters.time_series.end,
+            interval=parameters.time_series.interval,
+            aoi_wkt=parameters.aoi_wkt,
+            measure=measure,
+        )
+    }
 
 
 @router.post(
     "/features/{measure}.csv",
     response_class=CSVSnapshotsResponse,
+    response_model=SnapshotsResponseModel,
     responses={
-        200: FEATURES_AS_CSV_EXAMPLE,
+        200: {
+            "description": CSV_RESPONSE_DESCRIPTION,
+            "content": {
+                "text/csv": {
+                    "schema": {"type": "string"},
+                    "example": CSV_SNAPSHOT_EXAMPLE,
+                },
+            },
+        },
     },
     summary="Aggregate features by {measure} as time series.",
     tags=["History Statistics"],
@@ -53,16 +65,17 @@ async def post_features_as_json(
 async def post_features_as_csv(
     parameters: TimeSeriesParameters,
     measure: Measure,
-) -> SnapshotsResponseModel:
-    result = await service.get_features(
-        ohsome_filter=parameters.ohsome_filter,
-        start=cast(datetime, parameters.time_series.start),
-        end=parameters.time_series.end,
-        interval=parameters.time_series.interval,
-        aoi_wkt=parameters.aoi_wkt,
-        measure=measure,
-    )
-    return SnapshotsResponseModel(result=result)
+) -> dict[str, list]:
+    return {
+        "result": await service.get_features(
+            ohsome_filter=parameters.ohsome_filter,
+            start=cast(datetime, parameters.time_series.start),
+            end=parameters.time_series.end,
+            interval=parameters.time_series.interval,
+            aoi_wkt=parameters.aoi_wkt,
+            measure=measure,
+        )
+    }
 
 
 @router.post(
