@@ -1,49 +1,26 @@
-# How-To Guides
-
-## Extraction
-
-### How to extract features with Python?
-
-How to extract OpenStreetMap data from the ohsome API with Python into a GeoDataFrame?
-
-```python
+import os
 from io import BytesIO
 
-import geopandas as gpd
+import geopandas
 import httpx
-
+import pandas
 
 BASE_URL = "https://api.heigit.org/ohsome-api-staging/v2"
 OHSOME_API_URL = BASE_URL + "/features/extraction.parquet"
-OHSOME_API_KEY = "your-api-key"
+OHSOME_API_KEY = os.environ["OHSOME_API_KEY"]
 
 
 aoi: dict = {
     "type": "Polygon",
     "coordinates": [
-      [
         [
-          8.72362,
-          49.41582
-        ],
-        [
-          8.68812,
-          49.41582
-        ],
-        [
-          8.68812,
-          49.4039
-        ],
-        [
-          8.72362,
-          49.4039
-        ],
-        [
-          8.72362,
-          49.41582
+            [8.72362, 49.41582],
+            [8.68812, 49.41582],
+            [8.68812, 49.4039],
+            [8.72362, 49.4039],
+            [8.72362, 49.41582],
         ]
-      ]
-    ]
+    ],
 }
 osm_filter: str = "type:node and natural=tree"
 
@@ -55,13 +32,14 @@ response = httpx.post(
 response.raise_for_status()
 buffer = BytesIO(response.content)
 
-features = gpd.read_parquet(
+features = geopandas.read_parquet(
     buffer,
     # Convert parquet maps into python dictionary
     to_pandas_kwargs={"maps_as_pydicts": "strict"},
 )
+print(features.info())
 
 # Extract features from dictionary into columns (explode)
-tags = gdf.json_normalize(gdf["osm_tags"])
+tags = pandas.json_normalize(features["osm_tags"])
 features_with_tags = features.join(tags).drop("osm_tags", axis="columns")
-```
+print(features_with_tags.info())
