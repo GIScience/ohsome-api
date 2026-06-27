@@ -14,10 +14,8 @@ hurl --test *.hurl
 ## Schemathesis
 
 ```sh
-export API_KEY=foo
 uvx schemathesis run \
     --phases examples \
-    --exclude-checks ignored_auth \
     --tls-verify false \
     https://staging-ohsome-api.heigitk8s.de/openapi.json
 ```

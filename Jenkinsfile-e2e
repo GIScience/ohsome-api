@@ -58,10 +58,10 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'API_KEY')]) {
 						sh 'uvx schemathesis \
-							--config-file tests-end-to-end/schemathesis.toml \
 							run \
 							--phases examples \
 							--exclude-checks ignored_auth \
+							--header "authorization: $API_KEY \
 							$OPENAPI_URL'
                     }
                 }

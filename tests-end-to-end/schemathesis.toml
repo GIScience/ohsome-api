@@ -1,4 +1,0 @@
-headers = { Authorization = "${API_KEY}" }
-
-[output.sanitization]
-enabled = true
