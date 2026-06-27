@@ -61,7 +61,7 @@ pipeline {
 							run \
 							--phases examples \
 							--exclude-checks ignored_auth \
-							--header "authorization: $API_KEY \
+							--header "authorization: $API_KEY" \
 							$OPENAPI_URL'
                     }
                 }
