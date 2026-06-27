@@ -13,7 +13,7 @@ class MetadataResponseModel(BaseResponseModel):
 
 @router.get(
     "/metadata",
-    summary="Metadata of the underlying ohsomedb",
+    summary="Metadata of the underlying database (ohsomedb).",
     tags=["Metadata"],
     response_model=MetadataResponseModel,
 )

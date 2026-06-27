@@ -50,7 +50,6 @@ async def post_features_as_json(
     response_model=SnapshotsResponseModel,
     responses={
         200: {
-            "description": CSV_RESPONSE_DESCRIPTION,
             "content": {
                 "text/csv": {
                     "schema": {"type": "string"},
@@ -60,6 +59,7 @@ async def post_features_as_json(
         },
     },
     summary="Aggregate features by {measure} as time series.",
+    description=CSV_RESPONSE_DESCRIPTION,
     tags=["History Statistics"],
 )
 async def post_features_as_csv(

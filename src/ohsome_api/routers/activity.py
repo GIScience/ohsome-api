@@ -41,7 +41,6 @@ async def post_users_activity_as_json(
     response_model=TimeBinsResponseModel,
     responses={
         200: {
-            "description": CSV_RESPONSE_DESCRIPTION,
             "content": {
                 "text/csv": {
                     "schema": {"type": "string"},
@@ -51,6 +50,7 @@ async def post_users_activity_as_json(
         },
     },
     summary="Active users per time bin.",
+    description=CSV_RESPONSE_DESCRIPTION,
     tags=["History Statistics"],
 )
 async def post_users_activity_as_csv(

@@ -50,7 +50,6 @@ async def post_currentness_as_json(
     response_model=TimeBinsResponseModel,
     responses={
         200: {
-            "description": CSV_RESPONSE_DESCRIPTION,
             "content": {
                 "text/csv": {
                     "schema": {"type": "string"},
@@ -60,6 +59,7 @@ async def post_currentness_as_json(
         },
     },
     summary="Currentness of features in time bins.",
+    description=CSV_RESPONSE_DESCRIPTION,
     tags=["History Statistics"],
 )
 async def post_currentness_as_csv(
