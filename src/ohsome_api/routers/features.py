@@ -23,7 +23,7 @@ router = APIRouter(
 @router.post(
     "/features/{measure}.json",
     response_class=JSONResponse,
-    summary="Aggregate features by {measure}",
+    summary="Aggregate features by {measure} as time series.",
     tags=["History Statistics"],
 )
 async def post_features_as_json(
@@ -47,7 +47,7 @@ async def post_features_as_json(
     responses={
         200: FEATURES_AS_CSV_EXAMPLE,
     },
-    summary="Aggregate features by {measure}",
+    summary="Aggregate features by {measure} as time series.",
     tags=["History Statistics"],
 )
 async def post_features_as_csv(
@@ -68,7 +68,7 @@ async def post_features_as_csv(
 @router.post(
     "/features/extraction.parquet",
     response_class=StreamingResponse,
-    summary="Download features",
+    summary="Download features.",
     tags=["Data Extraction"],
 )
 async def post_contributions_extract(

@@ -23,7 +23,7 @@ router = APIRouter(
 @router.post(
     "/currentness/{measure}.json",
     response_class=JSONResponse,
-    summary="Currentness of features",
+    summary="Currentness of features in time bins.",
     tags=["History Statistics"],
 )
 async def post_currentness_as_json(
@@ -47,7 +47,7 @@ async def post_currentness_as_json(
     responses={
         200: CURRENTNESS_AS_CSV_EXAMPLE,
     },
-    summary="Currentness of features",
+    summary="Currentness of features in time bins.",
     tags=["History Statistics"],
 )
 async def post_currentness_as_csv(

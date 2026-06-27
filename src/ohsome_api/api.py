@@ -83,7 +83,7 @@ def head_health() -> None:
     pass
 
 
-@app.get("/health", summary="Perform a health check", tags=["Health"])
+@app.get("/health", summary="Check health.", tags=["Health"])
 def get_health() -> HealthCheck:
     # TODO: actually perform a health check
     return HealthCheck()

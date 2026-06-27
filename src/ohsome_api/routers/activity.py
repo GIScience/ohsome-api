@@ -25,7 +25,7 @@ router = APIRouter(
     "/activity/users.json",
     response_class=JSONResponse,
     response_model=TimeBinsResponseModel,
-    summary="Active users per time bin",
+    summary="Active users per time bin.",
     tags=["History Statistics"],
 )
 async def post_users_activity_as_json(
@@ -39,7 +39,7 @@ async def post_users_activity_as_json(
     response_class=CSVTimeBinsResponse,
     response_model=TimeBinsResponseModel,
     responses={200: ACTIVITY_AS_CSV_EXAMPLE},
-    summary="Active users per time bin",
+    summary="Active users per time bin.",
     tags=["History Statistics"],
 )
 async def post_users_activity_as_csv(
