@@ -1,4 +1,6 @@
+from datetime import datetime
 from importlib.metadata import version
+from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -30,7 +32,7 @@ async def post_features_as_json(
 ) -> SnapshotsResponseModel:
     result = await service.get_features(
         ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time_series.start,
+        start=cast(datetime, parameters.time_series.start),
         end=parameters.time_series.end,
         interval=parameters.time_series.interval,
         aoi_wkt=parameters.aoi_wkt,
@@ -54,7 +56,7 @@ async def post_features_as_csv(
 ) -> SnapshotsResponseModel:
     result = await service.get_features(
         ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time_series.start,
+        start=cast(datetime, parameters.time_series.start),
         end=parameters.time_series.end,
         interval=parameters.time_series.interval,
         aoi_wkt=parameters.aoi_wkt,

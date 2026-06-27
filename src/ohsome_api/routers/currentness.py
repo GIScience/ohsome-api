@@ -1,4 +1,6 @@
+from datetime import datetime
 from importlib.metadata import version
+from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -30,7 +32,7 @@ async def post_currentness_as_json(
 ) -> TimeBinsResponseModel:
     result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time_bins.start,
+        start=cast(datetime, parameters.time_bins.start),
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
         aoi_wkt=parameters.aoi_wkt,
@@ -54,7 +56,7 @@ async def post_currentness_as_csv(
 ) -> TimeBinsResponseModel:
     result = await service.get_currentness(
         ohsome_filter=parameters.ohsome_filter,
-        start=parameters.time_bins.start,
+        start=cast(datetime, parameters.time_bins.start),
         end=parameters.time_bins.end,
         bin_size=parameters.time_bins.bin_size,
         aoi_wkt=parameters.aoi_wkt,

@@ -1,4 +1,6 @@
+from datetime import datetime
 from importlib.metadata import version
+from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -52,7 +54,7 @@ async def users_activity(
     return {
         "result": await service.get_users_activity(
             ohsome_filter=parameters.ohsome_filter,
-            start=parameters.time_bins.start,
+            start=cast(datetime, parameters.time_bins.start),
             end=parameters.time_bins.end,
             bin_size=parameters.time_bins.bin_size,
             aoi_wkt=parameters.aoi_wkt,
