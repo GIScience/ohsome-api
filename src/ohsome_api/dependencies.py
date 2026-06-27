@@ -8,4 +8,5 @@ api_key_header_scheme = APIKeyHeader(
         '<a href="https://account.heigit.org/" target="_blank">API key</a>.'
         "<br><br>"
     ),
+    auto_error=False,
 )
