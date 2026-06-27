@@ -104,6 +104,22 @@ class BaseParameters(BaseRequestModel):
     )
     aoi: Polygon | MultiPolygon = Field(
         description="Area of interest as a GeoJSON Geometry (Polygon or MultiPolygon).",
+        json_schema_extra={
+            "examples": [
+                {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [8.72362, 49.41582],
+                            [8.68812, 49.41582],
+                            [8.68812, 49.40390],
+                            [8.72362, 49.40390],
+                            [8.72362, 49.41582],
+                        ]
+                    ],
+                },
+            ]
+        },
     )
 
     @computed_field()
