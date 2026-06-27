@@ -2,43 +2,34 @@
 POST {{BASE_URL}}/features/extraction.parquet
 Authorization: {{API_KEY}}
 {
-  "filter": "type:node and natural=tree",
-  "aoi": {
-    "features": [
-      {
-        "geometry": {
-          "coordinates": [
-            [
-              [
-                8.72362,
-                49.41582
-              ],
-              [
-                8.68812,
-                49.41582
-              ],
-              [
-                8.68812,
-                49.4039
-              ],
-              [
-                8.72362,
-                49.4039
-              ],
-              [
-                8.72362,
-                49.41582
-              ]
-            ]
-          ],
-          "type": "Polygon"
-        },
-        "properties": {},
-        "type": "Feature"
-      }
-    ],
-    "type": "FeatureCollection"
-  }
+	"filter": "type:node and natural=tree",
+	"aoi": {
+		"coordinates": [
+			[
+				[
+					8.72362,
+					49.41582
+				],
+				[
+					8.68812,
+					49.41582
+				],
+				[
+					8.68812,
+					49.4039
+				],
+				[
+					8.72362,
+					49.4039
+				],
+				[
+					8.72362,
+					49.41582
+				]
+			]
+		],
+		"type": "Polygon"
+	}
 }
 HTTP *
 [Asserts]
