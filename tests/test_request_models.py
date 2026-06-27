@@ -7,10 +7,20 @@ from ohsome_api.request_models import TimeBins
 
 
 def test_time_start_end():
-    TimeBins(
+    time_bins = TimeBins(
         start=datetime(2024, 1, 1),  # no timezone
         end=datetime(2024, 3, 1),
     )
+    assert time_bins.start == datetime(2024, 1, 1, tzinfo=timezone.utc)
+    assert time_bins.end == datetime(2024, 3, 1, tzinfo=timezone.utc)
+
+
+def test_time_start_end_earliest():
+    time_bins = TimeBins(
+        start="earliest",
+        end=datetime(2024, 3, 1),
+    )
+    assert time_bins.start == datetime(2007, 10, 8, tzinfo=timezone.utc)
 
 
 def test_time_start_end_invalid():
