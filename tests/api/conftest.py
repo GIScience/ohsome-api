@@ -6,5 +6,5 @@ from ohsome_api.api import app
 
 @pytest.fixture(scope="module")
 def client(ohsomedb_testcontainer: None):
-    with TestClient(app, headers={"authorization": "test"}) as client:
+    with TestClient(app) as client:
         yield client
