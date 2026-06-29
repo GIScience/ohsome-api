@@ -3,7 +3,7 @@ from typing import AsyncIterator, cast
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.models import ExtractionRow, SnapshotRow, TimeBinRow
+from ohsome_api.models import ExtractionRow, SnapshotColumns, TimeBinRow
 from ohsome_api.request_models import Measure
 
 SCHEMA = CONFIG.ohsomedb.schemaname
@@ -221,7 +221,7 @@ async def get_features(  # noqa: C901, PLR0913
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
-) -> list[SnapshotRow]:
+) -> SnapshotColumns:
     filter_args_count = len(filter_args)
     match measure:
         case Measure.COUNT:
@@ -308,10 +308,9 @@ async def get_features(  # noqa: C901, PLR0913
     for record in records:
         zerofilled_series[record["ts"]] = record["value"]
 
-    return [
-        SnapshotRow(value=value, timestamp=ts)
-        for ts, value in zerofilled_series.items()
-    ]
+    timestamps: list[datetime] = list(zerofilled_series.keys())
+    values: list[int] = list(zerofilled_series.values())
+    return SnapshotColumns(timestamp=timestamps, value=values)
 
 
 def extract_features(

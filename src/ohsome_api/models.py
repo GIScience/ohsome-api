@@ -27,6 +27,11 @@ class SnapshotRow(BaseModel):
     timestamp: datetime
 
 
+class SnapshotColumns(BaseModel):
+    timestamp: list[datetime]
+    value: list[int]
+
+
 class ExtractionRow(TypedDict):
     osm_type: str
     osm_id: int

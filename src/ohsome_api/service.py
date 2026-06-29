@@ -8,6 +8,7 @@ from ohsome_api.db import generate_timestamp_series
 from ohsome_api.models import (
     ExtractionRow,
     Metadata,
+    SnapshotColumns,
     SnapshotRow,
     TimeBinRow,
 )
@@ -62,7 +63,7 @@ async def get_users_activity(
     )
 
 
-async def get_features(  # noqa: PLR0913
+async def get_features_rows(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
@@ -70,6 +71,24 @@ async def get_features(  # noqa: PLR0913
     aoi_wkt: str,
     measure: Measure,
 ) -> list[SnapshotRow]:
+    columns = await get_features_columns(
+        ohsome_filter, start, end, interval, aoi_wkt, measure
+    )
+
+    return [
+        SnapshotRow(timestamp=ts, value=val)
+        for ts, val in zip(columns.timestamp, columns.value, strict=True)
+    ]
+
+
+async def get_features_columns(  # noqa: PLR0913
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
+    interval: str | None,
+    aoi_wkt: str,
+    measure: Measure,
+) -> SnapshotColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, interval)
     return await db.get_features(
