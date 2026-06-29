@@ -22,6 +22,12 @@ class TimeBinRow(BaseModel):
     end: datetime
 
 
+class TimeBinColumns(BaseModel):
+    start: list[datetime]
+    end: list[datetime]
+    value: list[int]
+
+
 class SnapshotRow(BaseModel):
     value: int
     timestamp: datetime

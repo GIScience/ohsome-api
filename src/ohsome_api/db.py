@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import AsyncIterator, cast
 
+from asyncpg import Record
+
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.models import ExtractionRow, SnapshotColumns, TimeBinRow
+from ohsome_api.models import ExtractionRow, SnapshotColumns, TimeBinColumns
 from ohsome_api.request_models import Measure
 
 SCHEMA = CONFIG.ohsomedb.schemaname
@@ -65,7 +67,7 @@ async def get_metadata() -> dict[str, datetime]:
 
 # TODO: decide what to do about too many arguments linter
 # TODO: fix complexity lint warning
-async def get_currentness(  # noqa: C901, PLR0913
+async def get_currentness(  # noqa: PLR0913
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
@@ -73,7 +75,7 @@ async def get_currentness(  # noqa: C901, PLR0913
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
-) -> list[TimeBinRow]:
+) -> TimeBinColumns:
     filter_args_count = len(filter_args)
     match measure:
         case Measure.COUNT:
@@ -145,20 +147,7 @@ async def get_currentness(  # noqa: C901, PLR0913
         aoi_wkt,
     )  # order matters!
 
-    # TODO: extract post-processing to function
-    zerofilled_series = {i: 0 for i in range(len(series) - 1)}
-
-    for record in records:
-        zerofilled_series[record["time_bin"] - 1] = record["value"]
-
-    return [
-        TimeBinRow(
-            value=count,
-            start=series[time_bin],
-            end=series[time_bin + 1],
-        )
-        for time_bin, count in zerofilled_series.items()
-    ]
+    return zerofill_records_to_time_bin_columns(records, series)
 
 
 async def get_users_activity(  # noqa: PLR0913
@@ -168,7 +157,7 @@ async def get_users_activity(  # noqa: PLR0913
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-) -> list[TimeBinRow]:
+) -> TimeBinColumns:
     filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
@@ -195,20 +184,28 @@ async def get_users_activity(  # noqa: PLR0913
         aoi_wkt,
     )  # order matters!
 
-    # TODO: extract post-processing to function
+    return zerofill_records_to_time_bin_columns(records, series)
+
+
+def zerofill_records_to_time_bin_columns(
+    records: list[Record], series: list[datetime]
+) -> TimeBinColumns:
     zerofilled_series = {i: 0 for i in range(len(series) - 1)}
 
     for record in records:
         zerofilled_series[record["time_bin"] - 1] = record["value"]
 
-    return [
-        TimeBinRow(
-            value=count,
-            start=series[time_bin],
-            end=series[time_bin + 1],
-        )
-        for time_bin, count in zerofilled_series.items()
+    start_timestamps: list[datetime] = [
+        series[time_bin] for time_bin in zerofilled_series
     ]
+
+    end_timestamps: list[datetime] = [
+        series[time_bin + 1] for time_bin in zerofilled_series
+    ]
+
+    values: list[int] = list(zerofilled_series.values())
+
+    return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
 # TODO: decide what to do about too many arguments linter

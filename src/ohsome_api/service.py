@@ -10,6 +10,7 @@ from ohsome_api.models import (
     Metadata,
     SnapshotColumns,
     SnapshotRow,
+    TimeBinColumns,
     TimeBinRow,
 )
 from ohsome_api.parquet import ArrowSink, ParquetSink
@@ -23,7 +24,7 @@ async def get_ohsomedb_metadata() -> Metadata:
     return Metadata(**metadata)
 
 
-async def get_currentness(  # noqa: PLR0913
+async def get_currentness_row(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
@@ -31,6 +32,25 @@ async def get_currentness(  # noqa: PLR0913
     aoi_wkt: str,
     measure: Measure,
 ) -> list[TimeBinRow]:
+    columns = await get_currentness_columns(
+        ohsome_filter, start, end, bin_size, aoi_wkt, measure
+    )
+    return [
+        TimeBinRow(start=start, end=end, value=val)
+        for start, end, val in zip(
+            columns.start, columns.end, columns.value, strict=True
+        )
+    ]
+
+
+async def get_currentness_columns(  # noqa: PLR0913
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
+    bin_size: str | None,
+    aoi_wkt: str,
+    measure: Measure,
+) -> TimeBinColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
     return await db.get_currentness(
@@ -44,13 +64,35 @@ async def get_currentness(  # noqa: PLR0913
     )
 
 
-async def get_users_activity(
+async def get_users_activity_rows(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
     bin_size: str | None,
     aoi_wkt: str,
 ) -> list[TimeBinRow]:
+    columns = await get_users_activity_columns(
+        ohsome_filter,
+        start,
+        end,
+        bin_size,
+        aoi_wkt,
+    )
+    return [
+        TimeBinRow(start=start, end=end, value=val)
+        for start, end, val in zip(
+            columns.start, columns.end, columns.value, strict=True
+        )
+    ]
+
+
+async def get_users_activity_columns(
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
+    bin_size: str | None,
+    aoi_wkt: str,
+) -> TimeBinColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
     return await db.get_users_activity(
