@@ -1,12 +1,13 @@
 import io
 import json
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from importlib.metadata import version
 from types import TracebackType
 
-import pyarrow
 import pyproj
 from pyarrow import (
+    RecordBatch,
     binary,
     bool_,
     float64,
@@ -14,14 +15,16 @@ from pyarrow import (
     int64,
     map_,
     parquet,
+    schema,
     string,
     struct,
     timestamp,
 )
+from pyarrow.ipc import new_stream
 
 from ohsome_api.models import Attribution, ExtractionRow
 
-EXTRACTION_SCHEMA = pyarrow.schema(
+EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
         ("osm_id", int64()),
@@ -100,12 +103,80 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
     }
 
 
-class ParquetSink:
+def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
+    return RecordBatch.from_arrays(
+        [
+            [r["osm_type"] for r in rows],
+            [r["osm_id"] for r in rows],
+            [r["valid_from"].timestamp() * 1000000 for r in rows],
+            [r["osm_version"] for r in rows],
+            [r["osm_minor_version"] for r in rows],
+            [r["osm_edits"] for r in rows],
+            [r["user_id"] for r in rows],
+            [r["user_name"] for r in rows],
+            [r["changeset_id"] for r in rows],
+            [r["tags"] for r in rows],
+            [bbox(r) for r in rows],
+            [r["geom"] for r in rows],
+            [r["clipped"] for r in rows],
+        ],
+        schema=EXTRACTION_SCHEMA,
+    )
+
+
+class Sink(ABC):
+    def __init__(self) -> None:
+        self.buffer = io.BytesIO()
+
+    def read_bytes(self) -> bytes:
+        content = self.buffer.getvalue()
+        self.buffer.seek(0)
+        self.buffer.truncate()
+        return content
+
+    @abstractmethod
+    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+    def __enter__(self) -> Sink:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.close()
+
+
+class ArrowSink(Sink):
+    def __init__(self) -> None:
+        super().__init__()
+        self.writer = new_stream(self.buffer, EXTRACTION_SCHEMA)
+
+    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
+        if not rows:
+            return b""
+
+        batch = record_batch(rows)
+        self.writer.write_batch(batch)
+        return self.read_bytes()
+
+    def close(self) -> None:
+        self.writer.close()
+
+
+class ParquetSink(Sink):
     # PERF: Current implementation result in copy of retrieved batches multiple times
     #   -> Memory Issues?
 
     def __init__(self) -> None:
-        self.buffer = io.BytesIO()
+        super().__init__()
         self.xmin = float("inf")
         self.ymin = float("inf")
         self.xmax = float("-inf")
@@ -116,41 +187,20 @@ class ParquetSink:
             compression="zstd",
         )
 
-    def write_batch(self, rows: list[ExtractionRow]) -> None:
+    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
         if not rows:
-            return
+            return b""
 
-        batch = pyarrow.RecordBatch.from_arrays(
-            [
-                [r["osm_type"] for r in rows],
-                [r["osm_id"] for r in rows],
-                [r["valid_from"].timestamp() * 1000000 for r in rows],
-                [r["osm_version"] for r in rows],
-                [r["osm_minor_version"] for r in rows],
-                [r["osm_edits"] for r in rows],
-                [r["user_id"] for r in rows],
-                [r["user_name"] for r in rows],
-                [r["changeset_id"] for r in rows],
-                [r["tags"] for r in rows],
-                [bbox(r) for r in rows],
-                [r["geom"] for r in rows],
-                [r["clipped"] for r in rows],
-            ],
-            schema=EXTRACTION_SCHEMA,
-        )
+        batch = record_batch(rows)
+        # Which group size should we use?
+        self.writer.write(batch, row_group_size=10000)
+
         self.xmin = min(self.xmin, *(r["xmin"] for r in rows))
         self.ymin = min(self.ymin, *(r["ymin"] for r in rows))
         self.xmax = max(self.xmax, *(r["xmax"] for r in rows))
         self.ymax = max(self.ymax, *(r["ymax"] for r in rows))
 
-        # Which group size should we use?
-        self.writer.write(batch, row_group_size=10000)
-
-    def read_bytes(self) -> bytes:
-        content = self.buffer.getvalue()
-        self.buffer.seek(0)
-        self.buffer.truncate()
-        return content
+        return self.read_bytes()
 
     def _write_metadata(self) -> None:
         self.writer.add_key_value_metadata(
@@ -163,14 +213,3 @@ class ParquetSink:
     def close(self) -> None:
         self._write_metadata()
         self.writer.close()
-
-    def __enter__(self) -> ParquetSink:
-        return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        self.close()

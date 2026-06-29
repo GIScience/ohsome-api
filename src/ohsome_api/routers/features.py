@@ -87,12 +87,32 @@ async def post_features_as_csv(
 async def post_contributions_extract(
     parameters: BaseParameters,
 ) -> StreamingResponse:
-    parquet_stream = await service.extract_features_as_parquet(
+    stream = await service.extract_features_as_parquet(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
     )
     return StreamingResponse(
-        parquet_stream,
+        stream,
         media_type="application/vnd.apache.parquet",
         headers={"Content-Disposition": 'attachment; filename="extractions.parquet"'},
+    )
+
+
+@router.post(
+    "/features/extraction.arrow",
+    response_class=StreamingResponse,
+    summary="Download features",
+    tags=["Data Extraction"],
+)
+async def post_contributions_extract_arrow(
+    parameters: BaseParameters,
+) -> StreamingResponse:
+    stream = await service.extract_features_as_arrow(
+        parameters.ohsome_filter,
+        parameters.aoi_wkt,
+    )
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.apache.arrow",
+        headers={"Content-Disposition": 'attachment; filename="extractions.arrow"'},
     )
