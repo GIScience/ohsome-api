@@ -15,6 +15,7 @@ from pydantic import (
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import activity, currentness, docs, features, metadata
+from ohsome_api.routers import filter as filter_
 
 VERSION = importlib.metadata.version("ohsome-api")
 METADATA = importlib.metadata.metadata("ohsome-api")
@@ -42,6 +43,7 @@ app = FastAPI(
 )
 
 app.include_router(docs.router)
+app.include_router(filter_.router)
 app.include_router(metadata.router)
 app.include_router(features.router)
 app.include_router(activity.router)
