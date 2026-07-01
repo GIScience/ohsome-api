@@ -5,6 +5,8 @@ from ohsome_filter_to_sql import OhsomeFilter
 
 router = APIRouter()
 
+# TODO: add example by defining request and response models
+
 
 @router.get(
     "/filter/validation",
