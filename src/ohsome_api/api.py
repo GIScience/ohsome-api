@@ -49,7 +49,12 @@ app = FastAPI(
     description=METADATA_PROJECT["Summary"],
     contact={
         "name": METADATA_PROJECT["Author"],
+        "url": "https://heigit.org/big-spatial-data-analytics/",
         "email": METADATA_PROJECT["Author-email"],
+    },
+    license_info={
+        "name": "GNU Affero General Public License",
+        "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
     },
 )
 
