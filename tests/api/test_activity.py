@@ -15,8 +15,8 @@ def test_activity_users_as_json(client: TestClient, aoi_geojson_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert len(response.json()["result"]) == 1
-    assert response.json()["result"][0]["value"] == 6
+    assert len(response.json()["result"]["value"]) == 1
+    assert response.json()["result"]["value"][0] == 6
 
 
 def test_activity_users_as_csv(client: TestClient, aoi_geojson_heigit: dict):

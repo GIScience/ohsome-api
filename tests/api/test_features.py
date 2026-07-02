@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from httpx import Response
 from starlette.status import HTTP_200_OK
 
 
@@ -18,17 +19,39 @@ def test_features_as_json(client: TestClient, aoi_geojson_heigit: dict):
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
     result = response.json()["result"]
-    assert result == [
-        {
-            "timestamp": "2024-01-01T00:00:00Z",
-            "value": 3,
+    assert result == {
+        "timestamp": [
+            "2024-01-01T00:00:00Z",
+            "2025-01-01T00:00:00Z",
+            "2025-12-31T00:00:00Z",
+        ],
+        "value": [3, 3, 4],
+    }
+
+
+def test_features_as_csv(client: TestClient, aoi_geojson_heigit: dict):
+    response: Response = client.post(
+        "/features/count.csv",
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "timeSeries": {
+                "start": "2024-01-01",
+                "end": "2025-12-31",
+                "interval": "P1Y",
+            },
+            "aoi": aoi_geojson_heigit,
         },
-        {
-            "timestamp": "2025-01-01T00:00:00Z",
-            "value": 3,
-        },
-        {
-            "timestamp": "2025-12-31T00:00:00Z",
-            "value": 4,
-        },
-    ]
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert (
+        response.text
+        == """# apiVersion: 2.0.0a0
+# attribution.url: https://ohsome.org/copyrights
+# attribution.text: \xa9 OpenStreetMap contributors
+timestamp;value
+2024-01-01T00:00:00Z;3
+2025-01-01T00:00:00Z;3
+2025-12-31T00:00:00Z;4
+"""
+    )

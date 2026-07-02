@@ -28,29 +28,6 @@ router = APIRouter(
 @router.post(
     "/currentness/{measure}.json",
     response_class=JSONResponse,
-    response_model=TimeBinsResponseModel,
-    summary="Currentness of features in time bins.",
-    tags=["History Statistics"],
-)
-async def post_currentness_as_json(
-    parameters: TimeBinsParameters,
-    measure: Measure,
-) -> dict[str, list]:
-    return {
-        "result": await service.get_currentness_row(
-            ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time_bins.start),
-            end=parameters.time_bins.end,
-            bin_size=parameters.time_bins.bin_size,
-            aoi_wkt=parameters.aoi_wkt,
-            measure=measure,
-        )
-    }
-
-
-@router.post(
-    "/currentness/{measure}.cjson",
-    response_class=JSONResponse,
     response_model=TimeBinsColumnsResponseModel,
     summary="Currentness of features in time bins.",
     tags=["History Statistics"],

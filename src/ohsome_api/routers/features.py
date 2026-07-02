@@ -28,29 +28,6 @@ router = APIRouter(
 @router.post(
     "/features/{measure}.json",
     response_class=JSONResponse,
-    response_model=SnapshotsResponseModel,
-    summary="Aggregate features by {measure} as time series.",
-    tags=["History Statistics"],
-)
-async def post_features_as_json(
-    parameters: TimeSeriesParameters,
-    measure: Measure,
-) -> dict[str, list]:
-    return {
-        "result": await service.get_features_rows(
-            ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time_series.start),
-            end=parameters.time_series.end,
-            interval=parameters.time_series.interval,
-            aoi_wkt=parameters.aoi_wkt,
-            measure=measure,
-        )
-    }
-
-
-@router.post(
-    "/features/{measure}.cjson",
-    response_class=JSONResponse,
     response_model=SnapshotColumnsResponseModel,
     summary="Aggregate features by {measure} as time series.",
     tags=["History Statistics"],

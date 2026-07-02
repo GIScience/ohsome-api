@@ -28,27 +28,6 @@ router = APIRouter(
 @router.post(
     "/activity/users.json",
     response_class=JSONResponse,
-    response_model=TimeBinsResponseModel,
-    summary="Active users per time bin.",
-    tags=["History Statistics"],
-)
-async def post_users_activity_as_json(
-    parameters: TimeBinsParameters,
-) -> dict[str, list[TimeBinRow]]:
-    return {
-        "result": await service.get_users_activity_rows(
-            ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time_bins.start),
-            end=parameters.time_bins.end,
-            bin_size=parameters.time_bins.bin_size,
-            aoi_wkt=parameters.aoi_wkt,
-        )
-    }
-
-
-@router.post(
-    "/activity/users.cjson",
-    response_class=JSONResponse,
     response_model=TimeBinsColumnsResponseModel,
     summary="Active users per time bin.",
     tags=["History Statistics"],

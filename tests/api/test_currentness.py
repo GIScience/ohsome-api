@@ -20,8 +20,8 @@ def test_currentness_count_as_json(client: TestClient, aoi_geojson_heigit: dict)
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 2
-    assert len(response.json()["result"]) == 1
+    assert response.json()["result"]["value"][0] == 2
+    assert len(response.json()["result"]["value"]) == 1
 
 
 def test_currentness_length_as_json(client: TestClient, aoi_geojson_heigit: dict):
@@ -35,8 +35,8 @@ def test_currentness_length_as_json(client: TestClient, aoi_geojson_heigit: dict
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 30
-    assert len(response.json()["result"]) == 1
+    assert response.json()["result"]["value"][0] == 30
+    assert len(response.json()["result"]["value"]) == 1
 
 
 def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
@@ -50,8 +50,8 @@ def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"][0]["value"] == 770
-    assert len(response.json()["result"]) == 1
+    assert response.json()["result"]["value"][0] == 770
+    assert len(response.json()["result"]["value"]) == 1
 
 
 def test_currentness_as_json_time_bin_size(
@@ -71,8 +71,8 @@ def test_currentness_as_json_time_bin_size(
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert len(response.json()["result"]) == 2
-    assert response.json()["result"][1]["value"] == 2
+    assert len(response.json()["result"]["value"]) == 2
+    assert response.json()["result"]["value"][1] == 2
 
 
 def test_currentness_as_csv(client: TestClient, aoi_geojson_heigit: dict):
