@@ -58,8 +58,11 @@ buffer = BytesIO(response.content)
 
 features = gpd.read_parquet(
     buffer,
+    # Convert parquet maps into python dictionary
     to_pandas_kwargs={"maps_as_pydicts": "strict"},
 )
+
+# Extract features from dictionary into columns (explode)
 tags = gdf.json_normalize(gdf["osm_tags"])
 features_with_tags = features.join(tags).drop("osm_tags", axis="columns")
 ```
