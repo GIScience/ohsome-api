@@ -18,9 +18,16 @@ from ohsome_api.routers import activity, currentness, docs, features, metadata
 from ohsome_api.routers import filter as filter_
 
 VERSION = importlib.metadata.version("ohsome-api")
-METADATA = importlib.metadata.metadata("ohsome-api")
+METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
 
 td_adapter = TypeAdapter(timedelta)
+
+METADATA_TAGS = [
+    {"name": "History Statistics"},
+    {"name": "Data Extraction"},
+    {"name": "Filter Validation"},
+    {"name": "Metadata"},
+]
 
 
 @asynccontextmanager
@@ -34,12 +41,16 @@ app = FastAPI(
     root_path=CONFIG.root_path,
     lifespan=lifespan,
     openapi_url="/openapi.json",
+    openapi_tags=METADATA_TAGS,
     docs_url=None,  # configured in routers/docs.py
     redoc_url=None,
     version=VERSION,
-    title=METADATA["Name"],
-    description=METADATA["Summary"],
-    contact={"name": METADATA["Author"], "email": METADATA["Author-email"]},
+    title=METADATA_PROJECT["Name"],
+    description=METADATA_PROJECT["Summary"],
+    contact={
+        "name": METADATA_PROJECT["Author"],
+        "email": METADATA_PROJECT["Author-email"],
+    },
 )
 
 app.include_router(docs.router)
