@@ -1,20 +1,21 @@
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastapi import APIRouter, Query
-from ohsome_filter_to_sql import OhsomeFilter
+
+from ohsome_api.request_models import FilterRequestModel
+from ohsome_api.response_models import FilterResponseModel
 
 router = APIRouter()
-
-# TODO: add example by defining request and response models
 
 
 @router.get(
     "/filter/validation",
     summary="Validate filter syntax.",
-    tags=["Metadata"],
+    tags=["Filter Validation"],
+    response_model=FilterResponseModel,
 )
 async def validate_filter(
-    filter_: Annotated[OhsomeFilter, Query(alias="filter")],
-) -> dict[Literal["filter"], OhsomeFilter]:
+    query_params: Annotated[FilterRequestModel, Query()],
+) -> dict:
     # TODO add ohsome_filter_to_sql error handling
-    return {"filter": filter_}
+    return {"filter": query_params.ohsome_filter}

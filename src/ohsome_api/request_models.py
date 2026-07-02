@@ -33,6 +33,17 @@ class Measure(StrEnum):
     AREA = "area"
 
 
+class FilterRequestModel(BaseRequestModel):
+    ohsome_filter: OhsomeFilter = Field(
+        alias="filter",
+        description=(
+            "[filter language documentation]"
+            "(https://docs.ohsome.org/ohsome-api/v1/filter.html)"
+        ),
+        json_schema_extra={"example": "type:node and natural=tree"},
+    )
+
+
 class BaseTime(BaseRequestModel):
     start: datetime | Literal["earliest"] = Field(
         description=(
@@ -120,15 +131,7 @@ class TimeSeries(BaseTime):
         return value
 
 
-class BaseParameters(BaseRequestModel):
-    ohsome_filter: OhsomeFilter = Field(
-        alias="filter",
-        description=(
-            "[filter language documentation]"
-            "(https://docs.ohsome.org/ohsome-api/v1/filter.html)"
-        ),
-        json_schema_extra={"example": "type:node and natural=tree"},
-    )
+class BaseParameters(FilterRequestModel):
     aoi: Polygon | MultiPolygon = Field(
         description="Area of interest as a GeoJSON Geometry (Polygon or MultiPolygon).",
         json_schema_extra={

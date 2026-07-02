@@ -2,6 +2,7 @@
 
 from importlib.metadata import version
 
+from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -20,6 +21,10 @@ class BaseResponseModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     api_version: str = VERSION
     attribution: Attribution = Attribution()
+
+
+class FilterResponseModel(BaseResponseModel):
+    filter: OhsomeFilter
 
 
 class TimeBinsResponseModel(BaseResponseModel):
