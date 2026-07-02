@@ -14,8 +14,21 @@ router = APIRouter()
     tags=["Filter Validation"],
     response_model=FilterResponseModel,
 )
-async def validate_filter(
-    query_params: Annotated[FilterRequestModel, Query()],
+async def validate_filter_get(
+    parameters: Annotated[FilterRequestModel, Query()],
 ) -> dict:
     # TODO add ohsome_filter_to_sql error handling
-    return {"filter": query_params.ohsome_filter}
+    return {"filter": parameters.ohsome_filter}
+
+
+@router.post(
+    "/filter/validation",
+    summary="Validate filter syntax.",
+    tags=["Filter Validation"],
+    response_model=FilterResponseModel,
+)
+async def validate_filter_post(
+    parameters: FilterRequestModel,
+) -> dict:
+    # TODO add ohsome_filter_to_sql error handling
+    return {"filter": parameters.ohsome_filter}
