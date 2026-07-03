@@ -32,7 +32,7 @@ router = APIRouter(
     summary="Aggregate features by {measure} as time series.",
     tags=["History Statistics"],
 )
-async def post_features_as_cjson(
+async def post_features_as_json(
     parameters: TimeSeriesParameters,
     measure: Measure,
 ) -> dict[str, SnapshotColumns]:

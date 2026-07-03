@@ -32,7 +32,7 @@ router = APIRouter(
     summary="Active users per time bin.",
     tags=["History Statistics"],
 )
-async def post_users_activity_as_cjson(
+async def post_users_activity_as_json(
     parameters: TimeBinsParameters,
 ) -> dict[str, TimeBinColumns]:
     return {

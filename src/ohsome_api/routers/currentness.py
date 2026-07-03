@@ -32,7 +32,7 @@ router = APIRouter(
     summary="Currentness of features in time bins.",
     tags=["History Statistics"],
 )
-async def post_currentness_as_cjson(
+async def post_currentness_as_json(
     parameters: TimeBinsParameters,
     measure: Measure,
 ) -> dict[str, TimeBinColumns]:
