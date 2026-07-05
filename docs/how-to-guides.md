@@ -1,8 +1,10 @@
 # How-To Guides
 
-## How to extract features with Python?
+## Extraction
 
-How to extract OpenStreetMap data form the ohsome API with Python into a GeoDataFrame?
+### How to extract features with Python?
+
+How to extract OpenStreetMap data from the ohsome API with Python into a GeoDataFrame?
 
 ```python
 from io import BytesIO
@@ -17,8 +19,6 @@ OHSOME_API_KEY = "your-api-key"
 
 
 aoi: dict = {
-  "filter": "type:node and natural=tree",
-  "aoi": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -44,7 +44,6 @@ aoi: dict = {
         ]
       ]
     ]
-  }
 }
 osm_filter: str = "type:node and natural=tree"
 
