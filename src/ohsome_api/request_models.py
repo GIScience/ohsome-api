@@ -162,7 +162,7 @@ class TimeBinsParameters(BaseParameters):
     time_bins: TimeBins = Field(
         description=(
             "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
-            "and a bin size (ISO-8601 duration)."
+            "and a bin size (ISO-8601 duration). Last bin might not cover bin size."
         )
     )
 
@@ -171,6 +171,7 @@ class TimeSeriesParameters(BaseParameters):
     time_series: TimeSeries = Field(
         description=(
             "Time series defined using a start/end timestamp (ISO-8601, UTC) "
-            "and a interval (ISO-8601 duration)."
+            "and a interval (ISO-8601 duration). "
+            "The interval between the last two timestamp might not fit given duration."
         )
     )
