@@ -1,0 +1,20 @@
+:root {
+	--measure: 60ch;
+}
+
+:is(p, h1, h2, h3, h4, h5, h6, li, dl) {
+	/* https://clagnut.com/blog/2432/ */
+	/* NOTE: Consider using rem instead of ch (see post above) */
+	max-inline-size: var(--measure);
+}
+
+div.document,
+.document {
+	width: auto;
+	max-width: 1200px;
+}
+
+div.body,
+.body {
+	width: auto;
+}
