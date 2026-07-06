@@ -66,7 +66,7 @@ Selectors
     |                                    | (point, line, polygon, or other)   |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``area:(from..to)``                | matches features with a geometry   | ``area:(1.0 .. 1E6)``             |
-    |                                    | having an area (measured in mÂ²)    |                                  |
+    |                                    | having an area (measured in m²)    |                                   |
     |                                    | in the given range [2]_            |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``length:(from..to)``              | matches features with a geometry   | ``length:( .. 100)``              |
@@ -113,10 +113,10 @@ Selectors
 .. [1] Keep in mind that osm ids are not unique between osm types. In order to include only a specific object the id needs to be used together with an osm type filter. Alternatively, one can also use the combined type+id filter (e.g. `id:node/1234`).
 .. [2] The lower or upper bound of a range may be omitted to indicate that the values are only to be limited to be "up to" or "starting from" the given value, respectively. For example: `id:(10..)` will accept all entities with an id of 10 or higher.
 .. [3] The `changeset` filters can only be used in `contribution` based API endpoints.
-.. [4] This is using the `"Polsbyâ€“Popper test" score`_ where all values fall in the interval 0 to 1 and 1 represents a perfect circle.
-.. [5] This is using the `rectilinearity measurement by Å½uniÄ‡ and Rosin`_ where all values fall in the interval 0 to 1 and 1 represents a perfectly rectilinear geometry.
-.. _"Polsbyâ€“Popper test" score: https://en.wikipedia.org/wiki/Polsby%E2%80%93Popper_test
-.. _rectilinearity measurement by Å½uniÄ‡ and Rosin: https://www.researchgate.net/publication/221304067_A_Rectilinearity_Measurement_for_Polygons)
+.. [4] This is using the `"Polsby–Popper test" score`_ where all values fall in the interval 0 to 1 and 1 represents a perfect circle.
+.. [5] This is using the `rectilinearity measurement by Žunić and Rosin`_ where all values fall in the interval 0 to 1 and 1 represents a perfectly rectilinear geometry.
+.. _"Polsby–Popper test" score: https://en.wikipedia.org/wiki/Polsby%E2%80%93Popper_test
+.. _rectilinearity measurement by Žunić and Rosin: https://www.researchgate.net/publication/221304067_A_Rectilinearity_Measurement_for_Polygons)
 
 |
 
@@ -129,7 +129,7 @@ Operators
     +------------------------+------------------------------------+------------------------+
     |                        | **description**                    | **example**            |
     +========================+====================================+========================+
-    | ``(â€¦)``              | can be used to change              | ``highway=primary and  |
+    | ``(…)``                | can be used to change              | ``highway=primary and  |
     |                        | precedence of operators            | (name=* or ref=*)``    |
     +------------------------+------------------------------------+------------------------+
     | ``not X``              | negates the following filter       | ``not type:node``      |
@@ -223,7 +223,7 @@ Here's some useful examples for querying some OSM features:
     | implausibly      | | ``geometry:polygon and building=* and``              | The currently largest        |
     | large            | | ``building!=no and area:(1E6..)``                    | building by footprint area   |
     | buildings        |                                                        | is a car factory building    |
-    |                  |                                                        | measuring about 887,800 mÂ². |
+    |                  |                                                        | measuring about 887,800 m².  |
     +------------------+--------------------------------------------------------+------------------------------+
      
 |
