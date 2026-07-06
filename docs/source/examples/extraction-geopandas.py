@@ -5,7 +5,7 @@ import geopandas
 import httpx
 import pandas
 
-BASE_URL = "https://api.heigit.org/ohsome-api-staging/v2"
+BASE_URL = "https://api.heigit.org/ohsome-api/v2"
 OHSOME_API_URL = BASE_URL + "/features/extraction.parquet"
 OHSOME_API_KEY = os.environ["OHSOME_API_KEY"]
 
