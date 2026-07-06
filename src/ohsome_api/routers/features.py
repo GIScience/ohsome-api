@@ -7,8 +7,12 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import SnapshotColumns
-from ohsome_api.request_models import BaseParameters, Measure, TimeSeriesParameters
+from ohsome_api.models import MeasureEnum, SnapshotColumns
+from ohsome_api.request_models import (
+    MeasureRequestModel,
+    RequestParametersModel,
+    TimeSeriesRequestParametersModel,
+)
 from ohsome_api.response_models import (
     SnapshotColumnsResponseModel,
     SnapshotsResponseModel,
@@ -33,8 +37,8 @@ router = APIRouter(
     tags=["History Statistics"],
 )
 async def post_features_as_json(
-    parameters: TimeSeriesParameters,
-    measure: Measure,
+    parameters: TimeSeriesRequestParametersModel,
+    measure: MeasureRequestModel,
 ) -> dict[str, SnapshotColumns]:
     return {
         "result": await service.get_features_columns(
@@ -43,7 +47,7 @@ async def post_features_as_json(
             end=parameters.time_series.end,
             interval=parameters.time_series.interval,
             aoi_wkt=parameters.aoi_wkt,
-            measure=measure,
+            measure=cast(MeasureEnum, measure),
         )
     }
 
@@ -67,8 +71,8 @@ async def post_features_as_json(
     tags=["History Statistics"],
 )
 async def post_features_as_csv(
-    parameters: TimeSeriesParameters,
-    measure: Measure,
+    parameters: TimeSeriesRequestParametersModel,
+    measure: MeasureRequestModel,
 ) -> dict[str, list]:
     return {
         "result": await service.get_features_rows(
@@ -77,7 +81,7 @@ async def post_features_as_csv(
             end=parameters.time_series.end,
             interval=parameters.time_series.interval,
             aoi_wkt=parameters.aoi_wkt,
-            measure=measure,
+            measure=cast(MeasureEnum, measure),
         )
     }
 
@@ -89,7 +93,7 @@ async def post_features_as_csv(
     tags=["Data Extraction"],
 )
 async def post_contributions_extract(
-    parameters: BaseParameters,
+    parameters: RequestParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_features_as_parquet(
         parameters.ohsome_filter,
@@ -109,7 +113,7 @@ async def post_contributions_extract(
     tags=["Data Extraction"],
 )
 async def post_contributions_extract_arrow(
-    parameters: BaseParameters,
+    parameters: RequestParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_features_as_arrow(
         parameters.ohsome_filter,

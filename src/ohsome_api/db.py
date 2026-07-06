@@ -5,8 +5,12 @@ from asyncpg import Record
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.models import ExtractionRow, SnapshotColumns, TimeBinColumns
-from ohsome_api.request_models import Measure
+from ohsome_api.models import (
+    ExtractionRow,
+    MeasureEnum,
+    SnapshotColumns,
+    TimeBinColumns,
+)
 
 SCHEMA = CONFIG.ohsomedb.schemaname
 
@@ -74,13 +78,13 @@ async def get_currentness(  # noqa: PLR0913
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-    measure: Measure,
+    measure: MeasureEnum,
 ) -> TimeBinColumns:
     filter_args_count = len(filter_args)
     match measure:
-        case Measure.COUNT:
+        case MeasureEnum.COUNT:
             aggregation_clause = "COUNT(*) AS value"
-        case Measure.LENGTH:
+        case MeasureEnum.LENGTH:
             # [m]
             aggregation_clause = """
             ROUND(
@@ -101,7 +105,7 @@ async def get_currentness(  # noqa: PLR0913
                 )
             ) AS value
         """
-        case Measure.AREA:
+        case MeasureEnum.AREA:
             # [m²]
             aggregation_clause = """
             ROUND(
@@ -217,13 +221,13 @@ async def get_features(  # noqa: C901, PLR0913
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-    measure: Measure,
+    measure: MeasureEnum,
 ) -> SnapshotColumns:
     filter_args_count = len(filter_args)
     match measure:
-        case Measure.COUNT:
+        case MeasureEnum.COUNT:
             aggregation_clause = "COUNT(*) AS value"
-        case Measure.LENGTH:
+        case MeasureEnum.LENGTH:
             # [m]
             aggregation_clause = """
             ROUND(
@@ -244,7 +248,7 @@ async def get_features(  # noqa: C901, PLR0913
                 )
             ) AS value
         """
-        case Measure.AREA:
+        case MeasureEnum.AREA:
             # [m²]
             aggregation_clause = """
             ROUND(

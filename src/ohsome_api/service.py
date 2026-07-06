@@ -7,6 +7,7 @@ from ohsome_api import db
 from ohsome_api.db import generate_timestamp_series
 from ohsome_api.models import (
     ExtractionRow,
+    MeasureEnum,
     Metadata,
     SnapshotColumns,
     SnapshotRow,
@@ -14,7 +15,6 @@ from ohsome_api.models import (
     TimeBinRow,
 )
 from ohsome_api.parquet import ArrowSink, ParquetSink
-from ohsome_api.request_models import Measure
 
 # TODO: Should we pass AOI as some kind of Geom Type instead of str through to DB?
 
@@ -30,7 +30,7 @@ async def get_currentness_row(  # noqa: PLR0913
     end: datetime,
     bin_size: str | None,
     aoi_wkt: str,
-    measure: Measure,
+    measure: MeasureEnum,
 ) -> list[TimeBinRow]:
     columns = await get_currentness_columns(
         ohsome_filter, start, end, bin_size, aoi_wkt, measure
@@ -49,7 +49,7 @@ async def get_currentness_columns(  # noqa: PLR0913
     end: datetime,
     bin_size: str | None,
     aoi_wkt: str,
-    measure: Measure,
+    measure: MeasureEnum,
 ) -> TimeBinColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, bin_size)
@@ -111,7 +111,7 @@ async def get_features_rows(  # noqa: PLR0913
     end: datetime,
     interval: str | None,
     aoi_wkt: str,
-    measure: Measure,
+    measure: MeasureEnum,
 ) -> list[SnapshotRow]:
     columns = await get_features_columns(
         ohsome_filter, start, end, interval, aoi_wkt, measure
@@ -129,7 +129,7 @@ async def get_features_columns(  # noqa: PLR0913
     end: datetime,
     interval: str | None,
     aoi_wkt: str,
-    measure: Measure,
+    measure: MeasureEnum,
 ) -> SnapshotColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     series = await generate_timestamp_series(start, end, interval)

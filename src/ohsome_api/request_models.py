@@ -19,7 +19,7 @@ from pydantic.alias_generators import to_camel
 td_adapter = TypeAdapter(timedelta)
 
 
-class BaseRequestModel(BaseModel):
+class RequestConfigModel(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True,
@@ -27,13 +27,13 @@ class BaseRequestModel(BaseModel):
     )
 
 
-class Measure(StrEnum):
+class MeasureRequestModel(StrEnum):
     COUNT = "count"
     LENGTH = "length"
     AREA = "area"
 
 
-class FilterRequestModel(BaseRequestModel):
+class FilterRequestModel(RequestConfigModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
         description=(
@@ -44,7 +44,34 @@ class FilterRequestModel(BaseRequestModel):
     )
 
 
-class BaseTime(BaseRequestModel):
+class AoiRequestModel(RequestConfigModel):
+    aoi: Polygon | MultiPolygon = Field(
+        description="Area of interest as a GeoJSON Geometry (Polygon or MultiPolygon).",
+        json_schema_extra={
+            "examples": [
+                {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [8.72362, 49.41582],
+                            [8.68812, 49.41582],
+                            [8.68812, 49.40390],
+                            [8.72362, 49.40390],
+                            [8.72362, 49.41582],
+                        ]
+                    ],
+                },
+            ]
+        },
+    )
+
+    @computed_field()
+    @property
+    def aoi_wkt(self) -> str:
+        return self.aoi.wkt
+
+
+class TimeRequestModel(RequestConfigModel):
     start: datetime | Literal["earliest"] = Field(
         description=(
             "Start timestamp (ISO-8601, UTC). "
@@ -99,7 +126,7 @@ class BaseTime(BaseRequestModel):
         raise ValueError("End timestamp needs to be greater than start timestamp.")
 
 
-class TimeBins(BaseTime):
+class TimeBinsRequestModel(TimeRequestModel):
     bin_size: str | None = Field(
         default=None,
         description="Bin size (ISO-8601 duration).",
@@ -115,7 +142,7 @@ class TimeBins(BaseTime):
         return value
 
 
-class TimeSeries(BaseTime):
+class TimeSeriesRequestModel(TimeRequestModel):
     interval: str | None = Field(
         default=None,
         description="Interval (ISO-8601 duration).",
@@ -131,35 +158,12 @@ class TimeSeries(BaseTime):
         return value
 
 
-class BaseParameters(FilterRequestModel):
-    aoi: Polygon | MultiPolygon = Field(
-        description="Area of interest as a GeoJSON Geometry (Polygon or MultiPolygon).",
-        json_schema_extra={
-            "examples": [
-                {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [8.72362, 49.41582],
-                            [8.68812, 49.41582],
-                            [8.68812, 49.40390],
-                            [8.72362, 49.40390],
-                            [8.72362, 49.41582],
-                        ]
-                    ],
-                },
-            ]
-        },
-    )
-
-    @computed_field()
-    @property
-    def aoi_wkt(self) -> str:
-        return self.aoi.wkt
+class RequestParametersModel(AoiRequestModel, FilterRequestModel):
+    pass
 
 
-class TimeBinsParameters(BaseParameters):
-    time_bins: TimeBins = Field(
+class TimeBinsRequestParametersModel(AoiRequestModel, FilterRequestModel):
+    time_bins: TimeBinsRequestModel = Field(
         description=(
             "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
             "and a bin size (ISO-8601 duration). Last bin might not cover bin size."
@@ -167,8 +171,8 @@ class TimeBinsParameters(BaseParameters):
     )
 
 
-class TimeSeriesParameters(BaseParameters):
-    time_series: TimeSeries = Field(
+class TimeSeriesRequestParametersModel(AoiRequestModel, FilterRequestModel):
+    time_series: TimeSeriesRequestModel = Field(
         description=(
             "Time series defined using a start/end timestamp (ISO-8601, UTC) "
             "and a interval (ISO-8601 duration). "

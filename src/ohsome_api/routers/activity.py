@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import TimeBinColumns, TimeBinRow
-from ohsome_api.request_models import TimeBinsParameters
+from ohsome_api.request_models import TimeBinsRequestParametersModel
 from ohsome_api.response_models import (
     TimeBinsColumnsResponseModel,
     TimeBinsResponseModel,
@@ -33,7 +33,7 @@ router = APIRouter(
     tags=["History Statistics"],
 )
 async def post_users_activity_as_json(
-    parameters: TimeBinsParameters,
+    parameters: TimeBinsRequestParametersModel,
 ) -> dict[str, TimeBinColumns]:
     return {
         "result": await service.get_users_activity_columns(
@@ -65,7 +65,7 @@ async def post_users_activity_as_json(
     tags=["History Statistics"],
 )
 async def post_users_activity_as_csv(
-    parameters: TimeBinsParameters,
+    parameters: TimeBinsRequestParametersModel,
 ) -> dict[str, list[TimeBinRow]]:
     return {
         "result": await service.get_users_activity_rows(

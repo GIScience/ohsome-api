@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import StrEnum
 from typing import TypedDict
 
 from pydantic import BaseModel, ConfigDict
@@ -14,6 +15,12 @@ class Metadata(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     latest_timestamp: datetime
     earliest_timestamp: datetime
+
+
+class MeasureEnum(StrEnum):
+    COUNT = "count"
+    LENGTH = "length"
+    AREA = "area"
 
 
 class TimeBinRow(BaseModel):
