@@ -214,7 +214,7 @@ def zerofill_records_to_time_bin_columns(
 
 # TODO: decide what to do about too many arguments linter
 # TODO: fix complexity lint warning
-async def get_features(  # noqa: C901, PLR0913
+async def get_features(  # noqa: PLR0913
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
