@@ -6,6 +6,10 @@
 Welcome to the documentation of the ohsome API!
 ===============================================
 
+.. image:: _static/ohsome-logo.svg
+    :alt: logo of ohsome
+    :align: right
+
 HTTP API for OpenStreetMap history statistics and extractions.
 
 .. toctree::

@@ -48,5 +48,5 @@ exclude_patterns = []
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
-# html_logo = "logo.svg"
-html_favicon = "favicon.svg"
+# html_logo = "_static/ohsome-logo.svg"
+html_favicon = "_static/heigit-favicon.svg"
