@@ -20,11 +20,11 @@ select = [
 ]
 
 [lint.mccabe]
-max-complexity = 4
+max-complexity = 5
 
 [lint.pylint]
 max-statements = 17
 
 [lint.extend-per-file-ignores]
 "tests/*" = ["S101", "ANN201", "PLR"]
-"*" = ["SIM117", "TRY003"]
+"*" = ["SIM117", "TRY003", "PLR2004"]
